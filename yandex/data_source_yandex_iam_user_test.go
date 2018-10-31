@@ -148,21 +148,21 @@ func testAccDataSourceYandexLoginHasID(user *iam.UserAccount, id string) resourc
 func testAccCheckYandexLogin(login1, login2 string) string {
 	return fmt.Sprintf(`
 data "yandex_iam_user" "foo" {
-  login = "%s"
+    login = "%s"
 }
 
 data "yandex_iam_user" "bar" {
-  login = "%s"
+    login = "%s"
 }`, login1, login2)
 }
 
 func testAccCheckYandexUserID(userID1, userID2 string) string {
 	return fmt.Sprintf(`
 data "yandex_iam_user" "foo" {
-  user_id = "%s"
+    user_id = "%s"
 }
 
 data "yandex_iam_user" "bar" {
-  user_id = "%s"
+    user_id = "%s"
 }`, userID1, userID2)
 }

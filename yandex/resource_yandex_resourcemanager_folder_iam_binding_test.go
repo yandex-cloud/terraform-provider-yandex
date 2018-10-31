@@ -361,8 +361,8 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  members = ["userAccount:%s"]
-  role    = "admin"
+  members   = ["userAccount:%s"]
+  role      = "admin"
 
   depends_on = [%s]
 }
@@ -378,16 +378,16 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  members = ["userAccount:%s"]
-  role    = "admin"
+  members   = ["userAccount:%s"]
+  role      = "admin"
 
   depends_on = [%s]
 }
 
 resource "yandex_resourcemanager_folder_iam_binding" "multiple" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  members = ["userAccount:%s"]
-  role    = "viewer"
+  members   = ["userAccount:%s"]
+  role      = "viewer"
 
   depends_on = [%s]
 }
@@ -403,8 +403,8 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_binding" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  members = ["userAccount:%s", "userAccount:%s"]
-  role    = "admin"
+  members   = ["userAccount:%s", "userAccount:%s"]
+  role      = "admin"
 
   depends_on = [%s]
 }
@@ -420,8 +420,8 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_binding" "dropped" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  members = ["userAccount:%s"]
-  role    = "admin"
+  members   = ["userAccount:%s"]
+  role      = "admin"
 
   depends_on = [%s]
 }

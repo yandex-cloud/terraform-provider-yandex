@@ -181,7 +181,7 @@ data "yandex_iam_policy" "test" {
 }
 
 resource "yandex_resourcemanager_folder_iam_policy" "test" {
-  folder_id = "${data.yandex_resourcemanager_folder.permissiontest.id}"
+  folder_id   = "${data.yandex_resourcemanager_folder.permissiontest.id}"
   policy_data = "${data.yandex_iam_policy.test.policy_data}"
 
   depends_on = [%s]

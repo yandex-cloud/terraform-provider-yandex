@@ -23,7 +23,6 @@ var testAccProviders map[string]terraform.ResourceProvider
 var testAccProvider *schema.Provider
 
 var testAccEnvVars = []string{
-	"YC_ENDPOINT",
 	"YC_FOLDER_ID",
 	"YC_CLOUD_ID",
 	"YC_ZONE",
@@ -176,9 +175,14 @@ func getExampleUserLogin2() string {
 
 func setTestIDs() error {
 	// init sdk client based on env var
+	envEndpoint := os.Getenv("YC_ENDPOINT")
+	if envEndpoint == "" {
+		envEndpoint = defaultEnpoint
+	}
+
 	config := &sdk.Config{
 		OAuthToken: os.Getenv("YC_TOKEN"),
-		Endpoint:   os.Getenv("YC_ENDPOINT"),
+		Endpoint:   envEndpoint,
 	}
 
 	ctx := context.Background()

@@ -81,6 +81,13 @@ func resourceYandexVPCSubnet() *schema.Resource {
 					ValidateFunc: validateIPV4CidrBlocks,
 				},
 			},
+			"v6_cidr_blocks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 
@@ -104,12 +111,21 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	ranges := []string{}
+	rangesV4 := []string{}
 
 	if v, ok := d.GetOk("v4_cidr_blocks"); ok {
 		vS := v.([]interface{})
 		for _, cidr := range vS {
-			ranges = append(ranges, cidr.(string))
+			rangesV4 = append(rangesV4, cidr.(string))
+		}
+	}
+
+	rangesV6 := []string{}
+
+	if v, ok := d.GetOk("v6_cidr_blocks"); ok {
+		vS := v.([]interface{})
+		for _, cidr := range vS {
+			rangesV6 = append(rangesV6, cidr.(string))
 		}
 	}
 
@@ -120,7 +136,8 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		Description:  d.Get("description").(string),
 		Labels:       labels,
 		NetworkId:    d.Get("network_id").(string),
-		V4CidrBlocks: ranges,
+		V4CidrBlocks: rangesV4,
+		V6CidrBlocks: rangesV6,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
@@ -169,6 +186,7 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("network_id", network.NetworkId)
 	d.Set("zone", network.ZoneId)
 	d.Set("v4_cidr_blocks", convertStringArrToInterface(network.V4CidrBlocks))
+	d.Set("v6_cidr_blocks", convertStringArrToInterface(network.V6CidrBlocks))
 
 	return nil
 }

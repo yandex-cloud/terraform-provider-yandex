@@ -160,8 +160,8 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_member" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  member  = "userAccount:%s"
-  role    = "admin"
+  member    = "userAccount:%s"
+  role      = "admin"
 
   depends_on = [%s]
 }
@@ -178,16 +178,16 @@ data "yandex_resourcemanager_folder" "acceptance" {
 
 resource "yandex_resourcemanager_folder_iam_member" "acceptance" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  member  = "userAccount:%s"
-  role    = "admin"
+  member    = "userAccount:%s"
+  role      = "admin"
 
   depends_on = [%s]
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "multiple" {
   folder_id = "${data.yandex_resourcemanager_folder.acceptance.id}"
-  member  = "userAccount:%s"
-  role    = "admin"
+  member    = "userAccount:%s"
+  role      = "admin"
 
   depends_on = [%s]
 }

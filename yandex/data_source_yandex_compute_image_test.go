@@ -75,9 +75,9 @@ resource "yandex_compute_image" "image" {
 }
 
 resource "yandex_compute_disk" "disk" {
-    name     = "%s-disk"
-    zone     = "ru-central1-a"
-    size     = 4
+    name = "%s-disk"
+    zone = "ru-central1-a"
+    size = 4
 }
 
 data "yandex_compute_image" "from_id" {

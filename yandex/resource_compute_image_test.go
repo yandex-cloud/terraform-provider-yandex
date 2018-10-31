@@ -320,7 +320,7 @@ resource "yandex_compute_image" "foobar" {
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {

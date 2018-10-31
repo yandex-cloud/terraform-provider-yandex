@@ -59,7 +59,7 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 func testAccServiceAccountKey(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
-	name = "%s"
+	name        = "%s"
 	description = "%s"
 }
 

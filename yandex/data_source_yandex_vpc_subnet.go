@@ -54,6 +54,13 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"v6_cidr_blocks": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -85,6 +92,7 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("network_id", subnet.NetworkId)
 	d.Set("zone", subnet.ZoneId)
 	d.Set("v4_cidr_blocks", subnet.V4CidrBlocks)
+	d.Set("v6_cidr_blocks", subnet.V6CidrBlocks)
 	d.SetId(subnet.Id)
 
 	return nil

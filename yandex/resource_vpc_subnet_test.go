@@ -50,6 +50,45 @@ func TestAccVPCSubnet_basic(t *testing.T) {
 	})
 }
 
+func TestAccVPCSubnet_basicV6(t *testing.T) {
+	t.Skip("waiting ipv6 support in subnets")
+	t.Parallel()
+
+	var subnet1 vpc.Subnet
+	var subnet2 vpc.Subnet
+
+	cnName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnet1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	subnet2Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCSubnetDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccVPCSubnet_basicV6(cnName, subnet1Name, subnet2Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists(
+						"yandex_vpc_subnet.subnet-a", &subnet1),
+					testAccCheckVPCSubnetExists(
+						"yandex_vpc_subnet.subnet-b", &subnet2),
+				),
+			},
+			resource.TestStep{
+				ResourceName:      "yandex_vpc_subnet.subnet-a",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			resource.TestStep{
+				ResourceName:      "yandex_vpc_subnet.subnet-b",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckVPCSubnetDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -118,6 +157,31 @@ resource "yandex_vpc_subnet" "subnet-b" {
 	zone           = "ru-central1-b"
 	network_id     = "${yandex_vpc_network.custom-test.id}"
 	v4_cidr_blocks = ["10.1.0.0/16"]
+}
+
+`, cnName, subnet1Name, subnet2Name)
+}
+
+func testAccVPCSubnet_basicV6(cnName, subnet1Name, subnet2Name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "custom-test" {
+	name = "%s"
+}
+
+resource "yandex_vpc_subnet" "subnet-a" {
+	name           = "%s"
+	zone           = "ru-central1-a"
+	network_id     = "${yandex_vpc_network.custom-test.id}"
+	v4_cidr_blocks = ["10.0.0.0/16"]
+	v6_cidr_blocks = ["fda9:8765:4321:1::/64"]
+}
+
+resource "yandex_vpc_subnet" "subnet-b" {
+	name           = "%s"
+	zone           = "ru-central1-b"
+	network_id     = "${yandex_vpc_network.custom-test.id}"
+	v4_cidr_blocks = ["10.1.0.0/16"]
+	v6_cidr_blocks = ["fda9:8765:4321:2::/64"]
 }
 
 `, cnName, subnet1Name, subnet2Name)

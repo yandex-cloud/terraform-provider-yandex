@@ -1,7 +1,6 @@
 ## 0.1.0 (Unreleased)
 
 FEATURES:
-
 * **New Data Source:** `yandex_compute_disk`
 * **New Data Source:** `yandex_compute_image`
 * **New Data Source:** `yandex_compute_instance`
@@ -31,3 +30,7 @@ FEATURES:
 * **New Resource:** `yandex_resourcemanager_folder_iam_binding`
 * **New Resource:** `yandex_resourcemanager_folder_iam_member`
 * **New Resource:** `yandex_resourcemanager_folder_iam_policy`
+
+ENHANCEMENTS:
+* compute: support IPv6 addresses
+* vpc: support IPv6 addresses

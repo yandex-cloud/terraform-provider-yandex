@@ -296,8 +296,8 @@ func testAccCloudAssociateMemberBasic(cloudID, role, userID string) string {
 	return prerequisiteMembership + fmt.Sprintf(`
 resource "yandex_resourcemanager_cloud_iam_member" "acceptance" {
   cloud_id = "%s"
-  role    = "%s"
-  member  = "userAccount:%s"
+  role     = "%s"
+  member   = "userAccount:%s"
 
   depends_on = [%s]
 }

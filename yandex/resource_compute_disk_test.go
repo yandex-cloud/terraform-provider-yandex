@@ -222,7 +222,7 @@ func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) reso
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
@@ -239,7 +239,7 @@ resource "yandex_compute_disk" "foobar" {
 func testAccComputeDisk_timeout() string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
@@ -257,7 +257,7 @@ resource "yandex_compute_disk" "foobar" {
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
@@ -275,14 +275,14 @@ resource "yandex_compute_disk" "foobar" {
 func testAccComputeDisk_fromSnapshot(folderName, firstDiskName, snapshotName, secondDiskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name      = "d1-%s"
+	name     = "d1-%s"
 	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size      = 4
-	type      = "network-hdd"
+	size     = 4
+	type     = "network-hdd"
 }
 
 resource "yandex_compute_snapshot" "snapdisk" {
@@ -301,7 +301,7 @@ resource "yandex_compute_disk" "seconddisk" {
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family  = "ubuntu-1804-lts"
+	family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foo" {
@@ -315,8 +315,8 @@ resource "yandex_compute_instance" "bar" {
 	name = "%s"
 
     resources {
+        cores  = 1
 		memory = 2
-        cores = 1
 	}
 
 	boot_disk {
@@ -339,9 +339,9 @@ resource "yandex_vpc_network" "foo-network" {
 }
 
 resource "yandex_vpc_subnet" "bar-subnet" {
-    zone          = "ru-central1-a"
-    name          = "testacccomputedisk-deletedetach"
-	network_id    = "${yandex_vpc_network.foo-network.id}"
+    zone           = "ru-central1-a"
+    name           = "testacccomputedisk-deletedetach"
+	network_id     = "${yandex_vpc_network.foo-network.id}"
     v4_cidr_blocks = ["192.168.0.0/24"]
 }
 

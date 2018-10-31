@@ -226,6 +226,17 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
+						"ipv6": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"ipv6_address": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -323,7 +334,7 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
@@ -468,21 +479,30 @@ func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInt
 		flattened[i] = map[string]interface{}{
 			"index":       index,
 			"mac_address": iface.MacAddress,
-			"ip_address":  iface.PrimaryV4Address.Address,
 			"subnet_id":   iface.SubnetId,
 		}
 
-		if iface.PrimaryV4Address.OneToOneNat != nil {
-			flattened[i]["nat"] = true
-			flattened[i]["nat_ip_address"] = iface.PrimaryV4Address.OneToOneNat.Address
-			flattened[i]["nat_ip_version"] = iface.PrimaryV4Address.OneToOneNat.IpVersion.String()
-			if externalIP == "" {
-				externalIP = iface.PrimaryV4Address.OneToOneNat.Address
+		if iface.PrimaryV4Address != nil {
+			flattened[i]["ip_address"] = iface.PrimaryV4Address.Address
+
+			if iface.PrimaryV4Address.OneToOneNat != nil {
+				flattened[i]["nat"] = true
+				flattened[i]["nat_ip_address"] = iface.PrimaryV4Address.OneToOneNat.Address
+				flattened[i]["nat_ip_version"] = iface.PrimaryV4Address.OneToOneNat.IpVersion.String()
+				if externalIP == "" {
+					externalIP = iface.PrimaryV4Address.OneToOneNat.Address
+				}
+			} else {
+				flattened[i]["nat"] = false
 			}
-		} else {
-			flattened[i]["nat"] = false
+		}
+
+		if iface.PrimaryV6Address != nil {
+			flattened[i]["ipv6"] = true
+			flattened[i]["ipv6_address"] = iface.PrimaryV6Address.Address
 		}
 	}
+
 	return flattened, externalIP, nil
 }
 
@@ -940,18 +960,48 @@ func prepareNetwork(req *compute.CreateInstanceRequest, d *schema.ResourceData) 
 		}
 
 		nics[i] = &compute.NetworkInterfaceSpec{
-			SubnetId:             subnetID,
-			PrimaryV4AddressSpec: &compute.PrimaryAddressSpec{},
+			SubnetId: subnetID,
 		}
-		if ipAddress, ok := data["ip_address"].(string); ok && ipAddress != "" {
-			nics[i].PrimaryV4AddressSpec.Address = ipAddress
+
+		ipV4Address := data["ip_address"].(string)
+		ipV6Address := data["ipv6_address"].(string)
+
+		// By default allocate any unassigned IPv4 address
+		if ipV4Address == "" && ipV6Address == "" {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
 		}
+
+		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
+			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{}
+		}
+
+		if ipV4Address != "" {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+				Address: ipV4Address,
+			}
+		}
+
+		if ipV6Address != "" {
+			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{
+				Address: ipV6Address,
+			}
+		}
+
 		if enableNat, ok := data["nat"].(bool); ok && enableNat {
-			nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = &compute.OneToOneNatSpec{
-				IpVersion: compute.IpVersion_IPV4,
+			if nics[i].PrimaryV4AddressSpec == nil {
+				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+					OneToOneNatSpec: &compute.OneToOneNatSpec{
+						IpVersion: compute.IpVersion_IPV4,
+					},
+				}
+			} else {
+				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = &compute.OneToOneNatSpec{
+					IpVersion: compute.IpVersion_IPV4,
+				}
 			}
 		}
 	}
+
 	req.NetworkInterfaceSpecs = nics
 	return nil
 }

@@ -199,7 +199,7 @@ data "yandex_iam_policy" "foo" {
 
 resource "yandex_iam_service_account_iam_policy" "foo" {
   service_account_id = "${yandex_iam_service_account.test_account.id}"
-  policy_data = "${data.yandex_iam_policy.foo.policy_data}"
+  policy_data        = "${data.yandex_iam_policy.foo.policy_data}"
 
   depends_on = [%s]
 }

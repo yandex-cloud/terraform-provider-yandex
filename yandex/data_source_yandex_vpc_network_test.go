@@ -78,7 +78,7 @@ data "yandex_vpc_network" "bar" {
 }
 
 resource "yandex_vpc_network" "foo" {
-	name = "%s"
+	name        = "%s"
 	description = "%s"
 }`, name, desc)
 }

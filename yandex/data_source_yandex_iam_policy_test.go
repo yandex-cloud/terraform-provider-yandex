@@ -20,7 +20,6 @@ func TestAccDataSourceYandexIAMPolicy(t *testing.T) {
 			{
 				Config: testAccDataSourceYandexIAMPolicy(),
 				Check: resource.ComposeTestCheckFunc(
-					//resource.TestCheckResourceAttrSet("data.yandex_iam_policy.foo","binding"),
 					resource.TestCheckResourceAttrSet("data.yandex_iam_policy.foo", "policy_data"),
 					testPolicyUnmarshal("data.yandex_iam_policy.foo"),
 				),
@@ -69,18 +68,18 @@ func testAccDataSourceYandexIAMPolicy() string {
 	return fmt.Sprintf(`
 data "yandex_iam_policy" "foo" {
   binding {
-    role = "role_editor"
+    role = "editor"
     members = [
-	  "user:user1@yandex.ru",
-      "user:user2@yandex.ru"
+	  "userAccount:some_user_id_1",
+      "userAccount:some_user_id_2"
     ]
   }
 
   binding {
-    role = "role_owner"
+    role = "owner"
     members = [
-	  "user:user2@yandex.ru",
-      "user:user10@yandex.ru"
+	  "userAccount:some_user_id_1",
+      "userAccount:some_user_id_2"
     ]
   } 
 }
