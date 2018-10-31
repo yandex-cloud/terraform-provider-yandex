@@ -1,6 +1,6 @@
 {
 	"comment": "",
-	"ignore": "appengine test github.com/hashicorp/nomad/ github.com/hashicorp/terraform/backend github.com/Azure/azure-sdk-for-go/arm/storage",
+	"ignore": "appengine test github.com/hashicorp/nomad/ github.com/hashicorp/terraform/backend",
 	"package": [
 		{
 			"checksumSHA1": "j/0+O4eJ99Jrb9un/bwi5npLyOM=",
@@ -49,10 +49,6 @@
 			"path": "contrib.go.opencensus.io/exporter/ocagent",
 			"revision": "b8ece14a43f0cda76036504e4a4fd7fa27ce1869",
 			"revisionTime": "2018-10-24T04:13:55Z"
-		},
-		{
-			"path": "github.com/Azure/azure-sdk-for-go/arm/storage",
-			"revision": ""
 		},
 		{
 			"checksumSHA1": "Fo0yAWjaIGDb4GNhqnLCgyaPzNI=",
@@ -1875,110 +1871,6 @@
 		{
 			"checksumSHA1": "IJHDPI3QlG2ngD+FUnx1ywAF4SE=",
 			"path": "github.com/hashicorp/terraform",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "Lt0BvuicwH/QDESGRCiIVMcvGcA=",
-			"path": "github.com/hashicorp/terraform/backend",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "ZWqZhZxaT2AMNy4dzCcvMKc46GY=",
-			"path": "github.com/hashicorp/terraform/backend/atlas",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "StxVDAMzeMUdXUcRbjcuDxm8GD0=",
-			"path": "github.com/hashicorp/terraform/backend/init",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "ISwgLoSPkcEYAcwFoYu5FNsMDD0=",
-			"path": "github.com/hashicorp/terraform/backend/legacy",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "6lYtXlw0m7ckwIa33Ti6H78vKlY=",
-			"path": "github.com/hashicorp/terraform/backend/local",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "dL2tWGJpT3ohSID91w/6wQaFhX0=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/azure",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "hs39fP+wdfuvpN/lsMpYwUZUV8I=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/consul",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "SllujprNPMotiPKfcPsQRF/7r64=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/etcdv3",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "f3yx01Ezeb73jGfiDJqFznZUXsg=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/gcs",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "uJi6XL6OFIzU0r3G0YX0L3YzxRE=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/inmem",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "w2C1Z3oO2bBY6uo3fUaSYtleFak=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/manta",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "YmJfqo/00+fOyycxFZjDQZbdyyo=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/s3",
-			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
-			"revisionTime": "2018-04-10T16:50:42Z",
-			"version": "=v0.11.7",
-			"versionExact": "v0.11.7"
-		},
-		{
-			"checksumSHA1": "l0SZPCxWxxlYHOedkUCZUCWw4R0=",
-			"path": "github.com/hashicorp/terraform/backend/remote-state/swift",
 			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
 			"revisionTime": "2018-04-10T16:50:42Z",
 			"version": "=v0.11.7",
