@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -183,11 +184,15 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("description", disk.Description)
-	d.Set("status", disk.Status)
+	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("type", disk.TypeId)
 	d.Set("size", toGigabytes(disk.Size))
-	d.Set("labels", disk.Labels)
-	d.Set("product_ids", disk.ProductIds)
+	if err := d.Set("product_ids", disk.ProductIds); err != nil {
+		return err
+	}
+	if err := d.Set("labels", disk.Labels); err != nil {
+		return err
+	}
 	d.Set("source_image_id", disk.GetSourceImageId())
 	d.Set("source_snapshot_id", disk.GetSourceSnapshotId())
 

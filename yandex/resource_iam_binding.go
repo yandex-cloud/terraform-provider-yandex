@@ -119,7 +119,9 @@ func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.
 			return nil
 		}
 
-		d.Set("members", roleToMembersList(role, mBindings))
+		if err := d.Set("members", roleToMembersList(role, mBindings)); err != nil {
+			return err
+		}
 		d.Set("role", role)
 		return nil
 	}

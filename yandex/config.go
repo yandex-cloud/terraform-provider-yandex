@@ -22,15 +22,15 @@ type Config struct {
 	Insecure  bool
 
 	userAgent string
-	sdk       *sdk.SDK
+	sdk       *ycsdk.SDK
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
 func (c *Config) initAndValidate() error {
-	yandexSDKConfig := &sdk.Config{
-		OAuthToken: c.Token,
-		Endpoint:   c.Endpoint,
-		Plaintext:  c.Plaintext,
+	yandexSDKConfig := &ycsdk.Config{
+		Credentials: ycsdk.OAuthToken(c.Token),
+		Endpoint:    c.Endpoint,
+		Plaintext:   c.Plaintext,
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: c.Insecure,
 		},
@@ -42,7 +42,7 @@ func (c *Config) initAndValidate() error {
 	headerMD := metadata.Pairs("user-agent", c.userAgent)
 
 	var err error
-	c.sdk, err = sdk.Build(context.Background(), *yandexSDKConfig,
+	c.sdk, err = ycsdk.Build(context.Background(), *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)))
 

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -75,7 +76,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	d.Set("description", folder.Description)
 	d.Set("labels", folder.Labels)
 	d.Set("cloud_id", folder.CloudId)
-	d.Set("status", folder.Status.String())
+	d.Set("status", strings.ToLower(folder.Status.String()))
 	d.Set("created_at", createdAt)
 	d.SetId(folder.Id)
 

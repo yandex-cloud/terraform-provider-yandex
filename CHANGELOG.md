@@ -26,7 +26,6 @@ FEATURES:
 * **New Resource:** `yandex_vpc_subnet`
 * **New Resource:** `yandex_resourcemanager_cloud_iam_binding`
 * **New Resource:** `yandex_resourcemanager_cloud_iam_member`
-* **New Resource:** `yandex_resourcemanager_cloud_iam_policy`
 * **New Resource:** `yandex_resourcemanager_folder_iam_binding`
 * **New Resource:** `yandex_resourcemanager_folder_iam_member`
 * **New Resource:** `yandex_resourcemanager_folder_iam_policy`

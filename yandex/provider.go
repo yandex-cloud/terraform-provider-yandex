@@ -85,7 +85,6 @@ func Provider() terraform.ResourceProvider {
 			"yandex_iam_service_account_key":            resourceYandexIAMServiceAccountKey(),
 			"yandex_resourcemanager_cloud_iam_binding":  ResourceIamBindingWithImport(IamCloudSchema, NewCloudIamUpdater, CloudIDParseFunc),
 			"yandex_resourcemanager_cloud_iam_member":   ResourceIamMemberWithImport(IamCloudSchema, NewCloudIamUpdater, CloudIDParseFunc),
-			"yandex_resourcemanager_cloud_iam_policy":   ResourceIamPolicyWithImport(IamCloudSchema, NewCloudIamUpdater, CloudIDParseFunc),
 			"yandex_resourcemanager_folder_iam_binding": ResourceIamBindingWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIDParseFunc),
 			"yandex_resourcemanager_folder_iam_member":  ResourceIamMemberWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIDParseFunc),
 			"yandex_resourcemanager_folder_iam_policy":  ResourceIamPolicyWithImport(IamFolderSchema, NewFolderIamUpdater, FolderIDParseFunc),
