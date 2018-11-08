@@ -184,10 +184,13 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("description", network.Description)
 	d.Set("labels", network.Labels)
 	d.Set("network_id", network.NetworkId)
+	if err := d.Set("v4_cidr_blocks", convertStringArrToInterface(network.V4CidrBlocks)); err != nil {
+		return err
+	}
+	if err := d.Set("v6_cidr_blocks", convertStringArrToInterface(network.V6CidrBlocks)); err != nil {
+		return err
+	}
 	d.Set("zone", network.ZoneId)
-	d.Set("v4_cidr_blocks", convertStringArrToInterface(network.V4CidrBlocks))
-	d.Set("v6_cidr_blocks", convertStringArrToInterface(network.V6CidrBlocks))
-
 	return nil
 }
 

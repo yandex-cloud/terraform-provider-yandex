@@ -88,11 +88,17 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("description", subnet.Description)
 	d.Set("folder_id", subnet.FolderId)
 	d.Set("created_at", createdAt)
-	d.Set("labels", subnet.Labels)
 	d.Set("network_id", subnet.NetworkId)
 	d.Set("zone", subnet.ZoneId)
-	d.Set("v4_cidr_blocks", subnet.V4CidrBlocks)
-	d.Set("v6_cidr_blocks", subnet.V6CidrBlocks)
+	if err := d.Set("labels", subnet.Labels); err != nil {
+		return err
+	}
+	if err := d.Set("v4_cidr_blocks", subnet.V4CidrBlocks); err != nil {
+		return err
+	}
+	if err := d.Set("v6_cidr_blocks", subnet.V6CidrBlocks); err != nil {
+		return err
+	}
 	d.SetId(subnet.Id)
 
 	return nil

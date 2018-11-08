@@ -180,14 +180,14 @@ func setTestIDs() error {
 		envEndpoint = defaultEnpoint
 	}
 
-	config := &sdk.Config{
-		OAuthToken: os.Getenv("YC_TOKEN"),
-		Endpoint:   envEndpoint,
+	config := &ycsdk.Config{
+		Credentials: ycsdk.OAuthToken(os.Getenv("YC_TOKEN")),
+		Endpoint:    envEndpoint,
 	}
 
 	ctx := context.Background()
 
-	sdk, err := sdk.Build(ctx, *config)
+	sdk, err := ycsdk.Build(ctx, *config)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func setTestIDs() error {
 	return nil
 }
 
-func getCloudNameByID(sdk *sdk.SDK, cloudID string) string {
+func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
 	cloud, err := sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
 		CloudId: cloudID,
 	})
@@ -222,7 +222,7 @@ func getCloudNameByID(sdk *sdk.SDK, cloudID string) string {
 	return cloud.Name
 }
 
-func getFolderNameByID(sdk *sdk.SDK, folderID string) string {
+func getFolderNameByID(sdk *ycsdk.SDK, folderID string) string {
 	folder, err := sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
@@ -236,7 +236,7 @@ func getFolderNameByID(sdk *sdk.SDK, folderID string) string {
 	return folder.Name
 }
 
-func loginToUserID(sdk *sdk.SDK, loginName string) (userID string) {
+func loginToUserID(sdk *ycsdk.SDK, loginName string) (userID string) {
 	account, err := sdk.IAM().YandexPassportUserAccount().GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
 		Login: loginName,
 	})

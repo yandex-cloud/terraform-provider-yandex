@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func computeInstanceImportStep() resource.TestStep {
@@ -668,7 +668,7 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, diskName string
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		diskResolver := sdk.DiskResolver(diskName, sdk.FolderID(config.FolderID))
+		diskResolver := sdkresolvers.DiskResolver(diskName, sdkresolvers.FolderID(config.FolderID))
 		if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
 			return fmt.Errorf("Error while resolve disk name to ID: %s", err)
 		}
@@ -722,7 +722,7 @@ func testAccCheckComputeInstanceBootDisk(instance *compute.Instance, source stri
 
 		config := testAccProvider.Meta().(*Config)
 
-		diskResolver := sdk.DiskResolver(source, sdk.FolderID(config.FolderID))
+		diskResolver := sdkresolvers.DiskResolver(source, sdkresolvers.FolderID(config.FolderID))
 		if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
 			return fmt.Errorf("Error while resolve disk name to ID: %s", err)
 		}
@@ -741,7 +741,7 @@ func testAccCheckComputeInstanceBootDiskType(instanceName string, diskType strin
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
 
-		instanceResolver := sdk.InstanceResolver(instanceName, sdk.FolderID(config.FolderID))
+		instanceResolver := sdkresolvers.InstanceResolver(instanceName, sdkresolvers.FolderID(config.FolderID))
 		if err := config.sdk.Resolve(context.Background(), instanceResolver); err != nil {
 			log.Printf("error while resolve instance: %s", err)
 		}

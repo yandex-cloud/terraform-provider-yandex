@@ -210,7 +210,7 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("folder_id", image.FolderId)
 	d.Set("description", image.Description)
 	d.Set("min_disk_size", toGigabytes(image.MinDiskSize))
-	d.Set("status", strings.ToLower(compute.Image_Status_name[int32(image.Status)]))
+	d.Set("status", strings.ToLower(image.Status.String()))
 	d.Set("family", image.Family)
 	d.Set("size", toGigabytes(image.StorageSize))
 	d.Set("labels", image.Labels)

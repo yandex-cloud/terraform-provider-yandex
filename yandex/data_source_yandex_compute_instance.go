@@ -230,8 +230,12 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("created_at", createdAt)
-	d.Set("metadata", instance.Metadata)
-	d.Set("labels", instance.Labels)
+	if err := d.Set("metadata", instance.Metadata); err != nil {
+		return err
+	}
+	if err := d.Set("labels", instance.Labels); err != nil {
+		return err
+	}
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
 	d.Set("zone", instance.ZoneId)
