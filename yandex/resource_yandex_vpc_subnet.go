@@ -76,6 +76,7 @@ func resourceYandexVPCSubnet() *schema.Resource {
 			"v4_cidr_blocks": {
 				Type:     schema.TypeList,
 				Required: true,
+				ForceNew: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateIPV4CidrBlocks,
@@ -84,6 +85,7 @@ func resourceYandexVPCSubnet() *schema.Resource {
 			"v6_cidr_blocks": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

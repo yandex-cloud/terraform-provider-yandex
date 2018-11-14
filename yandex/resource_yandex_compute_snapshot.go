@@ -44,7 +44,6 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"labels": {
 				Type:     schema.TypeMap,

@@ -224,18 +224,33 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("instance with ID %q", instanceID))
 	}
 
+	resources, err := flattenInstanceResources(instance)
+	if err != nil {
+		return err
+	}
+
+	bootDisk, err := flattenInstanceBootDisk(instance, config.sdk.Compute().Disk())
+	if err != nil {
+		return err
+	}
+
+	secondaryDisks, err := flattenInstanceSecondaryDisks(instance)
+	if err != nil {
+		return err
+	}
+
+	networkInterfaces, _, err := flattenInstanceNetworkInterfaces(instance)
+	if err != nil {
+		return err
+	}
+
 	createdAt, err := getTimestamp(instance.CreatedAt)
 	if err != nil {
 		return err
 	}
 
 	d.Set("created_at", createdAt)
-	if err := d.Set("metadata", instance.Metadata); err != nil {
-		return err
-	}
-	if err := d.Set("labels", instance.Labels); err != nil {
-		return err
-	}
+	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
 	d.Set("zone", instance.ZoneId)
@@ -244,25 +259,23 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("description", instance.Description)
 	d.Set("status", strings.ToLower(instance.Status.String()))
 
-	if err := readInstanceResources(d, instance); err != nil {
+	if err := d.Set("metadata", instance.Metadata); err != nil {
 		return err
 	}
 
-	if err := flattenBootDisk(d, meta, instance); err != nil {
+	if err := d.Set("labels", instance.Labels); err != nil {
 		return err
 	}
 
-	disks, err := flattenSecondaryDisks(d, config, instance)
-	if err != nil {
+	if err := d.Set("resources", resources); err != nil {
 		return err
 	}
 
-	if err := d.Set("secondary_disk", disks); err != nil {
+	if err := d.Set("boot_disk", bootDisk); err != nil {
 		return err
 	}
 
-	networkInterfaces, _, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
-	if err != nil {
+	if err := d.Set("secondary_disk", secondaryDisks); err != nil {
 		return err
 	}
 
