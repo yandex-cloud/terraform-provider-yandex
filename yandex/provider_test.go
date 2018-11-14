@@ -46,7 +46,9 @@ func init() {
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"yandex": testAccProvider,
 	}
-	setTestIDs()
+	if os.Getenv("TF_ACC") != "" {
+		setTestIDs()
+	}
 }
 
 func TestProvider(t *testing.T) {

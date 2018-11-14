@@ -56,29 +56,6 @@ func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 	return res.(string), nil
 }
 
-func expandLabels(v interface{}) (map[string]string, error) {
-	m := make(map[string]string)
-	if v == nil {
-		return m, nil
-	}
-	for k, val := range v.(map[string]interface{}) {
-		m[k] = val.(string)
-	}
-	return m, nil
-}
-
-func expandProductIds(v interface{}) ([]string, error) {
-	m := []string{}
-	if v == nil {
-		return m, nil
-	}
-	tagsSet := v.(*schema.Set)
-	for _, val := range tagsSet.List() {
-		m = append(m, val.(string))
-	}
-	return m, nil
-}
-
 func handleNotFoundError(err error, d *schema.ResourceData, resourceName string) error {
 	if isStatusWithCode(err, codes.NotFound) {
 		log.Printf("[WARN] Removing %s because resource doesn't exist anymore", resourceName)

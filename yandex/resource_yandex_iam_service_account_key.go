@@ -22,6 +22,7 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			// There is no Update method for IAM SA key, so "description" field set as 'ForceNew:true'
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,

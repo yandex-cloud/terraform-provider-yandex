@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -70,7 +70,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -91,6 +90,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Default:  "standard-v1",
 			},
 			"instance_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -346,41 +349,61 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance %q", d.Get("name").(string)))
 	}
 
-	if err := d.Set("metadata", instance.Metadata); err != nil {
+	resources, err := flattenInstanceResources(instance)
+	if err != nil {
 		return err
 	}
-	if err := d.Set("labels", instance.Labels); err != nil {
+
+	bootDisk, err := flattenInstanceBootDisk(instance, config.sdk.Compute().Disk())
+	if err != nil {
 		return err
 	}
+
+	secondaryDisks, err := flattenInstanceSecondaryDisks(instance)
+	if err != nil {
+		return err
+	}
+
+	networkInterfaces, externalIP, err := flattenInstanceNetworkInterfaces(instance)
+	if err != nil {
+		return err
+	}
+
+	createdAt, err := getTimestamp(instance.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	d.Set("created_at", createdAt)
+	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
 	d.Set("zone", instance.ZoneId)
 	d.Set("name", instance.Name)
 	d.Set("fqdn", instance.Fqdn)
 	d.Set("description", instance.Description)
-	d.Set("instance_id", instance.Id)
+	d.Set("status", strings.ToLower(instance.Status.String()))
 
-	if err := readInstanceResources(d, instance); err != nil {
+	if err := d.Set("metadata", instance.Metadata); err != nil {
 		return err
 	}
 
-	if err := flattenBootDisk(d, meta, instance); err != nil {
+	if err := d.Set("labels", instance.Labels); err != nil {
 		return err
 	}
 
-	disks, err := flattenSecondaryDisks(d, config, instance)
-	if err != nil {
+	if err := d.Set("resources", resources); err != nil {
 		return err
 	}
 
-	if err := d.Set("secondary_disk", disks); err != nil {
+	if err := d.Set("boot_disk", bootDisk); err != nil {
 		return err
 	}
 
-	networkInterfaces, externalIP, err := flattenNetworkInterfaces(d, config, instance.NetworkInterfaces)
-	if err != nil {
+	if err := d.Set("secondary_disk", secondaryDisks); err != nil {
 		return err
 	}
+
 	if err := d.Set("network_interface", networkInterfaces); err != nil {
 		return err
 	}
@@ -395,120 +418,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func readInstanceResources(d *schema.ResourceData, instance *compute.Instance) error {
-	resourceMap := map[string]interface{}{
-		"cores":         int(instance.Resources.Cores),
-		"core_fraction": int(instance.Resources.CoreFraction),
-		"memory":        toGigabytes(instance.Resources.Memory),
-	}
-
-	err := d.Set("resources", []map[string]interface{}{resourceMap})
-	return err
-}
-
-func flattenBootDisk(d *schema.ResourceData, meta interface{}, instance *compute.Instance) error {
-	config := meta.(*Config)
-
-	resourceMap := map[string]interface{}{
-		"auto_delete": instance.BootDisk.AutoDelete,
-		"device_name": instance.BootDisk.DeviceName,
-		"disk_id":     instance.BootDisk.DiskId,
-		"mode":        compute.AttachedDisk_Mode_name[int32(instance.BootDisk.Mode)],
-	}
-
-	disk, err := config.sdk.Compute().Disk().Get(context.Background(), &compute.GetDiskRequest{
-		DiskId: instance.BootDisk.DiskId,
-	})
-	if err != nil {
-		return err
-	}
-
-	if _, ok := d.GetOk("boot_disk.0.initialize_params.#"); ok {
-		m := d.Get("boot_disk.0.initialize_params")
-		resourceMap["initialize_params"] = m
-	} else {
-		resourceMap["initialize_params"] = []map[string]interface{}{{
-			"type_id":  disk.TypeId,
-			"image_id": disk.GetSourceImageId(),
-			"size":     toGigabytes(disk.Size),
-		}}
-	}
-
-	return d.Set("boot_disk", []map[string]interface{}{resourceMap})
-}
-
-// revive:disable:var-naming
-func flattenSecondaryDisks(d *schema.ResourceData, config *Config, instance *compute.Instance) ([]map[string]interface{}, error) {
-	secondaryDisksInState := make(map[string]int)
-	for i, v := range d.Get("secondary_disk").([]interface{}) {
-		if v == nil {
-			continue
-		}
-		disk := v.(map[string]interface{})
-		diskId := disk["disk_id"].(string)
-		secondaryDisksInState[diskId] = i
-	}
-
-	secondaryDisks := make([]map[string]interface{}, d.Get("secondary_disk.#").(int))
-
-	for _, instanceDisk := range instance.SecondaryDisks {
-		sdIndex, inState := secondaryDisksInState[instanceDisk.DiskId]
-		disk := map[string]interface{}{
-			"disk_id":     instanceDisk.DiskId,
-			"device_name": instanceDisk.DeviceName,
-			"mode":        compute.AttachedDisk_Mode_name[int32(instanceDisk.Mode)],
-			"auto_delete": instanceDisk.AutoDelete,
-		}
-		if inState {
-			secondaryDisks[sdIndex] = disk
-		} else {
-			secondaryDisks = append(secondaryDisks, disk)
-		}
-	}
-	return secondaryDisks, nil
-}
-
 // revive:enable:var-naming
-
-func flattenNetworkInterfaces(d *schema.ResourceData, config *Config, networkInterfaces []*compute.NetworkInterface) ([]map[string]interface{}, string, error) {
-	flattened := make([]map[string]interface{}, len(networkInterfaces))
-	var externalIP string
-
-	for i, iface := range networkInterfaces {
-		index, err := strconv.Atoi(iface.Index)
-		if err != nil {
-			return nil, "", fmt.Errorf("Error while convert index: %s", err)
-		}
-
-		flattened[i] = map[string]interface{}{
-			"index":       index,
-			"mac_address": iface.MacAddress,
-			"subnet_id":   iface.SubnetId,
-		}
-
-		if iface.PrimaryV4Address != nil {
-			flattened[i]["ip_address"] = iface.PrimaryV4Address.Address
-
-			if iface.PrimaryV4Address.OneToOneNat != nil {
-				flattened[i]["nat"] = true
-				flattened[i]["nat_ip_address"] = iface.PrimaryV4Address.OneToOneNat.Address
-				flattened[i]["nat_ip_version"] = iface.PrimaryV4Address.OneToOneNat.IpVersion.String()
-				if externalIP == "" {
-					externalIP = iface.PrimaryV4Address.OneToOneNat.Address
-				}
-			} else {
-				flattened[i]["nat"] = false
-			}
-		}
-
-		if iface.PrimaryV6Address != nil {
-			flattened[i]["ipv6"] = true
-			flattened[i]["ipv6_address"] = iface.PrimaryV6Address.Address
-		}
-	}
-
-	return flattened, externalIP, nil
-}
 
 func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -631,7 +541,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		oDisks := map[uint64]string{}
 		for _, disk := range o.([]interface{}) {
 			diskConfig := disk.(map[string]interface{})
-			diskSpec, err := prepareSecondaryDisk(diskConfig, d)
+			diskSpec, err := expandSecondaryDiskSpec(diskConfig)
 			if err != nil {
 				return err
 			}
@@ -652,7 +562,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		var attach []*compute.AttachedDiskSpec
 		for _, disk := range n.([]interface{}) {
 			diskConfig := disk.(map[string]interface{})
-			diskSpec, err := prepareSecondaryDisk(diskConfig, d)
+			diskSpec, err := expandSecondaryDiskSpec(diskConfig)
 			if err != nil {
 				return err
 			}
@@ -764,250 +674,42 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error expanding metadata: %s", err)
 	}
 
-	req := &compute.CreateInstanceRequest{
-		FolderId:    folderID,
-		Hostname:    d.Get("hostname").(string),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		ZoneId:      zone,
-		Labels:      labels,
-		Metadata:    metadata,
-		PlatformId:  d.Get("platform_id").(string),
-	}
-
-	if err := prepareResources(req, d); err != nil {
+	resourcesSpec, err := expandInstanceResourcesSpec(d)
+	if err != nil {
 		return nil, fmt.Errorf("Error create 'resources_spec' object of api request: %s", err)
 	}
 
-	if err := prepareBootDisk(req, d); err != nil {
+	bootDiskSpec, err := expandInstanceBootDiskSpec(d)
+	if err != nil {
 		return nil, fmt.Errorf("Error create 'boot_disk' object of api request: %s", err)
 	}
 
-	if err := prepareSecondaryDisks(req, d); err != nil {
+	secondaryDiskSpecs, err := expandInstanceSecondaryDiskSpecs(d)
+	if err != nil {
 		return nil, fmt.Errorf("Error create 'secondary_disk' object of api request: %s", err)
 	}
 
-	if err := prepareNetwork(req, d); err != nil {
+	nicSpecs, err := expandInstanceNetworkInterfaceSpecs(d)
+	if err != nil {
 		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
 	}
 
+	req := &compute.CreateInstanceRequest{
+		FolderId:              folderID,
+		Hostname:              d.Get("hostname").(string),
+		Name:                  d.Get("name").(string),
+		Description:           d.Get("description").(string),
+		PlatformId:            d.Get("platform_id").(string),
+		ZoneId:                zone,
+		Labels:                labels,
+		Metadata:              metadata,
+		ResourcesSpec:         resourcesSpec,
+		BootDiskSpec:          bootDiskSpec,
+		SecondaryDiskSpecs:    secondaryDiskSpecs,
+		NetworkInterfaceSpecs: nicSpecs,
+	}
+
 	return req, nil
-}
-
-func prepareResources(req *compute.CreateInstanceRequest, d *schema.ResourceData) error {
-	rs := &compute.ResourcesSpec{}
-
-	if v, ok := d.GetOk("resources"); ok {
-		vL := v.(*schema.Set).List()
-		for _, v := range vL {
-			res := v.(map[string]interface{})
-
-			if v, ok := res["cores"].(int); ok {
-				rs.Cores = int64(v)
-			}
-
-			if v, ok := res["core_fraction"].(int); ok {
-				rs.CoreFraction = int64(v)
-			}
-
-			if v, ok := res["memory"].(int); ok && v != 0 {
-				rs.Memory = toBytes(v)
-			}
-		}
-	} else {
-		// should not occur: validation must be done at Schema level
-		return fmt.Errorf("You should define 'resources' section for compute instance")
-	}
-
-	req.ResourcesSpec = rs
-	return nil
-}
-
-func prepareSecondaryDisks(req *compute.CreateInstanceRequest, d *schema.ResourceData) error {
-	secondaryDisksCount := d.Get("secondary_disk.#").(int)
-
-	for i := 0; i < secondaryDisksCount; i++ {
-		diskConfig := d.Get(fmt.Sprintf("secondary_disk.%d", i)).(map[string]interface{})
-
-		disk, err := prepareSecondaryDisk(diskConfig, d)
-		if err != nil {
-			return err
-		}
-		req.SecondaryDiskSpecs = append(req.SecondaryDiskSpecs, disk)
-	}
-	return nil
-}
-
-func prepareSecondaryDisk(diskConfig map[string]interface{}, d *schema.ResourceData) (*compute.AttachedDiskSpec, error) {
-	disk := &compute.AttachedDiskSpec{}
-
-	if v, ok := diskConfig["mode"]; ok {
-		mode, err := parseDiskMode(v.(string))
-		if err != nil {
-			return nil, err
-		}
-		disk.Mode = mode
-	}
-
-	if v, ok := diskConfig["device_name"]; ok {
-		disk.DeviceName = v.(string)
-	}
-
-	if v, ok := diskConfig["auto_delete"]; ok {
-		disk.AutoDelete = v.(bool)
-	}
-
-	if v, ok := diskConfig["disk_id"]; ok {
-		// TODO: support disk creation
-		disk.Disk = &compute.AttachedDiskSpec_DiskId{
-			DiskId: v.(string),
-		}
-	}
-
-	return disk, nil
-}
-
-func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
-	val, ok := compute.AttachedDiskSpec_Mode_value[mode]
-	if !ok {
-		return compute.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
-	}
-	return compute.AttachedDiskSpec_Mode(val), nil
-}
-
-func prepareBootDisk(req *compute.CreateInstanceRequest, d *schema.ResourceData) error {
-	req.BootDiskSpec = new(compute.AttachedDiskSpec)
-
-	if v, ok := d.GetOk("boot_disk.0.auto_delete"); ok {
-		req.BootDiskSpec.AutoDelete = v.(bool)
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.device_name"); ok {
-		req.BootDiskSpec.DeviceName = v.(string)
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.mode"); ok {
-		diskMode, err := parseDiskMode(v.(string))
-		if err != nil {
-			return err
-		}
-		req.BootDiskSpec.Mode = diskMode
-	}
-
-	// use explicit disk
-	if v, ok := d.GetOk("boot_disk.0.disk_id"); ok {
-		req.BootDiskSpec.Disk = &compute.AttachedDiskSpec_DiskId{
-			DiskId: v.(string),
-		}
-		return nil
-	}
-
-	// create new one disk
-	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		diskSpec, err := selectBootDiskSource(d)
-		if err != nil {
-			return err
-		}
-
-		req.BootDiskSpec.Disk = &compute.AttachedDiskSpec_DiskSpec_{
-			DiskSpec: diskSpec,
-		}
-	}
-
-	return nil
-}
-
-func selectBootDiskSource(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskSpec, error) {
-	diskSpec := &compute.AttachedDiskSpec_DiskSpec{}
-
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.name"); ok {
-		diskSpec.Name = v.(string)
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.description"); ok {
-		diskSpec.Description = v.(string)
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type_id"); ok {
-		diskSpec.TypeId = v.(string)
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
-		diskSpec.Size = toBytes(v.(int))
-	}
-
-	if v, b := d.GetOk("boot_disk.0.initialize_params.0.image_id"); b {
-		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_ImageId{
-			ImageId: v.(string),
-		}
-	}
-
-	if v, b := d.GetOk("boot_disk.0.initialize_params.0.snapshot_id"); b {
-		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_SnapshotId{
-			SnapshotId: v.(string),
-		}
-	}
-
-	return diskSpec, nil
-}
-
-func prepareNetwork(req *compute.CreateInstanceRequest, d *schema.ResourceData) error {
-	nicsConfig := d.Get("network_interface").([]interface{})
-	nics := make([]*compute.NetworkInterfaceSpec, len(nicsConfig))
-
-	for i, raw := range nicsConfig {
-		data := raw.(map[string]interface{})
-
-		subnetID := data["subnet_id"].(string)
-		if subnetID == "" {
-			return fmt.Errorf("NIC number %d does not have a 'subnet_id' attribute defined", i)
-		}
-
-		nics[i] = &compute.NetworkInterfaceSpec{
-			SubnetId: subnetID,
-		}
-
-		ipV4Address := data["ip_address"].(string)
-		ipV6Address := data["ipv6_address"].(string)
-
-		// By default allocate any unassigned IPv4 address
-		if ipV4Address == "" && ipV6Address == "" {
-			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
-		}
-
-		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
-			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{}
-		}
-
-		if ipV4Address != "" {
-			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
-				Address: ipV4Address,
-			}
-		}
-
-		if ipV6Address != "" {
-			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{
-				Address: ipV6Address,
-			}
-		}
-
-		if enableNat, ok := data["nat"].(bool); ok && enableNat {
-			if nics[i].PrimaryV4AddressSpec == nil {
-				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
-					OneToOneNatSpec: &compute.OneToOneNatSpec{
-						IpVersion: compute.IpVersion_IPV4,
-					},
-				}
-			} else {
-				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = &compute.OneToOneNatSpec{
-					IpVersion: compute.IpVersion_IPV4,
-				}
-			}
-		}
-	}
-
-	req.NetworkInterfaceSpecs = nics
-	return nil
 }
 
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {
