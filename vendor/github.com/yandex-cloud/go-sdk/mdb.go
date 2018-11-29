@@ -1,12 +1,12 @@
 // Copyright (c) 2018 Yandex LLC. All rights reserved.
 // Author: Dmitry Novikov <novikoff@yandex-team.ru>
 
-package sdk
+package ycsdk
 
 import (
-	"github.com/yandex-cloud/go-sdk/mdb/clickhouse"
-	"github.com/yandex-cloud/go-sdk/mdb/mongodb"
-	"github.com/yandex-cloud/go-sdk/mdb/postgresql"
+	"github.com/yandex-cloud/go-sdk/gen/mdb/clickhouse"
+	"github.com/yandex-cloud/go-sdk/gen/mdb/mongodb"
+	"github.com/yandex-cloud/go-sdk/gen/mdb/postgresql"
 )
 
 const (
@@ -20,13 +20,13 @@ type MDB struct {
 }
 
 func (m *MDB) PostgreSQL() *postgresql.PostgreSQL {
-	return postgresql.NewPostgreSQL(m.sdk.requestContext(MDBPostgreSQLServiceID).getConn)
+	return postgresql.NewPostgreSQL(m.sdk.getConn(MDBPostgreSQLServiceID))
 }
 
 func (m *MDB) MongoDB() *mongodb.MongoDB {
-	return mongodb.NewMongoDB(m.sdk.requestContext(MDBMongoDBServiceID).getConn)
+	return mongodb.NewMongoDB(m.sdk.getConn(MDBMongoDBServiceID))
 }
 
 func (m *MDB) Clickhouse() *clickhouse.Clickhouse {
-	return clickhouse.NewClickhouse(m.sdk.requestContext(MDBClickhouseServiceID).getConn)
+	return clickhouse.NewClickhouse(m.sdk.getConn(MDBClickhouseServiceID))
 }
