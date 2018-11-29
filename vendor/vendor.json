@@ -2045,6 +2045,14 @@
 			"versionExact": "v0.11.7"
 		},
 		{
+			"checksumSHA1": "zx5DLo5aV0xDqxGTzSibXg7HHAA=",
+			"path": "github.com/hashicorp/terraform/helper/acctest",
+			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
+			"revisionTime": "2018-04-10T16:50:42Z",
+			"version": "=v0.11.7",
+			"versionExact": "v0.11.7"
+		},
+		{
 			"checksumSHA1": "uT6Q9RdSRAkDjyUgQlJ2XKJRab4=",
 			"path": "github.com/hashicorp/terraform/helper/config",
 			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
@@ -2621,6 +2629,12 @@
 			"revisionTime": "2018-10-23T23:59:46Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
 			"checksumSHA1": "pNwE5HGPxSrn/VVnzhOeCwRdHMg=",
 			"path": "github.com/posener/complete",
 			"revision": "3ef9b31a6a0613ae832e7ecf208374027c3b2343",
@@ -2655,6 +2669,14 @@
 			"path": "github.com/satori/go.uuid",
 			"revision": "b2ce2384e17bbe0c6d34077efa39dbab3e09123b",
 			"revisionTime": "2018-10-28T12:50:25Z"
+		},
+		{
+			"checksumSHA1": "pbq5LYckA7/rqe03l9MtXDekmRg=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "12b6f73e6084dad08a7c6e575284b177ecafbc71",
+			"revisionTime": "2018-01-31T22:23:50Z",
+			"version": "=v1.2.1",
+			"versionExact": "v1.2.1"
 		},
 		{
 			"checksumSHA1": "F9aq0JNiryU+Yh+EWT60CqgfXN4=",
