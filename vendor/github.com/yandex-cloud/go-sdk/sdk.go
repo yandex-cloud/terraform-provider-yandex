@@ -1,11 +1,12 @@
 // Copyright (c) 2017 Yandex LLC. All rights reserved.
 // Author: Alexey Baranov <baranovich@yandex-team.ru>
 
-package sdk
+package ycsdk
 
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -16,15 +17,16 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	apiendpoint "github.com/yandex-cloud/go-sdk/apiendpoint"
-	"github.com/yandex-cloud/go-sdk/compute"
-	"github.com/yandex-cloud/go-sdk/iam"
+	apiendpoint "github.com/yandex-cloud/go-sdk/gen/apiendpoint"
+	"github.com/yandex-cloud/go-sdk/gen/compute"
+	"github.com/yandex-cloud/go-sdk/gen/iam"
+	gen_operation "github.com/yandex-cloud/go-sdk/gen/operation"
+	"github.com/yandex-cloud/go-sdk/gen/resourcemanager"
+	"github.com/yandex-cloud/go-sdk/gen/vpc"
 	sdk_operation "github.com/yandex-cloud/go-sdk/operation"
 	"github.com/yandex-cloud/go-sdk/pkg/grpcclient"
+	"github.com/yandex-cloud/go-sdk/pkg/sdkerrors"
 	"github.com/yandex-cloud/go-sdk/pkg/singleflight"
-	"github.com/yandex-cloud/go-sdk/resourcemanager"
-	"github.com/yandex-cloud/go-sdk/sdkerrors"
-	"github.com/yandex-cloud/go-sdk/vpc"
 )
 
 type Endpoint string
@@ -40,22 +42,23 @@ const (
 	VpcServiceID Endpoint = "vpc"
 )
 
+// Config is a config that is used to create SDK instance.
 type Config struct {
-	OAuthToken string
-
-	Endpoint           string
-	Plaintext          bool
-	TLSConfig          *tls.Config
+	// Credentials are used to authenticate the client. See Credentials for more info.
+	Credentials Credentials
+	// DialContextTimeout specifies timeout of dial on API endpoint that
+	// is used when building an SDK instance.
 	DialContextTimeout time.Duration
+	// TLSConfig is optional tls.Config that one can use in order to tune TLS options.
+	TLSConfig *tls.Config
+
+	// Endpoint is an API endpoint of Yandex.Cloud against which the SDK is used.
+	// Most users won't need to explicitly set it.
+	Endpoint  string
+	Plaintext bool
 }
 
-type lazyConn func(ctx context.Context) (*grpc.ClientConn, error)
-
-type requestContext struct {
-	conf    Config
-	getConn lazyConn
-}
-
+// SDK is a Yandex.Cloud SDK
 type SDK struct {
 	conf      Config
 	cc        grpcclient.ConnContext
@@ -70,16 +73,30 @@ type SDK struct {
 	muErr    sync.Mutex
 }
 
+// Build creates an SDK instance
 func Build(ctx context.Context, conf Config, dialOpts ...grpc.DialOption) (*SDK, error) {
-	sdk := build(conf, dialOpts...)
-	return sdk, nil
-}
+	if conf.Credentials == nil {
+		return nil, errors.New("credentials required")
+	}
 
-func build(conf Config, dialOpts ...grpc.DialOption) *SDK {
-	creds := creds(conf)
-	dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(creds))
+	const defaultEndpoint = "api.cloud.yandex.net:443"
+	if conf.Endpoint == "" {
+		conf.Endpoint = defaultEndpoint
+	}
+	const DefaultTimeout = 10 * time.Second
+	if conf.DialContextTimeout == 0 {
+		conf.DialContextTimeout = DefaultTimeout
+	}
+
+	creds, ok := conf.Credentials.(ExchangeableCredentials)
+	if !ok {
+		return nil, fmt.Errorf("unsupported credentials type %T", conf.Credentials)
+	}
+
+	rpcCreds := newRPCCredentials(creds, conf.Plaintext)
+	dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(rpcCreds))
 	if conf.DialContextTimeout > 0 {
-		dialOpts = append(dialOpts, grpc.WithBlock(), grpc.WithTimeout(conf.DialContextTimeout))
+		dialOpts = append(dialOpts, grpc.WithBlock(), grpc.WithTimeout(conf.DialContextTimeout)) // nolint
 	}
 	if conf.Plaintext {
 		dialOpts = append(dialOpts, grpc.WithInsecure())
@@ -96,8 +113,8 @@ func build(conf Config, dialOpts ...grpc.DialOption) *SDK {
 		cc:   cc,
 		conf: conf,
 	}
-	creds.Init(sdk.getConn(IAMServiceID), time.Now, 30*time.Second)
-	return sdk
+	rpcCreds.Init(sdk.getConn(IAMServiceID))
+	return sdk, nil
 }
 
 // Shutdown shutdowns SDK and closes all open connections.
@@ -105,6 +122,7 @@ func (sdk *SDK) Shutdown(ctx context.Context) error {
 	return sdk.cc.Shutdown(ctx)
 }
 
+// WrapOperation wraps operation proto message to
 func (sdk *SDK) WrapOperation(op *operation.Operation, err error) (*sdk_operation.Operation, error) {
 	if err != nil {
 		return nil, err
@@ -114,38 +132,40 @@ func (sdk *SDK) WrapOperation(op *operation.Operation, err error) (*sdk_operatio
 
 // IAM returns IAM object that is used to operate on Yandex Cloud Identity and Access Manager
 func (sdk *SDK) IAM() *iam.IAM {
-	return iam.NewIAM(sdk.requestContext(IAMServiceID).getConn)
+	return iam.NewIAM(sdk.getConn(IAMServiceID))
 }
 
 // Compute returns Compute object that is used to operate on Yandex Compute Cloud
 func (sdk *SDK) Compute() *compute.Compute {
-	return compute.NewCompute(sdk.requestContext(ComputeServiceID).getConn)
+	return compute.NewCompute(sdk.getConn(ComputeServiceID))
 }
 
-// VPC returns VPC object that is used to operate on Yandex VPC Cloud
+// VPC returns VPC object that is used to operate on Yandex Virtual Private Cloud
 func (sdk *SDK) VPC() *vpc.VPC {
-	return vpc.NewVPC(sdk.requestContext(VpcServiceID).getConn)
+	return vpc.NewVPC(sdk.getConn(VpcServiceID))
 }
 
-// MDB returns MDB object that is used to operate on Yandex MDB Cloud
+// MDB returns MDB object that is used to operate on Yandex Managed Databases
 func (sdk *SDK) MDB() *MDB {
 	return &MDB{sdk: sdk}
 }
 
 // Operation gets OperationService client
-func (sdk *SDK) Operation() *OperationServiceClient {
-	return &OperationServiceClient{getConn: sdk.getConn(OperationServiceID)}
+func (sdk *SDK) Operation() *gen_operation.OperationServiceClient {
+	group := gen_operation.NewOperation(sdk.getConn(OperationServiceID))
+	return group.Operation()
 }
 
+// ResourceManager returns ResourceManager object that is used to operate on Folders and Clouds
 func (sdk *SDK) ResourceManager() *resourcemanager.ResourceManager {
-	return resourcemanager.NewResourceManager(sdk.requestContext(ResourceManagementServiceID).getConn)
+	return resourcemanager.NewResourceManager(sdk.getConn(ResourceManagementServiceID))
 }
 
 //revive:disable:var-naming
 
 // ApiEndpoint gets ApiEndpointService client
 func (sdk *SDK) ApiEndpoint() *apiendpoint.APIEndpoint {
-	return apiendpoint.NewAPIEndpoint(sdk.requestContext(ApiEndpointServiceID).getConn)
+	return apiendpoint.NewAPIEndpoint(sdk.getConn(ApiEndpointServiceID))
 }
 
 //revive:enable:var-naming
@@ -161,12 +181,7 @@ func (sdk *SDK) Resolve(ctx context.Context, r ...Resolver) error {
 	return sdkerrors.CombineGoroutines(args...)
 }
 
-func (sdk *SDK) requestContext(serviceID Endpoint) *requestContext {
-	return &requestContext{
-		conf:    sdk.conf,
-		getConn: sdk.getConn(serviceID),
-	}
-}
+type lazyConn func(ctx context.Context) (*grpc.ClientConn, error)
 
 func (sdk *SDK) getConn(serviceID Endpoint) func(ctx context.Context) (*grpc.ClientConn, error) {
 	return func(ctx context.Context) (*grpc.ClientConn, error) {
