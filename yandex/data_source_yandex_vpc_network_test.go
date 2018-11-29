@@ -33,6 +33,41 @@ func TestAccDataSourceVPCNetwork(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "name", networkName),
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "description", networkDesc),
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "folder_id", folderID),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "subnet_ids.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceVPCNetworkWithSubnets(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	networkDesc := "Test network with Subnets"
+	folderID := getExampleFolderID()
+
+	var network vpc.Network
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVPCNetworkConfigWithSubnets(networkName, networkDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceVPCNetworkExists("yandex_vpc_network.foo", &network),
+				),
+			},
+			{
+				Config: testAccDataSourceVPCNetworkConfigWithSubnetsWithDataSource(networkName, networkDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceVPCNetworkExists("data.yandex_vpc_network.bar", &network),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "name", networkName),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "description", networkDesc),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "folder_id", folderID),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "subnet_ids.#", "2"),
 				),
 			},
 		},
@@ -81,4 +116,46 @@ resource "yandex_vpc_network" "foo" {
 	name        = "%s"
 	description = "%s"
 }`, name, desc)
+}
+
+func testAccDataSourceVPCNetworkConfigWithSubnets(name, desc string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+	name        = "%s"
+	description = "%s"
+}
+
+resource "yandex_vpc_subnet" "bar1" {
+	network_id  = "${yandex_vpc_network.foo.id}"
+	v4_cidr_blocks = ["172.16.1.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar2" {
+	network_id  = "${yandex_vpc_network.foo.id}"
+	v4_cidr_blocks = ["172.16.2.0/24"]
+}
+`, name, desc)
+}
+
+func testAccDataSourceVPCNetworkConfigWithSubnetsWithDataSource(name, desc string) string {
+	return fmt.Sprintf(`
+data "yandex_vpc_network" "bar" {
+	network_id = "${yandex_vpc_network.foo.id}"
+}
+
+resource "yandex_vpc_network" "foo" {
+	name        = "%s"
+	description = "%s"
+}
+
+resource "yandex_vpc_subnet" "bar1" {
+	network_id  = "${yandex_vpc_network.foo.id}"
+	v4_cidr_blocks = ["172.16.1.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar2" {
+	network_id  = "${yandex_vpc_network.foo.id}"
+	v4_cidr_blocks = ["172.16.2.0/24"]
+}
+`, name, desc)
 }

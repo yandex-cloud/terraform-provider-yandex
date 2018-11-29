@@ -124,6 +124,9 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 		if iface.PrimaryV6Address != nil {
 			nics[i]["ipv6"] = true
 			nics[i]["ipv6_address"] = iface.PrimaryV6Address.Address
+			if externalIP == "" {
+				externalIP = iface.PrimaryV6Address.Address
+			}
 		}
 	}
 

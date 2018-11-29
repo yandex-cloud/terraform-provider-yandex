@@ -286,7 +286,7 @@ resource "yandex_compute_image" "foobar" {
 	name          = "%s"
 	description   = "description-test"
 	family		  = "kube-master"
-	source_url    = "https://storage.yandexcloud.net/image4test/kube-master-bios.img"
+	source_url    = "https://storage.yandexcloud.net/image4tests/kube-master-bios.img"
     min_disk_size = 10
 	os_type       = "linux"
 

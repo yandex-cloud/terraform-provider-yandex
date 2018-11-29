@@ -37,6 +37,13 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"subnet_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -55,6 +62,19 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("network with ID %q", networkID))
 	}
 
+	subnets, err := config.sdk.VPC().Network().ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
+		NetworkId: networkID,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	subnetIds := make([]string, len(subnets.Subnets))
+	for i, subnet := range subnets.Subnets {
+		subnetIds[i] = subnet.Id
+	}
+
 	createdAt, err := getTimestamp(network.CreatedAt)
 	if err != nil {
 		return err
@@ -65,6 +85,11 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	d.Set("labels", network.Labels)
+
+	if err := d.Set("subnet_ids", subnetIds); err != nil {
+		return err
+	}
+
 	d.SetId(network.Id)
 
 	return nil
