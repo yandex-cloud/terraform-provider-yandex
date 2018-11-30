@@ -80,6 +80,10 @@ func resourceYandexComputeDisk() *schema.Resource {
 				ForceNew: true,
 				Default:  "network-hdd",
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"source_image_id": {
 				Type:     schema.TypeString,
 				Computed: true,

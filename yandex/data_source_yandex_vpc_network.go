@@ -34,8 +34,10 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 				Computed: true,
 			},
 			"labels": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 			"subnet_ids": {
 				Type:     schema.TypeList,
@@ -84,8 +86,9 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("created_at", createdAt)
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
-	d.Set("labels", network.Labels)
-
+	if err := d.Set("labels", network.Labels); err != nil {
+		return err
+	}
 	if err := d.Set("subnet_ids", subnetIds); err != nil {
 		return err
 	}
