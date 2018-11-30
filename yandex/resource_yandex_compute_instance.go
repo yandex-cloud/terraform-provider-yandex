@@ -294,6 +294,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
