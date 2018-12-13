@@ -44,7 +44,8 @@ func (c *Config) initAndValidate() error {
 	var err error
 	c.sdk, err = ycsdk.Build(context.Background(), *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),
-		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)))
+		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
+		grpc.WithUnaryInterceptor(requestIDInterceptor()))
 
 	return err
 }
