@@ -119,14 +119,14 @@ func TestAddClientRequestID(t *testing.T) {
 	})
 	t.Run("with outgoing context", func(t *testing.T) {
 		ctx := context.Background()
-		ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("one", "two"))
+		ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("it-very-long-header", "foobar"))
 		ctx = addClientRequestIDs(ctx, clientTraceID, clientRequestID)
 		md, ok := metadata.FromOutgoingContext(ctx)
 		require.True(t, ok)
 		assert.Equal(t, metadata.New(map[string]string{
 			clientTraceIDHeader:   clientTraceID,
 			clientRequestIDHeader: clientRequestID,
-			"one": "two",
+			"it-very-long-header": "foobar",
 		}), md)
 	})
 	t.Run("with old request-id", func(t *testing.T) {
