@@ -187,6 +187,7 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
+	d.Set("zone", disk.ZoneId)
 	d.Set("description", disk.Description)
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("type", disk.TypeId)

@@ -1,0 +1,58 @@
+---
+layout: "yandex"
+page_title: "Provider: Yandex Cloud"
+sidebar_current: "docs-yandex-index"
+description: |-
+  The Yandex Cloud provider is used to interact with Yandex Cloud services.
+  The provider needs to be configured with the proper credentials before it can be used.
+---
+
+# Yandex Cloud Provider
+
+The Yandex Cloud provider is used to interact with
+[Yandex Cloud services](https://cloud.yandex.com/). The provider needs
+to be configured with the proper credentials before it can be used.
+
+Use the navigation to the left to read about the available resources.
+
+## Example Usage
+
+```hcl
+// Configure the Yandex Cloud provider
+provider "yandex" {
+  token     = "auth_token_here"
+  cloud_id  = "cloud_id_here"
+  folder_id = "folder_id_here"
+  zone      = "ru-central1-a"
+}
+
+// Create a new instance
+resource "yandex_compute_instance" "default" {
+  ...
+}
+```
+
+## Configuration Reference
+
+The following keys can be used to configure the provider.
+
+* `token` - (Required) Security token used for authentication in the Yandex Cloud.
+
+  Token can also be set as an environment variable `YC_TOKEN`.
+
+* `cloud_id` - (Required) The ID of [Cloud][yandex-cloud] to apply any resources to.
+
+  This can also be set as an environment variable `YC_CLOUD_ID`.
+
+* `folder_id` - (Required) The [Folder][yandex-folder] ID to operate under, if not specified by a given resource.
+
+  This can also be set as an environment variable `YC_FOLDER_ID`.
+
+* `zone` - (Optional) The  default [availability zone][yandex-zone] to operate under, if not specified by a given resource.
+
+  This can also be set as an environment variable `YC_ZONE`.
+
+
+[yandex-cloud]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud
+[yandex-folder]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder
+[yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope

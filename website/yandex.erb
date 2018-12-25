@@ -1,0 +1,131 @@
+
+<% wrap_layout :inner do %>
+  <% content_for :sidebar do %>
+    <div class="docs-sidebar hidden-print affix-top" role="complementary">
+      <ul class="nav docs-sidenav">
+        <li<%= sidebar_current("docs-home") %>>
+          <a href="/docs/providers/index.html">All Providers</a>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-index") %>>
+          <a href="/docs/providers/yandex/index.html">Yandex Provider</a>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-datasource") %>>
+          <a href="#">Yandex Cloud Data Sources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-datasource-compute-disk") %>>
+              <a href="/docs/providers/yandex/d/datasource_compute_disk.html">yandex_compute_disk</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-compute-image") %>>
+              <a href="/docs/providers/yandex/d/datasource_compute_image.html">yandex_compute_image</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-compute-instance") %>>
+              <a href="/docs/providers/yandex/d/datasource_compute_instance.html">yandex_compute_instance</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-compute-snapshot") %>>
+              <a href="/docs/providers/yandex/d/datasource_compute_snapshot.html">yandex_compute_snapshot</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-iam-policy") %>>
+              <a href="/docs/providers/yandex/d/datasource_iam_policy.html">yandex_iam_policy</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-iam-role") %>>
+              <a href="/docs/providers/yandex/d/datasource_iam_role.html">yandex_iam_role</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-iam-service-account") %>>
+              <a href="/docs/providers/yandex/d/datasource_iam_service_account.html">yandex_iam_service_account</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-iam-user") %>>
+              <a href="/docs/providers/yandex/d/datasource_iam_user.html">yandex_iam_user</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-resourcemanager-cloud") %>>
+              <a href="/docs/providers/yandex/d/datasource_resourcemanager_cloud.html">yandex_resourcemanager_cloud</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-resourcemanager-folder") %>>
+              <a href="/docs/providers/yandex/d/datasource_resourcemanager_folder.html">yandex_resourcemanager_folder</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-vpc-network") %>>
+              <a href="/docs/providers/yandex/d/datasource_vpc_network.html">yandex_vpc_network</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-vpc-subnet") %>>
+              <a href="/docs/providers/yandex/d/datasource_vpc_subnet.html">yandex_vpc_subnet</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-compute") %>>
+          <a href="#">Yandex Compute Service Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-compute-disk") %>>
+              <a href="/docs/providers/yandex/r/compute_disk.html">yandex_compute_disk</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-compute-image") %>>
+              <a href="/docs/providers/yandex/r/compute_image.html">yandex_compute_image</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-compute-instance") %>>
+              <a href="/docs/providers/yandex/r/compute_instance.html">yandex_compute_instance</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-compute-snapshot") %>>
+              <a href="/docs/providers/yandex/r/compute_snapshot.html">yandex_compute_snapshot</a>
+            </li>
+          </ul>
+
+        <li<%= sidebar_current("docs-yandex-iam") %>>
+          <a href="#">Yandex IAM Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-iam-service-account-x") %>>
+              <a href="/docs/providers/yandex/r/iam_service_account.html">yandex_iam_service_account</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-iam-service-account-iam") %>>
+              <a href="/docs/providers/yandex/r/iam_service_account_iam.html">yandex_iam_service_account_iam_binding</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-iam-service-account-iam") %>>
+              <a href="/docs/providers/yandex/r/iam_service_account_iam.html">yandex_iam_service_account_iam_member</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-iam-service-account-iam") %>>
+              <a href="/docs/providers/yandex/r/iam_service_account_iam.html">yandex_iam_service_account_iam_policy</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-iam-service-account-key") %>>
+              <a href="/docs/providers/yandex/r/iam_service_account_key.html">yandex_iam_service_account_key</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-resourcemanager") %>>
+          <a href="#">Yandex Resource Manager Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-resourcemanager-cloud-iam-binding") %>>
+              <a href="/docs/providers/yandex/r/resourcemanager_cloud_iam_binding.html">yandex_resourcemanager_cloud_iam_binding</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-resourcemanager-cloud-iam-member") %>>
+              <a href="/docs/providers/yandex/r/resourcemanager_cloud_iam_member.html">yandex_resourcemanager_cloud_iam_member</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-resourcemanager-folder-iam-binding") %>>
+              <a href="/docs/providers/yandex/r/resourcemanager_folder_iam_binding.html">yandex_resourcemanager_folder_iam_binding</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-resourcemanager-folder-iam-member") %>>
+              <a href="/docs/providers/yandex/r/resourcemanager_folder_iam_member.html">yandex_resourcemanager_folder_iam_member</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-resourcemanager-folder-iam-policy") %>>
+              <a href="/docs/providers/yandex/r/resourcemanager_folder_iam_policy.html">yandex_resourcemanager_folder_iam_policy</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-vpc") %>>
+          <a href="#">Yandex VPC Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-vpc-network") %>>
+              <a href="/docs/providers/yandex/r/vpc_network.html">yandex_vpc_network</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-vpc-subnet") %>>
+              <a href="/docs/providers/yandex/r/vpc_subnet.html">yandex_vpc_subnet</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= yield %>
+<% end %>

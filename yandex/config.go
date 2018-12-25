@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 )
 
 type Config struct {
