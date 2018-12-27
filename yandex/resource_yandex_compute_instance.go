@@ -368,7 +368,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	networkInterfaces, externalIP, err := flattenInstanceNetworkInterfaces(instance)
+	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
 	}
@@ -412,12 +412,15 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	if externalIP != "" {
-		d.SetConnInfo(map[string]string{
-			"type": "ssh",
-			"host": externalIP,
-		})
+	connIP := externalIP
+	if connIP == "" {
+		connIP = internalIP
 	}
+
+	d.SetConnInfo(map[string]string{
+		"type": "ssh",
+		"host": connIP,
+	})
 
 	return nil
 }

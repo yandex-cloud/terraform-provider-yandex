@@ -202,3 +202,130 @@ func TestFlattenInstanceBootDisk(t *testing.T) {
 		})
 	}
 }
+
+func TestFlattenInstanceNetworkInterfaces(t *testing.T) {
+	tests := []struct {
+		name       string
+		instance   *compute.Instance
+		want       []map[string]interface{}
+		externalIP string
+		internalIP string
+		wantErr    bool
+	}{
+		{
+			name: "no nics defined",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{},
+			},
+			want:       []map[string]interface{}{},
+			externalIP: "",
+			internalIP: "",
+			wantErr:    false,
+		},
+		{
+			name: "one nic with internal address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.16",
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":       1,
+					"mac_address": "aa-bb-cc-dd-ee-ff",
+					"subnet_id":   "some-subnet-id",
+					"ip_address":  "192.168.19.16",
+					"nat":         false,
+				},
+			},
+			externalIP: "",
+			internalIP: "192.168.19.16",
+			wantErr:    false,
+		},
+		{
+			name: "one nic with internal and external address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.86",
+							OneToOneNat: &compute.OneToOneNat{
+								Address:   "92.68.12.34",
+								IpVersion: compute.IpVersion_IPV4,
+							},
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":          1,
+					"mac_address":    "aa-bb-cc-dd-ee-ff",
+					"subnet_id":      "some-subnet-id",
+					"ip_address":     "192.168.19.86",
+					"nat":            true,
+					"nat_ip_address": "92.68.12.34",
+					"nat_ip_version": "IPV4",
+				},
+			},
+			externalIP: "92.68.12.34",
+			internalIP: "192.168.19.86",
+			wantErr:    false,
+		},
+		{
+			name: "one nic with ipv6 address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV6Address: &compute.PrimaryAddress{
+							Address: "2001:db8::370:7348",
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":        1,
+					"mac_address":  "aa-bb-cc-dd-ee-ff",
+					"subnet_id":    "some-subnet-id",
+					"ipv6":         true,
+					"ipv6_address": "2001:db8::370:7348",
+				},
+			},
+			externalIP: "2001:db8::370:7348",
+			internalIP: "",
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			nics, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(tt.instance)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("flattenInstanceNetworkInterfaces() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(nics, tt.want) {
+				t.Errorf("flattenInstanceNetworkInterfaces() nics = %v, want %v", nics, tt.want)
+			}
+			if externalIP != tt.externalIP {
+				t.Errorf("flattenInstanceNetworkInterfaces() externalIP = %v, want %v", externalIP, tt.externalIP)
+			}
+			if internalIP != tt.internalIP {
+				t.Errorf("flattenInstanceNetworkInterfaces() internalIP = %v, want %v", internalIP, tt.internalIP)
+			}
+		})
+	}
+}

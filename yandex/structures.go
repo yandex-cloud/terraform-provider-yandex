@@ -90,14 +90,14 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 	return secondaryDisks, nil
 }
 
-func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, error) {
+func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, string, error) {
 	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
-	var externalIP string
+	var externalIP, internalIP string
 
 	for i, iface := range instance.NetworkInterfaces {
 		index, err := strconv.Atoi(iface.Index)
 		if err != nil {
-			return nil, "", fmt.Errorf("Error while convert index of Network Interface: %s", err)
+			return nil, "", "", fmt.Errorf("Error while convert index of Network Interface: %s", err)
 		}
 
 		nics[i] = map[string]interface{}{
@@ -108,6 +108,9 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 
 		if iface.PrimaryV4Address != nil {
 			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
+			if internalIP == "" {
+				internalIP = iface.PrimaryV4Address.Address
+			}
 
 			if iface.PrimaryV4Address.OneToOneNat != nil {
 				nics[i]["nat"] = true
@@ -130,7 +133,7 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 		}
 	}
 
-	return nics, externalIP, nil
+	return nics, externalIP, internalIP, nil
 }
 
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
