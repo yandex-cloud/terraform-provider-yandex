@@ -1,4 +1,4 @@
-## 0.1.0 (Unreleased)
+## 0.1.14 (December 26, 2018)
 
 FEATURES:
 * **New Data Source:** `yandex_compute_disk`
