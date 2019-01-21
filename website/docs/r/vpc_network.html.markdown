@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_vpc\_network
 
-Manages a network within the Yandex Cloud. For more information see
+Manages a network within the Yandex Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#network).
 
 * How-to Guides
@@ -39,8 +39,8 @@ The following arguments are supported:
 
 ## Import
 
-Networks can be imported using the `name`, e.g.
+A network can be imported using the `id` of the resource, e.g.
 
 ```
-$ terraform import yandex_compute_network.default foobar
+$ terraform import yandex_compute_network.default network_id
 ```

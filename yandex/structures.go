@@ -67,7 +67,7 @@ func flattenInstanceBootDisk(instance *compute.Instance, diskServiceClient Reduc
 		"name":        disk.Name,
 		"description": disk.Description,
 		"size":        toGigabytes(disk.Size),
-		"type_id":     disk.TypeId,
+		"type":        disk.TypeId,
 		"image_id":    disk.GetSourceImageId(),
 		"snapshot_id": disk.GetSourceSnapshotId(),
 	}}
@@ -218,7 +218,7 @@ func expandBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskS
 		diskSpec.Description = v.(string)
 	}
 
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type_id"); ok {
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.type"); ok {
 		diskSpec.TypeId = v.(string)
 	}
 

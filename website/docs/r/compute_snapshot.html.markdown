@@ -8,8 +8,8 @@ description: |-
 
 # yandex\_compute\_snapshot
 
-Creates a new snapshot of a disk. For more information see
-[the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot)
+Creates a new snapshot of a disk. For more information, see
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
 
 ## Example Usage
 
@@ -48,4 +48,3 @@ exported:
 
 * `disk_size` - Size of the disk when the snapshot was created, specified in GB.
 * `storage_size` - Size of the snapshot, specified in GB.
-

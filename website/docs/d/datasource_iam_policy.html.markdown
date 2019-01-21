@@ -18,7 +18,7 @@ data "yandex_iam_policy" "admin" {
     role = "admin"
 
     members = [
-      "userAccount:user_id_1",
+      "userAccount:user_id_1"
     ]
   }
 
@@ -26,7 +26,7 @@ data "yandex_iam_policy" "admin" {
     role = "viewer"
 
     members = [
-      "userAccount:user_id_2",
+      "userAccount:user_id_2"
     ]
   }
 }
@@ -51,9 +51,8 @@ Each policy document configuration must have one or more `binding` blocks. Each 
 
 * `members` (Required) - An array of identities that will be granted the privilege in the `role`.
   Each entry can have one of the following values:
-  * **allUsers**: A special value that represents anyone who is on the internet; with or without a Yandex account.
-  * **allAuthenticatedUsers**: A special value that represents anyone who is authenticated with a Yandex account or a service account.
-  * **userAccount:{user_id}**: An unique user ID that represents a specific Yandex account.
+  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
 
 ## Attributes Reference
 

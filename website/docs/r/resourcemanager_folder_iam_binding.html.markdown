@@ -12,7 +12,7 @@ Allows creation and management of a single binding within IAM policy for
 an existing Yandex Resource Manager folder.
 
 ~> **Note:** This resource _must not_ be used in conjunction with
-   `yandex_resourcemanager_folder_iam_policy` or they will fight over what your policy
+   `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy
    should be.
 
 ## Example Usage
@@ -23,9 +23,10 @@ data "yandex_resourcemanager_folder" "project1" {
 }
 
 resource "yandex_resourcemanager_folder_iam_binding" "admin" {
-  folder_id = "${data,yandex_resourcemanager_folder.project1.id}"
- 
-  role    = "editor"
+  folder_id = "${data.yandex_resourcemanager_folder.project1.id}"
+
+  role = "editor"
+
   members = [
     "userAccount:some_user_id",
   ]
@@ -38,12 +39,13 @@ The following arguments are supported:
 
 * `folder_id` - (Required) ID of the folder to attach a policy to.
 
-* `members` (Required) - An array of identities that will be granted the privilege that is specified in the `role` field.
-  Each entry can have one of the following values:
-  * **userAccount:{emailid}**: An email address that represents a specific Yandex account. For example, ivan@yandex.ru or joe@example.com.
-
-* `role` - (Required) The role that should be applied. Only one
+* `role` - (Required) The role that should be assigned. Only one
     `yandex_resourcemanager_folder_iam_binding` can be used per role.
+
+* `members` - (Required) An array of identities that will be granted the privilege that is specified in the `role` field.
+  Each entry can have one of the following values:
+  * **userAccount:{user_id}**: An email address that represents a specific Yandex account. For example, ivan@yandex.ru or joe@example.com.
+  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
 
 ## Import
 

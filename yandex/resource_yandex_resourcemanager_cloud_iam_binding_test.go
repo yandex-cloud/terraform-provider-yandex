@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"reflect"
@@ -14,15 +13,6 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
-
-func cloudIamBindingImportStep(resourceName, cloudID, role string) resource.TestStep {
-	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     fmt.Sprintf("%s %s", cloudID, role),
-		ImportState:       true,
-		ImportStateVerify: true,
-	}
-}
 
 // Test that an IAM binding can be applied to a cloud
 func TestAccCloudIamBinding_basic(t *testing.T) {
@@ -164,30 +154,6 @@ func TestAccCloudIamBinding_remove(t *testing.T) {
 	})
 }
 
-// Test that an IAM member can be applied to a cloud
-func TestAccCloudIamMember_basic(t *testing.T) {
-	cloudID := getExampleCloudID()
-	role := "viewer"
-	userID := getExampleUserID1()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			// Apply an IAM member
-			{
-				Config: testAccCloudAssociateMemberBasic(cloudID, role, userID),
-			},
-			{
-				ResourceName:      "yandex_resourcemanager_cloud_iam_member.acceptance",
-				ImportStateId:     fmt.Sprintf("%s %s %s", cloudID, role, "userAccount:"+userID),
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
 func testAccCheckCloudIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -225,17 +191,17 @@ func testAccCheckCloudIam(resourceName, role string, members []string) resource.
 	}
 }
 
-func testAccCloudAssociateBindingBasic(cloudID, role, userID string) string {
-	prerequisiteMembership, deps := testAccCloudAssignCloudMemberRole(cloudID, userID)
+func testAccCloudAssociateBindingUpdated(cloudID, role, userID1, userID2 string) string {
+	prerequisiteMembership, deps := testAccCloudAssignCloudMemberRole(cloudID, userID1, userID2)
 	return prerequisiteMembership + fmt.Sprintf(`
 resource "yandex_resourcemanager_cloud_iam_binding" "acceptance" {
   cloud_id = "%s"
   role     = "%s"
-  members  = ["userAccount:%s"]
+  members  = ["userAccount:%s", "userAccount:%s"]
 
   depends_on = [%s]
 }
-`, cloudID, role, userID, deps)
+`, cloudID, role, userID1, userID2, deps)
 }
 
 func testAccCloudAssociateBindingMultiple(cloudID, role1, role2, userID1, userID2 string) string {
@@ -263,18 +229,26 @@ resource "yandex_resourcemanager_cloud_iam_binding" "multiple" {
 
 	return prerequisiteMembership + multiple1 + multiple2
 }
+func cloudIamBindingImportStep(resourceName, cloudID, role string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      resourceName,
+		ImportStateId:     fmt.Sprintf("%s %s", cloudID, role),
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
 
-func testAccCloudAssociateBindingUpdated(cloudID, role, userID1, userID2 string) string {
-	prerequisiteMembership, deps := testAccCloudAssignCloudMemberRole(cloudID, userID1, userID2)
+func testAccCloudAssociateBindingBasic(cloudID, role, userID string) string {
+	prerequisiteMembership, deps := testAccCloudAssignCloudMemberRole(cloudID, userID)
 	return prerequisiteMembership + fmt.Sprintf(`
 resource "yandex_resourcemanager_cloud_iam_binding" "acceptance" {
   cloud_id = "%s"
   role     = "%s"
-  members  = ["userAccount:%s", "userAccount:%s"]
+  members  = ["userAccount:%s"]
 
   depends_on = [%s]
 }
-`, cloudID, role, userID1, userID2, deps)
+`, cloudID, role, userID, deps)
 }
 
 func testAccCloudAssociateBindingDropMemberFromBasic(cloudID, role, userID string) string {
@@ -288,41 +262,4 @@ resource "yandex_resourcemanager_cloud_iam_binding" "acceptance" {
   depends_on = [%s]
 }
 `, cloudID, role, userID, deps)
-}
-
-func testAccCloudAssociateMemberBasic(cloudID, role, userID string) string {
-	prerequisiteMembership, deps := testAccCloudAssignCloudMemberRole(cloudID, userID)
-
-	return prerequisiteMembership + fmt.Sprintf(`
-resource "yandex_resourcemanager_cloud_iam_member" "acceptance" {
-  cloud_id = "%s"
-  role     = "%s"
-  member   = "userAccount:%s"
-
-  depends_on = [%s]
-}
-`, cloudID, role, userID, deps)
-}
-
-func testAccCloudAssignCloudMemberRole(cloudID string, usersID ...string) (string, string) {
-	var config bytes.Buffer
-	var resourceRefs []string
-
-	for _, userID := range usersID {
-		resType := "yandex_resourcemanager_cloud_iam_member"
-		resName := fmt.Sprintf("membership-%s-%s", cloudID, userID)
-
-		config.WriteString(fmt.Sprintf(`
-// Make user member of cloud to allow assign another roles
-resource "%s" "%s" {
-  cloud_id = "%s"
-  role     = "resource-manager.clouds.member"
-  member   = "userAccount:%s"
-}
-`, resType, resName, cloudID, userID))
-
-		resourceRefs = append(resourceRefs, fmt.Sprintf("\"%s.%s\"", resType, resName))
-	}
-
-	return config.String(), strings.Join(resourceRefs, ",")
 }

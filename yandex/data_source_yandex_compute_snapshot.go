@@ -89,12 +89,19 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	d.Set("created_at", createdAt)
 	d.Set("name", snapshot.Name)
 	d.Set("description", snapshot.Description)
-	d.Set("labels", snapshot.Labels)
-	d.Set("product_ids", snapshot.ProductIds)
 	d.Set("storage_size", toGigabytes(snapshot.StorageSize))
 	d.Set("disk_size", toGigabytes(snapshot.DiskSize))
 	d.Set("status", strings.ToLower(snapshot.Status.String()))
 	d.Set("source_disk_id", snapshot.GetSourceDiskId())
+
+	if err := d.Set("labels", snapshot.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("product_ids", snapshot.ProductIds); err != nil {
+		return err
+	}
+
 	d.SetId(snapshot.Id)
 
 	return nil

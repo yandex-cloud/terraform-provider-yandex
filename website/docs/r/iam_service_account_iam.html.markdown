@@ -12,15 +12,16 @@ When managing IAM roles, you can treat a service account either as a resource or
 This resource is used to add IAM policy bindings to a service account resource to configure permissions 
 that define who can edit the service account.
 
-Three different resources that help you manage your IAM policy for a service account. Each of these resources is used for a different use case:
+There are three different resources that help you manage your IAM policy for a service account. 
+Each of these resources is used for a different use case:
 
 * `yandex_iam_service_account_iam_policy`: Authoritative. Sets the IAM policy for the service account and replaces any existing policy already attached.
 * `yandex_iam_service_account_iam_binding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service account are preserved.
 * `yandex_iam_service_account_iam_member`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role of the service account are preserved.
 
-~> **Note:** `yandex_iam_service_account_iam_policy` **cannot** be used in conjunction with `yandex_iam_service_account_iam_binding` and `yandex_iam_service_account_iam_member` or they will confront over what your policy should be.
+~> **Note:** `yandex_iam_service_account_iam_policy` **cannot** be used in conjunction with `yandex_iam_service_account_iam_binding` and `yandex_iam_service_account_iam_member` or they will conflict over what your policy should be.
 
-~> **Note:** `yandex_iam_service_account_iam_binding` resources **can be** used in conjunction with `yandex_iam_service_account_iam_member` resources **only if** they do not grant privilege to the same role.
+~> **Note:** `yandex_iam_service_account_iam_binding` resources **can be** used in conjunction with `yandex_iam_service_account_iam_member` resources **only if** they do not grant privileges to the same role.
 
 ## yandex\_service\_account\_iam\_policy
 
@@ -46,8 +47,9 @@ resource "yandex_iam_service_account_iam_policy" "admin-account-iam" {
 ```hcl
 resource "yandex_iam_service_account_iam_binding" "admin-account-iam" {
   service_account_id = "your-service-account-id"
-  
-  role    = "admin"
+
+  role = "admin"
+
   members = [
     "userAccount:foo_user_id",
   ]
@@ -59,7 +61,7 @@ resource "yandex_iam_service_account_iam_binding" "admin-account-iam" {
 ```hcl
 resource "yandex_iam_service_account_iam_member" "admin-account-iam" {
   service_account_id = "your-service-account-id"
-  
+
   role   = "admin"
   member = "userAccount:bar_user_id"
 }
@@ -73,9 +75,8 @@ The following arguments are supported:
 
 * `member/members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
-  * **allUsers**: A special value that represents anyone who is on the internet; with or without a Yandex account.
-  * **allAuthenticatedUsers**: A special value that represents anyone who is authenticated with a Yandex account or a service account.
-  * **userAccount:{user_id}**: An unique user ID that represents a specific Yandex account.
+  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
 
 * `role` - (Required) The role that should be applied. Only one
     `yandex_iam_service_account_iam_binding` can be used per role.

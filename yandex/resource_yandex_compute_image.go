@@ -23,7 +23,6 @@ func resourceYandexComputeImage() *schema.Resource {
 		Read:   resourceYandexComputeImageRead,
 		Update: resourceYandexComputeImageUpdate,
 		Delete: resourceYandexComputeImageDelete,
-
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -42,30 +41,45 @@ func resourceYandexComputeImage() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
+
+			"labels": {
+				Type:     schema.TypeMap,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
+
 			"family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
+
 			"min_disk_size": {
 				Type:     schema.TypeInt,
-				Required: true,
+				Computed: true,
+				Optional: true,
+			},
+
+			"os_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 				ForceNew: true,
 			},
-			"size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
+
 			"source_family": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -73,6 +87,7 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source_snapshot", "source_disk", "source_url", "source_image"},
 			},
+
 			"source_image": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -80,6 +95,7 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source_snapshot", "source_disk", "source_url", "source_family"},
 			},
+
 			"source_snapshot": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -87,6 +103,7 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source_image", "source_disk", "source_url", "source_family"},
 			},
+
 			"source_disk": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -94,6 +111,7 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source_image", "source_snapshot", "source_url", "source_family"},
 			},
+
 			"source_url": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -101,17 +119,7 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"source_image", "source_snapshot", "source_disk", "source_family"},
 			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-			"os_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
+
 			"product_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -119,6 +127,12 @@ func resourceYandexComputeImage() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
+
+			"size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -133,17 +147,17 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating image: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating image: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error creating image: %s", err)
+		return fmt.Errorf("Error expanding labels while creating image: %s", err)
 	}
 
 	productIds, err := expandProductIds(d.Get("product_ids"))
 	if err != nil {
-		return fmt.Errorf("Error creating image: %s", err)
+		return fmt.Errorf("Error expanding product IDs while creating image: %s", err)
 	}
 
 	osTypeName := strings.ToUpper(d.Get("os_type").(string))
@@ -164,7 +178,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 
 	err = prepareSourceForImage(&req, d, meta)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while prepare request to create image: %s", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
@@ -172,22 +186,22 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error wrapping operation: %s", err)
+		return fmt.Errorf("Error while requesting API to create image: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create image: %s", err)
+		return fmt.Errorf("Error while waiting operation to create image: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Image creation failed: %s", err)
 	}
 
 	image, ok := resp.(*compute.Image)
 	if !ok {
-		return errors.New("response doesn't contain Image")
+		return errors.New("Create response doesn't contain Image")
 	}
 
 	d.SetId(image.Id)
@@ -213,10 +227,12 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("status", strings.ToLower(image.Status.String()))
 	d.Set("family", image.Family)
 	d.Set("size", toGigabytes(image.StorageSize))
-	d.Set("labels", image.Labels)
-	d.Set("product_ids", image.ProductIds)
 
-	return nil
+	if err := d.Set("labels", image.Labels); err != nil {
+		return err
+	}
+
+	return d.Set("product_ids", image.ProductIds)
 }
 
 func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -399,7 +415,7 @@ func makeImageUpdateRequest(req *compute.UpdateImageRequest, d *schema.ResourceD
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Update(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to update Image %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

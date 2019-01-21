@@ -110,15 +110,25 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("created_at", createdAt)
 	d.Set("name", disk.Name)
 	d.Set("description", disk.Description)
-	d.Set("labels", disk.Labels)
 	d.Set("type", disk.TypeId)
 	d.Set("zone", disk.ZoneId)
 	d.Set("size", toGigabytes(disk.Size))
-	d.Set("product_ids", disk.ProductIds)
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("source_image_id", disk.GetSourceImageId())
 	d.Set("source_snapshot_id", disk.GetSourceSnapshotId())
-	d.Set("instance_ids", disk.InstanceIds)
+
+	if err := d.Set("instance_ids", disk.InstanceIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("labels", disk.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("product_ids", disk.ProductIds); err != nil {
+		return err
+	}
+
 	d.SetId(disk.Id)
 
 	return nil

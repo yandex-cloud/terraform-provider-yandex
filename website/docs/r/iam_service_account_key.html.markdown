@@ -17,8 +17,8 @@ This snippet creates a service account static key.
 
 ```hcl
 resource "yandex_iam_service_account_key" "sa-key" {
-  name        = "primary key"
-  description = "key to access S3"
+  service_account_id = "some_sa_id"
+  description        = "key to access primary storage"
 }
 ```
 
@@ -26,12 +26,9 @@ resource "yandex_iam_service_account_key" "sa-key" {
 
 The following arguments are supported:
 
-* `service_account_id` - (Required) ID of service account which is used to get a static key.
+* `service_account_id` - (Required) ID of the service account which is used to get a static key.
 
 - - -
-
-* `name` - (Optional) Name of the service account.
-    Can be updated without creating a new resource.
 
 * `description` - (Optional) The description of the service account.
 

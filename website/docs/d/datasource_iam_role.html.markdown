@@ -10,7 +10,7 @@ description: |-
 # yandex\_iam\_role
 
 Generates an [IAM] role document that may be referenced by and applied to
-other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information see
+other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/iam/concepts/access-control/roles).
 
 ```hcl
@@ -19,13 +19,13 @@ data "yandex_iam_role" "admin" {
     role = "admin"
 
     members = [
-      "userAccount:user_id_1",
+      "userAccount:user_id_1"
     ]
   }
 }
 ```
 
-This data source is used to define [IAM] roles to apply to other resources.
+This data source is used to define [IAM] roles in order to apply them to other resources.
 Currently, defining a role through a data source and referencing that role
 from another resource is the only way to apply an IAM role to a resource.
 
@@ -44,9 +44,8 @@ Each role document configuration must have one or more `binding` blocks. Each bl
 
 * `members` (Required) - An array of identities that will be granted the privilege in the `role`.
   Each entry can have one of the following values:
-  * **allUsers**: A special value that represents anyone who is on the internet; with or without a Yandex account.
-  * **allAuthenticatedUsers**: A special value that represents anyone who authenticated with a Yandex account or a service account.
-  * **userAccount:{user_id}**: An unique user ID that represents a specific Yandex account.
+  * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
 
 ## Attributes Reference
 

@@ -30,36 +30,42 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
+			"source_disk_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"source_disk_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
+
 			"disk_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+
 			"storage_size": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -74,12 +80,12 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating snapshot: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating snapshot: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error creating snapshot: %s", err)
+		return fmt.Errorf("Error expanding labels while creating snapshot: %s", err)
 	}
 
 	req := compute.CreateSnapshotRequest{
@@ -95,22 +101,22 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error creating snapshot: %s", err)
+		return fmt.Errorf("Error while requesting API to create snapshot: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create snapshot: %s", err)
+		return fmt.Errorf("Error while waiting operation to create snapshot: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Snapshot creation failed: %s", err)
 	}
 
 	snapshot, ok := resp.(*compute.Snapshot)
 	if !ok {
-		return fmt.Errorf("response doesn't contain Snapshot")
+		return fmt.Errorf("Create response doesn't contain Snapshot")
 	}
 
 	d.SetId(snapshot.Id)
@@ -134,10 +140,9 @@ func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", snapshot.Description)
 	d.Set("disk_size", toGigabytes(snapshot.DiskSize))
 	d.Set("storage_size", toGigabytes(snapshot.StorageSize))
-	d.Set("labels", snapshot.Labels)
 	d.Set("source_disk_id", snapshot.SourceDiskId)
 
-	return nil
+	return d.Set("labels", snapshot.Labels)
 }
 
 func resourceYandexComputeSnapshotUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -246,7 +251,7 @@ func makeSnapshotUpdateRequest(req *compute.UpdateSnapshotRequest, d *schema.Res
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Update(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to update Snapshot %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

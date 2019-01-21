@@ -124,16 +124,19 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("folder_id", image.FolderId)
 	d.Set("name", image.Name)
 	d.Set("description", image.Description)
-	if err := d.Set("labels", image.Labels); err != nil {
-		return err
-	}
-	if err := d.Set("product_ids", image.ProductIds); err != nil {
-		return err
-	}
 	d.Set("status", strings.ToLower(image.Status.String()))
 	d.Set("os_type", strings.ToLower(image.Os.Type.String()))
 	d.Set("min_disk_size", toGigabytes(image.MinDiskSize))
 	d.Set("size", toGigabytes(image.StorageSize))
+
+	if err := d.Set("labels", image.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("product_ids", image.ProductIds); err != nil {
+		return err
+	}
+
 	d.SetId(image.Id)
 
 	return nil

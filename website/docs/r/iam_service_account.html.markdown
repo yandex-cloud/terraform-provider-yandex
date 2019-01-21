@@ -8,13 +8,12 @@ description: |-
 
 # yandex\_service\_account
 
-Allows management of a Yandex Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts)
-To assign roles and permissions use the [yandex_iam_service_account_iam_* resources](iam_service_account_iam.html).
+Allows management of a Yandex Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+To assign roles and permissions, use the [yandex_iam_service_account_iam_* resources](iam_service_account_iam.html).
 
 ## Example Usage
 
-This snippet creates a service account, then gives an objectViewer
-permission in a folder to it.
+This snippet creates a service account.
 
 ```hcl
 resource "yandex_iam_service_account" "sa" {

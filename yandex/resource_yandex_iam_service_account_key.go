@@ -16,31 +16,32 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 		Create: resourceYandexIAMServiceAccountKeyCreate,
 		Read:   resourceYandexIAMServiceAccountKeyRead,
 		Delete: resourceYandexIAMServiceAccountKeyDelete,
+
 		Schema: map[string]*schema.Schema{
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			// There is no Update method for IAM SA key, so "description" field set as 'ForceNew:true'
+			// There is no Update method for IAM SA Key resource,
+			// so "description" attr set as 'ForceNew:true'
+
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
+
 			"access_key": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
 			"secret_key": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
-			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,

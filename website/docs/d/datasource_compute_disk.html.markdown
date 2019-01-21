@@ -3,12 +3,12 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_disk"
 sidebar_current: "docs-yandex-datasource-compute-disk"
 description: |-
-  Get information about a Yandex Compute Disk.
+  Get information about a Yandex Compute disk.
 ---
 
 # yandex\_compute\_disk
 
-Get information about a Yandex Compute Disk. For more information see
+Get information about a Yandex Compute disk. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk).
 
 ## Example Usage
@@ -47,8 +47,8 @@ exported:
 * `snapshot_id` - Source snapshot to use for disk creation.
 * `type` - Type of the disk.
 * `status` - Status of the disk.
-* `source_image_id` - ID of the image that is used to create this disk.
-* `source_snapshot_id` - ID of the snapshot that is used to create this disk. 
+* `source_image_id` - ID of the image that was used to create this disk.
+* `source_snapshot_id` - ID of the snapshot that was used to create this disk. 
 * `labels` -  Map of labels applied to this disk.
 * `product_ids` - License IDs that indicate which licenses are attached to this disk.
 * `instance_ids` - IDs of instances to which this disk is attached.  

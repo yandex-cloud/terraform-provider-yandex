@@ -178,7 +178,7 @@ func TestFlattenInstanceBootDisk(t *testing.T) {
 							"name":        "mock-disk-name",
 							"description": "mock-disk-description",
 							"size":        4,
-							"type_id":     "network-hdd",
+							"type":        "network-hdd",
 							"image_id":    "",
 						},
 					},

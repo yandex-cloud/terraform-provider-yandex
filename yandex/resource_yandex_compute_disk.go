@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -22,10 +23,11 @@ func resourceYandexComputeDisk() *schema.Resource {
 		Read:   resourceYandexComputeDiskRead,
 		Update: resourceYandexComputeDiskUpdate,
 		Delete: resourceYandexComputeDiskDelete,
-
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
+
+		CustomizeDiff: customdiff.ForceNewIfChange("size", isDiskSizeDecreased),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexComputeDiskDefaultTimeout),
@@ -41,63 +43,76 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Optional: true,
 				Default:  "",
 			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"size": {
-				Type:     schema.TypeInt,
-				Required: true,
-				ForceNew: true,
-			},
-			"image_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"snapshot_id"},
-			},
-			"snapshot_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"image_id"},
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "network-hdd",
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"source_image_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"source_snapshot_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"size": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      150,
+				ValidateFunc: validateDiskSize,
+			},
+
+			"image_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"snapshot_id"},
+			},
+
+			"snapshot_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"image_id"},
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "network-hdd",
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"source_image_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"source_snapshot_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"product_ids": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -113,17 +128,17 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 
 	zone, err := getZone(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating disk: %s", err)
+		return fmt.Errorf("Error getting zone while creating disk: %s", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating disk: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating disk: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error creating disk: %s", err)
+		return fmt.Errorf("Error expanding labels while creating disk: %s", err)
 	}
 
 	req := compute.CreateDiskRequest{
@@ -151,22 +166,22 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error creating disk: %s", err)
+		return fmt.Errorf("Error while requesting API to create disk: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create disk: %s", err)
+		return fmt.Errorf("Error while waiting operation to create disk: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Disk creation failed: %s", err)
 	}
 
 	disk, ok := resp.(*compute.Disk)
 	if !ok {
-		return errors.New("response doesn't contain Disk")
+		return errors.New("Create response doesn't contain Disk")
 	}
 
 	d.SetId(disk.Id)
@@ -192,20 +207,17 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("type", disk.TypeId)
 	d.Set("size", toGigabytes(disk.Size))
-	if err := d.Set("product_ids", disk.ProductIds); err != nil {
-		return err
-	}
-	if err := d.Set("labels", disk.Labels); err != nil {
-		return err
-	}
 	d.Set("source_image_id", disk.GetSourceImageId())
 	d.Set("source_snapshot_id", disk.GetSourceSnapshotId())
 
-	return nil
+	if err := d.Set("product_ids", disk.ProductIds); err != nil {
+		return err
+	}
+
+	return d.Set("labels", disk.Labels)
 }
 
 func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	d.Partial(true)
 
 	labelPropName := "labels"
@@ -332,7 +344,7 @@ func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceDat
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Update(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to update Disk %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
@@ -341,4 +353,20 @@ func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceDat
 	}
 
 	return nil
+}
+
+func isDiskSizeDecreased(old, new, _ interface{}) bool {
+	if old == nil || new == nil {
+		return false
+	}
+	return new.(int) < old.(int)
+}
+
+func validateDiskSize(v interface{}, _ string) (warnings []string, errors []error) {
+	value := v.(int)
+	if value < 0 || value > 4096 {
+		errors = append(errors, fmt.Errorf(
+			"The `size` can only be between 0 and 4096"))
+	}
+	return warnings, errors
 }

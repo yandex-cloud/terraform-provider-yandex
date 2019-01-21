@@ -74,10 +74,14 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 
 	d.Set("name", folder.Name)
 	d.Set("description", folder.Description)
-	d.Set("labels", folder.Labels)
 	d.Set("cloud_id", folder.CloudId)
 	d.Set("status", strings.ToLower(folder.Status.String()))
 	d.Set("created_at", createdAt)
+
+	if err := d.Set("labels", folder.Labels); err != nil {
+		return err
+	}
+
 	d.SetId(folder.Id)
 
 	return nil

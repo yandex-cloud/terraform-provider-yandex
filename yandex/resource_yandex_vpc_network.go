@@ -21,7 +21,6 @@ func resourceYandexVPCNetwork() *schema.Resource {
 		Read:   resourceYandexVPCNetworkRead,
 		Update: resourceYandexVPCNetworkUpdate,
 		Delete: resourceYandexVPCNetworkDelete,
-
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -69,12 +68,12 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error creating network: %s", err)
+		return fmt.Errorf("Error expanding labels while creating network: %s", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating subnet: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating network: %s", err)
 	}
 
 	req := vpc.CreateNetworkRequest{
@@ -89,22 +88,22 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error creating network: %s", err)
+		return fmt.Errorf("Error while requesting API to create network: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create network: %s", err)
+		return fmt.Errorf("Error while waiting operation to create network: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Network creation failed: %s", err)
 	}
 
 	network, ok := resp.(*vpc.Network)
 	if !ok {
-		return errors.New("response doesn't contain Network")
+		return errors.New("Create response doesn't contain Network")
 	}
 
 	d.SetId(network.Id)
@@ -126,9 +125,8 @@ func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	d.Set("description", network.Description)
-	d.Set("labels", network.Labels)
 
-	return nil
+	return d.Set("labels", network.Labels)
 }
 
 func resourceYandexVPCNetworkUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -166,7 +164,7 @@ func resourceYandexVPCNetworkUpdate(d *schema.ResourceData, meta interface{}) er
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Update(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
+		return fmt.Errorf("Error while requesting API to update Network %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

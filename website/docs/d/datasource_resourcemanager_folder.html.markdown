@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_resourcemanager\_folder
 
-Use this data source to get information about a Yandex Resource Manager Folder. For more information see
+Use this data source to get information about a Yandex Resource Manager Folder. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/resource-manager/concepts/resources-hierarchy#folder).
 
 ```hcl
@@ -36,7 +36,7 @@ output "my_folder_2_cloud_id" {
 
 The following arguments are supported:
 
-* `folder_id` (Required) - The ID of the folder.
+* `folder_id` (Required) - ID of the folder.
 
 ## Attributes Reference
 
@@ -44,7 +44,7 @@ The following attributes are exported:
 
 * `name` - Name of the Folder.
 * `description` - Description of the folder.
-* `cloud_id` - ID of the cloud that contains a folder.
+* `cloud_id` - ID of the cloud that contains the folder.
 * `status` - Current status of the folder.
 * `labels` - A map of labels applied to this folder.
 * `created_at` - Folder creation timestamp.

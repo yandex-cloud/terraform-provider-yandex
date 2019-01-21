@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_compute\_snapshot
 
-Get information about a Yandex Compute Snapshot. For more information see
+Get information about a Yandex Compute snapshot. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/compute/concepts/snapshot).
 
 ## Example Usage

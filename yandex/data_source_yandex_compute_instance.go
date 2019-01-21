@@ -118,7 +118,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 										Type:     schema.TypeInt,
 										Computed: true,
 									},
-									"type_id": {
+									"type": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},

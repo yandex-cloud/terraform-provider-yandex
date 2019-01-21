@@ -8,7 +8,8 @@ description: |-
 
 # yandex\_iam\_service\_account
 
-Get information about a Yandex IAM service account. See details about accounts [Yandex Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users).
+Get information about a Yandex IAM service account. For more information about accounts, see 
+[Yandex Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users).
 
 ```hcl
 data "yandex_iam_service_account" "builder" {
@@ -18,9 +19,10 @@ data "yandex_iam_service_account" "builder" {
 
 ## Argument reference
 
-* `name` - Name of the service account. Can be updated without creating a new resource.
+* `name` - Name of the service account.
+    Can be updated without creating a new resource.
 
 * `description` - Description of the service account.
 
 * `folder_id` - ID of the folder that the service account will be created in.
-    Defaults to the provider folder configuration.
+    If omitted, the provider folder configuration is used by default.

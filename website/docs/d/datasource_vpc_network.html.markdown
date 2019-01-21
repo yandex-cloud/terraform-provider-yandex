@@ -8,7 +8,8 @@ description: |-
 
 # yandex\_vpc\_network
 
-Get information about a Yandex VPC network. See details about [Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+Get information about a Yandex VPC network. For more information, see
+[Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ```hcl
 data "yandex_vpc_network" "admin" {
@@ -16,7 +17,7 @@ data "yandex_vpc_network" "admin" {
 }
 ```
 
-This data source is used to define [VPC Networks] to use to other resources.
+This data source is used to define [VPC Networks] that can be used by other resources.
 
 ## Argument Reference
 
@@ -30,9 +31,8 @@ The following attribute is exported:
 
 * `description` - Description of the network.
 * `name` - Name of the network.
-* `folder_id` - ID of the folder in which the resource belongs.
+* `folder_id` - ID of the folder that the resource belongs to.
 * `labels` - Labels assigned to this network.
-* `subnet_ids` - List of all subnet IDs belonging to the network.
 * `created_at` - Creation timestamp of this network.
 
 [VPC Networks]: https://cloud.yandex.com/docs/vpc/concepts/network

@@ -8,8 +8,8 @@ description: |-
 
 # yandex\_compute\_instance
 
-VM instance resource. For more information see
-[the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm)
+A VM instance resource. For more information, see
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/vm).
 
 ## Example Usage
 
@@ -40,21 +40,19 @@ resource "yandex_compute_instance" "default" {
   }
 }
 
-resource "yandex_vpc_network" "foo" {
-}
+resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-    zone       = "ru-central1-a"
-    network_id = "${yandex_vpc_network.foo.id}"
+  zone       = "ru-central1-a"
+  network_id = "${yandex_vpc_network.foo.id}"
 }
-
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `resources` - (Required) Compute resources that are allocated for instance.
+* `resources` - (Required) Compute resources that are allocated for the instance.
     The structure is documented below.
 
 * `boot_disk` - (Required) The boot disk for the instance.
@@ -69,50 +67,52 @@ The following arguments are supported:
 
 * `description` - (Optional) Description of the instance.
 
-* `zone` - (Optional) The availability zone where the machine will be created. If it is not provided,
-    the default provider folder is used.
-
-* `platform_id` - (Optional) Type of the virtual machine to create. Default is 'standard-v1'.
-
-* `secondary_disk` - (Optional) A list of disks to attach to the instance. The structure is documented below.
-    **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true in order to update this structure.
+* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it
+    is not provided, the default provider folder is used.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance.
+
+* `zone` - (Optional) The availability zone where the virtual machine will be created. If it is not provided,
+    the default provider folder is used.
+
+* `hostname` - (Optional) ---
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance.
 
-* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it
-    is not provided, the default provider folder is used.
+* `platform_id` - (Optional) The type of virtual machine to create. The default is 'standard-v1'.
 
-* `allow_stopping_for_update` - (Optional)  If true, allows Terraform to stop the instance to update its properties.
+* `secondary_disk` - (Optional) A list of disks to attach to the instance. The structure is documented below.
+    **Note**: The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to true in order to update this structure.
+
+* `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
     If you try to update a property that requires stopping the instance without setting this field, the update will fail.
 
 ---
 
 The `resources` block supports:
 
-* `cores` - (Required) CPU cores for instance.
+* `cores` - (Required) CPU cores for the instance.
 
-* `memory` - (Required) Memory size in Gb.
+* `memory` - (Required) Memory size in GB.
 
-* `core_fraction` - (Optional) If provided, specifies baseline performance for a core in percent.
+* `core_fraction` - (Optional) If provided, specifies baseline performance for a core as a percent.
 
 The `boot_disk` block supports:
 
 * `auto_delete` - (Optional) Defines whether the disk will be auto-deleted when the instance
-    is deleted. Default value is `True`.
+    is deleted. The default value is `True`.
 
 * `device_name` - (Optional) Name that can be used to access an attached disk.
 
-* `mode` - (Optional) Access mode of the Disk resource. By default, a disk is attached in `READ_WRITE` mode.
+* `mode` - (Optional) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+
+* `disk_id` - (Optional) The ID of the existing disk (such as those managed by
+    `yandex_compute_disk`) to attach as a boot disk.
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
     alongside the new instance. Either `initialize_params` or `disk_id` must be set.
     The structure is documented below.
-
-* `disk_id` - (Optional) The ID of the existing disk (such as those managed by
-    `yandex_compute_disk`) to attach as a boot disk.
 
 ~> **NOTE:** Either `initialize_params` or `disk_id` must be specified.
 
@@ -132,6 +132,22 @@ The `initialize_params` block supports:
 
 ~> **NOTE:** Either `image_id` or `snapshot_id` must be specified.
 
+The `network_interface` block supports:
+
+* `subnet_id` - (Required) ID of the subnet to attach this
+    interface to. The subnet must exist in the same zone where this instance will be
+    created.
+
+* `ip_address` - (Optional) The private IP address to assign to the instance. If
+    empty, the address will be automatically assigned from the specified subnet.
+
+* `ipv6` - (Optional) If true, allocate an IPv6 address for the interface.
+    The address will be automatically assigned from the specified subnet.
+
+* `ipv6_address` - (Optional) The private IPv6 address to assign to the instance.
+
+* `nat` - (Optional) Provide a public address, for instance, to access the internet over NAT.
+
 The `secondary_disk` block supports:
 
 * `disk_id` - (Required) ID of the disk that is attached to the instance.
@@ -142,23 +158,8 @@ The `secondary_disk` block supports:
 * `device_name` - (Optional) Name that can be used to access an attached disk
     under `/dev/disk/by-id/`.
 
-* `mode` - (Optional) Access mode to the Disk resource. By default, a disk is attached in `READ_WRITE` mode.
+* `mode` - (Optional) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
 
-The `network_interface` block supports:
-
-* `subnet_id` - (Optional) ID of the subnet to attach this
-    interface to. The subnet must exist in the same zone where this instance will be
-    created.
-
-* `ip_address` - (Optional) The private IP address to assign to the instance. If
-    empty, the address will be automatically assigned from the specified subnet.
-
-* `ipv6` - (Optional) If true allocate IPv6 address for interaface.
-    The address will be automatically assigned from the specified subnet.
-
-* `ipv6_address` - (Optional) The private IPv6 address to assign to the instance.
-
-* `nat` - (Optional) Provide a public address, for instance, to access the Internet through NAT.
 
 ## Attributes Reference
 
@@ -167,9 +168,13 @@ exported:
 
 * `instance_id` - The server-assigned unique identifier of this instance.
 
+* `fqdn` - The fully qualified DNS name of this instance.
+
 * `network_interface.0.address` - The internal IP address of the instance.
 
 * `network_interface.0.nat_ip_address` - The external IP address of the instance.
+
+* `status` - The status of this instance.
 
 ## Import
 

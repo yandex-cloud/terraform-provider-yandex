@@ -36,21 +36,21 @@ resource "yandex_compute_instance" "default" {
 
 The following keys can be used to configure the provider.
 
-* `token` - (Required) Security token used for authentication in the Yandex Cloud.
+* `token` - (Required) Security token used for authentication in Yandex Cloud.
 
-  Token can also be set as an environment variable `YC_TOKEN`.
+  This can also be set as the `YC_TOKEN` environment variable.
 
-* `cloud_id` - (Required) The ID of [Cloud][yandex-cloud] to apply any resources to.
+* `cloud_id` - (Required) The ID of the [cloud][yandex-cloud] to apply any resources to.
 
-  This can also be set as an environment variable `YC_CLOUD_ID`.
+  This can also be set as the `YC_CLOUD_ID` environment variable.
 
-* `folder_id` - (Required) The [Folder][yandex-folder] ID to operate under, if not specified by a given resource.
+* `folder_id` - (Required) The ID of the [folder][yandex-folder] to operate under, if not specified by a given resource.
 
-  This can also be set as an environment variable `YC_FOLDER_ID`.
+  This can also be set as the `YC_FOLDER` environment variable.
 
-* `zone` - (Optional) The  default [availability zone][yandex-zone] to operate under, if not specified by a given resource.
+* `zone` - (Optional) The default [accessibility zone][yandex-zone] to operate under, if not specified by a given resource.
 
-  This can also be set as an environment variable `YC_ZONE`.
+  This can also be set as the `YC_ZONE` environment variable.
 
 
 [yandex-cloud]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud

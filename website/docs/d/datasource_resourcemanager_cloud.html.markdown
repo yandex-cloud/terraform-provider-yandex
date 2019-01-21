@@ -9,8 +9,7 @@ description: |-
 # yandex\_resourcemanager\_cloud
 
 Use this data source to get cloud details.
-For more information see
-[Cloud](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud) description.
+For more information, see [Cloud](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud).
 
 ## Example Usage
 
@@ -40,5 +39,3 @@ The following attributes are returned:
 * `name` - Name of the cloud.
 * `description` - Description of the cloud.
 * `created_at` - Cloud creation timestamp.
-
-

@@ -20,28 +20,33 @@ func resourceYandexIAMServiceAccount() *schema.Resource {
 		Read:   resourceYandexIAMServiceAccountRead,
 		Update: resourceYandexIAMServiceAccountUpdate,
 		Delete: resourceYandexIAMServiceAccountDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
+			Delete: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
+		},
+
+		SchemaVersion: 0,
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 				ForceNew: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-		},
-		SchemaVersion: 0,
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
-			Update: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
-			Delete: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),
 		},
 	}
 }
@@ -51,7 +56,7 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating service account: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating service account: %s", err)
 	}
 
 	req := iam.CreateServiceAccountRequest{
@@ -65,22 +70,22 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 
 	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error wrapping operation: %s", err)
+		return fmt.Errorf("Error while requesting API to create service account: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create service account: %s", err)
+		return fmt.Errorf("Error while waiting operation to create service account: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Service account creation failed: %s", err)
 	}
 
 	sa, ok := resp.(*iam.ServiceAccount)
 	if !ok {
-		return fmt.Errorf("response doesn't contain Service Account")
+		return fmt.Errorf("Create response doesn't contain Service Account")
 	}
 
 	d.SetId(sa.Id)
@@ -131,7 +136,7 @@ func resourceYandexIAMServiceAccountUpdate(d *schema.ResourceData, meta interfac
 
 	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Update(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", d.Get("name").(string)))
+		return fmt.Errorf("Error while requesting API to update Service Account %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

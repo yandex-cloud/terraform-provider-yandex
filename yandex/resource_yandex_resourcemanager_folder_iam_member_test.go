@@ -21,7 +21,7 @@ func TestAccFolderIamMember_basic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			// Create a new folder
+			// Use an example folder
 			{
 				Config: testAccFolderIamBasic(folderID),
 				Check: resource.ComposeTestCheckFunc(
@@ -58,7 +58,7 @@ func TestAccFolderIamMember_multiple(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			// Create a new folder
+			// Use an example folder
 			{
 				Config: testAccFolderIamBasic(folderID),
 				Check: resource.ComposeTestCheckFunc(
@@ -113,7 +113,7 @@ func TestAccFolderIamMember_remove(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			// Create a new folder
+			// Use an example folder
 			{
 				Config: testAccFolderIamBasic(folderID),
 				Check: resource.ComposeTestCheckFunc(

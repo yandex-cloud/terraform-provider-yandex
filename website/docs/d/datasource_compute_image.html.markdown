@@ -3,12 +3,12 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_image"
 sidebar_current: "docs-yandex-datasource-compute-image"
 description: |-
-  Get information about a Yandex Compute Image.
+  Get information about a Yandex Compute image.
 ---
 
 # yandex\_compute\_image
 
-Get information about a Yandex Compute Image. For more information see
+Get information about a Yandex Compute image. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/compute/concepts/images).
 
 ## Example Usage

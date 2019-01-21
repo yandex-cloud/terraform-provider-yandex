@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 )
 
 type Config struct {
@@ -45,7 +46,7 @@ func (c *Config) initAndValidate() error {
 	c.sdk, err = ycsdk.Build(context.Background(), *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
-		grpc.WithUnaryInterceptor(requestIDInterceptor()))
+		grpc.WithUnaryInterceptor(requestid.Interceptor()))
 
 	return err
 }

@@ -27,7 +27,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 		Read:   resourceYandexComputeInstanceRead,
 		Update: resourceYandexComputeInstanceUpdate,
 		Delete: resourceYandexComputeInstanceDelete,
-
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -41,62 +40,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-			"hostname": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"fqdn": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-			"platform_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  "standard-v1",
-			},
-			"instance_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"resources": {
 				Type:     schema.TypeSet,
 				Required: true,
@@ -108,11 +51,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+
 						"cores": {
 							Type:     schema.TypeInt,
 							Required: true,
 							ForceNew: true,
 						},
+
 						"core_fraction": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -122,6 +67,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
 			"boot_disk": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -135,17 +81,20 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Default:  true,
 							ForceNew: true,
 						},
+
 						"device_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
+
 						"mode": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
+
 						"disk_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
@@ -153,6 +102,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 							ForceNew:      true,
 							ConflictsWith: []string{"boot_disk.initialize_params"},
 						},
+
 						"initialize_params": {
 							Type:          schema.TypeList,
 							Optional:      true,
@@ -168,12 +118,14 @@ func resourceYandexComputeInstance() *schema.Resource {
 										Computed: true,
 										ForceNew: true,
 									},
+
 									"description": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
 										ForceNew: true,
 									},
+
 									"size": {
 										Type:         schema.TypeInt,
 										Optional:     true,
@@ -181,12 +133,14 @@ func resourceYandexComputeInstance() *schema.Resource {
 										ValidateFunc: validation.IntAtLeast(1),
 										Default:      8,
 									},
-									"type_id": {
+
+									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
 										ForceNew: true,
 										Default:  "network-hdd",
 									},
+
 									"image_id": {
 										Type:          schema.TypeString,
 										Optional:      true,
@@ -194,6 +148,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 										ForceNew:      true,
 										ConflictsWith: []string{"boot_disk.initialize_params.snapshot_id"},
 									},
+
 									"snapshot_id": {
 										Type:          schema.TypeString,
 										Optional:      true,
@@ -207,53 +162,60 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
 			"network_interface": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"index": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-						"mac_address": {
+						"subnet_id": {
 							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Required: true,
+							ForceNew: true,
 						},
+
 						"ip_address": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
+
 						"ipv6": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
+
 						"ipv6_address": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
 						},
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
+
 						"nat": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
+
+						"index": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+
+						"mac_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"nat_ip_address": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
 						"nat_ip_version": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -261,39 +223,111 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"hostname": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"platform_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  "standard-v1",
+			},
+
 			"allow_stopping_for_update": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+
 			"secondary_disk": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"disk_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
 						"auto_delete": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
+
 						"device_name": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
+
 						"mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "READ_WRITE",
 							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
 						},
-						"disk_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
 					},
 				},
 			},
+
+			"instance_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"fqdn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -315,22 +349,22 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Create(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error create instance: %s", err)
+		return fmt.Errorf("Error while requesting API to create instance: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create instance: %s", err)
+		return fmt.Errorf("Error while waiting operation to create instance: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Instance creation failed: %s", err)
 	}
 
 	instance, ok := resp.(*compute.Instance)
 	if !ok {
-		return fmt.Errorf("response doesn't contain Instance")
+		return fmt.Errorf("Create response doesn't contain Instance")
 	}
 
 	d.SetId(instance.Id)
@@ -663,22 +697,22 @@ func resourceYandexComputeInstanceDelete(d *schema.ResourceData, meta interface{
 func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*compute.CreateInstanceRequest, error) {
 	zone, err := getZone(d, meta)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error getting zone while creating instance: %s", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error getting folder ID while creating instance: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("Error expanding labels: %s", err)
+		return nil, fmt.Errorf("Error expanding labels while creating instance: %s", err)
 	}
 
 	metadata, err := expandLabels(d.Get("metadata"))
 	if err != nil {
-		return nil, fmt.Errorf("Error expanding metadata: %s", err)
+		return nil, fmt.Errorf("Error expanding metadata while creating instance: %s", err)
 	}
 
 	resourcesSpec, err := expandInstanceResourcesSpec(d)
@@ -727,7 +761,7 @@ func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.Res
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Update(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to update Instance %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
@@ -791,12 +825,12 @@ func makeDetachDiskRequest(req *compute.DetachInstanceDiskRequest, d *schema.Res
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachDisk(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to detach Disk %s from Instance %q: %s", req.GetDiskId(), d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error detach Disk %s for Instance %q: %s", req.GetDiskId(), d.Id(), err)
+		return fmt.Errorf("Error detach Disk %s from Instance %q: %s", req.GetDiskId(), d.Id(), err)
 	}
 
 	return nil
@@ -810,12 +844,12 @@ func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, d *schema.Res
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachDisk(ctx, req))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while requesting API to attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error attach Disk %s for Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), d.Id(), err)
+		return fmt.Errorf("Error attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), d.Id(), err)
 	}
 
 	return nil

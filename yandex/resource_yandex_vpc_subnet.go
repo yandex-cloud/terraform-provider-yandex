@@ -21,7 +21,6 @@ func resourceYandexVPCSubnet() *schema.Resource {
 		Read:   resourceYandexVPCSubnetRead,
 		Update: resourceYandexVPCSubnetUpdate,
 		Delete: resourceYandexVPCSubnetDelete,
-
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -35,38 +34,6 @@ func resourceYandexVPCSubnet() *schema.Resource {
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-
 			"network_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -82,6 +49,39 @@ func resourceYandexVPCSubnet() *schema.Resource {
 					ValidateFunc: validateIPV4CidrBlocks,
 				},
 			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"zone": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"v6_cidr_blocks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -98,19 +98,19 @@ func resourceYandexVPCSubnet() *schema.Resource {
 func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	labels, err := expandLabels(d.Get("labels"))
+	zone, err := getZone(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating subnet: %s", err)
+		return fmt.Errorf("Error getting zone while creating subnet: %s", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error creating subnet: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating subnet: %s", err)
 	}
 
-	zone, err := getZone(d, config)
+	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return err
+		return fmt.Errorf("Error expanding labels while creating subnet: %s", err)
 	}
 
 	rangesV4 := []string{}
@@ -147,22 +147,22 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error creating subnet: %s", err)
+		return fmt.Errorf("Error while requesting API to create subnet: %s", err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error create subnet: %s", err)
+		return fmt.Errorf("Error while waiting operation to create subnet: %s", err)
 	}
 
 	resp, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Subnet creation failed: %s", err)
 	}
 
 	subnet, ok := resp.(*vpc.Subnet)
 	if !ok {
-		return errors.New("response doesn't contain Subnet")
+		return errors.New("Create response doesn't contain Subnet")
 	}
 
 	d.SetId(subnet.Id)
@@ -173,7 +173,7 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	network, err := config.sdk.VPC().Subnet().Get(context.Background(), &vpc.GetSubnetRequest{
+	subnet, err := config.sdk.VPC().Subnet().Get(context.Background(), &vpc.GetSubnetRequest{
 		SubnetId: d.Id(),
 	})
 
@@ -181,19 +181,21 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnet %q", d.Get("name").(string)))
 	}
 
-	d.Set("name", network.Name)
-	d.Set("folder_id", network.FolderId)
-	d.Set("description", network.Description)
-	d.Set("labels", network.Labels)
-	d.Set("network_id", network.NetworkId)
-	if err := d.Set("v4_cidr_blocks", convertStringArrToInterface(network.V4CidrBlocks)); err != nil {
+	d.Set("name", subnet.Name)
+	d.Set("zone", subnet.ZoneId)
+	d.Set("folder_id", subnet.FolderId)
+	d.Set("description", subnet.Description)
+	d.Set("network_id", subnet.NetworkId)
+
+	if err := d.Set("labels", subnet.Labels); err != nil {
 		return err
 	}
-	if err := d.Set("v6_cidr_blocks", convertStringArrToInterface(network.V6CidrBlocks)); err != nil {
+
+	if err := d.Set("v4_cidr_blocks", convertStringArrToInterface(subnet.V4CidrBlocks)); err != nil {
 		return err
 	}
-	d.Set("zone", network.ZoneId)
-	return nil
+
+	return d.Set("v6_cidr_blocks", convertStringArrToInterface(subnet.V6CidrBlocks))
 }
 
 func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -231,7 +233,7 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Update(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Subnet %q", d.Get("name").(string)))
+		return fmt.Errorf("Error while requesting API to update Subnet %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
