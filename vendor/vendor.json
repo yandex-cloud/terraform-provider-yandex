@@ -831,6 +831,12 @@
 			"versionExact": "v0.11.7"
 		},
 		{
+			"checksumSHA1": "qVmQPoZmJ2w2OnaxIheWfuwun6g=",
+			"path": "github.com/hashicorp/terraform/helper/customdiff",
+			"revision": "135d05dd6296a18a87e90fd77980c952261a3a6e",
+			"revisionTime": "2019-02-12T02:53:33Z"
+		},
+		{
 			"checksumSHA1": "Vbo55GDzPgG/L/+W2pcvDhxrPZc=",
 			"path": "github.com/hashicorp/terraform/helper/experiment",
 			"revision": "41e50bd32a8825a84535e353c3674af8ce799161",
@@ -1469,6 +1475,12 @@
 			"path": "github.com/yandex-cloud/go-sdk/pkg/grpcclient",
 			"revision": "09bd28b65acdd978bd57fd6a46e981f577e12fdd",
 			"revisionTime": "2018-10-24T08:41:09Z"
+		},
+		{
+			"checksumSHA1": "andEmpKbwxrSEKwLiOYait4Y0kI=",
+			"path": "github.com/yandex-cloud/go-sdk/pkg/requestid",
+			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
+			"revisionTime": "2019-02-12T13:07:48Z"
 		},
 		{
 			"checksumSHA1": "6RwDHJqYgluAkepqtGioqv/D+50=",
