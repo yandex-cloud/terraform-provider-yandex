@@ -146,32 +146,32 @@ func testAccDataSourceVPCSubnetExists(n string) resource.TestCheckFunc {
 func testAccDataSourceVPCSubnetConfig(name1, desc1, name2, desc2 string) string {
 	return fmt.Sprintf(`
 data "yandex_vpc_subnet" "bar1" {
-	subnet_id = "${yandex_vpc_subnet.foo1.id}"
+  subnet_id = "${yandex_vpc_subnet.foo1.id}"
 }
 
 data "yandex_vpc_subnet" "bar2" {
-	subnet_id = "${yandex_vpc_subnet.foo2.id}"
+  subnet_id = "${yandex_vpc_subnet.foo2.id}"
 }
 
 resource "yandex_vpc_network" "foo" {
-	name        = "%s"
-	description = "description for test"
+  name        = "%s"
+  description = "description for test"
 }
 
 resource "yandex_vpc_subnet" "foo1" {
-	name           = "%s"
-	network_id     = "${yandex_vpc_network.foo.id}"
-	description    = "%s"
-	v4_cidr_blocks = ["172.16.1.0/24"]
-	zone           = "ru-central1-b"
+  name           = "%s"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  description    = "%s"
+  v4_cidr_blocks = ["172.16.1.0/24"]
+  zone           = "ru-central1-b"
 }
 
 resource "yandex_vpc_subnet" "foo2" {
-	name           = "%s"
-	network_id     = "${yandex_vpc_network.foo.id}"
-	description    = "%s"
-	v4_cidr_blocks = ["172.16.2.0/24"]
-	zone           = "ru-central1-c"
+  name           = "%s"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  description    = "%s"
+  v4_cidr_blocks = ["172.16.2.0/24"]
+  zone           = "ru-central1-c"
 }
 `, acctest.RandomWithPrefix("tf-network"), name1, desc1, name2, desc2)
 }
@@ -179,34 +179,34 @@ resource "yandex_vpc_subnet" "foo2" {
 func testAccDataSourceVPCSubnetConfigV6(name1, desc1, name2, desc2 string) string {
 	return fmt.Sprintf(`
 data "yandex_vpc_subnet" "bar1" {
-	subnet_id = "${yandex_vpc_subnet.foo1.id}"
+  subnet_id = "${yandex_vpc_subnet.foo1.id}"
 }
 
 data "yandex_vpc_subnet" "bar2" {
-	subnet_id = "${yandex_vpc_subnet.foo2.id}"
+  subnet_id = "${yandex_vpc_subnet.foo2.id}"
 }
 
 resource "yandex_vpc_network" "foo" {
-	name        = "%s"
-	description = "description for test"
+  name        = "%s"
+  description = "description for test"
 }
 
 resource "yandex_vpc_subnet" "foo1" {
-	name           = "%s"
-	network_id     = "${yandex_vpc_network.foo.id}"
-	description    = "%s"
-	v4_cidr_blocks = ["172.16.1.0/24"]
-	v6_cidr_blocks = ["fd01::/64"]
-	zone           = "ru-central1-b"
+  name           = "%s"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  description    = "%s"
+  v4_cidr_blocks = ["172.16.1.0/24"]
+  v6_cidr_blocks = ["fd01::/64"]
+  zone           = "ru-central1-b"
 }
 
 resource "yandex_vpc_subnet" "foo2" {
-	name           = "%s"
-	network_id     = "${yandex_vpc_network.foo.id}"
-	description    = "%s"
-	v4_cidr_blocks = ["172.16.2.0/24"]
-    v6_cidr_blocks = ["fd02::/64"]
-    zone           = "ru-central1-c"
+  name           = "%s"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  description    = "%s"
+  v4_cidr_blocks = ["172.16.2.0/24"]
+  v6_cidr_blocks = ["fd02::/64"]
+  zone           = "ru-central1-c"
 }
 `, acctest.RandomWithPrefix("tf-network"), name1, desc1, name2, desc2)
 }

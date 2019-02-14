@@ -55,14 +55,6 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"source_image_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"source_snapshot_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -114,8 +106,8 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("zone", disk.ZoneId)
 	d.Set("size", toGigabytes(disk.Size))
 	d.Set("status", strings.ToLower(disk.Status.String()))
-	d.Set("source_image_id", disk.GetSourceImageId())
-	d.Set("source_snapshot_id", disk.GetSourceSnapshotId())
+	d.Set("image_id", disk.GetSourceImageId())
+	d.Set("snapshot_id", disk.GetSourceSnapshotId())
 
 	if err := d.Set("instance_ids", disk.InstanceIds); err != nil {
 		return err

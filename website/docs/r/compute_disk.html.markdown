@@ -82,21 +82,6 @@ The following arguments are supported:
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
-
-* `source_image_id` -
-  The ID value of the image that was used to create this disk. This value
-  identifies the exact image that was used to create this persistent
-  disk. For example, if you created the persistent disk from an image
-  that was later deleted and recreated under the same name, the source
-  image ID would identify the exact version of the image that was used.
-
-* `source_snapshot_id` -
-  The unique ID of the snapshot that was used to create this disk. This value
-  identifies the exact snapshot that was used to create this persistent
-  disk. For example, if you created the persistent disk from a snapshot
-  that was later deleted and recreated under the same name, the source
-  snapshot ID would identify the exact version of the snapshot that was
-  used.
   
 * `status` - The status of the disk.  
 
@@ -114,5 +99,5 @@ This resource provides the following configuration options for
 A disk can be imported using any of these accepted formats:
 
 ```
-$ terraform import yandex_compute_disk.default {{id}}
+$ terraform import yandex_compute_disk.default disk_id
 ```

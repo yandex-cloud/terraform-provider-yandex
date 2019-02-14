@@ -29,7 +29,7 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
 						"id"),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
-						"source_image_id"),
+						"image_id"),
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
 						"labels.my-label", "my-label-value"),
 					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
@@ -45,22 +45,22 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 func testAccDataSourceCustomDiskConfig(family, name string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "%s"
+  family = "%s"
 }
 
-resource "yandex_compute_disk" "source_disk" {
-    name     = "%s"
-    zone     = "ru-central1-a"
-    image_id = "${data.yandex_compute_image.ubuntu.id}"
-    size     = 8
+resource "yandex_compute_disk" "foo" {
+  name     = "%s"
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 8
 
-	labels {
-		my-label = "my-label-value"
-	}
+  labels {
+    my-label = "my-label-value"
+  }
 }
 
 data "yandex_compute_disk" "source" {
-    disk_id = "${yandex_compute_disk.source_disk.id}"
+  disk_id = "${yandex_compute_disk.foo.id}"
 }
 `, family, name)
 }

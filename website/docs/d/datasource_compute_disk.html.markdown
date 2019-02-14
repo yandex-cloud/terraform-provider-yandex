@@ -43,12 +43,10 @@ exported:
 * `folder_id` - ID of the folder that the disk belongs to.
 * `zone` - ID of the zone where the disk resides.
 * `size` - Size of the disk, specified in Gb.
-* `image_id` - ID of the source image to use for disk creation.
-* `snapshot_id` - Source snapshot to use for disk creation.
+* `image_id` - ID of the source image that was used to create this disk.
+* `snapshot_id` - Source snapshot that was used to create this disk. 
 * `type` - Type of the disk.
 * `status` - Status of the disk.
-* `source_image_id` - ID of the image that was used to create this disk.
-* `source_snapshot_id` - ID of the snapshot that was used to create this disk. 
 * `labels` -  Map of labels applied to this disk.
 * `product_ids` - License IDs that indicate which licenses are attached to this disk.
 * `instance_ids` - IDs of instances to which this disk is attached.  

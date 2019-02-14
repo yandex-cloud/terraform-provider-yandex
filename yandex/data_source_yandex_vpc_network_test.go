@@ -109,30 +109,31 @@ func testAccDataSourceVPCNetworkExists(n string, network *vpc.Network) resource.
 func testAccDataSourceVPCNetworkConfig(name, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_vpc_network" "bar" {
-	network_id = "${yandex_vpc_network.foo.id}"
+  network_id = "${yandex_vpc_network.foo.id}"
 }
 
 resource "yandex_vpc_network" "foo" {
-	name        = "%s"
-	description = "%s"
-}`, name, desc)
+  name        = "%s"
+  description = "%s"
+}
+`, name, desc)
 }
 
 func testAccDataSourceVPCNetworkConfigWithSubnets(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "foo" {
-	name        = "%s"
-	description = "%s"
+  name        = "%s"
+  description = "%s"
 }
 
 resource "yandex_vpc_subnet" "bar1" {
-	network_id  = "${yandex_vpc_network.foo.id}"
-	v4_cidr_blocks = ["172.16.1.0/24"]
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["172.16.1.0/24"]
 }
 
 resource "yandex_vpc_subnet" "bar2" {
-	network_id  = "${yandex_vpc_network.foo.id}"
-	v4_cidr_blocks = ["172.16.2.0/24"]
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["172.16.2.0/24"]
 }
 `, name, desc)
 }
@@ -140,22 +141,22 @@ resource "yandex_vpc_subnet" "bar2" {
 func testAccDataSourceVPCNetworkConfigWithSubnetsWithDataSource(name, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_vpc_network" "bar" {
-	network_id = "${yandex_vpc_network.foo.id}"
+  network_id = "${yandex_vpc_network.foo.id}"
 }
 
 resource "yandex_vpc_network" "foo" {
-	name        = "%s"
-	description = "%s"
+  name        = "%s"
+  description = "%s"
 }
 
 resource "yandex_vpc_subnet" "bar1" {
-	network_id  = "${yandex_vpc_network.foo.id}"
-	v4_cidr_blocks = ["172.16.1.0/24"]
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["172.16.1.0/24"]
 }
 
 resource "yandex_vpc_subnet" "bar2" {
-	network_id  = "${yandex_vpc_network.foo.id}"
-	v4_cidr_blocks = ["172.16.2.0/24"]
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["172.16.2.0/24"]
 }
 `, name, desc)
 }

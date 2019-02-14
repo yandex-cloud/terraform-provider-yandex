@@ -162,28 +162,28 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 
 func testAccComputeSnapshot_basic(snapshotName, diskName, labelValue string) string {
 	return fmt.Sprintf(`
-
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
-	type     = "network-hdd"
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
 
-	labels = {
-		disk_label = "value-of-disk-label"
-	}
+  labels = {
+    disk_label = "value-of-disk-label"
+  }
 }
 
 resource "yandex_compute_snapshot" "foobar" {
-	name           = "%s"
-	source_disk_id = "${yandex_compute_disk.foobar.id}"
-	
-	labels = {
-		test_label = "%s"
-	}
-}`, diskName, snapshotName, labelValue)
+  name           = "%s"
+  source_disk_id = "${yandex_compute_disk.foobar.id}"
+
+  labels = {
+    test_label = "%s"
+  }
+}
+`, diskName, snapshotName, labelValue)
 }

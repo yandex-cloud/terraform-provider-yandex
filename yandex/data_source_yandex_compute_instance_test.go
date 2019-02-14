@@ -77,6 +77,10 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
 
+		if ds.Primary.ID != rs.Primary.ID {
+			return fmt.Errorf("instance `data source` ID does not match `resource` ID: %s and %s", ds.Primary.ID, rs.Primary.ID)
+		}
+
 		datasourceAttributes := ds.Primary.Attributes
 		resourceAttributes := rs.Primary.Attributes
 
@@ -90,7 +94,6 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 			"labels",
 			"metadata",
 			"zone",
-			"instance_id",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -111,56 +114,56 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 func testAccDataSourceComputeInstanceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foo" {
-	name        = "%s"
-	hostname    = "%s"
-    description = "description"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  hostname    = "%s"
+  description = "description"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-		    image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
-
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
-
-	metadata {
-		foo = "bar"
-		baz = "qux"	
-	}
-
-	metadata {
-		startup-script = "echo Hello"
-	}
-
-	labels {
-		my_key       = "my_value"
-		my_other_key = "my_other_value"
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
     }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  metadata {
+    startup-script = "echo Hello"
+  }
+
+  labels {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 
 data "yandex_compute_instance" "bar" {
-	instance_id = "${yandex_compute_instance.foo.id}"
+  instance_id = "${yandex_compute_instance.foo.id}"
 }
 `, instanceName, instanceName)
 }
@@ -168,58 +171,58 @@ data "yandex_compute_instance" "bar" {
 func testAccDataSourceComputeInstanceConfigIpv6(instanceName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foo" {
-	name        = "%s"
-	hostname    = "%s"
-    description = "description"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  hostname    = "%s"
+  description = "description"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-		    image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
-
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-		ipv6      = true
-	}
-
-	metadata {
-		foo = "bar"
-		baz = "qux"	
-	}
-
-	metadata {
-		startup-script = "echo Hello"
-	}
-
-	labels {
-		my_key       = "my_value"
-		my_other_key = "my_other_value"
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
     }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    ipv6      = true
+  }
+
+  metadata {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  metadata {
+    startup-script = "echo Hello"
+  }
+
+  labels {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
-    v6_cidr_blocks = ["fd00:aabb:ccdd:eeff::/64"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+  v6_cidr_blocks = ["fd00:aabb:ccdd:eeff::/64"]
 }
 
 data "yandex_compute_instance" "bar" {
-	instance_id = "${yandex_compute_instance.foo.id}"
+  instance_id = "${yandex_compute_instance.foo.id}"
 }
 `, instanceName, instanceName)
 }

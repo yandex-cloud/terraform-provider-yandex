@@ -266,73 +266,79 @@ func testAccCheckComputeImageHasSourceDisk(n string) resource.TestCheckFunc {
 func testAccComputeImage_basic(name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "foobar" {
-	name          = "%s"
-	description   = "description-test"
-	family		  = "ubuntu-1804-lts"
-	source_family = "ubuntu-1804-lts"
-    min_disk_size = 10
-	os_type       = "linux"
-	
-	labels = {
-		tf-label    = "tf-label-value"
-		empty-label = ""
-	}
-}`, name)
+  name          = "%s"
+  description   = "description-test"
+  family        = "ubuntu-1804-lts"
+  source_family = "ubuntu-1804-lts"
+  min_disk_size = 10
+  os_type       = "linux"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+}
+`, name)
 }
 
 func testAccComputeImage_productID(name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "foobar" {
-	name          = "%s"
-	description   = "description-test"
-	family		  = "kube-master"
-	source_url    = "https://storage.yandexcloud.net/image4tests/kube-master-bios.img"
-    min_disk_size = 10
-	os_type       = "linux"
+  name          = "%s"
+  description   = "description-test"
+  family        = "kube-master"
+  source_url    = "https://storage.yandexcloud.net/image4tests/kube-master-bios.img"
+  min_disk_size = 10
+  os_type       = "linux"
 
-	labels = {
-		tf-label    = "tf-label-value"
-		empty-label = ""
-	}
-	product_ids = [
-		"super-product",
-        "very-good"
-	]
-}`, name)
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  product_ids = [
+    "super-product",
+    "very-good",
+  ]
+}
+`, name)
 }
 
 func testAccComputeImage_update(name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "foobar" {
-	name          = "%s"
-	description   = "description-test"
-	source_family = "ubuntu-1804-lts"
-	min_disk_size = 10
-	os_type       = "linux"
+  name          = "%s"
+  description   = "description-test"
+  source_family = "ubuntu-1804-lts"
+  min_disk_size = 10
+  os_type       = "linux"
 
-	labels = {
-		empty-label = "oh-look-theres-a-label-now"
-		new-field   = "only-shows-up-when-updated"
-	}
-}`, name)
+  labels = {
+    empty-label = "oh-look-theres-a-label-now"
+    new-field   = "only-shows-up-when-updated"
+  }
+}
+`, name)
 }
 
 func testAccComputeImage_basedondisk() string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "disk-test-%s"
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
+  name     = "disk-test-%s"
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
 }
+
 resource "yandex_compute_image" "foobar" {
-	name          = "image-test-%s"
-	source_disk   = "${yandex_compute_disk.foobar.id}"
-	min_disk_size = 8
-	os_type       = "linux"
-}`, acctest.RandString(8), acctest.RandString(8))
+  name          = "image-test-%s"
+  source_disk   = "${yandex_compute_disk.foobar.id}"
+  min_disk_size = 8
+  os_type       = "linux"
+}
+`, acctest.RandString(8), acctest.RandString(8))
 }

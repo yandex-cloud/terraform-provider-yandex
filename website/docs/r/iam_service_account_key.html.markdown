@@ -1,15 +1,15 @@
 ---
 layout: "yandex"
 page_title: "Yandex: yandex_iam_service_account_key"
-sidebar_current: "docs-yandex-service-account-key"
+sidebar_current: "docs-yandex-iam-service-account-key"
 description: |-
  Allows management of a Yandex Cloud IAM service account static key.
 ---
 
-# yandex\_service\_account\_key
+# yandex\_iam\_service\_account\_key
 
 Allows management of a [Yandex Cloud IAM service account static key](https://cloud.yandex.com/docs/storage/operations/security/get-static-key).
-This key is used to access [Yandex Object Storage](https://cloud.yandex.com/docs/storage/).
+This key is used to access [Yandex Object Storage].
 
 ## Example Usage
 
@@ -37,6 +37,8 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `access_key` - The access key used to access S3.
+* `access_key` - The access key used to access [Yandex Object Storage].
 
-* `secret_key` - The secret key used to access S3.
+* `secret_key` - The secret key used to access [Yandex Object Storage].
+
+[Yandex Object Storage]: https://cloud.yandex.com/docs/storage/

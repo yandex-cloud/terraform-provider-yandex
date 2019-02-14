@@ -88,6 +88,7 @@ func testAccCheckVPCNetworkExists(n string, network *vpc.Network) resource.TestC
 func testAccVPCNetwork_basic() string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "foobar" {
-	name = "network-test-%s"
-}`, acctest.RandString(10))
+  name = "network-test-%s"
+}
+`, acctest.RandString(10))
 }

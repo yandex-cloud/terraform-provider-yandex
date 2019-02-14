@@ -142,47 +142,45 @@ func testAccCheckVPCSubnetExists(n string, subnet *vpc.Subnet) resource.TestChec
 func testAccVPCSubnet_basic(cnName, subnet1Name, subnet2Name string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "custom-test" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "yandex_vpc_subnet" "subnet-a" {
-	name           = "%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.custom-test.id}"
-	v4_cidr_blocks = ["10.0.0.0/16"]
+  name           = "%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.custom-test.id}"
+  v4_cidr_blocks = ["10.0.0.0/16"]
 }
 
 resource "yandex_vpc_subnet" "subnet-b" {
-	name           = "%s"
-	zone           = "ru-central1-b"
-	network_id     = "${yandex_vpc_network.custom-test.id}"
-	v4_cidr_blocks = ["10.1.0.0/16"]
+  name           = "%s"
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.custom-test.id}"
+  v4_cidr_blocks = ["10.1.0.0/16"]
 }
-
 `, cnName, subnet1Name, subnet2Name)
 }
 
 func testAccVPCSubnet_basicV6(cnName, subnet1Name, subnet2Name string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "custom-test" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "yandex_vpc_subnet" "subnet-a" {
-	name           = "%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.custom-test.id}"
-	v4_cidr_blocks = ["10.0.0.0/16"]
-	v6_cidr_blocks = ["fda9:8765:4321:1::/64"]
+  name           = "%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.custom-test.id}"
+  v4_cidr_blocks = ["10.0.0.0/16"]
+  v6_cidr_blocks = ["fda9:8765:4321:1::/64"]
 }
 
 resource "yandex_vpc_subnet" "subnet-b" {
-	name           = "%s"
-	zone           = "ru-central1-b"
-	network_id     = "${yandex_vpc_network.custom-test.id}"
-	v4_cidr_blocks = ["10.1.0.0/16"]
-	v6_cidr_blocks = ["fda9:8765:4321:2::/64"]
+  name           = "%s"
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.custom-test.id}"
+  v4_cidr_blocks = ["10.1.0.0/16"]
+  v6_cidr_blocks = ["fda9:8765:4321:2::/64"]
 }
-
 `, cnName, subnet1Name, subnet2Name)
 }

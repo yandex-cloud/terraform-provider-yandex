@@ -35,11 +35,12 @@ func TestAccDataSourceYandexIAMServiceAccount(t *testing.T) {
 func testAccDataServiceAccount(name, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_iam_service_account" "bar" {
-    service_account_id = "${yandex_iam_service_account.foo.id}"
+  service_account_id = "${yandex_iam_service_account.foo.id}"
 }
 
 resource "yandex_iam_service_account" "foo" {
-    name        = "%s"
-	description = "%s"
-}`, name, desc)
+  name        = "%s"
+  description = "%s"
+}
+`, name, desc)
 }

@@ -166,8 +166,6 @@ The `secondary_disk` block supports:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `instance_id` - The server-assigned unique identifier of this instance.
-
 * `fqdn` - The fully qualified DNS name of this instance.
 
 * `network_interface.0.address` - The internal IP address of the instance.

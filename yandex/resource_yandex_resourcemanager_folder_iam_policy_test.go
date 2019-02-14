@@ -175,7 +175,7 @@ func testAccFolderIamPolicy_basic(cloudID, folderID string, policy *Policy) stri
 data "yandex_resourcemanager_folder" "permissiontest" {
   folder_id = "%s"
 }
- 
+
 data "yandex_iam_policy" "test" {
   %s
 }

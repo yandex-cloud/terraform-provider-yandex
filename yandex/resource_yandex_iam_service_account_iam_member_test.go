@@ -53,8 +53,8 @@ resource "yandex_iam_service_account" "test_account" {
 
 resource "yandex_iam_service_account_iam_member" "foo" {
   service_account_id = "${yandex_iam_service_account.test_account.id}"
-  role   = "%s"
-  member = "userAccount:%s"
+  role               = "%s"
+  member             = "userAccount:%s"
 
   depends_on = [%s]
 }

@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_resourcemanager_folder_iam_binding"
 sidebar_current: "docs-yandex-resourcemanager-folder-iam-binding"
 description: |-
- Allows management of a single binding with an IAM policy for a Yandex Resource Manager folder.
+ Allows management of a single IAM binding for a Yandex Resource Manager folder.
 ---
 
 # yandex\_resourcemanager\_folder\_iam\_binding

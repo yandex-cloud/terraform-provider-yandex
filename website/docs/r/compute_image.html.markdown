@@ -95,5 +95,5 @@ In addition to the arguments listed above, the following computed attributes are
 A VM image can be imported using the `id` of the resource, e.g.
 
 ```
-$ terraform import yandex_compute_image.web-image id
+$ terraform import yandex_compute_image.web-image image_id
 ```

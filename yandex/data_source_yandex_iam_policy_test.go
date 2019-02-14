@@ -69,19 +69,21 @@ func testAccDataSourceYandexIAMPolicy() string {
 data "yandex_iam_policy" "foo" {
   binding {
     role = "editor"
+
     members = [
-	  "userAccount:some_user_id_1",
-      "userAccount:some_user_id_2"
+      "userAccount:some_user_id_1",
+      "userAccount:some_user_id_2",
     ]
   }
 
   binding {
     role = "owner"
+
     members = [
-	  "userAccount:some_user_id_1",
-      "userAccount:some_user_id_2"
+      "userAccount:some_user_id_1",
+      "userAccount:some_user_id_2",
     ]
-  } 
+  }
 }
 `)
 }
@@ -91,18 +93,20 @@ func testAccDataSourceYandexIAMPolicy_invalidConfig() string {
 data "yandex_iam_policy" "foo" {
   binding {
     role = "role_editor"
+
     members = [
-	  "user_user1@yandex.ru",
-      "user2@yandex.ru"
+      "user_user1@yandex.ru",
+      "user2@yandex.ru",
     ]
   }
 
   binding {
     role = "role_owner"
+
     members = [
-      ":user10@yandex.ru"
+      ":user10@yandex.ru",
     ]
-  } 
+  }
 }
 `)
 }

@@ -1,9 +1,9 @@
 ---
 layout: "yandex"
-page_title: "Yandex:yandex_iam_service_account_iam"
-sidebar_current: "docs-yandex-iam-service-account-iam"
+page_title: "Yandex: yandex_iam_service_account_iam_policy"
+sidebar_current: "docs-yandex-iam-service-account-iam-policy"
 description: |-
- Collection of resources to manage IAM policy for a service account.
+ Allows management of the IAM policy for a Yandex IAM service account.
 ---
 
 # IAM policy for a service account
@@ -42,38 +42,13 @@ resource "yandex_iam_service_account_iam_policy" "admin-account-iam" {
 }
 ```
 
-## yandex\_service\_account\_iam\_binding
-
-```hcl
-resource "yandex_iam_service_account_iam_binding" "admin-account-iam" {
-  service_account_id = "your-service-account-id"
-
-  role = "admin"
-
-  members = [
-    "userAccount:foo_user_id",
-  ]
-}
-```
-
-## yandex\_service\_account\_iam\_member
-
-```hcl
-resource "yandex_iam_service_account_iam_member" "admin-account-iam" {
-  service_account_id = "your-service-account-id"
-
-  role   = "admin"
-  member = "userAccount:bar_user_id"
-}
-```
-
 ## Argument Reference
 
 The following arguments are supported:
 
 * `service_account_id` - (Required) The service account ID to apply a policy to.
 
-* `member/members` - (Required) Identities that will be granted the privilege in `role`.
+* `members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
   * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
@@ -86,12 +61,8 @@ The following arguments are supported:
 
 ## Import
 
-Service account IAM resources can be imported using the folder, service account email, role, and member.
+Service account IAM policy resources can be imported using the service account ID.
 
 ```
-$ terraform importyandex_iam_service_account_iam_policy.admin-account-iam {your-service-account-id}
-
-$ terraform importyandex_iam_service_account_iam_binding.admin-account-iam "{your-service-account-id} roles/editor"
-
-$ terraform importyandex_iam_service_account_iam_member.admin-account-iam "{your-service-account-id} roles/editor foo@example.com"
+$ terraform import yandex_iam_service_account_iam_policy.admin-account-iam service_account_id
 ```

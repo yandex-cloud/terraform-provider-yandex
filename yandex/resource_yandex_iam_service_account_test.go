@@ -149,16 +149,18 @@ func testAccCheckIAMServiceAccountDestroy(s *terraform.State) error {
 func testAccServiceAccountBasic(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
-    name = "%v"
-	description = "%v"
- }`, name, desc)
+  name        = "%v"
+  description = "%v"
+}
+`, name, desc)
 }
 
 func testAccServiceAccountWithFolderID(folderID, name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
-    folder_id = "%v"
-    name = "%v"
-	description = "%v"
- }`, folderID, name, desc)
+  folder_id   = "%v"
+  name        = "%v"
+  description = "%v"
+}
+`, folderID, name, desc)
 }

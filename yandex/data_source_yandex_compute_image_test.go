@@ -67,21 +67,21 @@ func TestAccDataSourceComputeImage_StandardByFamily(t *testing.T) {
 func testAccDataSourceCustomImageConfig(family, name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "image" {
-    family        = "%s"
-    name          = "%s"
-    source_disk   = "${yandex_compute_disk.disk.id}"
-    min_disk_size = 10
-    os_type       = "linux"
+  family        = "%s"
+  name          = "%s"
+  source_disk   = "${yandex_compute_disk.disk.id}"
+  min_disk_size = 10
+  os_type       = "linux"
 }
 
 resource "yandex_compute_disk" "disk" {
-    name = "%s-disk"
-    zone = "ru-central1-a"
-    size = 4
+  name = "%s-disk"
+  zone = "ru-central1-a"
+  size = 4
 }
 
 data "yandex_compute_image" "from_id" {
-    image_id = "${yandex_compute_image.image.id}"
+  image_id = "${yandex_compute_image.image.id}"
 }
 `, family, name, name)
 }
@@ -89,7 +89,7 @@ data "yandex_compute_image" "from_id" {
 func testAccDataSourceStandardImageByFamily(family string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "by_family" {
-    family = "%s"
+  family = "%s"
 }
 `, family)
 }

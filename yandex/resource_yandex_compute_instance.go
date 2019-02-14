@@ -313,11 +313,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 
-			"instance_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"fqdn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -413,7 +408,6 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("created_at", createdAt)
-	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
 	d.Set("zone", instance.ZoneId)

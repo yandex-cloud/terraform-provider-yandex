@@ -222,128 +222,132 @@ func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) reso
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
-	type     = "network-hdd"
-	labels {
-		my-label = "my-label-value"
-	}
-}`, diskName)
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
+
+  labels {
+    my-label = "my-label-value"
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_timeout() string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
-	type     = "network-hdd"
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
 
-	timeouts {
-		create = "1s"
-	}
-}`, acctest.RandomWithPrefix("tf-disk"))
+  timeouts {
+    create = "1s"
+  }
+}
+`, acctest.RandomWithPrefix("tf-disk"))
 }
 
 func testAccComputeDisk_updated(diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 8
-	type     = "network-hdd"
-	labels {
-		my-label    = "my-updated-label-value"
-		a-new-label = "a-new-label-value"
-	}
-}`, diskName)
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 8
+  type     = "network-hdd"
+
+  labels {
+    my-label    = "my-updated-label-value"
+    a-new-label = "a-new-label-value"
+  }
+}
+`, diskName)
 }
 
 func testAccComputeDisk_fromSnapshot(folderName, firstDiskName, snapshotName, secondDiskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "d1-%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
-	type     = "network-hdd"
+  name     = "d1-%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
 }
 
 resource "yandex_compute_snapshot" "snapdisk" {
-	name           = "%s"
-	source_disk_id = "${yandex_compute_disk.foobar.id}"
+  name           = "%s"
+  source_disk_id = "${yandex_compute_disk.foobar.id}"
 }
 
 resource "yandex_compute_disk" "seconddisk" {
-	name        = "d2-%s"
-	size        = 6
-	snapshot_id = "${yandex_compute_snapshot.snapdisk.id}"
-	type        = "network-hdd"
-}`, firstDiskName, snapshotName, secondDiskName)
+  name        = "d2-%s"
+  size        = 6
+  snapshot_id = "${yandex_compute_snapshot.snapdisk.id}"
+  type        = "network-hdd"
+}
+`, firstDiskName, snapshotName, secondDiskName)
 }
 
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foo" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
-	type     = "network-hdd"
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
 }
 
 resource "yandex_compute_instance" "bar" {
-	name = "%s"
+  name = "%s"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foo.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foo.id}"
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.bar-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.bar-subnet.id}"
+  }
 }
 
-resource "yandex_vpc_network" "foo-network" {
-}
+resource "yandex_vpc_network" "foo-network" {}
 
 resource "yandex_vpc_subnet" "bar-subnet" {
-    zone           = "ru-central1-a"
-    name           = "testacccomputedisk-deletedetach"
-	network_id     = "${yandex_vpc_network.foo-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  name           = "testacccomputedisk-deletedetach"
+  network_id     = "${yandex_vpc_network.foo-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
-
 `, diskName, instanceName)
 }

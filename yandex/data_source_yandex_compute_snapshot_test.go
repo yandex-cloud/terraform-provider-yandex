@@ -43,24 +43,26 @@ func TestAccDataSourceComputeSnapshot(t *testing.T) {
 func testAccDataSourceSnapshotConfig(diskName, snapshotName, labelValue string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_snapshot" "source" {
-	snapshot_id = "${yandex_compute_snapshot.foobar.id}"
+  snapshot_id = "${yandex_compute_snapshot.foobar.id}"
 }
 
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
-	size     = 4
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
 }
 
 resource "yandex_compute_snapshot" "foobar" {
-	name           = "%s"
-	source_disk_id = "${yandex_compute_disk.foobar.id}"
-	labels = {
-		test_label = "%s"
-	}
-}`, diskName, snapshotName, labelValue)
+  name           = "%s"
+  source_disk_id = "${yandex_compute_disk.foobar.id}"
+
+  labels = {
+    test_label = "%s"
+  }
+}
+`, diskName, snapshotName, labelValue)
 }

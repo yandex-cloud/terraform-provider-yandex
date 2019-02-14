@@ -66,13 +66,15 @@ func testAccDataSourceYandexResourceManagerFolderCheck(data_source_name string, 
 func testAccCheckYandexResourceManagerFolder_byID(folderID string) string {
 	return fmt.Sprintf(`
 data "yandex_resourcemanager_folder" "folder" {
-    folder_id = "%s"
-}`, folderID)
+  folder_id = "%s"
+}
+`, folderID)
 }
 
 func testAccCheckYandexResourceManagerFolder_byIDNotFound(folderID string) string {
 	return fmt.Sprintf(`
 data "yandex_resourcemanager_folder" "folder" {
-    folder_id = "%s"
-}`, folderID)
+  folder_id = "%s"
+}
+`, folderID)
 }

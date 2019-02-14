@@ -83,13 +83,15 @@ func TestAccDataSourceYandexResourceManagerCloud_byName(t *testing.T) {
 func testAccCheckResourceManagerCloud_byID(cloudID string) string {
 	return fmt.Sprintf(`
 data "yandex_resourcemanager_cloud" "acceptance" {
-    cloud_id = "%s"
-}`, cloudID)
+  cloud_id = "%s"
+}
+`, cloudID)
 }
 
 func testAccCheckResourceManagerCloud_byName(name string) string {
 	return fmt.Sprintf(`
 data "yandex_resourcemanager_cloud" "acceptance" {
-    name = "%s"
-}`, name)
+  name = "%s"
+}
+`, name)
 }

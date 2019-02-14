@@ -64,6 +64,7 @@ func testAccDataSourceIAMRoleExists(n string, role *iam.Role) resource.TestCheck
 func testAccCheckIAMRole_byID(cloudID string) string {
 	return fmt.Sprintf(`
 data "yandex_iam_role" "foo" {
-    role_id = "%s"
-}`, cloudID)
+  role_id = "%s"
+}
+`, cloudID)
 }

@@ -51,10 +51,10 @@ resource "yandex_iam_service_account" "test_account" {
 }
 
 data "yandex_iam_policy" "foo" {
-	binding {
-		role = "resource-manager.clouds.member"
-		members = ["userAccount:%s"]
-	}
+  binding {
+    role    = "resource-manager.clouds.member"
+    members = ["userAccount:%s"]
+  }
 }
 
 resource "yandex_iam_service_account_iam_policy" "foo" {

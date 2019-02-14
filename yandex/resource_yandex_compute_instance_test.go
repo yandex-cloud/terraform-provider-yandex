@@ -703,7 +703,7 @@ func testAccCheckComputeInstanceHasInstanceID(instance *compute.Instance, n stri
 		}
 
 		remote := instance.Id
-		local := rs.Primary.Attributes["instance_id"]
+		local := rs.Primary.ID
 
 		if remote != local {
 			return fmt.Errorf("Instance id stored does not match: remote has %#v but local has %#v", remote,
@@ -861,51 +861,51 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 func testAccComputeInstance_basic(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name        = "%s"
-    description = "testAccComputeInstance_basic"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
-
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
-
-	metadata {
-		foo = "bar"
-		baz = "qux"	
-	}
-
-	metadata {
-		startup-script = "echo Hello"
-	}
-
-	labels {
-		my_key       = "my_value"
-		my_other_key = "my_other_value"
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
     }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  metadata {
+    startup-script = "echo Hello"
+  }
+
+  labels {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -913,85 +913,84 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_basic2(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name        = "%s"
-    hostname    = "%s"
-    description = "testAccComputeInstance_basic2"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  hostname    = "%s"
+  description = "testAccComputeInstance_basic2"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		foo = "bar"
-	}
+  metadata {
+    foo = "bar"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
-
-`, instance, instance)
+ `, instance, instance)
 }
 
 func testAccComputeInstance_basic3(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name        = "%s"
-    description = "testAccComputeInstance_basic3"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  description = "testAccComputeInstance_basic3"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		foo = "bar"
-	}
+  metadata {
+    foo = "bar"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -999,41 +998,41 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_basic4(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name        = "%s"
-    description = "testAccComputeInstance_basic4"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  description = "testAccComputeInstance_basic4"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-            size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		foo = "bar"
-	}
+  metadata {
+    foo = "bar"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1041,41 +1040,41 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_basic5(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name        = "%s"
-    description = "testAccComputeInstance_basic5"
-	zone        = "ru-central1-a"
+  name        = "%s"
+  description = "testAccComputeInstance_basic5"
+  zone        = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			size     = 4
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		foo = "bar"
-	}
+  metadata {
+    foo = "bar"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1085,39 +1084,39 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_forceNewAndChangeMetadata(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		qux = "true"
-	}
+  metadata {
+    qux = "true"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1126,44 +1125,44 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_update(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	metadata {
-		bar            = "baz"
-		startup-script = "echo Hello"
-	}
+  metadata {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
 
-	labels {
-		only_me = "nothing_else"
-	}
+  labels {
+    only_me = "nothing_else"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1171,39 +1170,40 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_natIp(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-c"
+  name = "%s"
+  zone = "ru-central1-c"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-		nat       = true
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    nat       = true
+  }
 
-	metadata {
-		foo = "bar"
-	}
+  metadata {
+    foo = "bar"
+  }
 }
+
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-c"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1211,48 +1211,48 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_attachedDisk(disk, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
-    
-	allow_stopping_for_update = true
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  allow_stopping_for_update = true
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, instance)
 }
@@ -1260,45 +1260,46 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_attachedDisk_sourceUrl(disk, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
+
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, instance)
 }
@@ -1306,47 +1307,49 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_attachedDisk_modeRo(disk, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		auto_delete = false
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    auto_delete = false
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-		mode    = "READ_ONLY"
-	}
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+    mode    = "READ_ONLY"
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
+
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, instance)
 }
@@ -1354,59 +1357,59 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_addAttachedDisk(disk, disk2, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_disk" "foobar2" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
-   
-    allow_stopping_for_update = true
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  allow_stopping_for_update = true
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar2.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar2.id}"
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, disk2, instance)
 }
@@ -1414,55 +1417,55 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_detachDisk(disk, disk2, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_disk" "foobar2" {
-	name     = "%s"
-	size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
-    
-    allow_stopping_for_update = true
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  allow_stopping_for_update = true
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	secondary_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, disk2, instance)
 }
@@ -1470,40 +1473,40 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_bootDisk_source(disk, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_disk" "foobar" {
-	name     = "%s"
-    size     = 10
-	zone     = "ru-central1-a"
-	image_id = "${data.yandex_compute_image.ubuntu.id}"
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name      = "%s"
-	zone      = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		disk_id = "${yandex_compute_disk.foobar.id}"
-	}
+  boot_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, disk, instance)
 }
@@ -1511,36 +1514,36 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_bootDisk_type(instance string, diskType string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-			type	 = "%s"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+      type     = "%s"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, diskType)
 }
@@ -1548,27 +1551,26 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_subnet_auto(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "u_image" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-	boot_disk {
-		initialize_params {
-			image_id = "${yandex_compute_image.u_image.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${yandex_compute_image.u_image.id}"
+    }
+  }
 
-	network_interface {
-		network = "${yandex_vpc_network.inst-test-network.name}"
-	}
-
+  network_interface {
+    network = "${yandex_vpc_network.inst-test-network.name}"
+  }
 }
 `, acctest.RandString(10), instance)
 }
@@ -1576,39 +1578,38 @@ resource "yandex_compute_instance" "foobar" {
 func testAccComputeInstance_subnet_custom(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	name           = "inst-test-subnet-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  name           = "inst-test-subnet-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"	
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
-
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
@@ -1616,39 +1617,38 @@ resource "yandex_compute_instance" "foobar" {
 func testAccComputeInstance_address_auto(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	name           = "inst-test-subnet-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  name           = "inst-test-subnet-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
-
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), instance)
 }
@@ -1656,40 +1656,39 @@ resource "yandex_compute_instance" "foobar" {
 func testAccComputeInstance_address_custom(instance, address string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	name           = "inst-test-subnet-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["10.0.200.0/24"]
+  name           = "inst-test-subnet-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.200.0/24"]
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id  = "${yandex_vpc_subnet.inst-test-subnet.id}"
-		ip_address = "%s"
-	}
-
+  network_interface {
+    subnet_id  = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    ip_address = "%s"
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), instance, address)
 }
@@ -1697,41 +1696,40 @@ resource "yandex_compute_instance" "foobar" {
 func testAccComputeInstance_address_ipv6(instance, address string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "inst-test-network-%s"
+  name = "inst-test-network-%s"
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet-v6" {
-	name           = "inst-test-subnet-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["10.0.200.0/24"]
-    v6_cidr_blocks = ["fd00:aabb:ccdd:eeff::/64"]
+  name           = "inst-test-subnet-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.200.0/24"]
+  v6_cidr_blocks = ["fd00:aabb:ccdd:eeff::/64"]
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id    = "${yandex_vpc_subnet.inst-test-subnet-v6.id}"
-		ipv6_address = "%s"
-	}
-
+  network_interface {
+    subnet_id    = "${yandex_vpc_subnet.inst-test-subnet-v6.id}"
+    ipv6_address = "%s"
+  }
 }
 `, acctest.RandString(10), acctest.RandString(10), instance, address)
 }
@@ -1739,49 +1737,49 @@ resource "yandex_compute_instance" "foobar" {
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"	
-	zone = "ru-central1-a"
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet2.id}"
-	}
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet2.id}"
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {
-	name = "%s"
+  name = "%s"
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	name           = "first-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  name           = "first-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "inst-test-subnet2" {
-	name           = "second-%s"
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.2.0/24"]
+  name           = "second-%s"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.2.0/24"]
 }
 `, instance, network, subnetwork, subnetwork)
 }
@@ -1790,39 +1788,39 @@ resource "yandex_vpc_subnet" "inst-test-subnet2" {
 func testAccComputeInstance_stopInstanceToUpdate(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
-    
-    allow_stopping_for_update = true
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  allow_stopping_for_update = true
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	platform_id = "standard-v1"
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  platform_id = "standard-v1"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-    zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
@@ -1831,39 +1829,39 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 func testAccComputeInstance_stopInstanceToUpdate2(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
-	family = "ubuntu-1804-lts"
+  family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-	name = "%s"
-	zone = "ru-central1-a"
-    
-	allow_stopping_for_update = true
+  name = "%s"
+  zone = "ru-central1-a"
 
-    resources {
-        cores  = 1
-		memory = 2
-	}
+  allow_stopping_for_update = true
 
-	boot_disk {
-		initialize_params {
-			image_id = "${data.yandex_compute_image.ubuntu.id}"
-		}
-	}
+  resources {
+    cores  = 1
+    memory = 2
+  }
 
-	network_interface {
-		subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
-	}
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
 
-	platform_id = "standard-v2"
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  platform_id = "standard-v2"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-	zone           = "ru-central1-a"
-	network_id     = "${yandex_vpc_network.inst-test-network.id}"
-    v4_cidr_blocks = ["192.168.0.0/24"]
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }
