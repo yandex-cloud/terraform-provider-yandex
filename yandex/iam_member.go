@@ -63,7 +63,7 @@ func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
 	}
 }
 
-func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func resourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceIamMemberCreate(newUpdaterFunc),
 		Read:   resourceIamMemberRead(newUpdaterFunc),
@@ -73,8 +73,8 @@ func ResourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdate
 	}
 }
 
-func ResourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
-	r := ResourceIamMember(parentSpecificSchema, newUpdaterFunc)
+func resourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
+	r := resourceIamMember(parentSpecificSchema, newUpdaterFunc)
 	r.Importer = &schema.ResourceImporter{
 		State: iamMemberImport(resourceIDParser),
 	}

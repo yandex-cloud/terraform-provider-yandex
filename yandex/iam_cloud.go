@@ -26,14 +26,14 @@ type CloudIamUpdater struct {
 	Config     *Config
 }
 
-func NewCloudIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func newCloudIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &CloudIamUpdater{
 		resourceID: d.Get("cloud_id").(string),
 		Config:     config,
 	}, nil
 }
 
-func CloudIDParseFunc(d *schema.ResourceData, _ *Config) error {
+func cloudIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	d.Set("cloud_id", d.Id())
 	return nil
 }

@@ -22,14 +22,14 @@ type ServiceAccountIamUpdater struct {
 	Config           *Config
 }
 
-func NewServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+func newServiceAccountIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &ServiceAccountIamUpdater{
 		serviceAccountID: d.Get("service_account_id").(string),
 		Config:           config,
 	}, nil
 }
 
-func ServiceAccountIDParseFunc(d *schema.ResourceData, _ *Config) error {
+func serviceAccountIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	d.Set("service_account_id", d.Id())
 	return nil
 }

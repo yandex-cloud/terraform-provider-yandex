@@ -27,7 +27,7 @@ var accessBindingSchema = map[string]*schema.Schema{
 	},
 }
 
-func ResourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func resourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessBindingCreate(newUpdaterFunc),
 		Read:   resourceAccessBindingRead(newUpdaterFunc),
@@ -38,8 +38,8 @@ func ResourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUp
 }
 
 //
-func ResourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
-	r := ResourceAccessBinding(parentSpecificSchema, newUpdaterFunc)
+func resourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
+	r := resourceAccessBinding(parentSpecificSchema, newUpdaterFunc)
 	r.Importer = &schema.ResourceImporter{
 		State: iamBindingImport(resourceIDParser),
 	}

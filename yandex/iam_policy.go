@@ -33,26 +33,26 @@ func iamPolicyImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
 	}
 }
 
-func ResourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
+func resourceIamPolicy(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
-		Create: ResourceIamPolicyCreate(newUpdaterFunc),
-		Read:   ResourceIamPolicyRead(newUpdaterFunc),
-		Update: ResourceIamPolicyUpdate(newUpdaterFunc),
-		Delete: ResourceIamPolicyDelete(newUpdaterFunc),
+		Create: resourceIamPolicyCreate(newUpdaterFunc),
+		Read:   resourceIamPolicyRead(newUpdaterFunc),
+		Update: resourceIamPolicyUpdate(newUpdaterFunc),
+		Delete: resourceIamPolicyDelete(newUpdaterFunc),
 
 		Schema: mergeSchemas(IamPolicyBaseSchema, parentSpecificSchema),
 	}
 }
 
-func ResourceIamPolicyWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
-	r := ResourceIamPolicy(parentSpecificSchema, newUpdaterFunc)
+func resourceIamPolicyWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
+	r := resourceIamPolicy(parentSpecificSchema, newUpdaterFunc)
 	r.Importer = &schema.ResourceImporter{
 		State: iamPolicyImport(resourceIDParser),
 	}
 	return r
 }
 
-func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
+func resourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -65,11 +65,11 @@ func ResourceIamPolicyCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 		}
 
 		d.SetId(updater.GetResourceID())
-		return ResourceIamPolicyRead(newUpdaterFunc)(d, meta)
+		return resourceIamPolicyRead(newUpdaterFunc)(d, meta)
 	}
 }
 
-func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
+func resourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -93,7 +93,7 @@ func ResourceIamPolicyRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 	}
 }
 
-func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
+func resourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -107,11 +107,11 @@ func ResourceIamPolicyUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Up
 			}
 		}
 
-		return ResourceIamPolicyRead(newUpdaterFunc)(d, meta)
+		return resourceIamPolicyRead(newUpdaterFunc)(d, meta)
 	}
 }
 
-func ResourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
+func resourceIamPolicyDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
