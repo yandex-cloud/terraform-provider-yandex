@@ -66,7 +66,7 @@ The `initialize_params` block supports:
 * `name` - Name of the boot disk.
 * `description` - Description of the boot disk.
 * `size` - Size of the disk in GB.
-* `type_id` - Disk type.
+* `type` - Disk type.
 * `image_id` - A disk image to initialize this disk from.
 * `snapshot_id` - A snapshot to initialize this disk from.
 

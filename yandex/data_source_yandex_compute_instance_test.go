@@ -20,7 +20,7 @@ func TestAccDataSourceComputeInstance(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceComputeInstanceConfig(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceComputeInstanceCheck("data.yandex_compute_instance.bar", "yandex_compute_instance.foo"),
@@ -30,6 +30,7 @@ func TestAccDataSourceComputeInstance(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.initialize_params.0.type", "network-hdd"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.0.nat", "false"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_instance.bar"),
 				),
 			},
 		},
@@ -47,7 +48,7 @@ func TestAccDataSourceComputeInstance_ipv6(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccDataSourceComputeInstanceConfigIpv6(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceComputeInstanceCheck("data.yandex_compute_instance.bar", "yandex_compute_instance.foo"),
@@ -59,6 +60,7 @@ func TestAccDataSourceComputeInstance_ipv6(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.yandex_compute_instance.bar", "network_interface.0.ip_address"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.0.ipv6", "true"),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_instance.bar", "network_interface.0.ipv6_address"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_instance.bar"),
 				),
 			},
 		},

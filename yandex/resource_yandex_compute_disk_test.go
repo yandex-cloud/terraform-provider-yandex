@@ -30,9 +30,10 @@ func TestAccComputeDisk_basic(t *testing.T) {
 					testAccCheckComputeDiskExists(
 						"yandex_compute_disk.foobar", &disk),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
+					testAccCheckCreatedAtAttr("yandex_compute_disk.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName: "yandex_compute_disk.foobar",
 				ImportStateIdFunc: func(*terraform.State) (string, error) {
 					return disk.Id, nil
@@ -77,6 +78,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 						"yandex_compute_disk.foobar", &disk),
 					resource.TestCheckResourceAttr("yandex_compute_disk.foobar", "size", "4"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-label-value"),
+					testAccCheckCreatedAtAttr("yandex_compute_disk.foobar"),
 				),
 			},
 			{
@@ -87,6 +89,7 @@ func TestAccComputeDisk_update(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_compute_disk.foobar", "size", "8"),
 					testAccCheckComputeDiskHasLabel(&disk, "my-label", "my-updated-label-value"),
 					testAccCheckComputeDiskHasLabel(&disk, "a-new-label", "a-new-label-value"),
+					testAccCheckCreatedAtAttr("yandex_compute_disk.foobar"),
 				),
 			},
 		},
@@ -99,7 +102,6 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	folderName := getExampleFolderName()
 
 	var disk compute.Disk
 
@@ -109,7 +111,7 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeDisk_fromSnapshot(folderName, firstDiskName, snapshotName, diskName),
+				Config: testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
 						"yandex_compute_disk.seconddisk", &disk),
@@ -132,7 +134,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeDiskDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -143,7 +145,7 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 			// listed as attached to the disk; the instance is created after the
 			// disk. and the disk's properties aren't refreshed unless there's
 			// another step
-			resource.TestStep{
+			{
 				Config: testAccComputeDisk_deleteDetach(instanceName, diskName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeDiskExists(
@@ -277,7 +279,7 @@ resource "yandex_compute_disk" "foobar" {
 `, diskName)
 }
 
-func testAccComputeDisk_fromSnapshot(folderName, firstDiskName, snapshotName, secondDiskName string) string {
+func testAccComputeDisk_fromSnapshot(firstDiskName, snapshotName, secondDiskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"

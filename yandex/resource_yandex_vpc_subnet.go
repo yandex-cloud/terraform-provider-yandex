@@ -90,6 +90,11 @@ func resourceYandexVPCSubnet() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -181,6 +186,12 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnet %q", d.Get("name").(string)))
 	}
 
+	createdAt, err := getTimestamp(subnet.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	d.Set("created_at", createdAt)
 	d.Set("name", subnet.Name)
 	d.Set("zone", subnet.ZoneId)
 	d.Set("folder_id", subnet.FolderId)

@@ -26,32 +26,45 @@ func TestAccServiceAccount_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			// The first step creates a basic service account
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountBasic(accountName, accountDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexIAMServiceAccountExists("yandex_iam_service_account.acceptance"),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "folder_id", folderID),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "name", accountName),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "description", accountDesc),
+					testAccCheckCreatedAtAttr("yandex_iam_service_account.acceptance"),
 				),
 			},
 			// The second step updates the service account
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountBasic(accountName, accountDesc2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexIAMServiceAccountNameModified("yandex_iam_service_account.acceptance", accountDesc2),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "folder_id", folderID),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "name", accountName),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "description", accountDesc2),
 					testAccStoreServiceAccountUniqueID(&uniqueID),
 				),
 			},
 			// The third step explicitly adds the same default folderID to the service account configuration
 			// and ensure the service account is not recreated by comparing the value of its ID with the one from the previous step
-			resource.TestStep{
+			{
 				Config: testAccServiceAccountWithFolderID(folderID, accountName, accountDesc2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYandexIAMServiceAccountNameModified("yandex_iam_service_account.acceptance", accountDesc2),
 					resource.TestCheckResourceAttr(
 						"yandex_iam_service_account.acceptance", "folder_id", folderID),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "name", accountName),
+					resource.TestCheckResourceAttr(
+						"yandex_iam_service_account.acceptance", "description", accountDesc2),
 					resource.TestCheckResourceAttrPtr(
 						"yandex_iam_service_account.acceptance", "id", &uniqueID),
 				),

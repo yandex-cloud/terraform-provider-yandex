@@ -13,29 +13,31 @@ import (
 )
 
 // Test that a service account key can be created and destroyed
-func TestAccServiceAccountKey_basic(t *testing.T) {
+func TestAccServiceAccountStaticAccessKey_basic(t *testing.T) {
 	t.Parallel()
 
-	resourceName := "yandex_iam_service_account_key.acceptance"
+	resourceName := "yandex_iam_service_account_static_access_key.acceptance"
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccServiceAccountKey(accountName, accountDesc),
+			{
+				Config: testAccServiceAccountStaticAccessKey(accountName, accountDesc),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGoogleServiceAccountKeyExists(resourceName),
+					testAccCheckGoogleServiceAccountStaticAccessKeyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
 					resource.TestCheckResourceAttrSet(resourceName, "access_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
+					testAccCheckCreatedAtAttr(resourceName),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc {
+func testAccCheckGoogleServiceAccountStaticAccessKeyExists(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		rs, ok := s.RootModule().Resources[r]
@@ -56,15 +58,16 @@ func testAccCheckGoogleServiceAccountKeyExists(r string) resource.TestCheckFunc 
 	}
 }
 
-func testAccServiceAccountKey(name, desc string) string {
+func testAccServiceAccountStaticAccessKey(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
   name        = "%s"
   description = "%s"
 }
 
-resource "yandex_iam_service_account_key" "acceptance" {
+resource "yandex_iam_service_account_static_access_key" "acceptance" {
   service_account_id = "${yandex_iam_service_account.acceptance.id}"
+  description        = "description for test"
 }
 `, name, desc)
 }

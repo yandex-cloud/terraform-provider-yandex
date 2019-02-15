@@ -108,6 +108,11 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -190,6 +195,12 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
 	}
 
+	createdAt, err := getTimestamp(disk.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	d.Set("created_at", createdAt)
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("zone", disk.ZoneId)

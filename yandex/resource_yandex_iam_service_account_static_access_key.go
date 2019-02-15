@@ -11,11 +11,11 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 )
 
-func resourceYandexIAMServiceAccountKey() *schema.Resource {
+func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexIAMServiceAccountKeyCreate,
-		Read:   resourceYandexIAMServiceAccountKeyRead,
-		Delete: resourceYandexIAMServiceAccountKeyDelete,
+		Create: resourceYandexIAMServiceAccountStaticAccessKeyCreate,
+		Read:   resourceYandexIAMServiceAccountStaticAccessKeyRead,
+		Delete: resourceYandexIAMServiceAccountStaticAccessKeyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"service_account_id": {
@@ -23,9 +23,9 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+
 			// There is no Update method for IAM SA Key resource,
 			// so "description" attr set as 'ForceNew:true'
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -51,7 +51,7 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 	}
 }
 
-func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
@@ -70,10 +70,10 @@ func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta inter
 	// One-time generated value
 	d.Set("secret_key", resp.Secret)
 
-	return resourceYandexIAMServiceAccountKeyRead(d, meta)
+	return resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
 }
 
-func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
@@ -100,7 +100,7 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountStaticAccessKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))

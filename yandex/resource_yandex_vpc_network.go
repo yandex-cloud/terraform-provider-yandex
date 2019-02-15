@@ -58,6 +58,19 @@ func resourceYandexVPCNetwork() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+
+			"subnet_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 
@@ -114,7 +127,10 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	network, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
 		NetworkId: d.Id(),
 	})
 
@@ -122,9 +138,31 @@ func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) erro
 		return handleNotFoundError(err, d, fmt.Sprintf("Network %q", d.Get("name").(string)))
 	}
 
+	subnets, err := config.sdk.VPC().Network().ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
+		NetworkId: d.Id(),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	subnetIds := make([]string, len(subnets.Subnets))
+	for i, subnet := range subnets.Subnets {
+		subnetIds[i] = subnet.Id
+	}
+
+	createdAt, err := getTimestamp(network.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	d.Set("created_at", createdAt)
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	d.Set("description", network.Description)
+	if err := d.Set("subnet_ids", subnetIds); err != nil {
+		return err
+	}
 
 	return d.Set("labels", network.Labels)
 }
@@ -155,7 +193,7 @@ func resourceYandexVPCNetworkUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if d.HasChange("description") {
-		req.Name = d.Get("description").(string)
+		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 	}
 

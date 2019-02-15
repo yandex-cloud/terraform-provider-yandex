@@ -84,6 +84,7 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are exported:
   
 * `status` - The status of the disk.  
+* `created_at` - Creation timestamp of the disk.
 
 ## Timeouts
 

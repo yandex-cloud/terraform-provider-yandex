@@ -46,6 +46,7 @@ func TestAccDataSourceVPCSubnet(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "v4_cidr_blocks.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "v4_cidr_blocks.0", "172.16.1.0/24"),
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar1", "network_id"),
+					testAccCheckCreatedAtAttr("data.yandex_vpc_subnet.bar1"),
 
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "name", subnetName2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "description", subnetDesc2),
@@ -54,6 +55,7 @@ func TestAccDataSourceVPCSubnet(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v4_cidr_blocks.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v4_cidr_blocks.0", "172.16.2.0/24"),
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar2", "network_id"),
+					testAccCheckCreatedAtAttr("data.yandex_vpc_subnet.bar2"),
 				),
 			},
 		},
@@ -97,6 +99,7 @@ func TestAccDataSourceVPCSubnetV6(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "v6_cidr_blocks.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "v6_cidr_blocks.0", "fd01::/64"),
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar1", "network_id"),
+					testAccCheckCreatedAtAttr("data.yandex_vpc_subnet.bar1"),
 
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "name", subnetName2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "description", subnetDesc2),
@@ -107,6 +110,7 @@ func TestAccDataSourceVPCSubnetV6(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v6_cidr_blocks.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v6_cidr_blocks.0", "fd02::/64"),
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar2", "network_id"),
+					testAccCheckCreatedAtAttr("data.yandex_vpc_subnet.bar2"),
 				),
 			},
 		},

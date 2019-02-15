@@ -124,7 +124,7 @@ The `initialize_params` block supports:
 
 * `size` - (Optional) Size of the disk in GB.
 
-* `type_id` - (Optional) Disk type.
+* `type` - (Optional) Disk type.
 
 * `image_id` - (Optional) A disk image to initialize this disk from.
 
@@ -163,8 +163,7 @@ The `secondary_disk` block supports:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are
-exported:
+In addition to the arguments listed above, the following computed attributes are exported:
 
 * `fqdn` - The fully qualified DNS name of this instance.
 
@@ -173,6 +172,8 @@ exported:
 * `network_interface.0.nat_ip_address` - The external IP address of the instance.
 
 * `status` - The status of this instance.
+
+* `created_at` - Creation timestamp of the instance.
 
 ## Import
 

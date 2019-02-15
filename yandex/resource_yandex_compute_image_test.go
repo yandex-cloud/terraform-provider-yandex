@@ -23,7 +23,7 @@ func TestAccComputeImage_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic("image-test-" + acctest.RandString(8)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -32,6 +32,7 @@ func TestAccComputeImage_basic(t *testing.T) {
 					testAccCheckComputeImageFamily(&image, "ubuntu-1804-lts"),
 					testAccCheckComputeImageContainsLabel(&image, "tf-label", "tf-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 				),
 			},
 		},
@@ -48,7 +49,7 @@ func TestAccComputeImage_productID(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_productID("image-test-" + acctest.RandString(8)),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -59,6 +60,7 @@ func TestAccComputeImage_productID(t *testing.T) {
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
 					testAccCheckComputeImageContainsProductId(&image, "super-product"),
 					testAccCheckComputeImageContainsProductId(&image, "very-good"),
+					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 				),
 			},
 		},
@@ -77,16 +79,17 @@ func TestAccComputeImage_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"yandex_compute_image.foobar", &image),
 					testAccCheckComputeImageContainsLabel(&image, "tf-label", "tf-label-value"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", ""),
+					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
@@ -94,9 +97,10 @@ func TestAccComputeImage_update(t *testing.T) {
 					testAccCheckComputeImageDoesNotContainLabel(&image, "tf-label"),
 					testAccCheckComputeImageContainsLabel(&image, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckComputeImageContainsLabel(&image, "new-field", "only-shows-up-when-updated"),
+					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "yandex_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -116,15 +120,16 @@ func TestAccComputeImage_basedondisk(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeImageDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeImage_basedondisk(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeImageExists(
 						"yandex_compute_image.foobar", &image),
 					testAccCheckComputeImageHasSourceDisk("yandex_compute_image.foobar"),
+					testAccCheckCreatedAtAttr("yandex_compute_image.foobar"),
 				),
 			},
-			resource.TestStep{
+			{
 				ResourceName:            "yandex_compute_image.foobar",
 				ImportState:             true,
 				ImportStateVerify:       true,

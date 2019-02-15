@@ -23,7 +23,7 @@ func TestAccDataSourceYandexResourceManagerFolder_byID(t *testing.T) {
 				Config: testAccCheckYandexResourceManagerFolder_byID(folderID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceYandexResourceManagerFolderCheck("data.yandex_resourcemanager_folder.folder", folderName),
-					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_folder.folder", "created_at"),
+					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_folder.folder"),
 				),
 			},
 		},

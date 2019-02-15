@@ -34,6 +34,7 @@ func TestAccComputeSnapshot_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeSnapshotExists(
 						"yandex_compute_snapshot.foobar", &snapshot),
+					testAccCheckCreatedAtAttr("yandex_compute_snapshot.foobar"),
 				),
 			},
 		},

@@ -80,6 +80,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `size` - The size of the image, specified in GB.
 * `status` - The status of the image.
+* `created_at` - Creation timestamp of the image.
 
 ## Timeouts
 

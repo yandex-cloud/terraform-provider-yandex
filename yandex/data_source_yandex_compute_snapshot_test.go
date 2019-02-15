@@ -34,6 +34,7 @@ func TestAccDataSourceComputeSnapshot(t *testing.T) {
 						"source_disk_id"),
 					resource.TestCheckResourceAttr("data.yandex_compute_snapshot.source",
 						"labels.test_label", label),
+					testAccCheckCreatedAtAttr("data.yandex_compute_snapshot.source"),
 				),
 			},
 		},

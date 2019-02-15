@@ -43,8 +43,8 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-In addition to the arguments listed above, the following computed attributes are
-exported:
+In addition to the arguments listed above, the following computed attributes are exported:
 
 * `disk_size` - Size of the disk when the snapshot was created, specified in GB.
 * `storage_size` - Size of the snapshot, specified in GB.
+* `created_at` - Creation timestamp of the snapshot.

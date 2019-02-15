@@ -21,10 +21,6 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -45,6 +41,10 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}

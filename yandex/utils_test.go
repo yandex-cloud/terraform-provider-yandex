@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -91,5 +92,25 @@ func testAccCheckServiceAccountIam(resourceName, role string, members []string) 
 		}
 
 		return fmt.Errorf("Binding found but expected members is %v, got %v", members, roleMembers)
+	}
+}
+
+func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		const createdAtAttrName = "created_at"
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		createdAt, ok := rs.Primary.Attributes[createdAtAttrName]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", createdAtAttrName, resourceName)
+		}
+
+		if _, err := time.Parse(time.RFC3339, createdAt); err != nil {
+			return fmt.Errorf("can't parse timestamp in attr '%s': %s", createdAtAttrName, createdAt)
+		}
+		return nil
 	}
 }

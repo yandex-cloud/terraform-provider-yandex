@@ -35,7 +35,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -44,6 +44,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
 				),
 			},
 			computeInstanceImportStep(),
@@ -62,13 +63,14 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceFqdn(&instance, instanceName),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
 				),
 			},
 		},
@@ -86,12 +88,13 @@ func TestAccComputeInstance_basic3(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic3(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
 				),
 			},
 		},
@@ -109,12 +112,13 @@ func TestAccComputeInstance_basic4(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic4(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
 				),
 			},
 		},
@@ -132,12 +136,13 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic5(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
 				),
 			},
 		},
@@ -153,7 +158,7 @@ func TestAccComputeInstance_NatIP(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_natIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -177,7 +182,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -202,7 +207,7 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_attachedDisk_sourceUrl(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -228,7 +233,7 @@ func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_attachedDisk_modeRo(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -254,7 +259,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -263,7 +268,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				),
 			},
 			// check attaching
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_addAttachedDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -273,7 +278,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				),
 			},
 			// check detaching
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_detachDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -297,7 +302,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_bootDisk_source(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -322,7 +327,7 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_bootDisk_type(instanceName, diskTypeID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -345,14 +350,14 @@ func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_forceNewAndChangeMetadata(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -376,14 +381,14 @@ func TestAccComputeInstance_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 				),
 			},
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -410,7 +415,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			// Set fields that require stopping the instance
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_stopInstanceToUpdate(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -419,7 +424,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 			},
 			computeInstanceImportStep(),
 			// Check that updating them works
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -443,7 +448,7 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_subnet_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -467,7 +472,7 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_subnet_custom(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -491,7 +496,7 @@ func TestAccComputeInstance_address_auto(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_address_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -515,7 +520,7 @@ func TestAccComputeInstance_address_custom(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_address_custom(instanceName, address),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -540,7 +545,7 @@ func TestAccComputeInstance_address_ipv6(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_address_ipv6(instanceName, addressIpv6),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -566,7 +571,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccComputeInstance_multiNic(instanceName, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),

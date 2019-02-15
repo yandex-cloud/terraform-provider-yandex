@@ -43,7 +43,7 @@ func TestAccFolderIamPolicy_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(cloudID, folderID, policy),
 				Check:  testAccCheckYandexResourceManagerFolderIamPolicy("yandex_resourcemanager_folder_iam_policy.test", policy),
 			},
@@ -91,11 +91,11 @@ func TestAccFolderIamPolicy_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckYandexResourceManagerFolderIamPolicyDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(cloudID, folderID, policy1),
 				Check:  testAccCheckYandexResourceManagerFolderIamPolicy("yandex_resourcemanager_folder_iam_policy.test", policy1),
 			},
-			resource.TestStep{
+			{
 				Config: testAccFolderIamPolicy_basic(cloudID, folderID, policy2),
 				Check:  testAccCheckYandexResourceManagerFolderIamPolicy("yandex_resourcemanager_folder_iam_policy.test", policy2),
 			},

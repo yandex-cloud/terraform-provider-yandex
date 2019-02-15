@@ -36,6 +36,7 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 						"type", "network-hdd"),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
 						"zone"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
 				),
 			},
 		},

@@ -199,6 +199,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
+							ForceNew: true,
 						},
 
 						"index": {

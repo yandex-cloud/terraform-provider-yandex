@@ -37,6 +37,12 @@ The following arguments are supported:
 
 * `labels` - (Optional) Labels to apply to this network. A list of key/value pairs.
 
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `created_at` - Creation timestamp of the key.
+
 ## Import
 
 A network can be imported using the `id` of the resource, e.g.

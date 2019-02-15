@@ -39,7 +39,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultID(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "id", defaultCloudID),
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "name", defaultCloudName),
-					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_cloud.acceptance", "created_at"),
+					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_cloud.acceptance"),
 				),
 			},
 		},
@@ -59,6 +59,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultCloudName(t *testing.T
 					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_cloud.acceptance", "id"),
 					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_cloud.acceptance", "created_at"),
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "name", defaultCloudName),
+					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_cloud.acceptance"),
 				),
 			},
 		},
