@@ -1,3 +1,17 @@
+## 0.1.15 (February 18, 2019)
+
+BACKWARDS INCOMPATIBILITIES:
+* compute: `yandex_compute_disk.source_image_id` and `yandex_compute_disk.source_snapshot_id` has been removed.
+* iam: `iam_service_account_key` was renamed to `iam_service_account_static_access_key`.
+
+ENHANCEMENTS:
+* provider: more descriptive error messages.
+* compute: `yandex_compute_disk` support for increasing size without force recreation of the resource.   
+
+BUG FIXES:
+* compute: make consistent disk type attribute name `type_id` -> `type`.   
+* compute: remove attr `instance_id` from `yandex_compute_instance`.
+
 ## 0.1.14 (December 26, 2018)
 
 FEATURES:
