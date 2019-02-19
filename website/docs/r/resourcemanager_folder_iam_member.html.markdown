@@ -41,7 +41,7 @@ The following arguments are supported:
 * `member` - (Required) The identity that will be granted the privilege that is specified in the `role` field.
   This field can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
-  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
+  * **serviceAccount:{service_account_id}**: A unique service account ID.
 
 ## Import
 

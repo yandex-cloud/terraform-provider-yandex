@@ -11,6 +11,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * compute: make consistent disk type attribute name `type_id` -> `type`.   
 * compute: remove attr `instance_id` from `yandex_compute_instance`.
+* compute: make `yandex_compute_instancenet.network_interface.*.nat` ForceNew.
 
 ## 0.1.14 (December 26, 2018)
 

@@ -45,7 +45,7 @@ Each role document configuration must have one or more `binding` blocks. Each bl
 * `members` (Required) - An array of identities that will be granted the privilege in the `role`.
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
-  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
+  * **serviceAccount:{service_account_id}**: A unique service account ID.
 
 ## Attributes Reference
 

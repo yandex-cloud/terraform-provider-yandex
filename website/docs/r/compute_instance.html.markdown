@@ -75,7 +75,10 @@ The following arguments are supported:
 * `zone` - (Optional) The availability zone where the virtual machine will be created. If it is not provided,
     the default provider folder is used.
 
-* `hostname` - (Optional) ---
+* `hostname` - (Optional) Host name for the instance. This field is used to generate the instance `fqdn` value. 
+    The host name must be unique within the network and region. If not specified, the host name will be equal 
+    to `id` of the instance and `fqdn` will be `<id>.auto.internal`. 
+    Otherwise FQDN will be `<hostname>.<region_id>.internal`.                        
 
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance.

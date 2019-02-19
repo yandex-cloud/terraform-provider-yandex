@@ -15,9 +15,9 @@ that define who can edit the service account.
 There are three different resources that help you manage your IAM policy for a service account. 
 Each of these resources is used for a different use case:
 
-* [yandex_iam_service_account_iam_policy](/docs/providers/yandex/r/iam_service_account_iam_policy.html): Authoritative. Sets the IAM policy for the service account and replaces any existing policy already attached.
-* [yandex_iam_service_account_iam_binding](/docs/providers/yandex/r/iam_service_account_iam_binding.html): Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service account are preserved.
-* [yandex_iam_service_account_iam_member](/docs/providers/yandex/r/iam_service_account_iam_member.html): Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role of the service account are preserved.
+* [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html): Authoritative. Sets the IAM policy for the service account and replaces any existing policy already attached.
+* [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html): Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the service account are preserved.
+* [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html): Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role of the service account are preserved.
 
 ~> **Note:** `yandex_iam_service_account_iam_policy` **cannot** be used in conjunction with `yandex_iam_service_account_iam_binding` and `yandex_iam_service_account_iam_member` or they will conflict over what your policy should be.
 
@@ -51,7 +51,7 @@ The following arguments are supported:
 * `members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
-  * **serviceAccount:{serviceaccount_id}**: A unique service account ID.
+  * **serviceAccount:{service_account_id}**: A unique service account ID.
 
 * `role` - (Required) The role that should be applied. Only one
     `yandex_iam_service_account_iam_binding` can be used per role.
