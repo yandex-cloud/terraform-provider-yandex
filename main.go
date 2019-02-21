@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
+	"github.com/terraform-providers/terraform-provider-yandex/yandex"
 )
 
 func main() {
