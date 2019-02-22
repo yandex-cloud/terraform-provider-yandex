@@ -1,4 +1,4 @@
-## 0.1.15 (Unreleased)
+## 0.1.15 (February 22, 2019)
 
 BACKWARDS INCOMPATIBILITIES:
 * compute: `yandex_compute_disk.source_image_id` and `yandex_compute_disk.source_snapshot_id` has been removed.
