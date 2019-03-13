@@ -1,6 +1,6 @@
 ---
 layout: "yandex"
-page_title: "Yandex: yandex_compute_subnet"
+page_title: "Yandex: yandex_vpc_subnet"
 sidebar_current: "docs-yandex-vpc-subnet"
 description: |-
   A VPC network is a virtual version of the traditional physical networks that exist within and between physical data centers.
@@ -18,14 +18,14 @@ Manages a subnet within the Yandex Cloud. For more information, see
 ## Example Usage
 
 ```hcl
-resource "yandex_compute_network" "lab-net" {
+resource "yandex_vpc_network" "lab-net" {
   name = "lab-network"
 }
 
-resource "yandex_compute_subnet" "lab-subnet-a" {
+resource "yandex_vpc_subnet" "lab-subnet-a" {
   v4_cidr_blocks = ["10.2.0.0/16"]
   zone           = "ru-central1-a"
-  network        = "${yandex_compute_network.lab-net.id}"
+  network_id     = "${yandex_vpc_network.lab-net.id}"
 }
 ```
 
@@ -73,5 +73,5 @@ This resource provides the following configuration options for
 A subnet can be imported using the `id` of the resource, e.g.:
 
 ```
-$ terraform import yandex_compute_subnet.default subnet_id
+$ terraform import yandex_vpc_subnet.default subnet_id
 ```
