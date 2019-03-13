@@ -46,7 +46,7 @@ The following keys can be used to configure the provider.
 
 * `folder_id` - (Required) The ID of the [folder][yandex-folder] to operate under, if not specified by a given resource.
 
-  This can also be set as the `YC_FOLDER` environment variable.
+  This can also be set as the `YC_FOLDER_ID` environment variable.
 
 * `zone` - (Optional) The default [accessibility zone][yandex-zone] to operate under, if not specified by a given resource.
 

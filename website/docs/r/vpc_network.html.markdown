@@ -1,6 +1,6 @@
 ---
 layout: "yandex"
-page_title: "Yandex: yandex_compute_network"
+page_title: "Yandex: yandex_vpc_network"
 sidebar_current: "docs-yandex-vpc-network"
 description: |-
   Manages a network within Yandex Cloud.
@@ -18,7 +18,7 @@ Manages a network within the Yandex Cloud. For more information, see
 ## Example Usage
 
 ```hcl
-resource "yandex_compute_network" "default" {
+resource "yandex_vpc_network" "default" {
   name = "foobar"
 }
 ```
@@ -48,5 +48,5 @@ In addition to the arguments listed above, the following computed attributes are
 A network can be imported using the `id` of the resource, e.g.
 
 ```
-$ terraform import yandex_compute_network.default network_id
+$ terraform import yandex_vpc_network.default network_id
 ```
