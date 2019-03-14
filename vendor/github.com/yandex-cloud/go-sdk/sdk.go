@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"sort"
 	"sync"
 	"time"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"github.com/yandex-cloud/go-sdk/dial"
 	apiendpoint "github.com/yandex-cloud/go-sdk/gen/apiendpoint"
 	"github.com/yandex-cloud/go-sdk/gen/compute"
 	"github.com/yandex-cloud/go-sdk/gen/iam"
@@ -35,10 +37,10 @@ const (
 	ComputeServiceID            Endpoint = "compute"
 	IAMServiceID                Endpoint = "iam"
 	OperationServiceID          Endpoint = "operation"
-	ResourceManagementServiceID Endpoint = "resourcemanager"
-	//revive:disable:var-naming
+	ResourceManagementServiceID Endpoint = "resource-manager"
+	// revive:disable:var-naming
 	ApiEndpointServiceID Endpoint = "endpoint"
-	//revive:enable:var-naming
+	// revive:enable:var-naming
 	VpcServiceID Endpoint = "vpc"
 )
 
@@ -74,7 +76,7 @@ type SDK struct {
 }
 
 // Build creates an SDK instance
-func Build(ctx context.Context, conf Config, dialOpts ...grpc.DialOption) (*SDK, error) {
+func Build(ctx context.Context, conf Config, customOpts ...grpc.DialOption) (*SDK, error) {
 	if conf.Credentials == nil {
 		return nil, errors.New("credentials required")
 	}
@@ -92,6 +94,16 @@ func Build(ctx context.Context, conf Config, dialOpts ...grpc.DialOption) (*SDK,
 	if !ok {
 		return nil, fmt.Errorf("unsupported credentials type %T", conf.Credentials)
 	}
+	var dialOpts []grpc.DialOption
+
+	dialOpts = append(dialOpts, grpc.WithDialer(
+		func(target string, timeout time.Duration) (conn net.Conn, e error) {
+			// Remove extra wrapper when grpc.withContextDialer become exported in https://github.com/grpc/grpc-go/issues/1786
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+			dialer := dial.NewProxyDialer(dial.NewDialer())
+			return dialer(ctx, target)
+		}))
 
 	rpcCreds := newRPCCredentials(creds, conf.Plaintext)
 	dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(rpcCreds))
@@ -108,6 +120,9 @@ func Build(ctx context.Context, conf Config, dialOpts ...grpc.DialOption) (*SDK,
 		creds := credentials.NewTLS(tlsConfig)
 		dialOpts = append(dialOpts, grpc.WithTransportCredentials(creds))
 	}
+	// Append custom options after default, to allow to customize dialer and etc.
+	dialOpts = append(dialOpts, customOpts...)
+
 	cc := grpcclient.NewLazyConnContext(grpcclient.DialOptions(dialOpts...))
 	sdk := &SDK{
 		cc:   cc,
@@ -161,14 +176,14 @@ func (sdk *SDK) ResourceManager() *resourcemanager.ResourceManager {
 	return resourcemanager.NewResourceManager(sdk.getConn(ResourceManagementServiceID))
 }
 
-//revive:disable:var-naming
+// revive:disable:var-naming
 
 // ApiEndpoint gets ApiEndpointService client
 func (sdk *SDK) ApiEndpoint() *apiendpoint.APIEndpoint {
 	return apiendpoint.NewAPIEndpoint(sdk.getConn(ApiEndpointServiceID))
 }
 
-//revive:enable:var-naming
+// revive:enable:var-naming
 
 func (sdk *SDK) Resolve(ctx context.Context, r ...Resolver) error {
 	args := make([]func() error, len(r))

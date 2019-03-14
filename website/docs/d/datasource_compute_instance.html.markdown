@@ -45,10 +45,11 @@ The following arguments are supported:
 * `resources.0.cores` - Number of CPU cores allocated for the instance.
 * `resources.0.core_fraction` - Baseline performance for a core, set as a percent.
 * `boot_disk` - The boot disk for the instance. Structure is documented below.
-* `secondary_disk` - List of secondary disks attached to the instance. Structure is documented below.
 * `network_interface` - The networks attached to the instance. Structure is documented below.
 * `network_interface.0.ip_address` - An internal IP address of the instance, either manually or dynamically assigned.
 * `network_interface.0.nat_ip_address` - An assigned external IP address if the instance has NAT enabled.
+* `secondary_disk` - List of secondary disks attached to the instance. Structure is documented below.
+* `scheduling_policy` - Scheduling policy configuration. The structure is documented below.
 * `created_at` - Instance creation timestamp.
 
 ---
@@ -88,3 +89,7 @@ The `secondary_disk` block supports:
 * `device_name` - This value can be used to reference the device from within the instance for mounting, resizing, and so on.
 * `mode` - Access to the Disk resource. By default, a disk is attached in `READ_WRITE` mode.
 * `disk_id` - ID of the disk that is attached to the instance.
+
+The `scheduling_policy` block supports:
+
+* `preemptible` - (Optional) Specifies if the instance is preemptible. Defaults to false.

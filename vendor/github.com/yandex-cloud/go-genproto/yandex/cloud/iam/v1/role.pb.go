@@ -18,7 +18,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// A Role resource. For more information, see [Roles](/iam/concepts/access-control/roles).
+// A Role resource. For more information, see [Roles](/docs/iam/concepts/access-control/roles).
 type Role struct {
 	// ID of the role.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -33,7 +33,7 @@ func (m *Role) Reset()         { *m = Role{} }
 func (m *Role) String() string { return proto.CompactTextString(m) }
 func (*Role) ProtoMessage()    {}
 func (*Role) Descriptor() ([]byte, []int) {
-	return fileDescriptor_role_52c06b9ecaa5852e, []int{0}
+	return fileDescriptor_role_656bcd2fea39e7f2, []int{0}
 }
 func (m *Role) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Role.Unmarshal(m, b)
@@ -72,10 +72,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/role.proto", fileDescriptor_role_52c06b9ecaa5852e)
+	proto.RegisterFile("yandex/cloud/iam/v1/role.proto", fileDescriptor_role_656bcd2fea39e7f2)
 }
 
-var fileDescriptor_role_52c06b9ecaa5852e = []byte{
+var fileDescriptor_role_656bcd2fea39e7f2 = []byte{
 	// 155 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xab, 0x4c, 0xcc, 0x4b,
 	0x49, 0xad, 0xd0, 0x4f, 0xce, 0xc9, 0x2f, 0x4d, 0xd1, 0xcf, 0x4c, 0xcc, 0xd5, 0x2f, 0x33, 0xd4,

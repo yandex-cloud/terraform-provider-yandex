@@ -1,4 +1,10 @@
 ## 0.1.16 (Unreleased)
+ENHANCEMENTS:
+* compute: support preemptible instance type.   
+
+BUG FIXES:
+* compute: fix update method on compute resources for description attribute.
+   
 ## 0.1.15 (February 22, 2019)
 
 BACKWARDS INCOMPATIBILITIES:

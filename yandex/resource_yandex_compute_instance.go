@@ -314,6 +314,23 @@ func resourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 
+			"scheduling_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"preemptible": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"fqdn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -398,6 +415,11 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	schedulingPolicy, err := flattenInstanceSchedulingPolicy(instance)
+	if err != nil {
+		return err
+	}
+
 	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
@@ -434,6 +456,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("secondary_disk", secondaryDisks); err != nil {
+		return err
+	}
+
+	if err := d.Set("scheduling_policy", schedulingPolicy); err != nil {
 		return err
 	}
 
@@ -730,6 +756,11 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
 	}
 
+	schedulingPolicy, err := expandInstanceSchedulingPolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'scheduling_policy' object of api request: %s", err)
+	}
+
 	req := &compute.CreateInstanceRequest{
 		FolderId:              folderID,
 		Hostname:              d.Get("hostname").(string),
@@ -743,6 +774,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		BootDiskSpec:          bootDiskSpec,
 		SecondaryDiskSpecs:    secondaryDiskSpecs,
 		NetworkInterfaceSpecs: nicSpecs,
+		SchedulingPolicy:      schedulingPolicy,
 	}
 
 	return req, nil

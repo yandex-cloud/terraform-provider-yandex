@@ -43,10 +43,10 @@ func (x Zone_Status) String() string {
 	return proto.EnumName(Zone_Status_name, int32(x))
 }
 func (Zone_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_zone_cdf008f4aa91fdf0, []int{0, 0}
+	return fileDescriptor_zone_f47efd8ae474576f, []int{0, 0}
 }
 
-// A Zone resource. For more information, see [Availability zones](/gen-ref/concepts/geo-scope).
+// Availability zone. For more information, see [Availability zones](/docs/overview/concepts/geo-scope).
 type Zone struct {
 	// ID of the zone.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -63,7 +63,7 @@ func (m *Zone) Reset()         { *m = Zone{} }
 func (m *Zone) String() string { return proto.CompactTextString(m) }
 func (*Zone) ProtoMessage()    {}
 func (*Zone) Descriptor() ([]byte, []int) {
-	return fileDescriptor_zone_cdf008f4aa91fdf0, []int{0}
+	return fileDescriptor_zone_f47efd8ae474576f, []int{0}
 }
 func (m *Zone) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Zone.Unmarshal(m, b)
@@ -110,10 +110,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/compute/v1/zone.proto", fileDescriptor_zone_cdf008f4aa91fdf0)
+	proto.RegisterFile("yandex/cloud/compute/v1/zone.proto", fileDescriptor_zone_f47efd8ae474576f)
 }
 
-var fileDescriptor_zone_cdf008f4aa91fdf0 = []byte{
+var fileDescriptor_zone_f47efd8ae474576f = []byte{
 	// 237 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xaa, 0x4c, 0xcc, 0x4b,
 	0x49, 0xad, 0xd0, 0x4f, 0xce, 0xc9, 0x2f, 0x4d, 0xd1, 0x4f, 0xce, 0xcf, 0x2d, 0x28, 0x2d, 0x49,

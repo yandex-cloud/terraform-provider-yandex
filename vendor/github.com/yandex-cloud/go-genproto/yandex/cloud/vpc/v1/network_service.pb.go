@@ -41,7 +41,7 @@ func (m *GetNetworkRequest) Reset()         { *m = GetNetworkRequest{} }
 func (m *GetNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNetworkRequest) ProtoMessage()    {}
 func (*GetNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{0}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{0}
 }
 func (m *GetNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNetworkRequest.Unmarshal(m, b)
@@ -95,7 +95,7 @@ func (m *ListNetworksRequest) Reset()         { *m = ListNetworksRequest{} }
 func (m *ListNetworksRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksRequest) ProtoMessage()    {}
 func (*ListNetworksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{1}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{1}
 }
 func (m *ListNetworksRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksRequest.Unmarshal(m, b)
@@ -162,7 +162,7 @@ func (m *ListNetworksResponse) Reset()         { *m = ListNetworksResponse{} }
 func (m *ListNetworksResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksResponse) ProtoMessage()    {}
 func (*ListNetworksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{2}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{2}
 }
 func (m *ListNetworksResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksResponse.Unmarshal(m, b)
@@ -216,7 +216,7 @@ func (m *CreateNetworkRequest) Reset()         { *m = CreateNetworkRequest{} }
 func (m *CreateNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateNetworkRequest) ProtoMessage()    {}
 func (*CreateNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{3}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{3}
 }
 func (m *CreateNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateNetworkRequest.Unmarshal(m, b)
@@ -276,7 +276,7 @@ func (m *CreateNetworkMetadata) Reset()         { *m = CreateNetworkMetadata{} }
 func (m *CreateNetworkMetadata) String() string { return proto.CompactTextString(m) }
 func (*CreateNetworkMetadata) ProtoMessage()    {}
 func (*CreateNetworkMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{4}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{4}
 }
 func (m *CreateNetworkMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateNetworkMetadata.Unmarshal(m, b)
@@ -325,7 +325,7 @@ func (m *UpdateNetworkRequest) Reset()         { *m = UpdateNetworkRequest{} }
 func (m *UpdateNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateNetworkRequest) ProtoMessage()    {}
 func (*UpdateNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{5}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{5}
 }
 func (m *UpdateNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateNetworkRequest.Unmarshal(m, b)
@@ -392,7 +392,7 @@ func (m *UpdateNetworkMetadata) Reset()         { *m = UpdateNetworkMetadata{} }
 func (m *UpdateNetworkMetadata) String() string { return proto.CompactTextString(m) }
 func (*UpdateNetworkMetadata) ProtoMessage()    {}
 func (*UpdateNetworkMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{6}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{6}
 }
 func (m *UpdateNetworkMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateNetworkMetadata.Unmarshal(m, b)
@@ -432,7 +432,7 @@ func (m *DeleteNetworkRequest) Reset()         { *m = DeleteNetworkRequest{} }
 func (m *DeleteNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNetworkRequest) ProtoMessage()    {}
 func (*DeleteNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{7}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{7}
 }
 func (m *DeleteNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNetworkRequest.Unmarshal(m, b)
@@ -471,7 +471,7 @@ func (m *DeleteNetworkMetadata) Reset()         { *m = DeleteNetworkMetadata{} }
 func (m *DeleteNetworkMetadata) String() string { return proto.CompactTextString(m) }
 func (*DeleteNetworkMetadata) ProtoMessage()    {}
 func (*DeleteNetworkMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{8}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{8}
 }
 func (m *DeleteNetworkMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNetworkMetadata.Unmarshal(m, b)
@@ -519,7 +519,7 @@ func (m *ListNetworkSubnetsRequest) Reset()         { *m = ListNetworkSubnetsReq
 func (m *ListNetworkSubnetsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNetworkSubnetsRequest) ProtoMessage()    {}
 func (*ListNetworkSubnetsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{9}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{9}
 }
 func (m *ListNetworkSubnetsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworkSubnetsRequest.Unmarshal(m, b)
@@ -579,7 +579,7 @@ func (m *ListNetworkSubnetsResponse) Reset()         { *m = ListNetworkSubnetsRe
 func (m *ListNetworkSubnetsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNetworkSubnetsResponse) ProtoMessage()    {}
 func (*ListNetworkSubnetsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{10}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{10}
 }
 func (m *ListNetworkSubnetsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworkSubnetsResponse.Unmarshal(m, b)
@@ -632,7 +632,7 @@ func (m *ListNetworkOperationsRequest) Reset()         { *m = ListNetworkOperati
 func (m *ListNetworkOperationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNetworkOperationsRequest) ProtoMessage()    {}
 func (*ListNetworkOperationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{11}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{11}
 }
 func (m *ListNetworkOperationsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworkOperationsRequest.Unmarshal(m, b)
@@ -690,7 +690,7 @@ func (m *ListNetworkOperationsResponse) Reset()         { *m = ListNetworkOperat
 func (m *ListNetworkOperationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNetworkOperationsResponse) ProtoMessage()    {}
 func (*ListNetworkOperationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_service_26cda4dcc395658f, []int{12}
+	return fileDescriptor_network_service_ee3168d16ae63f82, []int{12}
 }
 func (m *ListNetworkOperationsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworkOperationsResponse.Unmarshal(m, b)
@@ -761,8 +761,10 @@ type NetworkServiceClient interface {
 	// Retrieves the list of Network resources in the specified folder.
 	List(ctx context.Context, in *ListNetworksRequest, opts ...grpc.CallOption) (*ListNetworksResponse, error)
 	// Creates a network in the specified folder using the data specified in the request.
+	// Method starts an asynchronous operation that can be cancelled while it is in progress.
 	Create(ctx context.Context, in *CreateNetworkRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Updates the specified network.
+	// Method starts an asynchronous operation that can be cancelled while it is in progress.
 	Update(ctx context.Context, in *UpdateNetworkRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Deletes the specified network.
 	Delete(ctx context.Context, in *DeleteNetworkRequest, opts ...grpc.CallOption) (*operation.Operation, error)
@@ -852,8 +854,10 @@ type NetworkServiceServer interface {
 	// Retrieves the list of Network resources in the specified folder.
 	List(context.Context, *ListNetworksRequest) (*ListNetworksResponse, error)
 	// Creates a network in the specified folder using the data specified in the request.
+	// Method starts an asynchronous operation that can be cancelled while it is in progress.
 	Create(context.Context, *CreateNetworkRequest) (*operation.Operation, error)
 	// Updates the specified network.
+	// Method starts an asynchronous operation that can be cancelled while it is in progress.
 	Update(context.Context, *UpdateNetworkRequest) (*operation.Operation, error)
 	// Deletes the specified network.
 	Delete(context.Context, *DeleteNetworkRequest) (*operation.Operation, error)
@@ -1031,10 +1035,10 @@ var _NetworkService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/vpc/v1/network_service.proto", fileDescriptor_network_service_26cda4dcc395658f)
+	proto.RegisterFile("yandex/cloud/vpc/v1/network_service.proto", fileDescriptor_network_service_ee3168d16ae63f82)
 }
 
-var fileDescriptor_network_service_26cda4dcc395658f = []byte{
+var fileDescriptor_network_service_ee3168d16ae63f82 = []byte{
 	// 1041 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x57, 0xcf, 0x6f, 0xdb, 0x64,
 	0x18, 0x96, 0x9b, 0x34, 0x6b, 0xde, 0xc0, 0x28, 0xdf, 0x52, 0x29, 0x98, 0x46, 0xa4, 0x96, 0xd6,

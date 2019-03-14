@@ -29,6 +29,15 @@ func (c *ClusterServiceClient) AddHosts(ctx context.Context, in *clickhouse.AddC
 	return clickhouse.NewClusterServiceClient(conn).AddHosts(ctx, in, opts...)
 }
 
+// AddShard implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) AddShard(ctx context.Context, in *clickhouse.AddClusterShardRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).AddShard(ctx, in, opts...)
+}
+
 // Backup implements clickhouse.ClusterServiceClient
 func (c *ClusterServiceClient) Backup(ctx context.Context, in *clickhouse.BackupClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -65,6 +74,15 @@ func (c *ClusterServiceClient) DeleteHosts(ctx context.Context, in *clickhouse.D
 	return clickhouse.NewClusterServiceClient(conn).DeleteHosts(ctx, in, opts...)
 }
 
+// DeleteShard implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) DeleteShard(ctx context.Context, in *clickhouse.DeleteClusterShardRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).DeleteShard(ctx, in, opts...)
+}
+
 // Get implements clickhouse.ClusterServiceClient
 func (c *ClusterServiceClient) Get(ctx context.Context, in *clickhouse.GetClusterRequest, opts ...grpc.CallOption) (*clickhouse.Cluster, error) {
 	conn, err := c.getConn(ctx)
@@ -72,6 +90,15 @@ func (c *ClusterServiceClient) Get(ctx context.Context, in *clickhouse.GetCluste
 		return nil, err
 	}
 	return clickhouse.NewClusterServiceClient(conn).Get(ctx, in, opts...)
+}
+
+// GetShard implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) GetShard(ctx context.Context, in *clickhouse.GetClusterShardRequest, opts ...grpc.CallOption) (*clickhouse.Shard, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).GetShard(ctx, in, opts...)
 }
 
 // List implements clickhouse.ClusterServiceClient
@@ -119,6 +146,15 @@ func (c *ClusterServiceClient) ListOperations(ctx context.Context, in *clickhous
 	return clickhouse.NewClusterServiceClient(conn).ListOperations(ctx, in, opts...)
 }
 
+// ListShards implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) ListShards(ctx context.Context, in *clickhouse.ListClusterShardsRequest, opts ...grpc.CallOption) (*clickhouse.ListClusterShardsResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).ListShards(ctx, in, opts...)
+}
+
 // Restore implements clickhouse.ClusterServiceClient
 func (c *ClusterServiceClient) Restore(ctx context.Context, in *clickhouse.RestoreClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -128,6 +164,24 @@ func (c *ClusterServiceClient) Restore(ctx context.Context, in *clickhouse.Resto
 	return clickhouse.NewClusterServiceClient(conn).Restore(ctx, in, opts...)
 }
 
+// Start implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) Start(ctx context.Context, in *clickhouse.StartClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).Start(ctx, in, opts...)
+}
+
+// Stop implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) Stop(ctx context.Context, in *clickhouse.StopClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
+}
+
 // Update implements clickhouse.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *clickhouse.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -135,4 +189,13 @@ func (c *ClusterServiceClient) Update(ctx context.Context, in *clickhouse.Update
 		return nil, err
 	}
 	return clickhouse.NewClusterServiceClient(conn).Update(ctx, in, opts...)
+}
+
+// UpdateShard implements clickhouse.ClusterServiceClient
+func (c *ClusterServiceClient) UpdateShard(ctx context.Context, in *clickhouse.UpdateClusterShardRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return clickhouse.NewClusterServiceClient(conn).UpdateShard(ctx, in, opts...)
 }

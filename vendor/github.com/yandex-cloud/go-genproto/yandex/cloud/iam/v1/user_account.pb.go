@@ -19,7 +19,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// A UserAccount resource. For more information, see [Users](/iam/concepts/users/users).
+// Currently represents only [Yandex.Passport account](/docs/iam/concepts/#passport).
 type UserAccount struct {
 	// ID of the user account.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -35,7 +35,7 @@ func (m *UserAccount) Reset()         { *m = UserAccount{} }
 func (m *UserAccount) String() string { return proto.CompactTextString(m) }
 func (*UserAccount) ProtoMessage()    {}
 func (*UserAccount) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_account_34c97b869fae6288, []int{0}
+	return fileDescriptor_user_account_ced378befb1b3d2f, []int{0}
 }
 func (m *UserAccount) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserAccount.Unmarshal(m, b)
@@ -141,7 +141,7 @@ func _UserAccount_OneofSizer(msg proto.Message) (n int) {
 	return n
 }
 
-// A YandexPassportUserAccount resource. For more information, see [Passport users](/iam/concepts/users/users#passport).
+// A YandexPassportUserAccount resource. For more information, see [Yandex.Passport account](/docs/iam/concepts/#passport).
 type YandexPassportUserAccount struct {
 	// Login of the Yandex.Passport user account.
 	Login string `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
@@ -156,7 +156,7 @@ func (m *YandexPassportUserAccount) Reset()         { *m = YandexPassportUserAcc
 func (m *YandexPassportUserAccount) String() string { return proto.CompactTextString(m) }
 func (*YandexPassportUserAccount) ProtoMessage()    {}
 func (*YandexPassportUserAccount) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_account_34c97b869fae6288, []int{1}
+	return fileDescriptor_user_account_ced378befb1b3d2f, []int{1}
 }
 func (m *YandexPassportUserAccount) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_YandexPassportUserAccount.Unmarshal(m, b)
@@ -196,10 +196,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/user_account.proto", fileDescriptor_user_account_34c97b869fae6288)
+	proto.RegisterFile("yandex/cloud/iam/v1/user_account.proto", fileDescriptor_user_account_ced378befb1b3d2f)
 }
 
-var fileDescriptor_user_account_34c97b869fae6288 = []byte{
+var fileDescriptor_user_account_ced378befb1b3d2f = []byte{
 	// 258 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x50, 0xcf, 0x4b, 0xc3, 0x30,
 	0x14, 0xb6, 0x05, 0x85, 0x65, 0x73, 0x87, 0xe8, 0x61, 0x13, 0x85, 0x31, 0x41, 0x76, 0x59, 0xc2,

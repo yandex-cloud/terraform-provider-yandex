@@ -1,6 +1,3 @@
-// Copyright (c) 2016 Yandex LLC. All rights reserved.
-// Author: Vladimir Skipor <skipor@yandex-team.ru>
-
 // Package singleflight based on github.com/golang/groupcache/singleflight
 package singleflight
 

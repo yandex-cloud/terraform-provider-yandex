@@ -21,7 +21,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// An Operation resource. For more information, see [Operation](/api-design-guide/concepts/operation).
+// An Operation resource. For more information, see [Operation](/docs/api-design-guide/concepts/operation).
 type Operation struct {
 	// ID of the operation.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -59,7 +59,7 @@ func (m *Operation) Reset()         { *m = Operation{} }
 func (m *Operation) String() string { return proto.CompactTextString(m) }
 func (*Operation) ProtoMessage()    {}
 func (*Operation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_operation_1aa902f1b2fbfd2f, []int{0}
+	return fileDescriptor_operation_fa9f2af44e01a2d7, []int{0}
 }
 func (m *Operation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Operation.Unmarshal(m, b)
@@ -244,10 +244,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/operation/operation.proto", fileDescriptor_operation_1aa902f1b2fbfd2f)
+	proto.RegisterFile("yandex/cloud/operation/operation.proto", fileDescriptor_operation_fa9f2af44e01a2d7)
 }
 
-var fileDescriptor_operation_1aa902f1b2fbfd2f = []byte{
+var fileDescriptor_operation_fa9f2af44e01a2d7 = []byte{
 	// 345 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x4d, 0x4b, 0xeb, 0x40,
 	0x14, 0x86, 0x9b, 0x7e, 0xdd, 0x64, 0x0a, 0x77, 0x31, 0x5c, 0xae, 0x63, 0x41, 0x0c, 0x2e, 0xa4,

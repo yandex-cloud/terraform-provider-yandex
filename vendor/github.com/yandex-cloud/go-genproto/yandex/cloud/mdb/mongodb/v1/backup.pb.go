@@ -20,7 +20,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // A MongoDB Backup resource. For more information, see the
-// [Developer's Guide](/mdb/concepts).
+// [Developer's Guide](/docs/managed-mongodb/concepts).
 type Backup struct {
 	// ID of the backup.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -42,7 +42,7 @@ func (m *Backup) Reset()         { *m = Backup{} }
 func (m *Backup) String() string { return proto.CompactTextString(m) }
 func (*Backup) ProtoMessage()    {}
 func (*Backup) Descriptor() ([]byte, []int) {
-	return fileDescriptor_backup_12c60c50ca5b5446, []int{0}
+	return fileDescriptor_backup_7bed62cf0a79db64, []int{0}
 }
 func (m *Backup) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Backup.Unmarshal(m, b)
@@ -102,10 +102,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/mongodb/v1/backup.proto", fileDescriptor_backup_12c60c50ca5b5446)
+	proto.RegisterFile("yandex/cloud/mdb/mongodb/v1/backup.proto", fileDescriptor_backup_7bed62cf0a79db64)
 }
 
-var fileDescriptor_backup_12c60c50ca5b5446 = []byte{
+var fileDescriptor_backup_7bed62cf0a79db64 = []byte{
 	// 261 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x90, 0xc1, 0x4b, 0xc3, 0x30,
 	0x14, 0xc6, 0x69, 0xd5, 0x61, 0x23, 0x28, 0xf6, 0x54, 0xb6, 0x83, 0xc3, 0x53, 0x11, 0x96, 0x30,

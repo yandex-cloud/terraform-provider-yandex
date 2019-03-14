@@ -52,10 +52,10 @@ func (x Snapshot_Status) String() string {
 	return proto.EnumName(Snapshot_Status_name, int32(x))
 }
 func (Snapshot_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_9cd24b646e960fe3, []int{0, 0}
+	return fileDescriptor_snapshot_3c7ca140728f66a5, []int{0, 0}
 }
 
-// A Snapshot resource. For more information, see [Snapshots](/compute/concepts/snapshot).
+// A Snapshot resource. For more information, see [Snapshots](/docs/compute/concepts/snapshot).
 type Snapshot struct {
 	// ID of the snapshot.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -95,7 +95,7 @@ func (m *Snapshot) Reset()         { *m = Snapshot{} }
 func (m *Snapshot) String() string { return proto.CompactTextString(m) }
 func (*Snapshot) ProtoMessage()    {}
 func (*Snapshot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_9cd24b646e960fe3, []int{0}
+	return fileDescriptor_snapshot_3c7ca140728f66a5, []int{0}
 }
 func (m *Snapshot) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Snapshot.Unmarshal(m, b)
@@ -199,10 +199,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/compute/v1/snapshot.proto", fileDescriptor_snapshot_9cd24b646e960fe3)
+	proto.RegisterFile("yandex/cloud/compute/v1/snapshot.proto", fileDescriptor_snapshot_3c7ca140728f66a5)
 }
 
-var fileDescriptor_snapshot_9cd24b646e960fe3 = []byte{
+var fileDescriptor_snapshot_3c7ca140728f66a5 = []byte{
 	// 484 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x8f, 0x9b, 0x3e,
 	0x10, 0xc5, 0xff, 0x84, 0x24, 0xff, 0x30, 0x44, 0x11, 0xb2, 0xaa, 0x16, 0xa5, 0x87, 0xa5, 0xab,

@@ -46,7 +46,7 @@ func (x PostgresqlHostConfig9_6_ConstraintExclusion) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_ConstraintExclusion_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_ConstraintExclusion) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 0}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 0}
 }
 
 type PostgresqlHostConfig9_6_ForceParallelMode int32
@@ -75,7 +75,7 @@ func (x PostgresqlHostConfig9_6_ForceParallelMode) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_ForceParallelMode_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_ForceParallelMode) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 1}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 1}
 }
 
 type PostgresqlHostConfig9_6_LogLevel int32
@@ -128,7 +128,7 @@ func (x PostgresqlHostConfig9_6_LogLevel) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_LogLevel_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_LogLevel) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 2}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 2}
 }
 
 type PostgresqlHostConfig9_6_LogErrorVerbosity int32
@@ -157,7 +157,7 @@ func (x PostgresqlHostConfig9_6_LogErrorVerbosity) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_LogErrorVerbosity_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_LogErrorVerbosity) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 3}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 3}
 }
 
 type PostgresqlHostConfig9_6_LogStatement int32
@@ -189,7 +189,7 @@ func (x PostgresqlHostConfig9_6_LogStatement) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_LogStatement_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_LogStatement) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 4}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 4}
 }
 
 type PostgresqlHostConfig9_6_TransactionIsolation int32
@@ -221,7 +221,7 @@ func (x PostgresqlHostConfig9_6_TransactionIsolation) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_TransactionIsolation_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_TransactionIsolation) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 5}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 5}
 }
 
 type PostgresqlHostConfig9_6_ByteaOutput int32
@@ -247,7 +247,7 @@ func (x PostgresqlHostConfig9_6_ByteaOutput) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_ByteaOutput_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_ByteaOutput) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 6}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 6}
 }
 
 type PostgresqlHostConfig9_6_XmlBinary int32
@@ -273,7 +273,7 @@ func (x PostgresqlHostConfig9_6_XmlBinary) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_XmlBinary_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_XmlBinary) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 7}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 7}
 }
 
 type PostgresqlHostConfig9_6_XmlOption int32
@@ -299,7 +299,7 @@ func (x PostgresqlHostConfig9_6_XmlOption) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_XmlOption_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_XmlOption) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 8}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 8}
 }
 
 type PostgresqlHostConfig9_6_BackslashQuote int32
@@ -331,12 +331,12 @@ func (x PostgresqlHostConfig9_6_BackslashQuote) String() string {
 	return proto.EnumName(PostgresqlHostConfig9_6_BackslashQuote_name, int32(x))
 }
 func (PostgresqlHostConfig9_6_BackslashQuote) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0, 9}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0, 9}
 }
 
 // Options and structure of `PostgresqlHostConfig` reflects parameters of a PostgreSQL
 // configuration file. Detailed description is available in
-// [PostgreSQL documentation](https://www.postgresql.org/docs/9.6/static/runtime-config.html).
+// [PostgreSQL documentation](https://www.postgresql.org/docs/9.6/runtime-config.html).
 type PostgresqlHostConfig9_6 struct {
 	RecoveryMinApplyDelay           *wrappers.Int64Value                         `protobuf:"bytes,1,opt,name=recovery_min_apply_delay,json=recoveryMinApplyDelay,proto3" json:"recovery_min_apply_delay,omitempty"`
 	SharedBuffers                   *wrappers.Int64Value                         `protobuf:"bytes,2,opt,name=shared_buffers,json=sharedBuffers,proto3" json:"shared_buffers,omitempty"`
@@ -401,7 +401,7 @@ func (m *PostgresqlHostConfig9_6) Reset()         { *m = PostgresqlHostConfig9_6
 func (m *PostgresqlHostConfig9_6) String() string { return proto.CompactTextString(m) }
 func (*PostgresqlHostConfig9_6) ProtoMessage()    {}
 func (*PostgresqlHostConfig9_6) Descriptor() ([]byte, []int) {
-	return fileDescriptor_host9_6_c1982e815896c4ea, []int{0}
+	return fileDescriptor_host9_6_bf21c75a83cd3758, []int{0}
 }
 func (m *PostgresqlHostConfig9_6) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PostgresqlHostConfig9_6.Unmarshal(m, b)
@@ -807,10 +807,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/config/host9_6.proto", fileDescriptor_host9_6_c1982e815896c4ea)
+	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/config/host9_6.proto", fileDescriptor_host9_6_bf21c75a83cd3758)
 }
 
-var fileDescriptor_host9_6_c1982e815896c4ea = []byte{
+var fileDescriptor_host9_6_bf21c75a83cd3758 = []byte{
 	// 2235 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x99, 0x5b, 0x73, 0xdb, 0xb8,
 	0x15, 0xc7, 0x2b, 0x3b, 0x9b, 0x4d, 0xe0, 0x1b, 0x05, 0xf9, 0xc2, 0xd8, 0xb9, 0x2a, 0x97, 0x66,

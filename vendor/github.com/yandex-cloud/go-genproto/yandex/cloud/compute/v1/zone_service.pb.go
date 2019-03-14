@@ -43,7 +43,7 @@ func (m *ListZonesRequest) Reset()         { *m = ListZonesRequest{} }
 func (m *ListZonesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListZonesRequest) ProtoMessage()    {}
 func (*ListZonesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_zone_service_beacd1d769e18d45, []int{0}
+	return fileDescriptor_zone_service_e9c86d533e92d608, []int{0}
 }
 func (m *ListZonesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListZonesRequest.Unmarshal(m, b)
@@ -78,7 +78,7 @@ func (m *ListZonesRequest) GetPageToken() string {
 }
 
 type ListZonesResponse struct {
-	// List of Zone resources.
+	// List of availability zones.
 	Zones []*Zone `protobuf:"bytes,1,rep,name=zones,proto3" json:"zones,omitempty"`
 	// This token allows you to get the next page of results for list requests. If the number of results
 	// is larger than [ListZonesRequest.page_size], use
@@ -96,7 +96,7 @@ func (m *ListZonesResponse) Reset()         { *m = ListZonesResponse{} }
 func (m *ListZonesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListZonesResponse) ProtoMessage()    {}
 func (*ListZonesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_zone_service_beacd1d769e18d45, []int{1}
+	return fileDescriptor_zone_service_e9c86d533e92d608, []int{1}
 }
 func (m *ListZonesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListZonesResponse.Unmarshal(m, b)
@@ -131,7 +131,7 @@ func (m *ListZonesResponse) GetNextPageToken() string {
 }
 
 type GetZoneRequest struct {
-	// ID of the Zone resource to return.
+	// ID of the availability zone to return information about.
 	ZoneId               string   `protobuf:"bytes,1,opt,name=zone_id,json=zoneId,proto3" json:"zone_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -142,7 +142,7 @@ func (m *GetZoneRequest) Reset()         { *m = GetZoneRequest{} }
 func (m *GetZoneRequest) String() string { return proto.CompactTextString(m) }
 func (*GetZoneRequest) ProtoMessage()    {}
 func (*GetZoneRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_zone_service_beacd1d769e18d45, []int{2}
+	return fileDescriptor_zone_service_e9c86d533e92d608, []int{2}
 }
 func (m *GetZoneRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetZoneRequest.Unmarshal(m, b)
@@ -187,11 +187,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ZoneServiceClient interface {
-	// Returns the specified zone resource.
+	// Returns the information about the specified availability zone.
 	//
-	// To get the list of available Zone resources, make a [List] request.
+	// To get the list of availability zones, make a [List] request.
 	Get(ctx context.Context, in *GetZoneRequest, opts ...grpc.CallOption) (*Zone, error)
-	// Retrieves the list of Zone resources.
+	// Retrieves the list of availability zones.
 	List(ctx context.Context, in *ListZonesRequest, opts ...grpc.CallOption) (*ListZonesResponse, error)
 }
 
@@ -223,11 +223,11 @@ func (c *zoneServiceClient) List(ctx context.Context, in *ListZonesRequest, opts
 
 // ZoneServiceServer is the server API for ZoneService service.
 type ZoneServiceServer interface {
-	// Returns the specified zone resource.
+	// Returns the information about the specified availability zone.
 	//
-	// To get the list of available Zone resources, make a [List] request.
+	// To get the list of availability zones, make a [List] request.
 	Get(context.Context, *GetZoneRequest) (*Zone, error)
-	// Retrieves the list of Zone resources.
+	// Retrieves the list of availability zones.
 	List(context.Context, *ListZonesRequest) (*ListZonesResponse, error)
 }
 
@@ -289,10 +289,10 @@ var _ZoneService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/compute/v1/zone_service.proto", fileDescriptor_zone_service_beacd1d769e18d45)
+	proto.RegisterFile("yandex/cloud/compute/v1/zone_service.proto", fileDescriptor_zone_service_e9c86d533e92d608)
 }
 
-var fileDescriptor_zone_service_beacd1d769e18d45 = []byte{
+var fileDescriptor_zone_service_e9c86d533e92d608 = []byte{
 	// 421 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x8b, 0xd3, 0x40,
 	0x18, 0xc6, 0xc9, 0x76, 0xb7, 0x9a, 0x59, 0xff, 0xed, 0x78, 0xb0, 0x46, 0x0b, 0x25, 0xa2, 0x1b,

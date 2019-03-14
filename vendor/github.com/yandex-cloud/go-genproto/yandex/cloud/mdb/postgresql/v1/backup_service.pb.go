@@ -38,7 +38,7 @@ func (m *GetBackupRequest) Reset()         { *m = GetBackupRequest{} }
 func (m *GetBackupRequest) String() string { return proto.CompactTextString(m) }
 func (*GetBackupRequest) ProtoMessage()    {}
 func (*GetBackupRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_backup_service_5b7c05d886dfe5f4, []int{0}
+	return fileDescriptor_backup_service_76dfe2452a94567c, []int{0}
 }
 func (m *GetBackupRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetBackupRequest.Unmarshal(m, b)
@@ -85,7 +85,7 @@ func (m *ListBackupsRequest) Reset()         { *m = ListBackupsRequest{} }
 func (m *ListBackupsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListBackupsRequest) ProtoMessage()    {}
 func (*ListBackupsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_backup_service_5b7c05d886dfe5f4, []int{1}
+	return fileDescriptor_backup_service_76dfe2452a94567c, []int{1}
 }
 func (m *ListBackupsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListBackupsRequest.Unmarshal(m, b)
@@ -127,7 +127,7 @@ func (m *ListBackupsRequest) GetPageToken() string {
 }
 
 type ListBackupsResponse struct {
-	// List of Backup resources.
+	// List of PostgreSQL Backup resources.
 	Backups []*Backup `protobuf:"bytes,1,rep,name=backups,proto3" json:"backups,omitempty"`
 	// This token allows you to get the next page of results for list requests. If the number of results
 	// is larger than [ListBackupsRequest.page_size], use the [next_page_token] as the value
@@ -143,7 +143,7 @@ func (m *ListBackupsResponse) Reset()         { *m = ListBackupsResponse{} }
 func (m *ListBackupsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListBackupsResponse) ProtoMessage()    {}
 func (*ListBackupsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_backup_service_5b7c05d886dfe5f4, []int{2}
+	return fileDescriptor_backup_service_76dfe2452a94567c, []int{2}
 }
 func (m *ListBackupsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListBackupsResponse.Unmarshal(m, b)
@@ -297,10 +297,10 @@ var _BackupService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/backup_service.proto", fileDescriptor_backup_service_5b7c05d886dfe5f4)
+	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/backup_service.proto", fileDescriptor_backup_service_76dfe2452a94567c)
 }
 
-var fileDescriptor_backup_service_5b7c05d886dfe5f4 = []byte{
+var fileDescriptor_backup_service_76dfe2452a94567c = []byte{
 	// 466 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0xbf, 0x6f, 0x13, 0x31,
 	0x14, 0xc7, 0xe5, 0x24, 0x94, 0x9c, 0xa1, 0x02, 0x99, 0x25, 0x8a, 0xa0, 0x0a, 0x37, 0x94, 0xf0,

@@ -39,7 +39,7 @@ func (m *GetAccessKeyRequest) Reset()         { *m = GetAccessKeyRequest{} }
 func (m *GetAccessKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*GetAccessKeyRequest) ProtoMessage()    {}
 func (*GetAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{0}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{0}
 }
 func (m *GetAccessKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAccessKeyRequest.Unmarshal(m, b)
@@ -69,13 +69,13 @@ func (m *GetAccessKeyRequest) GetAccessKeyId() string {
 type ListAccessKeysRequest struct {
 	// ID of the service account to list access keys for.
 	// To get the service account ID, use a [yandex.cloud.iam.v1.ServiceAccountService.List] request.
-	// If [service_account_id] is not specified, it defaults to the subject that made the request.
+	// If not specified, it defaults to the subject that made the request.
 	ServiceAccountId string `protobuf:"bytes,1,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	// The maximum number of results per page to return. If the number of available
 	// results is larger than [page_size],
 	// the service returns a [ListAccessKeysResponse.next_page_token]
 	// that can be used to get the next page of results in subsequent list requests.
-	// Acceptable values are 0 to 1000, inclusive. Default value: 100.
+	// Default value: 100.
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set [page_token]
 	// to the [ListAccessKeysResponse.next_page_token]
@@ -90,7 +90,7 @@ func (m *ListAccessKeysRequest) Reset()         { *m = ListAccessKeysRequest{} }
 func (m *ListAccessKeysRequest) String() string { return proto.CompactTextString(m) }
 func (*ListAccessKeysRequest) ProtoMessage()    {}
 func (*ListAccessKeysRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{1}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{1}
 }
 func (m *ListAccessKeysRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAccessKeysRequest.Unmarshal(m, b)
@@ -150,7 +150,7 @@ func (m *ListAccessKeysResponse) Reset()         { *m = ListAccessKeysResponse{}
 func (m *ListAccessKeysResponse) String() string { return proto.CompactTextString(m) }
 func (*ListAccessKeysResponse) ProtoMessage()    {}
 func (*ListAccessKeysResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{2}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{2}
 }
 func (m *ListAccessKeysResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAccessKeysResponse.Unmarshal(m, b)
@@ -187,9 +187,9 @@ func (m *ListAccessKeysResponse) GetNextPageToken() string {
 type CreateAccessKeyRequest struct {
 	// ID of the service account to create an access key for.
 	// To get the service account ID, use a [yandex.cloud.iam.v1.ServiceAccountService.List] request.
-	// If [service_account_id] is not specified, it defaults to the subject that made the request.
+	// If not specified, it defaults to the subject that made the request.
 	ServiceAccountId string `protobuf:"bytes,1,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
-	// Description of the access key. 0-256 characters long.
+	// Description of the access key.
 	Description          string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -200,7 +200,7 @@ func (m *CreateAccessKeyRequest) Reset()         { *m = CreateAccessKeyRequest{}
 func (m *CreateAccessKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateAccessKeyRequest) ProtoMessage()    {}
 func (*CreateAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{3}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{3}
 }
 func (m *CreateAccessKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateAccessKeyRequest.Unmarshal(m, b)
@@ -249,7 +249,7 @@ func (m *CreateAccessKeyResponse) Reset()         { *m = CreateAccessKeyResponse
 func (m *CreateAccessKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateAccessKeyResponse) ProtoMessage()    {}
 func (*CreateAccessKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{4}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{4}
 }
 func (m *CreateAccessKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateAccessKeyResponse.Unmarshal(m, b)
@@ -296,7 +296,7 @@ func (m *DeleteAccessKeyRequest) Reset()         { *m = DeleteAccessKeyRequest{}
 func (m *DeleteAccessKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteAccessKeyRequest) ProtoMessage()    {}
 func (*DeleteAccessKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_access_key_service_b6468aa072a5f3f9, []int{5}
+	return fileDescriptor_access_key_service_efeaa691b26615d7, []int{5}
 }
 func (m *DeleteAccessKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteAccessKeyRequest.Unmarshal(m, b)
@@ -516,10 +516,10 @@ var _AccessKeyService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/awscompatibility/access_key_service.proto", fileDescriptor_access_key_service_b6468aa072a5f3f9)
+	proto.RegisterFile("yandex/cloud/iam/v1/awscompatibility/access_key_service.proto", fileDescriptor_access_key_service_efeaa691b26615d7)
 }
 
-var fileDescriptor_access_key_service_b6468aa072a5f3f9 = []byte{
+var fileDescriptor_access_key_service_efeaa691b26615d7 = []byte{
 	// 649 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x95, 0xbf, 0x6e, 0x13, 0x4b,
 	0x14, 0xc6, 0x35, 0x71, 0x62, 0xc5, 0xc7, 0x37, 0xba, 0xd1, 0x5c, 0x5d, 0x63, 0x19, 0x90, 0xa2,

@@ -26,7 +26,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type GetDiskTypeRequest struct {
-	// ID of the DiskType resource to return.
+	// ID of the disk type to return information about.
 	// To get the disk type ID use a [DiskTypeService.List] request.
 	DiskTypeId           string   `protobuf:"bytes,1,opt,name=disk_type_id,json=diskTypeId,proto3" json:"disk_type_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -38,7 +38,7 @@ func (m *GetDiskTypeRequest) Reset()         { *m = GetDiskTypeRequest{} }
 func (m *GetDiskTypeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetDiskTypeRequest) ProtoMessage()    {}
 func (*GetDiskTypeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_disk_type_service_47b39021a65f7862, []int{0}
+	return fileDescriptor_disk_type_service_42656155dbce67c7, []int{0}
 }
 func (m *GetDiskTypeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetDiskTypeRequest.Unmarshal(m, b)
@@ -83,7 +83,7 @@ func (m *ListDiskTypesRequest) Reset()         { *m = ListDiskTypesRequest{} }
 func (m *ListDiskTypesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListDiskTypesRequest) ProtoMessage()    {}
 func (*ListDiskTypesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_disk_type_service_47b39021a65f7862, []int{1}
+	return fileDescriptor_disk_type_service_42656155dbce67c7, []int{1}
 }
 func (m *ListDiskTypesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListDiskTypesRequest.Unmarshal(m, b)
@@ -118,7 +118,7 @@ func (m *ListDiskTypesRequest) GetPageToken() string {
 }
 
 type ListDiskTypesResponse struct {
-	// List of DiskType resources.
+	// List of disk types.
 	DiskTypes []*DiskType `protobuf:"bytes,1,rep,name=disk_types,json=diskTypes,proto3" json:"disk_types,omitempty"`
 	// This token allows you to get the next page of results for list requests. If the number of results
 	// is larger than [ListDiskTypesRequest.page_size], use
@@ -136,7 +136,7 @@ func (m *ListDiskTypesResponse) Reset()         { *m = ListDiskTypesResponse{} }
 func (m *ListDiskTypesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListDiskTypesResponse) ProtoMessage()    {}
 func (*ListDiskTypesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_disk_type_service_47b39021a65f7862, []int{2}
+	return fileDescriptor_disk_type_service_42656155dbce67c7, []int{2}
 }
 func (m *ListDiskTypesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListDiskTypesResponse.Unmarshal(m, b)
@@ -188,11 +188,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DiskTypeServiceClient interface {
-	// Returns the specified DiskType resource.
+	// Returns the information about specified disk type.
 	//
-	// To get the list of available DiskType resources, make a [List] request.
+	// To get the list of available disk types, make a [List] request.
 	Get(ctx context.Context, in *GetDiskTypeRequest, opts ...grpc.CallOption) (*DiskType, error)
-	// Retrieves the list of DiskType resources in the specified folder.
+	// Retrieves the list of disk types for the specified folder.
 	List(ctx context.Context, in *ListDiskTypesRequest, opts ...grpc.CallOption) (*ListDiskTypesResponse, error)
 }
 
@@ -224,11 +224,11 @@ func (c *diskTypeServiceClient) List(ctx context.Context, in *ListDiskTypesReque
 
 // DiskTypeServiceServer is the server API for DiskTypeService service.
 type DiskTypeServiceServer interface {
-	// Returns the specified DiskType resource.
+	// Returns the information about specified disk type.
 	//
-	// To get the list of available DiskType resources, make a [List] request.
+	// To get the list of available disk types, make a [List] request.
 	Get(context.Context, *GetDiskTypeRequest) (*DiskType, error)
-	// Retrieves the list of DiskType resources in the specified folder.
+	// Retrieves the list of disk types for the specified folder.
 	List(context.Context, *ListDiskTypesRequest) (*ListDiskTypesResponse, error)
 }
 
@@ -290,10 +290,10 @@ var _DiskTypeService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/compute/v1/disk_type_service.proto", fileDescriptor_disk_type_service_47b39021a65f7862)
+	proto.RegisterFile("yandex/cloud/compute/v1/disk_type_service.proto", fileDescriptor_disk_type_service_42656155dbce67c7)
 }
 
-var fileDescriptor_disk_type_service_47b39021a65f7862 = []byte{
+var fileDescriptor_disk_type_service_42656155dbce67c7 = []byte{
 	// 427 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xcf, 0xaa, 0xd3, 0x40,
 	0x14, 0xc6, 0x49, 0x7b, 0xbd, 0x98, 0xa3, 0x72, 0x61, 0xf0, 0x72, 0x4b, 0xf0, 0xc2, 0x35, 0x48,

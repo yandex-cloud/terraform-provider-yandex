@@ -351,3 +351,23 @@ func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
 	}
 	return compute.AttachedDiskSpec_Mode(val), nil
 }
+
+func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.SchedulingPolicy, error) {
+	sp := d.Get("scheduling_policy").([]interface{})
+	var schedulingPolicy *compute.SchedulingPolicy
+	if len(sp) != 0 {
+		schedulingPolicy = &compute.SchedulingPolicy{
+			Preemptible: d.Get("scheduling_policy.0.preemptible").(bool),
+		}
+	}
+	return schedulingPolicy, nil
+}
+
+func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
+	schedulingPolicy := make([]map[string]interface{}, 0, 1)
+	schedulingMap := map[string]interface{}{
+		"preemptible": instance.SchedulingPolicy.Preemptible,
+	}
+	schedulingPolicy = append(schedulingPolicy, schedulingMap)
+	return schedulingPolicy, nil
+}

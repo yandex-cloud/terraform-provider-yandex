@@ -42,3 +42,8 @@ func (i *IAM) UserAccount() *UserAccountServiceClient {
 func (i *IAM) YandexPassportUserAccount() *YandexPassportUserAccountServiceClient {
 	return &YandexPassportUserAccountServiceClient{getConn: i.getConn}
 }
+
+// Key gets KeyService client
+func (i *IAM) Key() *KeyServiceClient {
+	return &KeyServiceClient{getConn: i.getConn}
+}

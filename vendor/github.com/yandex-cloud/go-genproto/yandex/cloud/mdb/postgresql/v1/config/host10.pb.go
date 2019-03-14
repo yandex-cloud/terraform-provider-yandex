@@ -46,7 +46,7 @@ func (x PostgresqlHostConfig10_ConstraintExclusion) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_ConstraintExclusion_name, int32(x))
 }
 func (PostgresqlHostConfig10_ConstraintExclusion) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 0}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 0}
 }
 
 type PostgresqlHostConfig10_ForceParallelMode int32
@@ -75,7 +75,7 @@ func (x PostgresqlHostConfig10_ForceParallelMode) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_ForceParallelMode_name, int32(x))
 }
 func (PostgresqlHostConfig10_ForceParallelMode) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 1}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 1}
 }
 
 type PostgresqlHostConfig10_LogLevel int32
@@ -128,7 +128,7 @@ func (x PostgresqlHostConfig10_LogLevel) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_LogLevel_name, int32(x))
 }
 func (PostgresqlHostConfig10_LogLevel) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 2}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 2}
 }
 
 type PostgresqlHostConfig10_LogErrorVerbosity int32
@@ -157,7 +157,7 @@ func (x PostgresqlHostConfig10_LogErrorVerbosity) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_LogErrorVerbosity_name, int32(x))
 }
 func (PostgresqlHostConfig10_LogErrorVerbosity) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 3}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 3}
 }
 
 type PostgresqlHostConfig10_LogStatement int32
@@ -189,7 +189,7 @@ func (x PostgresqlHostConfig10_LogStatement) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_LogStatement_name, int32(x))
 }
 func (PostgresqlHostConfig10_LogStatement) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 4}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 4}
 }
 
 type PostgresqlHostConfig10_TransactionIsolation int32
@@ -221,7 +221,7 @@ func (x PostgresqlHostConfig10_TransactionIsolation) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_TransactionIsolation_name, int32(x))
 }
 func (PostgresqlHostConfig10_TransactionIsolation) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 5}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 5}
 }
 
 type PostgresqlHostConfig10_ByteaOutput int32
@@ -247,7 +247,7 @@ func (x PostgresqlHostConfig10_ByteaOutput) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_ByteaOutput_name, int32(x))
 }
 func (PostgresqlHostConfig10_ByteaOutput) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 6}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 6}
 }
 
 type PostgresqlHostConfig10_XmlBinary int32
@@ -273,7 +273,7 @@ func (x PostgresqlHostConfig10_XmlBinary) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_XmlBinary_name, int32(x))
 }
 func (PostgresqlHostConfig10_XmlBinary) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 7}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 7}
 }
 
 type PostgresqlHostConfig10_XmlOption int32
@@ -299,7 +299,7 @@ func (x PostgresqlHostConfig10_XmlOption) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_XmlOption_name, int32(x))
 }
 func (PostgresqlHostConfig10_XmlOption) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 8}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 8}
 }
 
 type PostgresqlHostConfig10_BackslashQuote int32
@@ -331,12 +331,12 @@ func (x PostgresqlHostConfig10_BackslashQuote) String() string {
 	return proto.EnumName(PostgresqlHostConfig10_BackslashQuote_name, int32(x))
 }
 func (PostgresqlHostConfig10_BackslashQuote) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0, 9}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0, 9}
 }
 
 // Options and structure of `PostgresqlHostConfig` reflects PostgreSQL configuration file
 // parameters whose detailed description is available in
-// [PostgreSQL documentation](https://www.postgresql.org/docs/10/static/runtime-config).
+// [PostgreSQL documentation](https://www.postgresql.org/docs/10/runtime-config.html).
 type PostgresqlHostConfig10 struct {
 	RecoveryMinApplyDelay           *wrappers.Int64Value                        `protobuf:"bytes,1,opt,name=recovery_min_apply_delay,json=recoveryMinApplyDelay,proto3" json:"recovery_min_apply_delay,omitempty"`
 	SharedBuffers                   *wrappers.Int64Value                        `protobuf:"bytes,2,opt,name=shared_buffers,json=sharedBuffers,proto3" json:"shared_buffers,omitempty"`
@@ -399,7 +399,7 @@ func (m *PostgresqlHostConfig10) Reset()         { *m = PostgresqlHostConfig10{}
 func (m *PostgresqlHostConfig10) String() string { return proto.CompactTextString(m) }
 func (*PostgresqlHostConfig10) ProtoMessage()    {}
 func (*PostgresqlHostConfig10) Descriptor() ([]byte, []int) {
-	return fileDescriptor_host10_2c598af47c203f48, []int{0}
+	return fileDescriptor_host10_c67a1089e8774ac3, []int{0}
 }
 func (m *PostgresqlHostConfig10) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PostgresqlHostConfig10.Unmarshal(m, b)
@@ -798,10 +798,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/config/host10.proto", fileDescriptor_host10_2c598af47c203f48)
+	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/config/host10.proto", fileDescriptor_host10_c67a1089e8774ac3)
 }
 
-var fileDescriptor_host10_2c598af47c203f48 = []byte{
+var fileDescriptor_host10_c67a1089e8774ac3 = []byte{
 	// 2210 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x99, 0xdb, 0x6f, 0xdb, 0xc8,
 	0xf5, 0xc7, 0x7f, 0xb2, 0xb3, 0xd9, 0x64, 0x7c, 0xa3, 0x46, 0xbe, 0x30, 0xf6, 0xe6, 0xb2, 0xda,

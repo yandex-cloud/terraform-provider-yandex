@@ -20,7 +20,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // A PostgreSQL Backup resource. For more information, see
-// the [Developer's Guide](/mdb/concepts).
+// the [Developer's Guide](/docs/managed-postgresql/concepts/backup).
 type Backup struct {
 	// ID of the backup.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -42,7 +42,7 @@ func (m *Backup) Reset()         { *m = Backup{} }
 func (m *Backup) String() string { return proto.CompactTextString(m) }
 func (*Backup) ProtoMessage()    {}
 func (*Backup) Descriptor() ([]byte, []int) {
-	return fileDescriptor_backup_9781f482dc2e1553, []int{0}
+	return fileDescriptor_backup_201d65cfeeef8a8a, []int{0}
 }
 func (m *Backup) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Backup.Unmarshal(m, b)
@@ -102,10 +102,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/backup.proto", fileDescriptor_backup_9781f482dc2e1553)
+	proto.RegisterFile("yandex/cloud/mdb/postgresql/v1/backup.proto", fileDescriptor_backup_201d65cfeeef8a8a)
 }
 
-var fileDescriptor_backup_9781f482dc2e1553 = []byte{
+var fileDescriptor_backup_201d65cfeeef8a8a = []byte{
 	// 268 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x90, 0xc1, 0x4a, 0x33, 0x31,
 	0x14, 0x85, 0x99, 0xf9, 0x7f, 0x8b, 0x13, 0x41, 0x71, 0x56, 0x43, 0x05, 0x2d, 0xae, 0x8a, 0xd2,

@@ -128,6 +128,24 @@ func (c *ClusterServiceClient) Restore(ctx context.Context, in *mongodb.RestoreC
 	return mongodb.NewClusterServiceClient(conn).Restore(ctx, in, opts...)
 }
 
+// Start implements mongodb.ClusterServiceClient
+func (c *ClusterServiceClient) Start(ctx context.Context, in *mongodb.StartClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mongodb.NewClusterServiceClient(conn).Start(ctx, in, opts...)
+}
+
+// Stop implements mongodb.ClusterServiceClient
+func (c *ClusterServiceClient) Stop(ctx context.Context, in *mongodb.StopClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mongodb.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
+}
+
 // Update implements mongodb.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *mongodb.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

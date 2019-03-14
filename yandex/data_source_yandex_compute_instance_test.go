@@ -30,6 +30,7 @@ func TestAccDataSourceComputeInstance(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.initialize_params.0.type", "network-hdd"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.0.nat", "false"),
+					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "scheduling_policy.0.preemptible", "false"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_instance.bar"),
 				),
 			},

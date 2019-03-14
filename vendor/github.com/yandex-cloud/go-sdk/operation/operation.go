@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"github.com/yandex-cloud/go-sdk/sdkerrors"
+	"github.com/yandex-cloud/go-sdk/pkg/sdkerrors"
 )
 
 type Client = operation.OperationServiceClient
@@ -100,8 +100,8 @@ func (o *Operation) Done() bool   { return o.proto.Done }
 func (o *Operation) Ok() bool     { return o.Done() && o.proto.GetResponse() != nil }
 func (o *Operation) Failed() bool { return o.Done() && o.proto.GetError() != nil }
 
-// Poll gets new state of operation from operation client. On success operation state is updated.
-// Returns error if state get failed.
+// Poll gets new state of operation from operation client. On success the operation state is updated.
+// Returns error if update request failed.
 func (o *Operation) Poll(ctx context.Context, opts ...grpc.CallOption) error {
 	req := &operation.GetOperationRequest{OperationId: o.Id()}
 	state, err := o.Client().Get(ctx, req, opts...)
@@ -124,8 +124,14 @@ func (o *Operation) Cancel(ctx context.Context, opts ...grpc.CallOption) error {
 	return nil
 }
 
+const DefaultPollInterval = time.Second
+
 func (o *Operation) Wait(ctx context.Context, opts ...grpc.CallOption) error {
 	return o.WaitInterval(ctx, DefaultPollInterval, opts...)
+}
+
+func (o *Operation) WaitInterval(ctx context.Context, pollInterval time.Duration, opts ...grpc.CallOption) error {
+	return o.waitInterval(ctx, pollInterval, opts...)
 }
 
 const (
@@ -136,7 +142,8 @@ func (o *Operation) waitInterval(ctx context.Context, pollInterval time.Duration
 	var headers metadata.MD
 	opts = append(opts, grpc.Header(&headers))
 
-	// https://st.yandex-team.ru/MCDEV-860
+	// Sometimes, the returned operation is not on all replicas yet,
+	// so we need to ignore first couple of NotFound errors.
 	const maxNotFoundRetry = 3
 	notFoundCount := 0
 	for !o.Done() {
@@ -177,57 +184,4 @@ func (o *Operation) waitInterval(ctx context.Context, pollInterval time.Duration
 func shoudRetry(err error) bool {
 	status, ok := status.FromError(err)
 	return ok && status.Code() == codes.NotFound
-}
-
-func (o *Operation) WaitInterval(ctx context.Context, pollInterval time.Duration, opts ...grpc.CallOption) error {
-	return sdkerrors.WithOperationID(o.waitInterval(ctx, pollInterval, opts...), o.Id())
-}
-
-const DefaultPollInterval = time.Second
-
-// TODO(skipor): per operation call options needed?
-type Operations []*Operation
-
-// Batch is helper to combine multiple operations.
-// Example:
-// err := Batch(operation1, operation2).Wait(ctx, callOpt1, callOpt2)
-func Batch(ops ...*Operation) Operations {
-	return Operations(ops)
-}
-
-func (ops Operations) Wait(ctx context.Context, opts ...grpc.CallOption) error {
-	return ops.WaitInterval(ctx, DefaultPollInterval, opts...)
-}
-
-func (ops Operations) WaitInterval(ctx context.Context, poll time.Duration, opts ...grpc.CallOption) error {
-	var errs error
-	for _, op := range ops {
-		err := op.WaitInterval(ctx, poll, opts...)
-		if err == nil {
-			continue
-		}
-		if ctx.Err() != nil {
-			// Wait is canceled, errs don't matter anymore.
-			return ctx.Err()
-		}
-		errs = sdkerrors.Append(errs, err)
-	}
-	return errs
-}
-
-func (ops Operations) Cancel(ctx context.Context, opts ...grpc.CallOption) error {
-	var errs error
-	for _, op := range ops {
-		err := op.Cancel(ctx, opts...)
-		if err == nil {
-			continue
-		}
-		if ctx.Err() != nil {
-			// Cancel is canceled, errs don't matter anymore.
-			return ctx.Err()
-		}
-		err = sdkerrors.WithOperationID(err, op.Id())
-		errs = sdkerrors.Append(errs, err)
-	}
-	return errs
 }

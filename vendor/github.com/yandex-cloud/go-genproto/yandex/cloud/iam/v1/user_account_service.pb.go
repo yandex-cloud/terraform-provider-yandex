@@ -37,7 +37,7 @@ func (m *GetUserAccountRequest) Reset()         { *m = GetUserAccountRequest{} }
 func (m *GetUserAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*GetUserAccountRequest) ProtoMessage()    {}
 func (*GetUserAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_user_account_service_3a18cf48ff6c98c5, []int{0}
+	return fileDescriptor_user_account_service_d671b5c11a2773d8, []int{0}
 }
 func (m *GetUserAccountRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetUserAccountRequest.Unmarshal(m, b)
@@ -143,10 +143,10 @@ var _UserAccountService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/user_account_service.proto", fileDescriptor_user_account_service_3a18cf48ff6c98c5)
+	proto.RegisterFile("yandex/cloud/iam/v1/user_account_service.proto", fileDescriptor_user_account_service_d671b5c11a2773d8)
 }
 
-var fileDescriptor_user_account_service_3a18cf48ff6c98c5 = []byte{
+var fileDescriptor_user_account_service_d671b5c11a2773d8 = []byte{
 	// 284 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0xab, 0x4c, 0xcc, 0x4b,
 	0x49, 0xad, 0xd0, 0x4f, 0xce, 0xc9, 0x2f, 0x4d, 0xd1, 0xcf, 0x4c, 0xcc, 0xd5, 0x2f, 0x33, 0xd4,

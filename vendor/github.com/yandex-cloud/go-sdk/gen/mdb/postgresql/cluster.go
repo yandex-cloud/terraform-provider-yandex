@@ -128,6 +128,24 @@ func (c *ClusterServiceClient) Restore(ctx context.Context, in *postgresql.Resto
 	return postgresql.NewClusterServiceClient(conn).Restore(ctx, in, opts...)
 }
 
+// Start implements postgresql.ClusterServiceClient
+func (c *ClusterServiceClient) Start(ctx context.Context, in *postgresql.StartClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return postgresql.NewClusterServiceClient(conn).Start(ctx, in, opts...)
+}
+
+// Stop implements postgresql.ClusterServiceClient
+func (c *ClusterServiceClient) Stop(ctx context.Context, in *postgresql.StopClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return postgresql.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
+}
+
 // Update implements postgresql.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *postgresql.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

@@ -41,7 +41,7 @@ func (m *GetSnapshotRequest) Reset()         { *m = GetSnapshotRequest{} }
 func (m *GetSnapshotRequest) String() string { return proto.CompactTextString(m) }
 func (*GetSnapshotRequest) ProtoMessage()    {}
 func (*GetSnapshotRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{0}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{0}
 }
 func (m *GetSnapshotRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetSnapshotRequest.Unmarshal(m, b)
@@ -95,7 +95,7 @@ func (m *ListSnapshotsRequest) Reset()         { *m = ListSnapshotsRequest{} }
 func (m *ListSnapshotsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListSnapshotsRequest) ProtoMessage()    {}
 func (*ListSnapshotsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{1}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{1}
 }
 func (m *ListSnapshotsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListSnapshotsRequest.Unmarshal(m, b)
@@ -162,7 +162,7 @@ func (m *ListSnapshotsResponse) Reset()         { *m = ListSnapshotsResponse{} }
 func (m *ListSnapshotsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListSnapshotsResponse) ProtoMessage()    {}
 func (*ListSnapshotsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{2}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{2}
 }
 func (m *ListSnapshotsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListSnapshotsResponse.Unmarshal(m, b)
@@ -218,7 +218,7 @@ func (m *CreateSnapshotRequest) Reset()         { *m = CreateSnapshotRequest{} }
 func (m *CreateSnapshotRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateSnapshotRequest) ProtoMessage()    {}
 func (*CreateSnapshotRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{3}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{3}
 }
 func (m *CreateSnapshotRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateSnapshotRequest.Unmarshal(m, b)
@@ -287,7 +287,7 @@ func (m *CreateSnapshotMetadata) Reset()         { *m = CreateSnapshotMetadata{}
 func (m *CreateSnapshotMetadata) String() string { return proto.CompactTextString(m) }
 func (*CreateSnapshotMetadata) ProtoMessage()    {}
 func (*CreateSnapshotMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{4}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{4}
 }
 func (m *CreateSnapshotMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateSnapshotMetadata.Unmarshal(m, b)
@@ -332,6 +332,8 @@ type UpdateSnapshotRequest struct {
 	// Description of the snapshot.
 	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	// Resource labels as `` key:value `` pairs.
+	//
+	// Existing set of `` labels `` is completely replaced by the provided set.
 	Labels               map[string]string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -342,7 +344,7 @@ func (m *UpdateSnapshotRequest) Reset()         { *m = UpdateSnapshotRequest{} }
 func (m *UpdateSnapshotRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateSnapshotRequest) ProtoMessage()    {}
 func (*UpdateSnapshotRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{5}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{5}
 }
 func (m *UpdateSnapshotRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateSnapshotRequest.Unmarshal(m, b)
@@ -409,7 +411,7 @@ func (m *UpdateSnapshotMetadata) Reset()         { *m = UpdateSnapshotMetadata{}
 func (m *UpdateSnapshotMetadata) String() string { return proto.CompactTextString(m) }
 func (*UpdateSnapshotMetadata) ProtoMessage()    {}
 func (*UpdateSnapshotMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{6}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{6}
 }
 func (m *UpdateSnapshotMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateSnapshotMetadata.Unmarshal(m, b)
@@ -449,7 +451,7 @@ func (m *DeleteSnapshotRequest) Reset()         { *m = DeleteSnapshotRequest{} }
 func (m *DeleteSnapshotRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteSnapshotRequest) ProtoMessage()    {}
 func (*DeleteSnapshotRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{7}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{7}
 }
 func (m *DeleteSnapshotRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteSnapshotRequest.Unmarshal(m, b)
@@ -488,7 +490,7 @@ func (m *DeleteSnapshotMetadata) Reset()         { *m = DeleteSnapshotMetadata{}
 func (m *DeleteSnapshotMetadata) String() string { return proto.CompactTextString(m) }
 func (*DeleteSnapshotMetadata) ProtoMessage()    {}
 func (*DeleteSnapshotMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{8}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{8}
 }
 func (m *DeleteSnapshotMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteSnapshotMetadata.Unmarshal(m, b)
@@ -534,7 +536,7 @@ func (m *ListSnapshotOperationsRequest) Reset()         { *m = ListSnapshotOpera
 func (m *ListSnapshotOperationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListSnapshotOperationsRequest) ProtoMessage()    {}
 func (*ListSnapshotOperationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{9}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{9}
 }
 func (m *ListSnapshotOperationsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListSnapshotOperationsRequest.Unmarshal(m, b)
@@ -592,7 +594,7 @@ func (m *ListSnapshotOperationsResponse) Reset()         { *m = ListSnapshotOper
 func (m *ListSnapshotOperationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListSnapshotOperationsResponse) ProtoMessage()    {}
 func (*ListSnapshotOperationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_snapshot_service_e38c17e6f70630c8, []int{10}
+	return fileDescriptor_snapshot_service_150bb34e00a40392, []int{10}
 }
 func (m *ListSnapshotOperationsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListSnapshotOperationsResponse.Unmarshal(m, b)
@@ -904,10 +906,10 @@ var _SnapshotService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/compute/v1/snapshot_service.proto", fileDescriptor_snapshot_service_e38c17e6f70630c8)
+	proto.RegisterFile("yandex/cloud/compute/v1/snapshot_service.proto", fileDescriptor_snapshot_service_150bb34e00a40392)
 }
 
-var fileDescriptor_snapshot_service_e38c17e6f70630c8 = []byte{
+var fileDescriptor_snapshot_service_150bb34e00a40392 = []byte{
 	// 984 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0x41, 0x6f, 0xdc, 0x44,
 	0x14, 0xd6, 0x64, 0x13, 0x37, 0xfb, 0x16, 0x68, 0x35, 0xea, 0x36, 0x2b, 0x8b, 0x40, 0x6a, 0xd4,

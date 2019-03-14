@@ -41,7 +41,7 @@ func (m *GetCloudRequest) Reset()         { *m = GetCloudRequest{} }
 func (m *GetCloudRequest) String() string { return proto.CompactTextString(m) }
 func (*GetCloudRequest) ProtoMessage()    {}
 func (*GetCloudRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_service_5d0e808922b67247, []int{0}
+	return fileDescriptor_cloud_service_7c926146593289a6, []int{0}
 }
 func (m *GetCloudRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetCloudRequest.Unmarshal(m, b)
@@ -73,7 +73,7 @@ type ListCloudsRequest struct {
 	// results is larger than [page_size],
 	// the service returns a [ListCloudsResponse.next_page_token]
 	// that can be used to get the next page of results in subsequent list requests.
-	// Acceptable values are 0 to 1000, inclusive. Default value: 100.
+	// Default value: 100.
 	PageSize int64 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. Set [page_token]
 	// to the [ListCloudsResponse.next_page_token]
@@ -94,7 +94,7 @@ func (m *ListCloudsRequest) Reset()         { *m = ListCloudsRequest{} }
 func (m *ListCloudsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListCloudsRequest) ProtoMessage()    {}
 func (*ListCloudsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_service_5d0e808922b67247, []int{1}
+	return fileDescriptor_cloud_service_7c926146593289a6, []int{1}
 }
 func (m *ListCloudsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCloudsRequest.Unmarshal(m, b)
@@ -154,7 +154,7 @@ func (m *ListCloudsResponse) Reset()         { *m = ListCloudsResponse{} }
 func (m *ListCloudsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListCloudsResponse) ProtoMessage()    {}
 func (*ListCloudsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_service_5d0e808922b67247, []int{2}
+	return fileDescriptor_cloud_service_7c926146593289a6, []int{2}
 }
 func (m *ListCloudsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCloudsResponse.Unmarshal(m, b)
@@ -209,7 +209,7 @@ func (m *ListCloudOperationsRequest) Reset()         { *m = ListCloudOperationsR
 func (m *ListCloudOperationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListCloudOperationsRequest) ProtoMessage()    {}
 func (*ListCloudOperationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_service_5d0e808922b67247, []int{3}
+	return fileDescriptor_cloud_service_7c926146593289a6, []int{3}
 }
 func (m *ListCloudOperationsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCloudOperationsRequest.Unmarshal(m, b)
@@ -267,7 +267,7 @@ func (m *ListCloudOperationsResponse) Reset()         { *m = ListCloudOperations
 func (m *ListCloudOperationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListCloudOperationsResponse) ProtoMessage()    {}
 func (*ListCloudOperationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_service_5d0e808922b67247, []int{4}
+	return fileDescriptor_cloud_service_7c926146593289a6, []int{4}
 }
 func (m *ListCloudOperationsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListCloudOperationsResponse.Unmarshal(m, b)
@@ -563,10 +563,10 @@ var _CloudService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/resourcemanager/v1/cloud_service.proto", fileDescriptor_cloud_service_5d0e808922b67247)
+	proto.RegisterFile("yandex/cloud/resourcemanager/v1/cloud_service.proto", fileDescriptor_cloud_service_7c926146593289a6)
 }
 
-var fileDescriptor_cloud_service_5d0e808922b67247 = []byte{
+var fileDescriptor_cloud_service_7c926146593289a6 = []byte{
 	// 716 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0x31, 0x6f, 0xd3, 0x40,
 	0x14, 0xd6, 0x35, 0x25, 0x34, 0x47, 0xa1, 0xea, 0x09, 0xa4, 0xc8, 0xa5, 0x22, 0xb8, 0x52, 0x88,

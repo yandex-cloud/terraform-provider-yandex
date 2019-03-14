@@ -34,9 +34,9 @@ type rpcCredentials struct {
 var _ credentials.PerRPCCredentials = &rpcCredentials{}
 
 type rpcCredentialsState struct {
-	token      string
-	expiration time.Time
-	version    int64
+	token        string
+	refreshAfter time.Time
+	version      int64
 }
 
 func newRPCCredentials(creds ExchangeableCredentials, plaintext bool) *rpcCredentials {
@@ -66,7 +66,7 @@ func (c *rpcCredentials) GetRequestMetadata(ctx context.Context, uri ...string) 
 	c.mutex.RUnlock()
 
 	token := state.token
-	outdated := state.expiration.Before(c.now())
+	outdated := state.refreshAfter.Before(c.now())
 	if outdated {
 		token, err = c.updateToken(ctx, state)
 		if err != nil {
@@ -101,7 +101,7 @@ func (c *rpcCredentials) updateToken(ctx context.Context, currentState rpcCreden
 	}
 	tokenClient := iam.NewIamTokenServiceClient(c.conn)
 
-	tokenReq, tokenTTL, err := c.creds.IAMTokenRequest()
+	tokenReq, err := c.creds.IAMTokenRequest()
 	if err != nil {
 		return "", sdkerrors.WithMessage(err, "failed to create IAM token request from credentials")
 	}
@@ -112,9 +112,9 @@ func (c *rpcCredentials) updateToken(ctx context.Context, currentState rpcCreden
 	}
 
 	c.currentState = rpcCredentialsState{
-		token:      resp.IamToken,
-		expiration: c.now().Add(tokenTTL),
-		version:    currentState.version + 1,
+		token:        resp.IamToken,
+		refreshAfter: c.now().Add(iamTokenExpiration),
+		version:      currentState.version + 1,
 	}
 
 	return c.currentState.token, nil

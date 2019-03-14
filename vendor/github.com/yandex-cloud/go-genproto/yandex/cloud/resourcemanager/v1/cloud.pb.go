@@ -19,7 +19,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// A Cloud resource. For more information, see [Cloud](/resource-manager/concepts/resources-hierarchy#cloud).
+// A Cloud resource. For more information, see [Cloud](/docs/resource-manager/concepts/resources-hierarchy#cloud).
 type Cloud struct {
 	// ID of the cloud.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -38,7 +38,7 @@ func (m *Cloud) Reset()         { *m = Cloud{} }
 func (m *Cloud) String() string { return proto.CompactTextString(m) }
 func (*Cloud) ProtoMessage()    {}
 func (*Cloud) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cloud_cc376d929a2c66e7, []int{0}
+	return fileDescriptor_cloud_4164113932f10e4f, []int{0}
 }
 func (m *Cloud) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Cloud.Unmarshal(m, b)
@@ -91,10 +91,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/resourcemanager/v1/cloud.proto", fileDescriptor_cloud_cc376d929a2c66e7)
+	proto.RegisterFile("yandex/cloud/resourcemanager/v1/cloud.proto", fileDescriptor_cloud_4164113932f10e4f)
 }
 
-var fileDescriptor_cloud_cc376d929a2c66e7 = []byte{
+var fileDescriptor_cloud_4164113932f10e4f = []byte{
 	// 235 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x90, 0xc1, 0x4a, 0x03, 0x31,
 	0x10, 0x86, 0xd9, 0xb5, 0x0a, 0x4d, 0xc1, 0x43, 0x4e, 0xa1, 0x97, 0x2e, 0x9e, 0x0a, 0xd2, 0x84,

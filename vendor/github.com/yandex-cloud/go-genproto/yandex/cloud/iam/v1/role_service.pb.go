@@ -38,7 +38,7 @@ func (m *GetRoleRequest) Reset()         { *m = GetRoleRequest{} }
 func (m *GetRoleRequest) String() string { return proto.CompactTextString(m) }
 func (*GetRoleRequest) ProtoMessage()    {}
 func (*GetRoleRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_role_service_0864c5f355401f58, []int{0}
+	return fileDescriptor_role_service_e49934510c2989c5, []int{0}
 }
 func (m *GetRoleRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetRoleRequest.Unmarshal(m, b)
@@ -70,7 +70,7 @@ type ListRolesRequest struct {
 	// results is larger than [page_size],
 	// the service returns a [ListRolesResponse.next_page_token]
 	// that can be used to get the next page of results in subsequent list requests.
-	// Acceptable values are 0 to 1000, inclusive. Default value: 100.
+	// Default value: 100.
 	PageSize int64 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set [page_token]
 	// to the [ListRolesResponse.next_page_token]
@@ -87,7 +87,7 @@ func (m *ListRolesRequest) Reset()         { *m = ListRolesRequest{} }
 func (m *ListRolesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListRolesRequest) ProtoMessage()    {}
 func (*ListRolesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_role_service_0864c5f355401f58, []int{1}
+	return fileDescriptor_role_service_e49934510c2989c5, []int{1}
 }
 func (m *ListRolesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListRolesRequest.Unmarshal(m, b)
@@ -147,7 +147,7 @@ func (m *ListRolesResponse) Reset()         { *m = ListRolesResponse{} }
 func (m *ListRolesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListRolesResponse) ProtoMessage()    {}
 func (*ListRolesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_role_service_0864c5f355401f58, []int{2}
+	return fileDescriptor_role_service_e49934510c2989c5, []int{2}
 }
 func (m *ListRolesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListRolesResponse.Unmarshal(m, b)
@@ -301,10 +301,10 @@ var _RoleService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/role_service.proto", fileDescriptor_role_service_0864c5f355401f58)
+	proto.RegisterFile("yandex/cloud/iam/v1/role_service.proto", fileDescriptor_role_service_e49934510c2989c5)
 }
 
-var fileDescriptor_role_service_0864c5f355401f58 = []byte{
+var fileDescriptor_role_service_e49934510c2989c5 = []byte{
 	// 431 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x52, 0x3f, 0x6f, 0xd3, 0x40,
 	0x14, 0x97, 0x9b, 0x36, 0x90, 0x57, 0x4a, 0xe1, 0x10, 0xc2, 0xb5, 0xf8, 0x53, 0x19, 0x35, 0x64,

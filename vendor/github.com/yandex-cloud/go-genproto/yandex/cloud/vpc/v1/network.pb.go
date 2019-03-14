@@ -19,7 +19,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// A Network resource. For more information, see [Networks](/vpc/concepts/network).
+// A Network resource. For more information, see [Networks](/docs/vpc/concepts/network).
 type Network struct {
 	// ID of the network.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -43,7 +43,7 @@ func (m *Network) Reset()         { *m = Network{} }
 func (m *Network) String() string { return proto.CompactTextString(m) }
 func (*Network) ProtoMessage()    {}
 func (*Network) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_6f725970603e283f, []int{0}
+	return fileDescriptor_network_b5763e43292627a3, []int{0}
 }
 func (m *Network) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Network.Unmarshal(m, b)
@@ -111,10 +111,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/vpc/v1/network.proto", fileDescriptor_network_6f725970603e283f)
+	proto.RegisterFile("yandex/cloud/vpc/v1/network.proto", fileDescriptor_network_b5763e43292627a3)
 }
 
-var fileDescriptor_network_6f725970603e283f = []byte{
+var fileDescriptor_network_b5763e43292627a3 = []byte{
 	// 314 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x91, 0x4f, 0x4b, 0xf3, 0x40,
 	0x10, 0xc6, 0x49, 0xfa, 0xe7, 0x7d, 0x3b, 0x01, 0x91, 0xd5, 0x43, 0xa8, 0x07, 0xa3, 0xa7, 0x5c,

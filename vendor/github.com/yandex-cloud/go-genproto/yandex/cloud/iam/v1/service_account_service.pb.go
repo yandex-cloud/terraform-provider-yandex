@@ -42,7 +42,7 @@ func (m *GetServiceAccountRequest) Reset()         { *m = GetServiceAccountReque
 func (m *GetServiceAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceAccountRequest) ProtoMessage()    {}
 func (*GetServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{0}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{0}
 }
 func (m *GetServiceAccountRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceAccountRequest.Unmarshal(m, b)
@@ -77,7 +77,7 @@ type ListServiceAccountsRequest struct {
 	// results is larger than [page_size],
 	// the service returns a [ListServiceAccountsResponse.next_page_token]
 	// that can be used to get the next page of results in subsequent list requests.
-	// Acceptable values are 0 to 1000, inclusive. Default value: 100
+	// Default value: 100
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set [page_token]
 	// to the [ListServiceAccountsResponse.next_page_token]
@@ -98,7 +98,7 @@ func (m *ListServiceAccountsRequest) Reset()         { *m = ListServiceAccountsR
 func (m *ListServiceAccountsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServiceAccountsRequest) ProtoMessage()    {}
 func (*ListServiceAccountsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{1}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{1}
 }
 func (m *ListServiceAccountsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceAccountsRequest.Unmarshal(m, b)
@@ -165,7 +165,7 @@ func (m *ListServiceAccountsResponse) Reset()         { *m = ListServiceAccounts
 func (m *ListServiceAccountsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServiceAccountsResponse) ProtoMessage()    {}
 func (*ListServiceAccountsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{2}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{2}
 }
 func (m *ListServiceAccountsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceAccountsResponse.Unmarshal(m, b)
@@ -205,9 +205,8 @@ type CreateServiceAccountRequest struct {
 	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
 	// Name of the service account.
 	// The name must be unique within the cloud.
-	// The name must be 3-63 characters long and match the regular expression `^[a-z][-a-z0-9]{1,61}[a-z0-9]$`.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description of the service account. 0-256 characters long.
+	// Description of the service account.
 	Description          string   `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -218,7 +217,7 @@ func (m *CreateServiceAccountRequest) Reset()         { *m = CreateServiceAccoun
 func (m *CreateServiceAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceAccountRequest) ProtoMessage()    {}
 func (*CreateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{3}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{3}
 }
 func (m *CreateServiceAccountRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceAccountRequest.Unmarshal(m, b)
@@ -271,7 +270,7 @@ func (m *CreateServiceAccountMetadata) Reset()         { *m = CreateServiceAccou
 func (m *CreateServiceAccountMetadata) String() string { return proto.CompactTextString(m) }
 func (*CreateServiceAccountMetadata) ProtoMessage()    {}
 func (*CreateServiceAccountMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{4}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{4}
 }
 func (m *CreateServiceAccountMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateServiceAccountMetadata.Unmarshal(m, b)
@@ -305,10 +304,9 @@ type UpdateServiceAccountRequest struct {
 	// Field mask that specifies which fields of the ServiceAccount resource are going to be updated.
 	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	// Name of the service account.
-	// The name must be unique within the cloud. The name must be
-	// 3-63 characters long and match the regular expression `^[a-z][-a-z0-9]{1,61}[a-z0-9]$`.
+	// The name must be unique within the cloud.
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// Description of the service account. 0-256 characters long.
+	// Description of the service account.
 	Description          string   `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -319,7 +317,7 @@ func (m *UpdateServiceAccountRequest) Reset()         { *m = UpdateServiceAccoun
 func (m *UpdateServiceAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateServiceAccountRequest) ProtoMessage()    {}
 func (*UpdateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{5}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{5}
 }
 func (m *UpdateServiceAccountRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateServiceAccountRequest.Unmarshal(m, b)
@@ -379,7 +377,7 @@ func (m *UpdateServiceAccountMetadata) Reset()         { *m = UpdateServiceAccou
 func (m *UpdateServiceAccountMetadata) String() string { return proto.CompactTextString(m) }
 func (*UpdateServiceAccountMetadata) ProtoMessage()    {}
 func (*UpdateServiceAccountMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{6}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{6}
 }
 func (m *UpdateServiceAccountMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateServiceAccountMetadata.Unmarshal(m, b)
@@ -419,7 +417,7 @@ func (m *DeleteServiceAccountRequest) Reset()         { *m = DeleteServiceAccoun
 func (m *DeleteServiceAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceAccountRequest) ProtoMessage()    {}
 func (*DeleteServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{7}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{7}
 }
 func (m *DeleteServiceAccountRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceAccountRequest.Unmarshal(m, b)
@@ -458,7 +456,7 @@ func (m *DeleteServiceAccountMetadata) Reset()         { *m = DeleteServiceAccou
 func (m *DeleteServiceAccountMetadata) String() string { return proto.CompactTextString(m) }
 func (*DeleteServiceAccountMetadata) ProtoMessage()    {}
 func (*DeleteServiceAccountMetadata) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{8}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{8}
 }
 func (m *DeleteServiceAccountMetadata) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteServiceAccountMetadata.Unmarshal(m, b)
@@ -491,7 +489,7 @@ type ListServiceAccountOperationsRequest struct {
 	// The maximum number of results per page to return. If the number of available
 	// results is larger than [page_size], the service returns a [ListServiceAccountOperationsResponse.next_page_token]
 	// that can be used to get the next page of results in subsequent list requests.
-	// Acceptable values are 0 to 1000, inclusive. Default value: 100.
+	// Default value: 100.
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set [page_token]
 	// to the [ListServiceAccountOperationsResponse.next_page_token]
@@ -506,7 +504,7 @@ func (m *ListServiceAccountOperationsRequest) Reset()         { *m = ListService
 func (m *ListServiceAccountOperationsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServiceAccountOperationsRequest) ProtoMessage()    {}
 func (*ListServiceAccountOperationsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{9}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{9}
 }
 func (m *ListServiceAccountOperationsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceAccountOperationsRequest.Unmarshal(m, b)
@@ -564,7 +562,7 @@ func (m *ListServiceAccountOperationsResponse) Reset()         { *m = ListServic
 func (m *ListServiceAccountOperationsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServiceAccountOperationsResponse) ProtoMessage()    {}
 func (*ListServiceAccountOperationsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_service_690907a722605eae, []int{10}
+	return fileDescriptor_service_account_service_4c6626479d4f1223, []int{10}
 }
 func (m *ListServiceAccountOperationsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServiceAccountOperationsResponse.Unmarshal(m, b)
@@ -971,10 +969,10 @@ var _ServiceAccountService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/service_account_service.proto", fileDescriptor_service_account_service_690907a722605eae)
+	proto.RegisterFile("yandex/cloud/iam/v1/service_account_service.proto", fileDescriptor_service_account_service_4c6626479d4f1223)
 }
 
-var fileDescriptor_service_account_service_690907a722605eae = []byte{
+var fileDescriptor_service_account_service_4c6626479d4f1223 = []byte{
 	// 1016 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0x5d, 0x6f, 0xdb, 0x54,
 	0x18, 0xd6, 0x59, 0x43, 0xb4, 0xbc, 0x65, 0x1f, 0x1c, 0x98, 0x08, 0x6e, 0x27, 0x82, 0x0b, 0xa3,

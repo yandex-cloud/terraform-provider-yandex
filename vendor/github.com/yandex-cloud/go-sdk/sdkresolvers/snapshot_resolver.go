@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
-	"github.com/yandex-cloud/go-sdk"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 )
 
 type snapshotResolver struct {

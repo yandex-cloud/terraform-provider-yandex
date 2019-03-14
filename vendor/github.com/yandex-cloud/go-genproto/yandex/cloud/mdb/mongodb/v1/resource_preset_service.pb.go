@@ -38,7 +38,7 @@ func (m *GetResourcePresetRequest) Reset()         { *m = GetResourcePresetReque
 func (m *GetResourcePresetRequest) String() string { return proto.CompactTextString(m) }
 func (*GetResourcePresetRequest) ProtoMessage()    {}
 func (*GetResourcePresetRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_preset_service_976ca41b116e5437, []int{0}
+	return fileDescriptor_resource_preset_service_0453cd5d31029933, []int{0}
 }
 func (m *GetResourcePresetRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetResourcePresetRequest.Unmarshal(m, b)
@@ -66,6 +66,9 @@ func (m *GetResourcePresetRequest) GetResourcePresetId() string {
 }
 
 type ListResourcePresetsRequest struct {
+	// The maximum number of results per page to return. If the number of available
+	// results is larger than [page_size], the service returns a [ListResourcePresetsResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set [page_token] to the
 	// [ListResourcePresetsResponse.next_page_token] returned by a previous list request.
@@ -79,7 +82,7 @@ func (m *ListResourcePresetsRequest) Reset()         { *m = ListResourcePresetsR
 func (m *ListResourcePresetsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListResourcePresetsRequest) ProtoMessage()    {}
 func (*ListResourcePresetsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_preset_service_976ca41b116e5437, []int{1}
+	return fileDescriptor_resource_preset_service_0453cd5d31029933, []int{1}
 }
 func (m *ListResourcePresetsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListResourcePresetsRequest.Unmarshal(m, b)
@@ -130,7 +133,7 @@ func (m *ListResourcePresetsResponse) Reset()         { *m = ListResourcePresets
 func (m *ListResourcePresetsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListResourcePresetsResponse) ProtoMessage()    {}
 func (*ListResourcePresetsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_resource_preset_service_976ca41b116e5437, []int{2}
+	return fileDescriptor_resource_preset_service_0453cd5d31029933, []int{2}
 }
 func (m *ListResourcePresetsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListResourcePresetsResponse.Unmarshal(m, b)
@@ -284,10 +287,10 @@ var _ResourcePresetService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/mdb/mongodb/v1/resource_preset_service.proto", fileDescriptor_resource_preset_service_976ca41b116e5437)
+	proto.RegisterFile("yandex/cloud/mdb/mongodb/v1/resource_preset_service.proto", fileDescriptor_resource_preset_service_0453cd5d31029933)
 }
 
-var fileDescriptor_resource_preset_service_976ca41b116e5437 = []byte{
+var fileDescriptor_resource_preset_service_0453cd5d31029933 = []byte{
 	// 457 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0x4f, 0x6b, 0x13, 0x41,
 	0x1c, 0x65, 0x92, 0x5a, 0xcc, 0x88, 0xb4, 0x0c, 0x08, 0xcb, 0x56, 0x21, 0xac, 0xa8, 0x81, 0x92,

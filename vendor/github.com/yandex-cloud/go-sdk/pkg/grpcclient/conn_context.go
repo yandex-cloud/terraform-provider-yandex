@@ -8,7 +8,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/hashicorp/go-multierror"
+	multierror "github.com/hashicorp/go-multierror"
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-sdk/pkg/singleflight"

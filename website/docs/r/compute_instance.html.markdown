@@ -88,6 +88,8 @@ The following arguments are supported:
 * `secondary_disk` - (Optional) A list of disks to attach to the instance. The structure is documented below.
     **Note**: The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to true in order to update this structure.
 
+* `scheduling_policy` - (Optional) Scheduling policy configuration. The structure is documented below.
+
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
     If you try to update a property that requires stopping the instance without setting this field, the update will fail.
 
@@ -162,6 +164,10 @@ The `secondary_disk` block supports:
     under `/dev/disk/by-id/`.
 
 * `mode` - (Optional) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
+
+The `scheduling_policy` block supports:
+
+* `preemptible` - (Optional) Specifies if the instance is preemptible. Defaults to false.
 
 
 ## Attributes Reference

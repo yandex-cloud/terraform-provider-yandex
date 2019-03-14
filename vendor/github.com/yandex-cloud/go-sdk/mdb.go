@@ -7,12 +7,14 @@ import (
 	"github.com/yandex-cloud/go-sdk/gen/mdb/clickhouse"
 	"github.com/yandex-cloud/go-sdk/gen/mdb/mongodb"
 	"github.com/yandex-cloud/go-sdk/gen/mdb/postgresql"
+	"github.com/yandex-cloud/go-sdk/gen/mdb/redis"
 )
 
 const (
-	MDBMongoDBServiceID    Endpoint = "mdb-mongodb"
-	MDBClickhouseServiceID Endpoint = "mdb-clickhouse"
-	MDBPostgreSQLServiceID Endpoint = "mdb-postgresql"
+	MDBMongoDBServiceID    Endpoint = "managed-mongodb"
+	MDBClickhouseServiceID Endpoint = "managed-clickhouse"
+	MDBPostgreSQLServiceID Endpoint = "managed-postgresql"
+	MDBRedisServiceID      Endpoint = "managed-redis"
 )
 
 type MDB struct {
@@ -29,4 +31,8 @@ func (m *MDB) MongoDB() *mongodb.MongoDB {
 
 func (m *MDB) Clickhouse() *clickhouse.Clickhouse {
 	return clickhouse.NewClickhouse(m.sdk.getConn(MDBClickhouseServiceID))
+}
+
+func (m *MDB) Redis() *redis.Redis {
+	return redis.NewRedis(m.sdk.getConn(MDBRedisServiceID))
 }

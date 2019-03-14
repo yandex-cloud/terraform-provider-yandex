@@ -127,3 +127,12 @@ func (c *InstanceServiceClient) Update(ctx context.Context, in *compute.UpdateIn
 	}
 	return compute.NewInstanceServiceClient(conn).Update(ctx, in, opts...)
 }
+
+// UpdateMetadata implements compute.InstanceServiceClient
+func (c *InstanceServiceClient) UpdateMetadata(ctx context.Context, in *compute.UpdateInstanceMetadataRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return compute.NewInstanceServiceClient(conn).UpdateMetadata(ctx, in, opts...)
+}

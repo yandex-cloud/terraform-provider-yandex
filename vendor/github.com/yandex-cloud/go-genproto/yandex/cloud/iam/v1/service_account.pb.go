@@ -20,7 +20,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// A ServiceAccount resource. For more information, see [Service Accounts](/iam/concepts/users/service-accounts).
+// A ServiceAccount resource. For more information, see [Service accounts](/docs/iam/concepts/users/service-accounts).
 type ServiceAccount struct {
 	// ID of the service account.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -42,7 +42,7 @@ func (m *ServiceAccount) Reset()         { *m = ServiceAccount{} }
 func (m *ServiceAccount) String() string { return proto.CompactTextString(m) }
 func (*ServiceAccount) ProtoMessage()    {}
 func (*ServiceAccount) Descriptor() ([]byte, []int) {
-	return fileDescriptor_service_account_fb833cad517a40ce, []int{0}
+	return fileDescriptor_service_account_ff4a14d624b4e70e, []int{0}
 }
 func (m *ServiceAccount) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServiceAccount.Unmarshal(m, b)
@@ -102,10 +102,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/iam/v1/service_account.proto", fileDescriptor_service_account_fb833cad517a40ce)
+	proto.RegisterFile("yandex/cloud/iam/v1/service_account.proto", fileDescriptor_service_account_ff4a14d624b4e70e)
 }
 
-var fileDescriptor_service_account_fb833cad517a40ce = []byte{
+var fileDescriptor_service_account_ff4a14d624b4e70e = []byte{
 	// 269 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0xc1, 0x4b, 0xc3, 0x30,
 	0x18, 0xc5, 0x69, 0x9d, 0x62, 0x33, 0xd8, 0x21, 0x5e, 0x4a, 0x45, 0x2c, 0x9e, 0xe6, 0x61, 0x09,

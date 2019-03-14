@@ -19,11 +19,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// Status of the folder.
 type Folder_Status int32
 
 const (
-	// Unspecified.
 	Folder_STATUS_UNSPECIFIED Folder_Status = 0
 	// The folder is active.
 	Folder_ACTIVE Folder_Status = 1
@@ -46,10 +44,10 @@ func (x Folder_Status) String() string {
 	return proto.EnumName(Folder_Status_name, int32(x))
 }
 func (Folder_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_folder_2f4391f4930a4699, []int{0, 0}
+	return fileDescriptor_folder_e30a59b36b19bdc0, []int{0, 0}
 }
 
-// A Folder resource. For more information, see [Folder](/resource-manager/concepts/resources-hierarchy#folder).
+// A Folder resource. For more information, see [Folder](/docs/resource-manager/concepts/resources-hierarchy#folder).
 type Folder struct {
 	// ID of the folder.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -75,7 +73,7 @@ func (m *Folder) Reset()         { *m = Folder{} }
 func (m *Folder) String() string { return proto.CompactTextString(m) }
 func (*Folder) ProtoMessage()    {}
 func (*Folder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_folder_2f4391f4930a4699, []int{0}
+	return fileDescriptor_folder_e30a59b36b19bdc0, []int{0}
 }
 func (m *Folder) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Folder.Unmarshal(m, b)
@@ -151,10 +149,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("yandex/cloud/resourcemanager/v1/folder.proto", fileDescriptor_folder_2f4391f4930a4699)
+	proto.RegisterFile("yandex/cloud/resourcemanager/v1/folder.proto", fileDescriptor_folder_e30a59b36b19bdc0)
 }
 
-var fileDescriptor_folder_2f4391f4930a4699 = []byte{
+var fileDescriptor_folder_e30a59b36b19bdc0 = []byte{
 	// 394 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xc1, 0x6e, 0x9b, 0x40,
 	0x10, 0x86, 0x0b, 0x24, 0x24, 0x19, 0xaa, 0x08, 0xad, 0xaa, 0x8a, 0xfa, 0x12, 0x94, 0x13, 0x87,

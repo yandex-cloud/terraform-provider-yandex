@@ -41,6 +41,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasInstanceID(&instance, "yandex_compute_instance.foobar"),
+					testAccCheckComputeInstanceIsPreemptible(&instance, false),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
@@ -583,6 +584,31 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_preemptible(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-preemptible-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_preemptible(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceIsPreemptible(&instance, true),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -858,6 +884,15 @@ func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource
 			return fmt.Errorf("only saw %d nics", len(instance.NetworkInterfaces))
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceIsPreemptible(instance *compute.Instance, expect bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.SchedulingPolicy.Preemptible != expect {
+			return fmt.Errorf("instance preemptible attr wrong: expected %v, got %v", expect, instance.SchedulingPolicy.Preemptible)
+		}
 		return nil
 	}
 }
@@ -1859,6 +1894,48 @@ resource "yandex_compute_instance" "foobar" {
   }
 
   platform_id = "standard-v2"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_preemptible(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}

@@ -204,6 +204,22 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"scheduling_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"preemptible": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -238,12 +254,17 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance)
+	if err != nil {
+		return err
+	}
+
 	secondaryDisks, err := flattenInstanceSecondaryDisks(instance)
 	if err != nil {
 		return err
 	}
 
-	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance)
+	schedulingPolicy, err := flattenInstanceSchedulingPolicy(instance)
 	if err != nil {
 		return err
 	}
@@ -279,11 +300,15 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	if err := d.Set("network_interface", networkInterfaces); err != nil {
+		return err
+	}
+
 	if err := d.Set("secondary_disk", secondaryDisks); err != nil {
 		return err
 	}
 
-	if err := d.Set("network_interface", networkInterfaces); err != nil {
+	if err := d.Set("scheduling_policy", schedulingPolicy); err != nil {
 		return err
 	}
 
