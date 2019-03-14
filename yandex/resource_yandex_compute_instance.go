@@ -535,8 +535,8 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	descPropName := "description"
 	if d.HasChange(descPropName) {
 		req := &compute.UpdateInstanceRequest{
-			InstanceId: d.Id(),
-			Name:       d.Get(descPropName).(string),
+			InstanceId:  d.Id(),
+			Description: d.Get(descPropName).(string),
 			UpdateMask: &field_mask.FieldMask{
 				Paths: []string{descPropName},
 			},

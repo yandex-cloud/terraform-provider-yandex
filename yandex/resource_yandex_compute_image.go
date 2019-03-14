@@ -293,8 +293,8 @@ func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) 
 	descPropName := "description"
 	if d.HasChange(descPropName) {
 		req := &compute.UpdateImageRequest{
-			ImageId: d.Id(),
-			Name:    d.Get(descPropName).(string),
+			ImageId:     d.Id(),
+			Description: d.Get(descPropName).(string),
 			UpdateMask: &field_mask.FieldMask{
 				Paths: []string{descPropName},
 			},

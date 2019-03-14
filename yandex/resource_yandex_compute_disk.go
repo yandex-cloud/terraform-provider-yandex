@@ -265,8 +265,8 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 	descPropName := "description"
 	if d.HasChange(descPropName) {
 		req := &compute.UpdateDiskRequest{
-			DiskId: d.Id(),
-			Name:   d.Get(descPropName).(string),
+			DiskId:      d.Id(),
+			Description: d.Get(descPropName).(string),
 			UpdateMask: &field_mask.FieldMask{
 				Paths: []string{descPropName},
 			},

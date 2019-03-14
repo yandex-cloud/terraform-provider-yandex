@@ -179,7 +179,7 @@ func setTestIDs() error {
 	// init sdk client based on env var
 	envEndpoint := os.Getenv("YC_ENDPOINT")
 	if envEndpoint == "" {
-		envEndpoint = defaultEnpoint
+		envEndpoint = defaultEndpoint
 	}
 
 	config := &ycsdk.Config{

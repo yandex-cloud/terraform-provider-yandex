@@ -48,7 +48,7 @@ The following keys can be used to configure the provider.
 
   This can also be set as the `YC_FOLDER_ID` environment variable.
 
-* `zone` - (Optional) The default [accessibility zone][yandex-zone] to operate under, if not specified by a given resource.
+* `zone` - (Optional) The default [availability zone][yandex-zone] to operate under, if not specified by a given resource.
 
   This can also be set as the `YC_ZONE` environment variable.
 

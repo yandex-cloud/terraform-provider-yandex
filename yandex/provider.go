@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-const defaultEnpoint = "api.cloud.yandex.net:443"
+const defaultEndpoint = "api.cloud.yandex.net:443"
 
 // Global MutexKV
 var mutexKV = mutexkv.NewMutexKV()
@@ -17,7 +17,7 @@ func Provider() terraform.ResourceProvider {
 			"endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_ENDPOINT", defaultEnpoint),
+				DefaultFunc: schema.EnvDefaultFunc("YC_ENDPOINT", defaultEndpoint),
 				Description: descriptions["endpoint"],
 			},
 			"folder_id": {
