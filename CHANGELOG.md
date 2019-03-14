@@ -1,4 +1,4 @@
-## 0.1.16 (Unreleased)
+## 0.1.16 (March 14, 2019)
 ENHANCEMENTS:
 * compute: support preemptible instance type.   
 
