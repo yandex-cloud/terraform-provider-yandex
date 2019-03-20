@@ -13,7 +13,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
-const yandexVPCSubnetDefaultTimeout = 1 * time.Minute
+const yandexVPCSubnetDefaultTimeout = 3 * time.Minute
 
 func resourceYandexVPCSubnet() *schema.Resource {
 	return &schema.Resource{

@@ -1,6 +1,7 @@
 ## 0.2.0 (Unreleased)
 ENHANCEMENTS:
 * provider: authentication with service account key file. [GH-3]
+* vpc: increase subnet create/update/delete timeout.
 
 ## 0.1.16 (March 14, 2019)
 ENHANCEMENTS:
