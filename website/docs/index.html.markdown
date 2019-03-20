@@ -20,10 +20,11 @@ Use the navigation to the left to read about the available resources.
 ```hcl
 // Configure the Yandex Cloud provider
 provider "yandex" {
-  token     = "auth_token_here"
-  cloud_id  = "cloud_id_here"
-  folder_id = "folder_id_here"
-  zone      = "ru-central1-a"
+  token                    = "auth_token_here"
+  service_account_key_file = "path_to_service_account_key_file"
+  cloud_id                 = "cloud_id_here"
+  folder_id                = "folder_id_here"
+  zone                     = "ru-central1-a"
 }
 
 // Create a new instance
@@ -36,23 +37,31 @@ resource "yandex_compute_instance" "default" {
 
 The following keys can be used to configure the provider.
 
-* `token` - (Required) Security token used for authentication in Yandex Cloud.
+* `token` - (Optional) Security token used for authentication in Yandex Cloud.
 
-  This can also be set as the `YC_TOKEN` environment variable.
+  This can also be specified using environment variable `YC_TOKEN`.
+
+* `service_account_key_file` - (Optional) Path to file that contains service account key data.
+
+  This can also be specified using environment variable `YC_SERVICE_ACCOUNT_KEY_FILE`.
+  You can read how to create service account key file [here][yandex-service-account-key].
+
+~> **NOTE:** Only one of `token` or `service_account_key_file` can be specified.
 
 * `cloud_id` - (Required) The ID of the [cloud][yandex-cloud] to apply any resources to.
 
-  This can also be set as the `YC_CLOUD_ID` environment variable.
+  This can also be specified using environment variable `YC_CLOUD_ID`.
 
 * `folder_id` - (Required) The ID of the [folder][yandex-folder] to operate under, if not specified by a given resource.
 
-  This can also be set as the `YC_FOLDER_ID` environment variable.
+  This can also be specified using environment variable `YC_FOLDER_ID`.
 
 * `zone` - (Optional) The default [availability zone][yandex-zone] to operate under, if not specified by a given resource.
 
-  This can also be set as the `YC_ZONE` environment variable.
+  This can also be specified using environment variable `YC_ZONE`.
 
 
 [yandex-cloud]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud
 [yandex-folder]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder
 [yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope
+[yandex-service-account-key]: https://cloud.yandex.com/docs/iam/operations/iam-token/create-for-sa#keys-create

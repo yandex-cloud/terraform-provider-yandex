@@ -44,6 +44,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("YC_TOKEN", nil),
 				Description: descriptions["token"],
 			},
+			"service_account_key_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
+				Description: descriptions["service_account_key_file"],
+			},
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -108,6 +114,8 @@ var descriptions = map[string]string{
 
 	"token": "The access token for API operations.",
 
+	"service_account_key_file": "Path to file with Yandex Cloud Service Account key.",
+
 	"insecure": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted," +
 		"default value is `false`",
 
@@ -116,13 +124,14 @@ var descriptions = map[string]string{
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
-		Token:     d.Get("token").(string),
-		Zone:      d.Get("zone").(string),
-		FolderID:  d.Get("folder_id").(string),
-		CloudID:   d.Get("cloud_id").(string),
-		Endpoint:  d.Get("endpoint").(string),
-		Plaintext: d.Get("plaintext").(bool),
-		Insecure:  d.Get("insecure").(bool),
+		Token:                 d.Get("token").(string),
+		ServiceAccountKeyFile: d.Get("service_account_key_file").(string),
+		Zone:                  d.Get("zone").(string),
+		FolderID:              d.Get("folder_id").(string),
+		CloudID:               d.Get("cloud_id").(string),
+		Endpoint:              d.Get("endpoint").(string),
+		Plaintext:             d.Get("plaintext").(bool),
+		Insecure:              d.Get("insecure").(bool),
 	}
 
 	if err := config.initAndValidate(); err != nil {

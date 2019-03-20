@@ -10,17 +10,19 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/iamkey"
 	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 )
 
 type Config struct {
-	Endpoint  string
-	FolderID  string
-	CloudID   string
-	Zone      string
-	Token     string
-	Plaintext bool
-	Insecure  bool
+	Endpoint              string
+	FolderID              string
+	CloudID               string
+	Zone                  string
+	Token                 string
+	ServiceAccountKeyFile string
+	Plaintext             bool
+	Insecure              bool
 
 	userAgent string
 	sdk       *ycsdk.SDK
@@ -28,8 +30,29 @@ type Config struct {
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
 func (c *Config) initAndValidate() error {
+	if c.Token != "" && c.ServiceAccountKeyFile != "" {
+		return fmt.Errorf("one of token or service account key file must be specified, not both (check your config AND environment variables)")
+	}
+
+	var credentials ycsdk.Credentials
+	if c.Token != "" {
+		credentials = ycsdk.OAuthToken(c.Token)
+	} else if c.ServiceAccountKeyFile != "" {
+		key, err := iamkey.ReadFromJSONFile(c.ServiceAccountKeyFile)
+		if err != nil {
+			return err
+		}
+
+		credentials, err = ycsdk.ServiceAccountKey(key)
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("one of token or service account key file must be specified")
+	}
+
 	yandexSDKConfig := &ycsdk.Config{
-		Credentials: ycsdk.OAuthToken(c.Token),
+		Credentials: credentials,
 		Endpoint:    c.Endpoint,
 		Plaintext:   c.Plaintext,
 		TLSConfig: &tls.Config{

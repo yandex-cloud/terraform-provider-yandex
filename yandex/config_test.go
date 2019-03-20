@@ -35,6 +35,23 @@ func TestConfigInitAndValidate(t *testing.T) {
 	}
 }
 
+func TestConfigInitByServiceAccountKey(t *testing.T) {
+	config := Config{
+		Endpoint:              testConfigEndpoint,
+		FolderID:              testConfigFolder,
+		CloudID:               testConfigCloudID,
+		Zone:                  testConfigZone,
+		ServiceAccountKeyFile: "test-fixtures/fake_service_account_key.json",
+		Plaintext:             false,
+		Insecure:              false,
+	}
+
+	err := config.initAndValidate()
+	if err != nil {
+		t.Fatalf("error: %v", err)
+	}
+}
+
 func TestConfigUserAgent(t *testing.T) {
 	// make mock grpc server with ApiEndpoint service
 	grpcServer := grpc.NewServer()
