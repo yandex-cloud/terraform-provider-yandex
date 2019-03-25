@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexComputeSnapshot() *schema.Resource {
@@ -16,10 +17,12 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"snapshot_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"folder_id": {
@@ -69,9 +72,22 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := context.Background()
-	var snapshot *compute.Snapshot
+
+	err := checkOneOf(d, "snapshot_id", "name")
+	if err != nil {
+		return err
+	}
 
 	snapshotID := d.Get("snapshot_id").(string)
+	snapshotName, snapshotNameOk := d.GetOk("name")
+
+	if snapshotNameOk {
+		snapshotID, err = resolveObjectID(ctx, config, snapshotName.(string), sdkresolvers.SnapshotResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source snapshot by name: %v", err)
+		}
+	}
+
 	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
 		SnapshotId: snapshotID,
 	})
@@ -85,6 +101,7 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	d.Set("snapshot_id", snapshot.Id)
 	d.Set("folder_id", snapshot.FolderId)
 	d.Set("created_at", createdAt)
 	d.Set("name", snapshot.Name)

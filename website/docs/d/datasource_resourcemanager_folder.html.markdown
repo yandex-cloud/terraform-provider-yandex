@@ -36,13 +36,16 @@ output "my_folder_2_cloud_id" {
 
 The following arguments are supported:
 
-* `folder_id` (Required) - ID of the folder.
+* `folder_id` (Optional) - ID of the folder.
+
+* `name` (Optional) - Name of the Folder.
+
+~> **NOTE:** Either `folder_id` or `name` must be specified.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `name` - Name of the Folder.
 * `description` - Description of the folder.
 * `cloud_id` - ID of the cloud that contains the folder.
 * `status` - Current status of the folder.

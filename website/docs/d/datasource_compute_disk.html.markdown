@@ -31,14 +31,17 @@ resource "yandex_compute_instance" "default" {
 
 The following arguments are supported:
 
-* `disk_id` - (Required) The ID of a specific disk.
+* `disk_id` - (Optional) The ID of a specific disk.
+
+* `name` - (Optional) Name of the disk.
+
+~> **NOTE:** One of `disk_id` or `name` should be specified.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `name` - Name of the disk.
 * `description` - Optional description of this disk.
 * `folder_id` - ID of the folder that the disk belongs to.
 * `zone` - ID of the zone where the disk resides.

@@ -23,13 +23,16 @@ This data source is used to define [VPC Subnets] that can be used by other resou
 
 The following arguments are supported:
 
-* `subnet_id` (Required) - Subnet ID.
+* `subnet_id` (Optional) - Subnet ID.
+
+* `name` - (Optional) - Name of the subnet. 
+
+~> **NOTE:** One of `subnet_id` or `name` should be specified.
 
 ## Attributes Reference
 
 The following attribute is exported:
 
-* `name` - Name of the subnet. 
 * `description` - Description of the subnet.
 * `folder_id` - ID of the folder that the resource belongs to.
 * `network_id` - ID of the network this subnet belongs to.

@@ -12,7 +12,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
-func TestAccDataSourceVPCNetwork(t *testing.T) {
+func TestAccDataSourceVPCNetwork_byID(t *testing.T) {
 	t.Parallel()
 
 	networkName := acctest.RandomWithPrefix("tf-network")
@@ -27,9 +27,40 @@ func TestAccDataSourceVPCNetwork(t *testing.T) {
 		CheckDestroy: testAccCheckVPCNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVPCNetworkConfig(networkName, networkDesc),
+				Config: testAccDataSourceVPCNetworkConfig(networkName, networkDesc, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceVPCNetworkExists("data.yandex_vpc_network.bar", &network),
+					testAccCheckResourceIDField("data.yandex_vpc_network.bar", "network_id"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "name", networkName),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "description", networkDesc),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "folder_id", folderID),
+					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "subnet_ids.#", "0"),
+					testAccCheckCreatedAtAttr("data.yandex_vpc_network.bar"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceVPCNetwork_byName(t *testing.T) {
+	t.Parallel()
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	networkDesc := "Description for test"
+	folderID := getExampleFolderID()
+
+	var network vpc.Network
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVPCNetworkConfig(networkName, networkDesc, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceVPCNetworkExists("data.yandex_vpc_network.bar", &network),
+					testAccCheckResourceIDField("data.yandex_vpc_network.bar", "network_id"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "name", networkName),
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "description", networkDesc),
 					resource.TestCheckResourceAttr("data.yandex_vpc_network.bar", "folder_id", folderID),
@@ -107,19 +138,35 @@ func testAccDataSourceVPCNetworkExists(n string, network *vpc.Network) resource.
 	}
 }
 
-//revive:disable:var-naming
-func testAccDataSourceVPCNetworkConfig(name, desc string) string {
-	return fmt.Sprintf(`
-data "yandex_vpc_network" "bar" {
-  network_id = "${yandex_vpc_network.foo.id}"
+func testAccDataSourceVPCNetworkConfig(name, desc string, useID bool) string {
+	if useID {
+		return testAccDataSourceVPCNetworkResourceConfig(name, desc) + vpcNetworkDataByIDConfig
+	}
+
+	return testAccDataSourceVPCNetworkResourceConfig(name, desc) + vpcNetworkDataByNameConfig
 }
 
+//revive:disable:var-naming
+func testAccDataSourceVPCNetworkResourceConfig(name, desc string) string {
+	return fmt.Sprintf(`
 resource "yandex_vpc_network" "foo" {
   name        = "%s"
   description = "%s"
 }
 `, name, desc)
 }
+
+const vpcNetworkDataByIDConfig = `
+data "yandex_vpc_network" "bar" {
+  network_id = "${yandex_vpc_network.foo.id}"
+}
+`
+
+const vpcNetworkDataByNameConfig = `
+data "yandex_vpc_network" "bar" {
+  name = "${yandex_vpc_network.foo.name}"
+}
+`
 
 func testAccDataSourceVPCNetworkConfigWithSubnets(name, desc string) string {
 	return fmt.Sprintf(`

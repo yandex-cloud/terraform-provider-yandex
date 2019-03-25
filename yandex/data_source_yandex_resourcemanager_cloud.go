@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexResourceManagerCloud() *schema.Resource {
@@ -15,16 +15,14 @@ func dataSourceYandexResourceManagerCloud() *schema.Resource {
 		Read: dataSourceYandexResourceManagerCloudRead,
 		Schema: map[string]*schema.Schema{
 			"cloud_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"name"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"cloud_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -40,39 +38,29 @@ func dataSourceYandexResourceManagerCloud() *schema.Resource {
 
 func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	ctx := context.Background()
 
-	var cloud *resourcemanager.Cloud
-	if v, ok := d.GetOk("cloud_id"); ok {
-		resp, err := config.sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
-			CloudId: v.(string),
-		})
+	err := checkOneOf(d, "cloud_id", "name")
+	if err != nil {
+		return err
+	}
 
+	cloudID := d.Get("cloud_id").(string)
+	cloudName, cloudNameOk := d.GetOk("name")
+
+	if cloudNameOk {
+		cloudID, err = resolveObjectID(ctx, config, cloudName.(string), sdkresolvers.CloudResolver)
 		if err != nil {
-			if isStatusWithCode(err, codes.NotFound) {
-				return fmt.Errorf("cloud not found: %s", v)
-			}
-			return err
+			return fmt.Errorf("failed to resolve data source cloud by name: %v", err)
 		}
+	}
 
-		cloud = resp
-	} else if v, ok := d.GetOk("name"); ok {
-		filter := fmt.Sprintf(`name = "%s"`, v.(string))
-		resp, err := config.sdk.ResourceManager().Cloud().List(context.Background(), &resourcemanager.ListCloudsRequest{
-			Filter: filter,
-		})
-		if err != nil {
-			return fmt.Errorf("error reading cloud: %s", err)
-		}
-		if len(resp.Clouds) == 0 {
-			return fmt.Errorf("cloud not found: %s", v)
-		}
+	cloud, err := config.sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
+		CloudId: cloudID,
+	})
 
-		if len(resp.Clouds) > 1 {
-			return fmt.Errorf("more than one matching cloud found")
-		}
-		cloud = resp.Clouds[0]
-	} else {
-		return fmt.Errorf("one of 'cloud_id' or 'name' must be set")
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("cloud with ID %q", cloudID))
 	}
 
 	createdAt, err := getTimestamp(cloud.CreatedAt)
@@ -80,6 +68,7 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
+	d.Set("cloud_id", cloud.Id)
 	d.Set("name", cloud.Name)
 	d.Set("description", cloud.Description)
 	d.Set("created_at", createdAt)

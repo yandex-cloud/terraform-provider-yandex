@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 const yandexResourceManagerFolderDefaultTimeout = 1 * time.Minute
@@ -20,10 +21,12 @@ func dataSourceYandexResourceManagerFolder() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"folder_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"description": {
@@ -52,19 +55,39 @@ func dataSourceYandexResourceManagerFolder() *schema.Resource {
 	}
 }
 
+type cloudID string
+
+func (id cloudID) folderResolver(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver {
+	opts = append(opts, sdkresolvers.CloudID(string(id)))
+	return sdkresolvers.FolderResolver(name, opts...)
+}
+
 func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	ctx := context.Background()
+
+	err := checkOneOf(d, "folder_id", "name")
+	if err != nil {
+		return err
+	}
+
+	folderID := d.Get("folder_id").(string)
+	folderName, folderNameOk := d.GetOk("name")
+
+	if folderNameOk {
+		resolver := cloudID(config.CloudID).folderResolver
+		folderID, err = resolveObjectID(ctx, config, folderName.(string), resolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source folder by name: %v", err)
+		}
+	}
 
 	folder, err := config.sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
-		FolderId: d.Get("folder_id").(string),
+		FolderId: folderID,
 	})
 
 	if err != nil {
-		if isStatusWithCode(err, codes.NotFound) {
-			return fmt.Errorf("folder not found: %s", d.Get("folder_id").(string))
-		}
-
-		return err
+		return handleNotFoundError(err, d, fmt.Sprintf("folder with ID %q", folderID))
 	}
 
 	createdAt, err := getTimestamp(folder.CreatedAt)
@@ -72,6 +95,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	d.Set("folder_id", folder.Id)
 	d.Set("name", folder.Name)
 	d.Set("description", folder.Description)
 	d.Set("cloud_id", folder.CloudId)

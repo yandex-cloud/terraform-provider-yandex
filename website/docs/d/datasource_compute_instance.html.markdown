@@ -27,11 +27,14 @@ output "instance_external_ip" {
 
 The following arguments are supported:
 
-* `instance_id` - (Required) The ID of a specific instance.
+* `instance_id` - (Optional) The ID of a specific instance.
+
+* `name` - (Optional) Name of the instance.
+
+~> **NOTE:** One of `instance_id` or `name` should be specified.
 
 ## Attributes Reference
 
-* `name` - Name of the instance.
 * `description` - Description of the instance.
 * `folder_id` - ID of the folder that the instance belongs to.
 * `fqdn` - FQDN of the instance.

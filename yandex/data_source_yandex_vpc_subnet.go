@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexVPCSubnet() *schema.Resource {
@@ -15,13 +16,15 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"subnet_id": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -68,9 +71,22 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := context.Background()
-	var subnet *vpc.Subnet
+
+	err := checkOneOf(d, "subnet_id", "name")
+	if err != nil {
+		return err
+	}
 
 	subnetID := d.Get("subnet_id").(string)
+	subnetName, subnetNameOk := d.GetOk("name")
+
+	if subnetNameOk {
+		subnetID, err = resolveObjectID(ctx, config, subnetName.(string), sdkresolvers.SubnetResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source subnet by name: %v", err)
+		}
+	}
+
 	subnet, err := config.sdk.VPC().Subnet().Get(ctx, &vpc.GetSubnetRequest{
 		SubnetId: subnetID,
 	})
@@ -84,6 +100,7 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	d.Set("subnet_id", subnet.Id)
 	d.Set("name", subnet.Name)
 	d.Set("description", subnet.Description)
 	d.Set("folder_id", subnet.FolderId)

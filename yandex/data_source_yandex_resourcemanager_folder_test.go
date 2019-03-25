@@ -22,7 +22,28 @@ func TestAccDataSourceYandexResourceManagerFolder_byID(t *testing.T) {
 			{
 				Config: testAccCheckYandexResourceManagerFolder_byID(folderID),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceYandexResourceManagerFolderCheck("data.yandex_resourcemanager_folder.folder", folderName),
+					testAccDataSourceYandexResourceManagerFolderCheck("data.yandex_resourcemanager_folder.folder", folderID, folderName),
+					testAccCheckResourceIDField("data.yandex_resourcemanager_folder.folder", "folder_id"),
+					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_folder.folder"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceYandexResourceManagerFolder_byName(t *testing.T) {
+	folderID := getExampleFolderID()
+	folderName := getExampleFolderName()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckYandexResourceManagerFolder_byName(folderName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceYandexResourceManagerFolderCheck("data.yandex_resourcemanager_folder.folder", folderID, folderName),
+					testAccCheckResourceIDField("data.yandex_resourcemanager_folder.folder", "folder_id"),
 					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_folder.folder"),
 				),
 			},
@@ -45,18 +66,21 @@ func TestAccDataSourceYandexResourceManagerFolder_byIDNotFound(t *testing.T) {
 	})
 }
 
-func testAccDataSourceYandexResourceManagerFolderCheck(data_source_name string, folderName string) resource.TestCheckFunc {
+func testAccDataSourceYandexResourceManagerFolderCheck(dataSourceName string, folderID, folderName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		ds, ok := s.RootModule().Resources[data_source_name]
+		ds, ok := s.RootModule().Resources[dataSourceName]
 		if !ok {
-			return fmt.Errorf("root module has no resource called %s", data_source_name)
+			return fmt.Errorf("root module has no resource called %s", dataSourceName)
 		}
 
-		ds_attr := ds.Primary.Attributes
+		attributes := ds.Primary.Attributes
 
-		if ds_attr["name"] != folderName {
-			return fmt.Errorf("Name attr is %s; want %s", ds_attr["name"], folderName)
+		if attributes["folder_id"] != folderID {
+			return fmt.Errorf("folder_id attr is %s; want %s", attributes["folder_id"], folderID)
+		}
 
+		if attributes["name"] != folderName {
+			return fmt.Errorf("Name attr is %s; want %s", attributes["name"], folderName)
 		}
 
 		return nil
@@ -69,6 +93,14 @@ data "yandex_resourcemanager_folder" "folder" {
   folder_id = "%s"
 }
 `, folderID)
+}
+
+func testAccCheckYandexResourceManagerFolder_byName(folderName string) string {
+	return fmt.Sprintf(`
+data "yandex_resourcemanager_folder" "folder" {
+  name = "%s"
+}
+`, folderName)
 }
 
 func testAccCheckYandexResourceManagerFolder_byIDNotFound(folderID string) string {

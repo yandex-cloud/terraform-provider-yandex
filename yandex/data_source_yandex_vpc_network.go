@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexVPCNetwork() *schema.Resource {
@@ -15,13 +16,15 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"network_id": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -53,9 +56,22 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := context.Background()
-	var network *vpc.Network
+
+	err := checkOneOf(d, "network_id", "name")
+	if err != nil {
+		return err
+	}
 
 	networkID := d.Get("network_id").(string)
+	networkName, networkNameOk := d.GetOk("name")
+
+	if networkNameOk {
+		networkID, err = resolveObjectID(ctx, config, networkName.(string), sdkresolvers.NetworkResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source network by name: %v", err)
+		}
+	}
+
 	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
 		NetworkId: networkID,
 	})
@@ -82,9 +98,10 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 
+	d.Set("network_id", network.Id)
+	d.Set("name", network.Name)
 	d.Set("description", network.Description)
 	d.Set("created_at", createdAt)
-	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	if err := d.Set("labels", network.Labels); err != nil {
 		return err
