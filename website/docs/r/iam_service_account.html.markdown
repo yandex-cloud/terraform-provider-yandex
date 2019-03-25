@@ -3,12 +3,12 @@ layout: "yandex"
 page_title: "Yandex: yandex_iam_service_account"
 sidebar_current: "docs-yandex-iam-service-account-x"
 description: |-
- Allows management of a Yandex Cloud IAM service account.
+ Allows management of a Yandex.Cloud IAM service account.
 ---
 
 # yandex\_iam\_service\_account
 
-Allows management of a Yandex Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+Allows management of a Yandex.Cloud IAM [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
 To assign roles and permissions, use the [yandex_iam_service_account_iam_binding](iam_service_account_iam_binding.html), 
 [yandex_iam_service_account_iam_member](iam_service_account_iam_member.html) and 
 [yandex_iam_service_account_iam_policy](iam_service_account_iam_policy.html) resources.

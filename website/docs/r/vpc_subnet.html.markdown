@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_vpc\_subnet
 
-Manages a subnet within the Yandex Cloud. For more information, see
+Manages a subnet within the Yandex.Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
 
 * How-to Guides
@@ -41,7 +41,7 @@ The following arguments are supported:
   Blocks of addresses must be unique and non-overlapping within a network. 
   Minimum subnet size is /28, and maximum subnet size is /16. Only IPv4 is supported.
 
-* `zone` - (Required) Name of the Yandex Cloud zone for this subnet.
+* `zone` - (Required) Name of the Yandex.Cloud zone for this subnet.
 
 - - -
 

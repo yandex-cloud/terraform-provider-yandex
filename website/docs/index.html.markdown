@@ -1,16 +1,16 @@
 ---
 layout: "yandex"
-page_title: "Provider: Yandex Cloud"
+page_title: "Provider: Yandex.Cloud"
 sidebar_current: "docs-yandex-index"
 description: |-
-  The Yandex Cloud provider is used to interact with Yandex Cloud services.
+  The Yandex.Cloud provider is used to interact with Yandex.Cloud services.
   The provider needs to be configured with the proper credentials before it can be used.
 ---
 
-# Yandex Cloud Provider
+# Yandex.Cloud Provider
 
-The Yandex Cloud provider is used to interact with
-[Yandex Cloud services](https://cloud.yandex.com/). The provider needs
+The Yandex.Cloud provider is used to interact with
+[Yandex.Cloud services](https://cloud.yandex.com/). The provider needs
 to be configured with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
@@ -18,7 +18,7 @@ Use the navigation to the left to read about the available resources.
 ## Example Usage
 
 ```hcl
-// Configure the Yandex Cloud provider
+// Configure the Yandex.Cloud provider
 provider "yandex" {
   token                    = "auth_token_here"
   service_account_key_file = "path_to_service_account_key_file"
@@ -37,7 +37,7 @@ resource "yandex_compute_instance" "default" {
 
 The following keys can be used to configure the provider.
 
-* `token` - (Optional) Security token used for authentication in Yandex Cloud.
+* `token` - (Optional) Security token used for authentication in Yandex.Cloud.
 
   This can also be specified using environment variable `YC_TOKEN`.
 

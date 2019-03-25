@@ -3,12 +3,12 @@ layout: "yandex"
 page_title: "Yandex: yandex_vpc_network"
 sidebar_current: "docs-yandex-vpc-network"
 description: |-
-  Manages a network within Yandex Cloud.
+  Manages a network within Yandex.Cloud.
 ---
 
 # yandex\_vpc\_network
 
-Manages a network within the Yandex Cloud. For more information, see
+Manages a network within the Yandex.Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/vpc/concepts/network#network).
 
 * How-to Guides

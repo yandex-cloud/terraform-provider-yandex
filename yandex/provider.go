@@ -103,18 +103,18 @@ func Provider() terraform.ResourceProvider {
 }
 
 var descriptions = map[string]string{
-	"endpoint": "The API endpoint for Yandex Cloud SDK client",
+	"endpoint": "The API endpoint for Yandex.Cloud SDK client",
 
 	"folder_id": "The default folder ID where resources will be placed",
 
-	"cloud_id": "ID of Yandex Cloud tenant",
+	"cloud_id": "ID of Yandex.Cloud tenant",
 
 	"zone": "The zone where operations will take place. Examples\n" +
 		"are ru-central1-a, ru-central2-c, etc.",
 
 	"token": "The access token for API operations.",
 
-	"service_account_key_file": "Path to file with Yandex Cloud Service Account key.",
+	"service_account_key_file": "Path to file with Yandex.Cloud Service Account key.",
 
 	"insecure": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted," +
 		"default value is `false`",

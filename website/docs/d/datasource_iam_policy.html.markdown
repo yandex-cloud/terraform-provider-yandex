@@ -9,7 +9,7 @@ description: |-
 # yandex\_iam\_policy
 
 Generates an [IAM] policy document that may be referenced by and applied to
-other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. 
+other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. 
 
 
 ```hcl

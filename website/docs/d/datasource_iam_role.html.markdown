@@ -10,7 +10,7 @@ description: |-
 # yandex\_iam\_role
 
 Generates an [IAM] role document that may be referenced by and applied to
-other Yandex Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see
+other Yandex.Cloud Platform resources, such as the `yandex_resourcemanager_folder` resource. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/iam/concepts/access-control/roles).
 
 ```hcl

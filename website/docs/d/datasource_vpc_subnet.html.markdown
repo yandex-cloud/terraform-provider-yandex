@@ -9,7 +9,7 @@ description: |-
 # yandex\_vpc\_subnet
 
 Get information about a Yandex VPC subnet. For more information, see
-[Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+[Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ```hcl
 data "yandex_vpc_subnet" "admin" {

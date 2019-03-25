@@ -9,7 +9,7 @@ description: |-
 # yandex\_vpc\_network
 
 Get information about a Yandex VPC network. For more information, see
-[Yandex Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
+[Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
 ```hcl
 data "yandex_vpc_network" "admin" {

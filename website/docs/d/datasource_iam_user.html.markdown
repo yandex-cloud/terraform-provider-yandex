@@ -9,7 +9,7 @@ description: |-
 # yandex\_iam\_user
 
 Get information about a Yandex IAM user account. For more information about accounts, see 
-[Yandex Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users)
+[Yandex.Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users)
 
 ```hcl
 data "yandex_iam_user" "admin" {
