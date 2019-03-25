@@ -37,7 +37,9 @@ The following arguments are supported:
 
 * `family` - (Optional) The family name of an image. Used to search the latest image in a family.
 
-~> **NOTE:** Either `image_id` or `family` must be specified.
+* `name` - (Optional) The name of the image.
+
+~> **NOTE:** Either `image_id`, `family` or `name` must be specified.
 
 * `folder_id` - (Optional) Folder that the resource belongs to. If a value is not
   provided, the default provider folder is used.
@@ -49,7 +51,6 @@ The following arguments are supported:
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `name` - The name of the image.
 * `description` - An optional description of this image.
 * `family` - The OS family name of the image.
 * `min_disk_size` - Minimum size of the disk which is created from this image.

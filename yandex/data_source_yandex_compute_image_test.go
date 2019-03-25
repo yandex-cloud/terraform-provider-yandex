@@ -24,15 +24,47 @@ func TestAccDataSourceComputeImage_byID(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCustomImageConfig(family, name),
+				Config: testAccDataSourceCustomImageConfig(family, name, true),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.yandex_compute_image.from_id",
+					testAccCheckResourceIDField("data.yandex_compute_image.source", "image_id"),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
 						"name", name),
-					resource.TestCheckResourceAttr("data.yandex_compute_image.from_id",
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
 						"family", family),
-					resource.TestCheckResourceAttrSet("data.yandex_compute_image.from_id",
+					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source",
 						"id"),
-					testAccCheckCreatedAtAttr("data.yandex_compute_image.from_id"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_image.source"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceComputeImage_byName(t *testing.T) {
+	t.Parallel()
+
+	family := "ubuntu-1804-lts"
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeImageDestroy,
+			testAccCheckComputeDiskDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCustomImageConfig(family, name, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_compute_image.source", "image_id"),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"name", name),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"family", family),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source",
+						"id"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_image.source"),
 				),
 			},
 		},
@@ -52,6 +84,7 @@ func TestAccDataSourceComputeImage_StandardByFamily(t *testing.T) {
 			{
 				Config: testAccDataSourceStandardImageByFamily(family),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_compute_image.by_family", "image_id"),
 					resource.TestCheckResourceAttr("data.yandex_compute_image.by_family",
 						"family", family),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_image.by_family",
@@ -65,7 +98,7 @@ func TestAccDataSourceComputeImage_StandardByFamily(t *testing.T) {
 	})
 }
 
-func testAccDataSourceCustomImageConfig(family, name string) string {
+func testAccDataSourceCustomImageResourceConfig(family, name string) string {
 	return fmt.Sprintf(`
 resource "yandex_compute_image" "image" {
   family        = "%s"
@@ -80,11 +113,27 @@ resource "yandex_compute_disk" "disk" {
   zone = "ru-central1-a"
   size = 4
 }
+`, family, name, name)
+}
 
-data "yandex_compute_image" "from_id" {
+const computeImageDataByIDConfig = `
+data "yandex_compute_image" "source" {
   image_id = "${yandex_compute_image.image.id}"
 }
-`, family, name, name)
+`
+
+const computeImageDataByNameConfig = `
+data "yandex_compute_image" "source" {
+  name = "${yandex_compute_image.image.name}"
+}
+`
+
+func testAccDataSourceCustomImageConfig(family, name string, useID bool) string {
+	if useID {
+		return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByIDConfig
+	}
+
+	return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByNameConfig
 }
 
 func testAccDataSourceStandardImageByFamily(family string) string {

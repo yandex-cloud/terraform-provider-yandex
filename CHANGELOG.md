@@ -2,6 +2,9 @@
 ENHANCEMENTS:
 * provider: authentication with service account key file. [GH-3]
 * vpc: increase subnet create/update/delete timeout.
+* vpc: resolve data source `network`, `subnet` by name.
+* compute: resolve data source `instance`, `disk`, `image`, `snapshot` objects by names.
+* resourcemanager: resolve data source `folder` by name.
 
 ## 0.1.16 (March 14, 2019)
 ENHANCEMENTS:

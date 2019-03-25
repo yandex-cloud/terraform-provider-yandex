@@ -37,6 +37,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultID(t *testing.T) {
 			{
 				Config: testAccCheckResourceManagerCloud_byID(defaultCloudID),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_resourcemanager_cloud.acceptance", "cloud_id"),
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "id", defaultCloudID),
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "name", defaultCloudName),
 					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_cloud.acceptance"),
@@ -56,6 +57,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultCloudName(t *testing.T
 			{
 				Config: testAccCheckResourceManagerCloud_byName(defaultCloudName),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_resourcemanager_cloud.acceptance", "cloud_id"),
 					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_cloud.acceptance", "id"),
 					resource.TestCheckResourceAttrSet("data.yandex_resourcemanager_cloud.acceptance", "created_at"),
 					resource.TestCheckResourceAttr("data.yandex_resourcemanager_cloud.acceptance", "name", defaultCloudName),
@@ -75,7 +77,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckResourceManagerCloud_byName(cloudName),
-				ExpectError: regexp.MustCompile("cloud not found: " + cloudName),
+				ExpectError: regexp.MustCompile(`failed to resolve data source cloud by name: cloud with name "` + cloudName + `" not found`),
 			},
 		},
 	})

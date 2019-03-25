@@ -33,14 +33,17 @@ resource "yandex_compute_instance" "default" {
 
 The following arguments are supported:
 
-* `snapshot_id` - (Required) The ID of a specific snapshot.
+* `snapshot_id` - (Optional) The ID of a specific snapshot.
+
+* `name` - (Optional) The name of the snapshot.
+
+~> **NOTE:** One of `snapshot_id` or `name` should be specified.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `name` - The name of the snapshot.
 * `description` - An optional description of this snapshot.
 * `folder_id` - ID of the folder that the snapshot belongs to.
 * `storage_size` - The size of the snapshot, specified in Gb.

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexComputeImage() *schema.Resource {
@@ -16,19 +17,18 @@ func dataSourceYandexComputeImage() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"image_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"family"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"family": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"image_id"},
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
@@ -80,18 +80,12 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	ctx := context.Background()
 	var image *compute.Image
 
-	if v, ok := d.GetOk("image_id"); ok {
-		imageID := v.(string)
-		resp, err := config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
-			ImageId: imageID,
-		})
+	err := checkOneOf(d, "name", "image_id", "family")
+	if err != nil {
+		return err
+	}
 
-		if err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("image with ID %q", imageID))
-		}
-
-		image = resp
-	} else if v, ok := d.GetOk("family"); ok {
+	if v, ok := d.GetOk("family"); ok {
 		familyName := v.(string)
 
 		folderID := StandardImagesFolderID
@@ -99,7 +93,7 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 			folderID = f.(string)
 		}
 
-		resp, err := config.sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
+		image, err = config.sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 			FolderId: folderID,
 			Family:   familyName,
 		})
@@ -107,10 +101,24 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return fmt.Errorf("failed to find latest image with family \"%s\": %s", familyName, err)
 		}
-
-		image = resp
 	} else {
-		return fmt.Errorf("one of 'image_id' or 'family' must be set")
+		imageID := d.Get("image_id").(string)
+		imageName, imageNameOk := d.GetOk("name")
+
+		if imageNameOk {
+			imageID, err = resolveObjectID(ctx, config, imageName.(string), sdkresolvers.ImageResolver)
+			if err != nil {
+				return fmt.Errorf("failed to resolve data source image by name: %v", err)
+			}
+		}
+
+		image, err = config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
+			ImageId: imageID,
+		})
+
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("image with ID %q", imageID))
+		}
 	}
 
 	createdAt, err := getTimestamp(image.CreatedAt)

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccDataSourceComputeInstance(t *testing.T) {
+func TestAccDataSourceComputeInstance_byID(t *testing.T) {
 	t.Parallel()
 
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
@@ -21,18 +21,30 @@ func TestAccDataSourceComputeInstance(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceComputeInstanceConfig(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceComputeInstanceCheck("data.yandex_compute_instance.bar", "yandex_compute_instance.foo"),
-					resource.TestMatchResourceAttr("data.yandex_compute_instance.bar", "fqdn", regexp.MustCompile(instanceName)),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.auto_delete", "true"),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.initialize_params.0.size", "4"),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.initialize_params.0.type", "network-hdd"),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.#", "1"),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "network_interface.0.nat", "false"),
-					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "scheduling_policy.0.preemptible", "false"),
-					testAccCheckCreatedAtAttr("data.yandex_compute_instance.bar"),
-				),
+				Config: testAccDataSourceComputeInstanceConfig(instanceName, true),
+				Check: testAccDataSourceComputeInstanceCheck(
+					"data.yandex_compute_instance.bar",
+					"yandex_compute_instance.foo", instanceName),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceComputeInstance_byName(t *testing.T) {
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceComputeInstanceConfig(instanceName, false),
+				Check: testAccDataSourceComputeInstanceCheck(
+					"data.yandex_compute_instance.bar",
+					"yandex_compute_instance.foo", instanceName),
 			},
 		},
 	})
@@ -52,7 +64,8 @@ func TestAccDataSourceComputeInstance_ipv6(t *testing.T) {
 			{
 				Config: testAccDataSourceComputeInstanceConfigIpv6(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceComputeInstanceCheck("data.yandex_compute_instance.bar", "yandex_compute_instance.foo"),
+					testAccDataSourceComputeInstanceAttributesCheck("data.yandex_compute_instance.bar", "yandex_compute_instance.foo"),
+					testAccCheckResourceIDField("data.yandex_compute_instance.bar", "instance_id"),
 					resource.TestMatchResourceAttr("data.yandex_compute_instance.bar", "fqdn", regexp.MustCompile(instanceName)),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.auto_delete", "true"),
 					resource.TestCheckResourceAttr("data.yandex_compute_instance.bar", "boot_disk.0.initialize_params.0.size", "4"),
@@ -68,7 +81,7 @@ func TestAccDataSourceComputeInstance_ipv6(t *testing.T) {
 	})
 }
 
-func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
+func testAccDataSourceComputeInstanceAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
 		if !ok {
@@ -114,7 +127,21 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 	}
 }
 
-func testAccDataSourceComputeInstanceConfig(instanceName string) string {
+func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName string, instanceName string) resource.TestCheckFunc {
+	return resource.ComposeTestCheckFunc(
+		testAccDataSourceComputeInstanceAttributesCheck(datasourceName, resourceName),
+		testAccCheckResourceIDField(datasourceName, "instance_id"),
+		resource.TestMatchResourceAttr(datasourceName, "fqdn", regexp.MustCompile(instanceName)),
+		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.auto_delete", "true"),
+		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.size", "4"),
+		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.type", "network-hdd"),
+		resource.TestCheckResourceAttr(datasourceName, "network_interface.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "network_interface.0.nat", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "scheduling_policy.0.preemptible", "false"),
+	)
+}
+
+func testAccDataSourceComputeInstanceResourceConfig(instanceName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
@@ -163,12 +190,27 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
+}`, instanceName, instanceName)
 }
 
+const computeInstanceDataByIDConfig = `
 data "yandex_compute_instance" "bar" {
   instance_id = "${yandex_compute_instance.foo.id}"
 }
-`, instanceName, instanceName)
+`
+
+const computeInstanceDataByNameConfig = `
+data "yandex_compute_instance" "bar" {
+  name = "${yandex_compute_instance.foo.name}"
+}
+`
+
+func testAccDataSourceComputeInstanceConfig(instanceName string, useDataID bool) string {
+	if useDataID {
+		return testAccDataSourceComputeInstanceResourceConfig(instanceName) + computeInstanceDataByIDConfig
+	}
+
+	return testAccDataSourceComputeInstanceResourceConfig(instanceName) + computeInstanceDataByNameConfig
 }
 
 func testAccDataSourceComputeInstanceConfigIpv6(instanceName string) string {

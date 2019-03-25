@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexComputeInstance() *schema.Resource {
@@ -16,10 +17,12 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"fqdn": {
@@ -232,9 +235,22 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := context.Background()
-	var instance *compute.Instance
+
+	err := checkOneOf(d, "instance_id", "name")
+	if err != nil {
+		return err
+	}
 
 	instanceID := d.Get("instance_id").(string)
+	instanceName, instanceNameOk := d.GetOk("name")
+
+	if instanceNameOk {
+		instanceID, err = resolveObjectID(ctx, config, instanceName.(string), sdkresolvers.InstanceResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source instance by name: %v", err)
+		}
+	}
+
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: instanceID,
 		View:       compute.InstanceView_FULL,

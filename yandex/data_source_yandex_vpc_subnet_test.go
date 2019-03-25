@@ -39,6 +39,7 @@ func TestAccDataSourceVPCSubnet(t *testing.T) {
 					testAccDataSourceVPCSubnetExists("data.yandex_vpc_subnet.bar1"),
 					testAccDataSourceVPCSubnetExists("data.yandex_vpc_subnet.bar2"),
 
+					testAccCheckResourceIDField("data.yandex_vpc_subnet.bar1", "subnet_id"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "name", subnetName1),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "description", subnetDesc1),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar1", "folder_id", folderID),
@@ -48,6 +49,7 @@ func TestAccDataSourceVPCSubnet(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar1", "network_id"),
 					testAccCheckCreatedAtAttr("data.yandex_vpc_subnet.bar1"),
 
+					testAccCheckResourceIDField("data.yandex_vpc_subnet.bar2", "subnet_id"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "name", subnetName2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "description", subnetDesc2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "folder_id", folderID),
@@ -154,7 +156,7 @@ data "yandex_vpc_subnet" "bar1" {
 }
 
 data "yandex_vpc_subnet" "bar2" {
-  subnet_id = "${yandex_vpc_subnet.foo2.id}"
+  name = "${yandex_vpc_subnet.foo2.name}"
 }
 
 resource "yandex_vpc_network" "foo" {

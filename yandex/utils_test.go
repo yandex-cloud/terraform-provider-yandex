@@ -7,13 +7,25 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
+
+func TestJoinedStrings(t *testing.T) {
+	testKeys := []string{"key1", "key2", "key3"}
+	joinedKeys := getJoinedKeys(testKeys)
+	assert.Equal(t, "`key1`, `key2`, `key3`", joinedKeys)
+
+	testKey := []string{"key1"}
+	joinedKey := getJoinedKeys(testKey)
+	assert.Equal(t, "`key1`", joinedKey)
+}
 
 func memberType(ab *access.AccessBinding) string {
 	return ab.Subject.Type
@@ -111,6 +123,25 @@ func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
 		if _, err := time.Parse(time.RFC3339, createdAt); err != nil {
 			return fmt.Errorf("can't parse timestamp in attr '%s': %s", createdAtAttrName, createdAt)
 		}
+		return nil
+	}
+}
+
+func testAccCheckResourceIDField(resourceName string, idFieldName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		if rs.Primary.Attributes[idFieldName] != rs.Primary.ID {
+			return fmt.Errorf("Resource: %s id field: %s, doesn't match resource ID", resourceName, idFieldName)
+		}
+
 		return nil
 	}
 }

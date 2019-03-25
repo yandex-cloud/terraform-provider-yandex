@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexComputeDisk() *schema.Resource {
@@ -16,10 +17,12 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"disk_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"folder_id": {
@@ -82,9 +85,22 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := context.Background()
-	var disk *compute.Disk
+
+	err := checkOneOf(d, "disk_id", "name")
+	if err != nil {
+		return err
+	}
 
 	diskID := d.Get("disk_id").(string)
+	diskName, diskNameOk := d.GetOk("name")
+
+	if diskNameOk {
+		diskID, err = resolveObjectID(ctx, config, diskName.(string), sdkresolvers.DiskResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source disk by name: %v", err)
+		}
+	}
+
 	disk, err := config.sdk.Compute().Disk().Get(ctx, &compute.GetDiskRequest{
 		DiskId: diskID,
 	})
@@ -98,6 +114,7 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	d.Set("disk_id", disk.Id)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("created_at", createdAt)
 	d.Set("name", disk.Name)

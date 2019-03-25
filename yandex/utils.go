@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,6 +19,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 type instanceAction int
@@ -276,4 +279,48 @@ func getTimestamp(protots *timestamp.Timestamp) (string, error) {
 	}
 
 	return ts.Format(defaultTimeFormat), nil
+}
+
+func getJoinedKeys(keys []string) string {
+	return "`" + strings.Join(keys, "`, `") + "`"
+}
+
+func checkOneOf(d *schema.ResourceData, keys ...string) error {
+	var gotKey bool
+	for _, key := range keys {
+		_, ok := d.GetOk(key)
+
+		if ok {
+			if gotKey {
+				return fmt.Errorf("only one of %s can be provided", getJoinedKeys(keys))
+			}
+
+			gotKey = true
+		}
+	}
+
+	if !gotKey {
+		return fmt.Errorf("one of %s should be provided", getJoinedKeys(keys))
+	}
+
+	return nil
+}
+
+type objectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver
+
+func resolveObjectID(ctx context.Context, config *Config, name string, resolverFunc objectResolverFunc) (string, error) {
+	if name == "" {
+		return "", fmt.Errorf("non empty name should be provided")
+	}
+
+	var objectID string
+	resolver := resolverFunc(name, sdkresolvers.Out(&objectID), sdkresolvers.FolderID(config.FolderID))
+
+	err := config.sdk.Resolve(ctx, resolver)
+
+	if err != nil {
+		return "", err
+	}
+
+	return objectID, nil
 }
