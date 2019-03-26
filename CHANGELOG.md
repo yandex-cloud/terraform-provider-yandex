@@ -1,3 +1,4 @@
+## 0.3.0 (Unreleased)
 ## 0.2.0 (March 26, 2019)
 ENHANCEMENTS:
 * provider: authentication with service account key file. ([#3](https://github.com/yandex-cloud/terraform-provider-yandex/issues/3))
