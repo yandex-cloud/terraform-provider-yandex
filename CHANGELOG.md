@@ -1,6 +1,6 @@
-## 0.2.0 (Unreleased)
+## 0.2.0 (March 26, 2019)
 ENHANCEMENTS:
-* provider: authentication with service account key file. [GH-3]
+* provider: authentication with service account key file. ([#3](https://github.com/yandex-cloud/terraform-provider-yandex/issues/3))
 * vpc: increase subnet create/update/delete timeout.
 * vpc: resolve data source `network`, `subnet` by name.
 * compute: resolve data source `instance`, `disk`, `image`, `snapshot` objects by names.
