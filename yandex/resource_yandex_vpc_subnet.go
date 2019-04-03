@@ -82,6 +82,12 @@ func resourceYandexVPCSubnet() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"route_table_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+
 			"v6_cidr_blocks": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -143,6 +149,7 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		Description:  d.Get("description").(string),
 		Labels:       labels,
 		NetworkId:    d.Get("network_id").(string),
+		RouteTableId: d.Get("route_table_id").(string),
 		V4CidrBlocks: rangesV4,
 		V6CidrBlocks: rangesV6,
 	}
@@ -197,6 +204,7 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("folder_id", subnet.FolderId)
 	d.Set("description", subnet.Description)
 	d.Set("network_id", subnet.NetworkId)
+	d.Set("route_table_id", subnet.RouteTableId)
 
 	if err := d.Set("labels", subnet.Labels); err != nil {
 		return err
@@ -235,8 +243,13 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("description") {
-		req.Name = d.Get("description").(string)
+		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if d.HasChange("route_table_id") {
+		req.RouteTableId = d.Get("route_table_id").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "route_table_id")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))

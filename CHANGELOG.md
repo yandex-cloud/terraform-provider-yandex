@@ -1,4 +1,11 @@
 ## 0.3.0 (Unreleased)
+FEATURES:
+* **New Datasource**: `yandex_vpc_route_table`
+* **New Resource**: `yandex_vpc_route_table` 
+
+ENHANCEMENTS:
+* vpc: `yandex_vpc_subnet` adds a `route_table_id` field.
+
 ## 0.2.0 (March 26, 2019)
 ENHANCEMENTS:
 * provider: authentication with service account key file. ([#3](https://github.com/yandex-cloud/terraform-provider-yandex/issues/3))

@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 type ReducedDiskServiceClient interface {
@@ -370,4 +371,68 @@ func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]i
 	}
 	schedulingPolicy = append(schedulingPolicy, schedulingMap)
 	return schedulingPolicy, nil
+}
+
+func flattenStaticRoutes(routeTable *vpc.RouteTable) *schema.Set {
+	staticRoutes := schema.NewSet(resourceYandexVPCRouteTableHash, nil)
+
+	for _, r := range routeTable.StaticRoutes {
+		m := make(map[string]interface{})
+
+		switch d := r.Destination.(type) {
+		case *vpc.StaticRoute_DestinationPrefix:
+			m["destination_prefix"] = d.DestinationPrefix
+		}
+
+		switch h := r.NextHop.(type) {
+		case *vpc.StaticRoute_NextHopAddress:
+			m["next_hop_address"] = h.NextHopAddress
+		}
+
+		staticRoutes.Add(m)
+	}
+	return staticRoutes
+}
+
+func expandStaticRoutes(d *schema.ResourceData) ([]*vpc.StaticRoute, error) {
+	staticRoutes := []*vpc.StaticRoute{}
+
+	if v, ok := d.GetOk("static_route"); ok {
+		routeList := v.(*schema.Set).List()
+		for _, v := range routeList {
+			sr, err := routeDescriptionToStaticRoute(v)
+			if err != nil {
+				return nil, fmt.Errorf("fail convert static route: %s", err)
+			}
+			staticRoutes = append(staticRoutes, sr)
+		}
+	} else {
+		// should not occur: validation must be done at Schema level
+		return nil, fmt.Errorf("You should define 'static_route' section for route table")
+	}
+
+	return staticRoutes, nil
+}
+
+func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
+	res, ok := v.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
+	}
+
+	var sr vpc.StaticRoute
+
+	if v, ok := res["destination_prefix"].(string); ok {
+		sr.Destination = &vpc.StaticRoute_DestinationPrefix{
+			DestinationPrefix: v,
+		}
+	}
+
+	if v, ok := res["next_hop_address"].(string); ok {
+		sr.NextHop = &vpc.StaticRoute_NextHopAddress{
+			NextHopAddress: v,
+		}
+	}
+
+	return &sr, nil
 }

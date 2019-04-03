@@ -55,6 +55,9 @@ The following arguments are supported:
 
 * `labels` - (Optional) Labels to assign to this subnet. A list of key/value pairs.
 
+* `route_table_id` - (Optional) The ID of the route table to assign to this subnet. Assigned route table should 
+    belong to the same network as this subnet.
+
 * `v6_cidr_blocks` - (Optional) An optional list of blocks of IPv6 addresses that are owned by this subnet.
 
 ~> **Note:** The `v6_cidr_blocks` attribute is currently not supported. It will be available in the future.
@@ -64,9 +67,9 @@ The following arguments are supported:
 This resource provides the following configuration options for 
 [timeouts](/docs/configuration/resources.html#timeouts):
 
-- `create` - Default is 1 minute.
-- `update` - Default is 1 minute.
-- `delete` - Default is 1 minute.
+- `create` - Default is 3 minute.
+- `update` - Default is 3 minute.
+- `delete` - Default is 3 minute.
 
 ## Import
 

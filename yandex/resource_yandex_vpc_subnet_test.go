@@ -128,6 +128,59 @@ func TestAccVPCSubnet_update(t *testing.T) {
 	})
 }
 
+func TestAccVPCSubnet_withRouteTable(t *testing.T) {
+	t.Parallel()
+
+	var network vpc.Network
+	var subnet vpc.Subnet
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	subnet1Name := acctest.RandomWithPrefix("tf-subnet-a")
+	updatedSubnet1Name := subnet1Name + "-update"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCSubnet_withoutRouteTable(networkName, subnet1Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCNetworkExists("yandex_vpc_network.foo", &network),
+
+					testAccCheckVPCSubnetExists("yandex_vpc_subnet.subnet-a", &subnet),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_subnet.subnet-a", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "name", subnet1Name),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "description", "description for subnet-a"),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "route_table_id", ""),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "v4_cidr_blocks.0", "10.0.0.0/16"),
+					testAccCheckVPCSubnetContainsLabel(&subnet, "tf-label", "tf-label-value-a"),
+					testAccCheckVPCSubnetContainsLabel(&subnet, "empty-label", ""),
+					testAccCheckCreatedAtAttr("yandex_vpc_subnet.subnet-a"),
+				),
+			},
+			{
+				Config: testAccVPCSubnet_withRouteTable(networkName, updatedSubnet1Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists("yandex_vpc_subnet.subnet-a", &subnet),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_subnet.subnet-a", "network_id", &network.Id),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_subnet.subnet-a", "route_table_id", &subnet.RouteTableId),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "name", updatedSubnet1Name),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "v4_cidr_blocks.0", "10.100.0.0/16"),
+					testAccCheckVPCSubnetContainsLabel(&subnet, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCSubnetContainsLabel(&subnet, "new-field", "only-shows-up-when-updated"),
+				),
+			},
+			{
+				ResourceName:      "yandex_vpc_subnet.subnet-a",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccVPCSubnet_basicV6(t *testing.T) {
 	t.Skip("waiting ipv6 support in subnets")
 	t.Parallel()
@@ -322,4 +375,65 @@ resource "yandex_vpc_subnet" "subnet-b" {
   }
 }
 `, networkName, subnet1Name, subnet2Name)
+}
+
+func testAccVPCSubnet_withoutRouteTable(networkName, subnet1Name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_subnet" "subnet-a" {
+  name           = "%s"
+  description    = "description for subnet-a"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.0.0.0/16"]
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+}
+
+resource "yandex_vpc_route_table" "rt-a" {
+  network_id = "${yandex_vpc_network.foo.id}"
+
+  static_route = {
+    destination_prefix = "172.16.10.0/24"
+    next_hop_address   = "10.0.0.172"
+  }
+}
+`, networkName, subnet1Name)
+}
+
+func testAccVPCSubnet_withRouteTable(networkName, subnet1Name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_subnet" "subnet-a" {
+  name           = "%s"
+  description    = "description with update for subnet-a"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  route_table_id = "${yandex_vpc_route_table.rt-a.id}"
+  v4_cidr_blocks = ["10.100.0.0/16"]
+
+  labels = {
+    empty-label = "oh-look-theres-a-label-now"
+    new-field   = "only-shows-up-when-updated"
+  }
+}
+
+resource "yandex_vpc_route_table" "rt-a" {
+  network_id = "${yandex_vpc_network.foo.id}"
+
+  static_route = {
+    destination_prefix = "172.16.10.0/24"
+    next_hop_address   = "10.0.0.172"
+  }
+}
+`, networkName, subnet1Name)
 }

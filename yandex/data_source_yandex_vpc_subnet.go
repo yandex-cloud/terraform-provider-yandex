@@ -46,6 +46,10 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"route_table_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"v4_cidr_blocks": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -107,6 +111,7 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("created_at", createdAt)
 	d.Set("network_id", subnet.NetworkId)
 	d.Set("zone", subnet.ZoneId)
+	d.Set("route_table_id", subnet.RouteTableId)
 	if err := d.Set("labels", subnet.Labels); err != nil {
 		return err
 	}

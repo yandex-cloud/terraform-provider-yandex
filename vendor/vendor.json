@@ -1329,224 +1329,292 @@
 		{
 			"checksumSHA1": "csY5sMpXAFjSd0XXTE9FljOSXyg=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/api",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "NJ/c7WXHN16dMUwHTowTYwhbaDY=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/access",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "9Fq+vp2FMcr+iGO+Esdu60apjEg=",
+			"checksumSHA1": "kC2GwENamIxtfVwKJxBlTuiYdRY=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
+		},
+		{
+			"checksumSHA1": "JLwPXS3p8/nA4PnsGWpHnsLor64=",
+			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1",
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "W2Xi4+DgdUob3JbdmtMNPdA5ueY=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "8tmXvKAklcHY56E78OHWjhXlzXs=",
+			"checksumSHA1": "6RCxpG8AYnLGneFePM+URP3rlfw=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "njfCCA+/mXJUxCAHzoBlOGx+SsI=",
+			"checksumSHA1": "vqmhxAVPX9wEGd5MtyZGrmJCxDc=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "+cfsG5qZeBuNM0aEajb/8ZTRblw=",
+			"checksumSHA1": "BbQ19nizHWcsljdYia9ytxnSJao=",
+			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1",
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
+		},
+		{
+			"checksumSHA1": "AresvbcP62/o4ha2LojZHw7vO/I=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "AOPFCmCY9vj+JEoBW5ix9QHeZxU=",
+			"checksumSHA1": "ofEkzh83Wmj19KaPFQzNJn4XfcE=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "g6MkrN/K46Y0M14vB/NzMI1zCUk=",
+			"checksumSHA1": "gUiR+RJXOSopk6DJ5BjC0fEnH/g=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "x+RVNCBt2ssjjhUl3gLdjrrq0PI=",
+			"checksumSHA1": "6KV2TRFmtBZdtwSyHsE3UvSs0IE=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "zLkoFbabsJH7OV90ANa69r9dDG8=",
+			"checksumSHA1": "lpMnjwJRKaiDdjMsd0JG6AWIvtE=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "huOTGS2PM90VIXrKfoqE2OCWLSE=",
+			"checksumSHA1": "WLHJyH0DAWv/R8vQn8Ubp8VxPag=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "B+LZ05ACwrg5XoxxdztVMMfhEao=",
+			"checksumSHA1": "h7AmtymMtnxzq3uDv23SdUbNKAI=",
+			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1",
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
+		},
+		{
+			"checksumSHA1": "R6zcM081rs8UTXC0ATKSDKahy5U=",
+			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config",
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
+		},
+		{
+			"checksumSHA1": "U7d0UedtLaFpL4s+Wtgxsw09ljc=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1alpha",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "vttyVFJYQrV5Jv2KWZ5juETQlgk=",
+			"checksumSHA1": "8lo3Ntzv1tWXkfIyjaODhhitOAE=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1alpha/config",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "9gZlfbMgE6exOrtVp5CCrgtiN/Q=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/operation",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "CCri9yhNEpzyD1k2WnIbBZsHOdM=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "6O3DGCvAa3071Xx+zJnFwbFlTTU=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/validation",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
 			"checksumSHA1": "KkGaVeoJZuk3l/3J/6jgjGYCAhc=",
 			"path": "github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1",
-			"revision": "87d7f3e696ac0f73b6818a6ab75ccc376c16f699",
-			"revisionTime": "2019-02-12T11:54:11Z"
+			"revision": "1db0ef3dce9bdfb672f2c2f68089378688b95755",
+			"revisionTime": "2019-04-01T17:42:12Z"
 		},
 		{
-			"checksumSHA1": "snpLhbkec2LYDushOUHAb4cGbC0=",
+			"checksumSHA1": "x97mbhDdy0Ve7pSve+gnk3qGqB4=",
 			"path": "github.com/yandex-cloud/go-sdk",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/apiendpoint",
+			"revision": ""
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/compute",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "E9xPitT+3nvQ0piatOoG84NFJEE=",
 			"path": "github.com/yandex-cloud/go-sdk/dial",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "K0/p3qMe/s5+hVG8soH7YS3ClNk=",
+			"checksumSHA1": "biCdPfTQB3NLnhtPNsh6FO42TnE=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/apiendpoint",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "4gUCjbDX/Zm9/jLVvTloaCtNVBc=",
+			"checksumSHA1": "VCSED2a9C+FNN7OQLRWLOJcfpFs=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/compute",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "bwW7+KhX+FcQe6t++Am+oilA8W8=",
+			"checksumSHA1": "fj8e0CiLsOQiwd5VQn+fyr3ic0c=",
+			"path": "github.com/yandex-cloud/go-sdk/gen/containerregistry",
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"checksumSHA1": "qbHxNlIB1krTsJKQuiQ69Bcdnxc=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/iam",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "4dleKoqJePvs+5Mlrh+6h+XtnUo=",
+			"checksumSHA1": "+CISmbw5Fo0CnM/FCdRXDwDJdjE=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/iam/awscompatibility",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "B4jJ7EFbBEDkuACEWEv5/fCPUwQ=",
+			"checksumSHA1": "FzukwmLVUyP9Ev8MMLBjq5jKbL8=",
+			"path": "github.com/yandex-cloud/go-sdk/gen/loadbalancer",
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"checksumSHA1": "5ZpXCvUBQKtUSJULR7jTWBolju8=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/mdb/clickhouse",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "SD2fXABNd1wMMlH/rahHYqEiXaY=",
+			"checksumSHA1": "bu70XHhHdzSlZNmf2XuTSqBtlwk=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/mdb/mongodb",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "sEfzbagMeuoyDC8P+PaUqWMnzHc=",
+			"checksumSHA1": "hSHaUcBiFKlSOGNOQPdnLlIx+IE=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/mdb/postgresql",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "CSmjHoYfwAVei1gqHeziHbyqU74=",
+			"checksumSHA1": "auL7j70XpEaI23GfNHvVSRTbmLQ=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/mdb/redis",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "1f8L7FmLk2GaLfNWqGYAqYBtgU0=",
+			"checksumSHA1": "LTSXgnXAxGrQNVXyPGx2xbtqdR8=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/operation",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "F8uR+NT3941MZnkOqPMEnDwaSgU=",
+			"checksumSHA1": "iORGYHxR1NtKKS0SB3mPtcnmNdk=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/resourcemanager",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
-			"checksumSHA1": "T1VjkInlIycuP7l8P3iNcOZA3j4=",
+			"checksumSHA1": "r1n311warN/T1f1KqK09X5UxIdw=",
 			"path": "github.com/yandex-cloud/go-sdk/gen/vpc",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/iam",
+			"revision": ""
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/iam/awscompatibility",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "ZczBiGuK0ZbG7+dUK4xBV+687Oc=",
 			"path": "github.com/yandex-cloud/go-sdk/iamkey",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/mdb/clickhouse",
+			"revision": ""
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/mdb/mongodb",
+			"revision": ""
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/mdb/postgresql",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "Yv6pIUIYy/QH9KwM9hLzJx5aMmU=",
 			"path": "github.com/yandex-cloud/go-sdk/operation",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
 			"checksumSHA1": "K7yL9yWx2Jt/ycoGfn84a6355hc=",
 			"path": "github.com/yandex-cloud/go-sdk/pkg/grpcclient",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
 			"checksumSHA1": "andEmpKbwxrSEKwLiOYait4Y0kI=",
 			"path": "github.com/yandex-cloud/go-sdk/pkg/requestid",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
 			"checksumSHA1": "6RwDHJqYgluAkepqtGioqv/D+50=",
 			"path": "github.com/yandex-cloud/go-sdk/pkg/sdkerrors",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
 		},
 		{
 			"checksumSHA1": "0WL9ZFb+z/ZgM9Yp78aWu58ZTmA=",
 			"path": "github.com/yandex-cloud/go-sdk/pkg/singleflight",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/resourcemanager",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "qALemMuk3ffeP4u9ezI9X2+/tEc=",
@@ -1555,10 +1623,14 @@
 			"revisionTime": "2018-10-24T08:41:09Z"
 		},
 		{
-			"checksumSHA1": "+Y0v/JFiaUCg6WV3xGY431qkga4=",
+			"checksumSHA1": "0GF5w0onN8U3lDqaJ+cpSu0fQds=",
 			"path": "github.com/yandex-cloud/go-sdk/sdkresolvers",
-			"revision": "fea916d94f585acde261f0bfc4c9923882e50c3f",
-			"revisionTime": "2019-02-12T13:07:48Z"
+			"revision": "3fc1d694703593e0d2e48f1df003b7dbc04d8b44",
+			"revisionTime": "2019-04-02T11:42:15Z"
+		},
+		{
+			"path": "github.com/yandex-cloud/go-sdk/vpc",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "GY4Kl4DY4rL73oZYyWpwgNQNZK8=",
@@ -1921,6 +1993,12 @@
 			"revisionTime": "2018-10-29T15:51:18Z"
 		},
 		{
+			"checksumSHA1": "5kbCO+HrefMWKTOwho7t38Mv6Bg=",
+			"path": "google.golang.org/genproto/googleapis/type/timeofday",
+			"revision": "f467c93bbac2133ff463e1f93d18d8f9f3f04451",
+			"revisionTime": "2019-04-01T18:17:12Z"
+		},
+		{
 			"checksumSHA1": "JgbNbiFxBjhAtIyO2MFzbhQ75Hs=",
 			"path": "google.golang.org/genproto/protobuf/field_mask",
 			"revision": "b69ba1387ce2108ac9bc8e8e5e5a46e7d5c72313",
@@ -2101,5 +2179,5 @@
 			"revisionTime": "2018-11-15T11:05:04Z"
 		}
 	],
-	"rootPath": "github.com/terraform-providers/terraform-provider-yandex"
+	"rootPath": "bb.yandex-team.ru/cloud/terraform-provider-yandex-mirror"
 }

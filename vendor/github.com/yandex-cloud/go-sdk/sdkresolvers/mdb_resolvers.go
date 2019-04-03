@@ -8,7 +8,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
-	redis "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1alpha"
+	redis "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 )
 

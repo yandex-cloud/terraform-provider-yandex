@@ -76,6 +76,7 @@ func Provider() terraform.ResourceProvider {
 			"yandex_resourcemanager_cloud":  dataSourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_folder": dataSourceYandexResourceManagerFolder(),
 			"yandex_vpc_network":            dataSourceYandexVPCNetwork(),
+			"yandex_vpc_route_table":        dataSourceYandexVPCRouteTable(),
 			"yandex_vpc_subnet":             dataSourceYandexVPCSubnet(),
 		},
 
@@ -95,6 +96,7 @@ func Provider() terraform.ResourceProvider {
 			"yandex_resourcemanager_folder_iam_member":     resourceYandexResourceManagerFolderIAMMember(),
 			"yandex_resourcemanager_folder_iam_policy":     resourceYandexResourceManagerFolderIAMPolicy(),
 			"yandex_vpc_network":                           resourceYandexVPCNetwork(),
+			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
 		},
 

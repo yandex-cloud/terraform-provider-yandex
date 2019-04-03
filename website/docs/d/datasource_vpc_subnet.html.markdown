@@ -38,6 +38,7 @@ The following attribute is exported:
 * `network_id` - ID of the network this subnet belongs to.
 * `labels` - Labels to assign to this subnet.
 * `zone` - Name of the availability zone for this subnet.
+* `route_table_id` - ID of the route table to assign to this subnet.
 * `v4_cidr_blocks` - The blocks of internal IPv4 addresses owned by this subnet.
 * `v6_cidr_blocks` - The blocks of internal IPv6 addresses owned by this subnet.
 * `created_at` - Creation timestamp of this subnet.
