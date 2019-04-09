@@ -223,6 +223,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -298,6 +302,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("name", instance.Name)
 	d.Set("fqdn", instance.Fqdn)
 	d.Set("description", instance.Description)
+	d.Set("service_account_id", instance.ServiceAccountId)
 	d.Set("status", strings.ToLower(instance.Status.String()))
 
 	if err := d.Set("metadata", instance.Metadata); err != nil {

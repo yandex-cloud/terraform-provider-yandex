@@ -1,4 +1,7 @@
 ## 0.4.0 (Unreleased)
+ENHANCEMENTS:
+* compute: `yandex_compute_instance` adds a `service_account_id` attribute.
+
 ## 0.3.0 (April 03, 2019)
 FEATURES:
 * **New Datasource**: `yandex_vpc_route_table`

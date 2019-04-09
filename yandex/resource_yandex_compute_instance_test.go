@@ -609,6 +609,31 @@ func TestAccComputeInstance_preemptible(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_service_account(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-with-sa-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_service_account(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasServiceAccount(&instance),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -893,6 +918,16 @@ func testAccCheckComputeInstanceIsPreemptible(instance *compute.Instance, expect
 		if instance.SchedulingPolicy.Preemptible != expect {
 			return fmt.Errorf("instance preemptible attr wrong: expected %v, got %v", expect, instance.SchedulingPolicy.Preemptible)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasServiceAccount(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.ServiceAccountId == "" {
+			return fmt.Errorf("No Service Account assigned to instance")
+		}
+
 		return nil
 	}
 }
@@ -1944,6 +1979,54 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_service_account(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name               = "%s"
+  description        = "testAccComputeInstance_basic"
+  zone               = "ru-central1-a"
+  service_account_id = "${yandex_iam_service_account.sa-test.id}"
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "sa-test" {
+  name        = "test-sa-for-vm"
+  description = "Test SA for VM"
 }
 `, instance)
 }

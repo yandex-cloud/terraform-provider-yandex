@@ -331,6 +331,11 @@ func resourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"fqdn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -437,6 +442,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("name", instance.Name)
 	d.Set("fqdn", instance.Fqdn)
 	d.Set("description", instance.Description)
+	d.Set("service_account_id", instance.ServiceAccountId)
 	d.Set("status", strings.ToLower(instance.Status.String()))
 
 	if err := d.Set("metadata", instance.Metadata); err != nil {
@@ -767,6 +773,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
 		PlatformId:            d.Get("platform_id").(string),
+		ServiceAccountId:      d.Get("service_account_id").(string),
 		ZoneId:                zone,
 		Labels:                labels,
 		Metadata:              metadata,
