@@ -1,4 +1,4 @@
-## 0.4.0 (Unreleased)
+## 0.4.0 (April 09, 2019)
 ENHANCEMENTS:
 * compute: `yandex_compute_instance` adds a `service_account_id` attribute.
 
