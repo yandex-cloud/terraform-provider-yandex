@@ -1,4 +1,4 @@
-## 0.4.1 (Unreleased)
+## 0.4.1 (April 11, 2019)
 BUG FIXES:
 * compute: fix properties of `service_account_id` attribute.   
 
