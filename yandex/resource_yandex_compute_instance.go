@@ -333,7 +333,9 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 			"service_account_id": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
+				ForceNew: true,
 			},
 
 			"fqdn": {

@@ -90,7 +90,7 @@ The following arguments are supported:
 
 * `scheduling_policy` - (Optional) Scheduling policy configuration. The structure is documented below.
 
-* `service_account_id` - ID of the service account authorized for this instance.
+* `service_account_id` - (Optional) ID of the service account authorized for this instance.
 
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
     If you try to update a property that requires stopping the instance without setting this field, the update will fail.
