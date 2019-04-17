@@ -37,11 +37,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(yandexComputeInstanceDefaultTimeout),
 		},
 
-		SchemaVersion: 0,
+		SchemaVersion: 1,
+
+		MigrateState: resourceComputeInstanceMigrateState,
 
 		Schema: map[string]*schema.Schema{
 			"resources": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -49,19 +51,19 @@ func resourceYandexComputeInstance() *schema.Resource {
 						"memory": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 
 						"cores": {
 							Type:     schema.TypeInt,
 							Required: true,
-							ForceNew: true,
+							ForceNew: false,
 						},
 
 						"core_fraction": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							ForceNew: true,
+							ForceNew: false,
 							Default:  100,
 						},
 					},
@@ -372,22 +374,26 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error while requesting API to create instance: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get instance create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*compute.CreateInstanceMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Instance ID from create operation metadata")
+	}
+
+	d.SetId(md.InstanceId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create instance: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Instance creation failed: %s", err)
 	}
-
-	instance, ok := resp.(*compute.Instance)
-	if !ok {
-		return fmt.Errorf("Create response doesn't contain Instance")
-	}
-
-	d.SetId(instance.Id)
 
 	return resourceYandexComputeInstanceRead(d, meta)
 }
@@ -584,10 +590,11 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial(descPropName)
 	}
 
+	resourcesPropName := "resources"
 	secDiskPropName := "secondary_disk"
-	if d.HasChange(secDiskPropName) {
+	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) {
 		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the secondary_disk on an instance requires stopping it. " +
+			return fmt.Errorf("Changing the `secondary_disk`, `resources` on an instance requires stopping it. " +
 				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 		}
 
@@ -595,89 +602,112 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		o, n := d.GetChange(secDiskPropName)
+		if d.HasChange(resourcesPropName) {
+			spec, err := expandInstanceResourcesSpec(d)
+			if err != nil {
+				return err
+			}
+			req := &compute.UpdateInstanceRequest{
+				InstanceId: d.Id(),
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{"resources_spec"},
+				},
+				ResourcesSpec: spec,
+			}
 
-		// Keep track of disks currently in the instance. Because the yandex_compute_disk resource
-		// can detach disks, it's possible that there are fewer disks currently attached than there
-		// were at the time we ran terraform plan.
-		currDisks := map[string]struct{}{}
-		for _, disk := range instance.SecondaryDisks {
-			currDisks[disk.DiskId] = struct{}{}
+			err = makeInstanceUpdateRequest(req, d, meta)
+			if err != nil {
+				return err
+			}
+
+			d.SetPartial(resourcesPropName)
 		}
 
-		// Keep track of disks currently in state.
-		// Since changing any field within the disk needs to detach+reattach it,
-		// keep track of the hash of the disk spec.
-		oDisks := map[uint64]string{}
-		for _, disk := range o.([]interface{}) {
-			diskConfig := disk.(map[string]interface{})
-			diskSpec, err := expandSecondaryDiskSpec(diskConfig)
-			if err != nil {
-				return err
-			}
-			hash, err := hashstructure.Hash(*diskSpec, nil)
-			if err != nil {
-				return err
-			}
-			if _, ok := currDisks[diskSpec.GetDiskId()]; ok {
-				oDisks[hash] = diskSpec.GetDiskId()
-			}
-		}
+		if d.HasChange(secDiskPropName) {
+			o, n := d.GetChange(secDiskPropName)
 
-		// Keep track of new config's disks.
-		// Since changing any field within the disk needs to detach+reattach it,
-		// keep track of the hash of the full disk.
-		// If a disk with a certain hash is only in the new config, it should be attached.
-		nDisks := map[uint64]struct{}{}
-		var attach []*compute.AttachedDiskSpec
-		for _, disk := range n.([]interface{}) {
-			diskConfig := disk.(map[string]interface{})
-			diskSpec, err := expandSecondaryDiskSpec(diskConfig)
-			if err != nil {
-				return err
+			// Keep track of disks currently in the instance. Because the yandex_compute_disk resource
+			// can detach disks, it's possible that there are fewer disks currently attached than there
+			// were at the time we ran terraform plan.
+			currDisks := map[string]struct{}{}
+			for _, disk := range instance.SecondaryDisks {
+				currDisks[disk.DiskId] = struct{}{}
 			}
-			hash, err := hashstructure.Hash(*diskSpec, nil)
-			if err != nil {
-				return err
-			}
-			nDisks[hash] = struct{}{}
 
-			if _, ok := oDisks[hash]; !ok {
-				attach = append(attach, diskSpec)
-			}
-		}
-
-		// If a source is only in the old config, it should be detached.
-		// Detach the old disks.
-		for hash, deviceID := range oDisks {
-			if _, ok := nDisks[hash]; !ok {
-				req := &compute.DetachInstanceDiskRequest{
-					InstanceId: d.Id(),
-					Disk: &compute.DetachInstanceDiskRequest_DiskId{
-						DiskId: deviceID,
-					},
-				}
-
-				err = makeDetachDiskRequest(req, d, meta)
+			// Keep track of disks currently in state.
+			// Since changing any field within the disk needs to detach+reattach it,
+			// keep track of the hash of the disk spec.
+			oDisks := map[uint64]string{}
+			for _, disk := range o.([]interface{}) {
+				diskConfig := disk.(map[string]interface{})
+				diskSpec, err := expandSecondaryDiskSpec(diskConfig)
 				if err != nil {
 					return err
 				}
-				log.Printf("[DEBUG] Successfully detached disk %s", deviceID)
-			}
-		}
-
-		// Attach the new disks
-		for _, diskSpec := range attach {
-			req := &compute.AttachInstanceDiskRequest{
-				InstanceId:       d.Id(),
-				AttachedDiskSpec: diskSpec,
+				hash, err := hashstructure.Hash(*diskSpec, nil)
+				if err != nil {
+					return err
+				}
+				if _, ok := currDisks[diskSpec.GetDiskId()]; ok {
+					oDisks[hash] = diskSpec.GetDiskId()
+				}
 			}
 
-			err := makeAttachDiskRequest(req, d, meta)
-			if err != nil {
-				return err
+			// Keep track of new config's disks.
+			// Since changing any field within the disk needs to detach+reattach it,
+			// keep track of the hash of the full disk.
+			// If a disk with a certain hash is only in the new config, it should be attached.
+			nDisks := map[uint64]struct{}{}
+			var attach []*compute.AttachedDiskSpec
+			for _, disk := range n.([]interface{}) {
+				diskConfig := disk.(map[string]interface{})
+				diskSpec, err := expandSecondaryDiskSpec(diskConfig)
+				if err != nil {
+					return err
+				}
+				hash, err := hashstructure.Hash(*diskSpec, nil)
+				if err != nil {
+					return err
+				}
+				nDisks[hash] = struct{}{}
+
+				if _, ok := oDisks[hash]; !ok {
+					attach = append(attach, diskSpec)
+				}
 			}
-			log.Printf("[DEBUG] Successfully attached disk %s", diskSpec.GetDiskId())
+
+			// If a source is only in the old config, it should be detached.
+			// Detach the old disks.
+			for hash, deviceID := range oDisks {
+				if _, ok := nDisks[hash]; !ok {
+					req := &compute.DetachInstanceDiskRequest{
+						InstanceId: d.Id(),
+						Disk: &compute.DetachInstanceDiskRequest_DiskId{
+							DiskId: deviceID,
+						},
+					}
+
+					err = makeDetachDiskRequest(req, d, meta)
+					if err != nil {
+						return err
+					}
+					log.Printf("[DEBUG] Successfully detached disk %s", deviceID)
+				}
+			}
+
+			// Attach the new disks
+			for _, diskSpec := range attach {
+				req := &compute.AttachInstanceDiskRequest{
+					InstanceId:       d.Id(),
+					AttachedDiskSpec: diskSpec,
+				}
+
+				err := makeAttachDiskRequest(req, d, meta)
+				if err != nil {
+					return err
+				}
+				log.Printf("[DEBUG] Successfully attached disk %s", diskSpec.GetDiskId())
+			}
 		}
 
 		if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {

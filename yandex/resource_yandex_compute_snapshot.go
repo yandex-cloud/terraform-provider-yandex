@@ -109,22 +109,26 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error while requesting API to create snapshot: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get snapshot create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*compute.CreateSnapshotMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Snapshot ID from create operation metadata")
+	}
+
+	d.SetId(md.SnapshotId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create snapshot: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Snapshot creation failed: %s", err)
 	}
-
-	snapshot, ok := resp.(*compute.Snapshot)
-	if !ok {
-		return fmt.Errorf("Create response doesn't contain Snapshot")
-	}
-
-	d.SetId(snapshot.Id)
 
 	return resourceYandexComputeSnapshotRead(d, meta)
 }

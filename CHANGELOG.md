@@ -1,4 +1,9 @@
-## 0.4.2 (Unreleased)
+## 0.5.0 (Unreleased)
+ENHANCEMENTS:
+* all: save new entity identifiers at start of create operation
+* compute: `yandex_compute_instance` support update resources in stopped state.
+* compute: change attribute `resources` type from Set to List
+
 ## 0.4.1 (April 11, 2019)
 BUG FIXES:
 * compute: fix properties of `service_account_id` attribute.   

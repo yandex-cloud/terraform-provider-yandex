@@ -62,7 +62,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Computed: true,
 			},
 			"resources": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{

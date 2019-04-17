@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -164,22 +163,26 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error while requesting API to create disk: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get disk create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*compute.CreateDiskMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Disk ID from create operation metadata")
+	}
+
+	d.SetId(md.DiskId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create disk: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Disk creation failed: %s", err)
 	}
-
-	disk, ok := resp.(*compute.Disk)
-	if !ok {
-		return errors.New("Create response doesn't contain Disk")
-	}
-
-	d.SetId(disk.Id)
 
 	return resourceYandexComputeDiskRead(d, meta)
 }

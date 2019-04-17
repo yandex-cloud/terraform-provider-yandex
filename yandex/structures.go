@@ -140,26 +140,16 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
 	rs := &compute.ResourcesSpec{}
 
-	if v, ok := d.GetOk("resources"); ok {
-		vL := v.(*schema.Set).List()
-		for _, v := range vL {
-			res := v.(map[string]interface{})
+	if v, ok := d.GetOk("resources.0.cores"); ok {
+		rs.Cores = int64(v.(int))
+	}
 
-			if v, ok := res["cores"].(int); ok {
-				rs.Cores = int64(v)
-			}
+	if v, ok := d.GetOk("resources.0.core_fraction"); ok {
+		rs.CoreFraction = int64(v.(int))
+	}
 
-			if v, ok := res["core_fraction"].(int); ok {
-				rs.CoreFraction = int64(v)
-			}
-
-			if v, ok := res["memory"].(int); ok && v != 0 {
-				rs.Memory = toBytes(v)
-			}
-		}
-	} else {
-		// should not occur: validation must be done at Schema level
-		return nil, fmt.Errorf("You should define 'resources' section for compute instance")
+	if v, ok := d.GetOk("resources.0.memory"); ok {
+		rs.Memory = toBytes(v.(int))
 	}
 
 	return rs, nil

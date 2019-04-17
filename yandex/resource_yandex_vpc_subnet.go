@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -162,22 +161,26 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Error while requesting API to create subnet: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get subnet create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*vpc.CreateSubnetMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Subnet ID from create operation metadata")
+	}
+
+	d.SetId(md.SubnetId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create subnet: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Subnet creation failed: %s", err)
 	}
-
-	subnet, ok := resp.(*vpc.Subnet)
-	if !ok {
-		return errors.New("Create response doesn't contain Subnet")
-	}
-
-	d.SetId(subnet.Id)
 
 	return resourceYandexVPCSubnetRead(d, meta)
 }

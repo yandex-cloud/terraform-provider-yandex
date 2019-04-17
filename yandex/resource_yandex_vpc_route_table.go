@@ -3,7 +3,6 @@ package yandex
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -129,22 +128,26 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error while requesting API to create route table: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get route table create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*vpc.CreateRouteTableMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Route Table ID from create operation metadata")
+	}
+
+	d.SetId(md.RouteTableId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create route table: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("route table creation failed: %s", err)
 	}
-
-	routeTable, ok := resp.(*vpc.RouteTable)
-	if !ok {
-		return errors.New("Create response doesn't contain route table")
-	}
-
-	d.SetId(routeTable.Id)
 
 	return resourceYandexVPCRouteTableRead(d, meta)
 }

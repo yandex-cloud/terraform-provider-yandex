@@ -41,6 +41,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasInstanceID(&instance, "yandex_compute_instance.foobar"),
+					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
 					testAccCheckComputeInstanceIsPreemptible(&instance, false),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
@@ -69,6 +70,7 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
 					testAccCheckComputeInstanceFqdn(&instance, instanceName),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
@@ -404,7 +406,6 @@ func TestAccComputeInstance_update(t *testing.T) {
 }
 
 func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
-	t.Skip("do not support dynamic platform-id update")
 	t.Parallel()
 
 	var instance compute.Instance
@@ -415,21 +416,23 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
-			// Set fields that require stopping the instance
+			// Set fields that require stopping the instance to update
 			{
 				Config: testAccComputeInstance_stopInstanceToUpdate(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
 				),
 			},
 			computeInstanceImportStep(),
-			// Check that updating them works
+			// Check that instance resources was updated
 			{
 				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 4),
 				),
 			},
 			computeInstanceImportStep(),
@@ -839,6 +842,23 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasResources(instance *compute.Instance, cores, coreFraction, memoryGB int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		resources := instance.GetResources()
+		if resources.Cores != cores {
+			return fmt.Errorf("Wrong instance Cores resource: expected %d, got %d", cores, resources.Cores)
+		}
+		if resources.CoreFraction != coreFraction {
+			return fmt.Errorf("Wrong instance Cores Fraction resource: expected %d, got %d", coreFraction, resources.CoreFraction)
+		}
+		memoryBytes := toBytes(int(memoryGB))
+		if resources.Memory != memoryBytes {
+			return fmt.Errorf("Wrong instance Memory resource: expected %d, got %d", memoryGB, toGigabytes(resources.Memory))
+		}
 		return nil
 	}
 }
@@ -1859,7 +1879,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet2" {
 `, instance, network, subnetwork, subnetwork)
 }
 
-// Set fields that require stopping the instance:
+// Set fields that require stopping the instance: 'resources'
 func testAccComputeInstance_stopInstanceToUpdate(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -1886,8 +1906,6 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
-
-  platform_id = "standard-v1"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
@@ -1914,8 +1932,8 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
-    memory = 2
+    cores  = 2
+    memory = 4
   }
 
   boot_disk {
@@ -1927,8 +1945,6 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
-
-  platform_id = "standard-v2"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}

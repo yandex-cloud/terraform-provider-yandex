@@ -78,22 +78,26 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error while requesting API to create service account: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get service account create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*iam.CreateServiceAccountMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Service Account ID from create operation metadata")
+	}
+
+	d.SetId(md.ServiceAccountId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create service account: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Service account creation failed: %s", err)
 	}
-
-	sa, ok := resp.(*iam.ServiceAccount)
-	if !ok {
-		return fmt.Errorf("Create response doesn't contain Service Account")
-	}
-
-	d.SetId(sa.Id)
 
 	return resourceYandexIAMServiceAccountRead(d, meta)
 }

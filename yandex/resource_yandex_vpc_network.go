@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -104,22 +103,26 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error while requesting API to create network: %s", err)
 	}
 
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get network create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*vpc.CreateNetworkMetadata)
+	if !ok {
+		return fmt.Errorf("could not get Network ID from create operation metadata")
+	}
+
+	d.SetId(md.NetworkId)
+
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while waiting operation to create network: %s", err)
 	}
 
-	resp, err := op.Response()
-	if err != nil {
+	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Network creation failed: %s", err)
 	}
-
-	network, ok := resp.(*vpc.Network)
-	if !ok {
-		return errors.New("Create response doesn't contain Network")
-	}
-
-	d.SetId(network.Id)
 
 	return resourceYandexVPCNetworkRead(d, meta)
 }
