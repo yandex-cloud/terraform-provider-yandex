@@ -1,4 +1,4 @@
-## 0.5.0 (Unreleased)
+## 0.5.0 (April 17, 2019)
 ENHANCEMENTS:
 * all: save new entity identifiers at start of create operation
 * compute: `yandex_compute_instance` support update resources in stopped state.
