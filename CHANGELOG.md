@@ -1,4 +1,7 @@
 ## 0.5.1 (Unreleased)
+BUG FIXES:
+* compute: fix migration process for `yandex_compute_instance`.   
+
 ## 0.5.0 (April 17, 2019)
 ENHANCEMENTS:
 * all: save new entity identifiers at start of create operation

@@ -41,6 +41,10 @@ func migrateStateV0toV1(is *terraform.InstanceState) (*terraform.InstanceState, 
 			continue
 		}
 
+		if k == "resources.#" {
+			continue
+		}
+
 		// Key is now of the form resources.%d.{core,core_fraction,memory}
 		keyParts := strings.Split(k, ".")
 

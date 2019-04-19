@@ -18,11 +18,13 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 		"change resources from set to list": {
 			StateVersion: 0,
 			Attributes: map[string]string{
+				"resources.#":                        "1",
 				"resources.1690069307.core_fraction": "100",
 				"resources.1690069307.cores":         "1",
 				"resources.1690069307.memory":        "2",
 			},
 			Expected: map[string]string{
+				"resources.#":               "1",
 				"resources.0.core_fraction": "100",
 				"resources.0.cores":         "1",
 				"resources.0.memory":        "2",
