@@ -1,4 +1,4 @@
-## 0.5.1 (Unreleased)
+## 0.5.1 (April 20, 2019)
 BUG FIXES:
 * compute: fix migration process for `yandex_compute_instance`.   
 
