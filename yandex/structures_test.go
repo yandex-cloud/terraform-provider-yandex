@@ -109,7 +109,7 @@ func TestFlattenInstanceResources(t *testing.T) {
 		expected  []map[string]interface{}
 	}{
 		{
-			name: "cores 1 fraction 100 memory 5gb",
+			name: "cores 1 fraction 100 memory 5 gb",
 			resources: &compute.Resources{
 				Cores:        1,
 				CoreFraction: 100,
@@ -119,12 +119,12 @@ func TestFlattenInstanceResources(t *testing.T) {
 				{
 					"cores":         1,
 					"core_fraction": 100,
-					"memory":        5,
+					"memory":        5.0,
 				},
 			},
 		},
 		{
-			name: "cores 8 fraction 5 memory 16gb",
+			name: "cores 8 fraction 5 memory 16 gb",
 			resources: &compute.Resources{
 				Cores:        8,
 				CoreFraction: 5,
@@ -134,7 +134,22 @@ func TestFlattenInstanceResources(t *testing.T) {
 				{
 					"cores":         8,
 					"core_fraction": 5,
-					"memory":        16,
+					"memory":        16.0,
+				},
+			},
+		},
+		{
+			name: "cores 2 fraction 20 memory 0.5 gb",
+			resources: &compute.Resources{
+				Cores:        2,
+				CoreFraction: 20,
+				Memory:       (1 << 30) / 2,
+			},
+			expected: []map[string]interface{}{
+				{
+					"cores":         2,
+					"core_fraction": 20,
+					"memory":        0.5,
 				},
 			},
 		},

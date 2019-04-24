@@ -68,7 +68,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"memory": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeFloat,
 							Computed: true,
 						},
 						"cores": {

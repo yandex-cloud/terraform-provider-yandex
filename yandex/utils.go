@@ -249,14 +249,41 @@ func validateIPV4CidrBlocks(v interface{}, k string) (warnings []string, errors 
 	return
 }
 
+// FloatAtLeast returns a SchemaValidateFunc which tests if the provided value
+// is of type float64 and is at least min (inclusive)
+func FloatAtLeast(min float64) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (_ []string, errors []error) {
+		v, ok := i.(float64)
+		if !ok {
+			errors = append(errors, fmt.Errorf("expected type of %s to be float64", k))
+			return nil, errors
+		}
+
+		if v < min {
+			errors = append(errors, fmt.Errorf("expected %s to be at least (%f), got %f", k, min, v))
+			return nil, errors
+		}
+
+		return nil, errors
+	}
+}
+
 // Primary use to store value from API in state file as Gigabytes
 func toGigabytes(bytesCount int64) int {
 	return int((datasize.ByteSize(bytesCount) * datasize.B).GBytes())
 }
 
+func toGigabytesInFloat(bytesCount int64) float64 {
+	return (datasize.ByteSize(bytesCount) * datasize.B).GBytes()
+}
+
 // Primary use to send byte value to API
 func toBytes(gigabytesCount int) int64 {
 	return int64((datasize.ByteSize(gigabytesCount) * datasize.GB).Bytes())
+}
+
+func toBytesFromFloat(gigabytesCountF float64) int64 {
+	return int64(gigabytesCountF * float64(datasize.GB))
 }
 
 func (action instanceAction) String() string {

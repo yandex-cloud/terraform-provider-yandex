@@ -1,3 +1,8 @@
+## 0.5.2 (Unreleased)
+ENHANCEMENTS:
+* compute: fractional values for memory for `yandex_compute_instance`.
+* compute: `yandex_compute_instance` support update platform_id in stopped state.
+
 ## 0.5.1 (April 20, 2019)
 BUG FIXES:
 * compute: fix migration process for `yandex_compute_instance`.   

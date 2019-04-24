@@ -49,9 +49,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"memory": {
-							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: false,
+							Type:         schema.TypeFloat,
+							Required:     true,
+							ForceNew:     false,
+							ValidateFunc: FloatAtLeast(0.0),
 						},
 
 						"cores": {
@@ -275,7 +276,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 			"platform_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Default:  "standard-v1",
 			},
 
@@ -592,14 +593,32 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 	resourcesPropName := "resources"
 	secDiskPropName := "secondary_disk"
-	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) {
+	platformIDPropName := "platform_id"
+	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) {
 		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the `secondary_disk`, `resources` on an instance requires stopping it. " +
+			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id` on an instance requires stopping it. " +
 				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 		}
 
 		if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
 			return err
+		}
+
+		if d.HasChange(platformIDPropName) {
+			req := &compute.UpdateInstanceRequest{
+				InstanceId: d.Id(),
+				PlatformId: d.Get(platformIDPropName).(string),
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{platformIDPropName},
+				},
+			}
+
+			err = makeInstanceUpdateRequest(req, d, meta)
+			if err != nil {
+				return err
+			}
+
+			d.SetPartial(platformIDPropName)
 		}
 
 		if d.HasChange(resourcesPropName) {

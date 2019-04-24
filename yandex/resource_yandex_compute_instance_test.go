@@ -152,6 +152,30 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_basic6(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_basic6(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_NatIP(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -432,7 +456,19 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 4),
+				),
+			},
+			computeInstanceImportStep(),
+			// Check that instance resources was updated
+			{
+				Config: testAccComputeInstance_stopInstanceToUpdate3(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
 				),
 			},
 			computeInstanceImportStep(),
@@ -846,7 +882,16 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 	}
 }
 
-func testAccCheckComputeInstanceHasResources(instance *compute.Instance, cores, coreFraction, memoryGB int64) resource.TestCheckFunc {
+func testAccCheckComputeInstanceHasPlatformID(instance *compute.Instance, platformID string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.PlatformId != platformID {
+			return fmt.Errorf("Wrong instance platform_id: expected %s, got %s", platformID, instance.PlatformId)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasResources(instance *compute.Instance, cores, coreFraction int64, memoryGB float64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		resources := instance.GetResources()
 		if resources.Cores != cores {
@@ -855,9 +900,9 @@ func testAccCheckComputeInstanceHasResources(instance *compute.Instance, cores, 
 		if resources.CoreFraction != coreFraction {
 			return fmt.Errorf("Wrong instance Cores Fraction resource: expected %d, got %d", coreFraction, resources.CoreFraction)
 		}
-		memoryBytes := toBytes(int(memoryGB))
+		memoryBytes := toBytesFromFloat(memoryGB)
 		if resources.Memory != memoryBytes {
-			return fmt.Errorf("Wrong instance Memory resource: expected %d, got %d", memoryGB, toGigabytes(resources.Memory))
+			return fmt.Errorf("Wrong instance Memory resource: expected %f, got %d", memoryGB, toGigabytes(resources.Memory))
 		}
 		return nil
 	}
@@ -1161,6 +1206,46 @@ resource "yandex_compute_instance" "foobar" {
 
   metadata {
     foo = "bar"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_basic6(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic6"
+  zone        = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  resources {
+    cores         = 2
+    core_fraction = 5
+    memory        = 0.5
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 }
 
@@ -1934,6 +2019,47 @@ resource "yandex_compute_instance" "foobar" {
   resources {
     cores  = 2
     memory = 4
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+// Update platform_id and resources
+func testAccComputeInstance_stopInstanceToUpdate3(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  zone        = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores         = 2
+    core_fraction = 5
+    memory        = 0.5
   }
 
   boot_disk {

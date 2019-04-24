@@ -43,7 +43,7 @@ func flattenInstanceResources(instance *compute.Instance) ([]map[string]interfac
 	resourceMap := map[string]interface{}{
 		"cores":         int(instance.Resources.Cores),
 		"core_fraction": int(instance.Resources.CoreFraction),
-		"memory":        toGigabytes(instance.Resources.Memory),
+		"memory":        toGigabytesInFloat(instance.Resources.Memory),
 	}
 
 	return []map[string]interface{}{resourceMap}, nil
@@ -149,7 +149,7 @@ func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec
 	}
 
 	if v, ok := d.GetOk("resources.0.memory"); ok {
-		rs.Memory = toBytes(v.(int))
+		rs.Memory = toBytesFromFloat(v.(float64))
 	}
 
 	return rs, nil
