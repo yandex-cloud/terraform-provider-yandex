@@ -1,4 +1,4 @@
-## 0.5.2 (Unreleased)
+## 0.5.2 (April 24, 2019)
 ENHANCEMENTS:
 * compute: fractional values for memory for `yandex_compute_instance`.
 * compute: `yandex_compute_instance` support update platform_id in stopped state.
