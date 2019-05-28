@@ -92,7 +92,7 @@ resource "yandex_compute_disk" "foo" {
   image_id = "${data.yandex_compute_image.ubuntu.id}"
   size     = 8
 
-  labels {
+  labels = {
     my-label = "my-label-value"
   }
 }

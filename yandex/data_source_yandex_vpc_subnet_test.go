@@ -245,7 +245,7 @@ resource "yandex_vpc_subnet" "foo" {
 resource "yandex_vpc_route_table" "foo" {
   network_id = "${yandex_vpc_network.foo.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "172.32.10.0/24"
     next_hop_address   = "172.16.1.32"
   }

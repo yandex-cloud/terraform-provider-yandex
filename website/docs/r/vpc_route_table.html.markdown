@@ -24,7 +24,7 @@ resource "yandex_vpc_network" "lab-net" {
 resource "yandex_vpc_route_table" "lab-rt-a" {
   network_id = "${yandex_vpc_network.lab-net.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "10.2.0.0/16"
     next_hop_address   = "172.16.10.10"
   }

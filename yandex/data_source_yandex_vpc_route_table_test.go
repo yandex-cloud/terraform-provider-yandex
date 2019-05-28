@@ -96,7 +96,7 @@ resource "yandex_vpc_route_table" "foo1" {
   network_id  = "${yandex_vpc_network.foo.id}"
   description = "%s"
 
-  static_route = {
+  static_route {
     destination_prefix = "192.168.20.0/24"
     next_hop_address   = "192.168.22.22"
   }

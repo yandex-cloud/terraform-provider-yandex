@@ -233,7 +233,7 @@ resource "yandex_compute_disk" "foobar" {
   size     = 4
   type     = "network-hdd"
 
-  labels {
+  labels = {
     my-label = "my-label-value"
   }
 }
@@ -271,7 +271,7 @@ resource "yandex_compute_disk" "foobar" {
   size     = 8
   type     = "network-hdd"
 
-  labels {
+  labels = {
     my-label    = "my-updated-label-value"
     a-new-label = "a-new-label-value"
   }

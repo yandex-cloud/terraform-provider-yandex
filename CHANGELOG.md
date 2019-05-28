@@ -1,7 +1,7 @@
-## 0.5.3 (Unreleased)
+## 0.6.0 (Unreleased)
 NOTES:
 * provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. 
-* provider: Switch dependency management to Go modules.  [GH-5]
+* provider: Switch dependency management to Go modules. [GH-5]
 
 ## 0.5.2 (April 24, 2019)
 ENHANCEMENTS:

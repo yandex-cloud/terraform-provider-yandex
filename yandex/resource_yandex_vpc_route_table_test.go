@@ -193,7 +193,7 @@ resource "yandex_vpc_route_table" "rt-a" {
   description = "description for route table A"
   network_id  = "${yandex_vpc_network.foo.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "10.0.0.0/16"
     next_hop_address   = "10.0.0.10"
   }
@@ -209,7 +209,7 @@ resource "yandex_vpc_route_table" "rt-b" {
   description = "description for route table B"
   network_id  = "${yandex_vpc_network.foo.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "10.1.0.0/16"
     next_hop_address   = "10.1.0.10"
   }
@@ -233,12 +233,12 @@ resource "yandex_vpc_route_table" "rt-a" {
   description = "description with update for route table A"
   network_id  = "${yandex_vpc_network.foo.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "10.100.0.0/16"
     next_hop_address   = "192.168.11.11"
   }
 
-  static_route = {
+  static_route {
     destination_prefix = "10.101.0.0/16"
     next_hop_address   = "192.168.11.13"
   }
@@ -254,12 +254,12 @@ resource "yandex_vpc_route_table" "rt-b" {
   description = "description with update for route table B"
   network_id  = "${yandex_vpc_network.foo.id}"
 
-  static_route = {
+  static_route {
     destination_prefix = "10.101.0.0/16"
     next_hop_address   = "192.168.22.22"
   }
 
-  static_route = {
+  static_route {
     destination_prefix = "10.102.0.0/16"
     next_hop_address   = "192.168.22.24"
   }

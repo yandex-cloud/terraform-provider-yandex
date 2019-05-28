@@ -169,16 +169,12 @@ resource "yandex_compute_instance" "foo" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
     baz = "qux"
   }
 
-  metadata {
-    startup-script = "echo Hello"
-  }
-
-  labels {
+  labels = {
     my_key       = "my_value"
     my_other_key = "my_other_value"
   }
@@ -242,16 +238,16 @@ resource "yandex_compute_instance" "foo" {
     ipv6      = true
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
     baz = "qux"
   }
 
-  metadata {
+  metadata = {
     startup-script = "echo Hello"
   }
 
-  labels {
+  labels = {
     my_key       = "my_value"
     my_other_key = "my_other_value"
   }

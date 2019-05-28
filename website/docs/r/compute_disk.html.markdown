@@ -29,7 +29,7 @@ resource "yandex_compute_disk" "default" {
   zone     = "ru-central1-a"
   image_id = "ubuntu-16.04-v20180727"
 
-  labels {
+  labels = {
     environment = "test"
   }
 }

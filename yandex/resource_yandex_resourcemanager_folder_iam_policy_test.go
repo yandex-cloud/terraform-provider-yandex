@@ -168,7 +168,7 @@ func testAccFolderIamPolicy_basic(cloudID, folderID string, policy *Policy) stri
 		for m := range members {
 			bindingBuffer.WriteString(fmt.Sprintf("\"%s\",\n", m))
 		}
-		bindingBuffer.WriteString("]}\n")
+		bindingBuffer.WriteString("]\n}\n")
 	}
 
 	return prerequisiteMembership + fmt.Sprintf(`

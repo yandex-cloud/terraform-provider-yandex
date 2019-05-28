@@ -34,7 +34,7 @@ resource "yandex_compute_instance" "default" {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 
-  metadata {
+  metadata = {
     foo      = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }

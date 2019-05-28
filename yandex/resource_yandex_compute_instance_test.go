@@ -1025,16 +1025,12 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
     baz = "qux"
   }
 
-  metadata {
-    startup-script = "echo Hello"
-  }
-
-  labels {
+  labels = {
     my_key       = "my_value"
     my_other_key = "my_other_value"
   }
@@ -1078,7 +1074,7 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 }
@@ -1120,7 +1116,7 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 }
@@ -1162,7 +1158,7 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 }
@@ -1204,7 +1200,7 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 }
@@ -1228,7 +1224,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic6"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-b"
   platform_id = "standard-v2"
 
   resources {
@@ -1252,7 +1248,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -1286,7 +1282,7 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     qux = "true"
   }
 }
@@ -1327,12 +1323,12 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
   }
 
-  metadata {
+  metadata = {
     bar            = "baz"
     startup-script = "echo Hello"
   }
 
-  labels {
+  labels = {
     only_me = "nothing_else"
   }
 }
@@ -1373,7 +1369,7 @@ resource "yandex_compute_instance" "foobar" {
     nat       = true
   }
 
-  metadata {
+  metadata = {
     foo = "bar"
   }
 }
@@ -1973,7 +1969,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
-  zone = "ru-central1-a"
+  zone = "ru-central1-b"
 
   allow_stopping_for_update = true
 
@@ -1996,7 +1992,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2012,7 +2008,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
-  zone = "ru-central1-a"
+  zone = "ru-central1-b"
 
   allow_stopping_for_update = true
 
@@ -2035,7 +2031,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -2051,7 +2047,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
-  zone        = "ru-central1-a"
+  zone        = "ru-central1-b"
   platform_id = "standard-v2"
 
   allow_stopping_for_update = true
@@ -2076,7 +2072,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
