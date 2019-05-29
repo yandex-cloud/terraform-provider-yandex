@@ -1,3 +1,4 @@
+## 0.7.0 (Unreleased)
 ## 0.6.0 (May 29, 2019)
 NOTES:
 * provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. 
