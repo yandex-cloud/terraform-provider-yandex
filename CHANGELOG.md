@@ -1,4 +1,4 @@
-## 0.7.0 (Unreleased)
+## 0.7.0 (June 06, 2019)
 * provider: Support SDK retries.  
 
 ## 0.6.0 (May 29, 2019)
