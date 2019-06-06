@@ -62,6 +62,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("YC_PLAINTEXT", false),
 				Description: descriptions["plaintext"],
 			},
+			"max_retries": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     5,
+				Description: descriptions["max_retries"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -105,11 +111,11 @@ func Provider() terraform.ResourceProvider {
 }
 
 var descriptions = map[string]string{
-	"endpoint": "The API endpoint for Yandex.Cloud SDK client",
+	"endpoint": "The API endpoint for Yandex.Cloud SDK client.",
 
-	"folder_id": "The default folder ID where resources will be placed",
+	"folder_id": "The default folder ID where resources will be placed.",
 
-	"cloud_id": "ID of Yandex.Cloud tenant",
+	"cloud_id": "ID of Yandex.Cloud tenant.",
 
 	"zone": "The zone where operations will take place. Examples\n" +
 		"are ru-central1-a, ru-central2-c, etc.",
@@ -119,9 +125,12 @@ var descriptions = map[string]string{
 	"service_account_key_file": "Path to file with Yandex.Cloud Service Account key.",
 
 	"insecure": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted," +
-		"default value is `false`",
+		"default value is `false`.",
 
-	"plaintext": "Disable use of TLS. Default value is `false`",
+	"plaintext": "Disable use of TLS. Default value is `false`.",
+
+	"max_retries": "The maximum number of times an API request is being executed. \n" +
+		"If the API request still fails, an error is thrown.",
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
@@ -134,6 +143,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Endpoint:              d.Get("endpoint").(string),
 		Plaintext:             d.Get("plaintext").(bool),
 		Insecure:              d.Get("insecure").(bool),
+		MaxRetries:            d.Get("max_retries").(int),
 	}
 
 	if err := config.initAndValidate(); err != nil {

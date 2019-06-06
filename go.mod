@@ -6,6 +6,7 @@ require (
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/golang/protobuf v1.3.1
 	github.com/google/uuid v1.1.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/hashicorp/hcl v0.0.0-20180906183839-65a6292f0157 // indirect
 	github.com/hashicorp/terraform v0.12.0
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
