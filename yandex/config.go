@@ -86,7 +86,9 @@ func (c *Config) initAndValidate() error {
 		retry.WithAttemptHeader(true),
 		retry.WithBackoff(BackoffExponentialWithJitter(defaultExponentialBackoffBase, defaultExponentialBackoffCap)))
 
-	interceptorChain := grpc_middleware.ChainUnaryClient(requestIDInterceptor, retryInterceptor)
+	// Make sure retry interceptor is above id interceptor.
+	// Now we will have new request id for every retry attempt.
+	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
 
 	var err error
 	c.sdk, err = ycsdk.Build(context.Background(), *yandexSDKConfig,

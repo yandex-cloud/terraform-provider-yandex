@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
@@ -44,6 +46,16 @@ func flattenInstanceResources(instance *compute.Instance) ([]map[string]interfac
 		"cores":         int(instance.Resources.Cores),
 		"core_fraction": int(instance.Resources.CoreFraction),
 		"memory":        toGigabytesInFloat(instance.Resources.Memory),
+	}
+
+	return []map[string]interface{}{resourceMap}, nil
+}
+
+func flattenInstanceGroupInstanceTemplateResources(resSpec *instancegroup.ResourcesSpec) ([]map[string]interface{}, error) {
+	resourceMap := map[string]interface{}{
+		"cores":         int(resSpec.Cores),
+		"core_fraction": int(resSpec.CoreFraction),
+		"memory":        toGigabytesInFloat(resSpec.Memory),
 	}
 
 	return []map[string]interface{}{resourceMap}, nil
@@ -137,6 +149,227 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 	return nics, externalIP, internalIP, nil
 }
 
+func flattenInstanceGroupManagedInstanceNetworkInterfaces(instance *instancegroup.ManagedInstance) ([]map[string]interface{}, string, string, error) {
+	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
+	var externalIP, internalIP string
+
+	for i, iface := range instance.NetworkInterfaces {
+		index, err := strconv.Atoi(iface.Index)
+		if err != nil {
+			return nil, "", "", fmt.Errorf("Error while convert index of Network Interface: %s", err)
+		}
+
+		nics[i] = map[string]interface{}{
+			"index":       index,
+			"mac_address": iface.MacAddress,
+			"subnet_id":   iface.SubnetId,
+		}
+
+		if iface.PrimaryV4Address != nil {
+			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
+			if internalIP == "" {
+				internalIP = iface.PrimaryV4Address.Address
+			}
+
+			if iface.PrimaryV4Address.OneToOneNat != nil {
+				nics[i]["nat"] = true
+				nics[i]["nat_ip_address"] = iface.PrimaryV4Address.OneToOneNat.Address
+				nics[i]["nat_ip_version"] = iface.PrimaryV4Address.OneToOneNat.IpVersion.String()
+				if externalIP == "" {
+					externalIP = iface.PrimaryV4Address.OneToOneNat.Address
+				}
+			} else {
+				nics[i]["nat"] = false
+			}
+		}
+
+		if iface.PrimaryV6Address != nil {
+			nics[i]["ipv6"] = true
+			nics[i]["ipv6_address"] = iface.PrimaryV6Address.Address
+			if externalIP == "" {
+				externalIP = iface.PrimaryV6Address.Address
+			}
+		}
+	}
+
+	return nics, externalIP, internalIP, nil
+}
+
+func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTemplate) ([]map[string]interface{}, error) {
+	templateMap := make(map[string]interface{})
+
+	templateMap["description"] = template.GetDescription()
+	templateMap["labels"] = template.GetLabels()
+	templateMap["platform_id"] = template.GetPlatformId()
+	templateMap["metadata"] = template.GetMetadata()
+	templateMap["service_account_id"] = template.GetServiceAccountId()
+
+	resourceSpec, err := flattenInstanceGroupInstanceTemplateResources(template.GetResourcesSpec())
+	if err != nil {
+		return nil, err
+	}
+	templateMap["resources"] = resourceSpec
+
+	bootDiskSpec, err := flattenInstanceGroupAttachedDisk(template.GetBootDiskSpec())
+	if err != nil {
+		return []map[string]interface{}{templateMap}, err
+	}
+	templateMap["boot_disk"] = []map[string]interface{}{bootDiskSpec}
+
+	secondarySpecs := template.GetSecondaryDiskSpecs()
+	secondarySpecsList := make([]map[string]interface{}, len(secondarySpecs))
+	for i, spec := range secondarySpecs {
+		flattened, err := flattenInstanceGroupAttachedDisk(spec)
+		if err != nil {
+			return nil, err
+		}
+		secondarySpecsList[i] = flattened
+	}
+	templateMap["secondary_disk"] = secondarySpecsList
+
+	networkSpecs := template.GetNetworkInterfaceSpecs()
+	networkSpecsList := make([]map[string]interface{}, len(networkSpecs))
+	for i, spec := range networkSpecs {
+		networkSpecsList[i] = flattenInstanceGroupNetworkInterfaceSpec(spec)
+	}
+	templateMap["network_interface"] = networkSpecsList
+
+	if template.SchedulingPolicy != nil {
+		templateMap["scheduling_policy"] = []map[string]interface{}{{"preemptible": template.SchedulingPolicy.Preemptible}}
+	}
+
+	return []map[string]interface{}{templateMap}, nil
+}
+
+func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) (map[string]interface{}, error) {
+	bootDisk := map[string]interface{}{
+		"device_name": diskSpec.GetDeviceName(),
+		"mode":        diskSpec.GetMode().String(),
+	}
+
+	diskSpecSpec := diskSpec.GetDiskSpec()
+
+	if diskSpec == nil {
+		return bootDisk, fmt.Errorf("no disk spec")
+	}
+
+	bootDisk["initialize_params"] = []map[string]interface{}{{
+		"description": diskSpecSpec.Description,
+		"size":        toGigabytes(diskSpecSpec.Size),
+		"type":        diskSpecSpec.TypeId,
+		"image_id":    diskSpecSpec.GetImageId(),
+		"snapshot_id": diskSpecSpec.GetSnapshotId(),
+	}}
+
+	return bootDisk, nil
+}
+
+func flattenInstanceGroupNetworkInterfaceSpec(netSpec *instancegroup.NetworkInterfaceSpec) map[string]interface{} {
+	nat := (netSpec.PrimaryV4AddressSpec != nil && netSpec.PrimaryV4AddressSpec.GetOneToOneNatSpec() != nil) ||
+		(netSpec.PrimaryV6AddressSpec != nil && netSpec.PrimaryV6AddressSpec.GetOneToOneNatSpec() != nil)
+
+	subnets := &schema.Set{F: schema.HashString}
+
+	if netSpec.SubnetIds != nil {
+		for _, s := range netSpec.SubnetIds {
+			subnets.Add(s)
+		}
+	}
+
+	networkInterface := map[string]interface{}{
+		"network_id": netSpec.NetworkId,
+		"subnet_ids": subnets,
+		"nat":        nat,
+		"ipv6":       netSpec.PrimaryV6AddressSpec != nil,
+	}
+
+	return networkInterface
+}
+
+func flattenInstanceGroupDeployPolicy(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+	if ig.DeployPolicy != nil {
+		res["max_expansion"] = ig.DeployPolicy.MaxExpansion
+		res["max_creating"] = ig.DeployPolicy.MaxCreating
+		res["max_deleting"] = ig.DeployPolicy.MaxDeleting
+		res["max_unavailable"] = ig.DeployPolicy.MaxUnavailable
+		if ig.DeployPolicy.StartupDuration != nil {
+			res["startup_duration"] = ig.DeployPolicy.StartupDuration.Seconds
+		}
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	zones := &schema.Set{F: schema.HashString}
+
+	for _, zone := range ig.AllocationPolicy.Zones {
+		zones.Add(zone.ZoneId)
+	}
+
+	res["zones"] = zones
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	if ig.HealthChecksSpec == nil {
+		return nil, nil
+	}
+
+	res := make([]map[string]interface{}, len(ig.HealthChecksSpec.HealthCheckSpecs))
+
+	for i, spec := range ig.HealthChecksSpec.HealthCheckSpecs {
+		specDict := map[string]interface{}{}
+		specDict["interval"] = spec.Interval.Seconds
+		specDict["timeout"] = spec.Timeout.Seconds
+		specDict["healthy_threshold"] = spec.HealthyThreshold
+		specDict["unhealthy_threshold"] = spec.UnhealthyThreshold
+
+		if spec.GetHttpOptions() != nil {
+			specDict["http_options"] = map[string]interface{}{
+				"port": spec.GetHttpOptions().Port,
+				"path": spec.GetHttpOptions().Path,
+			}
+		}
+
+		if spec.GetTcpOptions() != nil {
+			specDict["tcp_options"] = map[string]interface{}{
+				"port": spec.GetTcpOptions().Port,
+			}
+		}
+
+		res[i] = specDict
+	}
+	return res, nil
+}
+
+func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if loadBalancerState := ig.GetLoadBalancerState(); loadBalancerState != nil {
+		res["target_group_id"] = loadBalancerState.TargetGroupId
+		res["status_message"] = loadBalancerState.StatusMessage
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	if ig.LoadBalancerSpec == nil || ig.LoadBalancerSpec.TargetGroupSpec == nil {
+		return nil, nil
+	}
+
+	res := map[string]interface{}{}
+	res["target_group_name"] = ig.LoadBalancerSpec.TargetGroupSpec.GetName()
+	res["target_group_description"] = ig.LoadBalancerSpec.TargetGroupSpec.GetDescription()
+	res["target_group_labels"] = ig.LoadBalancerSpec.TargetGroupSpec.GetLabels()
+
+	return []map[string]interface{}{res}, nil
+}
+
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
 	rs := &compute.ResourcesSpec{}
 
@@ -149,6 +382,24 @@ func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec
 	}
 
 	if v, ok := d.GetOk("resources.0.memory"); ok {
+		rs.Memory = toBytesFromFloat(v.(float64))
+	}
+
+	return rs, nil
+}
+
+func expandInstanceGroupResourcesSpec(d *schema.ResourceData, prefix string) (*instancegroup.ResourcesSpec, error) {
+	rs := &instancegroup.ResourcesSpec{}
+
+	if v, ok := d.GetOk(prefix + ".0.cores"); ok {
+		rs.Cores = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + ".0.core_fraction"); ok {
+		rs.CoreFraction = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + ".0.memory"); ok {
 		rs.Memory = toBytesFromFloat(v.(float64))
 	}
 
@@ -198,6 +449,35 @@ func expandInstanceBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSp
 	return ads, nil
 }
 
+func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix string) (*instancegroup.AttachedDiskSpec, error) {
+	ads := &instancegroup.AttachedDiskSpec{}
+
+	if v, ok := d.GetOk(prefix + ".device_name"); ok {
+		ads.DeviceName = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".mode"); ok {
+		diskMode, err := parseInstanceGroupDiskMode(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		ads.Mode = diskMode
+	}
+
+	// create new one disk
+	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
+		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0")
+		if err != nil {
+			return nil, err
+		}
+
+		ads.DiskSpec = bootDiskSpec
+	}
+
+	return ads, nil
+}
+
 func expandBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &compute.AttachedDiskSpec_DiskSpec{}
 
@@ -217,14 +497,44 @@ func expandBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskS
 		diskSpec.Size = toBytes(v.(int))
 	}
 
-	if v, b := d.GetOk("boot_disk.0.initialize_params.0.image_id"); b {
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image_id"); ok {
 		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_ImageId{
 			ImageId: v.(string),
 		}
 	}
 
-	if v, b := d.GetOk("boot_disk.0.initialize_params.0.snapshot_id"); b {
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.snapshot_id"); ok {
 		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_SnapshotId{
+			SnapshotId: v.(string),
+		}
+	}
+
+	return diskSpec, nil
+}
+
+func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
+	diskSpec := &instancegroup.AttachedDiskSpec_DiskSpec{}
+
+	if v, ok := d.GetOk(prefix + ".description"); ok {
+		diskSpec.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".type"); ok {
+		diskSpec.TypeId = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".size"); ok {
+		diskSpec.Size = toBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + ".image_id"); ok {
+		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_ImageId{
+			ImageId: v.(string),
+		}
+	}
+
+	if v, ok := d.GetOk(prefix + ".snapshot_id"); ok {
+		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_SnapshotId{
 			SnapshotId: v.(string),
 		}
 	}
@@ -240,6 +550,20 @@ func expandInstanceSecondaryDiskSpecs(d *schema.ResourceData) ([]*compute.Attach
 		diskConfig := d.Get(fmt.Sprintf("secondary_disk.%d", i)).(map[string]interface{})
 
 		disk, err := expandSecondaryDiskSpec(diskConfig)
+		if err != nil {
+			return nil, err
+		}
+		ads[i] = disk
+	}
+	return ads, nil
+}
+
+func expandInstanceGroupSecondaryDiskSpecs(d *schema.ResourceData, prefix string) ([]*instancegroup.AttachedDiskSpec, error) {
+	secondaryDisksCount := d.Get(prefix + ".#").(int)
+	ads := make([]*instancegroup.AttachedDiskSpec, secondaryDisksCount)
+
+	for i := 0; i < secondaryDisksCount; i++ {
+		disk, err := expandInstanceGroupTemplateAttachedDiskSpec(d, fmt.Sprintf(prefix+".%d", i))
 		if err != nil {
 			return nil, err
 		}
@@ -317,7 +641,7 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 			}
 		}
 
-		if enableNat, ok := data["nat"].(bool); ok && enableNat {
+		if nat, ok := data["nat"].(bool); ok && nat {
 			if nics[i].PrimaryV4AddressSpec == nil {
 				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
 					OneToOneNatSpec: &compute.OneToOneNatSpec{
@@ -335,12 +659,60 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 	return nics, nil
 }
 
+func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix string) ([]*instancegroup.NetworkInterfaceSpec, error) {
+	nicsConfig := d.Get(prefix).([]interface{})
+	nics := make([]*instancegroup.NetworkInterfaceSpec, len(nicsConfig))
+
+	for i, raw := range nicsConfig {
+		data := raw.(map[string]interface{})
+
+		nics[i] = &instancegroup.NetworkInterfaceSpec{
+			NetworkId: data["network_id"].(string),
+		}
+
+		if subnets, ok := data["subnet_ids"]; ok {
+			sub := subnets.(*schema.Set).List()
+
+			nics[i].SubnetIds = make([]string, 0)
+
+			for _, s := range sub {
+				nics[i].SubnetIds = append(nics[i].SubnetIds, s.(string))
+			}
+		}
+
+		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
+			nics[i].PrimaryV6AddressSpec = &instancegroup.PrimaryAddressSpec{}
+		}
+
+		if nat, ok := data["nat"].(bool); ok && nat {
+			nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{
+				OneToOneNatSpec: &instancegroup.OneToOneNatSpec{
+					IpVersion: instancegroup.IpVersion_IPV4,
+				},
+			}
+
+		} else {
+			nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{}
+		}
+	}
+
+	return nics, nil
+}
+
 func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
 	val, ok := compute.AttachedDiskSpec_Mode_value[mode]
 	if !ok {
 		return compute.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
 	}
 	return compute.AttachedDiskSpec_Mode(val), nil
+}
+
+func parseInstanceGroupDiskMode(mode string) (instancegroup.AttachedDiskSpec_Mode, error) {
+	val, ok := compute.AttachedDiskSpec_Mode_value[mode]
+	if !ok {
+		return instancegroup.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
+	}
+	return instancegroup.AttachedDiskSpec_Mode(val), nil
 }
 
 func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.SchedulingPolicy, error) {
@@ -425,4 +797,181 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 	}
 
 	return &sr, nil
+}
+
+// revive:disable:var-naming
+func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string) (*instancegroup.InstanceTemplate, error) {
+	var platformId, description, serviceAccount string
+
+	if v, ok := d.GetOk(prefix + ".platform_id"); ok {
+		platformId = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".description"); ok {
+		description = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".service_account_id"); ok {
+		serviceAccount = v.(string)
+	}
+
+	resourceSpec, err := expandInstanceGroupResourcesSpec(d, prefix+".resources")
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'resources' object of api request: %s", err)
+	}
+
+	bootDiskSpec, err := expandInstanceGroupTemplateAttachedDiskSpec(d, prefix+".boot_disk.0")
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'boot_disk' object of api request: %s", err)
+	}
+
+	secondaryDiskSpecs, err := expandInstanceGroupSecondaryDiskSpecs(d, prefix+".secondary_disk")
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'secondary_disk' object of api request: %s", err)
+	}
+
+	nicSpecs, err := expandInstanceGroupNetworkInterfaceSpecs(d, prefix+".network_interface")
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
+	}
+
+	schedulingPolicy, err := expandInstanceGroupSchedulingPolicy(d, prefix+".scheduling_policy")
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'scheduling_policy' object of api request: %s", err)
+	}
+
+	labels, err := expandLabels(d.Get(prefix + ".labels"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding labels while creating instance group: %s", err)
+	}
+
+	metadata, err := expandLabels(d.Get(prefix + ".metadata"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding metadata while creating instance group: %s", err)
+	}
+
+	template := &instancegroup.InstanceTemplate{
+		BootDiskSpec:          bootDiskSpec,
+		Description:           description,
+		Labels:                labels,
+		Metadata:              metadata,
+		NetworkInterfaceSpecs: nicSpecs,
+		PlatformId:            platformId,
+		ResourcesSpec:         resourceSpec,
+		SchedulingPolicy:      schedulingPolicy,
+		SecondaryDiskSpecs:    secondaryDiskSpecs,
+		ServiceAccountId:      serviceAccount,
+	}
+
+	return template, nil
+}
+
+func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.ScalePolicy, error) {
+	if _, ok := d.GetOk("scale_policy.0.fixed_scale"); ok {
+		v := d.Get("scale_policy.0.fixed_scale.0.size").(int)
+		policy := &instancegroup.ScalePolicy{
+			ScaleType: &instancegroup.ScalePolicy_FixedScale_{
+				FixedScale: &instancegroup.ScalePolicy_FixedScale{Size: int64(v)},
+			}}
+		return policy, nil
+	}
+
+	return nil, fmt.Errorf("Only fixed scale policy is supported")
+}
+
+func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.DeployPolicy, error) {
+	policy := &instancegroup.DeployPolicy{
+		MaxUnavailable: int64(d.Get("deploy_policy.0.max_unavailable").(int)),
+		MaxDeleting:    int64(d.Get("deploy_policy.0.max_deleting").(int)),
+		MaxCreating:    int64(d.Get("deploy_policy.0.max_creating").(int)),
+		MaxExpansion:   int64(d.Get("deploy_policy.0.max_expansion").(int)),
+	}
+
+	if v, ok := d.GetOk("deploy_policy.0.startup_duration"); ok {
+		policy.StartupDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+	return policy, nil
+}
+
+func expandInstanceGroupAllocationPolicy(d *schema.ResourceData) (*instancegroup.AllocationPolicy, error) {
+	if v, ok := d.GetOk("allocation_policy.0.zones"); ok {
+		zones := make([]*instancegroup.AllocationPolicy_Zone, 0)
+
+		for _, s := range v.(*schema.Set).List() {
+			zones = append(zones, &instancegroup.AllocationPolicy_Zone{ZoneId: s.(string)})
+		}
+
+		policy := &instancegroup.AllocationPolicy{Zones: zones}
+		return policy, nil
+	}
+
+	return nil, fmt.Errorf("Zones must be defined")
+}
+
+func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.HealthChecksSpec, error) {
+	checksCount := d.Get("health_check.#").(int)
+
+	if checksCount == 0 {
+		return nil, nil
+	}
+
+	checks := make([]*instancegroup.HealthCheckSpec, checksCount)
+
+	for i := 0; i < checksCount; i++ {
+		key := fmt.Sprintf("health_check.%d", i)
+		hc := &instancegroup.HealthCheckSpec{
+			HealthyThreshold:   int64(d.Get(key + ".healthy_threshold").(int)),
+			UnhealthyThreshold: int64(d.Get(key + ".unhealthy_threshold").(int)),
+		}
+		if v, ok := d.GetOk(key + ".interval"); ok {
+			hc.Interval = &duration.Duration{Seconds: int64(v.(int))}
+		}
+		if v, ok := d.GetOk(key + ".timeout"); ok {
+			hc.Timeout = &duration.Duration{Seconds: int64(v.(int))}
+		}
+		checks[i] = hc
+
+		if _, ok := d.GetOk(key + ".tcp_options"); ok {
+			hc.HealthCheckOptions = &instancegroup.HealthCheckSpec_TcpOptions_{TcpOptions: &instancegroup.HealthCheckSpec_TcpOptions{Port: int64(d.Get(key + ".tcp_options.0.port").(int))}}
+			continue
+		}
+
+		if _, ok := d.GetOk(key + ".http_options"); ok {
+			hc.HealthCheckOptions = &instancegroup.HealthCheckSpec_HttpOptions_{
+				HttpOptions: &instancegroup.HealthCheckSpec_HttpOptions{Port: int64(d.Get(key + ".http_options.0.port").(int)), Path: d.Get(key + ".http_options.0.path").(string)},
+			}
+			continue
+		}
+
+		return nil, fmt.Errorf("need tcp_options or http_options")
+	}
+
+	return &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}, nil
+}
+
+func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.LoadBalancerSpec, error) {
+	if _, ok := d.GetOk("load_balancer"); !ok {
+		return nil, nil
+	}
+
+	spec := &instancegroup.TargetGroupSpec{
+		Name:        d.Get("load_balancer.0.target_group_name").(string),
+		Description: d.Get("load_balancer.0.target_group_description").(string),
+	}
+
+	if v, ok := d.GetOk("load_balancer.0.target_group_labels"); !ok {
+		labels, err := expandLabels(v)
+		if err != nil {
+			return nil, fmt.Errorf("Error expanding labels: %s", err)
+		}
+
+		spec.Labels = labels
+	}
+
+	return &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}, nil
+}
+
+func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) (*instancegroup.SchedulingPolicy, error) {
+	p := d.Get(prefix + ".0.preemptible").(bool)
+	return &instancegroup.SchedulingPolicy{Preemptible: p}, nil
 }

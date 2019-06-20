@@ -1,7 +1,12 @@
 ## 0.7.1 (Unreleased)
-## 0.7.0 (June 06, 2019)
-* provider: Support SDK retries.  
+FEATURES:
+* **New Data Source**: `yandex_compute_instance_group`
+* **New Resource**: `yandex_compute_instance_group`
 
+## 0.7.0 (June 06, 2019)
+ENHANCEMENTS:
+* provider: Support SDK retries.  
+ 
 ## 0.6.0 (May 29, 2019)
 NOTES:
 * provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. 

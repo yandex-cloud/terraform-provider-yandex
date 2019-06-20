@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/grpc/codes"
@@ -24,6 +25,12 @@ var accessBindingSchema = map[string]*schema.Schema{
 			Type:         schema.TypeString,
 			ValidateFunc: validateIamMember,
 		},
+	},
+	// for test purposes, to compensate IAM operations delay
+	"sleep_after": {
+		Type:     schema.TypeInt,
+		Optional: true,
+		ForceNew: false,
 	},
 }
 
@@ -69,6 +76,11 @@ func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 
 		role := p[0].RoleId
 		d.SetId(updater.GetResourceID() + "/" + role)
+
+		if v, ok := d.GetOk("sleep_after"); ok {
+			time.Sleep(time.Second * time.Duration(v.(int)))
+		}
+
 		return resourceAccessBindingRead(newUpdaterFunc)(d, meta)
 	}
 }
