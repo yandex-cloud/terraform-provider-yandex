@@ -178,7 +178,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -238,11 +238,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -258,7 +257,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -322,11 +321,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -342,7 +340,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -407,11 +405,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -427,7 +424,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -495,11 +492,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -515,7 +511,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -585,11 +581,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -605,7 +600,7 @@ data "yandex_resourcemanager_folder" "test_folder" {
 }
 
 resource "yandex_compute_instance_group" "group1" {
-  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_binding.test_account"]
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
   name               = "%[2]s"
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
@@ -692,11 +687,10 @@ resource "yandex_iam_service_account" "test_account" {
   description = "tf-test"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "test_account" {
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  members     = ["serviceAccount:${yandex_iam_service_account.test_account.id}"]
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
-  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 

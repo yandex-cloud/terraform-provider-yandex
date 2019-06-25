@@ -66,7 +66,7 @@ func flattenInstanceBootDisk(instance *compute.Instance, diskServiceClient Reduc
 		"auto_delete": instance.BootDisk.AutoDelete,
 		"device_name": instance.BootDisk.DeviceName,
 		"disk_id":     instance.BootDisk.DiskId,
-		"mode":        instance.BootDisk.Mode.String(),
+		"mode":        instance.BootDisk.GetMode().String(),
 	}
 
 	disk, err := diskServiceClient.Get(context.Background(), &compute.GetDiskRequest{
@@ -95,7 +95,7 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 		disk := map[string]interface{}{
 			"disk_id":     instanceDisk.DiskId,
 			"device_name": instanceDisk.DeviceName,
-			"mode":        instanceDisk.Mode.String(),
+			"mode":        instanceDisk.GetMode().String(),
 			"auto_delete": instanceDisk.AutoDelete,
 		}
 		secondaryDisks = append(secondaryDisks, disk)
