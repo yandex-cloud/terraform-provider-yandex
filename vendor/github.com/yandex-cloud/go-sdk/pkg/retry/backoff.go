@@ -16,14 +16,14 @@ func BackoffLinearWithJitter(waitBetween time.Duration, jitterFraction float64) 
 
 func BackoffExponentialWithJitter(base time.Duration, cap time.Duration) BackoffFunc {
 	return func(attempt int) time.Duration {
-		to := getExponentialTimeout(attempt, base) * rand.Float64()
+		to := getExponentialTimeout(attempt, base)
 		// Using float types here, because exponential time can be really big, and converting it to time.Duration may
 		// result in undefined behaviour. Its safe conversion, when we have compared it to our 'cap' value.
 		if to > float64(cap) {
-			return cap
+			to = float64(cap)
 		}
 
-		return time.Duration(to)
+		return time.Duration(to * rand.Float64())
 	}
 }
 

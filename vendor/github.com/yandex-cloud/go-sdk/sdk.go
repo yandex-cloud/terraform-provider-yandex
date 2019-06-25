@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
+	iampb "github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-sdk/dial"
 	apiendpoint "github.com/yandex-cloud/go-sdk/gen/apiendpoint"
@@ -92,9 +93,10 @@ func Build(ctx context.Context, conf Config, customOpts ...grpc.DialOption) (*SD
 		conf.DialContextTimeout = DefaultTimeout
 	}
 
-	creds, ok := conf.Credentials.(ExchangeableCredentials)
-	if !ok {
-		return nil, fmt.Errorf("unsupported credentials type %T", conf.Credentials)
+	switch creds := conf.Credentials.(type) {
+	case ExchangeableCredentials, NonExchangeableCredentials:
+	default:
+		return nil, fmt.Errorf("unsupported credentials type %T", creds)
 	}
 	var dialOpts []grpc.DialOption
 
@@ -107,7 +109,7 @@ func Build(ctx context.Context, conf Config, customOpts ...grpc.DialOption) (*SD
 			return dialer(ctx, target)
 		}))
 
-	rpcCreds := newRPCCredentials(creds, conf.Plaintext)
+	rpcCreds := newRPCCredentials(conf.Plaintext)
 	dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(rpcCreds))
 	if conf.DialContextTimeout > 0 {
 		dialOpts = append(dialOpts, grpc.WithBlock(), grpc.WithTimeout(conf.DialContextTimeout)) // nolint
@@ -130,7 +132,7 @@ func Build(ctx context.Context, conf Config, customOpts ...grpc.DialOption) (*SD
 		cc:   cc,
 		conf: conf,
 	}
-	rpcCreds.Init(sdk.getConn(IAMServiceID))
+	rpcCreds.Init(sdk.CreateIAMToken)
 	return sdk, nil
 }
 
@@ -197,8 +199,6 @@ func (sdk *SDK) Resolve(ctx context.Context, r ...Resolver) error {
 	}
 	return sdkerrors.CombineGoroutines(args...)
 }
-
-type lazyConn func(ctx context.Context) (*grpc.ClientConn, error)
 
 func (sdk *SDK) getConn(serviceID Endpoint) func(ctx context.Context) (*grpc.ClientConn, error) {
 	return func(ctx context.Context) (*grpc.ClientConn, error) {
@@ -275,4 +275,20 @@ func (sdk *SDK) initConns(ctx context.Context) error {
 	sdk.endpoints.initDone = true
 	sdk.endpoints.mu.Unlock()
 	return nil
+}
+
+func (sdk *SDK) CreateIAMToken(ctx context.Context) (*iampb.CreateIamTokenResponse, error) {
+	creds := sdk.conf.Credentials
+	switch creds := creds.(type) {
+	case ExchangeableCredentials:
+		req, err := creds.IAMTokenRequest()
+		if err != nil {
+			return nil, sdkerrors.WithMessage(err, "IAM token request build failed")
+		}
+		return sdk.IAM().IamToken().Create(ctx, req)
+	case NonExchangeableCredentials:
+		return creds.IAMToken(ctx)
+	default:
+		return nil, fmt.Errorf("credentials type %T is not supported yet", creds)
+	}
 }

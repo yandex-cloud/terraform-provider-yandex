@@ -7,6 +7,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	mysql "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	redis "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -81,6 +82,25 @@ type redisClusterResolver struct {
 
 func (r *redisClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
 	resp, err := sdk.MDB().Redis().Cluster().List(ctx, &redis.ListClustersRequest{
+		FolderId: r.FolderID(),
+		Filter:   CreateResolverFilter("name", r.Name),
+		PageSize: DefaultResolverPageSize,
+	})
+	return r.findName("cluster", resp.GetClusters(), err)
+}
+
+func MySQLClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
+	return &mySQLClusterResolver{
+		BaseResolver: NewBaseResolver(name, opts...),
+	}
+}
+
+type mySQLClusterResolver struct {
+	BaseResolver
+}
+
+func (r *mySQLClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	resp, err := sdk.MDB().MySQL().Cluster().List(ctx, &mysql.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,

@@ -350,10 +350,10 @@ github.com/xanzy/ssh-agent v0.2.1 h1:TCbipTQL2JiiCprBWx9frJ2eJlCYT00NmctrHxVAr70
 github.com/xanzy/ssh-agent v0.2.1/go.mod h1:mLlQY/MoOhWBj+gOGMQkOeiEvkx+8pJSI+0Bx9h2kr4=
 github.com/xiang90/probing v0.0.0-20160813154853-07dd2e8dfe18/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xlab/treeprint v0.0.0-20161029104018-1d6e34225557/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
-github.com/yandex-cloud/go-genproto v0.0.0-20190401174212-1db0ef3dce9b h1:WcWw17zHjM1QoM5dPD2XUK9S0wSKlyohlCMeb1rwr0g=
-github.com/yandex-cloud/go-genproto v0.0.0-20190401174212-1db0ef3dce9b/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-sdk v0.0.0-20190402114215-3fc1d6947035 h1:2ZLZeg6xp+kYYGR2iMWSZyTn6j8bphNguO3drw7S1l4=
-github.com/yandex-cloud/go-sdk v0.0.0-20190402114215-3fc1d6947035/go.mod h1:Eml0jFLU4VVHgIN8zPHMuNwZXVzUMILyO6lQZSfz854=
+github.com/yandex-cloud/go-genproto v0.0.0-20190625081755-f08fba0be31a h1:kAFE3H5jYXy3CS7IvMMwOmJVmgH+bKi6U+eYc7o709Y=
+github.com/yandex-cloud/go-genproto v0.0.0-20190625081755-f08fba0be31a/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-sdk v0.0.0-20190624171255-64563a5659cc h1:qQ5sa5PeTHyt0p1zMq4VT0BaYbzBk8G3l8+CyU7FQcE=
+github.com/yandex-cloud/go-sdk v0.0.0-20190624171255-64563a5659cc/go.mod h1:Eml0jFLU4VVHgIN8zPHMuNwZXVzUMILyO6lQZSfz854=
 github.com/zclconf/go-cty v0.0.0-20181129180422-88fbe721e0f8/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v0.0.0-20190426224007-b18a157db9e2/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v0.0.0-20190516203816-4fecf87372ec h1:MSeYjmyjucsFbecMTxg63ASg23lcSARP/kr9sClTFfk=

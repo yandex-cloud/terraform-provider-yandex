@@ -148,6 +148,15 @@ func (c *ClusterServiceClient) Start(ctx context.Context, in *redis.StartCluster
 	return redis.NewClusterServiceClient(conn).Start(ctx, in, opts...)
 }
 
+// StartFailover implements redis.ClusterServiceClient
+func (c *ClusterServiceClient) StartFailover(ctx context.Context, in *redis.StartClusterFailoverRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return redis.NewClusterServiceClient(conn).StartFailover(ctx, in, opts...)
+}
+
 // Stop implements redis.ClusterServiceClient
 func (c *ClusterServiceClient) Stop(ctx context.Context, in *redis.StopClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

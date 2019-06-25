@@ -12,8 +12,8 @@ require (
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20190401174212-1db0ef3dce9b
-	github.com/yandex-cloud/go-sdk v0.0.0-20190402114215-3fc1d6947035
+	github.com/yandex-cloud/go-genproto v0.0.0-20190625081755-f08fba0be31a
+	github.com/yandex-cloud/go-sdk v0.0.0-20190624171255-64563a5659cc
 	golang.org/x/net v0.0.0-20190502183928-7f726cade0ab
 	google.golang.org/genproto v0.0.0-20190401181712-f467c93bbac2
 	google.golang.org/grpc v1.19.0

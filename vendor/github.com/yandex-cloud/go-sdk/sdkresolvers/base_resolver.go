@@ -25,7 +25,7 @@ type resolveOptions struct {
 
 type ResolveOption func(*resolveOptions)
 
-func Out(out *string) func(*resolveOptions) {
+func Out(out *string) ResolveOption {
 	return func(o *resolveOptions) {
 		o.out = out
 	}
