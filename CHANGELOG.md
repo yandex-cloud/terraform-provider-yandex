@@ -1,4 +1,4 @@
-## 0.7.1 (Unreleased)
+## 0.8.0 (Unreleased)
 FEATURES:
 * **New Data Source**: `yandex_compute_instance_group`
 * **New Resource**: `yandex_compute_instance_group`
