@@ -1,4 +1,4 @@
-## 0.8.0 (Unreleased)
+## 0.8.0 (June 25, 2019)
 FEATURES:
 * **New Data Source**: `yandex_compute_instance_group`
 * **New Resource**: `yandex_compute_instance_group`
