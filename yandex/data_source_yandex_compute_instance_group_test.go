@@ -61,7 +61,6 @@ func testAccDataSourceComputeInstanceGroupCheck(datasourceName string, resourceN
 			"name",
 			"folder_id",
 			"description",
-			"labels.%",
 			"instance_template.0.labels.%",
 			"instance_template.0.metadata.%",
 			"instance_template.0.boot_disk.0.initialize_params.0.type",

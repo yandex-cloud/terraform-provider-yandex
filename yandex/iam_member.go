@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/grpc/codes"
@@ -23,6 +24,12 @@ var IamMemberBaseSchema = map[string]*schema.Schema{
 		Required:     true,
 		ForceNew:     true,
 		ValidateFunc: validateIamMember,
+	},
+	// for test purposes, to compensate IAM operations delay
+	"sleep_after": {
+		Type:     schema.TypeInt,
+		Optional: true,
+		ForceNew: true,
 	},
 }
 
@@ -106,6 +113,11 @@ func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.Cr
 			return err
 		}
 		d.SetId(updater.GetResourceID() + "/" + p.RoleId + "/" + canonicalMember(p))
+
+		if v, ok := d.GetOk("sleep_after"); ok {
+			time.Sleep(time.Second * time.Duration(v.(int)))
+		}
+
 		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
 	}
 }

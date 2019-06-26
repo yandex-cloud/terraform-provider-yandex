@@ -242,6 +242,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -325,6 +326,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -409,6 +411,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -496,6 +499,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -585,6 +589,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 }
@@ -691,6 +696,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
   member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
   role        = "editor"
+  sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
 
