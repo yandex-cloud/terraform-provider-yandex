@@ -129,7 +129,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Default:      "READ_WRITE",
-										ValidateFunc: validation.StringInSlice([]string{"READ_ONLY", "READ_WRITE"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"READ_WRITE"}, false),
 									},
 
 									"device_name": {

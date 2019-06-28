@@ -620,12 +620,12 @@ resource "yandex_compute_instance_group" "group1" {
     }
 
     boot_disk {
-      mode = "READ_ONLY"
+      mode = "READ_WRITE"
 
       initialize_params {
         image_id = "${data.yandex_compute_image.ubuntu.id}"
         size     = 4
-        type = "network-nvme"
+        type = "network-hdd"
       }
     }
 
@@ -821,7 +821,7 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 			return fmt.Errorf("invalid Preemptible value in instancegroup %s", ig.Name)
 		}
 		// BootDisk
-		bootDisk := &Disk{Mode: "READ_ONLY", Size: 4, Type: "network-nvme"}
+		bootDisk := &Disk{Mode: "READ_WRITE", Size: 4, Type: "network-hdd"}
 		if err := checkDisk(fmt.Sprintf("instancegroup %s boot disk", ig.Name), ig.GetInstanceTemplate().BootDiskSpec, bootDisk); err != nil {
 			return err
 		}
