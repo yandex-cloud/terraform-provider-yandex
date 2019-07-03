@@ -1,4 +1,7 @@
-## 0.9.0 (Unreleased)
+## 0.8.1 (Unreleased)
+BUG FIXES:
+* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [GH-13].   
+
 ## 0.8.0 (June 25, 2019)
 FEATURES:
 * **New Data Source**: `yandex_compute_instance_group`
