@@ -959,7 +959,7 @@ func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup
 		Description: d.Get("load_balancer.0.target_group_description").(string),
 	}
 
-	if v, ok := d.GetOk("load_balancer.0.target_group_labels"); !ok {
+	if v, ok := d.GetOk("load_balancer.0.target_group_labels"); ok {
 		labels, err := expandLabels(v)
 		if err != nil {
 			return nil, fmt.Errorf("Error expanding labels: %s", err)
