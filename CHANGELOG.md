@@ -1,6 +1,6 @@
-## 0.8.1 (Unreleased)
+## 0.8.1 (July 04, 2019)
 BUG FIXES:
-* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [GH-13].   
+* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/yandex-cloud/terraform-provider-yandex/issues/13)].   
 
 ## 0.8.0 (June 25, 2019)
 FEATURES:
