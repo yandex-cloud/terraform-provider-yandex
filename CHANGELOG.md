@@ -1,7 +1,7 @@
 ## 0.9.0 (Unreleased)
 ## 0.8.1 (July 04, 2019)
 BUG FIXES:
-* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/yandex-cloud/terraform-provider-yandex/issues/13)].   
+* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/terraform-providers/terraform-provider-yandex/issues/13)].   
 
 ## 0.8.0 (June 25, 2019)
 FEATURES:
@@ -15,7 +15,7 @@ ENHANCEMENTS:
 ## 0.6.0 (May 29, 2019)
 NOTES:
 * provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. 
-* provider: Switch dependency management to Go modules. ([#5](https://github.com/yandex-cloud/terraform-provider-yandex/issues/5))
+* provider: Switch dependency management to Go modules. ([#5](https://github.com/terraform-providers/terraform-provider-yandex/issues/5))
 
 ## 0.5.2 (April 24, 2019)
 ENHANCEMENTS:
@@ -50,7 +50,7 @@ ENHANCEMENTS:
 
 ## 0.2.0 (March 26, 2019)
 ENHANCEMENTS:
-* provider: authentication with service account key file. ([#3](https://github.com/yandex-cloud/terraform-provider-yandex/issues/3))
+* provider: authentication with service account key file. ([#3](https://github.com/terraform-providers/terraform-provider-yandex/issues/3))
 * vpc: increase subnet create/update/delete timeout.
 * vpc: resolve data source `network`, `subnet` by name.
 * compute: resolve data source `instance`, `disk`, `image`, `snapshot` objects by names.
