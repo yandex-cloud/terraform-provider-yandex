@@ -35,11 +35,6 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
-			"folder_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -363,6 +358,13 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"labels": {

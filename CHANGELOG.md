@@ -1,4 +1,7 @@
-## 0.9.0 (Unreleased)
+## 0.8.2 (Unreleased)
+BUG FIXES:
+* compute: change attribute `folder_id` from Required to Optional for `yandex_compute_instance_group` resource [GH-14].
+   
 ## 0.8.1 (July 04, 2019)
 BUG FIXES:
 * compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/terraform-providers/terraform-provider-yandex/issues/13)].   

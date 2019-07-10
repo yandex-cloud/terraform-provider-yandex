@@ -36,40 +36,61 @@ The following arguments are supported:
 * `folder_id` - The ID of the folder that the instance group belongs to.
 * `labels` - A set of key/value label pairs to assign to the instance group.
 * `health_check` - Health check specification.
+
 The structure is documented below.
+
 * `load_balancer` - Load balancing specification.
+
 The structure is documented below.
+
 * `deploy_policy` - The deployment policy of the instance group.
+
 The structure is documented below.
+
 * `allocation_policy` - The allocation policy of the instance group by zone and region.
+
 The structure is documented below.
+
 * `instances` - A list of instances in the specified instance group.
+
 The structure is documented below.
+
 * `instance_template` - The instance template that the instance group belongs to.
+
 The structure is documented below.
+
 * `service_account_id` - The ID of the service account authorized for this instance group. 
 * `scale_policy` - The scaling policy of the instance group.
+
 The structure is documented below.
+
 * `load_balancer_state` - Information about which entities can be attached to this load balancer.
+
 The structure is documented below.
+
 * `created_at` - The instance group creation timestamp.
+
 ---
 
 The `load_balancer_state` block supports:
 
 * `target_group_id` - The ID of the target group used for load balancing.
 * `status_message` - The status message of the target group.
+
 ---
 
 The `scale_policy` block supports:
 
 * `fixed_scale` - The fixed scaling policy of the instance group.
+
 The structure is documented below.
+
 ---
 
 The `fixed_scale` block supports:
 
 * `size` - The number of instances in the instance group.
+
 ---
 
 The `instance_template` block supports:
@@ -89,7 +110,9 @@ The structure is documented below.
 * `secondary_disk` - An array with the secondary disks that will be attached to the instance.
 The structure is documented below.
 * `boot_disk` - The specifications for boot disks that will be attached to the instance.
+
 The structure is documented below.
+
 ---
 
 The `boot_disk` block supports:
@@ -97,7 +120,9 @@ The `boot_disk` block supports:
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `initialize_params` - The parameters used for creating a disk alongside the instance.
+
 The structure is documented below.
+
 ---
 
 The `initialize_params` block supports:
@@ -107,6 +132,7 @@ The `initialize_params` block supports:
 * `type` - The disk type.
 * `image_id` - The disk image to initialize this disk from.
 * `snapshot_id` - The snapshot to initialize this disk from.
+
 ---
 
 The `secondary_disk` block supports:
@@ -115,6 +141,7 @@ The `secondary_disk` block supports:
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `initialize_params` - The parameters used for creating a disk alongside the instance.
 The structure is documented below.
+
 ---
 
 The `initialize_params` block supports:
@@ -124,6 +151,7 @@ The `initialize_params` block supports:
 * `type` - The disk type.
 * `image_id` - The disk image to initialize this disk from.
 * `snapshot_id` - The snapshot to initialize this disk from.
+
 ---
 
 The `network_interface` block supports:
@@ -131,11 +159,13 @@ The `network_interface` block supports:
 * `network_id` - The ID of the network.
 * `subnet_ids` - The IDs of the subnets.
 * `nat` - A public address that can be used to access the internet over NAT.
+
 ---
 
 The `scheduling_policy` block supports:
 
 * `preemptible` - Specifies if the instance is preemptible. Defaults to false.
+
 ---
 
 The `instances` block supports:
@@ -147,7 +177,9 @@ The `instances` block supports:
 * `status_message` - The status message of the instance.
 * `zone_id` - The ID of the availability zone where the instance resides.
 * `network_interface` - An array with the network interfaces attached to the managed instance.
+
 The structure is documented below.
+
 ---
 
 The `network_interface` block supports:
@@ -165,6 +197,7 @@ The `network_interface` block supports:
 The `allocation_policy` block supports:
 
 * `zones` - A list of availability zones.
+
 ---
 
 The `deploy_policy` block supports:
@@ -175,8 +208,10 @@ during the update process.
 * `max_deleting` - The maximum number of instances that can be deleted at the same time.
 * `max_creating` - The maximum number of instances that can be created at the same time.
 * `startup_duration` - The amount of time in seconds to allow for an instance to start.
+
 Instance will be considered up and running (and start receiving traffic) only after the startup_duration
 has elapsed and all health checks are passed.
+
 ---
 
 The `load_balancer` block supports:
@@ -184,6 +219,7 @@ The `load_balancer` block supports:
 * `target_group_name` - The name of the target group.
 * `target_group_description` - A description of the target group.
 * `target_group_labels` - A set of key/value label pairs.
+
 ---
 
 The `health_check` block supports:
@@ -193,15 +229,20 @@ The `health_check` block supports:
 * `healthy_threshold` - The number of successful health checks before the managed instance is declared healthy.
 * `unhealthy_threshold` - The number of failed health checks before the managed instance is declared unhealthy.
 * `tcp_options` - TCP check options.
+
 The structure is documented below.
+
 * `http_options` - HTTP check options.
+
 The structure is documented below.
+
 ---
 
 The `http_options` block supports:
 
 * `port` - The port used for HTTP health checks.
 * `path` - The URL path used for health check requests.
+
 ---
 
 The `tcp_options` block supports:
