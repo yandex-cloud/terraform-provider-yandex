@@ -342,6 +342,29 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_bootDisk_size(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_bootDisk_size(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 	t.Parallel()
 
@@ -469,6 +492,43 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Set fields that require stopping the instance to update
+			{
+				Config: testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
+					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 1),
+				),
+			},
+			computeInstanceImportStep(),
+			// Check that instance resources was updated
+			{
+				Config: testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform2(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 50, 1),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1687,6 +1747,42 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, disk, instance)
 }
 
+func testAccComputeInstance_bootDisk_size(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "centos7" {
+  family = "centos-7"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%s"
+  zone = "ru-central1-a"
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.centos7.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
 func testAccComputeInstance_bootDisk_type(instance string, diskType string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -1976,6 +2072,86 @@ resource "yandex_compute_instance" "foobar" {
   resources {
     cores  = 1
     memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  zone        = "ru-central1-b"
+  platform_id = "standard-v1"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores         = 1
+    core_fraction = 100
+    memory        = 1
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform2(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  zone        = "ru-central1-b"
+  platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores         = 2
+    core_fraction = 50
+    memory        = 1
   }
 
   boot_disk {

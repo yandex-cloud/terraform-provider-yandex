@@ -1,0 +1,218 @@
+package yandex
+
+import (
+	"context"
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
+)
+
+const tgResource = "yandex_lb_target_group.test-tg"
+
+func targetGroupImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      tgResource,
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
+
+func TestAccLBTargetGroup_basic(t *testing.T) {
+	t.Parallel()
+
+	var tg loadbalancer.TargetGroup
+	tgName := acctest.RandomWithPrefix("tf-target-group")
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBTargetGroupBasic(tgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					resource.TestCheckResourceAttr(tgResource, "name", tgName),
+					resource.TestCheckResourceAttrSet(tgResource, "folder_id"),
+					resource.TestCheckResourceAttr(tgResource, "folder_id", folderID),
+					testAccCheckLBTargetGroupContainsLabel(&tg, "tf-label", "tf-label-value"),
+					testAccCheckLBTargetGroupContainsLabel(&tg, "empty-label", ""),
+					testAccCheckCreatedAtAttr(tgResource),
+					testAccCheckLBTargetGroupValues(&tg, []string{}),
+				),
+			},
+			targetGroupImportStep(),
+		},
+	})
+}
+
+func TestAccLBTargetGroup_full(t *testing.T) {
+	t.Parallel()
+
+	var tg loadbalancer.TargetGroup
+	targetPath := ""
+	instancePrefix := acctest.RandomWithPrefix("tf-instance")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBTargetGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBGeneralTGTemplate(
+					"tf-target-group", "tf-descr", testAccLBBaseTemplate(instancePrefix), 1, false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					testAccCheckLBTargetGroupValues(&tg, []string{fmt.Sprintf("%s-1", instancePrefix)}),
+					testExistsFirstElementWithAttr(
+						tgResource, "target", "subnet_id", &targetPath,
+					),
+					testCheckResourceSubAttrFn(
+						tgResource, &targetPath, "subnet_id", func(value string) error {
+							subnetID := tg.GetTargets()[0].SubnetId
+							if value != subnetID {
+								return fmt.Errorf("TargetGroup's target's sudnet_id doesnt't match. %s != %s", value, subnetID)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						tgResource, &targetPath, "address", func(value string) error {
+							address := tg.GetTargets()[0].Address
+							if value != address {
+								return fmt.Errorf("TargetGroup's target's address doesnt't match. %s != %s", value, address)
+							}
+							return nil
+						},
+					),
+				),
+			},
+			targetGroupImportStep(),
+		},
+	})
+}
+
+func TestAccLBTargetGroup_update(t *testing.T) {
+	var tg loadbalancer.TargetGroup
+	instancePrefix := acctest.RandomWithPrefix("tf-instance")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBGeneralTGTemplate(
+					"tf-target-group", "tf-descr", testAccLBBaseTemplate(instancePrefix), 1, false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					testAccCheckLBTargetGroupValues(&tg, []string{fmt.Sprintf("%s-1", instancePrefix)}),
+				),
+			},
+			{
+				Config: testAccLBGeneralTGTemplate(
+					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 1, false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					testAccCheckLBTargetGroupValues(&tg, []string{fmt.Sprintf("%s-1", instancePrefix)}),
+				),
+			},
+			{
+				Config: testAccLBGeneralTGTemplate(
+					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 2, false,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBTargetGroupExists(tgResource, &tg),
+					testAccCheckLBTargetGroupValues(&tg, []string{
+						fmt.Sprintf("%s-1", instancePrefix), fmt.Sprintf("%s-2", instancePrefix),
+					}),
+				),
+			},
+			targetGroupImportStep(),
+		},
+	})
+}
+
+func testAccCheckLBTargetGroupDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_lb_target_group" {
+			continue
+		}
+
+		_, err := config.sdk.LoadBalancer().TargetGroup().Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
+			TargetGroupId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("TargetGroup still exists")
+		}
+	}
+
+	return nil
+}
+
+func testAccCheckLBTargetGroupExists(tgName string, tg *loadbalancer.TargetGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[tgName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", tgName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.LoadBalancer().TargetGroup().Get(context.Background(), &loadbalancer.GetTargetGroupRequest{
+			TargetGroupId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("TargetGroup not found")
+		}
+
+		*tg = *found
+
+		return nil
+	}
+}
+
+func testAccCheckLBTargetGroupContainsLabel(tg *loadbalancer.TargetGroup, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := tg.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testAccLBTargetGroupBasic(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_lb_target_group" "test-tg" {
+  name		= "%s"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+}
+`, name)
+}

@@ -19,6 +19,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -350,4 +351,32 @@ func resolveObjectID(ctx context.Context, config *Config, name string, resolverF
 	}
 
 	return objectID, nil
+}
+
+func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, err error) {
+	ctx := context.Background()
+
+	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
+		SnapshotId: snapshotID,
+	})
+
+	if err != nil {
+		return 0, fmt.Errorf("Error on retrieve snapshot properties: %s", err)
+	}
+
+	return snapshot.DiskSize, nil
+}
+
+func getImageMinStorageSize(imageID string, config *Config) (size int64, err error) {
+	ctx := context.Background()
+
+	image, err := config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
+		ImageId: imageID,
+	})
+
+	if err != nil {
+		return 0, fmt.Errorf("Error on retrieve image properties: %s", err)
+	}
+
+	return image.MinDiskSize, nil
 }

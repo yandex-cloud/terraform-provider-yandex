@@ -406,7 +406,7 @@ func expandInstanceGroupResourcesSpec(d *schema.ResourceData, prefix string) (*i
 	return rs, nil
 }
 
-func expandInstanceBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec, error) {
+func expandInstanceBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.AttachedDiskSpec, error) {
 	ads := &compute.AttachedDiskSpec{}
 
 	if v, ok := d.GetOk("boot_disk.0.auto_delete"); ok {
@@ -436,7 +436,7 @@ func expandInstanceBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSp
 
 	// create new one disk
 	if _, ok := d.GetOk("boot_disk.0.initialize_params"); ok {
-		bootDiskSpec, err := expandBootDiskSpec(d)
+		bootDiskSpec, err := expandBootDiskSpec(d, config)
 		if err != nil {
 			return nil, err
 		}
@@ -478,7 +478,7 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 	return ads, nil
 }
 
-func expandBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskSpec, error) {
+func expandBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &compute.AttachedDiskSpec_DiskSpec{}
 
 	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.name"); ok {
@@ -493,20 +493,39 @@ func expandBootDiskSpec(d *schema.ResourceData) (*compute.AttachedDiskSpec_DiskS
 		diskSpec.TypeId = v.(string)
 	}
 
+	var minStorageSizeBytes int64
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image_id"); ok {
+		imageID := v.(string)
+		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_ImageId{
+			ImageId: imageID,
+		}
+
+		size, err := getImageMinStorageSize(imageID, config)
+		if err != nil {
+			return nil, err
+		}
+		minStorageSizeBytes = size
+	}
+
+	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.snapshot_id"); ok {
+		snapshotID := v.(string)
+		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_SnapshotId{
+			SnapshotId: snapshotID,
+		}
+
+		size, err := getSnapshotMinStorageSize(snapshotID, config)
+		if err != nil {
+			return nil, err
+		}
+		minStorageSizeBytes = size
+	}
+
 	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.size"); ok {
 		diskSpec.Size = toBytes(v.(int))
 	}
 
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.image_id"); ok {
-		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_ImageId{
-			ImageId: v.(string),
-		}
-	}
-
-	if v, ok := d.GetOk("boot_disk.0.initialize_params.0.snapshot_id"); ok {
-		diskSpec.Source = &compute.AttachedDiskSpec_DiskSpec_SnapshotId{
-			SnapshotId: v.(string),
-		}
+	if diskSpec.Size == 0 {
+		diskSpec.Size = minStorageSizeBytes
 	}
 
 	return diskSpec, nil

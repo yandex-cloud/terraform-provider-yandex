@@ -1,4 +1,14 @@
-## 0.8.3 (Unreleased)
+## 0.9.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_lb_network_load_balancer`
+* **New Data Source:** `yandex_lb_target_group`
+* **New Resource:** `yandex_lb_network_load_balancer`
+* **New Resource:** `yandex_lb_target_group`
+
+ENHANCEMENTS:
+* compute: use `min_disk_size` of image or '' of snapshot to set size of boot_disk on instance create.
+* compute: update instance resource spec and platform type in one request.
+
 ## 0.8.2 (July 10, 2019)
 BUG FIXES:
 * compute: change attribute `folder_id` from Required to Optional for `yandex_compute_instance_group` resource [[#14](https://github.com/terraform-providers/terraform-provider-yandex/issues/14)].

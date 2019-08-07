@@ -134,7 +134,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 										Optional:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
-										Default:      8,
+										Default:      0,
 									},
 
 									"type": {
@@ -604,13 +604,37 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		if d.HasChange(platformIDPropName) {
+		// update platform and resources in one request
+		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) {
 			req := &compute.UpdateInstanceRequest{
 				InstanceId: d.Id(),
-				PlatformId: d.Get(platformIDPropName).(string),
 				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{platformIDPropName},
+					Paths: []string{},
 				},
+			}
+			onDone := []func(){}
+
+			if d.HasChange(resourcesPropName) {
+				spec, err := expandInstanceResourcesSpec(d)
+				if err != nil {
+					return err
+				}
+
+				req.ResourcesSpec = spec
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "resources_spec")
+
+				onDone = append(onDone, func() {
+					d.SetPartial(resourcesPropName)
+				})
+			}
+
+			if d.HasChange(platformIDPropName) {
+				req.PlatformId = d.Get(platformIDPropName).(string)
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, platformIDPropName)
+
+				onDone = append(onDone, func() {
+					d.SetPartial(platformIDPropName)
+				})
 			}
 
 			err = makeInstanceUpdateRequest(req, d, meta)
@@ -618,28 +642,9 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				return err
 			}
 
-			d.SetPartial(platformIDPropName)
-		}
-
-		if d.HasChange(resourcesPropName) {
-			spec, err := expandInstanceResourcesSpec(d)
-			if err != nil {
-				return err
+			for _, f := range onDone {
+				f()
 			}
-			req := &compute.UpdateInstanceRequest{
-				InstanceId: d.Id(),
-				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{"resources_spec"},
-				},
-				ResourcesSpec: spec,
-			}
-
-			err = makeInstanceUpdateRequest(req, d, meta)
-			if err != nil {
-				return err
-			}
-
-			d.SetPartial(resourcesPropName)
 		}
 
 		if d.HasChange(secDiskPropName) {
@@ -798,7 +803,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'resources_spec' object of api request: %s", err)
 	}
 
-	bootDiskSpec, err := expandInstanceBootDiskSpec(d)
+	bootDiskSpec, err := expandInstanceBootDiskSpec(d, meta)
 	if err != nil {
 		return nil, fmt.Errorf("Error create 'boot_disk' object of api request: %s", err)
 	}
