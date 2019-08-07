@@ -1,4 +1,4 @@
-## 0.9.0 (Unreleased)
+## 0.9.0 (August 07, 2019)
 FEATURES:
 * **New Data Source:** `yandex_lb_network_load_balancer`
 * **New Data Source:** `yandex_lb_target_group`
