@@ -6,7 +6,7 @@ FEATURES:
 * **New Resource:** `yandex_lb_target_group`
 
 ENHANCEMENTS:
-* compute: use `min_disk_size` of image or '' of snapshot to set size of boot_disk on instance create.
+* compute: use `min_disk_size` of image or 'disk_size' of snapshot to set size of boot_disk on instance create.
 * compute: update instance resource spec and platform type in one request.
 
 ## 0.8.2 (July 10, 2019)
