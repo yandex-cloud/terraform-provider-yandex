@@ -132,9 +132,9 @@ func resourceYandexComputeInstance() *schema.Resource {
 									"size": {
 										Type:         schema.TypeInt,
 										Optional:     true,
+										Computed:     true,
 										ForceNew:     true,
 										ValidateFunc: validation.IntAtLeast(1),
-										Default:      0,
 									},
 
 									"type": {

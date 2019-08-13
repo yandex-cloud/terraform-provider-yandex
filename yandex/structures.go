@@ -449,7 +449,7 @@ func expandInstanceBootDiskSpec(d *schema.ResourceData, config *Config) (*comput
 	return ads, nil
 }
 
-func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix string) (*instancegroup.AttachedDiskSpec, error) {
+func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec, error) {
 	ads := &instancegroup.AttachedDiskSpec{}
 
 	if v, ok := d.GetOk(prefix + ".device_name"); ok {
@@ -467,7 +467,7 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 
 	// create new one disk
 	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
-		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0")
+		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0", config)
 		if err != nil {
 			return nil, err
 		}
@@ -531,7 +531,7 @@ func expandBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.Attach
 	return diskSpec, nil
 }
 
-func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
+func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &instancegroup.AttachedDiskSpec_DiskSpec{}
 
 	if v, ok := d.GetOk(prefix + ".description"); ok {
@@ -542,20 +542,39 @@ func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix stri
 		diskSpec.TypeId = v.(string)
 	}
 
+	var minStorageSizeBytes int64
+	if v, ok := d.GetOk(prefix + ".image_id"); ok {
+		imageID := v.(string)
+		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_ImageId{
+			ImageId: imageID,
+		}
+
+		size, err := getImageMinStorageSize(imageID, config)
+		if err != nil {
+			return nil, err
+		}
+		minStorageSizeBytes = size
+	}
+
+	if v, ok := d.GetOk(prefix + ".snapshot_id"); ok {
+		snapshotID := v.(string)
+		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_SnapshotId{
+			SnapshotId: snapshotID,
+		}
+
+		size, err := getSnapshotMinStorageSize(snapshotID, config)
+		if err != nil {
+			return nil, err
+		}
+		minStorageSizeBytes = size
+	}
+
 	if v, ok := d.GetOk(prefix + ".size"); ok {
 		diskSpec.Size = toBytes(v.(int))
 	}
 
-	if v, ok := d.GetOk(prefix + ".image_id"); ok {
-		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_ImageId{
-			ImageId: v.(string),
-		}
-	}
-
-	if v, ok := d.GetOk(prefix + ".snapshot_id"); ok {
-		diskSpec.SourceOneof = &instancegroup.AttachedDiskSpec_DiskSpec_SnapshotId{
-			SnapshotId: v.(string),
-		}
+	if diskSpec.Size == 0 {
+		diskSpec.Size = minStorageSizeBytes
 	}
 
 	return diskSpec, nil
@@ -577,12 +596,12 @@ func expandInstanceSecondaryDiskSpecs(d *schema.ResourceData) ([]*compute.Attach
 	return ads, nil
 }
 
-func expandInstanceGroupSecondaryDiskSpecs(d *schema.ResourceData, prefix string) ([]*instancegroup.AttachedDiskSpec, error) {
+func expandInstanceGroupSecondaryDiskSpecs(d *schema.ResourceData, prefix string, config *Config) ([]*instancegroup.AttachedDiskSpec, error) {
 	secondaryDisksCount := d.Get(prefix + ".#").(int)
 	ads := make([]*instancegroup.AttachedDiskSpec, secondaryDisksCount)
 
 	for i := 0; i < secondaryDisksCount; i++ {
-		disk, err := expandInstanceGroupTemplateAttachedDiskSpec(d, fmt.Sprintf(prefix+".%d", i))
+		disk, err := expandInstanceGroupTemplateAttachedDiskSpec(d, fmt.Sprintf(prefix+".%d", i), config)
 		if err != nil {
 			return nil, err
 		}
@@ -819,7 +838,7 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 }
 
 // revive:disable:var-naming
-func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string) (*instancegroup.InstanceTemplate, error) {
+func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.InstanceTemplate, error) {
 	var platformId, description, serviceAccount string
 
 	if v, ok := d.GetOk(prefix + ".platform_id"); ok {
@@ -839,12 +858,12 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string) 
 		return nil, fmt.Errorf("Error create 'resources' object of api request: %s", err)
 	}
 
-	bootDiskSpec, err := expandInstanceGroupTemplateAttachedDiskSpec(d, prefix+".boot_disk.0")
+	bootDiskSpec, err := expandInstanceGroupTemplateAttachedDiskSpec(d, prefix+".boot_disk.0", config)
 	if err != nil {
 		return nil, fmt.Errorf("Error create 'boot_disk' object of api request: %s", err)
 	}
 
-	secondaryDiskSpecs, err := expandInstanceGroupSecondaryDiskSpecs(d, prefix+".secondary_disk")
+	secondaryDiskSpecs, err := expandInstanceGroupSecondaryDiskSpecs(d, prefix+".secondary_disk", config)
 	if err != nil {
 		return nil, fmt.Errorf("Error create 'secondary_disk' object of api request: %s", err)
 	}

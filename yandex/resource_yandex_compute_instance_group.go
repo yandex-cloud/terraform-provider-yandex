@@ -92,8 +92,8 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												"size": {
 													Type:         schema.TypeInt,
 													Optional:     true,
+													Computed:     true,
 													ValidateFunc: validation.IntAtLeast(1),
-													Default:      8,
 												},
 
 												"type": {
@@ -655,7 +655,7 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error expanding labels while creating instance group: %s", err)
 	}
 
-	instanceTemplate, err := expandInstanceGroupInstanceTemplate(d, "instance_template.0")
+	instanceTemplate, err := expandInstanceGroupInstanceTemplate(d, "instance_template.0", meta)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating 'instance_template' object of api request: %s", err)
 	}
@@ -708,7 +708,7 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error expanding labels while creating instance: %s", err)
 	}
 
-	instanceTemplate, err := expandInstanceGroupInstanceTemplate(d, "instance_template.0")
+	instanceTemplate, err := expandInstanceGroupInstanceTemplate(d, "instance_template.0", meta)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating 'instance_template' object of api request: %s", err)
 	}
