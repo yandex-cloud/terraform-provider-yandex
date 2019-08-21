@@ -107,6 +107,10 @@ The `load_balancer` block supports:
 
 * `target_group_labels` - (Optional) A set of key/value label pairs.
 
+* `target_group_id` - The ID of the target group.
+
+* `status_message` - The status message of the target group.
+
 ---
 
 The `health_check` block supports:

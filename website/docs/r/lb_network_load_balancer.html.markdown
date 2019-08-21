@@ -9,7 +9,7 @@ description: |-
 Creates a network load balancer in the specified folder using the data specified in the config. 
 For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts).
 
-# yandex\_vpc\_network\_load\_balancer
+# yandex\_lb\_network\_load\_balancer
 
 ## Example Usage
 

@@ -219,6 +219,8 @@ The `load_balancer` block supports:
 * `target_group_name` - The name of the target group.
 * `target_group_description` - A description of the target group.
 * `target_group_labels` - A set of key/value label pairs.
+* `target_group_id` - The ID of the target group.
+* `status_message` - The status message of the target group.
 
 ---
 

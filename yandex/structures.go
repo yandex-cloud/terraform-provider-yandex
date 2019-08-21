@@ -366,6 +366,8 @@ func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]ma
 	res["target_group_name"] = ig.LoadBalancerSpec.TargetGroupSpec.GetName()
 	res["target_group_description"] = ig.LoadBalancerSpec.TargetGroupSpec.GetDescription()
 	res["target_group_labels"] = ig.LoadBalancerSpec.TargetGroupSpec.GetLabels()
+	res["target_group_id"] = ig.LoadBalancerState.GetTargetGroupId()
+	res["status_message"] = ig.LoadBalancerState.GetStatusMessage()
 
 	return []map[string]interface{}{res}, nil
 }

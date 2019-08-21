@@ -89,8 +89,7 @@ func resourceYandexVPCSubnet() *schema.Resource {
 
 			"v6_cidr_blocks": {
 				Type:     schema.TypeList,
-				Optional: true,
-				ForceNew: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -132,15 +131,6 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	rangesV6 := []string{}
-
-	if v, ok := d.GetOk("v6_cidr_blocks"); ok {
-		vS := v.([]interface{})
-		for _, cidr := range vS {
-			rangesV6 = append(rangesV6, cidr.(string))
-		}
-	}
-
 	req := vpc.CreateSubnetRequest{
 		FolderId:     folderID,
 		ZoneId:       zone,
@@ -150,7 +140,6 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		NetworkId:    d.Get("network_id").(string),
 		RouteTableId: d.Get("route_table_id").(string),
 		V4CidrBlocks: rangesV4,
-		V6CidrBlocks: rangesV6,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))

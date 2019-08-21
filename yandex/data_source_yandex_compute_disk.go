@@ -79,7 +79,6 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) error {

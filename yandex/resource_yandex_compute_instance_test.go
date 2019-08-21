@@ -632,31 +632,6 @@ func TestAccComputeInstance_address_custom(t *testing.T) {
 	})
 }
 
-func TestAccComputeInstance_address_ipv6(t *testing.T) {
-	t.Skip("waiting ipv6 support in subnets")
-	t.Parallel()
-
-	var instance compute.Instance
-	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var addressIpv6 = "fd00:aabb:ccdd:eeff::a"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeInstance_address_ipv6(instanceName, addressIpv6),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasAddressV6(&instance, addressIpv6),
-				),
-			},
-		},
-	})
-}
-
 func TestAccComputeInstance_multiNic(t *testing.T) {
 	t.Skip("Currently only one network interface is supported per instance")
 	t.Parallel()
@@ -997,18 +972,6 @@ func testAccCheckComputeInstanceHasAddress(instance *compute.Instance, address s
 		for _, i := range instance.NetworkInterfaces {
 			if i.PrimaryV4Address.Address != address {
 				return fmt.Errorf("Wrong address found: expected %v, got %v", address, i.PrimaryV4Address.Address)
-			}
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckComputeInstanceHasAddressV6(instance *compute.Instance, address string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for _, i := range instance.NetworkInterfaces {
-			if i.PrimaryV6Address.Address != address {
-				return fmt.Errorf("Wrong address found: expected %v, got %v", address, i.PrimaryV6Address.Address)
 			}
 		}
 
@@ -1960,47 +1923,6 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id  = "${yandex_vpc_subnet.inst-test-subnet.id}"
     ip_address = "%s"
-  }
-}
-`, acctest.RandString(10), acctest.RandString(10), instance, address)
-}
-
-func testAccComputeInstance_address_ipv6(instance, address string) string {
-	return fmt.Sprintf(`
-data "yandex_compute_image" "ubuntu" {
-  family = "ubuntu-1804-lts"
-}
-
-resource "yandex_vpc_network" "inst-test-network" {
-  name = "inst-test-network-%s"
-}
-
-resource "yandex_vpc_subnet" "inst-test-subnet-v6" {
-  name           = "inst-test-subnet-%s"
-  zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.inst-test-network.id}"
-  v4_cidr_blocks = ["10.0.200.0/24"]
-  v6_cidr_blocks = ["fd00:aabb:ccdd:eeff::/64"]
-}
-
-resource "yandex_compute_instance" "foobar" {
-  name = "%s"
-  zone = "ru-central1-a"
-
-  resources {
-    cores  = 1
-    memory = 2
-  }
-
-  boot_disk {
-    initialize_params {
-      image_id = "${data.yandex_compute_image.ubuntu.id}"
-    }
-  }
-
-  network_interface {
-    subnet_id    = "${yandex_vpc_subnet.inst-test-subnet-v6.id}"
-    ipv6_address = "%s"
   }
 }
 `, acctest.RandString(10), acctest.RandString(10), instance, address)

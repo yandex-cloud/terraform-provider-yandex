@@ -49,6 +49,17 @@ func getZone(d *schema.ResourceData, config *Config) (string, error) {
 	return res.(string), nil
 }
 
+func getCloudID(d *schema.ResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("cloud_id")
+	if !ok {
+		if config.CloudID != "" {
+			return config.CloudID, nil
+		}
+		return "", fmt.Errorf("cannot determine cloud_id: please set 'cloud_id' key in this resource or at provider level")
+	}
+	return res.(string), nil
+}
+
 func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 	res, ok := d.GetOk("folder_id")
 	if !ok {

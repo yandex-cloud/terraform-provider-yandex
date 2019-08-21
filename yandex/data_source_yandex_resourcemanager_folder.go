@@ -29,6 +29,11 @@ func dataSourceYandexResourceManagerFolder() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"cloud_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -38,10 +43,6 @@ func dataSourceYandexResourceManagerFolder() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-			},
-			"cloud_id": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -75,7 +76,12 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	folderName, folderNameOk := d.GetOk("name")
 
 	if folderNameOk {
-		resolver := cloudID(config.CloudID).folderResolver
+		dsCloudID, err := getCloudID(d, config)
+		if err != nil {
+			return fmt.Errorf("error getting cloud ID to resolve data source for folder: %s", err)
+		}
+
+		resolver := cloudID(dsCloudID).folderResolver
 		folderID, err = resolveObjectID(ctx, config, folderName.(string), resolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source folder by name: %v", err)

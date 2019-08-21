@@ -58,9 +58,13 @@ The following arguments are supported:
 * `route_table_id` - (Optional) The ID of the route table to assign to this subnet. Assigned route table should 
     belong to the same network as this subnet.
 
-* `v6_cidr_blocks` - (Optional) An optional list of blocks of IPv6 addresses that are owned by this subnet.
 
-~> **Note:** The `v6_cidr_blocks` attribute is currently not supported. It will be available in the future.
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `v6_cidr_blocks` - An optional list of blocks of IPv6 addresses that are owned by this subnet.
+
 
 ## Timeouts
 

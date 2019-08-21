@@ -17,9 +17,10 @@ data "yandex_resourcemanager_folder" "my_folder_1" {
   folder_id = "folder_id_number_1"
 }
 
-# Search by fields
+# Get folder by name in specific cloud
 data "yandex_resourcemanager_folder" "my_folder_2" {
-  folder_id = "folder_id_number_2"
+  name     = "folder_name"
+  cloud_id = "some_cloud_id"
 }
 
 output "my_folder_1_name" {
@@ -38,9 +39,12 @@ The following arguments are supported:
 
 * `folder_id` (Optional) - ID of the folder.
 
-* `name` (Optional) - Name of the Folder.
+* `name` (Optional) - Name of the folder.
 
 ~> **NOTE:** Either `folder_id` or `name` must be specified.
+
+* `cloud_id` - (Optional) Cloud that the resource belongs to. If a value is not
+  provided, the default provider cloud is used.
 
 ## Attributes Reference
 

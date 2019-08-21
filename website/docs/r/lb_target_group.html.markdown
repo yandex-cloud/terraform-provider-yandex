@@ -9,7 +9,7 @@ description: |-
 Creates a target group in the specified folder and adds the specified targets to it. 
 For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts/target-resources).
 
-# yandex\_vpc\_target\_group
+# yandex\_lb\_target\_group
 
 ## Example Usage
 

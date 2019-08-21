@@ -1,4 +1,11 @@
-## 0.9.2 (Unreleased)
+## 0.10.0 (Unreleased)
+BUG FIXES:
+* vpc: remove `v6_cidr_blocks` attr in `yandex_vpc_subnet` resource. This property is not available right now.
+
+ENHANCEMENTS:
+* compute: instance_group data source and resource support new fields in `load_balancer` section.
+* resourcemanager: support lookup `yandex_resourcemanager_folder` at specific cloud_id. [GH-17]
+
 ## 0.9.1 (August 14, 2019)
 ENHANCEMENTS:
 * compute: use `min_disk_size` of image or `disk_size` of snapshot to set size of boot_disk on instance template for `yandex_compute_instance_group`.

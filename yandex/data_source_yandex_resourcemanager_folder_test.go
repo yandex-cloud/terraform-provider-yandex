@@ -51,6 +51,44 @@ func TestAccDataSourceYandexResourceManagerFolder_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceYandexResourceManagerFolder_byNameAndCloudID(t *testing.T) {
+	folderName := getExampleFolderName()
+	cloudID := getExampleCloudID()
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckYandexResourceManagerFolder_byNameAndCloudID(folderName, cloudID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceYandexResourceManagerFolderCheck("data.yandex_resourcemanager_folder.folder", folderID, folderName),
+					testAccCheckResourceIDField("data.yandex_resourcemanager_folder.folder", "folder_id"),
+					resource.TestCheckResourceAttr("data.yandex_resourcemanager_folder.folder", "cloud_id", cloudID),
+					testAccCheckCreatedAtAttr("data.yandex_resourcemanager_folder.folder"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceYandexResourceManagerFolder_wrongCloudID(t *testing.T) {
+	folderName := getExampleFolderName()
+	wrongCloudID := acctest.RandString(12)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckYandexResourceManagerFolder_wrongCloudID(folderName, wrongCloudID),
+				ExpectError: regexp.MustCompile("rpc error: code = PermissionDenied desc = You are not authorized for this operation."),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceYandexResourceManagerFolder_byIDNotFound(t *testing.T) {
 	name := "terraform-test-" + acctest.RandString(12)
 
@@ -103,10 +141,28 @@ data "yandex_resourcemanager_folder" "folder" {
 `, folderName)
 }
 
+func testAccCheckYandexResourceManagerFolder_byNameAndCloudID(folderName, cloudID string) string {
+	return fmt.Sprintf(`
+data "yandex_resourcemanager_folder" "folder" {
+  name     = "%s"
+  cloud_id = "%s"
+}
+`, folderName, cloudID)
+}
+
 func testAccCheckYandexResourceManagerFolder_byIDNotFound(folderID string) string {
 	return fmt.Sprintf(`
 data "yandex_resourcemanager_folder" "folder" {
   folder_id = "%s"
 }
 `, folderID)
+}
+
+func testAccCheckYandexResourceManagerFolder_wrongCloudID(folderName, cloudID string) string {
+	return fmt.Sprintf(`
+data "yandex_resourcemanager_folder" "folder" {
+  name     = "%s"
+  cloud_id = "%s"
+}
+`, folderName, cloudID)
 }
