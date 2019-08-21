@@ -1,3 +1,4 @@
+## 0.10.1 (Unreleased)
 ## 0.10.0 (August 21, 2019)
 BUG FIXES:
 * vpc: remove `v6_cidr_blocks` attr in `yandex_vpc_subnet` resource. This property is not available right now.
