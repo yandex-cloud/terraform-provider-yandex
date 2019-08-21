@@ -1,10 +1,10 @@
-## 0.10.0 (Unreleased)
+## 0.10.0 (August 21, 2019)
 BUG FIXES:
 * vpc: remove `v6_cidr_blocks` attr in `yandex_vpc_subnet` resource. This property is not available right now.
 
 ENHANCEMENTS:
 * compute: instance_group data source and resource support new fields in `load_balancer` section.
-* resourcemanager: support lookup `yandex_resourcemanager_folder` at specific cloud_id. [GH-17]
+* resourcemanager: support lookup `yandex_resourcemanager_folder` at specific cloud_id. ([#17](https://github.com/terraform-providers/terraform-provider-yandex/issues/17))
 
 ## 0.9.1 (August 14, 2019)
 ENHANCEMENTS:
