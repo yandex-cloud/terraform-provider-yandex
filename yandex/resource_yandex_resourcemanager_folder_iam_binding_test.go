@@ -288,13 +288,9 @@ func testAccCheckYandexResourceManagerFolderIamBindingExists(folder *resourceman
 func testAccFolderExistingPolicy(folder *resourcemanager.Folder) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := testAccProvider.Meta().(*Config)
-		var err error
 
-		_, err = c.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-			ResourceId: folder.Id,
-		})
-		if err != nil {
-			return fmt.Errorf("Failed to retrieve IAM Policy for folder %q: %s", folder.Id, err)
+		if _, err := getFolderAccessBindings(c, folder.Id); err != nil {
+			return err
 		}
 
 		return nil

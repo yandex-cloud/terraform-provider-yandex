@@ -36,10 +36,3 @@ The following arguments are supported:
 * `folder_id` - (Optional) ID of the folder that the service account will be created in.
     Defaults to the provider folder configuration.
 
-## Import
-
-Service accounts can be imported using their IDs, e.g.
-
-```
-$ terraform import yandex_iam_service_account.my_sa service_account_id
-```

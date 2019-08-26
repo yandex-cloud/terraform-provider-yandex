@@ -35,15 +35,11 @@ func serviceAccountIDParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *ServiceAccountIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	resp, err := u.Config.sdk.IAM().ServiceAccount().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-		ResourceId: u.serviceAccountID,
-	})
-
+	bindings, err := getServiceAccountAccessBindings(u.Config, u.GetResourceID())
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for %s: %s", u.DescribeResource(), err)
+		return nil, err
 	}
-
-	return &Policy{resp.AccessBindings}, nil
+	return &Policy{bindings}, nil
 }
 
 func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(policy *Policy) error {
@@ -79,4 +75,29 @@ func (u *ServiceAccountIamUpdater) GetMutexKey() string {
 
 func (u *ServiceAccountIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("service account '%s'", u.serviceAccountID)
+}
+
+func getServiceAccountAccessBindings(config *Config, serviceAccountID string) ([]*access.AccessBinding, error) {
+	bindings := []*access.AccessBinding{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.IAM().ServiceAccount().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+			ResourceId: serviceAccountID,
+			PageSize:   defaultListSize,
+			PageToken:  pageToken,
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving IAM access bindings for service account %s: %s", serviceAccountID, err)
+		}
+
+		bindings = append(bindings, resp.AccessBindings...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+
+		pageToken = resp.NextPageToken
+	}
+	return bindings, nil
 }

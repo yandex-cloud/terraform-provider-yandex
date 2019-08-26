@@ -33,6 +33,7 @@ const (
 )
 
 const defaultTimeFormat = time.RFC3339
+const defaultListSize = 1000
 
 type Policy struct {
 	Bindings []*access.AccessBinding

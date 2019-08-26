@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 	"sort"
@@ -10,8 +9,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
 
 // Test that an IAM binding can be applied to a cloud
@@ -165,16 +162,13 @@ func testAccCheckCloudIam(resourceName, role string, members []string) resource.
 
 		cloudID := strings.SplitN(rs.Primary.ID, "/", 2)[0]
 
-		resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-			ResourceId: cloudID,
-		})
-
+		bindings, err := getCloudAccessBindings(config, cloudID)
 		if err != nil {
 			return err
 		}
 
 		var roleMembers []string
-		for _, binding := range resp.AccessBindings {
+		for _, binding := range bindings {
 			if binding.RoleId == role {
 				member := binding.Subject.Type + ":" + binding.Subject.Id
 				roleMembers = append(roleMembers, member)

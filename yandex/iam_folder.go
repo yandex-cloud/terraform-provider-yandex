@@ -35,7 +35,11 @@ func folderIDParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *FolderIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	return getFolderIamPolicyByFolderID(u.folderID, u.Config)
+	bindings, err := getFolderAccessBindings(u.Config, u.GetResourceID())
+	if err != nil {
+		return nil, err
+	}
+	return &Policy{bindings}, err
 }
 
 func (u *FolderIamUpdater) SetResourceIamPolicy(policy *Policy) error {
@@ -72,15 +76,27 @@ func (u *FolderIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("folder %q", u.folderID)
 }
 
-// Retrieve the existing IAM Policy for a folder
-func getFolderIamPolicyByFolderID(folderID string, config *Config) (*Policy, error) {
-	resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-		ResourceId: folderID,
-	})
+func getFolderAccessBindings(config *Config, folderID string) ([]*access.AccessBinding, error) {
+	bindings := []*access.AccessBinding{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+			ResourceId: folderID,
+			PageSize:   defaultListSize,
+			PageToken:  pageToken,
+		})
 
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for folder %q: %s", folderID, err)
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving IAM access bindings for folder %s: %s", folderID, err)
+		}
+
+		bindings = append(bindings, resp.AccessBindings...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+
+		pageToken = resp.NextPageToken
 	}
-
-	return &Policy{resp.AccessBindings}, nil
+	return bindings, nil
 }

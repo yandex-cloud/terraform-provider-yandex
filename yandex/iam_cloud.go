@@ -22,14 +22,14 @@ var IamCloudSchema = map[string]*schema.Schema{
 }
 
 type CloudIamUpdater struct {
-	resourceID string
-	Config     *Config
+	cloudID string
+	Config  *Config
 }
 
 func newCloudIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
 	return &CloudIamUpdater{
-		resourceID: d.Get("cloud_id").(string),
-		Config:     config,
+		cloudID: d.Get("cloud_id").(string),
+		Config:  config,
 	}, nil
 }
 
@@ -39,12 +39,16 @@ func cloudIDParseFunc(d *schema.ResourceData, _ *Config) error {
 }
 
 func (u *CloudIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	return getCloudIamPolicyByCloudID(u.resourceID, u.Config)
+	bindings, err := getCloudAccessBindings(u.Config, u.GetResourceID())
+	if err != nil {
+		return nil, err
+	}
+	return &Policy{bindings}, nil
 }
 
 func (u *CloudIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
-		ResourceId:     u.resourceID,
+		ResourceId:     u.cloudID,
 		AccessBindings: policy.Bindings,
 	}
 
@@ -68,26 +72,38 @@ func (u *CloudIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 }
 
 func (u *CloudIamUpdater) GetResourceID() string {
-	return u.resourceID
+	return u.cloudID
 }
 
 func (u *CloudIamUpdater) GetMutexKey() string {
-	return fmt.Sprintf("iam-cloud-%s", u.resourceID)
+	return fmt.Sprintf("iam-cloud-%s", u.cloudID)
 }
 
 func (u *CloudIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("cloud %q", u.resourceID)
+	return fmt.Sprintf("cloud %q", u.cloudID)
 }
 
-// Retrieve the existing IAM Policy for a cloud
-func getCloudIamPolicyByCloudID(cloudID string, config *Config) (*Policy, error) {
-	resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-		ResourceId: cloudID,
-	})
+func getCloudAccessBindings(config *Config, cloudID string) ([]*access.AccessBinding, error) {
+	bindings := []*access.AccessBinding{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+			ResourceId: cloudID,
+			PageSize:   defaultListSize,
+			PageToken:  pageToken,
+		})
 
-	if err != nil {
-		return nil, fmt.Errorf("Error retrieving IAM policy for cloud %q: %s", cloudID, err)
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving IAM access bindings for cloud %s: %s", cloudID, err)
+		}
+
+		bindings = append(bindings, resp.AccessBindings...)
+
+		if resp.NextPageToken == "" {
+			break
+		}
+
+		pageToken = resp.NextPageToken
 	}
-
-	return &Policy{resp.AccessBindings}, nil
+	return bindings, nil
 }

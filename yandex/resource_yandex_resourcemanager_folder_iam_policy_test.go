@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"reflect"
 	"sort"
@@ -111,14 +110,11 @@ func testAccCheckYandexResourceManagerFolderIamPolicyDestroy(s *terraform.State)
 			continue
 		}
 
-		folder := rs.Primary.Attributes["folder_id"]
+		folderID := rs.Primary.Attributes["folder_id"]
 
-		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-			ResourceId: folder,
-		})
-
-		if err != nil && resp != nil && len(resp.AccessBindings) > 0 {
-			return fmt.Errorf("Folder '%s' policy hasn't been deleted", folder)
+		bindings, err := getFolderAccessBindings(config, folderID)
+		if err != nil && bindings != nil && len(bindings) > 0 {
+			return fmt.Errorf("Folder '%s' policy hasn't been deleted", folderID)
 		}
 	}
 	return nil
@@ -137,18 +133,15 @@ func testAccCheckYandexResourceManagerFolderIamPolicy(n string, policy *Policy) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-			ResourceId: rs.Primary.ID,
-		})
-
+		bindings, err := getFolderAccessBindings(config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
 
-		sort.Sort(sortableBindings(resp.AccessBindings))
+		sort.Sort(sortableBindings(bindings))
 		sort.Sort(sortableBindings(policy.Bindings))
-		if !reflect.DeepEqual(resp.AccessBindings, policy.Bindings) {
-			return fmt.Errorf("Incorrect iam policy bindings. Expected '%s', got '%s'", policy.Bindings, resp.AccessBindings)
+		if !reflect.DeepEqual(bindings, policy.Bindings) {
+			return fmt.Errorf("Incorrect IAM policy bindings. Expected '%s', got '%s'", policy.Bindings, bindings)
 		}
 
 		return nil

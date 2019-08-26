@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -73,6 +72,14 @@ resource "%s" "%s" {
 	return config.String(), strings.Join(resourceRefs, ",")
 }
 
+func getFolderIamPolicyByFolderID(folderID string, config *Config) (*Policy, error) {
+	f := FolderIamUpdater{
+		folderID: folderID,
+		Config:   config,
+	}
+	return f.GetResourceIamPolicy()
+}
+
 func testAccCheckServiceAccountIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -82,16 +89,13 @@ func testAccCheckServiceAccountIam(resourceName, role string, members []string) 
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
 
-		resp, err := config.sdk.IAM().ServiceAccount().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
-			ResourceId: rs.Primary.ID,
-		})
-
+		bindings, err := getServiceAccountAccessBindings(config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
 
 		var roleMembers []string
-		for _, binding := range resp.AccessBindings {
+		for _, binding := range bindings {
 			if binding.RoleId == role {
 				member := binding.Subject.Type + ":" + binding.Subject.Id
 				roleMembers = append(roleMembers, member)

@@ -1,4 +1,7 @@
 ## 0.10.1 (Unreleased)
+BUG FIXES:
+* resourcemanager: resources `yandex_*_iam_binding`, `yandex_•_iam_policy` works with full set of bindings.
+
 ## 0.10.0 (August 21, 2019)
 BUG FIXES:
 * vpc: remove `v6_cidr_blocks` attr in `yandex_vpc_subnet` resource. This property is not available right now.
