@@ -1,4 +1,4 @@
-## 0.10.1 (Unreleased)
+## 0.10.1 (August 26, 2019)
 BUG FIXES:
 * resourcemanager: resources `yandex_*_iam_binding`, `yandex_•_iam_policy` works with full set of bindings.
 
