@@ -20,6 +20,9 @@ func resourceYandexIAMServiceAccount() *schema.Resource {
 		Read:   resourceYandexIAMServiceAccountRead,
 		Update: resourceYandexIAMServiceAccountUpdate,
 		Delete: resourceYandexIAMServiceAccountDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexIAMServiceAccountDefaultTimeout),

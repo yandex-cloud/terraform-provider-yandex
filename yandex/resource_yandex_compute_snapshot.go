@@ -20,6 +20,9 @@ func resourceYandexComputeSnapshot() *schema.Resource {
 		Read:   resourceYandexComputeSnapshotRead,
 		Update: resourceYandexComputeSnapshotUpdate,
 		Delete: resourceYandexComputeSnapshotDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexComputeSnapshotDefaultTimeout),

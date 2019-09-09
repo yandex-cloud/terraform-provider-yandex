@@ -1,4 +1,11 @@
 ## 0.10.2 (Unreleased)
+ENHANCEMENTS:
+* compute: `yandex_compute_snapshot` resource can now be imported
+* iam: `yandex_iam_service_account` resource can now be imported
+
+BUG FIXES:
+* compute: fix read operation of `yandex_compute_instance`  
+
 ## 0.10.1 (August 26, 2019)
 BUG FIXES:
 * resourcemanager: resources `yandex_*_iam_binding`, `yandex_•_iam_policy` works with full set of bindings.

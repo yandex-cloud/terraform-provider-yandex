@@ -48,3 +48,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `disk_size` - Size of the disk when the snapshot was created, specified in GB.
 * `storage_size` - Size of the snapshot, specified in GB.
 * `created_at` - Creation timestamp of the snapshot.
+
+## Import
+
+A snapshot can be imported using the `id` of the resource, e.g.
+
+```
+$ terraform import yandex_compute_snapshot.disk-snapshot shapshot_id
+```

@@ -67,6 +67,11 @@ func TestAccComputeSnapshot_update(t *testing.T) {
 						"yandex_compute_snapshot.foobar", &snapshot),
 				),
 			},
+			{
+				ResourceName:      "yandex_compute_snapshot.foobar",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

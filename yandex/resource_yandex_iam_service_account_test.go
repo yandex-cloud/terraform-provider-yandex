@@ -69,6 +69,11 @@ func TestAccServiceAccount_basic(t *testing.T) {
 						"yandex_iam_service_account.acceptance", "id", &uniqueID),
 				),
 			},
+			{
+				ResourceName:      "yandex_iam_service_account.acceptance",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

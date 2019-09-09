@@ -62,15 +62,20 @@ func flattenInstanceGroupInstanceTemplateResources(resSpec *instancegroup.Resour
 }
 
 func flattenInstanceBootDisk(instance *compute.Instance, diskServiceClient ReducedDiskServiceClient) ([]map[string]interface{}, error) {
+	attachedDisk := instance.GetBootDisk()
+	if attachedDisk == nil {
+		return nil, nil
+	}
+
 	bootDisk := map[string]interface{}{
-		"auto_delete": instance.BootDisk.AutoDelete,
-		"device_name": instance.BootDisk.DeviceName,
-		"disk_id":     instance.BootDisk.DiskId,
-		"mode":        instance.BootDisk.GetMode().String(),
+		"auto_delete": attachedDisk.GetAutoDelete(),
+		"device_name": attachedDisk.GetDeviceName(),
+		"disk_id":     attachedDisk.GetDiskId(),
+		"mode":        attachedDisk.GetMode().String(),
 	}
 
 	disk, err := diskServiceClient.Get(context.Background(), &compute.GetDiskRequest{
-		DiskId: instance.BootDisk.DiskId,
+		DiskId: attachedDisk.GetDiskId(),
 	})
 	if err != nil {
 		return nil, err
