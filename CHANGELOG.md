@@ -1,4 +1,4 @@
-## 0.10.2 (Unreleased)
+## 0.10.2 (September 09, 2019)
 ENHANCEMENTS:
 * compute: `yandex_compute_snapshot` resource can now be imported
 * iam: `yandex_iam_service_account` resource can now be imported
