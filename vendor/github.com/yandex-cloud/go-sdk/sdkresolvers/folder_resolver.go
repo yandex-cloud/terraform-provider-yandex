@@ -13,20 +13,25 @@ import (
 )
 
 type folderResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func FolderResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &folderResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "folder", opts...),
 	}
 }
 
 func (r *folderResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureCloudID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.ResourceManager().Folder().List(ctx, &resourcemanager.ListFoldersRequest{
 		CloudId:  r.CloudID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("folder", resp.GetFolders(), err)
+	return r.findName(resp.GetFolders(), err)
 }

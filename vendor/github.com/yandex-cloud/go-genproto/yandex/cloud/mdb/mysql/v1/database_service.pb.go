@@ -293,10 +293,10 @@ func (m *CreateDatabaseMetadata) GetDatabaseName() string {
 }
 
 type DeleteDatabaseRequest struct {
-	// Required. ID of the MySQL cluster to delete a database in.
+	// ID of the MySQL cluster to delete a database in.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the database to delete.
+	// Name of the database to delete.
 	// To get the name of the database, use a [DatabaseService.List] request.
 	DatabaseName         string   `protobuf:"bytes,2,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`

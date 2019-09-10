@@ -13,20 +13,25 @@ import (
 )
 
 type instanceResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func InstanceResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &instanceResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "instance", opts...),
 	}
 }
 
 func (r *instanceResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.Compute().Instance().List(ctx, &compute.ListInstancesRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("instance", resp.GetInstances(), err)
+	return r.findName(resp.GetInstances(), err)
 }

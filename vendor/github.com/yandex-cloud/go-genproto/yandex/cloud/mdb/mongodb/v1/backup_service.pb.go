@@ -233,11 +233,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BackupServiceClient interface {
-	// Returns the specified MongoDB Backup resource.
+	// Returns the specified MongoDB backup.
 	//
-	// To get the list of available MongoDB Backup resources, make a [List] request.
+	// To get the list of available MongoDB backups, make a [List] request.
 	Get(ctx context.Context, in *GetBackupRequest, opts ...grpc.CallOption) (*Backup, error)
-	// Retrieves the list of Backup resources available for the specified folder.
+	// Retrieves the list of backups available for the specified folder.
 	List(ctx context.Context, in *ListBackupsRequest, opts ...grpc.CallOption) (*ListBackupsResponse, error)
 }
 
@@ -269,11 +269,11 @@ func (c *backupServiceClient) List(ctx context.Context, in *ListBackupsRequest, 
 
 // BackupServiceServer is the server API for BackupService service.
 type BackupServiceServer interface {
-	// Returns the specified MongoDB Backup resource.
+	// Returns the specified MongoDB backup.
 	//
-	// To get the list of available MongoDB Backup resources, make a [List] request.
+	// To get the list of available MongoDB backups, make a [List] request.
 	Get(context.Context, *GetBackupRequest) (*Backup, error)
-	// Retrieves the list of Backup resources available for the specified folder.
+	// Retrieves the list of backups available for the specified folder.
 	List(context.Context, *ListBackupsRequest) (*ListBackupsResponse, error)
 }
 

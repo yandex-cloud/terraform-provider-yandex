@@ -10,20 +10,25 @@ import (
 )
 
 type snapshotResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func SnapshotResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &snapshotResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "snapshot", opts...),
 	}
 }
 
 func (r *snapshotResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.Compute().Snapshot().List(ctx, &compute.ListSnapshotsRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("snapshot", resp.GetSnapshots(), err)
+	return r.findName(resp.GetSnapshots(), err)
 }

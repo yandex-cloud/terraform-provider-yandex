@@ -1401,6 +1401,7 @@ type ListenerSpec struct {
 	//	*ListenerSpec_ExternalAddressSpec
 	Address isListenerSpec_Address `protobuf_oneof:"address"`
 	// Port of a target.
+	// Acceptable values are 1 to 32767, inclusive.
 	TargetPort           int64    `protobuf:"varint,5,opt,name=target_port,json=targetPort,proto3" json:"target_port,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

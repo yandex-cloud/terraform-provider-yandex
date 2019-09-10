@@ -43,9 +43,9 @@ var MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor_name = map[in
 
 var MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor_value = map[string]int32{
 	"COMPRESSOR_UNSPECIFIED": 0,
-	"NONE":   1,
-	"SNAPPY": 2,
-	"ZLIB":   3,
+	"NONE":                   1,
+	"SNAPPY":                 2,
+	"ZLIB":                   3,
 }
 
 func (x MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor) String() string {
@@ -94,9 +94,13 @@ type MongoCfgConfig3_6_OperationProfiling_Mode int32
 
 const (
 	MongoCfgConfig3_6_OperationProfiling_MODE_UNSPECIFIED MongoCfgConfig3_6_OperationProfiling_Mode = 0
-	MongoCfgConfig3_6_OperationProfiling_OFF              MongoCfgConfig3_6_OperationProfiling_Mode = 1
-	MongoCfgConfig3_6_OperationProfiling_SLOW_OP          MongoCfgConfig3_6_OperationProfiling_Mode = 2
-	MongoCfgConfig3_6_OperationProfiling_ALL              MongoCfgConfig3_6_OperationProfiling_Mode = 3
+	// The profiler is off and does not collect any data. This is the default
+	// profiler level.
+	MongoCfgConfig3_6_OperationProfiling_OFF MongoCfgConfig3_6_OperationProfiling_Mode = 1
+	// The profiler collects data for operations that take longer than the value of [slow_op_threshold].
+	MongoCfgConfig3_6_OperationProfiling_SLOW_OP MongoCfgConfig3_6_OperationProfiling_Mode = 2
+	// The profiler collects data for all operations.
+	MongoCfgConfig3_6_OperationProfiling_ALL MongoCfgConfig3_6_OperationProfiling_Mode = 3
 )
 
 var MongoCfgConfig3_6_OperationProfiling_Mode_name = map[int32]string{
@@ -696,9 +700,11 @@ func (m *MongoCfgConfig3_6_Storage_WiredTiger_EngineConfig) GetCacheSizeGb() *wr
 }
 
 type MongoCfgConfig3_6_OperationProfiling struct {
+	// Operation profiling level. For details, see [MongoDB documentation](https://docs.mongodb.com/v3.6/tutorial/manage-the-database-profiler/).
 	Mode MongoCfgConfig3_6_OperationProfiling_Mode `protobuf:"varint,1,opt,name=mode,proto3,enum=yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig3_6_OperationProfiling_Mode" json:"mode,omitempty"`
 	// The slow operation time threshold, in milliseconds. Operations that run
-	// for longer than this threshold are considered slow.
+	// for longer than this threshold are considered slow, and are processed by the profiler
+	// running in the SLOW_OP mode. For details see [MongoDB documentation](https://docs.mongodb.com/v3.6/reference/configuration-options/#operationProfiling.slowOpThresholdMs).
 	SlowOpThreshold      *wrappers.Int64Value `protobuf:"bytes,2,opt,name=slow_op_threshold,json=slowOpThreshold,proto3" json:"slow_op_threshold,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -785,6 +791,7 @@ func (m *MongoCfgConfig3_6_Network) GetMaxIncomingConnections() *wrappers.Int64V
 }
 
 type MongosConfig3_6 struct {
+	// Network settings for mongos.
 	Net                  *MongosConfig3_6_Network `protobuf:"bytes,1,opt,name=net,proto3" json:"net,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
@@ -864,12 +871,12 @@ func (m *MongosConfig3_6_Network) GetMaxIncomingConnections() *wrappers.Int64Val
 }
 
 type MongodConfigSet3_6 struct {
-	// Effective settings for a MongoDB 3.6 cluster (a combination of settings defined
+	// Effective mongod settings for a MongoDB 3.6 cluster (a combination of settings defined
 	// in [user_config] and [default_config]).
 	EffectiveConfig *MongodConfig3_6 `protobuf:"bytes,1,opt,name=effective_config,json=effectiveConfig,proto3" json:"effective_config,omitempty"`
-	// User-defined settings for a MongoDB 3.6 cluster.
+	// User-defined mongod settings for a MongoDB 3.6 cluster.
 	UserConfig *MongodConfig3_6 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
-	// Default configuration for a MongoDB 3.6 cluster.
+	// Default mongod configuration for a MongoDB 3.6 cluster.
 	DefaultConfig        *MongodConfig3_6 `protobuf:"bytes,3,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
 	XXX_unrecognized     []byte           `json:"-"`
@@ -923,11 +930,12 @@ func (m *MongodConfigSet3_6) GetDefaultConfig() *MongodConfig3_6 {
 }
 
 type MongoCfgConfigSet3_6 struct {
-	// Effective settings for a MongoDB 3.6 cluster (a combination of settings defined
+	// Effective mongocfg settings for a MongoDB 3.6 cluster (a combination of settings defined
 	// in [user_config] and [default_config]).
 	EffectiveConfig *MongoCfgConfig3_6 `protobuf:"bytes,1,opt,name=effective_config,json=effectiveConfig,proto3" json:"effective_config,omitempty"`
-	// User-defined settings for a MongoDB 3.6 cluster.
-	UserConfig           *MongoCfgConfig3_6 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
+	// User-defined mongocfg settings for a MongoDB 3.6 cluster.
+	UserConfig *MongoCfgConfig3_6 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
+	// Default mongocfg configuration for a MongoDB 3.6 cluster.
 	DefaultConfig        *MongoCfgConfig3_6 `protobuf:"bytes,3,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`

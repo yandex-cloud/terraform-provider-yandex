@@ -13,20 +13,25 @@ import (
 )
 
 type routeTableResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func RouteTableResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &routeTableResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "route_table", opts...),
 	}
 }
 
 func (r *routeTableResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.VPC().RouteTable().List(ctx, &vpc.ListRouteTablesRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("route_table", resp.GetRouteTables(), err)
+	return r.findName(resp.GetRouteTables(), err)
 }

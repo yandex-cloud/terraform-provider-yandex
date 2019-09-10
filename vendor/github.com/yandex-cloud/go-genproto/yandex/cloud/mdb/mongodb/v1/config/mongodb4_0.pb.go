@@ -43,9 +43,9 @@ var MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor_name = map[in
 
 var MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor_value = map[string]int32{
 	"COMPRESSOR_UNSPECIFIED": 0,
-	"NONE":   1,
-	"SNAPPY": 2,
-	"ZLIB":   3,
+	"NONE":                   1,
+	"SNAPPY":                 2,
+	"ZLIB":                   3,
 }
 
 func (x MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor) String() string {
@@ -94,9 +94,12 @@ type MongoCfgConfig4_0_OperationProfiling_Mode int32
 
 const (
 	MongoCfgConfig4_0_OperationProfiling_MODE_UNSPECIFIED MongoCfgConfig4_0_OperationProfiling_Mode = 0
-	MongoCfgConfig4_0_OperationProfiling_OFF              MongoCfgConfig4_0_OperationProfiling_Mode = 1
-	MongoCfgConfig4_0_OperationProfiling_SLOW_OP          MongoCfgConfig4_0_OperationProfiling_Mode = 2
-	MongoCfgConfig4_0_OperationProfiling_ALL              MongoCfgConfig4_0_OperationProfiling_Mode = 3
+	// The profiler is off and does not collect any data.
+	MongoCfgConfig4_0_OperationProfiling_OFF MongoCfgConfig4_0_OperationProfiling_Mode = 1
+	// The profiler collects data for operations that take longer than the value of [slow_op_threshold].
+	MongoCfgConfig4_0_OperationProfiling_SLOW_OP MongoCfgConfig4_0_OperationProfiling_Mode = 2
+	// The profiler collects data for all operations.
+	MongoCfgConfig4_0_OperationProfiling_ALL MongoCfgConfig4_0_OperationProfiling_Mode = 3
 )
 
 var MongoCfgConfig4_0_OperationProfiling_Mode_name = map[int32]string{
@@ -684,9 +687,11 @@ func (m *MongoCfgConfig4_0_Storage_WiredTiger_EngineConfig) GetCacheSizeGb() *wr
 }
 
 type MongoCfgConfig4_0_OperationProfiling struct {
+	// Mode which specifies operations that should be profiled.
 	Mode MongoCfgConfig4_0_OperationProfiling_Mode `protobuf:"varint,1,opt,name=mode,proto3,enum=yandex.cloud.mdb.mongodb.v1.config.MongoCfgConfig4_0_OperationProfiling_Mode" json:"mode,omitempty"`
 	// The slow operation time threshold, in milliseconds. Operations that run
-	// for longer than this threshold are considered slow.
+	// for longer than this threshold are considered slow, and are processed by the profiler
+	// running in the SLOW_OP mode. For details see [MongoDB documentation](https://docs.mongodb.com/v4.0/reference/configuration-options/#operationProfiling.slowOpThresholdMs).
 	SlowOpThreshold      *wrappers.Int64Value `protobuf:"bytes,2,opt,name=slow_op_threshold,json=slowOpThreshold,proto3" json:"slow_op_threshold,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -773,6 +778,7 @@ func (m *MongoCfgConfig4_0_Network) GetMaxIncomingConnections() *wrappers.Int64V
 }
 
 type MongosConfig4_0 struct {
+	// Network settings for mongos.
 	Net                  *MongosConfig4_0_Network `protobuf:"bytes,1,opt,name=net,proto3" json:"net,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
@@ -852,12 +858,12 @@ func (m *MongosConfig4_0_Network) GetMaxIncomingConnections() *wrappers.Int64Val
 }
 
 type MongodConfigSet4_0 struct {
-	// Effective settings for a MongoDB 4.0 cluster (a combination of settings defined
+	// Effective mongod settings for a MongoDB 4.0 cluster (a combination of settings defined
 	// in [user_config] and [default_config]).
 	EffectiveConfig *MongodConfig4_0 `protobuf:"bytes,1,opt,name=effective_config,json=effectiveConfig,proto3" json:"effective_config,omitempty"`
-	// User-defined settings for a MongoDB 4.0 cluster.
+	// User-defined mongod settings for a MongoDB 4.0 cluster.
 	UserConfig *MongodConfig4_0 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
-	// Default configuration for a MongoDB 4.0 cluster.
+	// Default mongod configuration for a MongoDB 4.0 cluster.
 	DefaultConfig        *MongodConfig4_0 `protobuf:"bytes,3,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
 	XXX_unrecognized     []byte           `json:"-"`
@@ -911,11 +917,12 @@ func (m *MongodConfigSet4_0) GetDefaultConfig() *MongodConfig4_0 {
 }
 
 type MongoCfgConfigSet4_0 struct {
-	// Effective settings for a MongoDB 4.0 cluster (a combination of settings defined
+	// Effective mongocfg settings for a MongoDB 4.0 cluster (a combination of settings defined
 	// in [user_config] and [default_config]).
 	EffectiveConfig *MongoCfgConfig4_0 `protobuf:"bytes,1,opt,name=effective_config,json=effectiveConfig,proto3" json:"effective_config,omitempty"`
-	// User-defined settings for a MongoDB 4.0 cluster.
-	UserConfig           *MongoCfgConfig4_0 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
+	// User-defined mongocfg settings for a MongoDB 4.0 cluster.
+	UserConfig *MongoCfgConfig4_0 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
+	// Default mongocfg configuration for a MongoDB 4.0 cluster.
 	DefaultConfig        *MongoCfgConfig4_0 `protobuf:"bytes,3,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
@@ -969,12 +976,12 @@ func (m *MongoCfgConfigSet4_0) GetDefaultConfig() *MongoCfgConfig4_0 {
 }
 
 type MongosConfigSet4_0 struct {
-	// Effective settings for a MongoDB 4.0 cluster (a combination of settings defined
+	// Effective mongos settings for a MongoDB 4.0 cluster (a combination of settings defined
 	// in [user_config] and [default_config]).
 	EffectiveConfig *MongosConfig4_0 `protobuf:"bytes,1,opt,name=effective_config,json=effectiveConfig,proto3" json:"effective_config,omitempty"`
-	// User-defined settings for a MongoDB 4.0 cluster.
+	// User-defined mongos settings for a MongoDB 4.0 cluster.
 	UserConfig *MongosConfig4_0 `protobuf:"bytes,2,opt,name=user_config,json=userConfig,proto3" json:"user_config,omitempty"`
-	// Default configuration for a MongoDB 4.0 cluster.
+	// Default mongos configuration for a MongoDB 4.0 cluster.
 	DefaultConfig        *MongosConfig4_0 `protobuf:"bytes,3,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
 	XXX_unrecognized     []byte           `json:"-"`

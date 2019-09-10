@@ -13,12 +13,12 @@ import (
 )
 
 type cloudResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func CloudResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &cloudResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cloud", opts...),
 	}
 }
 
@@ -27,5 +27,5 @@ func (r *cloudResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.Ca
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("cloud", resp.GetClouds(), err)
+	return r.findName(resp.GetClouds(), err)
 }

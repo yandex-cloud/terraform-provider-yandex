@@ -15,95 +15,120 @@ import (
 
 func PostgreSQLClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &postgreSQLClusterResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
 	}
 }
 
 type postgreSQLClusterResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func (r *postgreSQLClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.MDB().PostgreSQL().Cluster().List(ctx, &postgresql.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	})
-	return r.findName("cluster", resp.GetClusters(), err)
+	return r.findName(resp.GetClusters(), err)
 }
 
 func MongoDBClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &mongodbClusterResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
 	}
 }
 
 type mongodbClusterResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func (r *mongodbClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.MDB().MongoDB().Cluster().List(ctx, &mongodb.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	})
-	return r.findName("cluster", resp.GetClusters(), err)
+	return r.findName(resp.GetClusters(), err)
 }
 
 func ClickhouseClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &clickhouseClusterResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
 	}
 }
 
 type clickhouseClusterResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func (r *clickhouseClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.MDB().Clickhouse().Cluster().List(ctx, &clickhouse.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	})
-	return r.findName("cluster", resp.GetClusters(), err)
+	return r.findName(resp.GetClusters(), err)
 }
 
 func RedisClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &redisClusterResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
 	}
 }
 
 type redisClusterResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func (r *redisClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.MDB().Redis().Cluster().List(ctx, &redis.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	})
-	return r.findName("cluster", resp.GetClusters(), err)
+	return r.findName(resp.GetClusters(), err)
 }
 
 func MySQLClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &mySQLClusterResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
 	}
 }
 
 type mySQLClusterResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func (r *mySQLClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.MDB().MySQL().Cluster().List(ctx, &mysql.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	})
-	return r.findName("cluster", resp.GetClusters(), err)
+	return r.findName(resp.GetClusters(), err)
 }

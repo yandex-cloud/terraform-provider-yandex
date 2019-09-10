@@ -42,8 +42,8 @@ var IpVersion_name = map[int32]string{
 
 var IpVersion_value = map[string]int32{
 	"IP_VERSION_UNSPECIFIED": 0,
-	"IPV4": 1,
-	"IPV6": 2,
+	"IPV4":                   1,
+	"IPV6":                   2,
 }
 
 func (x IpVersion) String() string {
@@ -176,7 +176,7 @@ var Listener_Protocol_name = map[int32]string{
 
 var Listener_Protocol_value = map[string]int32{
 	"PROTOCOL_UNSPECIFIED": 0,
-	"TCP": 1,
+	"TCP":                  1,
 }
 
 func (x Listener_Protocol) String() string {

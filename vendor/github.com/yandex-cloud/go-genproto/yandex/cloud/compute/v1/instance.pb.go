@@ -39,8 +39,8 @@ var IpVersion_name = map[int32]string{
 
 var IpVersion_value = map[string]int32{
 	"IP_VERSION_UNSPECIFIED": 0,
-	"IPV4": 1,
-	"IPV6": 2,
+	"IPV4":                   1,
+	"IPV6":                   2,
 }
 
 func (x IpVersion) String() string {
@@ -181,7 +181,7 @@ type Instance struct {
 	Fqdn string `protobuf:"bytes,16,opt,name=fqdn,proto3" json:"fqdn,omitempty"`
 	// Scheduling policy configuration.
 	SchedulingPolicy *SchedulingPolicy `protobuf:"bytes,17,opt,name=scheduling_policy,json=schedulingPolicy,proto3" json:"scheduling_policy,omitempty"`
-	// ID of the service account. For more information, see [Service accounts](/docs/iam/concepts/users/service-accounts).
+	// ID of the service account to use for [authentication inside the instance](/docs/compute/operations/vm-connect/auth-inside-vm).
 	// To get the service account ID, use a [yandex.cloud.iam.v1.ServiceAccountService.List] request.
 	ServiceAccountId     string   `protobuf:"bytes,18,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`

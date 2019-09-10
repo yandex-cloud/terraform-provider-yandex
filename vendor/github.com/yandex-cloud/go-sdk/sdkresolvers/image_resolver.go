@@ -14,35 +14,45 @@ import (
 )
 
 type imageResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func ImageResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &imageResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "image", opts...),
 	}
 }
 
 func (r *imageResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.Compute().Image().List(ctx, &compute.ListImagesRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("image", resp.GetImages(), err)
+	return r.findName(resp.GetImages(), err)
 }
 
 type imageByFamilyResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func ImageByFamilyResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &imageByFamilyResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "image from family", opts...),
 	}
 }
 
 func (r *imageByFamilyResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	img, err := sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 		FolderId: r.FolderID(),
 		Family:   r.Name,

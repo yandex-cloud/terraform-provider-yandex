@@ -31,10 +31,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetUserRequest struct {
-	// Required. ID of the PostgreSQL cluster the user belongs to.
+	// ID of the PostgreSQL cluster the user belongs to.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the PostgreSQL User resource to return.
+	// Name of the PostgreSQL User resource to return.
 	// To get the name of the user, use a [UserService.List] request.
 	UserName             string   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -82,7 +82,7 @@ func (m *GetUserRequest) GetUserName() string {
 }
 
 type ListUsersRequest struct {
-	// Required. ID of the cluster to list PostgreSQL users in.
+	// ID of the cluster to list PostgreSQL users in.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// The maximum number of results per page to return. If the number of available
@@ -196,7 +196,7 @@ func (m *ListUsersResponse) GetNextPageToken() string {
 }
 
 type CreateUserRequest struct {
-	// Required. ID of the PostgreSQL cluster to create a user in.
+	// ID of the PostgreSQL cluster to create a user in.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Properties of the user to be created.
@@ -248,7 +248,7 @@ func (m *CreateUserRequest) GetUserSpec() *UserSpec {
 type CreateUserMetadata struct {
 	// ID of the PostgreSQL cluster the user is being created in.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the user that is being created.
+	// Name of the user that is being created.
 	UserName             string   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -295,10 +295,10 @@ func (m *CreateUserMetadata) GetUserName() string {
 }
 
 type UpdateUserRequest struct {
-	// Required. ID of the PostgreSQL cluster the user belongs to.
+	// ID of the PostgreSQL cluster the user belongs to.
 	// To get the cluster ID use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the user to be updated.
+	// Name of the user to be updated.
 	// To get the name of the user use a [UserService.List] request.
 	UserName string `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	// Field mask that specifies which fields of the PostgreSQL User resource should be updated.
@@ -458,10 +458,10 @@ func (m *UpdateUserMetadata) GetUserName() string {
 }
 
 type DeleteUserRequest struct {
-	// Required. ID of the PostgreSQL cluster the user belongs to.
+	// ID of the PostgreSQL cluster the user belongs to.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the user to delete.
+	// Name of the user to delete.
 	// To get the name of the user, use a [UserService.List] request.
 	UserName             string   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -558,10 +558,10 @@ func (m *DeleteUserMetadata) GetUserName() string {
 }
 
 type GrantUserPermissionRequest struct {
-	// Required. ID of the PostgreSQL cluster the user belongs to.
+	// ID of the PostgreSQL cluster the user belongs to.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the user to grant the permission to.
+	// Name of the user to grant the permission to.
 	// To get the name of the user, use a [UserService.List] request.
 	UserName string `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	// Permission that should be granted to the specified user.
@@ -668,10 +668,10 @@ func (m *GrantUserPermissionMetadata) GetUserName() string {
 }
 
 type RevokeUserPermissionRequest struct {
-	// Required. ID of the PostgreSQL cluster the user belongs to.
+	// ID of the PostgreSQL cluster the user belongs to.
 	// To get the cluster ID, use a [ClusterService.List] request.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Required. Name of the user to revoke a permission from.
+	// Name of the user to revoke a permission from.
 	// To get the name of the user, use a [UserService.List] request.
 	UserName string `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	// Name of the database that the user should lose access to.

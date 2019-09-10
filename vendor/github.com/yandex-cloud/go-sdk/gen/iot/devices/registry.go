@@ -85,6 +85,15 @@ func (c *RegistryServiceClient) ListCertificates(ctx context.Context, in *device
 	return devices.NewRegistryServiceClient(conn).ListCertificates(ctx, in, opts...)
 }
 
+// ListDeviceTopicAliases implements devices.RegistryServiceClient
+func (c *RegistryServiceClient) ListDeviceTopicAliases(ctx context.Context, in *devices.ListDeviceTopicAliasesRequest, opts ...grpc.CallOption) (*devices.ListDeviceTopicAliasesResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return devices.NewRegistryServiceClient(conn).ListDeviceTopicAliases(ctx, in, opts...)
+}
+
 // ListOperations implements devices.RegistryServiceClient
 func (c *RegistryServiceClient) ListOperations(ctx context.Context, in *devices.ListRegistryOperationsRequest, opts ...grpc.CallOption) (*devices.ListRegistryOperationsResponse, error) {
 	conn, err := c.getConn(ctx)

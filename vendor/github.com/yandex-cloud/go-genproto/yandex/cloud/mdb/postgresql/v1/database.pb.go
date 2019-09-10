@@ -112,7 +112,7 @@ func (m *Database) GetExtensions() []*Extension {
 
 type Extension struct {
 	// Name of the extension, e.g. `pg_trgm` or `pg_btree`.
-	// Extensions supported by MDB are [listed in the Developer's Guide](/docs/managed-postgresql/concepts).
+	// Extensions supported by Managed Service for PostgreSQL are [listed in the Developer's Guide](/docs/managed-postgresql/operations/cluster-extensions).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Version of the extension.
 	Version              string   `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`

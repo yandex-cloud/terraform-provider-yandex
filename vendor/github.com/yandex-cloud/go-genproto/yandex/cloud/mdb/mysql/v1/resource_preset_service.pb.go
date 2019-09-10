@@ -27,7 +27,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetResourcePresetRequest struct {
-	// Required. ID of the resource preset to return.
+	// ID of the resource preset to return.
 	// To get the resource preset ID, use a [ResourcePresetService.List] request.
 	ResourcePresetId     string   `protobuf:"bytes,1,opt,name=resource_preset_id,json=resourcePresetId,proto3" json:"resource_preset_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`

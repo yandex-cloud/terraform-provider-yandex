@@ -12,20 +12,25 @@ import (
 )
 
 type registryResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func RegistryResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &registryResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "registry", opts...),
 	}
 }
 
 func (r *registryResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.ContainerRegistry().Registry().List(ctx, &containerregistry.ListRegistriesRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("registry", resp.GetRegistries(), err)
+	return r.findName(resp.GetRegistries(), err)
 }

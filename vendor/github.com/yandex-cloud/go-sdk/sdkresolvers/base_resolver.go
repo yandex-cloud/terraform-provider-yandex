@@ -18,9 +18,10 @@ func CreateResolverFilter(nameField string, value string) string {
 }
 
 type resolveOptions struct {
-	out      *string
-	folderID string
-	cloudID  string
+	out       *string
+	folderID  string
+	cloudID   string
+	clusterID string
 }
 
 type ResolveOption func(*resolveOptions)
@@ -45,6 +46,13 @@ func CloudID(cloudID string) ResolveOption {
 	}
 }
 
+// ClusterID specifies cluster id for resolvers that need it, e.g. DataprocSubclusterResolver
+func ClusterID(clusterID string) ResolveOption {
+	return func(o *resolveOptions) {
+		o.clusterID = clusterID
+	}
+}
+
 func combineOpts(opts ...ResolveOption) *resolveOptions {
 	o := &resolveOptions{}
 	for _, opt := range opts {
@@ -55,7 +63,6 @@ func combineOpts(opts ...ResolveOption) *resolveOptions {
 
 type BaseResolver struct {
 	Name string
-
 	id   string
 	err  error
 	opts *resolveOptions
@@ -65,6 +72,19 @@ func NewBaseResolver(name string, opts ...ResolveOption) BaseResolver {
 	return BaseResolver{
 		Name: name,
 		opts: combineOpts(opts...),
+	}
+}
+
+type BaseNameResolver struct {
+	BaseResolver
+
+	resolvingObjectType string
+}
+
+func NewBaseNameResolver(name string, resolvingObjectType string, opts ...ResolveOption) BaseNameResolver {
+	return BaseNameResolver{
+		BaseResolver:        NewBaseResolver(name, opts...),
+		resolvingObjectType: resolvingObjectType,
 	}
 }
 
@@ -108,28 +128,57 @@ func (r *BaseResolver) CloudID() string {
 	return r.opts.cloudID
 }
 
+func (r *BaseResolver) ClusterID() string {
+	return r.opts.clusterID
+}
+
 func (r *BaseResolver) writeOut() {
 	if r.opts.out != nil {
 		*r.opts.out = r.id
 	}
 }
 
-func (r *BaseResolver) findName(caption string, slice interface{}, err error) error {
-	return r.SetErr(r.findNameImpl(caption, slice, err))
+func (r *BaseNameResolver) findName(slice interface{}, err error) error {
+	return r.SetErr(r.findNameImpl(slice, err))
+}
+
+func (r *BaseNameResolver) ensureFolderID() error {
+	if r.FolderID() == "" {
+		err := &ErrNotFound{error: fmt.Sprintf("can't resolve %v without folder id specified", r.resolvingObjectType)}
+		return r.SetErr(err)
+	}
+
+	return nil
+}
+
+func (r *BaseNameResolver) ensureCloudID() error {
+	if r.CloudID() == "" {
+		err := &ErrNotFound{error: fmt.Sprintf("can't resolve %v without cloud id specified", r.resolvingObjectType)}
+		return r.SetErr(err)
+	}
+
+	return nil
+}
+
+func NewErrNotFound(err string) error {
+	return &ErrNotFound{error: err}
 }
 
 type ErrNotFound struct {
-	Caption string
-	Name    string
+	error string
 }
 
 func (e *ErrNotFound) Error() string {
-	return fmt.Sprintf("%v with name \"%v\" not found", e.Caption, e.Name)
+	return e.error
 }
 
-func (r *BaseResolver) findNameImpl(caption string, slice interface{}, err error) error {
+func errNotFound(caption, name string) error {
+	return &ErrNotFound{error: fmt.Sprintf("%v with name \"%v\" not found", caption, name)}
+}
+
+func (r *BaseNameResolver) findNameImpl(slice interface{}, err error) error {
 	if err != nil {
-		return sdkerrors.WithMessagef(err, "failed to find %v with name \"%v\"", caption, r.Name)
+		return sdkerrors.WithMessagef(err, "failed to find %v with name \"%v\"", r.resolvingObjectType, r.Name)
 	}
 	rv := reflect.ValueOf(slice)
 	var found nameAndID
@@ -137,13 +186,13 @@ func (r *BaseResolver) findNameImpl(caption string, slice interface{}, err error
 		v := rv.Index(i).Interface().(nameAndID)
 		if v.GetName() == r.Name {
 			if found != nil {
-				return fmt.Errorf("multiple %v items with name \"%v\" found", caption, r.Name)
+				return fmt.Errorf("multiple %v items with name \"%v\" found", r.resolvingObjectType, r.Name)
 			}
 			found = v
 		}
 	}
 	if found == nil {
-		return &ErrNotFound{Caption: caption, Name: r.Name}
+		return errNotFound(r.resolvingObjectType, r.Name)
 	}
 	r.SetID(found.GetId())
 	return nil

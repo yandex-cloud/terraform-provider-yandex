@@ -8,7 +8,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"net"
 	"sort"
 	"sync"
 	"time"
@@ -100,14 +99,7 @@ func Build(ctx context.Context, conf Config, customOpts ...grpc.DialOption) (*SD
 	}
 	var dialOpts []grpc.DialOption
 
-	dialOpts = append(dialOpts, grpc.WithDialer(
-		func(target string, timeout time.Duration) (conn net.Conn, e error) {
-			// Remove extra wrapper when grpc.withContextDialer become exported in https://github.com/grpc/grpc-go/issues/1786
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-			dialer := dial.NewProxyDialer(dial.NewDialer())
-			return dialer(ctx, target)
-		}))
+	dialOpts = append(dialOpts, grpc.WithContextDialer(dial.NewProxyDialer(dial.NewDialer())))
 
 	rpcCreds := newRPCCredentials(conf.Plaintext)
 	dialOpts = append(dialOpts, grpc.WithPerRPCCredentials(rpcCreds))

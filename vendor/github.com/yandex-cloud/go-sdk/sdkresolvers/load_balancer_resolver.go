@@ -13,39 +13,49 @@ import (
 )
 
 type networkLoadBalancerResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func NetworkLoadBalancerResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &networkLoadBalancerResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "network load balancer", opts...),
 	}
 }
 
 func (r *networkLoadBalancerResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.LoadBalancer().NetworkLoadBalancer().List(ctx, &loadbalancer.ListNetworkLoadBalancersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("network load balancer", resp.GetNetworkLoadBalancers(), err)
+	return r.findName(resp.GetNetworkLoadBalancers(), err)
 }
 
 type targetGroupResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func TargetGroupResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &targetGroupResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "target group", opts...),
 	}
 }
 
 func (r *targetGroupResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.LoadBalancer().TargetGroup().List(ctx, &loadbalancer.ListTargetGroupsRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("target group", resp.GetTargetGroups(), err)
+	return r.findName(resp.GetTargetGroups(), err)
 }

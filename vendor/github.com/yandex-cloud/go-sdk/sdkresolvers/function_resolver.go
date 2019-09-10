@@ -13,20 +13,25 @@ import (
 )
 
 type functionResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func FunctionResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &functionResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "function", opts...),
 	}
 }
 
 func (r *functionResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.Functions().Function().List(ctx, &functions.ListFunctionsRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("function", resp.GetFunctions(), err)
+	return r.findName(resp.GetFunctions(), err)
 }

@@ -13,39 +13,49 @@ import (
 )
 
 type networkResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func NetworkResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &networkResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "network", opts...),
 	}
 }
 
 func (r *networkResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.VPC().Network().List(ctx, &vpc.ListNetworksRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("network", resp.GetNetworks(), err)
+	return r.findName(resp.GetNetworks(), err)
 }
 
 type subnetResolver struct {
-	BaseResolver
+	BaseNameResolver
 }
 
 func SubnetResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
 	return &subnetResolver{
-		BaseResolver: NewBaseResolver(name, opts...),
+		BaseNameResolver: NewBaseNameResolver(name, "subnet", opts...),
 	}
 }
 
 func (r *subnetResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
 	resp, err := sdk.VPC().Subnet().List(ctx, &vpc.ListSubnetsRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,
 	}, opts...)
-	return r.findName("subnet", resp.GetSubnets(), err)
+	return r.findName(resp.GetSubnets(), err)
 }

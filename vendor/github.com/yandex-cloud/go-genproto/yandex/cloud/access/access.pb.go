@@ -39,8 +39,8 @@ var AccessBindingAction_name = map[int32]string{
 
 var AccessBindingAction_value = map[string]int32{
 	"ACCESS_BINDING_ACTION_UNSPECIFIED": 0,
-	"ADD":    1,
-	"REMOVE": 2,
+	"ADD":                               1,
+	"REMOVE":                            2,
 }
 
 func (x AccessBindingAction) String() string {

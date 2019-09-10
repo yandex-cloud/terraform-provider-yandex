@@ -127,7 +127,7 @@ func (m *TargetGroup) GetTargets() []*Target {
 	return nil
 }
 
-// A Target resource. For more information, see [Target groups and resources](/docs/load-balancer/target-resources).
+// A Target resource. For more information, see [Target groups and resources](/docs/load-balancer/concepts/target-resources).
 type Target struct {
 	// ID of the subnet that targets are connected to.
 	// All targets in the target group must be connected to the same subnet within a single availability zone.
