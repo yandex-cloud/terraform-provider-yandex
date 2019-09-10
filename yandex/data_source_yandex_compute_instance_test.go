@@ -96,6 +96,24 @@ func testAccDataSourceComputeInstanceAttributesCheck(datasourceName string, reso
 	}
 }
 
+func TestAccDataSourceComputeInstanceGpus_byId(t *testing.T) {
+	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceComputeInstanceGpusConfig(instanceName, true),
+				Check: testAccDataSourceComputeInstanceCheck(
+					"data.yandex_compute_instance.bar",
+					"yandex_compute_instance.foo", instanceName),
+			},
+		},
+	})
+}
+
 func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName string, instanceName string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		testAccDataSourceComputeInstanceAttributesCheck(datasourceName, resourceName),
@@ -158,6 +176,56 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 }`, instanceName, instanceName)
 }
 
+func testAccDataSourceComputeInstanceResourceGpusConfig(instanceName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foo" {
+  name        = "%s"
+  hostname    = "%s"
+  description = "description"
+  zone        = "ru-central1-b"
+  platform_id = "gpu-standard-v1"
+
+  resources {
+    cores  = 8
+    memory = 96
+    gpus   = 1
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}`, instanceName, instanceName)
+}
+
 const computeInstanceDataByIDConfig = `
 data "yandex_compute_instance" "bar" {
   instance_id = "${yandex_compute_instance.foo.id}"
@@ -176,4 +244,12 @@ func testAccDataSourceComputeInstanceConfig(instanceName string, useDataID bool)
 	}
 
 	return testAccDataSourceComputeInstanceResourceConfig(instanceName) + computeInstanceDataByNameConfig
+}
+
+func testAccDataSourceComputeInstanceGpusConfig(instanceName string, useDataID bool) string {
+	if useDataID {
+		return testAccDataSourceComputeInstanceResourceGpusConfig(instanceName) + computeInstanceDataByIDConfig
+	}
+
+	return testAccDataSourceComputeInstanceResourceGpusConfig(instanceName) + computeInstanceDataByNameConfig
 }

@@ -110,47 +110,70 @@ func TestFlattenInstanceResources(t *testing.T) {
 		expected  []map[string]interface{}
 	}{
 		{
-			name: "cores 1 fraction 100 memory 5 gb",
+			name: "cores 1 fraction 100 memory 5 gb 0 gpus",
 			resources: &compute.Resources{
 				Cores:        1,
 				CoreFraction: 100,
 				Memory:       5 * (1 << 30),
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         1,
 					"core_fraction": 100,
 					"memory":        5.0,
+					"gpus":          0,
 				},
 			},
 		},
 		{
-			name: "cores 8 fraction 5 memory 16 gb",
+			name: "cores 8 fraction 5 memory 16 gb 0 gpus",
 			resources: &compute.Resources{
 				Cores:        8,
 				CoreFraction: 5,
 				Memory:       16 * (1 << 30),
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         8,
 					"core_fraction": 5,
 					"memory":        16.0,
+					"gpus":          0,
 				},
 			},
 		},
 		{
-			name: "cores 2 fraction 20 memory 0.5 gb",
+			name: "cores 2 fraction 20 memory 0.5 gb 0 gpus",
 			resources: &compute.Resources{
 				Cores:        2,
 				CoreFraction: 20,
 				Memory:       (1 << 30) / 2,
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         2,
 					"core_fraction": 20,
 					"memory":        0.5,
+					"gpus":          0,
+				},
+			},
+		},
+		{
+			name: "cores 8 fraction 100 memory 96 gb 2 gpus",
+			resources: &compute.Resources{
+				Cores:        8,
+				CoreFraction: 100,
+				Memory:       96 * (1 << 30),
+				Gpus:         2,
+			},
+			expected: []map[string]interface{}{
+				{
+					"cores":         8,
+					"core_fraction": 100,
+					"memory":        96.0,
+					"gpus":          2,
 				},
 			},
 		},
@@ -480,47 +503,70 @@ func TestFlattenInstanceGroupInstanceTemplateResources(t *testing.T) {
 		expected  []map[string]interface{}
 	}{
 		{
-			name: "cores 1 fraction 100 memory 5 gb",
+			name: "cores 1 fraction 100 memory 5 gb 0 gpus",
 			resources: &instancegroup.ResourcesSpec{
 				Cores:        1,
 				CoreFraction: 100,
 				Memory:       5 * (1 << 30),
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         1,
 					"core_fraction": 100,
 					"memory":        5.0,
+					"gpus":          0,
 				},
 			},
 		},
 		{
-			name: "cores 8 fraction 5 memory 16 gb",
+			name: "cores 8 fraction 5 memory 16 gb 0 gpus",
 			resources: &instancegroup.ResourcesSpec{
 				Cores:        8,
 				CoreFraction: 5,
 				Memory:       16 * (1 << 30),
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         8,
 					"core_fraction": 5,
 					"memory":        16.0,
+					"gpus":          0,
 				},
 			},
 		},
 		{
-			name: "cores 2 fraction 20 memory 0.5 gb",
+			name: "cores 2 fraction 20 memory 0.5 gb 0 gpus",
 			resources: &instancegroup.ResourcesSpec{
 				Cores:        2,
 				CoreFraction: 20,
 				Memory:       (1 << 30) / 2,
+				Gpus:         0,
 			},
 			expected: []map[string]interface{}{
 				{
 					"cores":         2,
 					"core_fraction": 20,
 					"memory":        0.5,
+					"gpus":          0,
+				},
+			},
+		},
+		{
+			name: "cores 8 fraction 100 memory 96 gb 2 gpus",
+			resources: &instancegroup.ResourcesSpec{
+				Cores:        8,
+				CoreFraction: 100,
+				Memory:       96 * (1 << 30),
+				Gpus:         2,
+			},
+			expected: []map[string]interface{}{
+				{
+					"cores":         8,
+					"core_fraction": 100,
+					"memory":        96.0,
+					"gpus":          2,
 				},
 			},
 		},

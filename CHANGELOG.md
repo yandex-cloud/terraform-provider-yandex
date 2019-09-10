@@ -1,4 +1,8 @@
-## 0.10.3 (Unreleased)
+## 0.11.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `resources.0.gpus` attribute in `yandex_compute_instance` resource and data source 
+* compute: add `resources.0.gpus` attribute in `yandex_compute_instance_group` resource and data source
+
 ## 0.10.2 (September 09, 2019)
 ENHANCEMENTS:
 * compute: `yandex_compute_snapshot` resource can now be imported

@@ -61,6 +61,12 @@ func resourceYandexComputeInstance() *schema.Resource {
 							ForceNew: false,
 						},
 
+						"gpus": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+
 						"core_fraction": {
 							Type:     schema.TypeInt,
 							Optional: true,

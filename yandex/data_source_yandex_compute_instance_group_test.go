@@ -28,6 +28,23 @@ func TestAccDataSourceComputeInstanceGroup_byID(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceComputeInstanceGroupGpus_byID(t *testing.T) {
+	igName := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceComputeInstanceGroupGpusConfig(igName, saName),
+				Check:  testAccDataSourceComputeInstanceGroupCheck("data.yandex_compute_instance_group.bar", "yandex_compute_instance_group.group1"),
+			},
+		},
+	})
+}
+
 const computeInstanceGroupDataByIDConfig = `
 data "yandex_compute_instance_group" "bar" {
   instance_group_id = "${yandex_compute_instance_group.group1.id}"
@@ -36,6 +53,10 @@ data "yandex_compute_instance_group" "bar" {
 
 func testAccDataSourceComputeInstanceGroupConfig(igName string, saName string) string {
 	return testAccComputeInstanceGroupConfigMain(igName, saName) + computeInstanceGroupDataByIDConfig
+}
+
+func testAccDataSourceComputeInstanceGroupGpusConfig(igName string, saName string) string {
+	return testAccComputeInstanceGroupConfigGpus(igName, saName) + computeInstanceGroupDataByIDConfig
 }
 
 func testAccDataSourceComputeInstanceGroupCheck(datasourceName string, resourceName string) resource.TestCheckFunc {

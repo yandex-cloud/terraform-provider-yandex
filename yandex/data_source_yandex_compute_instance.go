@@ -75,6 +75,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"gpus": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"core_fraction": {
 							Type:     schema.TypeInt,
 							Computed: true,

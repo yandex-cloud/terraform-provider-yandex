@@ -103,6 +103,7 @@ The `instance_template` block supports:
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
+* `resources.0.gpus` - Number of GPU cores allocated to the instance.
 * `scheduling_policy` - The scheduling policy for the instance.
 The structure is documented below.
 * `network_interface` - An array with the network interfaces that will be attached to the instance.

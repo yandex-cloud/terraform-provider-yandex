@@ -47,6 +47,7 @@ The following arguments are supported:
 * `resources.0.memory` - Memory size allocated for the instance.
 * `resources.0.cores` - Number of CPU cores allocated for the instance.
 * `resources.0.core_fraction` - Baseline performance for a core, set as a percent.
+* `resources.0.gpus` - Number of GPU cores allocated for the instance.
 * `boot_disk` - The boot disk for the instance. Structure is documented below.
 * `network_interface` - The networks attached to the instance. Structure is documented below.
 * `network_interface.0.ip_address` - An internal IP address of the instance, either manually or dynamically assigned.

@@ -46,6 +46,7 @@ func flattenInstanceResources(instance *compute.Instance) ([]map[string]interfac
 		"cores":         int(instance.Resources.Cores),
 		"core_fraction": int(instance.Resources.CoreFraction),
 		"memory":        toGigabytesInFloat(instance.Resources.Memory),
+		"gpus":          int(instance.Resources.Gpus),
 	}
 
 	return []map[string]interface{}{resourceMap}, nil
@@ -56,6 +57,7 @@ func flattenInstanceGroupInstanceTemplateResources(resSpec *instancegroup.Resour
 		"cores":         int(resSpec.Cores),
 		"core_fraction": int(resSpec.CoreFraction),
 		"memory":        toGigabytesInFloat(resSpec.Memory),
+		"gpus":          int(resSpec.Gpus),
 	}
 
 	return []map[string]interface{}{resourceMap}, nil
@@ -384,6 +386,10 @@ func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec
 		rs.Cores = int64(v.(int))
 	}
 
+	if v, ok := d.GetOk("resources.0.gpus"); ok {
+		rs.Gpus = int64(v.(int))
+	}
+
 	if v, ok := d.GetOk("resources.0.core_fraction"); ok {
 		rs.CoreFraction = int64(v.(int))
 	}
@@ -400,6 +406,10 @@ func expandInstanceGroupResourcesSpec(d *schema.ResourceData, prefix string) (*i
 
 	if v, ok := d.GetOk(prefix + ".0.cores"); ok {
 		rs.Cores = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + ".0.gpus"); ok {
+		rs.Gpus = int64(v.(int))
 	}
 
 	if v, ok := d.GetOk(prefix + ".0.core_fraction"); ok {
