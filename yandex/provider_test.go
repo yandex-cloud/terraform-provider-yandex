@@ -6,10 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -67,12 +65,7 @@ func TestProviderWithRawConfig(t *testing.T) {
 		"zone":     "ru-central1-a",
 	}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	err = testProvider.Configure(terraform.NewResourceConfig(rawConfig))
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
@@ -98,12 +91,7 @@ func TestProviderDefaultValues(t *testing.T) {
 		"zone":  "ru-central1-a",
 	}
 
-	rawConfig, err := config.NewRawConfig(raw)
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	err = testProvider.Configure(terraform.NewResourceConfig(rawConfig))
+	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
