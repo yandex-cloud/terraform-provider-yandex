@@ -1,4 +1,4 @@
-## 0.11.0 (Unreleased)
+## 0.11.0 (September 11, 2019)
 ENHANCEMENTS:
 * compute: add `resources.0.gpus` attribute in `yandex_compute_instance` resource and data source 
 * compute: add `resources.0.gpus` attribute in `yandex_compute_instance_group` resource and data source
