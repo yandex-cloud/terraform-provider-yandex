@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/grpc"
 
@@ -630,6 +631,114 @@ func TestFlattenInstanceGroupAttachedDisk(t *testing.T) {
 			}
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestFlattenInstanceGroupHealthChecks(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     *instancegroup.HealthChecksSpec
+		expected []map[string]interface{}
+	}{
+		{
+			name: "one tcp",
+			spec: &instancegroup.HealthChecksSpec{
+				HealthCheckSpecs: []*instancegroup.HealthCheckSpec{
+					{
+						Interval:           &duration.Duration{Seconds: 10},
+						Timeout:            &duration.Duration{Seconds: 20},
+						UnhealthyThreshold: 1,
+						HealthyThreshold:   2,
+						HealthCheckOptions: &instancegroup.HealthCheckSpec_TcpOptions_{
+							TcpOptions: &instancegroup.HealthCheckSpec_TcpOptions{
+								Port: 22,
+							},
+						},
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"interval":            10,
+					"timeout":             20,
+					"unhealthy_threshold": 1,
+					"healthy_threshold":   2,
+					"tcp_options": []map[string]interface{}{
+						{
+							"port": 22,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "tcp + http",
+			spec: &instancegroup.HealthChecksSpec{
+				HealthCheckSpecs: []*instancegroup.HealthCheckSpec{
+					{
+						Interval:           &duration.Duration{Seconds: 10},
+						Timeout:            &duration.Duration{Seconds: 20},
+						UnhealthyThreshold: 1,
+						HealthyThreshold:   2,
+						HealthCheckOptions: &instancegroup.HealthCheckSpec_TcpOptions_{
+							TcpOptions: &instancegroup.HealthCheckSpec_TcpOptions{
+								Port: 22,
+							},
+						},
+					},
+					{
+						Interval:           &duration.Duration{Seconds: 10},
+						Timeout:            &duration.Duration{Seconds: 20},
+						UnhealthyThreshold: 1,
+						HealthyThreshold:   2,
+						HealthCheckOptions: &instancegroup.HealthCheckSpec_HttpOptions_{
+							HttpOptions: &instancegroup.HealthCheckSpec_HttpOptions{
+								Port: 8080,
+								Path: "/",
+							},
+						},
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"interval":            10,
+					"timeout":             20,
+					"unhealthy_threshold": 1,
+					"healthy_threshold":   2,
+					"tcp_options": []map[string]interface{}{
+						{
+							"port": 22,
+						},
+					},
+				},
+				{
+					"interval":            10,
+					"timeout":             20,
+					"unhealthy_threshold": 1,
+					"healthy_threshold":   2,
+					"http_options": []map[string]interface{}{
+						{
+							"port": 8080,
+							"path": "/",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := flattenInstanceGroupHealthChecks(&instancegroup.InstanceGroup{HealthChecksSpec: tt.spec})
+
+			if err != nil {
+				t.Errorf("%v", err)
+			}
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("flattenInstanceGroupHealthChecks() got = %v, want %v", res, tt.expected)
 			}
 		})
 	}

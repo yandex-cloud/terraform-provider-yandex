@@ -17,6 +17,7 @@ const testConfigEndpoint = "endpoint.secure.me"
 const testConfigCloudID = "test-cloud-id"
 const testConfigFolder = "test-folder-id"
 const testConfigZone = "ru-central1-a"
+const testTerraformVersion = "test-terraform"
 
 func TestConfigInitAndValidate(t *testing.T) {
 	config := Config{
@@ -29,7 +30,7 @@ func TestConfigInitAndValidate(t *testing.T) {
 		Insecure:  false,
 	}
 
-	err := config.initAndValidate()
+	err := config.initAndValidate(testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -46,7 +47,7 @@ func TestConfigInitByServiceAccountKey(t *testing.T) {
 		Insecure:              false,
 	}
 
-	err := config.initAndValidate()
+	err := config.initAndValidate(testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -74,7 +75,7 @@ func TestConfigUserAgent(t *testing.T) {
 		Plaintext: true,
 	}
 
-	err := config.initAndValidate()
+	err := config.initAndValidate(testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

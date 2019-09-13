@@ -1,4 +1,10 @@
 ## 0.11.1 (Unreleased)
+ENHANCEMENTS:
+* provider: set provider name and version in user agent header.
+
+BUG FIXES:
+* compute: fix flattening of health checks for `yandex_compute_instance_group` resource   
+
 ## 0.11.0 (September 11, 2019)
 ENHANCEMENTS:
 * compute: add `resources.0.gpus` attribute in `yandex_compute_instance` resource and data source 

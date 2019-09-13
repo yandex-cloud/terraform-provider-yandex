@@ -107,10 +107,6 @@ The `load_balancer` block supports:
 
 * `target_group_labels` - (Optional) A set of key/value label pairs.
 
-* `target_group_id` - The ID of the target group.
-
-* `status_message` - The status message of the target group.
-
 ---
 
 The `health_check` block supports:
@@ -262,7 +258,6 @@ The `initialize_params` block supports:
 
 ~> **NOTE:** `image_id` or `snapshot_id` must be specified.
 
-
 ---
 
 The `deploy_policy` block supports:
@@ -303,4 +298,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - The ID of the instance group.
 
 * `created_at` - The instance group creation timestamp.
+
+* `load_balancer.0.target_group_id` - The ID of the target group.
+
+* `load_balancer.0.status_message` - The status message of the target group.
 

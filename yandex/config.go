@@ -7,10 +7,12 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/hashicorp/terraform/terraform"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -42,7 +44,7 @@ type Config struct {
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
-func (c *Config) initAndValidate() error {
+func (c *Config) initAndValidate(terraformVersion string) error {
 	if c.Token != "" && c.ServiceAccountKeyFile != "" {
 		return fmt.Errorf("one of token or service account key file must be specified, not both (check your config AND environment variables)")
 	}
@@ -73,8 +75,10 @@ func (c *Config) initAndValidate() error {
 		},
 	}
 
+	providerNameAndVersion := getProviderNameAndVersion()
 	terraformURL := "https://www.terraform.io"
-	c.userAgent = fmt.Sprintf("Terraform/%s (%s)", terraform.VersionString(), terraformURL)
+
+	c.userAgent = fmt.Sprintf("Terraform/%s (%s) %s", terraformVersion, terraformURL, providerNameAndVersion)
 
 	headerMD := metadata.Pairs("user-agent", c.userAgent)
 
@@ -118,4 +122,18 @@ func BackoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.B
 func getExponentialTimeout(attempt int, base time.Duration) float64 {
 	mult := math.Pow(2, float64(attempt))
 	return float64(base) * mult
+}
+
+func getProviderNameAndVersion() string {
+	// version is part of binary name
+	// https://www.terraform.io/docs/configuration/providers.html#plugin-names-and-versions
+	fullBinaryPath := os.Args[0]
+	binaryName := filepath.Base(fullBinaryPath)
+	parts := strings.Split(binaryName, "_")
+
+	if len(parts) != 2 {
+		return "unknown/unknown"
+	}
+
+	return strings.Join(parts, "/")
 }

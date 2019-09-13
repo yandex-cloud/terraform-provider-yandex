@@ -12,7 +12,7 @@ const defaultEndpoint = "api.cloud.yandex.net:443"
 var mutexKV = mutexkv.NewMutexKV()
 
 func Provider() terraform.ResourceProvider {
-	return &schema.Provider{
+	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
 				Type:        schema.TypeString,
@@ -111,9 +111,20 @@ func Provider() terraform.ResourceProvider {
 			"yandex_lb_network_load_balancer":              resourceYandexLBNetworkLoadBalancer(),
 			"yandex_lb_target_group":                       resourceYandexLBTargetGroup(),
 		},
-
-		ConfigureFunc: providerConfigure,
 	}
+
+	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+		terraformVersion := provider.TerraformVersion
+		if terraformVersion == "" {
+			// Terraform 0.12 introduced this field to the protocol
+			// We can therefore assume that if it's missing it's 0.10 or 0.11
+			terraformVersion = "0.11+compatible"
+		}
+
+		return providerConfigure(d, terraformVersion)
+	}
+
+	return provider
 }
 
 var descriptions = map[string]string{
@@ -139,7 +150,7 @@ var descriptions = map[string]string{
 		"If the API request still fails, an error is thrown.",
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
 	config := Config{
 		Token:                 d.Get("token").(string),
 		ServiceAccountKeyFile: d.Get("service_account_key_file").(string),
@@ -152,7 +163,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		MaxRetries:            d.Get("max_retries").(int),
 	}
 
-	if err := config.initAndValidate(); err != nil {
+	if err := config.initAndValidate(terraformVersion); err != nil {
 		return nil, err
 	}
 

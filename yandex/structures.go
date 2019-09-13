@@ -330,21 +330,25 @@ func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[st
 
 	for i, spec := range ig.HealthChecksSpec.HealthCheckSpecs {
 		specDict := map[string]interface{}{}
-		specDict["interval"] = spec.Interval.Seconds
-		specDict["timeout"] = spec.Timeout.Seconds
-		specDict["healthy_threshold"] = spec.HealthyThreshold
-		specDict["unhealthy_threshold"] = spec.UnhealthyThreshold
+		specDict["interval"] = int(spec.Interval.Seconds)
+		specDict["timeout"] = int(spec.Timeout.Seconds)
+		specDict["healthy_threshold"] = int(spec.HealthyThreshold)
+		specDict["unhealthy_threshold"] = int(spec.UnhealthyThreshold)
 
 		if spec.GetHttpOptions() != nil {
-			specDict["http_options"] = map[string]interface{}{
-				"port": spec.GetHttpOptions().Port,
-				"path": spec.GetHttpOptions().Path,
+			specDict["http_options"] = []map[string]interface{}{
+				{
+					"port": int(spec.GetHttpOptions().Port),
+					"path": spec.GetHttpOptions().Path,
+				},
 			}
 		}
 
 		if spec.GetTcpOptions() != nil {
-			specDict["tcp_options"] = map[string]interface{}{
-				"port": spec.GetTcpOptions().Port,
+			specDict["tcp_options"] = []map[string]interface{}{
+				{
+					"port": int(spec.GetTcpOptions().Port),
+				},
 			}
 		}
 
