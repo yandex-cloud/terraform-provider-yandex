@@ -1,3 +1,4 @@
+## 0.11.2 (Unreleased)
 ## 0.11.1 (September 13, 2019)
 ENHANCEMENTS:
 * provider: set provider name and version in user agent header.
