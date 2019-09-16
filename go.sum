@@ -406,8 +406,12 @@ github.com/xlab/treeprint v0.0.0-20161029104018-1d6e34225557 h1:Jpn2j6wHkC9wJv5i
 github.com/xlab/treeprint v0.0.0-20161029104018-1d6e34225557/go.mod h1:ce1O1j6UtZfjr22oyGxGLbauSBp2YVXpARAosm7dHBg=
 github.com/yandex-cloud/go-genproto v0.0.0-20190802103534-6089d9ff8d82 h1:HLQoCLW2021qJKLrGQbcdEikBJ3gfYF94JYqZuw6Qxg=
 github.com/yandex-cloud/go-genproto v0.0.0-20190802103534-6089d9ff8d82/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20190916101622-7617782d381e h1:hzwq5GUKP0aQzDja1XP4sBYyOmnezs/RVtzP+xiLbfI=
+github.com/yandex-cloud/go-genproto v0.0.0-20190916101622-7617782d381e/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20190802103531-4ab1dac90bf7 h1:rWXARBMLHylvASK6spamDC8zSL5v2voZop3M6SBul9Y=
 github.com/yandex-cloud/go-sdk v0.0.0-20190802103531-4ab1dac90bf7/go.mod h1:Eml0jFLU4VVHgIN8zPHMuNwZXVzUMILyO6lQZSfz854=
+github.com/yandex-cloud/go-sdk v0.0.0-20190916101744-c781afa45829 h1:2FGwbx03GpP1Ulzg/L46tSoKh9t4yg8BhMKQl/Ff1x8=
+github.com/yandex-cloud/go-sdk v0.0.0-20190916101744-c781afa45829/go.mod h1:Eml0jFLU4VVHgIN8zPHMuNwZXVzUMILyO6lQZSfz854=
 github.com/zclconf/go-cty v1.0.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v1.0.1-0.20190708163926-19588f92a98f h1:sq2p8SN6ji66CFEQFIWLlD/gFmGtr5hBrOzv5nLlGfA=
 github.com/zclconf/go-cty v1.0.1-0.20190708163926-19588f92a98f/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
