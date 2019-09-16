@@ -185,7 +185,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error while prepare request to create image: %s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Create(ctx, &req))
@@ -220,7 +220,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	image, err := config.sdk.Compute().Image().Get(context.Background(), &compute.GetImageRequest{
+	image, err := config.sdk.Compute().Image().Get(config.ContextWithClientTraceID(), &compute.GetImageRequest{
 		ImageId: d.Id(),
 	})
 
@@ -343,7 +343,7 @@ func resourceYandexComputeImageDelete(d *schema.ResourceData, meta interface{}) 
 		ImageId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Delete(ctx, req))
@@ -385,7 +385,7 @@ func prepareSourceForImage(req *compute.CreateImageRequest, d *schema.ResourceDa
 	switch selectedSourceAttr {
 	case "source_family":
 		config := meta.(*Config)
-		ctx := context.Background()
+		ctx := config.ContextWithClientTraceID()
 		familyName := d.Get("source_family").(string)
 		img, err := config.sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 			FolderId: StandardImagesFolderID,
@@ -424,7 +424,7 @@ func prepareSourceForImage(req *compute.CreateImageRequest, d *schema.ResourceDa
 func makeImageUpdateRequest(req *compute.UpdateImageRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Image().Update(ctx, req))

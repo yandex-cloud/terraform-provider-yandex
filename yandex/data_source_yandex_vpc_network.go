@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -55,7 +54,7 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 
 func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "network_id", "name")
 	if err != nil {

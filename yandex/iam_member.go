@@ -42,11 +42,11 @@ func validateIamMember(i interface{}, k string) (s []string, es []error) {
 }
 
 func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
-	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	return func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 		if resourceIDParser == nil {
 			return nil, errors.New("Import not supported for this IAM resource")
 		}
-		config := m.(*Config)
+		config := meta.(*Config)
 		s := strings.Fields(d.Id())
 		if len(s) != 3 {
 			d.SetId("")

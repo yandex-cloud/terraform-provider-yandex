@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -242,7 +241,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 
 func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "instance_id", "name")
 	if err != nil {
@@ -273,7 +272,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	bootDisk, err := flattenInstanceBootDisk(instance, config.sdk.Compute().Disk())
+	bootDisk, err := flattenInstanceBootDisk(ctx, instance, config.sdk.Compute().Disk())
 	if err != nil {
 		return err
 	}

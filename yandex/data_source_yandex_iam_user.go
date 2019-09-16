@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -36,7 +35,7 @@ func dataSourceYandexIAMUser() *schema.Resource {
 
 func dataSourceYandexLoginRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 	var user *iam.UserAccount
 
 	if v, ok := d.GetOk("login"); ok {

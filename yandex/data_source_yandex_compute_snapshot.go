@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -71,7 +70,7 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 
 func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "snapshot_id", "name")
 	if err != nil {

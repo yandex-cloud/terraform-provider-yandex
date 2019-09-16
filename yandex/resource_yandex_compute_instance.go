@@ -373,7 +373,7 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Create(ctx, req))
@@ -408,7 +408,7 @@ func resourceYandexComputeInstanceCreate(d *schema.ResourceData, meta interface{
 func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
@@ -425,7 +425,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	bootDisk, err := flattenInstanceBootDisk(instance, config.sdk.Compute().Disk())
+	bootDisk, err := flattenInstanceBootDisk(ctx, instance, config.sdk.Compute().Disk())
 	if err != nil {
 		return err
 	}
@@ -505,7 +505,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 
 func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	instance, err := config.sdk.Compute().Instance().Get(context.Background(), &compute.GetInstanceRequest{
+
+	ctx := config.ContextWithClientTraceID()
+
+	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: d.Id(),
 	})
 
@@ -761,7 +764,7 @@ func resourceYandexComputeInstanceDelete(d *schema.ResourceData, meta interface{
 		InstanceId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Delete(ctx, req))
@@ -852,7 +855,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Update(ctx, req))
@@ -871,7 +874,7 @@ func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.Res
 func makeInstanceActionRequest(action instanceAction, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	instanceID := d.Id()
@@ -916,7 +919,7 @@ func makeInstanceActionRequest(action instanceAction, d *schema.ResourceData, me
 func makeDetachDiskRequest(req *compute.DetachInstanceDiskRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), yandexComputeInstanceDiskOperationTimeout)
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), yandexComputeInstanceDiskOperationTimeout)
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachDisk(ctx, req))
@@ -935,7 +938,7 @@ func makeDetachDiskRequest(req *compute.DetachInstanceDiskRequest, d *schema.Res
 func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), yandexComputeInstanceDiskOperationTimeout)
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), yandexComputeInstanceDiskOperationTimeout)
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachDisk(ctx, req))

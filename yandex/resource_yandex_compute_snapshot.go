@@ -104,7 +104,7 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 		Labels:      labels,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Create(ctx, &req))
@@ -139,7 +139,7 @@ func resourceYandexComputeSnapshotCreate(d *schema.ResourceData, meta interface{
 func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	snapshot, err := config.sdk.Compute().Snapshot().Get(context.Background(), &compute.GetSnapshotRequest{
+	snapshot, err := config.sdk.Compute().Snapshot().Get(config.ContextWithClientTraceID(), &compute.GetSnapshotRequest{
 		SnapshotId: d.Id(),
 	})
 
@@ -239,7 +239,7 @@ func resourceYandexComputeSnapshotDelete(d *schema.ResourceData, meta interface{
 		SnapshotId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Delete(ctx, req))
@@ -264,7 +264,7 @@ func resourceYandexComputeSnapshotDelete(d *schema.ResourceData, meta interface{
 func makeSnapshotUpdateRequest(req *compute.UpdateSnapshotRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Snapshot().Update(ctx, req))

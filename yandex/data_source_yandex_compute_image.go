@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -77,7 +76,7 @@ func dataSourceYandexComputeImage() *schema.Resource {
 
 func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 	var image *compute.Image
 
 	err := checkOneOf(d, "name", "image_id", "family")

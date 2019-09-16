@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -528,7 +527,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 func dataSourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	instanceGroupID := d.Get("instance_group_id").(string)
 

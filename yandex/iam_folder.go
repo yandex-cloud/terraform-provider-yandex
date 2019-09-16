@@ -48,7 +48,7 @@ func (u *FolderIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), yandexResourceManagerFolderDefaultTimeout)
+	ctx, cancel := context.WithTimeout(u.Config.ContextWithClientTraceID(), yandexResourceManagerFolderDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Folder().SetAccessBindings(ctx, req))
@@ -79,8 +79,10 @@ func (u *FolderIamUpdater) DescribeResource() string {
 func getFolderAccessBindings(config *Config, folderID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
+	ctx := config.ContextWithClientTraceID()
+
 	for {
-		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: folderID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

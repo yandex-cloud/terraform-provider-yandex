@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -65,7 +64,7 @@ func (id cloudID) folderResolver(name string, opts ...sdkresolvers.ResolveOption
 
 func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "folder_id", "name")
 	if err != nil {
@@ -88,7 +87,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 		}
 	}
 
-	folder, err := config.sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
+	folder, err := config.sdk.ResourceManager().Folder().Get(ctx, &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 

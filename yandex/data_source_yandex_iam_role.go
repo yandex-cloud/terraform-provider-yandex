@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -29,6 +28,7 @@ func dataSourceYandexIAMRole() *schema.Resource {
 
 func dataSourceYandexIAMRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+	ctx := config.ContextWithClientTraceID()
 
 	var role *iam.Role
 
@@ -37,7 +37,7 @@ func dataSourceYandexIAMRoleRead(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("'role_id' must be set")
 	}
 
-	resp, err := config.sdk.IAM().Role().Get(context.Background(), &iam.GetRoleRequest{
+	resp, err := config.sdk.IAM().Role().Get(ctx, &iam.GetRoleRequest{
 		RoleId: v.(string),
 	})
 

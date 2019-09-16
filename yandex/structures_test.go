@@ -231,7 +231,7 @@ func TestFlattenInstanceBootDisk(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := flattenInstanceBootDisk(&compute.Instance{BootDisk: tc.bootDisk}, reducedDiskClient)
+			result, err := flattenInstanceBootDisk(context.Background(), &compute.Instance{BootDisk: tc.bootDisk}, reducedDiskClient)
 
 			if err != nil {
 				t.Fatalf("bad: %#v", err)

@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -68,7 +67,7 @@ func dataSourceYandexVPCRouteTable() *schema.Resource {
 
 func dataSourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "route_table_id", "name")
 	if err != nil {

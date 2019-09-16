@@ -13,6 +13,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform/helper/schema"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -21,6 +22,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -366,7 +368,7 @@ func resolveObjectID(ctx context.Context, config *Config, name string, resolverF
 }
 
 func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, err error) {
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
 		SnapshotId: snapshotID,
@@ -380,7 +382,7 @@ func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, e
 }
 
 func getImageMinStorageSize(imageID string, config *Config) (size int64, err error) {
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	image, err := config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
 		ImageId: imageID,
@@ -391,4 +393,8 @@ func getImageMinStorageSize(imageID string, config *Config) (size int64, err err
 	}
 
 	return image.MinDiskSize, nil
+}
+
+func contextWithClientTraceID(parent context.Context) context.Context {
+	return requestid.ContextWithClientTraceID(parent, uuid.New().String())
 }

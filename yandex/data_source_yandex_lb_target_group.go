@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -71,7 +70,7 @@ func dataSourceYandexLBTargetGroup() *schema.Resource {
 
 func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "target_group_id", "name")
 	if err != nil {

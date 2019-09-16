@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -179,7 +178,7 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 
 func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "network_load_balancer_id", "name")
 	if err != nil {

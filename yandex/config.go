@@ -39,8 +39,16 @@ type Config struct {
 	Insecure              bool
 	MaxRetries            int
 
+	// contextWithClientTraceID is a context that has client-trace-id in its metadata
+	// It is initialized at the same time as ycsdk.SDK
+	contextWithClientTraceID context.Context
+
 	userAgent string
 	sdk       *ycsdk.SDK
+}
+
+func (c *Config) ContextWithClientTraceID() context.Context {
+	return c.contextWithClientTraceID
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
@@ -94,8 +102,10 @@ func (c *Config) initAndValidate(terraformVersion string) error {
 	// Now we will have new request id for every retry attempt.
 	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
 
+	c.contextWithClientTraceID = contextWithClientTraceID(context.Background())
+
 	var err error
-	c.sdk, err = ycsdk.Build(context.Background(), *yandexSDKConfig,
+	c.sdk, err = ycsdk.Build(c.contextWithClientTraceID, *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
 		grpc.WithUnaryInterceptor(interceptorChain))

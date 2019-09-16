@@ -95,7 +95,7 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 		Labels:      labels,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Create(ctx, &req))
@@ -130,7 +130,7 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
@@ -200,7 +200,7 @@ func resourceYandexVPCNetworkUpdate(d *schema.ResourceData, meta interface{}) er
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Update(ctx, req))
@@ -231,7 +231,7 @@ func resourceYandexVPCNetworkDelete(d *schema.ResourceData, meta interface{}) er
 		NetworkId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Network().Delete(ctx, req))

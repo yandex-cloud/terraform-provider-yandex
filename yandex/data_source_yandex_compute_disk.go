@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -83,7 +82,7 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 
 func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "disk_id", "name")
 	if err != nil {

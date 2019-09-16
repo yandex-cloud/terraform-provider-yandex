@@ -245,7 +245,7 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 		AttachedTargetGroups: atgs,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Create(ctx, &req))
@@ -280,7 +280,7 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	nlb, err := config.sdk.LoadBalancer().NetworkLoadBalancer().Get(ctx, &loadbalancer.GetNetworkLoadBalancerRequest{
@@ -351,7 +351,7 @@ func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta inte
 		AttachedTargetGroups:  atgs,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Update(ctx, req))
@@ -376,7 +376,7 @@ func resourceYandexLBNetworkLoadBalancerDelete(d *schema.ResourceData, meta inte
 		NetworkLoadBalancerId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().NetworkLoadBalancer().Delete(ctx, req))

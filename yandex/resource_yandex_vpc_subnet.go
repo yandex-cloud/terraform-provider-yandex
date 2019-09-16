@@ -142,7 +142,7 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		V4CidrBlocks: rangesV4,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Create(ctx, &req))
@@ -177,7 +177,7 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	subnet, err := config.sdk.VPC().Subnet().Get(context.Background(), &vpc.GetSubnetRequest{
+	subnet, err := config.sdk.VPC().Subnet().Get(config.ContextWithClientTraceID(), &vpc.GetSubnetRequest{
 		SubnetId: d.Id(),
 	})
 
@@ -244,7 +244,7 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "route_table_id")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Update(ctx, req))
@@ -275,7 +275,7 @@ func resourceYandexVPCSubnetDelete(d *schema.ResourceData, meta interface{}) err
 		SubnetId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Subnet().Delete(ctx, req))

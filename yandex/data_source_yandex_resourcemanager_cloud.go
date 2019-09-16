@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -38,7 +37,7 @@ func dataSourceYandexResourceManagerCloud() *schema.Resource {
 
 func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := context.Background()
+	ctx := config.ContextWithClientTraceID()
 
 	err := checkOneOf(d, "cloud_id", "name")
 	if err != nil {
@@ -55,7 +54,7 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 		}
 	}
 
-	cloud, err := config.sdk.ResourceManager().Cloud().Get(context.Background(), &resourcemanager.GetCloudRequest{
+	cloud, err := config.sdk.ResourceManager().Cloud().Get(ctx, &resourcemanager.GetCloudRequest{
 		CloudId: cloudID,
 	})
 

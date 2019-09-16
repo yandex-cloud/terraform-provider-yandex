@@ -48,7 +48,7 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), yandexIAMServiceAccountDefaultTimeout)
+	ctx, cancel := context.WithTimeout(u.Config.ContextWithClientTraceID(), yandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.IAM().ServiceAccount().SetAccessBindings(ctx, req))
@@ -80,8 +80,10 @@ func (u *ServiceAccountIamUpdater) DescribeResource() string {
 func getServiceAccountAccessBindings(config *Config, serviceAccountID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
+	ctx := config.ContextWithClientTraceID()
+
 	for {
-		resp, err := config.sdk.IAM().ServiceAccount().ListAccessBindings(context.Background(), &access.ListAccessBindingsRequest{
+		resp, err := config.sdk.IAM().ServiceAccount().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: serviceAccountID,
 			PageSize:   defaultListSize,
 			PageToken:  pageToken,

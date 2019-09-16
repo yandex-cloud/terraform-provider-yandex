@@ -120,7 +120,7 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 		StaticRoutes: staticRoutes,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Create(ctx, &req))
@@ -155,7 +155,7 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 func resourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	routeTable, err := config.sdk.VPC().RouteTable().Get(context.Background(), &vpc.GetRouteTableRequest{
+	routeTable, err := config.sdk.VPC().RouteTable().Get(config.ContextWithClientTraceID(), &vpc.GetRouteTableRequest{
 		RouteTableId: d.Id(),
 	})
 
@@ -228,7 +228,7 @@ func resourceYandexVPCRouteTableUpdate(d *schema.ResourceData, meta interface{})
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "static_routes")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Update(ctx, req))
@@ -259,7 +259,7 @@ func resourceYandexVPCRouteTableDelete(d *schema.ResourceData, meta interface{})
 		RouteTableId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().RouteTable().Delete(ctx, req))
