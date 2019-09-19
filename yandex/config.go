@@ -141,9 +141,11 @@ func getProviderNameAndVersion() string {
 	binaryName := filepath.Base(fullBinaryPath)
 	parts := strings.Split(binaryName, "_")
 
-	if len(parts) != 2 {
+	if len(parts) < 2 {
 		return "unknown/unknown"
 	}
 
-	return strings.Join(parts, "/")
+	parts[1] = strings.TrimPrefix(parts[1], "v")
+
+	return strings.Join(parts[:2], "/")
 }
