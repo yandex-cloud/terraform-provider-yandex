@@ -1,4 +1,4 @@
-## 0.11.2 (Unreleased)
+## 0.11.2 (September 19, 2019)
 ENHANCEMENTS:
 * provider: provider uses permanent client-request-id identifier while the terraform is running
 
