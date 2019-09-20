@@ -71,6 +71,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"yandex_container_registry":       dataSourceYandexContainerRegistry(),
 			"yandex_compute_disk":             dataSourceYandexComputeDisk(),
 			"yandex_compute_image":            dataSourceYandexComputeImage(),
 			"yandex_compute_instance":         dataSourceYandexComputeInstance(),
@@ -90,6 +91,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"yandex_container_registry":                    resourceYandexContainerRegistry(),
 			"yandex_compute_disk":                          resourceYandexComputeDisk(),
 			"yandex_compute_image":                         resourceYandexComputeImage(),
 			"yandex_compute_instance":                      resourceYandexComputeInstance(),
