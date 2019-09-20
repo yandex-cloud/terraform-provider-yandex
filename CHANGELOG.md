@@ -1,4 +1,4 @@
-## 0.12.0 (Unreleased)
+## 0.12.0 (September 20, 2019)
 FEATURES:
 * **New Data Source:** `yandex_container_registry`
 * **New Resource:** `yandex_container_registry`
