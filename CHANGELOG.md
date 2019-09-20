@@ -1,4 +1,8 @@
-## 0.11.3 (Unreleased)
+## 0.12.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_container_registry`
+* **New Resource:** `yandex_container_registry`
+
 ## 0.11.2 (September 19, 2019)
 ENHANCEMENTS:
 * provider: provider uses permanent client-request-id identifier while the terraform is running
