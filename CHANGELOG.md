@@ -1,4 +1,13 @@
-## 0.12.1 (Unreleased)
+## 0.13.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_iam_service_account_api_key`
+* **New Resource:** `yandex_iam_service_account_key`
+
+ENHANCEMENTS:
+* compute: `yandex_compute_snapshot` resource can now be imported
+* iam: `yandex_iam_service_account` resource can now be imported
+* iam: `yandex_iam_service_account_static_access_key` resource now supports `pgp_key` field.
+
 ## 0.12.0 (September 20, 2019)
 FEATURES:
 * **New Data Source:** `yandex_container_registry`

@@ -7,14 +7,14 @@ import (
 	"github.com/hashicorp/terraform/helper/encryption"
 	"github.com/hashicorp/terraform/helper/schema"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 )
 
-func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
+func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexIAMServiceAccountStaticAccessKeyCreate,
-		Read:   resourceYandexIAMServiceAccountStaticAccessKeyRead,
-		Delete: resourceYandexIAMServiceAccountStaticAccessKeyDelete,
+		Create: resourceYandexIAMServiceAccountAPIKeyCreate,
+		Read:   resourceYandexIAMServiceAccountAPIKeyRead,
+		Delete: resourceYandexIAMServiceAccountAPIKeyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"service_account_id": {
@@ -23,7 +23,7 @@ func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// There is no Update method for IAM SA Key resource,
+			// There is no Update method for IAM API Key resource,
 			// so "description" attr set as 'ForceNew:true'
 			"description": {
 				Type:     schema.TypeString,
@@ -35,11 +35,6 @@ func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-
-			"access_key": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 
 			"secret_key": {
@@ -66,21 +61,21 @@ func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 	}
 }
 
-func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	resp, err := config.sdk.IAM().AWSCompatibility().AccessKey().Create(ctx, &awscompatibility.CreateAccessKeyRequest{
+	resp, err := config.sdk.IAM().ApiKey().Create(ctx, &iam.CreateApiKeyRequest{
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Description:      d.Get("description").(string),
 	})
 	if err != nil {
-		return fmt.Errorf("error creating service account key: %s", err)
+		return fmt.Errorf("error creating api key: %s", err)
 	}
 
-	d.SetId(resp.AccessKey.Id)
+	d.SetId(resp.ApiKey.Id)
 	// Data only available on create.
 	if v, ok := d.GetOk("pgp_key"); ok {
 		encryptionKey, err := encryption.RetrieveGPGKey(v.(string))
@@ -88,7 +83,7 @@ func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData
 			return err
 		}
 
-		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, resp.Secret, "Yandex Service Account Static Access Key")
+		fingerprint, encrypted, err := encryption.EncryptValue(encryptionKey, resp.Secret, "Yandex Service Account API Key")
 		if err != nil {
 			return err
 		}
@@ -99,46 +94,45 @@ func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData
 		d.Set("secret_key", resp.Secret)
 	}
 
-	return resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
+	return resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
 }
 
-func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	sak, err := config.sdk.IAM().AWSCompatibility().AccessKey().Get(ctx, &awscompatibility.GetAccessKeyRequest{
-		AccessKeyId: d.Id(),
+	ak, err := config.sdk.IAM().ApiKey().Get(ctx, &iam.GetApiKeyRequest{
+		ApiKeyId: d.Id(),
 	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Static Access Key %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(sak.CreatedAt)
+	createdAt, err := getTimestamp(ak.CreatedAt)
 	if err != nil {
 		return err
 	}
 
-	d.Set("service_account_id", sak.ServiceAccountId)
+	d.Set("service_account_id", ak.ServiceAccountId)
 	d.Set("created_at", createdAt)
-	d.Set("description", sak.Description)
-	d.Set("access_key", sak.KeyId)
+	d.Set("description", ak.Description)
 
 	return nil
 }
 
-func resourceYandexIAMServiceAccountStaticAccessKeyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexIAMServiceAccountAPIKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Delete(ctx, &awscompatibility.DeleteAccessKeyRequest{
-		AccessKeyId: d.Id(),
+	_, err := config.sdk.IAM().ApiKey().Delete(ctx, &iam.DeleteApiKeyRequest{
+		ApiKeyId: d.Id(),
 	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Static Access Key %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
 	}
 
 	d.SetId("")

@@ -6,12 +6,14 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/vault/helper/pgpkeys"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
@@ -25,6 +27,50 @@ func TestJoinedStrings(t *testing.T) {
 	testKey := []string{"key1"}
 	joinedKey := getJoinedKeys(testKey)
 	assert.Equal(t, "`key1`", joinedKey)
+}
+
+func TestValidateParsableValue(t *testing.T) {
+	correctParseFunc1 := func(value string) error {
+		if value != "CORRECT" {
+			return fmt.Errorf("expected correct value")
+		}
+		return nil
+	}
+	validator1 := validateParsableValue(correctParseFunc1)
+
+	_, es := validator1("CORRECT", "some_key")
+	assert.Equal(t, 0, len(es))
+
+	_, es = validator1("INCORRECT", "some_key")
+	assert.Equal(t, 1, len(es))
+
+	_, es = validator1([]string{"wrong", "type", "should", "not", "panic"}, "some_key")
+	assert.Equal(t, 1, len(es))
+
+	_, es = validator1(666, "some_key")
+	assert.Equal(t, 1, len(es))
+
+	correctParseFunc2 := func(value int) (string, error) {
+		if value < 500 {
+			return "", fmt.Errorf("expected int >= 500")
+		}
+		return strconv.Itoa(value), nil
+	}
+	validator2 := validateParsableValue(correctParseFunc2)
+
+	_, es = validator2(777, "some_key")
+	assert.Equal(t, 0, len(es))
+
+	_, es = validator2(99, "some_key")
+	assert.Equal(t, 1, len(es))
+
+	incorrectParseFunc := func() string {
+		return "should not panic"
+	}
+	validator3 := validateParsableValue(incorrectParseFunc)
+
+	_, es = validator3("something", "some_key")
+	assert.Equal(t, 1, len(es))
 }
 
 func memberType(ab *access.AccessBinding) string {
@@ -260,6 +306,29 @@ func testCheckResourceSubAttrFn(resourceName string, path *string, field string,
 		err := checkfn(value)
 		if err != nil {
 			return err
+		}
+
+		return nil
+	}
+}
+
+func testDecryptKeyAndTest(name, key, pgpKey string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("not found: %s", name)
+		}
+
+		ciphertext, ok := rs.Primary.Attributes[key]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", key, name)
+		}
+
+		// We can't verify that the decrypted ciphertext is correct, because we don't
+		// have it. We can verify that decrypting it does not error
+		_, err := pgpkeys.DecryptBytes(ciphertext, pgpKey)
+		if err != nil {
+			return fmt.Errorf("error decrypting ciphertext: %s", err)
 		}
 
 		return nil

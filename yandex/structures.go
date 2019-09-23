@@ -11,6 +11,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
@@ -772,6 +773,24 @@ func parseInstanceGroupDiskMode(mode string) (instancegroup.AttachedDiskSpec_Mod
 		return instancegroup.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
 	}
 	return instancegroup.AttachedDiskSpec_Mode(val), nil
+}
+
+func parseIamKeyAlgorithm(algorithm string) (iam.Key_Algorithm, error) {
+	val, ok := iam.Key_Algorithm_value[algorithm]
+	if !ok {
+		return iam.Key_ALGORITHM_UNSPECIFIED, fmt.Errorf("value for 'key_algorithm' should be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(iam.KeyFormat_value)), algorithm)
+	}
+	return iam.Key_Algorithm(val), nil
+}
+
+func parseIamKeyFormat(format string) (iam.KeyFormat, error) {
+	val, ok := iam.KeyFormat_value[format]
+	if !ok {
+		return iam.KeyFormat(0), fmt.Errorf("value for 'format' should be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(iam.KeyFormat_value)), format)
+	}
+	return iam.KeyFormat(val), nil
 }
 
 func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.SchedulingPolicy, error) {
