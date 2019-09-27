@@ -1,4 +1,6 @@
-## 0.13.1 (Unreleased)
+## 0.14.0 (Unreleased)
+* provider: migrate to standalone Terraform SDK module [GH-22]
+
 ## 0.13.0 (September 23, 2019)
 FEATURES:
 * **New Resource:** `yandex_iam_service_account_api_key`
