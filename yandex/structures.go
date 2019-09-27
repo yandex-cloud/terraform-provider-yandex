@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"

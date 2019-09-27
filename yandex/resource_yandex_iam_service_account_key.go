@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/encryption"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/encryption"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 )
