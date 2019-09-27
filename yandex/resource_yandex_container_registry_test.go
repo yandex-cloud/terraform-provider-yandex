@@ -48,6 +48,8 @@ func TestAccContainerRegistry_updateNameAndLabels(t *testing.T) {
 	var registry containerregistry.Registry
 	registryName := fmt.Sprintf("tf-test-update-%s", acctest.RandString(10))
 	folderID := getExampleFolderID()
+	var registryID string
+	var afterUpdateRegistryID string
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -63,11 +65,18 @@ func TestAccContainerRegistry_updateNameAndLabels(t *testing.T) {
 			{
 				Config: testAccContainerRegistry_update("new-registry-name", folderID),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPtr("yandex_container_registry.foobar", "id", &registry.Id),
 					testAccCheckContainerRegistryExists("yandex_container_registry.foobar", &registry),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar", "name", "new-registry-name"),
 					testAccCheckContainerRegistryName(&registry, "new-registry-name"),
 					testAccCheckContainerRegistryContainsLabel(&registry, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckContainerRegistryContainsLabel(&registry, "new-field", "only-shows-up-when-updated"),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar",
+						"labels.empty-label", "oh-look-theres-a-label-now"),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar",
+						"labels.new-field", "only-shows-up-when-updated"),
 					testAccCheckContainerRegistryDoesNotContainLabel(&registry, "test_label"),
+					testAccCheckRegistyIdsEqual(&registryID, &afterUpdateRegistryID),
 				),
 			},
 			{
@@ -85,6 +94,8 @@ func TestAccContainerRegistry_updateOnlyName(t *testing.T) {
 	var registry containerregistry.Registry
 	registryName := fmt.Sprintf("tf-test-update-%s", acctest.RandString(10))
 	folderID := getExampleFolderID()
+	var registryID string
+	var afterUpdateRegistryID string
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -100,8 +111,11 @@ func TestAccContainerRegistry_updateOnlyName(t *testing.T) {
 			{
 				Config: testAccContainerRegistry_basic("new-registry-name", folderID, "my-init-value"),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPtr("yandex_container_registry.foobar", "id", &registry.Id),
 					testAccCheckContainerRegistryExists("yandex_container_registry.foobar", &registry),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar", "name", "new-registry-name"),
 					testAccCheckContainerRegistryName(&registry, "new-registry-name"),
+					testAccCheckRegistyIdsEqual(&registryID, &afterUpdateRegistryID),
 				),
 			},
 			{
@@ -134,10 +148,15 @@ func TestAccContainerRegistry_updateOnlyLabels(t *testing.T) {
 			{
 				Config: testAccContainerRegistry_update(registryName, folderID),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPtr("yandex_container_registry.foobar", "id", &registry.Id),
 					testAccCheckContainerRegistryExists("yandex_container_registry.foobar", &registry),
 					testAccCheckContainerRegistryContainsLabel(&registry, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckContainerRegistryContainsLabel(&registry, "new-field", "only-shows-up-when-updated"),
 					testAccCheckContainerRegistryDoesNotContainLabel(&registry, "test_label"),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar",
+						"labels.empty-label", "oh-look-theres-a-label-now"),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar",
+						"labels.new-field", "only-shows-up-when-updated"),
 				),
 			},
 			{
@@ -170,8 +189,11 @@ func TestAccContainerRegistry_updateLabelValue(t *testing.T) {
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-new-value"),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPtr("yandex_container_registry.foobar", "id", &registry.Id),
 					testAccCheckContainerRegistryExists("yandex_container_registry.foobar", &registry),
 					testAccCheckContainerRegistryContainsLabel(&registry, "test_label", "my-new-value"),
+					resource.TestCheckResourceAttr("yandex_container_registry.foobar",
+						"labels.test_label", "my-new-value"),
 				),
 			},
 			{
@@ -233,7 +255,6 @@ func testAccCheckContainerRegistryExists(n string, registry *containerregistry.R
 		}
 
 		*registry = *found
-
 		return nil
 	}
 }
@@ -274,6 +295,16 @@ func testAccCheckContainerRegistryDoesNotContainLabel(registry *containerregistr
 	return func(s *terraform.State) error {
 		if v, ok := registry.Labels[key]; ok {
 			return fmt.Errorf("Expected no label for key '%s' but found one with value '%s'", key, v)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckRegistyIdsEqual(registryID *string, afterUpdateRegistryID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if *registryID != *afterUpdateRegistryID {
+			return fmt.Errorf("Registry id has changed: before '%s', after update '%s'", *registryID, *afterUpdateRegistryID)
 		}
 
 		return nil

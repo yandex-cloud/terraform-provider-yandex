@@ -28,9 +28,7 @@ resource "yandex_container_registry" "default" {
 
 The following arguments are supported:
 
-* `folder_id` - (Required) ID of the folder to attach a registry to.
-
-- - -
+* `folder_id` - (Optional) Folder that the resource belongs to. If a value is not provided, the default provider folder is used
 
 * `name` - (Optional) A name of the registry.
 

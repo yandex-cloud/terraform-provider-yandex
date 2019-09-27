@@ -30,7 +30,7 @@ func TestConfigInitAndValidate(t *testing.T) {
 		Insecure:  false,
 	}
 
-	err := config.initAndValidate(testTerraformVersion)
+	err := config.initAndValidate(context.Background(), testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestConfigInitByServiceAccountKey(t *testing.T) {
 		Insecure:              false,
 	}
 
-	err := config.initAndValidate(testTerraformVersion)
+	err := config.initAndValidate(context.Background(), testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestConfigUserAgent(t *testing.T) {
 		Plaintext: true,
 	}
 
-	err := config.initAndValidate(testTerraformVersion)
+	err := config.initAndValidate(context.Background(), testTerraformVersion)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

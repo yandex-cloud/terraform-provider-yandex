@@ -40,7 +40,7 @@ type Config struct {
 	MaxRetries            int
 
 	// contextWithClientTraceID is a context that has client-trace-id in its metadata
-	// It is initialized at the same time as ycsdk.SDK
+	// It is initialized from stopContext at the same time as ycsdk.SDK
 	contextWithClientTraceID context.Context
 
 	userAgent string
@@ -52,7 +52,7 @@ func (c *Config) ContextWithClientTraceID() context.Context {
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
-func (c *Config) initAndValidate(terraformVersion string) error {
+func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string) error {
 	if c.Token != "" && c.ServiceAccountKeyFile != "" {
 		return fmt.Errorf("one of token or service account key file must be specified, not both (check your config AND environment variables)")
 	}
@@ -102,7 +102,7 @@ func (c *Config) initAndValidate(terraformVersion string) error {
 	// Now we will have new request id for every retry attempt.
 	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
 
-	c.contextWithClientTraceID = contextWithClientTraceID(context.Background())
+	c.contextWithClientTraceID = contextWithClientTraceID(stopContext)
 
 	var err error
 	c.sdk, err = ycsdk.Build(c.contextWithClientTraceID, *yandexSDKConfig,

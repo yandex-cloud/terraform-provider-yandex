@@ -13,7 +13,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 )
 
-const yandexContainerRegistryDefaultTimeout = 5 * time.Minute
+const yandexContainerRegistryDefaultTimeout = 30 * time.Second
 
 func resourceYandexContainerRegistry() *schema.Resource {
 	return &schema.Resource{
@@ -34,35 +34,34 @@ func resourceYandexContainerRegistry() *schema.Resource {
 		SchemaVersion: 0,
 
 		Schema: map[string]*schema.Schema{
-			"registry_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				ForceNew: true,
-			},
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				ForceNew: true,
 			},
+
 			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-				ForceNew: true,
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -192,7 +191,7 @@ func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interfac
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Delete(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Get("registry_id").(string)))
+		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Id()))
 	}
 
 	err = op.Wait(ctx)

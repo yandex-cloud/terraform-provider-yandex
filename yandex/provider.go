@@ -116,17 +116,7 @@ func Provider() terraform.ResourceProvider {
 			"yandex_lb_target_group":                       resourceYandexLBTargetGroup(),
 		},
 	}
-
-	provider.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-		terraformVersion := provider.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-
-		return providerConfigure(d, terraformVersion)
-	}
+	provider.ConfigureFunc = providerConfigure(provider)
 
 	return provider
 }
@@ -154,22 +144,31 @@ var descriptions = map[string]string{
 		"If the API request still fails, an error is thrown.",
 }
 
-func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	config := Config{
-		Token:                 d.Get("token").(string),
-		ServiceAccountKeyFile: d.Get("service_account_key_file").(string),
-		Zone:                  d.Get("zone").(string),
-		FolderID:              d.Get("folder_id").(string),
-		CloudID:               d.Get("cloud_id").(string),
-		Endpoint:              d.Get("endpoint").(string),
-		Plaintext:             d.Get("plaintext").(bool),
-		Insecure:              d.Get("insecure").(bool),
-		MaxRetries:            d.Get("max_retries").(int),
-	}
+func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
+	return func(d *schema.ResourceData) (interface{}, error) {
+		config := Config{
+			Token:                 d.Get("token").(string),
+			ServiceAccountKeyFile: d.Get("service_account_key_file").(string),
+			Zone:                  d.Get("zone").(string),
+			FolderID:              d.Get("folder_id").(string),
+			CloudID:               d.Get("cloud_id").(string),
+			Endpoint:              d.Get("endpoint").(string),
+			Plaintext:             d.Get("plaintext").(bool),
+			Insecure:              d.Get("insecure").(bool),
+			MaxRetries:            d.Get("max_retries").(int),
+		}
 
-	if err := config.initAndValidate(terraformVersion); err != nil {
-		return nil, err
-	}
+		terraformVersion := provider.TerraformVersion
+		if terraformVersion == "" {
+			// Terraform 0.12 introduced this field to the protocol
+			// We can therefore assume that if it's missing it's 0.10 or 0.11
+			terraformVersion = "0.11+compatible"
+		}
 
-	return &config, nil
+		if err := config.initAndValidate(provider.StopContext(), terraformVersion); err != nil {
+			return nil, err
+		}
+
+		return &config, nil
+	}
 }

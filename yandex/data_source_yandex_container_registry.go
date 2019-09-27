@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexContainerRegistry() *schema.Resource {
@@ -16,24 +17,31 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"registry_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
+
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -47,21 +55,30 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.ContextWithClientTraceID()
-	var registry *containerregistry.Registry
 
-	v, ok := d.GetOk("registry_id")
-	if !ok {
-		return fmt.Errorf("'registry_id' must be set")
+	err := checkOneOf(d, "registry_id", "name")
+	if err != nil {
+		return err
+	}
+
+	registryID := d.Get("registry_id").(string)
+	registryName, registryNameOk := d.GetOk("name")
+
+	if registryNameOk {
+		registryID, err = resolveObjectID(ctx, config, registryName.(string), sdkresolvers.RegistryResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve container registry data source by name: %v", err)
+		}
 	}
 
 	registry, err := config.sdk.ContainerRegistry().Registry().Get(ctx,
 		&containerregistry.GetRegistryRequest{
-			RegistryId: v.(string),
+			RegistryId: registryID,
 		})
 
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {
-			return fmt.Errorf("registry not found: %s", v)
+			return fmt.Errorf("container registry not found: %s", registryID)
 		}
 		return err
 	}

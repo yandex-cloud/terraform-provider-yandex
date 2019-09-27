@@ -22,6 +22,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -73,6 +74,29 @@ func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 		return "", fmt.Errorf("cannot determine folder_id: please set 'folder_id' key in this resource or at provider level")
 	}
 	return res.(string), nil
+}
+
+func cloudIDOfFolderID(config *Config, folderID string) (string, error) {
+	folder, err := config.sdk.ResourceManager().Folder().Get(config.ContextWithClientTraceID(), &resourcemanager.GetFolderRequest{
+		FolderId: folderID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return folder.CloudId, nil
+}
+
+func lockCloudByFolderID(config *Config, folderID string) (func(), error) {
+	cloudID, err := cloudIDOfFolderID(config, folderID)
+	if err != nil {
+		return nil, fmt.Errorf("error getting cloud ID of `folder_id` %s: %s", folderID, err)
+	}
+	c := CloudIamUpdater{cloudID: cloudID}
+	mutexKey := c.GetMutexKey()
+	mutexKV.Lock(mutexKey)
+	return func() {
+		mutexKV.Unlock(mutexKey)
+	}, nil
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resourceName string) error {

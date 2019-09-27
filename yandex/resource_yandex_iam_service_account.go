@@ -67,6 +67,14 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error getting folder ID while creating service account: %s", err)
 	}
 
+	// Lock cloud to prevent out IAM changes:
+	// SA create operation adds 'resource-manager.clouds.member' role
+	unlock, err := lockCloudByFolderID(config, folderID)
+	if err != nil {
+		return fmt.Errorf("could not lock cloud to prevent IAM changes: %s", err)
+	}
+	defer unlock()
+
 	req := iam.CreateServiceAccountRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
@@ -173,6 +181,19 @@ func resourceYandexIAMServiceAccountUpdate(d *schema.ResourceData, meta interfac
 
 func resourceYandexIAMServiceAccountDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while deleting service account: %s", err)
+	}
+
+	// Lock cloud to prevent out IAM changes:
+	// SA delete operation removes 'resource-manager.clouds.member' role
+	unlock, err := lockCloudByFolderID(config, folderID)
+	if err != nil {
+		return fmt.Errorf("could not lock cloud to prevent IAM changes: %s", err)
+	}
+	defer unlock()
 
 	log.Printf("[DEBUG] Deleting Service Account %q", d.Id())
 
