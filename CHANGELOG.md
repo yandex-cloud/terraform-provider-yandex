@@ -1,5 +1,8 @@
 ## 0.14.0 (Unreleased)
 * provider: migrate to standalone Terraform SDK module [GH-22]
+* provider: support graceful shutdown
+* iam: use logic lock on cloud while create SA to prevent simultaneous IAM membership changes
+* container: resolve data source `yandex_container_registry` by name.
 
 ## 0.13.0 (September 23, 2019)
 FEATURES:
