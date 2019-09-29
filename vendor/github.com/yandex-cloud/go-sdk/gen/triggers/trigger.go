@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
+	triggers "github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 )
 
 //revive:disable

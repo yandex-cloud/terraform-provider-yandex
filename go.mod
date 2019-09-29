@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/fatih/structs v1.1.0
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/uuid v1.1.1
@@ -14,8 +15,8 @@ require (
 	github.com/hashicorp/vault v0.10.4
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20190916101622-7617782d381e
-	github.com/yandex-cloud/go-sdk v0.0.0-20190916101744-c781afa45829
+	github.com/yandex-cloud/go-genproto v0.0.0-20190928220815-a36c849d0fc1
+	github.com/yandex-cloud/go-sdk v0.0.0-20190928221040-2b2c62d945aa
 	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 	google.golang.org/grpc v1.23.0

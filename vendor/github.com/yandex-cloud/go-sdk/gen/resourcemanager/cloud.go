@@ -10,7 +10,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
+	resourcemanager "github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 )
 
 //revive:disable

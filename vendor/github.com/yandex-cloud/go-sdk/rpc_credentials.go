@@ -97,7 +97,7 @@ func (c *rpcCredentials) updateToken(ctx context.Context, currentState rpcCreden
 	}
 	expiresAt, expiresAtErr := ptypes.Timestamp(resp.ExpiresAt)
 	if expiresAtErr != nil {
-		grpclog.Errorf("invalid IAM Token expires_at: %s", expiresAtErr)
+		grpclog.Warningf("invalid IAM Token expires_at: %s", expiresAtErr)
 		// Fallback to short term caching.
 		expiresAt = time.Now().Add(time.Minute)
 	}

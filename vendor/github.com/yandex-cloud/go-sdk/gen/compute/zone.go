@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
 
 //revive:disable

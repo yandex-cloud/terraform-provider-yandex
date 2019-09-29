@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	vpc "github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 //revive:disable
@@ -74,6 +74,15 @@ func (c *NetworkServiceClient) ListSubnets(ctx context.Context, in *vpc.ListNetw
 		return nil, err
 	}
 	return vpc.NewNetworkServiceClient(conn).ListSubnets(ctx, in, opts...)
+}
+
+// Move implements vpc.NetworkServiceClient
+func (c *NetworkServiceClient) Move(ctx context.Context, in *vpc.MoveNetworkRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return vpc.NewNetworkServiceClient(conn).Move(ctx, in, opts...)
 }
 
 // Update implements vpc.NetworkServiceClient

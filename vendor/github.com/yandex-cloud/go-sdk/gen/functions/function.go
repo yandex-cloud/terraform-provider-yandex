@@ -10,7 +10,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
+	functions "github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 )
 
 //revive:disable
@@ -39,6 +39,15 @@ func (c *FunctionServiceClient) CreateFunctionVersion(ctx context.Context, in *f
 		return nil, err
 	}
 	return functions.NewFunctionServiceClient(conn).CreateFunctionVersion(ctx, in, opts...)
+}
+
+// CreateVersion implements functions.FunctionServiceClient
+func (c *FunctionServiceClient) CreateVersion(ctx context.Context, in *functions.CreateFunctionVersionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return functions.NewFunctionServiceClient(conn).CreateVersion(ctx, in, opts...)
 }
 
 // Delete implements functions.FunctionServiceClient
@@ -75,6 +84,24 @@ func (c *FunctionServiceClient) GetFunctionVersionByTag(ctx context.Context, in 
 		return nil, err
 	}
 	return functions.NewFunctionServiceClient(conn).GetFunctionVersionByTag(ctx, in, opts...)
+}
+
+// GetVersion implements functions.FunctionServiceClient
+func (c *FunctionServiceClient) GetVersion(ctx context.Context, in *functions.GetFunctionVersionRequest, opts ...grpc.CallOption) (*functions.Version, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return functions.NewFunctionServiceClient(conn).GetVersion(ctx, in, opts...)
+}
+
+// GetVersionByTag implements functions.FunctionServiceClient
+func (c *FunctionServiceClient) GetVersionByTag(ctx context.Context, in *functions.GetFunctionVersionByTagRequest, opts ...grpc.CallOption) (*functions.Version, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return functions.NewFunctionServiceClient(conn).GetVersionByTag(ctx, in, opts...)
 }
 
 // List implements functions.FunctionServiceClient
@@ -129,6 +156,24 @@ func (c *FunctionServiceClient) ListRuntimes(ctx context.Context, in *functions.
 		return nil, err
 	}
 	return functions.NewFunctionServiceClient(conn).ListRuntimes(ctx, in, opts...)
+}
+
+// ListTagHistory implements functions.FunctionServiceClient
+func (c *FunctionServiceClient) ListTagHistory(ctx context.Context, in *functions.ListFunctionTagHistoryRequest, opts ...grpc.CallOption) (*functions.ListFunctionTagHistoryResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return functions.NewFunctionServiceClient(conn).ListTagHistory(ctx, in, opts...)
+}
+
+// ListVersions implements functions.FunctionServiceClient
+func (c *FunctionServiceClient) ListVersions(ctx context.Context, in *functions.ListFunctionsVersionsRequest, opts ...grpc.CallOption) (*functions.ListFunctionsVersionsResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return functions.NewFunctionServiceClient(conn).ListVersions(ctx, in, opts...)
 }
 
 // RemoveTag implements functions.FunctionServiceClient

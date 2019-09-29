@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	instancegroup "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
@@ -92,6 +92,24 @@ func (c *InstanceGroupServiceClient) ListOperations(ctx context.Context, in *ins
 		return nil, err
 	}
 	return instancegroup.NewInstanceGroupServiceClient(conn).ListOperations(ctx, in, opts...)
+}
+
+// Start implements instancegroup.InstanceGroupServiceClient
+func (c *InstanceGroupServiceClient) Start(ctx context.Context, in *instancegroup.StartInstanceGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return instancegroup.NewInstanceGroupServiceClient(conn).Start(ctx, in, opts...)
+}
+
+// Stop implements instancegroup.InstanceGroupServiceClient
+func (c *InstanceGroupServiceClient) Stop(ctx context.Context, in *instancegroup.StopInstanceGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return instancegroup.NewInstanceGroupServiceClient(conn).Stop(ctx, in, opts...)
 }
 
 // Update implements instancegroup.InstanceGroupServiceClient

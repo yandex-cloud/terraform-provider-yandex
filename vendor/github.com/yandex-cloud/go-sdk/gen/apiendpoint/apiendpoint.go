@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
+	endpoint "github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
 )
 
 //revive:disable

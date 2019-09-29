@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
+	containerregistry "github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 

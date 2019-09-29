@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
+	devices "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
