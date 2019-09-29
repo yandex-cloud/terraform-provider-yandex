@@ -118,7 +118,7 @@ func resourceYandexLBTargetGroupCreate(d *schema.ResourceData, meta interface{})
 		Targets:     targets,
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().TargetGroup().Create(ctx, &req))
@@ -153,7 +153,7 @@ func resourceYandexLBTargetGroupCreate(d *schema.ResourceData, meta interface{})
 func resourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	tg, err := config.sdk.LoadBalancer().TargetGroup().Get(ctx, &loadbalancer.GetTargetGroupRequest{
@@ -208,7 +208,7 @@ func resourceYandexLBTargetGroupUpdate(d *schema.ResourceData, meta interface{})
 		Targets:       targets,
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().TargetGroup().Update(ctx, req))
@@ -233,7 +233,7 @@ func resourceYandexLBTargetGroupDelete(d *schema.ResourceData, meta interface{})
 		TargetGroupId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.LoadBalancer().TargetGroup().Delete(ctx, req))

@@ -54,7 +54,7 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 
 func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "registry_id", "name")
 	if err != nil {

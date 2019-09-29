@@ -54,7 +54,7 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 
 func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "network_id", "name")
 	if err != nil {

@@ -1,0 +1,185 @@
+package yandex
+
+import (
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+)
+
+func dataSourceYandexKubernetesCluster() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceYandexKubernetesClusterRead,
+		Schema: map[string]*schema.Schema{
+			"cluster_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"network_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"node_service_account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"release_channel": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"master": {
+				Type:     schema.TypeList,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"zonal": {
+							Type:     schema.TypeList,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"regional": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"region": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"internal_v4_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"external_v4_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"internal_v4_endpoint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"external_v4_endpoint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"cluster_ca_certificate": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"version_info": {
+							Type:     schema.TypeList,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"current_version": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"new_revision_available": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"new_revision_summary": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"version_deprecated": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"health": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func dataSourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx := config.Context()
+
+	err := checkOneOf(d, "cluster_id", "name")
+	if err != nil {
+		return err
+	}
+
+	clusterID := d.Get("cluster_id").(string)
+	clusterName, clusterNameOk := d.GetOk("name")
+
+	if clusterNameOk {
+		clusterID, err = resolveObjectID(ctx, config, clusterName.(string), sdkresolvers.KubernetesClusterResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve Kubernetes cluster by name: %v", err)
+		}
+	}
+
+	cluster, err := config.sdk.Kubernetes().Cluster().Get(ctx, &k8s.GetClusterRequest{
+		ClusterId: clusterID,
+	})
+
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Kubernetes cluster with ID %q", clusterID))
+	}
+
+	err = flattenKubernetesClusterAttributes(cluster, d, false)
+	if err != nil {
+		return fmt.Errorf("failed to fill Kubernetes cluster attributes: %v", err)
+	}
+
+	return nil
+}

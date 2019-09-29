@@ -64,7 +64,7 @@ func (id cloudID) folderResolver(name string, opts ...sdkresolvers.ResolveOption
 
 func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "folder_id", "name")
 	if err != nil {

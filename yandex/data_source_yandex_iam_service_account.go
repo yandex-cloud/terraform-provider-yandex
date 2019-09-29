@@ -38,7 +38,7 @@ func dataSourceYandexIAMServiceAccount() *schema.Resource {
 
 func dataSourceYandexIAMServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 	var sa *iam.ServiceAccount
 
 	serviceAccountID := d.Get("service_account_id").(string)

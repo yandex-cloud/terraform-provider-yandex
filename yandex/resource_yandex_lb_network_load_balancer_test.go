@@ -318,7 +318,7 @@ func testAccLBNetworkLoadBalancerBasic(name string) string {
 }
 
 func testAccLBNetworkLoadBalancerDefaults(ctx map[string]interface{}) string {
-	return lbTemplateConfig(`
+	return templateConfig(`
 		resource "yandex_lb_network_load_balancer" "test-nlb" {
 		  name = "{{.NLBName}}"
 

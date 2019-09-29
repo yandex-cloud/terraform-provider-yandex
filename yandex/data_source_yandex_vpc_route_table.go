@@ -67,7 +67,7 @@ func dataSourceYandexVPCRouteTable() *schema.Resource {
 
 func dataSourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "route_table_id", "name")
 	if err != nil {

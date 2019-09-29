@@ -110,7 +110,7 @@ The structure is documented below.
 The structure is documented below.
 * `secondary_disk` - An array with the secondary disks that will be attached to the instance.
 The structure is documented below.
-* `boot_disk` - The specifications for boot disks that will be attached to the instance.
+* `boot_disk` - The specifications for boot disk that will be attached to the instance.
 
 The structure is documented below.
 

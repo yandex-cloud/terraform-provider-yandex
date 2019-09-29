@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,13 +10,14 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,7 +26,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
-	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -77,7 +78,7 @@ func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 }
 
 func cloudIDOfFolderID(config *Config, folderID string) (string, error) {
-	folder, err := config.sdk.ResourceManager().Folder().Get(config.ContextWithClientTraceID(), &resourcemanager.GetFolderRequest{
+	folder, err := config.sdk.ResourceManager().Folder().Get(config.Context(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
 	if err != nil {
@@ -442,7 +443,7 @@ func resolveObjectID(ctx context.Context, config *Config, name string, resolverF
 }
 
 func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, err error) {
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	snapshot, err := config.sdk.Compute().Snapshot().Get(ctx, &compute.GetSnapshotRequest{
 		SnapshotId: snapshotID,
@@ -456,7 +457,7 @@ func getSnapshotMinStorageSize(snapshotID string, config *Config) (size int64, e
 }
 
 func getImageMinStorageSize(imageID string, config *Config) (size int64, err error) {
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	image, err := config.sdk.Compute().Image().Get(ctx, &compute.GetImageRequest{
 		ImageId: imageID,
@@ -469,6 +470,54 @@ func getImageMinStorageSize(imageID string, config *Config) (size int64, err err
 	return image.MinDiskSize, nil
 }
 
-func contextWithClientTraceID(parent context.Context) context.Context {
-	return requestid.ContextWithClientTraceID(parent, uuid.New().String())
+func templateConfig(tmpl string, ctx ...map[string]interface{}) string {
+	p := make(map[string]interface{})
+	for _, c := range ctx {
+		for k, v := range c {
+			p[k] = v
+		}
+	}
+	b := &bytes.Buffer{}
+	err := template.Must(template.New("").Parse(tmpl)).Execute(b, p)
+	if err != nil {
+		panic(fmt.Errorf("failed to execute config template: %v", err))
+	}
+	return b.String()
+}
+
+func getResourceID(n string, s *terraform.State) (string, error) {
+	rs, ok := s.RootModule().Resources[n]
+	if !ok {
+		return "", fmt.Errorf("not found: %s", n)
+	}
+
+	if rs.Primary.ID == "" {
+		return "", fmt.Errorf("no ID is set")
+	}
+
+	return rs.Primary.ID, nil
+}
+
+type schemaGetHelper struct {
+	pathPrefix string
+	d          *schema.ResourceData
+}
+
+func schemaHelper(d *schema.ResourceData, path string) *schemaGetHelper {
+	return &schemaGetHelper{
+		pathPrefix: path,
+		d:          d,
+	}
+}
+
+func (h *schemaGetHelper) Get(key string) interface{} {
+	return h.d.Get(h.pathPrefix + key)
+}
+
+func (h *schemaGetHelper) GetString(key string) string {
+	return h.d.Get(h.pathPrefix + key).(string)
+}
+
+func (h *schemaGetHelper) GetInt(key string) int {
+	return h.d.Get(h.pathPrefix + key).(int)
 }

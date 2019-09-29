@@ -85,7 +85,7 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	format, err := parseIamKeyFormat(d.Get("format").(string))
@@ -133,7 +133,7 @@ func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta inter
 func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	format, err := parseIamKeyFormat(d.Get("format").(string))
@@ -166,7 +166,7 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	_, err := config.sdk.IAM().Key().Delete(ctx, &iam.DeleteKeyRequest{

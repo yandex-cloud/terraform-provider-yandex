@@ -241,7 +241,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 
 func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "instance_id", "name")
 	if err != nil {

@@ -527,7 +527,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 func dataSourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	instanceGroupID := d.Get("instance_group_id").(string)
 

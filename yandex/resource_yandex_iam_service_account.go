@@ -81,7 +81,7 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 		Description: d.Get("description").(string),
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Create(ctx, &req))
@@ -116,7 +116,7 @@ func resourceYandexIAMServiceAccountCreate(d *schema.ResourceData, meta interfac
 func resourceYandexIAMServiceAccountRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	sa, err := config.sdk.IAM().ServiceAccount().Get(config.ContextWithClientTraceID(), &iam.GetServiceAccountRequest{
+	sa, err := config.sdk.IAM().ServiceAccount().Get(config.Context(), &iam.GetServiceAccountRequest{
 		ServiceAccountId: d.Id(),
 	})
 
@@ -157,7 +157,7 @@ func resourceYandexIAMServiceAccountUpdate(d *schema.ResourceData, meta interfac
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Update(ctx, req))
@@ -201,7 +201,7 @@ func resourceYandexIAMServiceAccountDelete(d *schema.ResourceData, meta interfac
 		ServiceAccountId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Delete(ctx, req))

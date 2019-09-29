@@ -52,7 +52,7 @@ func (u *CloudIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.ContextWithClientTraceID(), yandexResourceManagerCloudDefaultTimeout)
+	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexResourceManagerCloudDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Cloud().SetAccessBindings(ctx, req))
@@ -86,7 +86,7 @@ func (u *CloudIamUpdater) DescribeResource() string {
 func getCloudAccessBindings(config *Config, cloudID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	for {
 		resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{

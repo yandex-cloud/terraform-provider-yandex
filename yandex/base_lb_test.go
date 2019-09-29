@@ -1,11 +1,9 @@
 package yandex
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"testing"
-	"text/template"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -35,18 +33,6 @@ const lbDefaultNLBType = "external"
 
 type lbAttachedTargetGroupChecker func(*loadbalancer.AttachedTargetGroup) error
 type lbListenerChecker func(*loadbalancer.Listener) error
-
-func lbTemplateConfig(tmpl string, ctx ...map[string]interface{}) string {
-	p := make(map[string]interface{})
-	for _, c := range ctx {
-		for k, v := range c {
-			p[k] = v
-		}
-	}
-	b := &bytes.Buffer{}
-	template.Must(template.New("").Parse(tmpl)).Execute(b, p)
-	return b.String()
-}
 
 func lbDefaultNLBValues() map[string]interface{} {
 	return map[string]interface{}{
@@ -256,7 +242,7 @@ func testAccLBGeneralNLBTemplate(ctx map[string]interface{}, isDataSource, isLis
 	ctx["IsTG"] = isTG
 	ctx["IsDataSource"] = isDataSource
 
-	return lbTemplateConfig(`
+	return templateConfig(`
 		{{ if .IsDataSource }}
 		data "yandex_lb_network_load_balancer" "test-nlb-ds" {
 		  name = "${yandex_lb_network_load_balancer.test-nlb.name}"
@@ -332,7 +318,7 @@ func testAccLBGeneralTGTemplate(tgName, tgDesc, baseTemplate string, targetsCoun
 	for i := 1; i <= targetsCount; i++ {
 		targets[i-1] = fmt.Sprintf("test-instance-%d", i)
 	}
-	return lbTemplateConfig(`
+	return templateConfig(`
 		{{ if .IsDataSource }}
 		data "yandex_lb_target_group" "test-tg-ds" {
 		  name = "${yandex_lb_target_group.test-tg.name}"
@@ -438,7 +424,7 @@ func testAccLBBaseTemplate(instanceName string) string {
 }
 
 func TestLBTemplateConfig(t *testing.T) {
-	out := lbTemplateConfig(
+	out := templateConfig(
 		"{{.key1}}, {{.key2}}, {{.key3}}",
 		map[string]interface{}{"key1": "val1", "key2": 2},
 		map[string]interface{}{"key3": "val3"},

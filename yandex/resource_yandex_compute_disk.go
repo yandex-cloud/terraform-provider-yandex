@@ -155,7 +155,7 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Create(ctx, &req))
@@ -190,7 +190,7 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	disk, err := config.sdk.Compute().Disk().Get(config.ContextWithClientTraceID(), &compute.GetDiskRequest{
+	disk, err := config.sdk.Compute().Disk().Get(config.Context(), &compute.GetDiskRequest{
 		DiskId: d.Id(),
 	})
 
@@ -318,7 +318,7 @@ func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) e
 		DiskId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Delete(ctx, req))
@@ -343,7 +343,7 @@ func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) e
 func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Update(ctx, req))

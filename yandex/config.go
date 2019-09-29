@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -47,8 +48,14 @@ type Config struct {
 	sdk       *ycsdk.SDK
 }
 
-func (c *Config) ContextWithClientTraceID() context.Context {
+// this function return context with added client trace id
+func (c *Config) Context() context.Context {
 	return c.contextWithClientTraceID
+}
+
+// this function returns context with client trace id AND timeout
+func (c *Config) ContextWithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(c.contextWithClientTraceID, timeout)
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
@@ -102,7 +109,7 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 	// Now we will have new request id for every retry attempt.
 	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
 
-	c.contextWithClientTraceID = contextWithClientTraceID(stopContext)
+	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
 
 	var err error
 	c.sdk, err = ycsdk.Build(c.contextWithClientTraceID, *yandexSDKConfig,

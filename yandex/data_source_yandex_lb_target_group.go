@@ -70,7 +70,7 @@ func dataSourceYandexLBTargetGroup() *schema.Resource {
 
 func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "target_group_id", "name")
 	if err != nil {

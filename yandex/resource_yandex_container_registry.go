@@ -86,7 +86,7 @@ func resourceYandexContainerRegistryCreate(d *schema.ResourceData, meta interfac
 		Labels:   labels,
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Create(ctx, &req))
@@ -186,7 +186,7 @@ func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interfac
 		RegistryId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Delete(ctx, req))
@@ -211,7 +211,7 @@ func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interfac
 func makeRegistryUpdateRequest(req *containerregistry.UpdateRegistryRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(config.ContextWithClientTraceID(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Update(ctx, req))

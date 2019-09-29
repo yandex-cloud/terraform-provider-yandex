@@ -28,7 +28,7 @@ func dataSourceYandexIAMRole() *schema.Resource {
 
 func dataSourceYandexIAMRoleRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	var role *iam.Role
 

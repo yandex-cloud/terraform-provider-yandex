@@ -37,7 +37,7 @@ func dataSourceYandexResourceManagerCloud() *schema.Resource {
 
 func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "cloud_id", "name")
 	if err != nil {

@@ -70,7 +70,7 @@ func dataSourceYandexComputeSnapshot() *schema.Resource {
 
 func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "snapshot_id", "name")
 	if err != nil {

@@ -35,7 +35,7 @@ func dataSourceYandexIAMUser() *schema.Resource {
 
 func dataSourceYandexLoginRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 	var user *iam.UserAccount
 
 	if v, ok := d.GetOk("login"); ok {

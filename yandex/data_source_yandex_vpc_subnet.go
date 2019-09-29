@@ -73,7 +73,7 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 
 func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx := config.ContextWithClientTraceID()
+	ctx := config.Context()
 
 	err := checkOneOf(d, "subnet_id", "name")
 	if err != nil {
