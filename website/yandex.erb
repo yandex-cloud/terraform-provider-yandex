@@ -44,6 +44,18 @@
             <li<%= sidebar_current("docs-yandex-datasource-iam-user") %>>
               <a href="/docs/providers/yandex/d/datasource_iam_user.html">yandex_iam_user</a>
             </li>
+            <li<%= sidebar_current("docs-yandex-datasource-kubernetes-cluster") %>>
+              <a href="/docs/providers/yandex/d/datasource_kubernetes_cluster.html">yandex_kubernetes_cluster</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-kubernetes-node-group") %>>
+              <a href="/docs/providers/yandex/d/datasource_kubernetes_node_group.html">yandex_kubernetes_node_group</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-lb-network-load-balancer") %>>
+              <a href="/docs/providers/yandex/d/datasource_lb_network_load_balancer.html">yandex_lb_network_load_balancer</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-datasource-lb-target-group") %>>
+              <a href="/docs/providers/yandex/d/datasource_lb_target_group.html">yandex_lb_target_group</a>
+            </li>
             <li<%= sidebar_current("docs-yandex-datasource-resourcemanager-cloud") %>>
               <a href="/docs/providers/yandex/d/datasource_resourcemanager_cloud.html">yandex_resourcemanager_cloud</a>
             </li>
@@ -58,12 +70,6 @@
             </li>
             <li<%= sidebar_current("docs-yandex-datasource-vpc-subnet") %>>
               <a href="/docs/providers/yandex/d/datasource_vpc_subnet.html">yandex_vpc_subnet</a>
-            </li>
-            <li<%= sidebar_current("docs-yandex-datasource-lb-network-load-balancer") %>>
-              <a href="/docs/providers/yandex/d/datasource_lb_network_load_balancer.html">yandex_lb_network_load_balancer</a>
-            </li>
-            <li<%= sidebar_current("docs-yandex-datasource-lb-target-group") %>>
-              <a href="/docs/providers/yandex/d/datasource_lb_target_group.html">yandex_lb_target_group</a>
             </li>
           </ul>
         </li>
@@ -88,8 +94,17 @@
             </li>
           </ul>
 
+        <li<%= sidebar_current("docs-yandex-cr") %>>
+          <a href="#">Yandex Container Registry Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-container-registry") %>>
+              <a href="/docs/providers/yandex/r/container_registry.html">yandex_cr_container_registry</a>
+            </li>
+          </ul>
+        </li>
+
         <li<%= sidebar_current("docs-yandex-iam") %>>
-          <a href="#">Yandex IAM Resources</a>
+          <a href="#">Yandex Identity and Access Management Resources</a>
           <ul class="nav nav-visible">
             <li<%= sidebar_current("docs-yandex-iam-service-account-x") %>>
               <a href="/docs/providers/yandex/r/iam_service_account.html">yandex_iam_service_account</a>
@@ -111,6 +126,30 @@
             </li>
             <li<%= sidebar_current("docs-yandex-iam-service-account-static-access-key") %>>
               <a href="/docs/providers/yandex/r/iam_service_account_static_access_key.html">yandex_iam_service_account_static_access_key</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-lb") %>>
+          <a href="#">Yandex Load Balancer Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-lb-network-load-balancer") %>>
+              <a href="/docs/providers/yandex/r/lb_network_load_balancer.html">yandex_lb_network_load_balancer</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-lb-target-group") %>>
+              <a href="/docs/providers/yandex/r/lb_target_group.html">yandex_lb_target_group</a>
+            </li>
+          </ul>
+        </li>
+
+        <li<%= sidebar_current("docs-yandex-kubernetes") %>>
+          <a href="#">Yandex Managed Service for Kubernetes Resources</a>
+          <ul class="nav nav-visible">
+            <li<%= sidebar_current("docs-yandex-kubernetes-cluster") %>>
+              <a href="/docs/providers/yandex/r/kubernetes_cluster.html">yandex_kubernetes_cluster</a>
+            </li>
+            <li<%= sidebar_current("docs-yandex-kubernetes-node-group") %>>
+              <a href="/docs/providers/yandex/r/kubernetes_node_group.html">yandex_kubernetes_node_group</a>
             </li>
           </ul>
         </li>
@@ -147,27 +186,6 @@
             </li>
             <li<%= sidebar_current("docs-yandex-vpc-subnet") %>>
               <a href="/docs/providers/yandex/r/vpc_subnet.html">yandex_vpc_subnet</a>
-            </li>
-          </ul>
-        </li>
-
-        <li<%= sidebar_current("docs-yandex-lb") %>>
-          <a href="#">Yandex Load Balancer Resources</a>
-          <ul class="nav nav-visible">
-            <li<%= sidebar_current("docs-yandex-lb-network-load-balancer") %>>
-              <a href="/docs/providers/yandex/r/lb_network_load_balancer.html">yandex_lb_network_load_balancer</a>
-            </li>
-            <li<%= sidebar_current("docs-yandex-lb-target-group") %>>
-              <a href="/docs/providers/yandex/r/lb_target_group.html">yandex_lb_target_group</a>
-            </li>
-          </ul>
-        </li>
-
-        <li<%= sidebar_current("docs-yandex-cr") %>>
-          <a href="#">Yandex Container Registry</a>
-          <ul class="nav nav-visible">
-            <li<%= sidebar_current("docs-yandex-container-registry") %>>
-              <a href="/docs/providers/yandex/r/container_registry.html">yandex_cr_container_registry</a>
             </li>
           </ul>
         </li>
