@@ -1,4 +1,4 @@
-## 0.15.0 (Unreleased)
+## 0.15.0 (September 30, 2019)
 FEATURES:
 * **New Data Source:** `yandex_kubernetes_cluster`
 * **New Data Source:** `yandex_kubernetes_node_group`
