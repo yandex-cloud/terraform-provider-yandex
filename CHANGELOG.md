@@ -1,4 +1,4 @@
-## 0.16.0 (Unreleased)
+## 0.16.0 (October 01, 2019)
 * **New Data Source:** `yandex_mdb_redis_cluster`
 * **New Resource:** `yandex_mdb_redis_cluster`
 
