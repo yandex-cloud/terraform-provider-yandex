@@ -83,13 +83,14 @@ func Provider() terraform.ResourceProvider {
 			"yandex_iam_user":                 dataSourceYandexIAMUser(),
 			"yandex_kubernetes_cluster":       dataSourceYandexKubernetesCluster(),
 			"yandex_kubernetes_node_group":    dataSourceYandexKubernetesNodeGroup(),
+			"yandex_lb_network_load_balancer": dataSourceYandexLBNetworkLoadBalancer(),
+			"yandex_lb_target_group":          dataSourceYandexLBTargetGroup(),
+			"yandex_mdb_redis_cluster":        dataSourceYandexMDBRedisCluster(),
 			"yandex_resourcemanager_cloud":    dataSourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_folder":   dataSourceYandexResourceManagerFolder(),
 			"yandex_vpc_network":              dataSourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":          dataSourceYandexVPCRouteTable(),
 			"yandex_vpc_subnet":               dataSourceYandexVPCSubnet(),
-			"yandex_lb_network_load_balancer": dataSourceYandexLBNetworkLoadBalancer(),
-			"yandex_lb_target_group":          dataSourceYandexLBTargetGroup(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -108,6 +109,9 @@ func Provider() terraform.ResourceProvider {
 			"yandex_iam_service_account_static_access_key": resourceYandexIAMServiceAccountStaticAccessKey(),
 			"yandex_kubernetes_cluster":                    resourceYandexKubernetesCluster(),
 			"yandex_kubernetes_node_group":                 resourceYandexKubernetesNodeGroup(),
+			"yandex_lb_network_load_balancer":              resourceYandexLBNetworkLoadBalancer(),
+			"yandex_lb_target_group":                       resourceYandexLBTargetGroup(),
+			"yandex_mdb_redis_cluster":                     resourceYandexMDBRedisCluster(),
 			"yandex_resourcemanager_cloud_iam_binding":     resourceYandexResourceManagerCloudIAMBinding(),
 			"yandex_resourcemanager_cloud_iam_member":      resourceYandexResourceManagerCloudIAMMember(),
 			"yandex_resourcemanager_folder_iam_binding":    resourceYandexResourceManagerFolderIAMBinding(),
@@ -116,8 +120,6 @@ func Provider() terraform.ResourceProvider {
 			"yandex_vpc_network":                           resourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
-			"yandex_lb_network_load_balancer":              resourceYandexLBNetworkLoadBalancer(),
-			"yandex_lb_target_group":                       resourceYandexLBTargetGroup(),
 		},
 	}
 	provider.ConfigureFunc = providerConfigure(provider)

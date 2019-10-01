@@ -13,7 +13,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 )
 
-const yandexContainerRegistryDefaultTimeout = 30 * time.Second
+const yandexContainerRegistryDefaultTimeout = 60 * time.Second
 
 func resourceYandexContainerRegistry() *schema.Resource {
 	return &schema.Resource{

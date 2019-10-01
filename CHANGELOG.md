@@ -1,4 +1,7 @@
-## 0.15.1 (Unreleased)
+## 0.16.0 (Unreleased)
+* **New Data Source:** `yandex_mdb_redis_cluster`
+* **New Resource:** `yandex_mdb_redis_cluster`
+
 ## 0.15.0 (September 30, 2019)
 FEATURES:
 * **New Data Source:** `yandex_kubernetes_cluster`
