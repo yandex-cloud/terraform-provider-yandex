@@ -1,4 +1,7 @@
-## 0.16.1 (Unreleased)
+## 0.17.0 (Unreleased)
+FEATURES:
+* compute: auto_scale support added for  `yandex_compute_instance_group` resource and data source
+
 ## 0.16.0 (October 01, 2019)
 * **New Data Source:** `yandex_mdb_redis_cluster`
 * **New Resource:** `yandex_mdb_redis_cluster`

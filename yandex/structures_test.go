@@ -743,3 +743,98 @@ func TestFlattenInstanceGroupHealthChecks(t *testing.T) {
 		})
 	}
 }
+
+func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     *instancegroup.ScalePolicy
+		expected []map[string]interface{}
+	}{
+		{
+			name: "fixed scale",
+			spec: &instancegroup.ScalePolicy{
+				ScaleType: &instancegroup.ScalePolicy_FixedScale_{
+					FixedScale: &instancegroup.ScalePolicy_FixedScale{Size: 3},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"fixed_scale": []map[string]interface{}{
+						{
+							"size": 3,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "auto scale",
+			spec: &instancegroup.ScalePolicy{
+				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
+					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						MinZoneSize:         1,
+						MaxSize:             2,
+						MeasurementDuration: &duration.Duration{Seconds: 10},
+						InitialSize:         3,
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"auto_scale": []map[string]interface{}{
+						{
+							"min_zone_size":        1,
+							"max_size":             2,
+							"initial_size":         3,
+							"measurement_duration": 10,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "auto scale 2",
+			spec: &instancegroup.ScalePolicy{
+				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
+					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						MinZoneSize:           1,
+						MaxSize:               2,
+						MeasurementDuration:   &duration.Duration{Seconds: 10},
+						WarmupDuration:        &duration.Duration{Seconds: 20},
+						StabilizationDuration: &duration.Duration{Seconds: 30},
+						InitialSize:           3,
+						CpuUtilizationRule:    &instancegroup.ScalePolicy_CpuUtilizationRule{UtilizationTarget: 80},
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"auto_scale": []map[string]interface{}{
+						{
+							"min_zone_size":          1,
+							"max_size":               2,
+							"initial_size":           3,
+							"measurement_duration":   10,
+							"warmup_duration":        20,
+							"stabilization_duration": 30,
+							"cpu_utilization_target": 80.0,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := flattenInstanceGroupScalePolicy(&instancegroup.InstanceGroup{ScalePolicy: tt.spec})
+
+			if err != nil {
+				t.Errorf("%v", err)
+			}
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("flattenInstanceGroupScalePolicy() got = %v, want %v", res, tt.expected)
+			}
+		})
+	}
+}

@@ -263,6 +263,42 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+						"auto_scale": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min_zone_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"max_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"measurement_duration": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"warmup_duration": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"stabilization_duration": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"initial_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"cpu_utilization_target": {
+										Type:     schema.TypeFloat,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

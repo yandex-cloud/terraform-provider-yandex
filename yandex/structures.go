@@ -309,6 +309,41 @@ func flattenInstanceGroupDeployPolicy(ig *instancegroup.InstanceGroup) ([]map[st
 	return []map[string]interface{}{res}, nil
 }
 
+func flattenInstanceGroupScalePolicy(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if sp := ig.GetScalePolicy().GetFixedScale(); sp != nil {
+		res["fixed_scale"] = []map[string]interface{}{{"size": int(sp.Size)}}
+		return []map[string]interface{}{res}, nil
+	}
+
+	if sp := ig.GetScalePolicy().GetAutoScale(); sp != nil {
+		subres := map[string]interface{}{}
+		res["auto_scale"] = []map[string]interface{}{subres}
+		subres["min_zone_size"] = int(sp.MinZoneSize)
+		subres["max_size"] = int(sp.MaxSize)
+		subres["initial_size"] = int(sp.InitialSize)
+
+		if sp.MeasurementDuration != nil {
+			subres["measurement_duration"] = int(sp.MeasurementDuration.Seconds)
+		}
+
+		if sp.WarmupDuration != nil {
+			subres["warmup_duration"] = int(sp.WarmupDuration.Seconds)
+		}
+
+		if sp.StabilizationDuration != nil {
+			subres["stabilization_duration"] = int(sp.StabilizationDuration.Seconds)
+		}
+
+		if sp.CpuUtilizationRule != nil {
+			subres["cpu_utilization_target"] = sp.CpuUtilizationRule.UtilizationTarget
+		}
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
 func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
 	res := map[string]interface{}{}
 
@@ -954,7 +989,37 @@ func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.Scal
 		return policy, nil
 	}
 
-	return nil, fmt.Errorf("Only fixed scale policy is supported")
+	if _, ok := d.GetOk("scale_policy.0.auto_scale"); ok {
+		autoScale := &instancegroup.ScalePolicy_AutoScale{
+			MinZoneSize: int64(d.Get("scale_policy.0.auto_scale.0.min_zone_size").(int)),
+			MaxSize:     int64(d.Get("scale_policy.0.auto_scale.0.max_size").(int)),
+			InitialSize: int64(d.Get("scale_policy.0.auto_scale.0.initial_size").(int)),
+		}
+
+		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.measurement_duration"); ok {
+			autoScale.MeasurementDuration = &duration.Duration{Seconds: int64(v.(int))}
+		}
+
+		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.warmup_duration"); ok {
+			autoScale.WarmupDuration = &duration.Duration{Seconds: int64(v.(int))}
+		}
+
+		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.cpu_utilization_target"); ok {
+			autoScale.CpuUtilizationRule = &instancegroup.ScalePolicy_CpuUtilizationRule{UtilizationTarget: v.(float64)}
+		}
+
+		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.stabilization_duration"); ok {
+			autoScale.StabilizationDuration = &duration.Duration{Seconds: int64(v.(int))}
+		}
+
+		policy := &instancegroup.ScalePolicy{
+			ScaleType: &instancegroup.ScalePolicy_AutoScale_{
+				AutoScale: autoScale,
+			}}
+		return policy, nil
+	}
+
+	return nil, fmt.Errorf("Only fixed_scale and auto_scale policy are supported")
 }
 
 func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.DeployPolicy, error) {

@@ -86,6 +86,31 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupDefaultValues(&ig),
+					testAccCheckComputeInstanceGroupFixedScalePolicy(&ig),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+func TestAccComputeInstanceGroup_autoscale(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigAutocsale(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupAutoScalePolicy(&ig),
 				),
 			},
 			computeInstanceGroupImportStep(),
@@ -410,7 +435,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   labels = {
-    label_key1 = "label_value2"
+    label_key1      = "label_value2"
     label_key_extra = "label_value_extra"
   }
 }
@@ -565,12 +590,12 @@ resource "yandex_compute_instance_group" "group1" {
     }
 
     labels = {
-      label_key1 = "label_value2"
+      label_key1      = "label_value2"
       label_key_extra = "label_value_extra"
     }
 
     metadata = {
-      meta_key1 = "meta_val2"
+      meta_key1      = "meta_val2"
       meta_key_extra = "meta_value_extra"
     }
   }
@@ -638,8 +663,8 @@ resource "yandex_compute_instance_group" "group1" {
     description = "template_description"
 
     resources {
-      memory = 2
-      cores  = 1
+      memory        = 2
+      cores         = 1
       core_fraction = 20
     }
 
@@ -649,25 +674,25 @@ resource "yandex_compute_instance_group" "group1" {
       initialize_params {
         image_id = "${data.yandex_compute_image.ubuntu.id}"
         size     = 4
-        type = "network-hdd"
+        type     = "network-hdd"
       }
     }
 
     secondary_disk {
       initialize_params {
         description = "desc1"
-        image_id = "${data.yandex_compute_image.ubuntu.id}"
-        size     = 3
-        type = "network-nvme"
+        image_id    = "${data.yandex_compute_image.ubuntu.id}"
+        size        = 3
+        type        = "network-nvme"
       }
     }
 
     secondary_disk {
       initialize_params {
         description = "desc2"
-        image_id = "${data.yandex_compute_image.ubuntu.id}"
-        size     = 3
-        type = "network-hdd"
+        image_id    = "${data.yandex_compute_image.ubuntu.id}"
+        size        = 3
+        type        = "network-hdd"
       }
     }
 
@@ -677,7 +702,7 @@ resource "yandex_compute_instance_group" "group1" {
     }
 
     scheduling_policy {
-        preemptible = true
+      preemptible = true
     }
   }
 
@@ -692,10 +717,103 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   deploy_policy {
-    max_unavailable = 4
-    max_creating    = 3
-    max_expansion   = 2
-    max_deleting    = 1
+    max_unavailable  = 4
+    max_creating     = 3
+    max_expansion    = 2
+    max_deleting     = 1
+    startup_duration = 5
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
+
+}
+
+func testAccComputeInstanceGroupConfigAutocsale(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v1"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 1
+    }
+
+    boot_disk {
+      mode = "READ_WRITE"
+
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+        type     = "network-hdd"
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    scheduling_policy {
+      preemptible = true
+    }
+  }
+
+  scale_policy {
+    auto_scale {
+      initial_size           = 1
+      max_size               = 2
+      min_zone_size          = 1
+      measurement_duration   = 120
+      cpu_utilization_target = 80
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable  = 4
+    max_creating     = 3
+    max_expansion    = 2
+    max_deleting     = 1
     startup_duration = 5
   }
 }
@@ -748,7 +866,7 @@ resource "yandex_compute_instance_group" "group1" {
     resources {
       cores  = 8
       memory = 96
-      gpus = 1
+      gpus   = 1
     }
 
     boot_disk {
@@ -851,15 +969,15 @@ func testAccCheckComputeInstanceGroupHasGpus(ig *instancegroup.InstanceGroup, gp
 func testAccCheckComputeInstanceGroupLabel(ig *instancegroup.InstanceGroup, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if ig.Labels == nil {
-			return fmt.Errorf("no labels found on instancegroup %s", ig.Name)
+			return fmt.Errorf("no labels found on instance group %s", ig.Name)
 		}
 
 		if v, ok := ig.Labels[key]; ok {
 			if v != value {
-				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instancegroup %s", value, v, key, ig.Name)
+				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instance group %s", value, v, key, ig.Name)
 			}
 		} else {
-			return fmt.Errorf("no label found with key %s on instancegroup %s", key, ig.Name)
+			return fmt.Errorf("no label found with key %s on instance group %s", key, ig.Name)
 		}
 
 		return nil
@@ -869,15 +987,15 @@ func testAccCheckComputeInstanceGroupLabel(ig *instancegroup.InstanceGroup, key 
 func testAccCheckComputeInstanceGroupTemplateLabel(ig *instancegroup.InstanceGroup, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if ig.InstanceTemplate.GetLabels() == nil {
-			return fmt.Errorf("no template labels found on instancegroup %s", ig.Name)
+			return fmt.Errorf("no template labels found on instance group %s", ig.Name)
 		}
 
 		if v, ok := ig.InstanceTemplate.Labels[key]; ok {
 			if v != value {
-				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instancegroup %s template labels", value, v, key, ig.Name)
+				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instance group %s template labels", value, v, key, ig.Name)
 			}
 		} else {
-			return fmt.Errorf("no label found with key %s on instancegroup %s template labels", key, ig.Name)
+			return fmt.Errorf("no label found with key %s on instance group %s template labels", key, ig.Name)
 		}
 
 		return nil
@@ -887,15 +1005,15 @@ func testAccCheckComputeInstanceGroupTemplateLabel(ig *instancegroup.InstanceGro
 func testAccCheckComputeInstanceGroupTemplateMeta(ig *instancegroup.InstanceGroup, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if ig.InstanceTemplate.GetMetadata() == nil {
-			return fmt.Errorf("no template labels found on instancegroup %s", ig.Name)
+			return fmt.Errorf("no template labels found on instance group %s", ig.Name)
 		}
 
 		if v, ok := ig.InstanceTemplate.Metadata[key]; ok {
 			if v != value {
-				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instancegroup %s template labels", value, v, key, ig.Name)
+				return fmt.Errorf("expected value '%s' but found value '%s' for label '%s' on instance group %s template labels", value, v, key, ig.Name)
 			}
 		} else {
-			return fmt.Errorf("no label found with key %s on instancegroup %s template labels", key, ig.Name)
+			return fmt.Errorf("no label found with key %s on instance group %s template labels", key, ig.Name)
 		}
 
 		return nil
@@ -904,36 +1022,32 @@ func testAccCheckComputeInstanceGroupTemplateMeta(ig *instancegroup.InstanceGrou
 
 func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		// ScalePolicy
-		if ig.ScalePolicy.GetFixedScale() == nil || ig.ScalePolicy.GetFixedScale().Size != 2 {
-			return fmt.Errorf("invalid scale policy on instancegroup %s", ig.Name)
-		}
 		// InstanceTemplate
 		if ig.GetInstanceTemplate() == nil {
-			return fmt.Errorf("no InstanceTemplate in instancegroup %s", ig.Name)
+			return fmt.Errorf("no InstanceTemplate in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().PlatformId != "standard-v1" {
-			return fmt.Errorf("invalid PlatformId value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid PlatformId value in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().Description != "template_description" {
-			return fmt.Errorf("invalid Description value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid Description value in instance group %s", ig.Name)
 		}
 		// Resources
 		if ig.GetInstanceTemplate().ResourcesSpec == nil {
-			return fmt.Errorf("no ResourcesSpec in instancegroup %s", ig.Name)
+			return fmt.Errorf("no ResourcesSpec in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().ResourcesSpec.Cores != 1 {
-			return fmt.Errorf("invalid Cores value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid Cores value in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().ResourcesSpec.Memory != toBytes(2) {
-			return fmt.Errorf("invalid Memory value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid Memory value in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().ResourcesSpec.CoreFraction != 20 {
-			return fmt.Errorf("invalid CoreFraction value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid CoreFraction value in instance group %s", ig.Name)
 		}
 		// SchedulingPolicy
 		if !ig.GetInstanceTemplate().SchedulingPolicy.Preemptible {
-			return fmt.Errorf("invalid Preemptible value in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid Preemptible value in instance group %s", ig.Name)
 		}
 		// BootDisk
 		bootDisk := &Disk{Mode: "READ_WRITE", Size: 4, Type: "network-hdd"}
@@ -942,7 +1056,7 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		}
 		// SecondaryDisk
 		if len(ig.InstanceTemplate.SecondaryDiskSpecs) != 2 {
-			return fmt.Errorf("invalid number of secondary disks in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid number of secondary disks in instance group %s", ig.Name)
 		}
 
 		disk0 := &Disk{Size: 3, Type: "network-nvme", Description: "desc1"}
@@ -957,30 +1071,63 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 
 		// AllocationPolicy
 		if ig.AllocationPolicy == nil || len(ig.AllocationPolicy.Zones) != 1 || ig.AllocationPolicy.Zones[0].ZoneId != "ru-central1-a" {
-			return fmt.Errorf("invalid allocation policy in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid allocation policy in instance group %s", ig.Name)
 		}
 
 		// Deploy policy
 		if ig.GetDeployPolicy() == nil {
-			return fmt.Errorf("no deploy policy in instancegroup %s", ig.Name)
+			return fmt.Errorf("no deploy policy in instance group %s", ig.Name)
 		}
 
 		if ig.GetDeployPolicy().MaxUnavailable != 4 {
-			return fmt.Errorf("invalid MaxUnavailable in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid MaxUnavailable in instance group %s", ig.Name)
 		}
 		if ig.GetDeployPolicy().MaxCreating != 3 {
-			return fmt.Errorf("invalid MaxCreating in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid MaxCreating in instance group %s", ig.Name)
 		}
 		if ig.GetDeployPolicy().MaxExpansion != 2 {
-			return fmt.Errorf("invalid MaxExpansion in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid MaxExpansion in instance group %s", ig.Name)
 		}
 		if ig.GetDeployPolicy().MaxDeleting != 1 {
-			return fmt.Errorf("invalid MaxDeleting in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid MaxDeleting in instance group %s", ig.Name)
 		}
 		if ig.GetDeployPolicy().StartupDuration.Seconds != 5 {
-			return fmt.Errorf("invalid StartupDuration in instancegroup %s", ig.Name)
+			return fmt.Errorf("invalid StartupDuration in instance group %s", ig.Name)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupFixedScalePolicy(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.ScalePolicy.GetFixedScale() == nil || ig.ScalePolicy.GetFixedScale().Size != 2 {
+			return fmt.Errorf("invalid fixed scale policy on instance group %s", ig.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupAutoScalePolicy(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.ScalePolicy.GetAutoScale() == nil {
+			return fmt.Errorf("no auto scale policy on instance group %s", ig.Name)
+		}
+
+		sp := ig.ScalePolicy.GetAutoScale()
+		if sp.InitialSize != 1 {
+			return fmt.Errorf("wrong initialsize on instance group %s", ig.Name)
+		}
+		if sp.MaxSize != 2 {
+			return fmt.Errorf("wrong max_size on instance group %s", ig.Name)
+		}
+		if sp.MeasurementDuration == nil || sp.MeasurementDuration.Seconds != 120 {
+			return fmt.Errorf("wrong measurement_duration on instance group %s", ig.Name)
+		}
+		if sp.CpuUtilizationRule == nil || sp.CpuUtilizationRule.UtilizationTarget != 80. {
+			return fmt.Errorf("wrong cpu_utilization_target on instance group %s", ig.Name)
+		}
 		return nil
 	}
 }

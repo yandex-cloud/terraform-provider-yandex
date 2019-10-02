@@ -291,13 +291,57 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_scale": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:          schema.TypeList,
+							Optional:      true,
+							MaxItems:      1,
+							ConflictsWith: []string{"scale_policy.0.auto_scale"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
 										Type:     schema.TypeInt,
 										Required: true,
+									},
+								},
+							},
+						},
+						"auto_scale": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							MaxItems:      1,
+							ConflictsWith: []string{"scale_policy.0.fixed_scale"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"initial_size": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"measurement_duration": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"cpu_utilization_target": {
+										Type:     schema.TypeFloat,
+										Required: true,
+									},
+									"min_zone_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  0,
+									},
+									"max_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  0,
+									},
+									"warmup_duration": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"stabilization_duration": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
 									},
 								},
 							},
@@ -562,19 +606,12 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
-	if instanceGroup.ScalePolicy != nil && instanceGroup.ScalePolicy.GetFixedScale() != nil {
-		scalePolicy := []map[string]interface{}{
-			{
-				"fixed_scale": []map[string]interface{}{
-					{
-						"size": instanceGroup.ScalePolicy.GetFixedScale().Size,
-					},
-				},
-			},
-		}
-		if err := d.Set("scale_policy", scalePolicy); err != nil {
-			return err
-		}
+	scalePolicy, err := flattenInstanceGroupScalePolicy(instanceGroup)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("scale_policy", scalePolicy); err != nil {
+		return err
 	}
 
 	deployPolicy, err := flattenInstanceGroupDeployPolicy(instanceGroup)
