@@ -9,7 +9,7 @@ description: |-
 # yandex\_iam\_service\_account
 
 Get information about a Yandex IAM service account. For more information about accounts, see 
-[Yandex.Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users).
+[Yandex.Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
 
 ```hcl
 data "yandex_iam_service_account" "builder" {

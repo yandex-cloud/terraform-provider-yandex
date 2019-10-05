@@ -9,7 +9,7 @@ description: |-
 # yandex\_iam\_user
 
 Get information about a Yandex IAM user account. For more information about accounts, see 
-[Yandex.Cloud IAM users](https://cloud.yandex.com/docs/iam/concepts/users/users)
+[Yandex.Cloud IAM accounts](https://cloud.yandex.com/docs/iam/concepts/#accounts).
 
 ```hcl
 data "yandex_iam_user" "admin" {
@@ -17,7 +17,7 @@ data "yandex_iam_user" "admin" {
 }
 ```
 
-This data source is used to define [IAM Users] that can be used by other resources.
+This data source is used to define [IAM User] that can be used by other resources.
 
 ## Argument Reference
 
@@ -37,4 +37,4 @@ The following attribute is exported:
 * `login` - Login name of IAM user account.
 * `default_email` - Email address of user account.
 
-[IAM Users]: https://cloud.yandex.com/docs/iam/concepts/users/users#passport
+[IAM User]: https://cloud.yandex.com/docs/iam/concepts/#passport
