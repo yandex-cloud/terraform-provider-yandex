@@ -178,7 +178,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `fqdn` - The fully qualified DNS name of this instance.
 
-* `network_interface.0.address` - The internal IP address of the instance.
+* `network_interface.0.ip_address` - The internal IP address of the instance.
 
 * `network_interface.0.nat_ip_address` - The external IP address of the instance.
 
