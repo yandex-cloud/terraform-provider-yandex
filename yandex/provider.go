@@ -45,10 +45,11 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["token"],
 			},
 			"service_account_key_file": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
-				Description: descriptions["service_account_key_file"],
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
+				Description:   descriptions["service_account_key_file"],
+				ConflictsWith: []string{"token"},
 			},
 			"insecure": {
 				Type:        schema.TypeBool,

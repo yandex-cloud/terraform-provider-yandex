@@ -48,6 +48,9 @@ The following keys can be used to configure the provider.
 
 ~> **NOTE:** Only one of `token` or `service_account_key_file` can be specified.
 
+~> **NOTE:** One can authenticate via instance service account from inside a compute instance. In order to use this method, omit both `token`/`service_account_key_file` and attach service account to the instance.
+[Working with Yandex.Cloud from inside a VM][instance-service-account]
+
 * `cloud_id` - (Required) The ID of the [cloud][yandex-cloud] to apply any resources to.
 
   This can also be specified using environment variable `YC_CLOUD_ID`.
@@ -70,3 +73,4 @@ The following keys can be used to configure the provider.
 [yandex-folder]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder
 [yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope
 [yandex-service-account-key]: https://cloud.yandex.com/docs/iam/operations/iam-token/create-for-sa#keys-create
+[instance-service-account]: https://cloud.yandex.com/docs/compute/operations/vm-connect/auth-inside-vm

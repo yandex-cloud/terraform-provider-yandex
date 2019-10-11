@@ -23,6 +23,7 @@ func mdbRedisClusterImportStep() resource.TestStep {
 			"config.0.password", // not returned
 			"host.0.subnet_id",  // computed on server side
 			"host.1.subnet_id",  // computed on server side
+			"health",            // volatile value
 		},
 	}
 }

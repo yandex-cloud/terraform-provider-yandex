@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,25 +61,11 @@ func (c *Config) ContextWithTimeout(timeout time.Duration) (context.Context, con
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
 func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string) error {
-	if c.Token != "" && c.ServiceAccountKeyFile != "" {
-		return fmt.Errorf("one of token or service account key file must be specified, not both (check your config AND environment variables)")
-	}
+	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
 
-	var credentials ycsdk.Credentials
-	if c.Token != "" {
-		credentials = ycsdk.OAuthToken(c.Token)
-	} else if c.ServiceAccountKeyFile != "" {
-		key, err := iamkey.ReadFromJSONFile(c.ServiceAccountKeyFile)
-		if err != nil {
-			return err
-		}
-
-		credentials, err = ycsdk.ServiceAccountKey(key)
-		if err != nil {
-			return err
-		}
-	} else {
-		return fmt.Errorf("one of token or service account key file must be specified")
+	credentials, err := c.credentials()
+	if err != nil {
+		return err
 	}
 
 	yandexSDKConfig := &ycsdk.Config{
@@ -103,15 +90,12 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		retry.WithMax(c.MaxRetries),
 		retry.WithCodes(codes.Unavailable),
 		retry.WithAttemptHeader(true),
-		retry.WithBackoff(BackoffExponentialWithJitter(defaultExponentialBackoffBase, defaultExponentialBackoffCap)))
+		retry.WithBackoff(backoffExponentialWithJitter(defaultExponentialBackoffBase, defaultExponentialBackoffCap)))
 
 	// Make sure retry interceptor is above id interceptor.
 	// Now we will have new request id for every retry attempt.
 	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
 
-	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
-
-	var err error
 	c.sdk, err = ycsdk.Build(c.contextWithClientTraceID, *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
@@ -120,7 +104,27 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 	return err
 }
 
-func BackoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.BackoffFunc {
+func (c *Config) credentials() (ycsdk.Credentials, error) {
+	if c.ServiceAccountKeyFile != "" {
+		key, err := iamkey.ReadFromJSONFile(c.ServiceAccountKeyFile)
+		if err != nil {
+			return nil, err
+		}
+		return ycsdk.ServiceAccountKey(key)
+	}
+
+	if c.Token != "" {
+		return ycsdk.OAuthToken(c.Token), nil
+	}
+
+	if sa := ycsdk.InstanceServiceAccount(); checkServiceAccountAvailable(c.Context(), sa) {
+		return sa, nil
+	}
+
+	return nil, fmt.Errorf("one of 'token' or 'service_account_key_file' should be specified; if you are inside compute instance, you can attach service account to it in order to authenticate via instance service account")
+}
+
+func backoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.BackoffFunc {
 	return func(attempt int) time.Duration {
 		// First call of BackoffFunc would be with attempt arq equal 0
 		log.Printf("[DEBUG] API call retry attempt %d", attempt+1)
@@ -155,4 +159,15 @@ func getProviderNameAndVersion() string {
 	parts[1] = strings.TrimPrefix(parts[1], "v")
 
 	return strings.Join(parts[:2], "/")
+}
+
+func checkServiceAccountAvailable(ctx context.Context, sa ycsdk.NonExchangeableCredentials) bool {
+	dialer := net.Dialer{Timeout: 50 * time.Millisecond}
+	conn, err := dialer.Dial("tcp", net.JoinHostPort(ycsdk.InstanceMetadataAddr, "80"))
+	if err != nil {
+		return false
+	}
+	_ = conn.Close()
+	_, err = sa.IAMToken(ctx)
+	return err == nil
 }
