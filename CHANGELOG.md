@@ -1,4 +1,4 @@
-## 0.18.0 (Unreleased)
+## 0.18.0 (October 11, 2019)
 ENHANCEMENTS:
 * provider: support authentication via instance service account from inside an instance
 
