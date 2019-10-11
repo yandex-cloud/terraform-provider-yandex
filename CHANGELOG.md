@@ -1,5 +1,9 @@
-## 0.17.1 (Unreleased)
+## 0.18.0 (Unreleased)
+ENHANCEMENTS:
 * provider: support authentication via instance service account from inside an instance
+
+BUG FIXES:
+* container: increase default timeout
 
 ## 0.17.0 (October 02, 2019)
 FEATURES:

@@ -49,7 +49,7 @@ The following keys can be used to configure the provider.
 ~> **NOTE:** Only one of `token` or `service_account_key_file` can be specified.
 
 ~> **NOTE:** One can authenticate via instance service account from inside a compute instance. In order to use this method, omit both `token`/`service_account_key_file` and attach service account to the instance.
-[Working with Yandex.Cloud from inside a VM][instance-service-account]
+[Working with Yandex.Cloud from inside an instance][instance-service-account]
 
 * `cloud_id` - (Required) The ID of the [cloud][yandex-cloud] to apply any resources to.
 
