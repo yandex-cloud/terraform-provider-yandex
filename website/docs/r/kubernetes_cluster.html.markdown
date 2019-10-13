@@ -9,7 +9,7 @@ description: |-
 
 # yandex\_kubernetes\_cluster
 
-Get information about a Yandex Kubernetes Cluster.
+Creates a Yandex Kubernetes Cluster.
 
 ## Example Usage
 
@@ -50,7 +50,7 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
 
   master {
     regional {
-      region = "ru_central1"
+      region = "ru-central1"
 
       location {
         zone      = "${yandex_vpc_subnet.subnet_a_resource_name.zone}"
@@ -186,4 +186,19 @@ when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - Boolean flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
 
----
+## Timeouts
+
+This resource provides the following configuration options for 
+[timeouts](/docs/configuration/resources.html#timeouts):
+
+- `create` - Default is 15 minute.
+- `update` - Default is 5 minute.
+- `delete` - Default is 5 minute.
+
+## Import
+
+A Managed Kubernetes cluster can be imported using the `id` of the resource, e.g.:
+
+```
+$ terraform import yandex_kubernetes_cluster.default cluster_id
+```

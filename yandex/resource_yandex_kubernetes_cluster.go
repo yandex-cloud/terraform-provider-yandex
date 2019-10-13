@@ -24,6 +24,10 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 		Read:   resourceYandexKubernetesClusterRead,
 		Update: resourceYandexKubernetesClusterUpdate,
 		Delete: resourceYandexKubernetesClusterDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexKubernetesClusterCreateTimeout),
 			Read:   schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
@@ -478,7 +482,7 @@ func getKubernetesClusterZonalMaster(d *schema.ResourceData, meta *Config) *k8s.
 	}
 }
 
-func getKubernetesClusterRegionalMaster(d *schema.ResourceData, meta *Config) *k8s.MasterSpec_RegionalMasterSpec {
+func getKubernetesClusterRegionalMaster(d *schema.ResourceData, _ *Config) *k8s.MasterSpec_RegionalMasterSpec {
 	return &k8s.MasterSpec_RegionalMasterSpec{
 		RegionalMasterSpec: &k8s.RegionalMasterSpec{
 			RegionId:              d.Get("master.0.regional.0.region").(string),
@@ -564,7 +568,7 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	}
 
 	if clusterResource {
-		h.fillClusterMasterResourceFields(d)
+		h.fillClusterMasterResourceFields(cluster, d)
 	} else {
 		d.Set("cluster_id", cluster.Id)
 	}
@@ -600,9 +604,10 @@ func (h *masterSchemaHelper) schema() []map[string]interface{} {
 	return []map[string]interface{}{h.master}
 }
 
-func (h *masterSchemaHelper) fillClusterMasterResourceFields(d *schema.ResourceData) {
-	h.master["version"] = d.Get("master.0.version")
-	h.master["public_ip"] = d.Get("master.0.public_ip")
+func (h *masterSchemaHelper) fillClusterMasterResourceFields(cluster *k8s.Cluster, d *schema.ResourceData) {
+	clusterMaster := cluster.GetMaster()
+	h.master["version"] = clusterMaster.GetVersion()
+	h.master["public_ip"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint() != ""
 
 	if subnet, ok := d.GetOk("master.0.zonal.0.subnet_id"); ok {
 		h.getZonalMaster()["subnet_id"] = subnet

@@ -1,4 +1,11 @@
-## 0.18.1 (Unreleased)
+## 0.19.0 (Unreleased)
+ENHANCEMENTS:
+* managed-kubernetes: `yandex_kubernetes_node_group` resource can now be imported
+* managed-kubernetes: `yandex_kubernetes_cluster` resource can now be imported
+
+BUG FIXES:
+* minor documentation fixes for Kubernetes cluster resource and instance group datasource.
+
 ## 0.18.0 (October 11, 2019)
 ENHANCEMENTS:
 * provider: support authentication via instance service account from inside an instance

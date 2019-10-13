@@ -174,5 +174,10 @@ when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
 
+## Import
 
----
+A Yandex Kubernetes Node Group can be imported using the `id` of the resource, e.g.:
+
+```
+$ terraform import yandex_kubernetes_node_group.default node_group_id
+```

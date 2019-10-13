@@ -18,7 +18,7 @@ data "yandex_compute_instance_group" "my_group" {
 }
 
 output "instance_external_ip" {
-  value = "${data.yandex_compute_instance_group.my_group.network_interface.0.nat_ip_address}"
+  value = "${data.yandex_compute_instance_group.my_group.instances.*.network_interface.0.nat_ip_address}"
 }
 ```
 

@@ -13,8 +13,43 @@ import (
 	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
 
+func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            nodeResourceFullName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: ignored,
+	}
+}
+
 //revive:disable:var-naming
 func TestAccKubernetesNodeGroup_basic(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	t.Parallel()
 
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
@@ -165,6 +200,8 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 		resourceFullName := info.ResourceFullName(rs)
 		checkFuncsAr := []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceFullName, "cluster_id", ng.ClusterId),
+
 			resource.TestCheckResourceAttr(resourceFullName, "name", info.Name),
 			resource.TestCheckResourceAttr(resourceFullName, "name", ng.Name),
 

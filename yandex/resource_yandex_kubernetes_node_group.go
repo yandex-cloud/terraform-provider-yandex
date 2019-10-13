@@ -26,6 +26,10 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 		Read:   resourceYandexKubernetesNodeGroupRead,
 		Update: resourceYandexKubernetesNodeGroupUpdate,
 		Delete: resourceYandexKubernetesNodeGroupDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexKubernetesNodeGroupCreateTimeout),
 			Read:   schema.DefaultTimeout(yandexKubernetesNodeGroupReadTimeout),
@@ -452,6 +456,7 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
+	d.Set("cluster_id", ng.ClusterId)
 	d.Set("created_at", createdAt)
 	d.Set("name", ng.Name)
 	d.Set("description", ng.Description)

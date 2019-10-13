@@ -13,11 +13,72 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
+
+func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            clusterResourceFullName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: ignored,
+	}
+}
 
 //revive:disable:var-naming
 func TestAccKubernetesClusterZonal_basic(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_basic(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.regional"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	t.Parallel()
 
 	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
@@ -61,7 +122,7 @@ func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 	})
 }
 
-func TestAccKubernetesClusterRegional_basic(t *testing.T) {
+func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	t.Parallel()
 
 	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
@@ -135,6 +196,7 @@ func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 		FolderID:                       os.Getenv("YC_FOLDER_ID"),
 		Name:                           safeResourceName("clustername"),
 		Description:                    "description",
+		MasterVersion:                  "1.13",
 		LabelKey:                       "label_key",
 		LabelValue:                     "label_value",
 		TestDescription:                testDesc,
@@ -292,6 +354,8 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 		if rs {
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.public_ip", "true"),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.version", info.MasterVersion),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.version", cluster.GetMaster().GetVersion()),
 			)
 		}
 
@@ -328,6 +392,7 @@ type resourceClusterInfo struct {
 	FolderID            string
 	Name                string
 	Description         string
+	MasterVersion       string
 
 	LabelKey   string
 	LabelValue string
@@ -395,6 +460,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
 
   master {
+	version = "{{.MasterVersion}}"
     zonal {
   	  zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}" 
 	  subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
@@ -426,6 +492,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
 
   master {
+	version = "{{.MasterVersion}}"
     regional {
   	  region = "ru-central1"
       location {

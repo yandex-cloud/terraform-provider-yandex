@@ -152,4 +152,3 @@ A network load balancer can be imported using the `id` of the resource, e.g.:
 ```
 $ terraform import yandex_lb_network_load_balancer.default network_load_balancer_id
 ```
-
