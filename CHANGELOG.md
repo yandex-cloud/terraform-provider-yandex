@@ -1,3 +1,4 @@
+## 0.19.1 (Unreleased)
 ## 0.19.0 (October 15, 2019)
 ENHANCEMENTS:
 * managed-kubernetes: `yandex_kubernetes_node_group` resource can now be imported
