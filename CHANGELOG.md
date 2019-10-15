@@ -1,4 +1,8 @@
-## 0.19.1 (Unreleased)
+## 0.20.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_storage_bucket`
+* **New Resource:** `yandex_storage_object`
+
 ## 0.19.0 (October 15, 2019)
 ENHANCEMENTS:
 * managed-kubernetes: `yandex_kubernetes_node_group` resource can now be imported

@@ -28,6 +28,7 @@ var testAccEnvVars = []string{
 	"YC_TOKEN",
 	"YC_LOGIN",
 	"YC_LOGIN_2",
+	"YC_STORAGE_ENDPOINT_URL",
 }
 
 var testCloudID = "not initialized"
@@ -39,6 +40,7 @@ var testUserLogin1 = "no user login"
 var testUserLogin2 = "no user login"
 var testUserID1 = "no user id"
 var testUserID2 = "no user id"
+var testStorageEndpoint = "no.storage.endpoint"
 
 func init() {
 	testAccProvider = Provider().(*schema.Provider)
@@ -71,10 +73,6 @@ func TestProviderWithRawConfig(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	if err := testProvider.InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
@@ -101,17 +99,17 @@ func TestProviderDefaultValues(t *testing.T) {
 		t.Fatalf("err: %s", err)
 	}
 
-	config := testProvider.Meta().(*Config)
-	if config.Endpoint != providerDefaultValueEndpoint {
-		t.Errorf("there is not default API endpoint (%s), should be %s", config.Endpoint, providerDefaultValueEndpoint)
+	conf := testProvider.Meta().(*Config)
+	if conf.Endpoint != providerDefaultValueEndpoint {
+		t.Errorf("there is not default API endpoint (%s), should be %s", conf.Endpoint, providerDefaultValueEndpoint)
 	}
 
-	if config.Plaintext {
-		t.Errorf("there is not default option 'Plaintext' (%v), should be %v", config.Plaintext, providerDefaultValuePlaintext)
+	if conf.Plaintext {
+		t.Errorf("there is not default option 'Plaintext' (%v), should be %v", conf.Plaintext, providerDefaultValuePlaintext)
 	}
 
-	if config.Insecure {
-		t.Errorf("there is not default option 'Insecure' (%v), should be %v", config.Plaintext, providerDefaultValueInsecure)
+	if conf.Insecure {
+		t.Errorf("there is not default option 'Insecure' (%v), should be %v", conf.Plaintext, providerDefaultValueInsecure)
 	}
 
 	// restore OS env vars
@@ -164,6 +162,10 @@ func getExampleUserLogin2() string {
 	return testUserLogin2
 }
 
+func getExampleStorageEndpoint() string {
+	return testStorageEndpoint
+}
+
 func setTestIDs() error {
 	// init sdk client based on env var
 	envEndpoint := os.Getenv("YC_ENDPOINT")
@@ -195,6 +197,8 @@ func setTestIDs() error {
 
 	testUserID1 = loginToUserID(sdk, testUserLogin1)
 	testUserID2 = loginToUserID(sdk, testUserLogin2)
+
+	testStorageEndpoint = os.Getenv("YC_STORAGE_ENDPOINT_URL")
 
 	return nil
 }

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
@@ -40,13 +41,20 @@ type Config struct {
 	Plaintext             bool
 	Insecure              bool
 	MaxRetries            int
+	StorageEndpoint       string
+
+	// These storage access keys are optional and only used when
+	// storage data/resource doesn't have own access keys explicitly specified.
+	StorageAccessKey string
+	StorageSecretKey string
 
 	// contextWithClientTraceID is a context that has client-trace-id in its metadata
 	// It is initialized from stopContext at the same time as ycsdk.SDK
 	contextWithClientTraceID context.Context
 
-	userAgent string
-	sdk       *ycsdk.SDK
+	userAgent       string
+	sdk             *ycsdk.SDK
+	defaultS3Client *s3.S3
 }
 
 // this function return context with added client trace id
@@ -100,6 +108,24 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
 		grpc.WithUnaryInterceptor(interceptorChain))
+
+	if err == nil {
+		err = c.initializeDefaultS3Client()
+	}
+
+	return err
+}
+
+func (c *Config) initializeDefaultS3Client() (err error) {
+	if c.StorageEndpoint == "" || (c.StorageAccessKey == "" && c.StorageSecretKey == "") {
+		return nil
+	}
+
+	if c.StorageAccessKey == "" || c.StorageSecretKey == "" {
+		return fmt.Errorf("both storage access key and storage secret key should be specified or not specified")
+	}
+
+	c.defaultS3Client, err = newS3Client(c.StorageEndpoint, c.StorageAccessKey, c.StorageSecretKey)
 
 	return err
 }

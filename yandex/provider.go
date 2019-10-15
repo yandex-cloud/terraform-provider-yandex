@@ -7,6 +7,7 @@ import (
 )
 
 const defaultEndpoint = "api.cloud.yandex.net:443"
+const defaultStorageEndpoint = "storage.yandexcloud.net"
 
 // Global MutexKV
 var mutexKV = mutexkv.NewMutexKV()
@@ -50,6 +51,24 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc:   schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
 				Description:   descriptions["service_account_key_file"],
 				ConflictsWith: []string{"token"},
+			},
+			"storage_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_ENDPOINT_URL", defaultStorageEndpoint),
+				Description: descriptions["storage_endpoint"],
+			},
+			"storage_access_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_ACCESS_KEY", nil),
+				Description: descriptions["storage_access_key"],
+			},
+			"storage_secret_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_SECRET_KEY", nil),
+				Description: descriptions["storage_secret_key"],
 			},
 			"insecure": {
 				Type:        schema.TypeBool,
@@ -118,6 +137,8 @@ func Provider() terraform.ResourceProvider {
 			"yandex_resourcemanager_folder_iam_binding":    resourceYandexResourceManagerFolderIAMBinding(),
 			"yandex_resourcemanager_folder_iam_member":     resourceYandexResourceManagerFolderIAMMember(),
 			"yandex_resourcemanager_folder_iam_policy":     resourceYandexResourceManagerFolderIAMPolicy(),
+			"yandex_storage_bucket":                        resourceYandexStorageBucket(),
+			"yandex_storage_object":                        resourceYandexStorageObject(),
 			"yandex_vpc_network":                           resourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
@@ -149,6 +170,14 @@ var descriptions = map[string]string{
 
 	"max_retries": "The maximum number of times an API request is being executed. \n" +
 		"If the API request still fails, an error is thrown.",
+
+	"storage_endpoint": "Yandex.Cloud storage service endpoint. Default is \n" + defaultStorageEndpoint,
+
+	"storage_access_key": "Yandex.Cloud storage service access key. \n" +
+		"Used when a storage data/resource doesn't have an access key explicitly specified.",
+
+	"storage_secret_key": "Yandex.Cloud storage service secret key. \n" +
+		"Used when a storage data/resource doesn't have a secret key explicitly specified.",
 }
 
 func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
@@ -163,6 +192,9 @@ func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
 			Plaintext:             d.Get("plaintext").(bool),
 			Insecure:              d.Get("insecure").(bool),
 			MaxRetries:            d.Get("max_retries").(int),
+			StorageEndpoint:       d.Get("storage_endpoint").(string),
+			StorageAccessKey:      d.Get("storage_access_key").(string),
+			StorageSecretKey:      d.Get("storage_secret_key").(string),
 		}
 
 		terraformVersion := provider.TerraformVersion

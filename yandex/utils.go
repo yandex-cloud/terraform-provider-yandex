@@ -16,6 +16,7 @@ import (
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -24,6 +25,8 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -98,6 +101,101 @@ func lockCloudByFolderID(config *Config, folderID string) (func(), error) {
 	return func() {
 		mutexKV.Unlock(mutexKey)
 	}, nil
+}
+
+func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, secretKey string, cleanup func(), err error) {
+	op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Create(context.Background(), &iam.CreateServiceAccountRequest{
+		FolderId: config.FolderID,
+		Name:     acctest.RandomWithPrefix("tmp-sa-"),
+	}))
+	if err != nil {
+		return
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return
+	}
+
+	md, ok := protoMetadata.(*iam.CreateServiceAccountMetadata)
+	if !ok {
+		err = fmt.Errorf("could not get temporary service account ID from create operation metadata")
+		return
+	}
+
+	saID := md.ServiceAccountId
+
+	err = op.Wait(context.Background())
+	if err != nil {
+		return
+	}
+
+	deleteSa := func() {
+		op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Delete(context.Background(), &iam.DeleteServiceAccountRequest{
+			ServiceAccountId: saID,
+		}))
+		if err != nil {
+			log.Printf("[WARN] error deleting temporary service account: %s", err)
+			return
+		}
+
+		err = op.Wait(context.Background())
+		if err != nil {
+			log.Printf("[WARN] error deleting temporary service account: %s", err)
+		}
+	}
+
+	createKey := func() (*awscompatibility.CreateAccessKeyResponse, error) {
+		op, err = config.sdk.WrapOperation(config.sdk.ResourceManager().Folder().SetAccessBindings(context.Background(), &access.SetAccessBindingsRequest{
+			ResourceId: config.FolderID,
+			AccessBindings: []*access.AccessBinding{
+				{
+					RoleId: roleID,
+					Subject: &access.Subject{
+						Id:   saID,
+						Type: "serviceAccount",
+					},
+				},
+			},
+		}))
+		if err != nil {
+			return nil, err
+		}
+
+		err = op.Wait(context.Background())
+		if err != nil {
+			return nil, err
+		}
+
+		sak, err := config.sdk.IAM().AWSCompatibility().AccessKey().Create(context.Background(), &awscompatibility.CreateAccessKeyRequest{
+			ServiceAccountId: saID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return sak, err
+	}
+
+	sak, err := createKey()
+	if err != nil {
+		deleteSa()
+		return
+	}
+
+	accessKey = sak.AccessKey.KeyId
+	secretKey = sak.Secret
+	cleanup = func() {
+		_, err := config.sdk.IAM().AWSCompatibility().AccessKey().Delete(context.Background(), &awscompatibility.DeleteAccessKeyRequest{
+			AccessKeyId: sak.AccessKey.Id,
+		})
+		if err != nil {
+			log.Printf("[WARN] error deleting temporary access key: %s", err)
+		}
+
+		deleteSa()
+	}
+	return
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resourceName string) error {
