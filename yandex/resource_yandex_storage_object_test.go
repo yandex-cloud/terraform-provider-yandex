@@ -1,3 +1,4 @@
+//revive:disable:var-naming
 package yandex
 
 import (
@@ -24,9 +25,11 @@ func TestAccStorageObject_source(t *testing.T) {
 	defer os.Remove(source)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageObjectDestroy,
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigSource(rInt, source),
@@ -45,9 +48,11 @@ func TestAccStorageObject_content(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageObjectDestroy,
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContent(rInt, "some_bucket_content"),
@@ -66,15 +71,47 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageObjectDestroy,
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccStorageObjectConfigContentBase64(rInt, base64.StdEncoding.EncodeToString([]byte("some_bucket_content"))),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
 					testAccCheckStorageObjectBody(&obj, "some_bucket_content"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageObject_updateAcl(t *testing.T) {
+	var obj s3.GetObjectOutput
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_object.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectAclPreConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					resource.TestCheckResourceAttr(resourceName, "acl", "public-read"),
+				),
+			},
+			{
+				Config: testAccStorageObjectAclPostConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 				),
 			},
 		},
@@ -308,4 +345,94 @@ resource "yandex_storage_object" "test" {
 	content_base64 = "%[2]s"
 }
 `, randInt, contentBase64, getExampleFolderID())
+}
+
+func testAccStorageObjectAclPreConfig(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-bucket-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "binding" {
+	folder_id = "%[2]s"
+
+	role = "admin"
+
+	members = [
+		"serviceAccount:${yandex_iam_service_account.sa.id}",
+	]
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_binding.binding
+	]
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-object-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key     = "test-key"
+	content = "some-contect"
+
+	acl = "public-read"
+}
+`, randInt, getExampleFolderID())
+}
+
+func testAccStorageObjectAclPostConfig(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-bucket-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "binding" {
+	folder_id = "%[2]s"
+
+	role = "admin"
+
+	members = [
+		"serviceAccount:${yandex_iam_service_account.sa.id}",
+	]
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_binding.binding
+	]
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-object-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key     = "test-key"
+	content = "some-contect"
+
+	acl = "private"
+}
+`, randInt, getExampleFolderID())
 }

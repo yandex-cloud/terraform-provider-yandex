@@ -36,10 +36,17 @@ func resourceYandexStorageObject() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
 			"secret_key": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
+			},
+
+			"acl": {
+				Type:     schema.TypeString,
+				Default:  "private",
+				Optional: true,
 			},
 
 			"key": {
@@ -118,6 +125,7 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 	if _, err := s3conn.PutObject(&s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
+		ACL:    aws.String(d.Get("acl").(string)),
 		Body:   body,
 	}); err != nil {
 		return fmt.Errorf("error putting object in bucket %q: %s", bucket, err)
@@ -165,6 +173,22 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 	} {
 		if d.HasChange(key) {
 			return resourceYandexStorageObjectCreate(d, meta)
+		}
+	}
+
+	if d.HasChange("acl") {
+		config := meta.(*Config)
+		s3Client, err := getS3Client(d, config)
+		if err != nil {
+			return fmt.Errorf("error getting storage client: %s", err)
+		}
+		_, err = s3Client.PutObjectAcl(&s3.PutObjectAclInput{
+			Bucket: aws.String(d.Get("bucket").(string)),
+			Key:    aws.String(d.Get("key").(string)),
+			ACL:    aws.String(d.Get("acl").(string)),
+		})
+		if err != nil {
+			return fmt.Errorf("error putting storage object ACL: %s", err)
 		}
 	}
 

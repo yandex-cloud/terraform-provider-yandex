@@ -80,6 +80,35 @@ func TestAccStorageBucket_generatedName(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_updateAcl(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketAclPreConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "acl", "public-read"),
+				),
+			},
+			{
+				Config: testAccStorageBucketAclPostConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_website(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
@@ -96,6 +125,9 @@ func TestAccStorageBucket_website(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketWebsite(resourceName, "index.html", "", "", "")),
+					resource.TestCheckResourceAttr(resourceName, "website.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "website.0.index_document", "index.html"),
+					resource.TestCheckResourceAttr(resourceName, "website.0.error_document", ""),
 					resource.TestCheckResourceAttr(resourceName, "website_endpoint", testAccWebsiteEndpoint(rInt)),
 				),
 			},
@@ -104,6 +136,8 @@ func TestAccStorageBucket_website(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketWebsite(resourceName, "index.html", "error.html", "", "")),
+					resource.TestCheckResourceAttr(resourceName, "website.0.index_document", "index.html"),
+					resource.TestCheckResourceAttr(resourceName, "website.0.error_document", "error.html"),
 					resource.TestCheckResourceAttr(resourceName, "website_endpoint", testAccWebsiteEndpoint(rInt)),
 				),
 			},
@@ -112,6 +146,7 @@ func TestAccStorageBucket_website(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketWebsite(resourceName, "", "", "", "")),
+					resource.TestCheckResourceAttr(resourceName, "website.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "website_endpoint", ""),
 				),
 			},
@@ -149,45 +184,6 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
-	updateBucketCors := func(n string) resource.TestCheckFunc {
-		return func(s *terraform.State) error {
-			rs, ok := s.RootModule().Resources[n]
-			if !ok {
-				return fmt.Errorf("not found: %s", n)
-			}
-
-			rules := []*s3.CORSRule{
-				{
-					AllowedHeaders: []*string{aws.String("*")},
-					AllowedMethods: []*string{aws.String("GET")},
-					AllowedOrigins: []*string{aws.String("https://www.example.com")},
-					MaxAgeSeconds:  aws.Int64(0),
-				},
-			}
-
-			conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-				testAccProvider.Meta().(*Config))
-			if err != nil {
-				return err
-			}
-			conf := &s3.CORSConfiguration{
-				CORSRules: rules,
-			}
-			_, err = conn.PutBucketCors(&s3.PutBucketCorsInput{
-				Bucket:            aws.String(rs.Primary.ID),
-				CORSConfiguration: conf,
-			})
-			if err == nil {
-				err = waitCorsPut(conn, rs.Primary.ID, conf)
-			}
-			if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
-				return err
-			}
-
-			return testAccCheckStorageBucketCors(n, rules)(s)
-		}
-	}
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:      func() { testAccPreCheck(t) },
 		IDRefreshName: resourceName,
@@ -210,12 +206,19 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 							},
 						},
 					)),
-					wrapWithRetries(updateBucketCors(resourceName)),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.0", "*"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "PUT"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.1", "POST"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.com"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 			{
-				Config: testAccStorageBucketConfigWithCORS(rInt),
+				Config: testAccStorageBucketConfigWithCORSUpdated(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketCors(
@@ -223,13 +226,21 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 						[]*s3.CORSRule{
 							{
 								AllowedHeaders: []*string{aws.String("*")},
-								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
-								AllowedOrigins: []*string{aws.String("https://www.example.com")},
+								AllowedMethods: []*string{aws.String("GET")},
+								AllowedOrigins: []*string{aws.String("https://www.example.ru")},
 								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
-								MaxAgeSeconds:  aws.Int64(3000),
+								MaxAgeSeconds:  aws.Int64(2000),
 							},
 						},
 					)),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.0", "*"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.ru"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "2000"),
 				),
 			},
 		},
@@ -240,29 +251,6 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
-	deleteBucketCors := func(n string) resource.TestCheckFunc {
-		return func(s *terraform.State) error {
-			rs, ok := s.RootModule().Resources[n]
-			if !ok {
-				return fmt.Errorf("not found: %s", n)
-			}
-
-			conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-				testAccProvider.Meta().(*Config))
-			if err != nil {
-				return err
-			}
-			_, err = conn.DeleteBucketCors(&s3.DeleteBucketCorsInput{
-				Bucket: aws.String(rs.Primary.ID),
-			})
-			if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
-				return err
-			}
-
-			return checkEmptyBucketCors(rs.Primary.ID, conn)
-		}
-	}
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:      func() { testAccPreCheck(t) },
 		IDRefreshName: resourceName,
@@ -273,9 +261,36 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 				Config: testAccStorageBucketConfigWithCORS(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
-					wrapWithRetries(deleteBucketCors(resourceName)),
+					wrapWithRetries(testAccCheckStorageBucketCors(
+						resourceName,
+						[]*s3.CORSRule{
+							{
+								AllowedHeaders: []*string{aws.String("*")},
+								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
+								AllowedOrigins: []*string{aws.String("https://www.example.com")},
+								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
+								MaxAgeSeconds:  aws.Int64(3000),
+							},
+						},
+					)),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.0", "*"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "PUT"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.1", "POST"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.com"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
 				),
-				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: testAccStorageBucketConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					wrapWithRetries(testAccCheckStorageBucketCors(resourceName, nil)),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.#", "0"),
+				),
 			},
 		},
 	})
@@ -306,6 +321,15 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 							},
 						},
 					),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_headers.0", "*"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "PUT"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.1", "POST"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", ""),
+					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
 				),
 			},
 		},
@@ -583,6 +607,76 @@ resource "yandex_storage_bucket" "test" {
 `, randInt, getExampleFolderID())
 }
 
+func testAccStorageBucketAclPreConfig(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-bucket-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "binding" {
+	folder_id = "%[2]s"
+
+	role = "admin"
+
+	members = [
+		"serviceAccount:${yandex_iam_service_account.sa.id}",
+	]
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_binding.binding
+	]
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	acl = "public-read"
+}
+`, randInt, getExampleFolderID())
+}
+
+func testAccStorageBucketAclPostConfig(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-bucket-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "binding" {
+	folder_id = "%[2]s"
+
+	role = "admin"
+
+	members = [
+		"serviceAccount:${yandex_iam_service_account.sa.id}",
+	]
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_binding.binding
+	]
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	acl = "private"
+}
+`, randInt, getExampleFolderID())
+}
+
 func testAccStorageBucketWebsiteConfig(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "sa" {
@@ -725,8 +819,49 @@ resource "yandex_storage_bucket" "test" {
 		allowed_headers = ["*"]
 		allowed_methods = ["PUT","POST"]
 		allowed_origins = ["https://www.example.com"]
-		expose_headers = ["x-amz-server-side-encryption","ETag"]
+		expose_headers  = ["x-amz-server-side-encryption","ETag"]
 		max_age_seconds = 3000
+	}
+}
+`, randInt, getExampleFolderID())
+}
+
+func testAccStorageBucketConfigWithCORSUpdated(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-bucket-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "binding" {
+	folder_id = "%[2]s"
+
+	role = "editor"
+
+	members = [
+		"serviceAccount:${yandex_iam_service_account.sa.id}",
+	]
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_binding.binding
+	]
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	cors_rule {
+		allowed_headers = ["*"]
+		allowed_methods = ["GET"]
+		allowed_origins = ["https://www.example.ru"]
+		expose_headers  = ["x-amz-server-side-encryption","ETag"]
+		max_age_seconds = 2000
 	}
 }
 `, randInt, getExampleFolderID())
@@ -846,32 +981,6 @@ func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
 		}
 		return err
 	}
-}
-
-func checkEmptyBucketCors(ID string, conn *s3.S3) error {
-	_, err := conn.GetBucketCors(&s3.GetBucketCorsInput{
-		Bucket: aws.String(ID),
-	})
-
-	if err == nil {
-		return fmt.Errorf("expected NoSuchCORSConfiguration error, not none")
-	}
-
-	if isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
-		return fmt.Errorf("bucket not found")
-	}
-
-	awsErr, ok := err.(awserr.Error)
-
-	if !ok {
-		return fmt.Errorf("got unexpected error type: %v", err)
-	}
-
-	if awsErr.Code() != "NoSuchCORSConfiguration" {
-		return fmt.Errorf("expected NoSuchCORSConfiguration error, got: %v", awsErr.Code())
-	}
-
-	return nil
 }
 
 func ensureBucketDeleted(n string) resource.TestCheckFunc {

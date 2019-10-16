@@ -52,10 +52,17 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+
 			"secret_key": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
+			},
+
+			"acl": {
+				Type:     schema.TypeString,
+				Default:  "private",
+				Optional: true,
 			},
 
 			"cors_rule": {
@@ -130,7 +137,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 }
 
 func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	// Get the bucket
+	// Get the bucket and acl
 	var bucket string
 	if v, ok := d.GetOk("bucket"); ok {
 		bucket = v.(string)
@@ -145,6 +152,7 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("bucket", bucket)
+	acl := d.Get("acl").(string)
 
 	config := meta.(*Config)
 	s3Client, err := getS3Client(d, config)
@@ -153,9 +161,10 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		log.Printf("[DEBUG] Trying to create new storage bucket: %q", bucket)
+		log.Printf("[DEBUG] Trying to create new storage bucket: %q, ACL: %q", bucket, acl)
 		_, err := s3Client.CreateBucket(&s3.CreateBucketInput{
 			Bucket: aws.String(bucket),
+			ACL:    aws.String(acl),
 		})
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "OperationAborted" {
 			log.Printf("[WARN] Got an error while trying to create storage bucket %s: %s", bucket, err)
@@ -185,13 +194,19 @@ func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if d.HasChange("cors_rule") {
-		if err := resourceYandexStorageBucketCorsUpdate(s3Client, d); err != nil {
+		if err := resourceYandexStorageBucketCORSUpdate(s3Client, d); err != nil {
 			return err
 		}
 	}
 
 	if d.HasChange("website") {
 		if err := resourceYandexStorageBucketWebsiteUpdate(s3Client, d); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("acl") && !d.IsNewResource() {
+		if err := resourceYandexStorageBucketACLUpdate(s3Client, d); err != nil {
 			return err
 		}
 	}
@@ -394,7 +409,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceYandexStorageBucketCorsUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	rawCors := d.Get("cors_rule").([]interface{})
 
@@ -407,6 +422,9 @@ func resourceYandexStorageBucketCorsUpdate(s3Client *s3.S3, d *schema.ResourceDa
 				Bucket: aws.String(bucket),
 			})
 		})
+		if err == nil {
+			err = waitCorsDeleted(s3Client, bucket)
+		}
 		if err != nil {
 			return fmt.Errorf("error deleting storage CORS: %s", err)
 		}
@@ -570,6 +588,26 @@ func WebsiteDomainURL() string {
 	return "website.yandexcloud.net"
 }
 
+func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
+	acl := d.Get("acl").(string)
+	bucket := d.Get("bucket").(string)
+
+	i := &s3.PutBucketAclInput{
+		Bucket: aws.String(bucket),
+		ACL:    aws.String(acl),
+	}
+	log.Printf("[DEBUG] Storage put bucket ACL: %#v", i)
+
+	_, err := retryOnAwsCode(s3.ErrCodeNoSuchBucket, func() (interface{}, error) {
+		return s3Client.PutBucketAcl(i)
+	})
+	if err != nil {
+		return fmt.Errorf("error putting storage bucket ACL: %s", err)
+	}
+
+	return nil
+}
+
 func bucketDomainName(bucket string, endpointURL string) (string, error) {
 	// Without a scheme the url will not be parsed as we expect
 	// See https://github.com/golang/go/issues/19779
@@ -694,6 +732,27 @@ func waitCorsPut(s3Client *s3.S3, bucket string, configuration *s3.CORSConfigura
 	err := waitConditionStable(check)
 	if err != nil {
 		return fmt.Errorf("error assuring bucket %q CORS updated: %s", bucket, err)
+	}
+	return nil
+}
+
+func waitCorsDeleted(s3Client *s3.S3, bucket string) error {
+	input := &s3.GetBucketCorsInput{Bucket: aws.String(bucket)}
+
+	check := func() (bool, error) {
+		_, err := s3Client.GetBucketCors(input)
+		if isAWSErr(err, "NoSuchCORSConfiguration", "") {
+			return true, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		return false, nil
+	}
+
+	err := waitConditionStable(check)
+	if err != nil {
+		return fmt.Errorf("error assuring bucket %q CORS deleted: %s", bucket, err)
 	}
 	return nil
 }
