@@ -128,6 +128,8 @@ var baseAttrsToTest = []string{
 	"scale_policy.#",
 	"allocation_policy.#",
 	"allocation_policy.0.zones.#",
+	"instances.0.fqdn",
+	"instances.0.name",
 }
 
 func testAccDataSourceComputeInstanceGroupCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
