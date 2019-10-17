@@ -1,4 +1,4 @@
-## 0.21.0 (Unreleased)
+## 0.21.0 (October 17, 2019)
 ENHANCEMENTS:
 * storage: `yandex_storage_bucket` and `yandex_storage_object` resources can manage ACL
 
