@@ -592,7 +592,7 @@ func dataSourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta inter
 }
 
 func flattenInstanceGroupDataSource(d *schema.ResourceData, instanceGroup *instancegroup.InstanceGroup, instances []*instancegroup.ManagedInstance) error {
-	err := flattenInstanceGroup(d, instanceGroup)
+	err := flattenInstanceGroup(d, instanceGroup, instances)
 
 	if err != nil {
 		return err
@@ -603,35 +603,6 @@ func flattenInstanceGroupDataSource(d *schema.ResourceData, instanceGroup *insta
 		return err
 	}
 	if err := d.Set("load_balancer_state", loadBalancerState); err != nil {
-		return err
-	}
-
-	if instances == nil {
-		return nil
-	}
-
-	res := make([]map[string]interface{}, len(instances))
-
-	for i, instance := range instances {
-		instDict := make(map[string]interface{})
-		instDict["status"] = instance.Status.String()
-		instDict["instance_id"] = instance.InstanceId
-		instDict["fqdn"] = instance.Fqdn
-		instDict["name"] = instance.Name
-		instDict["status_message"] = instance.StatusMessage
-		instDict["zone_id"] = instance.ZoneId
-
-		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
-		if err != nil {
-			return err
-		}
-
-		instDict["network_interface"] = networkInterfaces
-		res[i] = instDict
-	}
-
-	err = d.Set("instances", res)
-	if err != nil {
 		return err
 	}
 

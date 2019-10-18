@@ -1118,3 +1118,31 @@ func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) 
 	p := d.Get(prefix + ".0.preemptible").(bool)
 	return &instancegroup.SchedulingPolicy{Preemptible: p}, nil
 }
+
+func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]interface{}, error) {
+	if instances == nil {
+		return []map[string]interface{}{}, nil
+	}
+
+	res := make([]map[string]interface{}, len(instances))
+
+	for i, instance := range instances {
+		instDict := make(map[string]interface{})
+		instDict["status"] = instance.GetStatus().String()
+		instDict["instance_id"] = instance.GetInstanceId()
+		instDict["fqdn"] = instance.GetFqdn()
+		instDict["name"] = instance.GetName()
+		instDict["status_message"] = instance.GetStatusMessage()
+		instDict["zone_id"] = instance.GetZoneId()
+
+		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
+		if err != nil {
+			return res, err
+		}
+
+		instDict["network_interface"] = networkInterfaces
+		res[i] = instDict
+	}
+
+	return res, nil
+}

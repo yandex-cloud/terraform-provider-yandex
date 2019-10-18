@@ -30,7 +30,6 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-
 * `name` - The name of the instance group.
 * `description` - A description of the instance group.
 * `folder_id` - The ID of the folder that the instance group belongs to.

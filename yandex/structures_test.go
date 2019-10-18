@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/duration"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/grpc"
 
@@ -834,6 +835,72 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 			}
 			if !reflect.DeepEqual(res, tt.expected) {
 				t.Errorf("flattenInstanceGroupScalePolicy() got = %v, want %v", res, tt.expected)
+			}
+		})
+	}
+}
+
+func TestFlattenInstances(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     []*instancegroup.ManagedInstance
+		expected []map[string]interface{}
+	}{
+		{
+			name: "fixed scale",
+			spec: []*instancegroup.ManagedInstance{
+				{
+					Id:            "id1",
+					Status:        instancegroup.ManagedInstance_RUNNING_ACTUAL,
+					InstanceId:    "compute_id",
+					Fqdn:          "fqdn1",
+					Name:          "name1",
+					StatusMessage: "status_message1",
+					ZoneId:        "zone1",
+					NetworkInterfaces: []*instancegroup.NetworkInterface{
+						{
+							Index: "1",
+							PrimaryV6Address: &instancegroup.PrimaryAddress{
+								Address: "2001:db8::370:7348",
+							},
+							SubnetId:   "some-subnet-id",
+							MacAddress: "aa-bb-cc-dd-ee-ff",
+						},
+					},
+					StatusChangedAt: &timestamp.Timestamp{Seconds: 500000},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"status":         "RUNNING_ACTUAL",
+					"instance_id":    "compute_id",
+					"fqdn":           "fqdn1",
+					"name":           "name1",
+					"status_message": "status_message1",
+					"zone_id":        "zone1",
+					"network_interface": []map[string]interface{}{
+						{
+							"index":        1,
+							"mac_address":  "aa-bb-cc-dd-ee-ff",
+							"subnet_id":    "some-subnet-id",
+							"ipv6":         true,
+							"ipv6_address": "2001:db8::370:7348",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := flattenInstances(tt.spec)
+
+			if err != nil {
+				t.Errorf("%v", err)
+			}
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("flattenInstances() got = %v, want %v", res, tt.expected)
 			}
 		})
 	}

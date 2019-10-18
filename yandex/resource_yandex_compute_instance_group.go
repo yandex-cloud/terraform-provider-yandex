@@ -528,6 +528,83 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"instances": {
+				Computed: true,
+				Type:     schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status_message": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"zone_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"network_interface": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"index": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"mac_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ip_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ipv6": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"ipv6_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"nat": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"nat_ip_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"nat_ip_version": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -583,10 +660,18 @@ func resourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("Instance group %q", d.Id()))
 	}
 
-	return flattenInstanceGroup(d, instanceGroup)
+	instances, err := config.sdk.InstanceGroup().InstanceGroup().ListInstances(ctx, &instancegroup.ListInstanceGroupInstancesRequest{
+		InstanceGroupId: d.Id(),
+	})
+
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Can't read instances for instance group with ID %q", d.Id()))
+	}
+
+	return flattenInstanceGroup(d, instanceGroup, instances.GetInstances())
 }
 
-func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.InstanceGroup) error {
+func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.InstanceGroup, instances []*instancegroup.ManagedInstance) error {
 	createdAt, err := getTimestamp(instanceGroup.CreatedAt)
 	if err != nil {
 		return err
@@ -645,6 +730,16 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 	}
 
 	healthChecks, err := flattenInstanceGroupHealthChecks(instanceGroup)
+	if err != nil {
+		return err
+	}
+
+	inst, err := flattenInstances(instances)
+	if err != nil {
+		return err
+	}
+
+	err = d.Set("instances", inst)
 	if err != nil {
 		return err
 	}
