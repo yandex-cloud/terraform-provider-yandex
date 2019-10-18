@@ -1,6 +1,7 @@
 ## 0.21.0 (Unreleased)
 ENHANCEMENTS:
 * storage: `yandex_storage_bucket` and `yandex_storage_object` resources can manage ACL
+* compute: add `instances` to `yandex_compute_instance_group` resource
 
 ## 0.20.0 (October 15, 2019)
 FEATURES:
