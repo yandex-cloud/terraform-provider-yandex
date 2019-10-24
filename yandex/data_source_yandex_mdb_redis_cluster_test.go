@@ -114,6 +114,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "labels.test_key", "test_value"),
 		resource.TestCheckResourceAttr(datasourceName, "sharded", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "1"),
+		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }

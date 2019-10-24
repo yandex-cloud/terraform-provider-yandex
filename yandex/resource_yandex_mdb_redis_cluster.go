@@ -101,10 +101,15 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						"shard_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -291,11 +296,6 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	hs, err := flattenRedisHosts(hosts)
-	if err != nil {
-		return err
-	}
-
 	conf := extractRedisConfig(cluster.Config)
 	password := ""
 	if v, ok := d.GetOk("config.0.password"); ok {
@@ -322,11 +322,16 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	toDelete, toAdd := redisHostsDiff(hosts, dHosts)
-	if len(toDelete) != 0 || len(toAdd) != 0 {
-		if err := d.Set("host", hs); err != nil {
-			return err
-		}
+
+	sortRedisHosts(hosts, dHosts)
+
+	hs, err := flattenRedisHosts(hosts)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("host", hs); err != nil {
+		return err
 	}
 
 	return d.Set("labels", cluster.Labels)
@@ -348,7 +353,6 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	d.Partial(false)
-
 	return resourceYandexMDBRedisClusterRead(d, meta)
 }
 

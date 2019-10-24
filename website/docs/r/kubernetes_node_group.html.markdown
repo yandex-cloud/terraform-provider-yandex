@@ -15,26 +15,27 @@ Creates a Yandex Kubernetes Node Group.
 
 ```hcl
 resource "yandex_kubernetes_node_group" "my_node_group" {
-  cluster_id = "${yandex_kubernetes_cluster.my_cluster.id}"
+  cluster_id  = "${yandex_kubernetes_cluster.my_cluster.id}"
   name        = "name"
   description = "description"
+  version     = "1.14"
 
   labels = {
-	"key" = "value"
+    "key" = "value"
   }
 
   instance_template {
-    platform_id = "standard-v1"
-    nat = true
+    platform_id = "standard-v2"
+    nat         = true
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
       type = "network-hdd"
-      size     = 64
+      size = 64
     }
 
     scheduling_policy {
@@ -47,12 +48,12 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
       size = 1
     }
   }
-  
+
   allocation_policy {
     location {
       zone = "ru-central1-a"
     }
-  } 
+  }
 }
 ```
 
@@ -61,9 +62,10 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
 The following arguments are supported:
 
 * `cluster_id` - (Required) The ID of the Kubernetes cluster that this node group belongs to.
-* `description` - A description of the Kubernetes node group.
-* `labels` - A set of key/value label pairs assigned to the Kubernetes node group.
-* `status` - Status of the Kubernetes node group.
+* `name` - (Optional) Name of a specific Kubernetes node group.
+* `description` - (Optional) A description of the Kubernetes node group.
+* `labels` - (Optional) A set of key/value label pairs assigned to the Kubernetes node group.
+* `version` - (Optional) Version of Kubernetes that will be used for Kubernetes node group.
 * `instance_template` - (Required) Template used to create compute instances in this Kubernetes node group.
 
 The structure is documented below.
@@ -93,7 +95,6 @@ The `instance_template` block supports:
 * `platform_id` - The ID of the hardware platform configuration for the node group compute instances.
 * `nat` - Boolean flag, enables NAT for node group compute instances.
 * `metadata` - The set of metadata `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys.
-* `labels` - A map of labels applied to this instance.
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
@@ -106,6 +107,7 @@ The structure is documented below.
 
 The structure is documented below.
 
+* `status` - (Computed) Status of the Kubernetes node group.
 * `created_at` - (Computed) The Kubernetes node group creation timestamp.
 
 ---

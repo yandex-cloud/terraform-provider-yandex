@@ -83,6 +83,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -146,14 +150,23 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
 	}
 
-	resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
-		ClusterId: clusterID,
-		PageSize:  defaultMDBPageSize,
-	})
-	if err != nil {
-		return fmt.Errorf("Error while getting list of hosts for '%s': %s", clusterID, err)
+	hosts := []*redis.Host{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
+			ClusterId: clusterID,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return fmt.Errorf("Error while getting list of hosts for '%s': %s", clusterID, err)
+		}
+		hosts = append(hosts, resp.Hosts...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
 	}
-	hosts := resp.Hosts
 
 	createdAt, err := getTimestamp(cluster.CreatedAt)
 	if err != nil {

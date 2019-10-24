@@ -15,6 +15,19 @@ type redisConfig struct {
 	maxmemoryPolicy string
 }
 
+// Sorts list of hosts in accordance with the order in config.
+// We need to keep the original order so there's no diff appears on each apply.
+func sortRedisHosts(hosts []*redis.Host, specs []*redis.HostSpec) {
+	for i, h := range specs {
+		for j := i + 1; j < len(hosts); j++ {
+			if h.ZoneId == hosts[j].ZoneId && (h.ShardName == "" || h.ShardName == hosts[j].ShardName) {
+				hosts[i], hosts[j] = hosts[j], hosts[i]
+				break
+			}
+		}
+	}
+}
+
 // Takes the current list of hosts and the desirable list of hosts.
 // Returns the list of hostnames to delete and the list of hosts to add.
 func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) ([]string, []*redis.HostSpec) {
@@ -114,6 +127,7 @@ func flattenRedisHosts(hs []*redis.Host) ([]map[string]interface{}, error) {
 		m["zone"] = h.ZoneId
 		m["subnet_id"] = h.SubnetId
 		m["shard_name"] = h.ShardName
+		m["fqdn"] = h.Name
 		res = append(res, m)
 	}
 

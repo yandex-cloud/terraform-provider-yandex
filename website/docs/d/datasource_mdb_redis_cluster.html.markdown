@@ -69,3 +69,4 @@ The `host` block supports:
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must
   be a part of the network to which the cluster belongs.
 * `shard_name` - The name of the shard to which the host belongs.
+* `fqdn` - The fully qualified domain name of the host.

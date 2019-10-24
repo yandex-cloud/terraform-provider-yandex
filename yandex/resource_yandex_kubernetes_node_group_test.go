@@ -53,6 +53,8 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	t.Parallel()
 
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
+	clusterResource.MasterVersion = "1.14"
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
@@ -60,6 +62,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 
 	nodeUpdatedResource.Name = safeResourceName("clusternewname")
 	nodeUpdatedResource.Description = "new-description"
+	nodeUpdatedResource.Version = "1.14"
 	nodeUpdatedResource.LabelKey = "new_label_key"
 	nodeUpdatedResource.LabelValue = "new_label_value"
 	nodeUpdatedResource.Memory = "4"
@@ -100,6 +103,7 @@ type resourceNodeGroupInfo struct {
 	NodeGroupResourceName string
 	Name                  string
 	Description           string
+	Version               string
 
 	Memory string
 	Cores  string
@@ -118,6 +122,7 @@ func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
 		NodeGroupResourceName: randomResourceName("nodegroup"),
 		Name:                  safeResourceName("nodegroupname"),
 		Description:           "description",
+		Version:               "1.13",
 		Memory:                "2",
 		Cores:                 "1",
 		DiskSize:              "64",
@@ -179,7 +184,9 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     location {
       zone = "ru-central1-a"
     }
-  } 
+  }
+
+  version = {{.Version}}
 }
 `
 
@@ -248,6 +255,13 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			testAccCheckNodeGroupLabel(ng, info, rs),
 			testAccCheckCreatedAtAttr(resourceFullName),
+		}
+
+		if rs {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "version", info.Version),
+				resource.TestCheckResourceAttr(resourceFullName, "version", ng.GetVersionInfo().GetCurrentVersion()),
+			)
 		}
 
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)

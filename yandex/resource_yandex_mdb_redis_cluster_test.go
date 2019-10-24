@@ -51,6 +51,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
@@ -66,6 +67,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
@@ -81,6 +83,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
@@ -166,6 +170,7 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 		return nil
 	}
 }
+
 func testAccCheckMDBRedisClusterHasResources(r *redis.Cluster, resourcePresetID string, diskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := r.Config.Resources

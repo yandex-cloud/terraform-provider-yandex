@@ -17,7 +17,7 @@ const (
 	yandexKubernetesNodeGroupReadTimeout   = 10 * time.Minute
 	yandexKubernetesNodeGroupCreateTimeout = 60 * time.Minute
 	yandexKubernetesNodeGroupUpdateTimeout = 60 * time.Minute
-	yandexKubernetesNodeGroupDeleteTimeout = 10 * time.Minute
+	yandexKubernetesNodeGroupDeleteTimeout = 20 * time.Minute
 )
 
 func resourceYandexKubernetesNodeGroup() *schema.Resource {
@@ -172,6 +172,11 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"allocation_policy": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -319,6 +324,9 @@ func resourceYandexKubernetesNodeGroupRead(d *schema.ResourceData, meta interfac
 		return handleNotFoundError(err, d, fmt.Sprintf("Kubernetes node group with ID %q", ngID))
 	}
 
+	// resource only parameter
+	d.Set("version", ng.GetVersionInfo().GetCurrentVersion())
+
 	return flattenNodeGroupSchemaData(ng, d)
 }
 
@@ -341,6 +349,7 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		NodeTemplate:     tpl,
 		ScalePolicy:      getNodeGroupScalePolicy(d),
 		AllocationPolicy: getNodeGroupAllocationPolicy(d),
+		Version:          d.Get("version").(string),
 	}
 
 	return req, nil
@@ -508,6 +517,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.boot_disk.0.size":                "node_template.boot_disk_spec.disk_size",
 	"instance_template.0.scheduling_policy.0.preemptible": "node_template.scheduling_policy.preemptible",
 	"scale_policy.0.fixed_scale.0.size":                   "scale_policy",
+	"version":                                             "version",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -566,6 +576,11 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		Labels:       labels,
 		NodeTemplate: tpl,
 		ScalePolicy:  getNodeGroupScalePolicy(d),
+		Version: &k8s.UpdateVersionSpec{
+			Specifier: &k8s.UpdateVersionSpec_Version{
+				Version: d.Get("version").(string),
+			},
+		},
 	}
 
 	return req, nil

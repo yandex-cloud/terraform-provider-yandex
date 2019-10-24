@@ -68,6 +68,13 @@ The following keys can be used to configure the provider.
   are being throttled or experiencing transient failures. The delay between the subsequent API calls increases 
   exponentially.
 
+* `storage_access_key` - (Optional) Yandex.Cloud storage service access key, which is used when a storage data/resource doesn't have an access key explicitly specified.
+
+  This can also be specified using environment variable `YC_STORAGE_ACCESS_KEY`.
+
+* `storage_secret_key` - (Optional) Yandex.Cloud storage service secret key, which is used when a storage data/resource doesn't have a secret key explicitly specified.
+
+  This can also be specified using environment variable `YC_STORAGE_SECRET_KEY`.
 
 [yandex-cloud]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud
 [yandex-folder]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder

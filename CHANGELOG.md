@@ -1,8 +1,12 @@
-## 0.21.1 (Unreleased)
+## 0.22.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `instances` to `yandex_compute_instance_group` resource
+* mdb: add fqdns of hosts in `yandex_mdb_redis_cluster` resource and data source
+* managed-kubernetes: add `version` to `yandex_kubernetes_node_group` resource
+
 ## 0.21.0 (October 17, 2019)
 ENHANCEMENTS:
 * storage: `yandex_storage_bucket` and `yandex_storage_object` resources can manage ACL
-* compute: add `instances` to `yandex_compute_instance_group` resource
 
 ## 0.20.0 (October 15, 2019)
 FEATURES:

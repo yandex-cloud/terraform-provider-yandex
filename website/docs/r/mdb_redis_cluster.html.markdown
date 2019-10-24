@@ -89,6 +89,8 @@ The `resources` block supports:
 
 The `host` block supports:
 
+* `fqdn` (Computed) - The fully qualified domain name of the host.
+
 * `zone` - (Required) The availability zone where the Redis host will be created.
 
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must

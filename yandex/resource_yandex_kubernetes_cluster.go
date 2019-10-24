@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	yandexKubernetesClusterCreateTimeout  = 15 * time.Minute
-	yandexKubernetesClusterDefaultTimeout = 5 * time.Minute
+	yandexKubernetesClusterCreateTimeout  = 20 * time.Minute
+	yandexKubernetesClusterReadTimeout    = 5 * time.Minute
+	yandexKubernetesClusterDefaultTimeout = 20 * time.Minute
 )
 
 func resourceYandexKubernetesCluster() *schema.Resource {
@@ -30,7 +31,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexKubernetesClusterCreateTimeout),
-			Read:   schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
+			Read:   schema.DefaultTimeout(yandexKubernetesClusterReadTimeout),
 			Update: schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
 			Delete: schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
 		},
