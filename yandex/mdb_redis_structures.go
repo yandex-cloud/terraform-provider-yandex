@@ -29,25 +29,22 @@ func sortRedisHosts(hosts []*redis.Host, specs []*redis.HostSpec) {
 }
 
 // Takes the current list of hosts and the desirable list of hosts.
-// Returns the list of hostnames to delete and the list of hosts to add.
-func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) ([]string, []*redis.HostSpec) {
+// Returns the map of hostnames to delete grouped by shard,
+// and the map of hosts to add grouped by shard as well.
+func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) (map[string][]string, map[string][]*redis.HostSpec) {
 	m := map[string][]*redis.HostSpec{}
 
 	for _, h := range targetHosts {
 		key := h.ZoneId + h.ShardName
-		_, ok := m[key]
-		if !ok {
-			m[key] = []*redis.HostSpec{}
-		}
 		m[key] = append(m[key], h)
 	}
 
-	toDelete := []string{}
+	toDelete := map[string][]string{}
 	for _, h := range currHosts {
 		key := h.ZoneId + h.ShardName
 		hs, ok := m[key]
 		if !ok {
-			toDelete = append(toDelete, h.Name)
+			toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
 		}
 		if len(hs) > 1 {
 			m[key] = hs[1:]
@@ -56,9 +53,11 @@ func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) ([]s
 		}
 	}
 
-	toAdd := []*redis.HostSpec{}
+	toAdd := map[string][]*redis.HostSpec{}
 	for _, hs := range m {
-		toAdd = append(toAdd, hs...)
+		for _, h := range hs {
+			toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
+		}
 	}
 
 	return toDelete, toAdd

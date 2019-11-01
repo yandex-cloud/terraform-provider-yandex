@@ -12,8 +12,11 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 )
 
-const yandexMDBRedisClusterDefaultTimeout = 15 * time.Minute
-const defaultMDBPageSize = 1000
+const (
+	yandexMDBRedisClusterDefaultTimeout = 15 * time.Minute
+	yandexMDBRedisClusterUpdateTimeout  = 60 * time.Minute
+	defaultMDBPageSize                  = 1000
+)
 
 func resourceYandexMDBRedisCluster() *schema.Resource {
 	return &schema.Resource{
@@ -27,7 +30,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexMDBRedisClusterDefaultTimeout),
-			Update: schema.DefaultTimeout(yandexMDBRedisClusterDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexMDBRedisClusterUpdateTimeout),
 			Delete: schema.DefaultTimeout(yandexMDBRedisClusterDefaultTimeout),
 		},
 
@@ -63,10 +66,12 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Computed: true,
 						},
 						"maxmemory_policy": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							Computed:     true,
 							ValidateFunc: validateParsableValue(parseRedisMaxmemoryPolicy),
 						},
 					},
@@ -241,6 +246,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		ConfigSpec:  configSpec,
 		HostSpecs:   hosts,
 		Labels:      labels,
+		Sharded:     d.Get("sharded").(bool),
 	}
 	return &req, nil
 }
@@ -258,22 +264,9 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
 	}
 
-	hosts := []*redis.Host{}
-	pageToken := ""
-	for {
-		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
-			ClusterId: d.Id(),
-			PageSize:  defaultMDBPageSize,
-			PageToken: pageToken,
-		})
-		if err != nil {
-			return fmt.Errorf("Error while getting list of hosts for '%s': %s", d.Id(), err)
-		}
-		hosts = append(hosts, resp.Hosts...)
-		if resp.NextPageToken == "" {
-			break
-		}
-		pageToken = resp.NextPageToken
+	hosts, err := listRedisHosts(ctx, config, d)
+	if err != nil {
+		return err
 	}
 
 	createdAt, err := getTimestamp(cluster.CreatedAt)
@@ -449,18 +442,21 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
-		ClusterId: d.Id(),
-		PageSize:  defaultMDBPageSize,
-	})
+	sharded := d.Get("sharded").(bool)
+
+	currHosts, err := listRedisHosts(ctx, config, d)
 	if err != nil {
-		return fmt.Errorf("Error while getting list of hosts for '%s': %s", d.Id(), err)
+		return err
 	}
 
-	currHosts := resp.Hosts
 	targetHosts, err := expandRedisHosts(d)
 	if err != nil {
 		return fmt.Errorf("Error while expanding hosts on Redis Cluster create: %s", err)
+	}
+
+	currShards, err := listRedisShards(ctx, config, d)
+	if err != nil {
+		return err
 	}
 
 	toDelete, toAdd := redisHostsDiff(currHosts, targetHosts)
@@ -468,23 +464,124 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel = context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	for _, fqdn := range toDelete {
-		op, err := config.sdk.WrapOperation(
-			config.sdk.MDB().Redis().Cluster().DeleteHosts(ctx, &redis.DeleteClusterHostsRequest{
-				ClusterId: d.Id(),
-				HostNames: []string{fqdn},
-			}),
-		)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to delete host %s from Redis Cluster %q: %s", fqdn, d.Id(), err)
+	for shardName, specs := range toAdd {
+		shardExists := false
+		for _, s := range currShards {
+			if s.Name == shardName {
+				shardExists = true
+			}
 		}
-		err = op.Wait(ctx)
-		if err != nil {
-			return fmt.Errorf("Error while deleting host %s from Redis Cluster %q: %s", fqdn, d.Id(), err)
+		if sharded && !shardExists {
+			err = createRedisShard(ctx, config, d, shardName, specs)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = createRedisHosts(ctx, config, d, specs)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	for _, hs := range toAdd {
+	for shardName, fqdns := range toDelete {
+		deleteShard := true
+		for _, th := range targetHosts {
+			if th.ShardName == shardName {
+				deleteShard = false
+			}
+		}
+		if sharded && deleteShard {
+			err = deleteRedisShard(ctx, config, d, shardName)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = deleteRedisHosts(ctx, config, d, fqdns)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	d.SetPartial("host")
+	return nil
+}
+
+func listRedisHosts(ctx context.Context, config *Config, d *schema.ResourceData) ([]*redis.Host, error) {
+	hosts := []*redis.Host{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(ctx, &redis.ListClusterHostsRequest{
+			ClusterId: d.Id(),
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error while getting list of hosts for '%s': %s", d.Id(), err)
+		}
+		hosts = append(hosts, resp.Hosts...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return hosts, nil
+}
+
+func listRedisShards(ctx context.Context, config *Config, d *schema.ResourceData) ([]*redis.Shard, error) {
+	shards := []*redis.Shard{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Redis().Cluster().ListShards(ctx, &redis.ListClusterShardsRequest{
+			ClusterId: d.Id(),
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error while getting list of shards for '%s': %s", d.Id(), err)
+		}
+		shards = append(shards, resp.Shards...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return shards, nil
+}
+
+func createRedisShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, hostSpecs []*redis.HostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Redis().Cluster().AddShard(ctx, &redis.AddClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: shardName,
+			HostSpecs: hostSpecs,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to add shard to Redis Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while adding shard to Redis Cluster %q: %s", d.Id(), err)
+	}
+	op, err = config.sdk.WrapOperation(
+		config.sdk.MDB().Redis().Cluster().Rebalance(ctx, &redis.RebalanceClusterRequest{
+			ClusterId: d.Id(),
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to rebalance the Redis Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while rebalancing the Redis Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func createRedisHosts(ctx context.Context, config *Config, d *schema.ResourceData, specs []*redis.HostSpec) error {
+	for _, hs := range specs {
 		op, err := config.sdk.WrapOperation(
 			config.sdk.MDB().Redis().Cluster().AddHosts(ctx, &redis.AddClusterHostsRequest{
 				ClusterId: d.Id(),
@@ -499,8 +596,42 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 			return fmt.Errorf("Error while adding host to Redis Cluster %q: %s", d.Id(), err)
 		}
 	}
+	return nil
+}
 
-	d.SetPartial("host")
+func deleteRedisShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Redis().Cluster().DeleteShard(ctx, &redis.DeleteClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: shardName,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to delete shard from Redis Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while deleting shard from Redis Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteRedisHosts(ctx context.Context, config *Config, d *schema.ResourceData, fqdns []string) error {
+	for _, fqdn := range fqdns {
+		op, err := config.sdk.WrapOperation(
+			config.sdk.MDB().Redis().Cluster().DeleteHosts(ctx, &redis.DeleteClusterHostsRequest{
+				ClusterId: d.Id(),
+				HostNames: []string{fqdn},
+			}),
+		)
+		if err != nil {
+			return fmt.Errorf("Error while requesting API to delete host %s from Redis Cluster %q: %s", fqdn, d.Id(), err)
+		}
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error while deleting host %s from Redis Cluster %q: %s", fqdn, d.Id(), err)
+		}
+	}
 	return nil
 }
 

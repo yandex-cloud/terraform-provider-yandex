@@ -59,11 +59,13 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 						"version": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"public_ip": {
 							Type:     schema.TypeBool,
 							Optional: true,
+							Computed: true,
 							ForceNew: true,
 						},
 						"zonal": {

@@ -21,6 +21,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
   network_id = "${yandex_vpc_network.network_resource_name.id}"
 
   master {
+    version     = "1.14"
     zonal {
       zone      = "${yandex_vpc_subnet.subnet_resource_name.zone}"
       subnet_id = "${yandex_vpc_subnet.subnet_resource_name.id}"
@@ -68,6 +69,7 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
       }
     }
 
+    version   = "1.14"
     public_ip = true
   }
 
@@ -120,16 +122,16 @@ The structure is documented below.
 ## Attributes Reference
 
 * `cluster_id` - (Computed) ID of a new Kubernetes cluster.
-* `created_at` - The Kubernetes cluster creation timestamp.
-* `status` - Status of the Kubernetes cluster.
-* `health` - Health of the Kubernetes cluster.
+* `status` - (Computed)Status of the Kubernetes cluster.
+* `health` - (Computed) Health of the Kubernetes cluster.
+* `created_at` - (Computed) The Kubernetes cluster creation timestamp.
 
 ---
 
 The `master` block supports:
 
-* `version` - (Optional) Version of Kubernetes that will be used for master.
-* `public_ip` - (Optional) Boolean flag. When `true`, Kubernetes master will have visible ipv4 address. 
+* `version` - (Optional) (Computed) Version of Kubernetes that will be used for master.
+* `public_ip` - (Optional) (Computed) Boolean flag. When `true`, Kubernetes master will have visible ipv4 address. 
 
 * `zonal` - (Optional) Initialize parameters for Zonal Master (one node master).
 

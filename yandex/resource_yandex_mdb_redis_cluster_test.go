@@ -13,17 +13,17 @@ import (
 )
 
 const redisResource = "yandex_mdb_redis_cluster.foo"
+const redisResourceSharded = "yandex_mdb_redis_cluster.bar"
 
-func mdbRedisClusterImportStep() resource.TestStep {
+func mdbRedisClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{
-		ResourceName:      redisResource,
+		ResourceName:      name,
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
 			"config.0.password", // not returned
-			"host.0.subnet_id",  // computed on server side
-			"host.1.subnet_id",  // computed on server side
 			"health",            // volatile value
+			"host",              // the order of hosts differs
 		},
 	}
 }
@@ -58,7 +58,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(redisResource),
 				),
 			},
-			mdbRedisClusterImportStep(),
+			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
 				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2),
@@ -74,7 +74,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(redisResource),
 				),
 			},
-			mdbRedisClusterImportStep(),
+			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
 				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2),
@@ -91,7 +91,53 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(redisResource),
 				),
 			},
-			mdbRedisClusterImportStep(),
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
+}
+
+// Test that a sharded Redis Cluster can be created, updated and destroyed
+func TestAccMDBRedisCluster_sharded(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
+	redisDesc := "Sharded Redis Cluster Terraform Test"
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create Redis Cluster
+			{
+				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckCreatedAtAttr(redisResourceSharded),
+				),
+			},
+			mdbRedisClusterImportStep(redisResourceSharded),
+			// Add new shard, delete old shard
+			{
+				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckCreatedAtAttr(redisResourceSharded),
+				),
+			},
+			mdbRedisClusterImportStep(redisResourceSharded),
 		},
 	})
 }
@@ -158,6 +204,36 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int) re
 	}
 }
 
+func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().Redis().Cluster().ListShards(context.Background(), &redis.ListClusterShardsRequest{
+			ClusterId: r.Id,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Shards) != len(shards) {
+			return fmt.Errorf("Expected %d shards, got %d", len(shards), len(resp.Shards))
+		}
+		for _, s := range shards {
+			found := false
+			for _, rs := range resp.Shards {
+				if s == rs.Name {
+					found = true
+				}
+			}
+			if !found {
+				return fmt.Errorf("Shard '%s' not found", s)
+			}
+		}
+		return nil
+	}
+}
+
 func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := extractRedisConfig(r.Config)
@@ -210,6 +286,12 @@ resource "yandex_vpc_subnet" "bar" {
   zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.3.0.0/24"]
 }
 `
 
@@ -306,6 +388,84 @@ resource "yandex_mdb_redis_cluster" "foo" {
   host {
     zone      = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.bar.id}"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBRedisShardedClusterConfig(name, desc string) string {
+	return fmt.Sprintf(redisVPCDependencies+`
+resource "yandex_mdb_redis_cluster" "bar" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  sharded     = true
+
+  config {
+    password = "passw0rd"
+  }
+
+  resources {
+    resource_preset_id = "hm1.nano"
+    disk_size          = 16
+  }
+
+  host {
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "first"
+  }
+
+  host {
+    zone       = "ru-central1-b"
+    subnet_id  = "${yandex_vpc_subnet.bar.id}"
+	shard_name = "second"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.baz.id}"
+	shard_name = "third"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBRedisShardedClusterConfigUpdated(name, desc string) string {
+	return fmt.Sprintf(redisVPCDependencies+`
+resource "yandex_mdb_redis_cluster" "bar" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  sharded     = true
+
+  config {
+    password = "passw0rd"
+  }
+
+  resources {
+    resource_preset_id = "hm1.nano"
+    disk_size          = 16
+  }
+
+  host {
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "first"
+  }
+
+  host {
+    zone       = "ru-central1-b"
+    subnet_id  = "${yandex_vpc_subnet.bar.id}"
+	shard_name = "second"
+  }
+
+  host {
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "new"
   }
 }
 `, name, desc)

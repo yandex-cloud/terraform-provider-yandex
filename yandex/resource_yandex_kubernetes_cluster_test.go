@@ -52,6 +52,32 @@ func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
+	clusterResource.MasterVersion = ""
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKubernetesClusterRegional_basic(t *testing.T) {
 	t.Parallel()
 
@@ -354,9 +380,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 		if rs {
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.public_ip", "true"),
-				resource.TestCheckResourceAttr(resourceFullName, "master.0.version", info.MasterVersion),
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.version", cluster.GetMaster().GetVersion()),
 			)
+
+			if info.MasterVersion != "" {
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.version", info.MasterVersion))
+			}
 		}
 
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
@@ -460,7 +490,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
 
   master {
-	version = "{{.MasterVersion}}"
+    version = "{{.MasterVersion}}" 
     zonal {
   	  zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}" 
 	  subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"

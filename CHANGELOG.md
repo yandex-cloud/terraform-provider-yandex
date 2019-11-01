@@ -1,4 +1,11 @@
 ## 0.23.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: support sharding in `yandex_mdb_redis_cluster`
+* compute: increase `yandex_compute_snapshot` timeout from 5 to 20 minutes
+
+BUG FIXES:
+* managed-kubernetes: mark as computable `version` and `public_ip` in `yandex_kubernetes_cluster` resource
+
 ## 0.22.0 (October 24, 2019)
 ENHANCEMENTS:
 * compute: add `instances` to `yandex_compute_instance_group` resource
