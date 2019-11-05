@@ -1,4 +1,4 @@
-## 0.23.0 (Unreleased)
+## 0.23.0 (November 05, 2019)
 ENHANCEMENTS:
 * mdb: support sharding in `yandex_mdb_redis_cluster`
 * compute: increase `yandex_compute_snapshot` timeout from 5 to 20 minutes
