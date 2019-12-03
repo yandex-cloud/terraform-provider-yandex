@@ -20,8 +20,6 @@ type ApiKeyServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ iam.ApiKeyServiceClient = &ApiKeyServiceClient{}
-
 // Create implements iam.ApiKeyServiceClient
 func (c *ApiKeyServiceClient) Create(ctx context.Context, in *iam.CreateApiKeyRequest, opts ...grpc.CallOption) (*iam.CreateApiKeyResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -56,4 +54,67 @@ func (c *ApiKeyServiceClient) List(ctx context.Context, in *iam.ListApiKeysReque
 		return nil, err
 	}
 	return iam.NewApiKeyServiceClient(conn).List(ctx, in, opts...)
+}
+
+type ApiKeyIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *ApiKeyServiceClient
+	request *iam.ListApiKeysRequest
+
+	items []*iam.ApiKey
+}
+
+func (c *ApiKeyServiceClient) ApiKeyIterator(ctx context.Context, serviceAccountId string, opts ...grpc.CallOption) *ApiKeyIterator {
+	return &ApiKeyIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &iam.ListApiKeysRequest{
+			ServiceAccountId: serviceAccountId,
+			PageSize:         1000,
+		},
+	}
+}
+
+func (it *ApiKeyIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.ApiKeys
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *ApiKeyIterator) Value() *iam.ApiKey {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *ApiKeyIterator) Error() error {
+	return it.err
 }

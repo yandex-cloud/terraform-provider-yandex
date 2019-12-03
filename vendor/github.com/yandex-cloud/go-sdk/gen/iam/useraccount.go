@@ -19,8 +19,6 @@ type UserAccountServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ iam.UserAccountServiceClient = &UserAccountServiceClient{}
-
 // Get implements iam.UserAccountServiceClient
 func (c *UserAccountServiceClient) Get(ctx context.Context, in *iam.GetUserAccountRequest, opts ...grpc.CallOption) (*iam.UserAccount, error) {
 	conn, err := c.getConn(ctx)

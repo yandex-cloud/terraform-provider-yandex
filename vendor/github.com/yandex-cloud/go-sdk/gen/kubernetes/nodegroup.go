@@ -20,8 +20,6 @@ type NodeGroupServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ k8s.NodeGroupServiceClient = &NodeGroupServiceClient{}
-
 // Create implements k8s.NodeGroupServiceClient
 func (c *NodeGroupServiceClient) Create(ctx context.Context, in *k8s.CreateNodeGroupRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -58,6 +56,69 @@ func (c *NodeGroupServiceClient) List(ctx context.Context, in *k8s.ListNodeGroup
 	return k8s.NewNodeGroupServiceClient(conn).List(ctx, in, opts...)
 }
 
+type NodeGroupIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NodeGroupServiceClient
+	request *k8s.ListNodeGroupsRequest
+
+	items []*k8s.NodeGroup
+}
+
+func (c *NodeGroupServiceClient) NodeGroupIterator(ctx context.Context, folderId string, opts ...grpc.CallOption) *NodeGroupIterator {
+	return &NodeGroupIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListNodeGroupsRequest{
+			FolderId: folderId,
+			PageSize: 1000,
+		},
+	}
+}
+
+func (it *NodeGroupIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.NodeGroups
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NodeGroupIterator) Value() *k8s.NodeGroup {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NodeGroupIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements k8s.NodeGroupServiceClient
 func (c *NodeGroupServiceClient) ListOperations(ctx context.Context, in *k8s.ListNodeGroupOperationsRequest, opts ...grpc.CallOption) (*k8s.ListNodeGroupOperationsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -65,6 +126,69 @@ func (c *NodeGroupServiceClient) ListOperations(ctx context.Context, in *k8s.Lis
 		return nil, err
 	}
 	return k8s.NewNodeGroupServiceClient(conn).ListOperations(ctx, in, opts...)
+}
+
+type NodeGroupOperationsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NodeGroupServiceClient
+	request *k8s.ListNodeGroupOperationsRequest
+
+	items []*operation.Operation
+}
+
+func (c *NodeGroupServiceClient) NodeGroupOperationsIterator(ctx context.Context, nodeGroupId string, opts ...grpc.CallOption) *NodeGroupOperationsIterator {
+	return &NodeGroupOperationsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListNodeGroupOperationsRequest{
+			NodeGroupId: nodeGroupId,
+			PageSize:    1000,
+		},
+	}
+}
+
+func (it *NodeGroupOperationsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListOperations(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Operations
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NodeGroupOperationsIterator) Value() *operation.Operation {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NodeGroupOperationsIterator) Error() error {
+	return it.err
 }
 
 // Update implements k8s.NodeGroupServiceClient

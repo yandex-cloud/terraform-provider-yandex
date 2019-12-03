@@ -21,8 +21,6 @@ type FunctionServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ functions.FunctionServiceClient = &FunctionServiceClient{}
-
 // Create implements functions.FunctionServiceClient
 func (c *FunctionServiceClient) Create(ctx context.Context, in *functions.CreateFunctionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -30,15 +28,6 @@ func (c *FunctionServiceClient) Create(ctx context.Context, in *functions.Create
 		return nil, err
 	}
 	return functions.NewFunctionServiceClient(conn).Create(ctx, in, opts...)
-}
-
-// CreateFunctionVersion implements functions.FunctionServiceClient
-func (c *FunctionServiceClient) CreateFunctionVersion(ctx context.Context, in *functions.CreateFunctionVersionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
-	conn, err := c.getConn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return functions.NewFunctionServiceClient(conn).CreateFunctionVersion(ctx, in, opts...)
 }
 
 // CreateVersion implements functions.FunctionServiceClient
@@ -68,24 +57,6 @@ func (c *FunctionServiceClient) Get(ctx context.Context, in *functions.GetFuncti
 	return functions.NewFunctionServiceClient(conn).Get(ctx, in, opts...)
 }
 
-// GetFunctionVersion implements functions.FunctionServiceClient
-func (c *FunctionServiceClient) GetFunctionVersion(ctx context.Context, in *functions.GetFunctionVersionRequest, opts ...grpc.CallOption) (*functions.Version, error) {
-	conn, err := c.getConn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return functions.NewFunctionServiceClient(conn).GetFunctionVersion(ctx, in, opts...)
-}
-
-// GetFunctionVersionByTag implements functions.FunctionServiceClient
-func (c *FunctionServiceClient) GetFunctionVersionByTag(ctx context.Context, in *functions.GetFunctionVersionByTagRequest, opts ...grpc.CallOption) (*functions.Version, error) {
-	conn, err := c.getConn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return functions.NewFunctionServiceClient(conn).GetFunctionVersionByTag(ctx, in, opts...)
-}
-
 // GetVersion implements functions.FunctionServiceClient
 func (c *FunctionServiceClient) GetVersion(ctx context.Context, in *functions.GetFunctionVersionRequest, opts ...grpc.CallOption) (*functions.Version, error) {
 	conn, err := c.getConn(ctx)
@@ -113,6 +84,69 @@ func (c *FunctionServiceClient) List(ctx context.Context, in *functions.ListFunc
 	return functions.NewFunctionServiceClient(conn).List(ctx, in, opts...)
 }
 
+type FunctionIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *FunctionServiceClient
+	request *functions.ListFunctionsRequest
+
+	items []*functions.Function
+}
+
+func (c *FunctionServiceClient) FunctionIterator(ctx context.Context, folderId string, opts ...grpc.CallOption) *FunctionIterator {
+	return &FunctionIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &functions.ListFunctionsRequest{
+			FolderId: folderId,
+			PageSize: 1000,
+		},
+	}
+}
+
+func (it *FunctionIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Functions
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *FunctionIterator) Value() *functions.Function {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *FunctionIterator) Error() error {
+	return it.err
+}
+
 // ListAccessBindings implements functions.FunctionServiceClient
 func (c *FunctionServiceClient) ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -122,22 +156,67 @@ func (c *FunctionServiceClient) ListAccessBindings(ctx context.Context, in *acce
 	return functions.NewFunctionServiceClient(conn).ListAccessBindings(ctx, in, opts...)
 }
 
-// ListFunctionTagHistory implements functions.FunctionServiceClient
-func (c *FunctionServiceClient) ListFunctionTagHistory(ctx context.Context, in *functions.ListFunctionTagHistoryRequest, opts ...grpc.CallOption) (*functions.ListFunctionTagHistoryResponse, error) {
-	conn, err := c.getConn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return functions.NewFunctionServiceClient(conn).ListFunctionTagHistory(ctx, in, opts...)
+type FunctionAccessBindingsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *FunctionServiceClient
+	request *access.ListAccessBindingsRequest
+
+	items []*access.AccessBinding
 }
 
-// ListFunctionVersions implements functions.FunctionServiceClient
-func (c *FunctionServiceClient) ListFunctionVersions(ctx context.Context, in *functions.ListFunctionsVersionsRequest, opts ...grpc.CallOption) (*functions.ListFunctionsVersionsResponse, error) {
-	conn, err := c.getConn(ctx)
-	if err != nil {
-		return nil, err
+func (c *FunctionServiceClient) FunctionAccessBindingsIterator(ctx context.Context, resourceId string, opts ...grpc.CallOption) *FunctionAccessBindingsIterator {
+	return &FunctionAccessBindingsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &access.ListAccessBindingsRequest{
+			ResourceId: resourceId,
+			PageSize:   1000,
+		},
 	}
-	return functions.NewFunctionServiceClient(conn).ListFunctionVersions(ctx, in, opts...)
+}
+
+func (it *FunctionAccessBindingsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListAccessBindings(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.AccessBindings
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *FunctionAccessBindingsIterator) Value() *access.AccessBinding {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *FunctionAccessBindingsIterator) Error() error {
+	return it.err
 }
 
 // ListOperations implements functions.FunctionServiceClient
@@ -149,6 +228,69 @@ func (c *FunctionServiceClient) ListOperations(ctx context.Context, in *function
 	return functions.NewFunctionServiceClient(conn).ListOperations(ctx, in, opts...)
 }
 
+type FunctionOperationsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *FunctionServiceClient
+	request *functions.ListFunctionOperationsRequest
+
+	items []*operation.Operation
+}
+
+func (c *FunctionServiceClient) FunctionOperationsIterator(ctx context.Context, functionId string, opts ...grpc.CallOption) *FunctionOperationsIterator {
+	return &FunctionOperationsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &functions.ListFunctionOperationsRequest{
+			FunctionId: functionId,
+			PageSize:   1000,
+		},
+	}
+}
+
+func (it *FunctionOperationsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListOperations(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Operations
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *FunctionOperationsIterator) Value() *operation.Operation {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *FunctionOperationsIterator) Error() error {
+	return it.err
+}
+
 // ListRuntimes implements functions.FunctionServiceClient
 func (c *FunctionServiceClient) ListRuntimes(ctx context.Context, in *functions.ListRuntimesRequest, opts ...grpc.CallOption) (*functions.ListRuntimesResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -158,6 +300,64 @@ func (c *FunctionServiceClient) ListRuntimes(ctx context.Context, in *functions.
 	return functions.NewFunctionServiceClient(conn).ListRuntimes(ctx, in, opts...)
 }
 
+type FunctionRuntimesIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *FunctionServiceClient
+	request *functions.ListRuntimesRequest
+
+	items []string
+}
+
+func (c *FunctionServiceClient) FunctionRuntimesIterator(ctx context.Context, opts ...grpc.CallOption) *FunctionRuntimesIterator {
+	return &FunctionRuntimesIterator{
+		ctx:     ctx,
+		opts:    opts,
+		client:  c,
+		request: &functions.ListRuntimesRequest{},
+	}
+}
+
+func (it *FunctionRuntimesIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListRuntimes(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Runtimes
+	return len(it.items) > 0
+}
+
+func (it *FunctionRuntimesIterator) Value() string {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *FunctionRuntimesIterator) Error() error {
+	return it.err
+}
+
 // ListTagHistory implements functions.FunctionServiceClient
 func (c *FunctionServiceClient) ListTagHistory(ctx context.Context, in *functions.ListFunctionTagHistoryRequest, opts ...grpc.CallOption) (*functions.ListFunctionTagHistoryResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -165,6 +365,69 @@ func (c *FunctionServiceClient) ListTagHistory(ctx context.Context, in *function
 		return nil, err
 	}
 	return functions.NewFunctionServiceClient(conn).ListTagHistory(ctx, in, opts...)
+}
+
+type FunctionTagHistoryIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *FunctionServiceClient
+	request *functions.ListFunctionTagHistoryRequest
+
+	items []*functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord
+}
+
+func (c *FunctionServiceClient) FunctionTagHistoryIterator(ctx context.Context, functionId string, opts ...grpc.CallOption) *FunctionTagHistoryIterator {
+	return &FunctionTagHistoryIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &functions.ListFunctionTagHistoryRequest{
+			FunctionId: functionId,
+			PageSize:   1000,
+		},
+	}
+}
+
+func (it *FunctionTagHistoryIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListTagHistory(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.FunctionTagHistoryRecord
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *FunctionTagHistoryIterator) Value() *functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *FunctionTagHistoryIterator) Error() error {
+	return it.err
 }
 
 // ListVersions implements functions.FunctionServiceClient

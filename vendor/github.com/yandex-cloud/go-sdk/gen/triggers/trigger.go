@@ -20,8 +20,6 @@ type TriggerServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ triggers.TriggerServiceClient = &TriggerServiceClient{}
-
 // Create implements triggers.TriggerServiceClient
 func (c *TriggerServiceClient) Create(ctx context.Context, in *triggers.CreateTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -58,6 +56,69 @@ func (c *TriggerServiceClient) List(ctx context.Context, in *triggers.ListTrigge
 	return triggers.NewTriggerServiceClient(conn).List(ctx, in, opts...)
 }
 
+type TriggerIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *TriggerServiceClient
+	request *triggers.ListTriggersRequest
+
+	items []*triggers.Trigger
+}
+
+func (c *TriggerServiceClient) TriggerIterator(ctx context.Context, folderId string, opts ...grpc.CallOption) *TriggerIterator {
+	return &TriggerIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &triggers.ListTriggersRequest{
+			FolderId: folderId,
+			PageSize: 1000,
+		},
+	}
+}
+
+func (it *TriggerIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Triggers
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *TriggerIterator) Value() *triggers.Trigger {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *TriggerIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements triggers.TriggerServiceClient
 func (c *TriggerServiceClient) ListOperations(ctx context.Context, in *triggers.ListTriggerOperationsRequest, opts ...grpc.CallOption) (*triggers.ListTriggerOperationsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -65,6 +126,69 @@ func (c *TriggerServiceClient) ListOperations(ctx context.Context, in *triggers.
 		return nil, err
 	}
 	return triggers.NewTriggerServiceClient(conn).ListOperations(ctx, in, opts...)
+}
+
+type TriggerOperationsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *TriggerServiceClient
+	request *triggers.ListTriggerOperationsRequest
+
+	items []*operation.Operation
+}
+
+func (c *TriggerServiceClient) TriggerOperationsIterator(ctx context.Context, triggerId string, opts ...grpc.CallOption) *TriggerOperationsIterator {
+	return &TriggerOperationsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &triggers.ListTriggerOperationsRequest{
+			TriggerId: triggerId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *TriggerOperationsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListOperations(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Operations
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *TriggerOperationsIterator) Value() *operation.Operation {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *TriggerOperationsIterator) Error() error {
+	return it.err
 }
 
 // Update implements triggers.TriggerServiceClient

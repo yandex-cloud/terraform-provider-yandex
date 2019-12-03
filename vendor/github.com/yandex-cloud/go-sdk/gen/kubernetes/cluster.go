@@ -20,8 +20,6 @@ type ClusterServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ k8s.ClusterServiceClient = &ClusterServiceClient{}
-
 // Create implements k8s.ClusterServiceClient
 func (c *ClusterServiceClient) Create(ctx context.Context, in *k8s.CreateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -58,6 +56,69 @@ func (c *ClusterServiceClient) List(ctx context.Context, in *k8s.ListClustersReq
 	return k8s.NewClusterServiceClient(conn).List(ctx, in, opts...)
 }
 
+type ClusterIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *ClusterServiceClient
+	request *k8s.ListClustersRequest
+
+	items []*k8s.Cluster
+}
+
+func (c *ClusterServiceClient) ClusterIterator(ctx context.Context, folderId string, opts ...grpc.CallOption) *ClusterIterator {
+	return &ClusterIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListClustersRequest{
+			FolderId: folderId,
+			PageSize: 1000,
+		},
+	}
+}
+
+func (it *ClusterIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Clusters
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *ClusterIterator) Value() *k8s.Cluster {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *ClusterIterator) Error() error {
+	return it.err
+}
+
 // ListNodeGroups implements k8s.ClusterServiceClient
 func (c *ClusterServiceClient) ListNodeGroups(ctx context.Context, in *k8s.ListClusterNodeGroupsRequest, opts ...grpc.CallOption) (*k8s.ListClusterNodeGroupsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -67,6 +128,69 @@ func (c *ClusterServiceClient) ListNodeGroups(ctx context.Context, in *k8s.ListC
 	return k8s.NewClusterServiceClient(conn).ListNodeGroups(ctx, in, opts...)
 }
 
+type ClusterNodeGroupsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *ClusterServiceClient
+	request *k8s.ListClusterNodeGroupsRequest
+
+	items []*k8s.NodeGroup
+}
+
+func (c *ClusterServiceClient) ClusterNodeGroupsIterator(ctx context.Context, clusterId string, opts ...grpc.CallOption) *ClusterNodeGroupsIterator {
+	return &ClusterNodeGroupsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListClusterNodeGroupsRequest{
+			ClusterId: clusterId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *ClusterNodeGroupsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListNodeGroups(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.NodeGroups
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *ClusterNodeGroupsIterator) Value() *k8s.NodeGroup {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *ClusterNodeGroupsIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements k8s.ClusterServiceClient
 func (c *ClusterServiceClient) ListOperations(ctx context.Context, in *k8s.ListClusterOperationsRequest, opts ...grpc.CallOption) (*k8s.ListClusterOperationsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -74,6 +198,87 @@ func (c *ClusterServiceClient) ListOperations(ctx context.Context, in *k8s.ListC
 		return nil, err
 	}
 	return k8s.NewClusterServiceClient(conn).ListOperations(ctx, in, opts...)
+}
+
+type ClusterOperationsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *ClusterServiceClient
+	request *k8s.ListClusterOperationsRequest
+
+	items []*operation.Operation
+}
+
+func (c *ClusterServiceClient) ClusterOperationsIterator(ctx context.Context, clusterId string, opts ...grpc.CallOption) *ClusterOperationsIterator {
+	return &ClusterOperationsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListClusterOperationsRequest{
+			ClusterId: clusterId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *ClusterOperationsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListOperations(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Operations
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *ClusterOperationsIterator) Value() *operation.Operation {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *ClusterOperationsIterator) Error() error {
+	return it.err
+}
+
+// Start implements k8s.ClusterServiceClient
+func (c *ClusterServiceClient) Start(ctx context.Context, in *k8s.StartClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return k8s.NewClusterServiceClient(conn).Start(ctx, in, opts...)
+}
+
+// Stop implements k8s.ClusterServiceClient
+func (c *ClusterServiceClient) Stop(ctx context.Context, in *k8s.StopClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return k8s.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
 }
 
 // Update implements k8s.ClusterServiceClient

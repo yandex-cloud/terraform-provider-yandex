@@ -19,8 +19,6 @@ type YandexPassportUserAccountServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ iam.YandexPassportUserAccountServiceClient = &YandexPassportUserAccountServiceClient{}
-
 // GetByLogin implements iam.YandexPassportUserAccountServiceClient
 func (c *YandexPassportUserAccountServiceClient) GetByLogin(ctx context.Context, in *iam.GetUserAccountByLoginRequest, opts ...grpc.CallOption) (*iam.UserAccount, error) {
 	conn, err := c.getConn(ctx)

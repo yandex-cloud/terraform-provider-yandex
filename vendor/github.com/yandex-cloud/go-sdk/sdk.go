@@ -35,6 +35,8 @@ import (
 type Endpoint string
 
 const (
+	DefaultPageSize int64 = 1000
+
 	ComputeServiceID            Endpoint = "compute"
 	IAMServiceID                Endpoint = "iam"
 	OperationServiceID          Endpoint = "operation"

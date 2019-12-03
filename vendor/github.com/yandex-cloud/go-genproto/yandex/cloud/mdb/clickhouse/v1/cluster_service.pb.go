@@ -3283,7 +3283,6 @@ type ClusterServiceClient interface {
 	// Creates a new ClickHouse cluster using the specified backup.
 	Restore(ctx context.Context, in *RestoreClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Retrieves logs for the specified ClickHouse cluster.
-	// For more information about logs, see the [Logs](/docs/managed-clickhouse/concepts/logs) section of the documentation.
 	ListLogs(ctx context.Context, in *ListClusterLogsRequest, opts ...grpc.CallOption) (*ListClusterLogsResponse, error)
 	// Retrieves the list of Operation resources for the specified cluster.
 	ListOperations(ctx context.Context, in *ListClusterOperationsRequest, opts ...grpc.CallOption) (*ListClusterOperationsResponse, error)
@@ -3563,7 +3562,6 @@ type ClusterServiceServer interface {
 	// Creates a new ClickHouse cluster using the specified backup.
 	Restore(context.Context, *RestoreClusterRequest) (*operation.Operation, error)
 	// Retrieves logs for the specified ClickHouse cluster.
-	// For more information about logs, see the [Logs](/docs/managed-clickhouse/concepts/logs) section of the documentation.
 	ListLogs(context.Context, *ListClusterLogsRequest) (*ListClusterLogsResponse, error)
 	// Retrieves the list of Operation resources for the specified cluster.
 	ListOperations(context.Context, *ListClusterOperationsRequest) (*ListClusterOperationsResponse, error)

@@ -708,7 +708,7 @@ const _ = grpc.SupportPackageIsVersion4
 type ServiceAccountServiceClient interface {
 	// Returns the specified ServiceAccount resource.
 	//
-	// To get the list of available ServiceAccount resources, use a [List] request.
+	// To get the list of available ServiceAccount resources, make a [List] request.
 	Get(ctx context.Context, in *GetServiceAccountRequest, opts ...grpc.CallOption) (*ServiceAccount, error)
 	// Retrieves the list of ServiceAccount resources in the specified folder.
 	List(ctx context.Context, in *ListServiceAccountsRequest, opts ...grpc.CallOption) (*ListServiceAccountsResponse, error)
@@ -821,7 +821,7 @@ func (c *serviceAccountServiceClient) ListOperations(ctx context.Context, in *Li
 type ServiceAccountServiceServer interface {
 	// Returns the specified ServiceAccount resource.
 	//
-	// To get the list of available ServiceAccount resources, use a [List] request.
+	// To get the list of available ServiceAccount resources, make a [List] request.
 	Get(context.Context, *GetServiceAccountRequest) (*ServiceAccount, error)
 	// Retrieves the list of ServiceAccount resources in the specified folder.
 	List(context.Context, *ListServiceAccountsRequest) (*ListServiceAccountsResponse, error)

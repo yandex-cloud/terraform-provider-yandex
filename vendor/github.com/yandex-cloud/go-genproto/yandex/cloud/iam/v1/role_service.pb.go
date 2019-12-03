@@ -241,7 +241,7 @@ const _ = grpc.SupportPackageIsVersion4
 type RoleServiceClient interface {
 	// Returns the specified Role resource.
 	//
-	// To get the list of available Role resources, use a [List] request.
+	// To get the list of available Role resources, make a [List] request.
 	Get(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*Role, error)
 	// Retrieves the list of Role resources.
 	List(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
@@ -277,7 +277,7 @@ func (c *roleServiceClient) List(ctx context.Context, in *ListRolesRequest, opts
 type RoleServiceServer interface {
 	// Returns the specified Role resource.
 	//
-	// To get the list of available Role resources, use a [List] request.
+	// To get the list of available Role resources, make a [List] request.
 	Get(context.Context, *GetRoleRequest) (*Role, error)
 	// Retrieves the list of Role resources.
 	List(context.Context, *ListRolesRequest) (*ListRolesResponse, error)

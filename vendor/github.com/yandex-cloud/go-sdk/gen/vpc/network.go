@@ -20,8 +20,6 @@ type NetworkServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
-var _ vpc.NetworkServiceClient = &NetworkServiceClient{}
-
 // Create implements vpc.NetworkServiceClient
 func (c *NetworkServiceClient) Create(ctx context.Context, in *vpc.CreateNetworkRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -58,6 +56,69 @@ func (c *NetworkServiceClient) List(ctx context.Context, in *vpc.ListNetworksReq
 	return vpc.NewNetworkServiceClient(conn).List(ctx, in, opts...)
 }
 
+type NetworkIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NetworkServiceClient
+	request *vpc.ListNetworksRequest
+
+	items []*vpc.Network
+}
+
+func (c *NetworkServiceClient) NetworkIterator(ctx context.Context, folderId string, opts ...grpc.CallOption) *NetworkIterator {
+	return &NetworkIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &vpc.ListNetworksRequest{
+			FolderId: folderId,
+			PageSize: 1000,
+		},
+	}
+}
+
+func (it *NetworkIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.List(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Networks
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NetworkIterator) Value() *vpc.Network {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NetworkIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements vpc.NetworkServiceClient
 func (c *NetworkServiceClient) ListOperations(ctx context.Context, in *vpc.ListNetworkOperationsRequest, opts ...grpc.CallOption) (*vpc.ListNetworkOperationsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -67,6 +128,69 @@ func (c *NetworkServiceClient) ListOperations(ctx context.Context, in *vpc.ListN
 	return vpc.NewNetworkServiceClient(conn).ListOperations(ctx, in, opts...)
 }
 
+type NetworkOperationsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NetworkServiceClient
+	request *vpc.ListNetworkOperationsRequest
+
+	items []*operation.Operation
+}
+
+func (c *NetworkServiceClient) NetworkOperationsIterator(ctx context.Context, networkId string, opts ...grpc.CallOption) *NetworkOperationsIterator {
+	return &NetworkOperationsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &vpc.ListNetworkOperationsRequest{
+			NetworkId: networkId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *NetworkOperationsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListOperations(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Operations
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NetworkOperationsIterator) Value() *operation.Operation {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NetworkOperationsIterator) Error() error {
+	return it.err
+}
+
 // ListSubnets implements vpc.NetworkServiceClient
 func (c *NetworkServiceClient) ListSubnets(ctx context.Context, in *vpc.ListNetworkSubnetsRequest, opts ...grpc.CallOption) (*vpc.ListNetworkSubnetsResponse, error) {
 	conn, err := c.getConn(ctx)
@@ -74,6 +198,69 @@ func (c *NetworkServiceClient) ListSubnets(ctx context.Context, in *vpc.ListNetw
 		return nil, err
 	}
 	return vpc.NewNetworkServiceClient(conn).ListSubnets(ctx, in, opts...)
+}
+
+type NetworkSubnetsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NetworkServiceClient
+	request *vpc.ListNetworkSubnetsRequest
+
+	items []*vpc.Subnet
+}
+
+func (c *NetworkServiceClient) NetworkSubnetsIterator(ctx context.Context, networkId string, opts ...grpc.CallOption) *NetworkSubnetsIterator {
+	return &NetworkSubnetsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &vpc.ListNetworkSubnetsRequest{
+			NetworkId: networkId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *NetworkSubnetsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListSubnets(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Subnets
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NetworkSubnetsIterator) Value() *vpc.Subnet {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NetworkSubnetsIterator) Error() error {
+	return it.err
 }
 
 // Move implements vpc.NetworkServiceClient

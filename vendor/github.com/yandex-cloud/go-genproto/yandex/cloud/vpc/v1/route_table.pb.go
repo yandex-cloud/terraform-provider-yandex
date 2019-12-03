@@ -21,7 +21,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// A RouteTable resource. For more information, see [RouteTables](/docs/vpc/concepts/route_tables).
+// A RouteTable resource. For more information, see [Static Routes](/docs/vpc/concepts/static-routes).
 type RouteTable struct {
 	// ID of the route table.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -125,7 +125,7 @@ func (m *RouteTable) GetStaticRoutes() []*StaticRoute {
 	return nil
 }
 
-// A StaticRoute resource. For more information, see [StaticRoutes](/docs/vpc/concepts/static_routes).
+// A StaticRoute resource. For more information, see [Static Routes](/docs/vpc/concepts/static-routes).
 type StaticRoute struct {
 	// Types that are valid to be assigned to Destination:
 	//	*StaticRoute_DestinationPrefix
