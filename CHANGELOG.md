@@ -1,4 +1,4 @@
-## 0.23.1 (Unreleased)
+## 0.24.0 (Unreleased)
 BUG FIXES:
 * managed-kubernetes: changes in `yandex_kubernetes_node_group` allocation_policy should trigger destroy/add.
 * managed-kubernetes: changes in `yandex_kubernetes_cluster` location, release_channel should trigger destroy/add.
