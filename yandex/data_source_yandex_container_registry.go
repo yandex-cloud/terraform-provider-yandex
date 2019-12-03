@@ -30,6 +30,7 @@ func dataSourceYandexContainerRegistry() *schema.Resource {
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
 			},
 
 			"status": {
@@ -62,10 +63,10 @@ func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interfac
 	}
 
 	registryID := d.Get("registry_id").(string)
-	registryName, registryNameOk := d.GetOk("name")
+	_, registryNameOk := d.GetOk("name")
 
 	if registryNameOk {
-		registryID, err = resolveObjectID(ctx, config, registryName.(string), sdkresolvers.RegistryResolver)
+		registryID, err = resolveObjectID(ctx, config, d, sdkresolvers.RegistryResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve container registry data source by name: %v", err)
 		}

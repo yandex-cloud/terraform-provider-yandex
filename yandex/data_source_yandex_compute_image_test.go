@@ -71,6 +71,68 @@ func TestAccDataSourceComputeImage_byName(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceComputeImage_byIDAndFolder(t *testing.T) {
+	t.Parallel()
+
+	family := "ubuntu-1804-lts"
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviderEmptyFolder,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeImageDestroy,
+			testAccCheckComputeDiskDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCustomImageWithFolderConfig(family, name, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_compute_image.source", "image_id"),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"name", name),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"family", family),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source",
+						"id"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_image.source"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceComputeImage_byNameAndFolder(t *testing.T) {
+	t.Parallel()
+
+	family := "ubuntu-1804-lts"
+	name := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviderEmptyFolder,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckComputeImageDestroy,
+			testAccCheckComputeDiskDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCustomImageWithFolderConfig(family, name, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceIDField("data.yandex_compute_image.source", "image_id"),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"name", name),
+					resource.TestCheckResourceAttr("data.yandex_compute_image.source",
+						"family", family),
+					resource.TestCheckResourceAttrSet("data.yandex_compute_image.source",
+						"id"),
+					testAccCheckCreatedAtAttr("data.yandex_compute_image.source"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceComputeImage_StandardByFamily(t *testing.T) {
 	t.Parallel()
 
@@ -128,12 +190,34 @@ data "yandex_compute_image" "source" {
 }
 `
 
+const computeImageDataByIDAndFolderConfig = `
+data "yandex_compute_image" "source" {
+  image_id = "${yandex_compute_image.image.id}"
+  folder_id = "${yandex_compute_image.image.folder_id}"
+}
+`
+
+const computeImageDataByNameAndFolderConfig = `
+data "yandex_compute_image" "source" {
+  name = "${yandex_compute_image.image.name}"
+  folder_id = "${yandex_compute_image.image.folder_id}"
+}
+`
+
 func testAccDataSourceCustomImageConfig(family, name string, useID bool) string {
 	if useID {
 		return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByIDConfig
 	}
 
 	return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByNameConfig
+}
+
+func testAccDataSourceCustomImageWithFolderConfig(family, name string, useID bool) string {
+	if useID {
+		return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByIDAndFolderConfig
+	}
+
+	return testAccDataSourceCustomImageResourceConfig(family, name) + computeImageDataByNameAndFolderConfig
 }
 
 func testAccDataSourceStandardImageByFamily(family string) string {

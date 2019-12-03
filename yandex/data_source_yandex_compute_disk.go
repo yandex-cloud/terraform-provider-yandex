@@ -90,10 +90,10 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	diskID := d.Get("disk_id").(string)
-	diskName, diskNameOk := d.GetOk("name")
+	_, diskNameOk := d.GetOk("name")
 
 	if diskNameOk {
-		diskID, err = resolveObjectID(ctx, config, diskName.(string), sdkresolvers.DiskResolver)
+		diskID, err = resolveObjectID(ctx, config, d, sdkresolvers.DiskResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source disk by name: %v", err)
 		}

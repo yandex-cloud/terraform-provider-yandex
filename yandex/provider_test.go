@@ -19,6 +19,8 @@ const providerDefaultValuePlaintext = false
 const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
 var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviderEmptyFolder map[string]terraform.ResourceProvider
+
 var testAccProvider *schema.Provider
 
 var testAccEnvVars = []string{
@@ -47,6 +49,12 @@ func init() {
 	testAccProviders = map[string]terraform.ResourceProvider{
 		"yandex": testAccProvider,
 	}
+
+	testAccProviderEmptyFolder = map[string]terraform.ResourceProvider{
+		"yandex":              testAccProvider,
+		"yandex_empty_folder": emptyFolderProvider().(*schema.Provider),
+	}
+
 	if os.Getenv("TF_ACC") != "" {
 		setTestIDs()
 	}

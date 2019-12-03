@@ -24,6 +24,11 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
 			"network_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -104,10 +109,6 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -134,10 +135,10 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	clusterID := d.Get("cluster_id").(string)
-	clusterName, clusterNameOk := d.GetOk("name")
+	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, clusterName.(string), sdkresolvers.RedisClusterResolver)
+		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.RedisClusterResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Redis Cluster by name: %v", err)
 		}

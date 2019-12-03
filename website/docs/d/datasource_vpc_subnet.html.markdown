@@ -24,17 +24,17 @@ This data source is used to define [VPC Subnets] that can be used by other resou
 The following arguments are supported:
 
 * `subnet_id` (Optional) - Subnet ID.
-
 * `name` - (Optional) - Name of the subnet. 
 
 ~> **NOTE:** One of `subnet_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 
 The following attribute is exported:
 
 * `description` - Description of the subnet.
-* `folder_id` - ID of the folder that the resource belongs to.
 * `network_id` - ID of the network this subnet belongs to.
 * `labels` - Labels to assign to this subnet.
 * `zone` - Name of the availability zone for this subnet.

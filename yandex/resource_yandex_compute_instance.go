@@ -344,7 +344,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"fqdn": {
@@ -598,6 +597,24 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		d.SetPartial(descPropName)
+	}
+
+	serviceAccountPropName := "service_account_id"
+	if d.HasChange(serviceAccountPropName) {
+		req := &compute.UpdateInstanceRequest{
+			InstanceId:       d.Id(),
+			ServiceAccountId: d.Get(serviceAccountPropName).(string),
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{serviceAccountPropName},
+			},
+		}
+
+		err := makeInstanceUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial(serviceAccountPropName)
 	}
 
 	resourcesPropName := "resources"

@@ -228,9 +228,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		})
 	})
 	if err != nil {
-		if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
-			log.Printf("[WARN] Storage bucket (%s) not found, error code (404)", d.Id())
-			d.SetId("")
+		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
 		return fmt.Errorf("error reading storage bucket (%s): %s", d.Id(), err)
@@ -253,6 +251,9 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		})
 	})
 	if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
+		if handleS3BucketNotFoundError(d, err) {
+			return nil
+		}
 		return fmt.Errorf("error getting storage bucket CORS configuration: %s", err)
 	}
 
@@ -287,6 +288,9 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		})
 	})
 	if err != nil && !isAWSErr(err, "NotImplemented", "") && !isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
+		if handleS3BucketNotFoundError(d, err) {
+			return nil
+		}
 		return fmt.Errorf("error getting storage bucket website configuration: %s", err)
 	}
 
@@ -400,6 +404,19 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 			// this line recurses until all objects are deleted or an error is returned
 			return resourceYandexStorageBucketDelete(d, meta)
 		}
+	}
+
+	if err == nil {
+		req := &s3.HeadBucketInput{
+			Bucket: aws.String(d.Id()),
+		}
+		err = waitConditionStable(func() (bool, error) {
+			_, err := s3Client.HeadBucket(req)
+			if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
+				return true, nil
+			}
+			return false, err
+		})
 	}
 
 	if err != nil {
@@ -764,6 +781,15 @@ func waitCorsDeleted(s3Client *s3.S3, bucket string) error {
 func isAWSErr(err error, code string, message string) bool {
 	if err, ok := err.(awserr.Error); ok {
 		return err.Code() == code && strings.Contains(err.Message(), message)
+	}
+	return false
+}
+
+func handleS3BucketNotFoundError(d *schema.ResourceData, err error) bool {
+	if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
+		log.Printf("[WARN] Storage bucket (%s) not found, error code (404)", d.Id())
+		d.SetId("")
+		return true
 	}
 	return false
 }

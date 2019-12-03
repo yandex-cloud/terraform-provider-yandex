@@ -5,12 +5,91 @@ import (
 	"fmt"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_vpc_subnet", &resource.Sweeper{
+		Name: "yandex_vpc_subnet",
+		F:    testSweepVPCSubnets,
+		Dependencies: []string{
+			"yandex_compute_instance_group",
+		},
+	})
+}
+
+func testSweepVPCSubnets(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.VPC().Subnet().SubnetIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepVPCSubnet(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC subnet %q", it.Value().GetId()))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepVPCSubnet(conf *Config, id string) bool {
+	return sweepWithRetry(sweepVPCSubnetOnce, conf, "VPC Subnet", id)
+}
+
+func sweepVPCSubnetOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.VPC().Subnet().Delete(ctx, &vpc.DeleteSubnetRequest{
+		SubnetId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
+
+// NOTE(dxan): function may return non-empty string and non-nil error. Example:
+// Resource is successfully created, but wait fails: the function returns id and wait error
+func createVPCSubnetForSweeper(conf *Config, networkID string) (string, error) {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCSubnetDefaultTimeout)
+	defer cancel()
+	op, err := conf.sdk.WrapOperation(conf.sdk.VPC().Subnet().Create(ctx, &vpc.CreateSubnetRequest{
+		Name:         acctest.RandomWithPrefix("sweeper"),
+		Description:  "created by sweeper",
+		ZoneId:       conf.Zone,
+		FolderId:     conf.FolderID,
+		NetworkId:    networkID,
+		V4CidrBlocks: []string{"10.1.0.0/24"},
+	}))
+	if err != nil {
+		return "", fmt.Errorf("failed to create subnet: %v", err)
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return "", fmt.Errorf("failed to get metadata from create subnet operation: %v", err)
+	}
+
+	md, ok := protoMetadata.(*vpc.CreateSubnetMetadata)
+	if !ok {
+		return "", fmt.Errorf("failed to get Subnet ID from create operation metadata")
+	}
+	debugLog("Subnet '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error while waiting for create subnet operation: %v", err)
+	}
+
+	return md.SubnetId, nil
+}
 
 func TestAccVPCSubnet_basic(t *testing.T) {
 	t.Parallel()

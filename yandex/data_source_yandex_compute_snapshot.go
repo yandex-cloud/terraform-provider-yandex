@@ -78,10 +78,10 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 	}
 
 	snapshotID := d.Get("snapshot_id").(string)
-	snapshotName, snapshotNameOk := d.GetOk("name")
+	_, snapshotNameOk := d.GetOk("name")
 
 	if snapshotNameOk {
-		snapshotID, err = resolveObjectID(ctx, config, snapshotName.(string), sdkresolvers.SnapshotResolver)
+		snapshotID, err = resolveObjectID(ctx, config, d, sdkresolvers.SnapshotResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source snapshot by name: %v", err)
 		}

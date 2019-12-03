@@ -25,6 +25,7 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"description": {
@@ -159,10 +160,10 @@ func dataSourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interfac
 	}
 
 	clusterID := d.Get("cluster_id").(string)
-	clusterName, clusterNameOk := d.GetOk("name")
+	_, clusterNameOk := d.GetOk("name")
 
 	if clusterNameOk {
-		clusterID, err = resolveObjectID(ctx, config, clusterName.(string), sdkresolvers.KubernetesClusterResolver)
+		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.KubernetesClusterResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve Kubernetes cluster by name: %v", err)
 		}

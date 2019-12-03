@@ -5,12 +5,88 @@ import (
 	"fmt"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_vpc_network", &resource.Sweeper{
+		Name: "yandex_vpc_network",
+		F:    testSweepVPCNetworks,
+		Dependencies: []string{
+			"yandex_vpc_subnet",
+		},
+	})
+}
+
+func testSweepVPCNetworks(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.VPC().Network().NetworkIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepVPCNetwork(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepVPCNetwork(conf *Config, id string) bool {
+	return sweepWithRetry(sweepVPCNetworkOnce, conf, "VPC Network", id)
+}
+
+func sweepVPCNetworkOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.VPC().Network().Delete(ctx, &vpc.DeleteNetworkRequest{
+		NetworkId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
+
+// NOTE(dxan): function may return non-empty string and non-nil error. Example:
+// Resource is successfully created, but wait fails: the function returns id and wait error
+func createVPCNetworkForSweeper(conf *Config) (string, error) {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
+	defer cancel()
+	op, err := conf.sdk.WrapOperation(conf.sdk.VPC().Network().Create(ctx, &vpc.CreateNetworkRequest{
+		FolderId:    conf.FolderID,
+		Name:        acctest.RandomWithPrefix("sweeper"),
+		Description: "created by sweeper",
+	}))
+	if err != nil {
+		return "", fmt.Errorf("failed to create network: %v", err)
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return "", fmt.Errorf("failed to get metadata from create network operation: %v", err)
+	}
+
+	md, ok := protoMetadata.(*vpc.CreateNetworkMetadata)
+	if !ok {
+		return "", fmt.Errorf("failed to get Network ID from create operation metadata")
+	}
+	debugLog("Network '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return "", fmt.Errorf("error while waiting for create subnet operation: %v", err)
+	}
+
+	return md.NetworkId, nil
+}
 
 func TestAccVPCNetwork_basic(t *testing.T) {
 	t.Parallel()

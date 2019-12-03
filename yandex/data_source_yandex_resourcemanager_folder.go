@@ -72,7 +72,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	}
 
 	folderID := d.Get("folder_id").(string)
-	folderName, folderNameOk := d.GetOk("name")
+	_, folderNameOk := d.GetOk("name")
 
 	if folderNameOk {
 		dsCloudID, err := getCloudID(d, config)
@@ -81,7 +81,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 		}
 
 		resolver := cloudID(dsCloudID).folderResolver
-		folderID, err = resolveObjectID(ctx, config, folderName.(string), resolver)
+		folderID, err = resolveObjectID(ctx, config, d, resolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source folder by name: %v", err)
 		}

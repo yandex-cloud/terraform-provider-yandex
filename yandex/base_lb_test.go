@@ -99,7 +99,7 @@ func getSubnetIPMap(instanceNames []string) (map[string][]string, error) {
 	ctx := context.Background()
 
 	for _, instanceName := range instanceNames {
-		instanceID, err := resolveObjectID(ctx, config, instanceName, sdkresolvers.InstanceResolver)
+		instanceID, err := resolveObjectIDByNameAndFolderID(ctx, config, instanceName, config.FolderID, sdkresolvers.InstanceResolver)
 		if err != nil {
 			return nil, fmt.Errorf("failed to resolve data source instance by name: %v", err)
 		}

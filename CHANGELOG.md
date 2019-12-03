@@ -1,4 +1,19 @@
 ## 0.23.1 (Unreleased)
+BUG FIXES:
+* managed-kubernetes: changes in `yandex_kubernetes_node_group` allocation_policy should trigger destroy/add.
+* managed-kubernetes: changes in `yandex_kubernetes_cluster` location, release_channel should trigger destroy/add.
+* managed-kubernetes: changes in `yandex_kubernetes_cluster` master.0.version should NOT trigger destroy/add, and use update instead.
+* managed-kubernetes: forbidden zero values in `yandex_kubernetes_node_group`, in instance_template.0.resources.0.memory(cores)
+* managed-kubernetes: fill `instance_group_id` field in `yandex_kubernetes_node_group` datasource and resource.
+
+ENHANCEMENTS:
+* compute: support update of service_account_id in `yandex_compute_instance` without resource recreation.
+* datasource resolving by name now uses folder_id from its config (when provided), affected datasources: 
+`yandex_compute_disk`,  `yandex_compute_image`, `yandex_compute_instance`, `yandex_compute_snapshot`,
+`yandex_container_registry`, `yandex_kubernetes_cluster`, `yandex_kubernetes_node_group`,
+`yandex_lb_network_load_balancer`, `yandex_lb_target_group`, `yandex_mdb_redis_cluster`,
+`yandex_vpc_network`, `yandex_vpc_route_table`, `yandex_vpc_subnet`.
+
 ## 0.23.0 (November 05, 2019)
 ENHANCEMENTS:
 * mdb: support sharding in `yandex_mdb_redis_cluster`

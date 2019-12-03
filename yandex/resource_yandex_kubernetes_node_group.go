@@ -59,12 +59,13 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Type:         schema.TypeFloat,
 										Optional:     true,
 										Computed:     true,
-										ValidateFunc: FloatAtLeast(0.0),
+										ValidateFunc: FloatGreater(0.0),
 									},
 									"cores": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
+										Type:         schema.TypeInt,
+										Optional:     true,
+										Computed:     true,
+										ValidateFunc: IntGreater(0),
 									},
 									"core_fraction": {
 										Type:     schema.TypeInt,
@@ -189,17 +190,20 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
+							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 									"subnet_id": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -470,6 +474,7 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 	d.Set("name", ng.Name)
 	d.Set("description", ng.Description)
 	d.Set("status", strings.ToLower(ng.Status.String()))
+	d.Set("instance_group_id", ng.GetInstanceGroupId())
 
 	if err := d.Set("labels", ng.Labels); err != nil {
 		return err

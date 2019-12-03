@@ -28,15 +28,15 @@ output "cluster_external_v4_endpoint" {
 The following arguments are supported:
 
 * `cluster_id` - (Optional) ID of a specific Kubernetes cluster.
-
 * `name` - (Optional) Name of a specific Kubernetes cluster.
 
 ~> **NOTE:** One of `cluster_id` or `name` should be specified.
 
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+
 ## Attributes Reference
 
 * `description` - A description of the Kubernetes cluster.
-* `folder_id` - The ID of the folder that the Kubernetes cluster belongs to.
 * `labels` - A set of key/value label pairs to assign to the Kubernetes cluster.
 * `network_id` - The ID of the cluster network.
 

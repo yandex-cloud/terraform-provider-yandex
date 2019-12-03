@@ -25,34 +25,29 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"folder_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-
 			"listener": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -186,10 +181,10 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 	}
 
 	nlbID := d.Get("network_load_balancer_id").(string)
-	nlbName, nlbNameOk := d.GetOk("name")
+	_, nlbNameOk := d.GetOk("name")
 
 	if nlbNameOk {
-		nlbID, err = resolveObjectID(ctx, config, nlbName.(string), sdkresolvers.NetworkLoadBalancerResolver)
+		nlbID, err = resolveObjectID(ctx, config, d, sdkresolvers.NetworkLoadBalancerResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source network load balancer by name: %v", err)
 		}

@@ -28,18 +28,17 @@ output "network_id" {
 The following arguments are supported:
 
 * `cluster_id` - (Optional) The ID of the Redis cluster.
-
 * `name` - (Optional) The name of the Redis cluster.
 
 ~> **NOTE:** Either `cluster_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are
 exported:
 
-* `folder_id` - The ID of the folder that the resource belongs to. If it
-    is not provided, the default provider folder is used.
 * `network_id` - ID of the network, to which the Redis cluster belongs.
 * `created_at` - Creation timestamp of the key.
 * `description` - Description of the Redis cluster.

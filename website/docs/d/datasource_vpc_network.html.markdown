@@ -24,17 +24,17 @@ This data source is used to define [VPC Networks] that can be used by other reso
 The following arguments are supported:
 
 * `network_id` (Optional) - ID of the network.
-
 * `name` (Optional) - Name of the network.
 
 ~> **NOTE:** One of `network_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 
 The following attribute is exported:
 
 * `description` - Description of the network.
-* `folder_id` - ID of the folder that the resource belongs to.
 * `labels` - Labels assigned to this network.
 * `created_at` - Creation timestamp of this network.
 

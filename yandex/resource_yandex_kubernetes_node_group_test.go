@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -49,20 +50,61 @@ func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroup_zero_cores(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Cores = "0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				ExpectError: regexp.MustCompile("expected instance_template.0.resources.0.cores to be greater than"),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Memory = "0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				ExpectError: regexp.MustCompile("expected instance_template.0.resources.0.memory to be greater than"),
+			},
+		},
+	})
+}
+
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	t.Parallel()
 
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
-	clusterResource.MasterVersion = "1.14"
+	clusterResource.MasterVersion = "1.15"
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Version = "1.14"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	nodeUpdatedResource := nodeResource
 
 	nodeUpdatedResource.Name = safeResourceName("clusternewname")
 	nodeUpdatedResource.Description = "new-description"
-	nodeUpdatedResource.Version = "1.14"
+	nodeUpdatedResource.Version = "1.15"
 	nodeUpdatedResource.LabelKey = "new_label_key"
 	nodeUpdatedResource.LabelValue = "new_label_value"
 	nodeUpdatedResource.Memory = "4"
@@ -214,6 +256,8 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "description", info.Description),
 			resource.TestCheckResourceAttr(resourceFullName, "description", ng.Description),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_group_id", ng.GetInstanceGroupId()),
 
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.resources.0.memory", info.Memory),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.resources.0.cores", info.Cores),

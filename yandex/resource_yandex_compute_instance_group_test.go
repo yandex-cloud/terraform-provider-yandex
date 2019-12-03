@@ -5,12 +5,142 @@ import (
 	"fmt"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_compute_instance_group", &resource.Sweeper{
+		Name: "yandex_compute_instance_group",
+		F:    testSweepComputeInstanceGroups,
+	})
+}
+
+func testSweepComputeInstanceGroups(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	var serviceAccountID, networkID, subnetID string
+	var depsCreated bool
+
+	it := conf.sdk.InstanceGroup().InstanceGroup().InstanceGroupIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		if !depsCreated {
+			depsCreated = true
+			serviceAccountID, err = createIAMServiceAccountForSweeper(conf)
+			if err != nil {
+				result = multierror.Append(result, err)
+				break
+			}
+			networkID, err = createVPCNetworkForSweeper(conf)
+			if err != nil {
+				result = multierror.Append(result, err)
+				break
+			}
+			subnetID, err = createVPCSubnetForSweeper(conf, networkID)
+			if err != nil {
+				result = multierror.Append(result, err)
+				break
+			}
+		}
+
+		id := it.Value().GetId()
+		if !updateComputeInstanceGroupWithSweeperDeps(conf, id, serviceAccountID, networkID, subnetID) {
+			result = multierror.Append(result,
+				fmt.Errorf("failed to sweep (update with dependencies) compute instance group %q", id))
+			continue
+		}
+
+		if !sweepComputeInstanceGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep compute instance group %q", id))
+		}
+	}
+
+	if serviceAccountID != "" {
+		if !sweepIAMServiceAccount(conf, serviceAccountID) {
+			result = multierror.Append(result,
+				fmt.Errorf("failed to sweep IAM service account %q", serviceAccountID))
+		}
+	}
+	if subnetID != "" {
+		if !sweepVPCSubnet(conf, subnetID) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC subnet %q", subnetID))
+		}
+	}
+	if networkID != "" {
+		if !sweepVPCNetwork(conf, networkID) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", networkID))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepComputeInstanceGroup(conf *Config, id string) bool {
+	return sweepWithRetry(sweepComputeInstanceGroupOnce, conf, "Compute instance group", id)
+}
+
+func sweepComputeInstanceGroupOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.InstanceGroup().InstanceGroup().Delete(ctx, &instancegroup.DeleteInstanceGroupRequest{
+		InstanceGroupId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
+
+func updateComputeInstanceGroupWithSweeperDeps(conf *Config, instanceGroupID, serviceAccountID, networkID, subnetID string) bool {
+	debugLog("started updating instance group %q", instanceGroupID)
+
+	client := conf.sdk.InstanceGroup().InstanceGroup()
+	for i := 1; i <= conf.MaxRetries; i++ {
+		req := &instancegroup.UpdateInstanceGroupRequest{
+			InstanceGroupId:  instanceGroupID,
+			ServiceAccountId: serviceAccountID,
+			AllocationPolicy: &instancegroup.AllocationPolicy{
+				Zones: []*instancegroup.AllocationPolicy_Zone{
+					{ZoneId: conf.Zone},
+				},
+			},
+			InstanceTemplate: &instancegroup.InstanceTemplate{
+				NetworkInterfaceSpecs: []*instancegroup.NetworkInterfaceSpec{
+					{
+						NetworkId:            networkID,
+						SubnetIds:            []string{subnetID},
+						PrimaryV4AddressSpec: &instancegroup.PrimaryAddressSpec{},
+					},
+				},
+			},
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{
+					"allocation_policy",
+					"service_account_id",
+					"instance_template.network_interface_specs",
+				},
+			},
+		}
+
+		_, err := conf.sdk.WrapOperation(client.Update(conf.Context(), req))
+		if err != nil {
+			debugLog("[instance group %q] update try #%d: %v", instanceGroupID, i, err)
+		} else {
+			debugLog("[instance group %q] update try #%d: request was successfully sent", instanceGroupID, i)
+			return true
+		}
+	}
+
+	debugLog("instance group %q update failed", instanceGroupID)
+	return false
+}
 
 func computeInstanceGroupImportStep() resource.TestStep {
 	return resource.TestStep{

@@ -18,23 +18,20 @@ func dataSourceYandexLBTargetGroup() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -78,10 +75,10 @@ func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{})
 	}
 
 	tgID := d.Get("target_group_id").(string)
-	tgName, tgNameOk := d.GetOk("name")
+	_, tgNameOk := d.GetOk("name")
 
 	if tgNameOk {
-		tgID, err = resolveObjectID(ctx, config, tgName.(string), sdkresolvers.TargetGroupResolver)
+		tgID, err = resolveObjectID(ctx, config, d, sdkresolvers.TargetGroupResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source target group by name: %v", err)
 		}

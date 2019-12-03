@@ -28,15 +28,14 @@ output "instance_external_ip" {
 The following arguments are supported:
 
 * `instance_id` - (Optional) The ID of a specific instance.
-
 * `name` - (Optional) Name of the instance.
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ~> **NOTE:** One of `instance_id` or `name` should be specified.
 
 ## Attributes Reference
 
 * `description` - Description of the instance.
-* `folder_id` - ID of the folder that the instance belongs to.
 * `fqdn` - FQDN of the instance.
 * `zone` - Availability zone where the instance resides.
 * `labels` - A set of key/value label pairs to assign to the instance.

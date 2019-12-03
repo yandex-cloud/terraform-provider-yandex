@@ -25,17 +25,17 @@ The following arguments are supported:
 
 * `network_load_balancer_id` (Optional) - Network load balancer ID.
 
-* `name` - (Optional) - Name of the betwork load balancer.
+* `name` - (Optional) - Name of the network load balancer.
 
 ~> **NOTE:** One of `network_load_balancer_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 
 The following attribute is exported:
 
-* `name` - Name of the network load balancer.
 * `description` - Description of the network load balancer.
-* `folder_id` - ID of the folder that the resource belongs to.
 * `labels` - Labels to assign to this network load balancer.
 * `region_id` - ID of the region where the network load balancer resides.
 * `type` - Type of the network load balancer.

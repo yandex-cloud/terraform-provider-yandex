@@ -33,6 +33,8 @@ The following arguments are supported:
 
 ~> **NOTE:** One of `node_group_id` or `name` should be specified.
 
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+
 ## Attributes Reference
 
 * `cluster_id` - The ID of the Kubernetes cluster that this node group belongs to.

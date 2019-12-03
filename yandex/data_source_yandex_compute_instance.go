@@ -30,6 +30,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 			"zone": {
@@ -249,10 +250,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	instanceID := d.Get("instance_id").(string)
-	instanceName, instanceNameOk := d.GetOk("name")
+	_, instanceNameOk := d.GetOk("name")
 
 	if instanceNameOk {
-		instanceID, err = resolveObjectID(ctx, config, instanceName.(string), sdkresolvers.InstanceResolver)
+		instanceID, err = resolveObjectID(ctx, config, d, sdkresolvers.InstanceResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source instance by name: %v", err)
 		}

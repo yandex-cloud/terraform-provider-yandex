@@ -102,10 +102,10 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		}
 	} else {
 		imageID := d.Get("image_id").(string)
-		imageName, imageNameOk := d.GetOk("name")
+		_, imageNameOk := d.GetOk("name")
 
 		if imageNameOk {
-			imageID, err = resolveObjectID(ctx, config, imageName.(string), sdkresolvers.ImageResolver)
+			imageID, err = resolveObjectID(ctx, config, d, sdkresolvers.ImageResolver)
 			if err != nil {
 				return fmt.Errorf("failed to resolve data source image by name: %v", err)
 			}

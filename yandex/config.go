@@ -68,7 +68,7 @@ func (c *Config) ContextWithTimeout(timeout time.Duration) (context.Context, con
 }
 
 // Client configures and returns a fully initialized Yandex.Cloud sdk
-func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string) error {
+func (c *Config) initAndValidate(stopContext context.Context, terraformVersion string, sweeper bool) error {
 	c.contextWithClientTraceID = requestid.ContextWithClientTraceID(stopContext, uuid.New().String())
 
 	credentials, err := c.credentials()
@@ -88,7 +88,11 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 	providerNameAndVersion := getProviderNameAndVersion()
 	terraformURL := "https://www.terraform.io"
 
-	c.userAgent = fmt.Sprintf("Terraform/%s (%s) %s", terraformVersion, terraformURL, providerNameAndVersion)
+	if sweeper {
+		c.userAgent = "Terraform Sweeper"
+	} else {
+		c.userAgent = fmt.Sprintf("Terraform/%s (%s) %s", terraformVersion, terraformURL, providerNameAndVersion)
+	}
 
 	headerMD := metadata.Pairs("user-agent", c.userAgent)
 

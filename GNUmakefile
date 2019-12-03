@@ -3,10 +3,19 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=yandex
 
+SWEEP?=$(YC_REGION)
+ifeq ($(SWEEP),)
+SWEEP=ru-central1
+endif
+
 default: build
 
 build: fmtcheck
 	go install
+
+sweep:
+	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";
+	go test $(TEST) -timeout 120m -v -sweep=$(SWEEP) -sweep-run=$(SWEEP_RUN)
 
 test: fmtcheck
 	go test $(TEST) -timeout=30s -parallel=4
@@ -54,4 +63,4 @@ ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
 endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider-test PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
-.PHONY: build test testacc vet fmt fmtcheck vendor-status test-compile website website-test
+.PHONY: build sweep test testacc vet fmt fmtcheck vendor-status test-compile website website-test

@@ -23,11 +23,12 @@ func dataSourceYandexVPCRouteTable() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"description": {
+			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
-			"folder_id": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -75,10 +76,10 @@ func dataSourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{})
 	}
 
 	routeTableID := d.Get("route_table_id").(string)
-	routeTableName, routeTableNameOk := d.GetOk("name")
+	_, routeTableNameOk := d.GetOk("name")
 
 	if routeTableNameOk {
-		routeTableID, err = resolveObjectID(ctx, config, routeTableName.(string), sdkresolvers.RouteTableResolver)
+		routeTableID, err = resolveObjectID(ctx, config, d, sdkresolvers.RouteTableResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source route table by name: %v", err)
 		}

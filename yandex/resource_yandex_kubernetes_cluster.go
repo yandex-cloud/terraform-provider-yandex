@@ -116,10 +116,12 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 												"zone": {
 													Type:     schema.TypeString,
 													Optional: true,
+													ForceNew: true,
 												},
 												"subnet_id": {
 													Type:     schema.TypeString,
 													Optional: true,
+													ForceNew: true,
 												},
 											},
 										},
@@ -214,6 +216,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				ForceNew: true,
 			},
 			"health": {
 				Type:     schema.TypeString,
@@ -295,6 +298,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"labels":                  "labels",
 	"service_account_id":      "service_account_id",
 	"node_service_account_id": "node_service_account_id",
+	"master.0.version":        "master_spec.version.specifier.version",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -348,6 +352,13 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 		Labels:               labels,
 		ServiceAccountId:     d.Get("service_account_id").(string),
 		NodeServiceAccountId: d.Get("node_service_account_id").(string),
+		MasterSpec: &k8s.MasterUpdateSpec{
+			Version: &k8s.UpdateVersionSpec{
+				Specifier: &k8s.UpdateVersionSpec_Version{
+					Version: d.Get("master.0.version").(string),
+				},
+			},
+		},
 	}
 
 	return req, nil

@@ -24,6 +24,11 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"cluster_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -232,10 +237,10 @@ func dataSourceYandexKubernetesNodeGroupRead(d *schema.ResourceData, meta interf
 	}
 
 	nodeGroupID := d.Get("node_group_id").(string)
-	nodeGroupName, nodeGroupNameOk := d.GetOk("name")
+	_, nodeGroupNameOk := d.GetOk("name")
 
 	if nodeGroupNameOk {
-		nodeGroupID, err = resolveObjectID(ctx, config, nodeGroupName.(string), sdkresolvers.KubernetesNodeGroupResolver)
+		nodeGroupID, err = resolveObjectID(ctx, config, d, sdkresolvers.KubernetesNodeGroupResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source node-group by name: %v", err)
 		}

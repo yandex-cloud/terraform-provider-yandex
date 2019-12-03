@@ -5,12 +5,125 @@ import (
 	"fmt"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_iam_service_account", &resource.Sweeper{
+		Name: "yandex_iam_service_account",
+		F:    testSweepIAMServiceAccounts,
+		Dependencies: []string{
+			"yandex_compute_instance_group",
+		},
+	})
+}
+
+func testSweepIAMServiceAccounts(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.IAM().ServiceAccount().ServiceAccountIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepIAMServiceAccount(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep IAM service account %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepIAMServiceAccount(conf *Config, id string) bool {
+	return sweepWithRetry(sweepIAMServiceAccountOnce, conf, "IAM Service Account", id)
+}
+
+func sweepIAMServiceAccountOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.IAM().ServiceAccount().Delete(ctx, &iam.DeleteServiceAccountRequest{
+		ServiceAccountId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
+
+// NOTE(dxan): function may return non-empty string and non-nil error. Example:
+// Resource is successfully created, but wait fails: the function returns id and wait error
+func createIAMServiceAccountForSweeper(conf *Config) (string, error) {
+	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
+	defer cancel()
+	op, err := conf.sdk.WrapOperation(conf.sdk.IAM().ServiceAccount().Create(ctx, &iam.CreateServiceAccountRequest{
+		FolderId:    conf.FolderID,
+		Name:        acctest.RandomWithPrefix("sweeper"),
+		Description: "created by sweeper",
+	}))
+	if err != nil {
+		return "", fmt.Errorf("failed to create service account: %v", err)
+	}
+
+	protoMD, err := op.Metadata()
+	if err != nil {
+		return "", fmt.Errorf("failed to get metadata from create service account operation: %v", err)
+	}
+
+	md, ok := protoMD.(*iam.CreateServiceAccountMetadata)
+	if !ok {
+		return "", fmt.Errorf("failed to get Service Account ID from create operation metadata")
+	}
+	id := md.ServiceAccountId
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return id, fmt.Errorf("error while waiting for create service account operation: %v", err)
+	}
+
+	err = assignEditorRoleToSweeperServiceAccount(conf, id)
+	if err != nil {
+		return id, err
+	}
+
+	return md.ServiceAccountId, nil
+}
+
+func assignEditorRoleToSweeperServiceAccount(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDefaultTimeout)
+	defer cancel()
+	op, err := conf.sdk.WrapOperation(conf.sdk.ResourceManager().Folder().UpdateAccessBindings(ctx, &access.UpdateAccessBindingsRequest{
+		ResourceId: conf.FolderID,
+		AccessBindingDeltas: []*access.AccessBindingDelta{
+			{
+				Action: access.AccessBindingAction_ADD,
+				AccessBinding: &access.AccessBinding{
+					RoleId: "editor",
+					Subject: &access.Subject{
+						Id:   id,
+						Type: "serviceAccount",
+					},
+				},
+			},
+		},
+	}))
+	if err != nil {
+		return fmt.Errorf("failed to assign editor role to the service account '%q': %v", id, err)
+	}
+	debugLog("Service account '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for update access bindings operation '%q': %v", op.Id(), err)
+	}
+
+	return nil
+}
 
 // Test that a service account resource can be created, updated, and destroyed
 func TestAccServiceAccount_basic(t *testing.T) {

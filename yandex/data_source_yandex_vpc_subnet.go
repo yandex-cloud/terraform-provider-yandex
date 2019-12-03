@@ -23,11 +23,12 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"description": {
+			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
 			},
-			"folder_id": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -81,10 +82,10 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	subnetID := d.Get("subnet_id").(string)
-	subnetName, subnetNameOk := d.GetOk("name")
+	_, subnetNameOk := d.GetOk("name")
 
 	if subnetNameOk {
-		subnetID, err = resolveObjectID(ctx, config, subnetName.(string), sdkresolvers.SubnetResolver)
+		subnetID, err = resolveObjectID(ctx, config, d, sdkresolvers.SubnetResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source subnet by name: %v", err)
 		}

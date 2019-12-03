@@ -29,13 +29,13 @@ The following arguments are supported:
 
 ~> **NOTE:** One of `target_group_id` or `name` should be specified.
 
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+
 ## Attributes Reference
 
 The following attribute is exported:
 
-* `name` - Name of the target group.
 * `description` - Description of the target group.
-* `folder_id` - ID of the folder that the resource belongs to.
 * `labels` - Labels to assign to this target group.
 * `target.0.address` - IP address of the target.
 * `target.0.subnet_id` - ID of the subnet that targets are connected to.

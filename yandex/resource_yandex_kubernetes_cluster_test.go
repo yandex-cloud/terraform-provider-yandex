@@ -120,6 +120,7 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
+	clusterUpdatedResource.MasterVersion = "1.14"
 
 	var cluster k8s.Cluster
 
@@ -164,6 +165,7 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterRegionalConfig_update"
+	clusterUpdatedResource.MasterVersion = "1.14"
 
 	var cluster k8s.Cluster
 

@@ -6,13 +6,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-const defaultEndpoint = "api.cloud.yandex.net:443"
-const defaultStorageEndpoint = "storage.yandexcloud.net"
+const (
+	defaultMaxRetries      = 5
+	defaultEndpoint        = "api.cloud.yandex.net:443"
+	defaultStorageEndpoint = "storage.yandexcloud.net"
+)
 
 // Global MutexKV
 var mutexKV = mutexkv.NewMutexKV()
 
 func Provider() terraform.ResourceProvider {
+	return provider(false)
+}
+
+func emptyFolderProvider() terraform.ResourceProvider {
+	return provider(true)
+}
+
+func provider(emptyFolder bool) terraform.ResourceProvider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
@@ -85,7 +96,7 @@ func Provider() terraform.ResourceProvider {
 			"max_retries": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     5,
+				Default:     defaultMaxRetries,
 				Description: descriptions["max_retries"],
 			},
 		},
@@ -144,7 +155,7 @@ func Provider() terraform.ResourceProvider {
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
 		},
 	}
-	provider.ConfigureFunc = providerConfigure(provider)
+	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)
 
 	return provider
 }
@@ -180,7 +191,7 @@ var descriptions = map[string]string{
 		"Used when a storage data/resource doesn't have a secret key explicitly specified.",
 }
 
-func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
+func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.ConfigureFunc {
 	return func(d *schema.ResourceData) (interface{}, error) {
 		config := Config{
 			Token:                 d.Get("token").(string),
@@ -197,6 +208,10 @@ func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
 			StorageSecretKey:      d.Get("storage_secret_key").(string),
 		}
 
+		if emptyFolder {
+			config.FolderID = ""
+		}
+
 		terraformVersion := provider.TerraformVersion
 		if terraformVersion == "" {
 			// Terraform 0.12 introduced this field to the protocol
@@ -204,7 +219,7 @@ func providerConfigure(provider *schema.Provider) schema.ConfigureFunc {
 			terraformVersion = "0.11+compatible"
 		}
 
-		if err := config.initAndValidate(provider.StopContext(), terraformVersion); err != nil {
+		if err := config.initAndValidate(provider.StopContext(), terraformVersion, false); err != nil {
 			return nil, err
 		}
 

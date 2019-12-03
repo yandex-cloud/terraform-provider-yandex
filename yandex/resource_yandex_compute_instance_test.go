@@ -469,6 +469,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(
 						&instance, "bar", "baz"),
 					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
+					testAccCheckComputeInstanceHasServiceAccount(&instance),
 				),
 			},
 		},
@@ -1403,7 +1404,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance)
 }
 
-// Update metadata and network_interface
+// Update metadata, network_interface, service account id
 func testAccComputeInstance_update(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -1426,7 +1427,7 @@ resource "yandex_compute_instance" "foobar" {
   }
 
   network_interface {
-    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
   }
 
   metadata = {
@@ -1437,6 +1438,13 @@ resource "yandex_compute_instance" "foobar" {
   labels = {
     only_me = "nothing_else"
   }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "insttestsa"
+  description = "instance update test service account"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
@@ -1445,6 +1453,12 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
 }
 `, instance)
 }

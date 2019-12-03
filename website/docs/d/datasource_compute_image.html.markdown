@@ -41,8 +41,7 @@ The following arguments are supported:
 
 ~> **NOTE:** Either `image_id`, `family` or `name` must be specified.
 
-* `folder_id` - (Optional) Folder that the resource belongs to. If a value is not
-  provided, the default provider folder is used.
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ~> **NOTE:** If you specify `family` without `folder_id` then lookup takes place in the 'standard-images' folder.
 

@@ -23,12 +23,13 @@ data "yandex_container_registry" "source" {
 
 The following arguments are supported:
 
-* `registry_id` - (Required) The ID of a specific registry.
+* `registry_id` - (Optional) The ID of a specific registry.
+* `name` - (Optional) Name of the registry.
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+
 
 ## Attributes Reference
 
-* `folder_id` - ID of the folder that the registry belongs to.
-* `name` - Name of the registry.
 * `status` - Status of the registry.
 * `labels` - Labels to assign to this registry.
 * `created_at` - Creation timestamp of this registry.

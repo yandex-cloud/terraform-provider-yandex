@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"reflect"
 	"sort"
 	"strings"
 	"text/template"
@@ -388,66 +387,6 @@ func validateIPV4CidrBlocks(v interface{}, k string) (warnings []string, errors 
 	return
 }
 
-// parseFunc should take exactly one argument of the type specified in the schema
-// and return an error as its last return value
-func validateParsableValue(parseFunc interface{}) schema.SchemaValidateFunc {
-	return func(value interface{}, key string) (warnings []string, errors []error) {
-		tryCall := func() (vs []reflect.Value, err error) {
-			defer func() {
-				if p := recover(); p != nil {
-					err = fmt.Errorf("could not call parse function: %v", p)
-				}
-			}()
-
-			vs = reflect.ValueOf(parseFunc).Call([]reflect.Value{reflect.ValueOf(value)})
-			return
-		}
-
-		vs, err := tryCall()
-		if err != nil {
-			errors = append(errors, err)
-			return
-		}
-
-		if len(vs) == 0 {
-			errors = append(errors, fmt.Errorf("expected parse function to return at least one value"))
-			return
-		}
-
-		last := vs[len(vs)-1]
-		if last.Kind() == reflect.Interface {
-			err, ok := last.Interface().(error)
-			if ok || last.IsNil() {
-				if err != nil {
-					errors = append(errors, err)
-				}
-				return
-			}
-		}
-		errors = append(errors, fmt.Errorf("expected parse function's last return value to be an error"))
-		return
-	}
-}
-
-// FloatAtLeast returns a SchemaValidateFunc which tests if the provided value
-// is of type float64 and is at least min (inclusive)
-func FloatAtLeast(min float64) schema.SchemaValidateFunc {
-	return func(i interface{}, k string) (_ []string, errors []error) {
-		v, ok := i.(float64)
-		if !ok {
-			errors = append(errors, fmt.Errorf("expected type of %s to be float64", k))
-			return nil, errors
-		}
-
-		if v < min {
-			errors = append(errors, fmt.Errorf("expected %s to be at least (%f), got %f", k, min, v))
-			return nil, errors
-		}
-
-		return nil, errors
-	}
-}
-
 // Primary use to store value from API in state file as Gigabytes
 func toGigabytes(bytesCount int64) int {
 	return int((datasize.ByteSize(bytesCount) * datasize.B).GBytes())
@@ -523,13 +462,28 @@ func checkOneOf(d *schema.ResourceData, keys ...string) error {
 
 type objectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver
 
-func resolveObjectID(ctx context.Context, config *Config, name string, resolverFunc objectResolverFunc) (string, error) {
+func resolveObjectID(ctx context.Context, config *Config, d *schema.ResourceData, resolverFunc objectResolverFunc) (string, error) {
+	name, ok := d.GetOk("name")
+
+	if !ok {
+		return "", fmt.Errorf("non empty name should be provided")
+	}
+
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return "", err
+	}
+
+	return resolveObjectIDByNameAndFolderID(ctx, config, name.(string), folderID, resolverFunc)
+}
+
+func resolveObjectIDByNameAndFolderID(ctx context.Context, config *Config, name, folderID string, resolverFunc objectResolverFunc) (string, error) {
 	if name == "" {
 		return "", fmt.Errorf("non empty name should be provided")
 	}
 
 	var objectID string
-	resolver := resolverFunc(name, sdkresolvers.Out(&objectID), sdkresolvers.FolderID(config.FolderID))
+	resolver := resolverFunc(name, sdkresolvers.Out(&objectID), sdkresolvers.FolderID(folderID))
 
 	err := config.sdk.Resolve(ctx, resolver)
 

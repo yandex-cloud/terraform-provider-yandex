@@ -45,10 +45,10 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 	}
 
 	cloudID := d.Get("cloud_id").(string)
-	cloudName, cloudNameOk := d.GetOk("name")
+	_, cloudNameOk := d.GetOk("name")
 
 	if cloudNameOk {
-		cloudID, err = resolveObjectID(ctx, config, cloudName.(string), sdkresolvers.CloudResolver)
+		cloudID, err = resolveObjectID(ctx, config, d, sdkresolvers.CloudResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source cloud by name: %v", err)
 		}

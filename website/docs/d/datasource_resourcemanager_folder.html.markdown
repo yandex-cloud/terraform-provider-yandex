@@ -43,8 +43,7 @@ The following arguments are supported:
 
 ~> **NOTE:** Either `folder_id` or `name` must be specified.
 
-* `cloud_id` - (Optional) Cloud that the resource belongs to. If a value is not
-  provided, the default provider cloud is used.
+* `cloud_id` - (Optional) Cloud that the resource belongs to. If value is omitted, the default provider cloud is used.
 
 ## Attributes Reference
 

@@ -24,17 +24,17 @@ This data source is used to define [VPC Route Table] that can be used by other r
 The following arguments are supported:
 
 * `route_table_id` (Optional) - Route table ID.
-
 * `name` - (Optional) - Name of the route table. 
 
 ~> **NOTE:** One of `route_table_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 
 The following attribute is exported:
 
 * `description` - Description of the route table.
-* `folder_id` - ID of the folder that the resource belongs to.
 * `network_id` - ID of the network this route table belongs to.
 * `labels` - Labels to assign to this route table.
 * `static_route` - List of static route records of the route table. Structure is documented below.

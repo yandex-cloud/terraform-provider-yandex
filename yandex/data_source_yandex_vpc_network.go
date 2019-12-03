@@ -23,11 +23,12 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"description": {
+			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
-			"folder_id": {
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -62,10 +63,10 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	networkID := d.Get("network_id").(string)
-	networkName, networkNameOk := d.GetOk("name")
+	_, networkNameOk := d.GetOk("name")
 
 	if networkNameOk {
-		networkID, err = resolveObjectID(ctx, config, networkName.(string), sdkresolvers.NetworkResolver)
+		networkID, err = resolveObjectID(ctx, config, d, sdkresolvers.NetworkResolver)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source network by name: %v", err)
 		}
