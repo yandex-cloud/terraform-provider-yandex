@@ -1,4 +1,8 @@
-## 0.24.1 (Unreleased)
+## 0.25.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_mdb_clickhouse_cluster`
+* **New Resource:** `yandex_mdb_clickhouse_cluster`
+
 ## 0.24.0 (December 03, 2019)
 BUG FIXES:
 * managed-kubernetes: changes in `yandex_kubernetes_node_group` allocation_policy should trigger destroy/add.

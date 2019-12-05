@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 )
@@ -888,6 +889,19 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'load_balancer_spec' object of api request: %s", err)
 	}
 
+	var updatePath = getStaticUpdatePath()
+
+	var instanceGroupTemplateFieldsMap = map[string]string{
+		"instance_template.0.secondary_disk":    "instance_template.secondary_disk_specs",
+		"instance_template.0.network_interface": "instance_template.network_interface_specs",
+	}
+
+	for field, path := range instanceGroupTemplateFieldsMap {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, path)
+		}
+	}
+
 	req := &instancegroup.UpdateInstanceGroupRequest{
 		InstanceGroupId:  d.Id(),
 		Name:             d.Get("name").(string),
@@ -900,9 +914,31 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		LoadBalancerSpec: loadBalancerSpec,
 		HealthChecksSpec: healthChecksSpec,
 		ServiceAccountId: d.Get("service_account_id").(string),
+		UpdateMask:       &field_mask.FieldMask{Paths: updatePath},
 	}
 
 	return req, nil
+}
+
+func getStaticUpdatePath() []string {
+	return []string{
+		"name",
+		"description",
+		"labels",
+		"instance_template.description",
+		"instance_template.labels",
+		"instance_template.platform_id",
+		"instance_template.resources_spec",
+		"instance_template.metadata",
+		"instance_template.boot_disk_spec",
+		"instance_template.scheduling_policy",
+		"scale_policy",
+		"deploy_policy",
+		"allocation_policy",
+		"load_balancer_spec",
+		"health_checks_spec",
+		"service_account_id",
+	}
 }
 
 func makeInstanceGroupUpdateRequest(req *instancegroup.UpdateInstanceGroupRequest, d *schema.ResourceData, meta interface{}) error {
