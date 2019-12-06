@@ -1,3 +1,4 @@
+## 0.27.0 (Unreleased)
 ## 0.26.0 (December 06, 2019)
 ENHANCEMENTS:
 * compute: support for custom rules in `yandex_compute_instance_group.scale_policy.auto_scale`
