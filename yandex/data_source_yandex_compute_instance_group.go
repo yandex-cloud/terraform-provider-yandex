@@ -296,6 +296,30 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 										Type:     schema.TypeFloat,
 										Computed: true,
 									},
+									"custom_rule": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"rule_type": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"metric_type": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"metric_name": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"target": {
+													Type:     schema.TypeFloat,
+													Computed: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},

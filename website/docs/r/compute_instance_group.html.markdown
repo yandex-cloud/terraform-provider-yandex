@@ -318,6 +318,24 @@ traffic is fed to the virtual machine, but load metrics are not taken into accou
 an instance group can reduce the number of virtual machines in the group. During this time, the group
 will not decrease even if the average load falls below the value of `cpu_utilization_target`.
 
+* `custom_rule` - (Optional) A list of custom rules.
+The structure is documented below.
+
+---
+
+The `custom_rule` block supports:
+
+* `rule_type` - (Required) Rule type: `UTILIZATION` - This type means that the metric applies to one instance.
+First, Instance Groups calculates the average metric value for each instance,
+then averages the values for instances in one availability zone.
+This type of metric must have the `instance_id` label. `WORKLOAD` - This type means that the metric applies to instances in one availability zone.
+This type of metric must have the `zone_id` label.
+
+* `metric_type` - (Required) Metric type, `GAUGE` or `COUNTER`.
+
+* `metric_name` - (Required) The name of metric.
+
+* `target` - (Required) Target metric value level.
 
 ## Attributes Reference
 

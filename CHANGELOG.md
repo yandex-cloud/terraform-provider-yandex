@@ -1,4 +1,7 @@
-## 0.25.1 (Unreleased)
+## 0.26.0 (Unreleased)
+ENHANCEMENTS:
+* compute: support for custom rules in `yandex_compute_instance_group.scale_policy.auto_scale`
+
 ## 0.25.0 (December 05, 2019)
 FEATURES:
 * **New Data Source:** `yandex_mdb_clickhouse_cluster`
@@ -60,7 +63,7 @@ BUG FIXES:
 
 ## 0.17.0 (October 02, 2019)
 FEATURES:
-* compute: auto_scale support added for  `yandex_compute_instance_group` resource and data source
+* compute: auto_scale support added for `yandex_compute_instance_group` resource and data source
 
 ## 0.16.0 (October 01, 2019)
 * **New Data Source:** `yandex_mdb_redis_cluster`

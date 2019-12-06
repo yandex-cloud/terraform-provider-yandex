@@ -932,6 +932,12 @@ resource "yandex_compute_instance_group" "group1" {
       min_zone_size          = 1
       measurement_duration   = 120
       cpu_utilization_target = 80
+      custom_rule {
+        rule_type   = "WORKLOAD"
+        metric_type = "GAUGE"
+        metric_name = "metric1"
+        target      = 50
+      }
     }
   }
 

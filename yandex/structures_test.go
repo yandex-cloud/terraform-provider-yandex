@@ -824,6 +824,63 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "auto scale with custom rules",
+			spec: &instancegroup.ScalePolicy{
+				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
+					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						MinZoneSize:           1,
+						MaxSize:               2,
+						MeasurementDuration:   &duration.Duration{Seconds: 10},
+						WarmupDuration:        &duration.Duration{Seconds: 20},
+						StabilizationDuration: &duration.Duration{Seconds: 30},
+						InitialSize:           3,
+						CustomRules: []*instancegroup.ScalePolicy_CustomRule{
+							{
+								RuleType:   instancegroup.ScalePolicy_CustomRule_UTILIZATION,
+								MetricType: instancegroup.ScalePolicy_CustomRule_GAUGE,
+								MetricName: "metric1",
+								Target:     20.5,
+							},
+							{
+								RuleType:   instancegroup.ScalePolicy_CustomRule_WORKLOAD,
+								MetricType: instancegroup.ScalePolicy_CustomRule_COUNTER,
+								MetricName: "metric2",
+								Target:     25,
+							},
+						},
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"auto_scale": []map[string]interface{}{
+						{
+							"min_zone_size":          1,
+							"max_size":               2,
+							"initial_size":           3,
+							"measurement_duration":   10,
+							"warmup_duration":        20,
+							"stabilization_duration": 30,
+							"custom_rule": []map[string]interface{}{
+								{
+									"rule_type":   "UTILIZATION",
+									"metric_type": "GAUGE",
+									"metric_name": "metric1",
+									"target":      20.5,
+								},
+								{
+									"rule_type":   "WORKLOAD",
+									"metric_type": "COUNTER",
+									"metric_name": "metric2",
+									"target":      25.,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {

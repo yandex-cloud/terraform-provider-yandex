@@ -26,7 +26,7 @@ output "instance_external_ip" {
 
 The following arguments are supported:
 
-* `instance_group_id` - (Required) The ID of a specific instance group.
+* `instance_group_id` - The ID of a specific instance group.
 
 ## Attributes Reference
 
@@ -84,7 +84,7 @@ The `scale_policy` block supports:
 
 The structure is documented below.
 
-* `auto_scale` - (Optional) The auto scaling policy of the instance group.
+* `auto_scale` - The auto scaling policy of the instance group.
 
 The structure is documented below.
 
@@ -98,24 +98,43 @@ The `fixed_scale` block supports:
 
 The `auto_scale` block supports:
 
-* `initial_size` - (Required) The initial number of instances in the instance group.
+* `initial_size` - The initial number of instances in the instance group.
 
-* `measurement_duration` - (Required) The amount of time, in seconds, that metrics are averaged for.
+* `measurement_duration` - The amount of time, in seconds, that metrics are averaged for.
 If the average value at the end of the interval is higher than the `cpu_utilization_target`,
 the instance group will increase the number of virtual machines in the group.
 
-* `min_zone_size` - (Optional) The minimum number of virtual machines in a single availability zone.
+* `min_zone_size` - The minimum number of virtual machines in a single availability zone.
 
-* `max_size` - (Optional) The maximum number of virtual machines in the group.
+* `max_size` - The maximum number of virtual machines in the group.
 
-* `warmup_duration` - (Optional) The warm-up time of the virtual machine, in seconds. During this time,
+* `warmup_duration` - The warm-up time of the virtual machine, in seconds. During this time,
 traffic is fed to the virtual machine, but load metrics are not taken into account.
 
-* `stabilization_duration` - (Optional) The minimum time interval, in seconds, to monitor the load before
+* `stabilization_duration` - The minimum time interval, in seconds, to monitor the load before
 an instance group can reduce the number of virtual machines in the group. During this time, the group
 will not decrease even if the average load falls below the value of `cpu_utilization_target`.
 
-* `cpu_utilization_target` - (Optional) Target CPU load level.
+* `cpu_utilization_target` - Target CPU load level.
+
+* `custom_rule` - A list of custom rules.
+The structure is documented below.
+
+---
+
+The `custom_rule` block supports:
+
+* `rule_type` - Rule type: `UTILIZATION` - This type means that the metric applies to one instance.
+First, Instance Groups calculates the average metric value for each instance,
+then averages the values for instances in one availability zone.
+This type of metric must have the `instance_id` label. `WORKLOAD` - This type means that the metric applies to instances in one availability zone.
+This type of metric must have the `zone_id` label.
+
+* `metric_type` - Metric type, `GAUGE` or `COUNTER`.
+
+* `metric_name` - The name of metric.
+
+* `target` - Target metric value level.
 
 ---
 

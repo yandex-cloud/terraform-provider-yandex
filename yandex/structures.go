@@ -339,6 +339,20 @@ func flattenInstanceGroupScalePolicy(ig *instancegroup.InstanceGroup) ([]map[str
 		if sp.CpuUtilizationRule != nil {
 			subres["cpu_utilization_target"] = sp.CpuUtilizationRule.UtilizationTarget
 		}
+
+		if len(sp.CustomRules) > 0 {
+			rules := make([]map[string]interface{}, len(sp.CustomRules))
+			subres["custom_rule"] = rules
+
+			for i, rule := range sp.CustomRules {
+				rules[i] = map[string]interface{}{
+					"rule_type":   instancegroup.ScalePolicy_CustomRule_RuleType_name[int32(rule.RuleType)],
+					"metric_type": instancegroup.ScalePolicy_CustomRule_MetricType_name[int32(rule.MetricType)],
+					"metric_name": rule.MetricName,
+					"target":      rule.Target,
+				}
+			}
+		}
 	}
 
 	return []map[string]interface{}{res}, nil
@@ -1012,6 +1026,19 @@ func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.Scal
 			autoScale.StabilizationDuration = &duration.Duration{Seconds: int64(v.(int))}
 		}
 
+		if customRulesCount := d.Get("scale_policy.0.auto_scale.0.custom_rule.#").(int); customRulesCount > 0 {
+			rules := make([]*instancegroup.ScalePolicy_CustomRule, customRulesCount)
+			for i := 0; i < customRulesCount; i++ {
+				key := fmt.Sprintf("scale_policy.0.auto_scale.0.custom_rule.%d", i)
+				if rule, err := expandCustomRule(d, key); err == nil {
+					rules[i] = rule
+				} else {
+					return nil, err
+				}
+			}
+			autoScale.CustomRules = rules
+		}
+
 		policy := &instancegroup.ScalePolicy{
 			ScaleType: &instancegroup.ScalePolicy_AutoScale_{
 				AutoScale: autoScale,
@@ -1020,6 +1047,25 @@ func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.Scal
 	}
 
 	return nil, fmt.Errorf("Only fixed_scale and auto_scale policy are supported")
+}
+
+func expandCustomRule(d *schema.ResourceData, prefix string) (*instancegroup.ScalePolicy_CustomRule, error) {
+	ruleType, ok := instancegroup.ScalePolicy_CustomRule_RuleType_value[d.Get(prefix+".rule_type").(string)]
+	if !ok {
+		return nil, fmt.Errorf("invalid value for rule_type")
+	}
+
+	metricType, ok := instancegroup.ScalePolicy_CustomRule_MetricType_value[d.Get(prefix+".metric_type").(string)]
+	if !ok {
+		return nil, fmt.Errorf("invalid value for metric_type")
+	}
+
+	return &instancegroup.ScalePolicy_CustomRule{
+		RuleType:   instancegroup.ScalePolicy_CustomRule_RuleType(ruleType),
+		MetricType: instancegroup.ScalePolicy_CustomRule_MetricType(metricType),
+		MetricName: d.Get(prefix + ".metric_name").(string),
+		Target:     d.Get(prefix + ".target").(float64),
+	}, nil
 }
 
 func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.DeployPolicy, error) {
