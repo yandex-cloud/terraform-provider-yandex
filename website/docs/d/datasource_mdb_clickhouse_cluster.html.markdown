@@ -90,6 +90,7 @@ The `host` block supports:
 * `type` - The type of the host to be deployed.
 * `zone` - The availability zone where the ClickHouse host will be created.
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+* `shard_name` - The name of the shard to which the host belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation.
 
 The `backup_window_start` block supports:

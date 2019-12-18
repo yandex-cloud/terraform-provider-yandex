@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	yandexMDBClickHouseClusterCreateTimeout = 20 * time.Minute
+	yandexMDBClickHouseClusterCreateTimeout = 30 * time.Minute
 	yandexMDBClickHouseClusterDeleteTimeout = 15 * time.Minute
 	yandexMDBClickHouseClusterUpdateTimeout = 60 * time.Minute
 )
@@ -153,6 +153,12 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"shard_name": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.NoZeroValues,
+						},
 						"fqdn": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -278,7 +284,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	req, err := prepareCreateClickHouseCreateRequest(d, config)
+	req, shards, err := prepareCreateClickHouseCreateRequest(d, config)
 
 	if err != nil {
 		return err
@@ -294,12 +300,12 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("error while get ClickHouse create operation metadata: %s", err)
+		return fmt.Errorf("error while getting ClickHouse create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*clickhouse.CreateClusterMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get Cluster ID from create operation metadata")
+		return fmt.Errorf("could not get Cluster ID from create operation metadata")
 	}
 
 	d.SetId(md.ClusterId)
@@ -313,40 +319,59 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("ClickHouse Cluster creation failed: %s", err)
 	}
 
+	for shardName, shardHosts := range shards {
+		err = createClickHouseShard(ctx, config, d, shardName, shardHosts)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceYandexMDBClickHouseClusterRead(d, meta)
 }
 
-func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, error) {
+// Returns request for creating the Cluster and the map of the remaining shards to add.
+func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, map[string][]*clickhouse.HostSpec, error) {
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
-	}
-
-	hosts, err := expandClickHouseHosts(d)
-	if err != nil {
-		return nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseClickHouseEnv(e)
 	if err != nil {
-		return nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
+		return nil, nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
 	}
 
 	dbSpecs, err := expandClickHouseDatabases(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
 	}
 
 	users, err := expandClickHouseUserSpecs(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
+		return nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
+	}
+
+	hosts, err := expandClickHouseHosts(d)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
+	}
+
+	_, toAdd := clickHouseHostsDiff(nil, hosts)
+	firstHosts := toAdd["zk"]
+	firstShard := ""
+	delete(toAdd, "zk")
+	for shardName, shardHosts := range toAdd {
+		firstShard = shardName
+		firstHosts = append(firstHosts, shardHosts...)
+		delete(toAdd, shardName)
+		break
 	}
 
 	configSpec := &clickhouse.ConfigSpec{
@@ -365,11 +390,12 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		Environment:   env,
 		DatabaseSpecs: dbSpecs,
 		ConfigSpec:    configSpec,
-		HostSpecs:     hosts,
+		HostSpecs:     firstHosts,
 		UserSpecs:     users,
 		Labels:        labels,
+		ShardName:     firstShard,
 	}
-	return &req, nil
+	return &req, toAdd, nil
 }
 
 func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -482,6 +508,8 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating ClickHouse Cluster %q", d.Id())
+
 	d.Partial(true)
 
 	if err := updateClickHouseClusterParams(d, meta); err != nil {
@@ -507,6 +535,8 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	d.Partial(false)
+
+	log.Printf("[DEBUG] Finished updating ClickHouse Cluster %q", d.Id())
 	return resourceYandexMDBClickHouseClusterRead(d, meta)
 }
 
@@ -539,7 +569,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 
 	// We only can apply this if ZK subcluster already exists
 	if d.HasChange("zookeeper") {
-		ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+		ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 		defer cancel()
 
 		currHosts, err := listClickHouseHosts(ctx, config, d.Id())
@@ -605,7 +635,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 
 func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currDBs, err := listClickHouseDatabases(ctx, config, d.Id())
@@ -639,7 +669,7 @@ func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) 
 
 func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 	currUsers, err := listClickHouseUsers(ctx, config, d.Id())
 	if err != nil {
@@ -679,7 +709,7 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 
 func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currHosts, err := listClickHouseHosts(ctx, config, d.Id())
@@ -704,8 +734,26 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	toDelete, toAdd := clickHouseHostsDiff(currHosts, targetHosts)
+
+	// Check if any shard has HA-configuration (2+ hosts)
+	needZk := false
+	m := map[string][]struct{}{}
+	for _, h := range targetHosts {
+		if h.Type == clickhouse.Host_CLICKHOUSE {
+			shardName := "shard1"
+			if h.ShardName != "" {
+				shardName = h.ShardName
+			}
+			m[shardName] = append(m[shardName], struct{}{})
+			if len(m[shardName]) > 1 {
+				needZk = true
+				break
+			}
+		}
+	}
+
 	// We need to create a ZooKeeper subcluster first
-	if len(currHosts) == 1 && len(targetHosts) > 1 {
+	if len(currZkHosts) == 0 && (needZk || len(toAdd["zk"]) > 0) {
 		zkSpecs := toAdd["zk"]
 		delete(toAdd, "zk")
 		zk := expandClickHouseZookeeperSpec(d)
@@ -715,24 +763,58 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 			return err
 		}
 	}
+
 	// Do not remove implicit ZooKeeper subcluster.
 	if len(currZkHosts) > 1 && len(targetZkHosts) == 0 {
 		delete(toDelete, "zk")
 	}
 
-	for _, hs := range toDelete {
-		for _, h := range hs {
-			err := deleteClickHouseHost(ctx, config, d, h)
+	currShards, err := listClickHouseShards(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	for shardName, specs := range toAdd {
+		shardExists := false
+		for _, s := range currShards {
+			if s.Name == shardName {
+				shardExists = true
+			}
+		}
+
+		if shardName != "" && shardName != "zk" && !shardExists {
+			err = createClickHouseShard(ctx, config, d, shardName, specs)
 			if err != nil {
 				return err
 			}
+		} else {
+			for _, h := range specs {
+				err := createClickHouseHost(ctx, config, d, h)
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
-	for _, hs := range toAdd {
-		for _, h := range hs {
-			err := createClickHouseHost(ctx, config, d, h)
+
+	for shardName, fqdns := range toDelete {
+		deleteShard := true
+		for _, th := range targetHosts {
+			if th.ShardName == shardName {
+				deleteShard = false
+			}
+		}
+		if shardName != "zk" && deleteShard {
+			err = deleteClickHouseShard(ctx, config, d, shardName)
 			if err != nil {
 				return err
+			}
+		} else {
+			for _, h := range fqdns {
+				err := deleteClickHouseHost(ctx, config, d, h)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -869,6 +951,41 @@ func deleteClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
+func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: name,
+			HostSpecs: specs,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to add shard to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while adding shard to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().DeleteShard(ctx, &clickhouse.DeleteClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: name,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete shard from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting shard from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
 func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.ResourceData, resources *clickhouse.Resources, specs []*clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
@@ -948,6 +1065,27 @@ func listClickHouseDatabases(ctx context.Context, config *Config, id string) ([]
 		pageToken = resp.NextPageToken
 	}
 	return dbs, nil
+}
+
+func listClickHouseShards(ctx context.Context, config *Config, id string) ([]*clickhouse.Shard, error) {
+	shards := []*clickhouse.Shard{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShards(ctx, &clickhouse.ListClusterShardsRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of shards for '%s': %s", id, err)
+		}
+		shards = append(shards, resp.Shards...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return shards, nil
 }
 
 func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta interface{}) error {

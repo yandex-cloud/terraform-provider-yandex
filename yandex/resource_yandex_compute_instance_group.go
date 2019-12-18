@@ -958,6 +958,7 @@ func getStaticUpdatePath() []string {
 		"instance_template.metadata",
 		"instance_template.boot_disk_spec",
 		"instance_template.scheduling_policy",
+		"instance_template.service_account_id",
 		"scale_policy",
 		"deploy_policy",
 		"allocation_policy",

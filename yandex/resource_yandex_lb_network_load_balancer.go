@@ -62,7 +62,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Type:         schema.TypeString,
 				Default:      "external",
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"external"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"external", "internal"}, false),
 			},
 
 			"labels": {
@@ -98,9 +98,10 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"tcp"}, false),
 						},
 						"external_address_spec": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
+							Type:          schema.TypeList,
+							Optional:      true,
+							ConflictsWith: []string{"listener.internal_address_spec"},
+							MaxItems:      1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": {
@@ -112,7 +113,32 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 										Type:         schema.TypeString,
 										Optional:     true,
 										Default:      "ipv4",
-										ValidateFunc: validation.StringInSlice([]string{"ipv4"}, false),
+										ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
+									},
+								},
+							},
+						},
+						"internal_address_spec": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							ConflictsWith: []string{"listener.external_address_spec"},
+							MaxItems:      1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"address": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"ip_version": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "ipv4",
+										ValidateFunc: validation.StringInSlice([]string{"ipv4", "ipv6"}, false),
 									},
 								},
 							},

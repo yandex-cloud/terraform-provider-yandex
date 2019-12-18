@@ -124,6 +124,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"shard_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Computed: true,

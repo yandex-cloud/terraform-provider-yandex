@@ -55,8 +55,7 @@ If omitted, the provider folder is used.
 * `region_id` - (Optional) ID of the availability zone where the network load balancer resides. 
 The default is 'ru-central1'.
 
-* `type` - (Optional) Type of the network load balancer. Only external network load 
-balancers are currently available. The default is 'external'.
+* `type` - (Optional) Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
 
 * `attached_target_group` - (Optional) An AttachedTargetGroup resource. The structure is documented below.
 
@@ -120,13 +119,27 @@ The `listener` block supports:
 
 * `external_address_spec` - (Optional) External IP address specification. The structure is documented below.
 
+* `internal_address_spec` - (Optional) Internal IP address specification. The structure is documented below.
+
+~> **NOTE:** One of `external_address_spec` or `internal_address_spec` should be specified.
+
 ---
 
 The `external_address_spec` block supports:
 
-* `address` - (Optional) Public IP address for a listener. IP address will be allocated if it wasn't been set.
+* `address` - (Optional) External IP address for a listener. IP address will be allocated if it wasn't been set.
 
-* `ip_version` - (Optional) IP version of the addresses that the load balancer works with. Only ipv4 is currently available.
+* `ip_version` - (Optional) IP version of the external addresses that the load balancer works with. Must be one of ipv4 or ipv6. The default is ipv4.
+
+---
+
+The `internal_address_spec` block supports:
+
+* `subnet_id` - (Required) ID of the subnet to which the internal IP address belongs.
+
+* `address` - (Optional) Internal IP address for a listener. IP address will be allocated if it wasn't been set.
+
+* `ip_version` - (Optional) IP version of the internal addresses that the load balancer works with. Must be one of ipv4 or ipv6. The default is ipv4.
 
 ## Attributes Reference
 

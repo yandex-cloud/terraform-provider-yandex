@@ -116,6 +116,14 @@ func expandLBListenerSpec(config map[string]interface{}) (*loadbalancer.Listener
 		ls.Address = eas
 	}
 
+	if v, ok := getFirstElement(config, "internal_address_spec"); ok {
+		ias, err := expandLBInternalAddressSpec(v)
+		if err != nil {
+			return nil, err
+		}
+		ls.Address = ias
+	}
+
 	return ls, nil
 }
 
@@ -129,11 +137,33 @@ func expandLBExternalAddressSpec(config map[string]interface{}) (*loadbalancer.L
 	}
 
 	if v, ok := config["ip_version"]; ok {
-		v, err := parseExternalIPVersion(v.(string))
+		v, err := parseIPVersion(v.(string))
 		if err != nil {
 			return nil, err
 		}
 		as.ExternalAddressSpec.IpVersion = v
+	}
+
+	return as, nil
+}
+
+func expandLBInternalAddressSpec(config map[string]interface{}) (*loadbalancer.ListenerSpec_InternalAddressSpec, error) {
+	as := &loadbalancer.ListenerSpec_InternalAddressSpec{
+		InternalAddressSpec: &loadbalancer.InternalAddressSpec{},
+	}
+
+	as.InternalAddressSpec.SubnetId = config["subnet_id"].(string)
+
+	if v, ok := config["address"]; ok {
+		as.InternalAddressSpec.Address = v.(string)
+	}
+
+	if v, ok := config["ip_version"]; ok {
+		v, err := parseIPVersion(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		as.InternalAddressSpec.IpVersion = v
 	}
 
 	return as, nil
@@ -306,18 +336,31 @@ func flattenLBTargets(tg *loadbalancer.TargetGroup) (*schema.Set, error) {
 
 func flattenLBListenerSpecs(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set, error) {
 	result := &schema.Set{F: resourceLBNetowrkLoadBalancerListenerHash}
-
+	var (
+		addressSpecKey     string
+		flattenAddressSpec func(*loadbalancer.Listener) (map[string]interface{}, error)
+	)
+	switch nlb.Type {
+	case loadbalancer.NetworkLoadBalancer_EXTERNAL:
+		addressSpecKey = "external_address_spec"
+		flattenAddressSpec = flattenLBExternalAddressSpec
+	case loadbalancer.NetworkLoadBalancer_INTERNAL:
+		addressSpecKey = "internal_address_spec"
+		flattenAddressSpec = flattenLBInternalAddressSpec
+	default:
+		return nil, fmt.Errorf("Unknown network load balancer type: %v", nlb.Type)
+	}
 	for _, ls := range nlb.Listeners {
-		eas, err := flattenLBExternalAddressSpec(ls)
+		as, err := flattenAddressSpec(ls)
 		if err != nil {
 			return nil, err
 		}
 		flListener := map[string]interface{}{
-			"name":                  ls.Name,
-			"port":                  ls.Port,
-			"target_port":           ls.TargetPort,
-			"protocol":              strings.ToLower(ls.Protocol.String()),
-			"external_address_spec": []map[string]interface{}{eas},
+			"name":         ls.Name,
+			"port":         ls.Port,
+			"target_port":  ls.TargetPort,
+			"protocol":     strings.ToLower(ls.Protocol.String()),
+			addressSpecKey: []map[string]interface{}{as},
 		}
 		result.Add(flListener)
 	}
@@ -337,6 +380,24 @@ func flattenLBExternalAddressSpec(ls *loadbalancer.Listener) (map[string]interfa
 	} else {
 		result["ip_version"] = "ipv6"
 	}
+
+	return result, nil
+}
+
+func flattenLBInternalAddressSpec(ls *loadbalancer.Listener) (map[string]interface{}, error) {
+	result := map[string]interface{}{
+		"address": ls.Address,
+	}
+
+	addr := net.ParseIP(ls.Address)
+	isV4 := addr.To4() != nil
+	if isV4 {
+		result["ip_version"] = "ipv4"
+	} else {
+		result["ip_version"] = "ipv6"
+	}
+
+	result["subnet_id"] = ls.SubnetId
 
 	return result, nil
 }
@@ -410,6 +471,8 @@ func parseNetworkLoadBalancerType(s string) (loadbalancer.NetworkLoadBalancer_Ty
 	switch s {
 	case "external":
 		return loadbalancer.NetworkLoadBalancer_EXTERNAL, nil
+	case "internal":
+		return loadbalancer.NetworkLoadBalancer_INTERNAL, nil
 	case "":
 		return loadbalancer.NetworkLoadBalancer_EXTERNAL, nil
 	default:
@@ -418,7 +481,7 @@ func parseNetworkLoadBalancerType(s string) (loadbalancer.NetworkLoadBalancer_Ty
 	}
 }
 
-func parseExternalIPVersion(s string) (loadbalancer.IpVersion, error) {
+func parseIPVersion(s string) (loadbalancer.IpVersion, error) {
 	switch strings.ToLower(s) {
 	case "ipv4":
 		return loadbalancer.IpVersion_IPV4, nil

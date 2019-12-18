@@ -162,20 +162,27 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 	m := map[string][]*clickhouse.HostSpec{}
 
 	for _, h := range targetHosts {
-		key := h.Type.String() + h.ZoneId
+		shardName := "shard1"
+		if h.ShardName != "" {
+			shardName = h.ShardName
+		}
+		if h.Type == clickhouse.Host_ZOOKEEPER {
+			shardName = "zk"
+		}
+		key := h.Type.String() + h.ZoneId + shardName
 		m[key] = append(m[key], h)
 	}
 
 	toDelete := map[string][]string{}
 	for _, h := range currHosts {
-		key := h.Type.String() + h.ZoneId
+		shardName := h.ShardName
+		if h.Type == clickhouse.Host_ZOOKEEPER {
+			shardName = "zk"
+		}
+		key := h.Type.String() + h.ZoneId + shardName
 		hs, ok := m[key]
 		if !ok {
-			if h.Type == clickhouse.Host_ZOOKEEPER {
-				toDelete["zk"] = append(toDelete["zk"], h.Name)
-			} else {
-				toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
-			}
+			toDelete[shardName] = append(toDelete[h.ShardName], h.Name)
 		}
 		if len(hs) > 1 {
 			m[key] = hs[1:]
@@ -248,6 +255,13 @@ func expandClickHouseHost(config map[string]interface{}) (*clickhouse.HostSpec, 
 
 	if v, ok := config["subnet_id"]; ok {
 		host.SubnetId = v.(string)
+	}
+
+	if v, ok := config["shard_name"]; ok {
+		host.ShardName = v.(string)
+		if host.Type == clickhouse.Host_ZOOKEEPER && host.ShardName != "" {
+			return nil, fmt.Errorf("ZooKeeper hosts cannot have a 'shard_name'")
+		}
 	}
 
 	if v, ok := config["assign_public_ip"]; ok {
@@ -449,6 +463,7 @@ func flattenClickHouseHosts(hs []*clickhouse.Host) ([]map[string]interface{}, er
 		m["type"] = h.GetType().String()
 		m["zone"] = h.ZoneId
 		m["subnet_id"] = h.SubnetId
+		m["shard_name"] = h.ShardName
 		m["assign_public_ip"] = h.AssignPublicIp
 		m["fqdn"] = h.Name
 		res = append(res, m)

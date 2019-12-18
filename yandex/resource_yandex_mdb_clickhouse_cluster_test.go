@@ -6,6 +6,7 @@ import (
 	"sort"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,56 @@ import (
 )
 
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
+const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
+
+func init() {
+	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
+		Name: "yandex_mdb_clickhouse_cluster",
+		F:    testSweepMDBClickHouseCluster,
+	})
+}
+
+func testSweepMDBClickHouseCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.MDB().Clickhouse().Cluster().List(conf.Context(), &clickhouse.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting ClickHouse clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepMDBClickHouseCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep ClickHouse cluster %q", c.Id))
+		} else {
+			if !sweepVPCNetwork(conf, c.NetworkId) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
+			}
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepMDBClickHouseCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepMDBClickHouseClusterOnce, conf, "ClickHouse cluster", id)
+}
+
+func sweepMDBClickHouseClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBClickHouseClusterDeleteTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.MDB().Clickhouse().Cluster().Delete(ctx, &clickhouse.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{
@@ -101,6 +152,57 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 	})
 }
 
+// Test that a sharded ClickHouse Cluster can be created, updated and destroyed
+func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-sharded")
+	chDesc := "ClickHouse Sharded Cluster Terraform Test"
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create sharded ClickHouse Cluster
+			{
+				Config: testAccMDBClickHouseClusterConfigSharded(chName, chDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
+					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
+					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
+					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard2"}),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
+					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
+					testAccCheckCreatedAtAttr(chResourceSharded),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResourceSharded),
+			// Add new shard, delete old shard
+			{
+				Config: testAccMDBClickHouseClusterConfigShardedUpdated(chName, chDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
+					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
+					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResourceSharded, "description", chDesc),
+					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
+					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard3"}),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
+					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
+					testAccCheckCreatedAtAttr(chResourceSharded),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResourceSharded),
+		},
+	})
+}
+
 func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -174,6 +276,36 @@ func testAccCheckMDBClickHouseClusterHasResources(r *clickhouse.Cluster, resourc
 		}
 		if rs.DiskSize != diskSize {
 			return fmt.Errorf("Expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShards(context.Background(), &clickhouse.ListClusterShardsRequest{
+			ClusterId: r.Id,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Shards) != len(shards) {
+			return fmt.Errorf("Expected %d shards, got %d", len(shards), len(resp.Shards))
+		}
+		for _, s := range shards {
+			found := false
+			for _, rs := range resp.Shards {
+				if s == rs.Name {
+					found = true
+				}
+			}
+			if !found {
+				return fmt.Errorf("Shard '%s' not found", s)
+			}
 		}
 		return nil
 	}
@@ -497,6 +629,96 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type      = "ZOOKEEPER"
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBClickHouseClusterConfigSharded(name, desc string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+`
+resource "yandex_mdb_clickhouse_cluster" "bar" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 10
+    }
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  host {
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	shard_name = "shard1"
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+	shard_name = "shard2"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+`
+resource "yandex_mdb_clickhouse_cluster" "bar" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 10
+    }
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  host {
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	shard_name = "shard1"
+  }
+
+  host {
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
+	shard_name = "shard3"
   }
 }
 `, name, desc)

@@ -87,6 +87,27 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 								},
 							},
 						},
+						"internal_address_spec": {
+							Type:     schema.TypeList,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ip_version": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

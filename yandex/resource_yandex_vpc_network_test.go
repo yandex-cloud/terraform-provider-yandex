@@ -33,6 +33,13 @@ func testSweepVPCNetworks(_ string) error {
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
+		subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), id)
+		for subIt.Next() {
+			subID := subIt.Value().GetId()
+			if !sweepVPCSubnet(conf, subID) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC subnet %q", subID))
+			}
+		}
 		if !sweepVPCNetwork(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", id))
 		}

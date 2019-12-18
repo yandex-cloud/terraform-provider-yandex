@@ -63,8 +63,7 @@ The following keys can be used to configure the provider.
 
   This can also be specified using environment variable `YC_ZONE`.
   
-* `max_retries` - (Optional) This is the maximum number of times an API call is retried, in the case where requests 
-  
+* `max_retries` - (Optional) This is the maximum number of times an API call is retried, in the case where requests  
   are being throttled or experiencing transient failures. The delay between the subsequent API calls increases 
   exponentially.
 

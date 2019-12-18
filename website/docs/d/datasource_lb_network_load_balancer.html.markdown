@@ -63,7 +63,10 @@ The `listener` block supports:
 * `port` - Port for incoming traffic.
 * `protocol` - Protocol for incoming traffic.
 * `target_port` - Port of a target. 
-* `external_address_spec.0.address` - Public IP address of a listener. 
-* `external_address_spec.0.ip_version` - IP version of the addresses.
+* `external_address_spec.0.address` - External IP address of a listener. 
+* `external_address_spec.0.ip_version` - IP version of the external addresses.
+* `internal_address_spec.0.subnet_id` - Subnet ID to which the internal IP address belongs
+* `internal_address_spec.0.address` - Internal IP address of a listener. 
+* `internal_address_spec.0.ip_version` - IP version of the internal addresses.
 
 [Load Balancer Network Load Balancers]: https://cloud.yandex.com/docs/load-balancer/concepts/ 

@@ -1,4 +1,12 @@
-## 0.27.0 (Unreleased)
+## 0.27.0 (unreleased)
+FEATURES:
+* **New Data Source:** `yandex_mdb_mongodb_cluster`
+* **New Resource:** `yandex_mdb_mongodb_cluster`
+
+ENHANCEMENTS:
+* mdb: support sharding in `yandex_mdb_clickhouse_cluster`
+* lb: changes in `yandex_lb_network_load_balancer` support ipv6 at listener.0.external_address_spec.ip_version
+
 ## 0.26.0 (December 06, 2019)
 ENHANCEMENTS:
 * compute: support for custom rules in `yandex_compute_instance_group.scale_policy.auto_scale`

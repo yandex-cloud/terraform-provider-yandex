@@ -61,14 +61,9 @@ Example of creating a HA ClickHouse Cluster.
 
 ```hcl
 resource "yandex_mdb_clickhouse_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
+  name        = "ha"
   environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
-
-  labels = {
-    new_key = "new_value"
-  }
+  network_id  = "${yandex_vpc_network.foo.id}"
 
   clickhouse {
     resources {
@@ -126,6 +121,92 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type      = "ZOOKEEPER"
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.baz.id}"
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
+
+Example of creating a sharded ClickHouse Cluster.
+
+```hcl
+resource "yandex_mdb_clickhouse_cluster" "foo" {
+  name        = "sharded"
+  environment = "PRODUCTION"
+  network_id  = "${yandex_vpc_network.foo.id}"
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  zookeeper {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 10
+    }
+  }
+
+  database {
+    name = "db_name"
+  }
+
+  user {
+    name     = "user"
+    password = "password"
+    permission {
+      database_name = "db_name"
+    }
+  }
+
+  host {
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-a"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+    shard_name = "shard1"
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.bar.id}"
+    shard_name = "shard1"
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.bar.id}"
+    shard_name = "shard2"
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-c"
+    subnet_id = "${yandex_vpc_subnet.baz.id}"
+    shard_name = "shard2"
   }
 }
 
@@ -238,6 +319,8 @@ The `host` block supports:
 * `zone` - (Required) The availability zone where the ClickHouse host will be created.
 
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
+
+* `shard_name` (Optional) - The name of the shard to which the host belongs.
 
 * `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation.
 

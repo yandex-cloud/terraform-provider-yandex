@@ -42,6 +42,7 @@ func TestAccStorageBucket_basic(t *testing.T) {
 }
 
 func TestAccStorageBucket_namePrefix(t *testing.T) {
+	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
@@ -51,7 +52,7 @@ func TestAccStorageBucket_namePrefix(t *testing.T) {
 		CheckDestroy:  testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucketConfigWithNamePrefix(),
+				Config: testAccStorageBucketConfigWithNamePrefix(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestMatchResourceAttr(resourceName, "bucket", regexp.MustCompile("^tf-test-")),
@@ -62,6 +63,7 @@ func TestAccStorageBucket_namePrefix(t *testing.T) {
 }
 
 func TestAccStorageBucket_generatedName(t *testing.T) {
+	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
 	resource.Test(t, resource.TestCase{
@@ -71,7 +73,7 @@ func TestAccStorageBucket_generatedName(t *testing.T) {
 		CheckDestroy:  testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucketConfigWithGeneratedName(),
+				Config: testAccStorageBucketConfigWithGeneratedName(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 				),
@@ -908,14 +910,14 @@ resource "yandex_storage_bucket" "test" {
 `, randInt, getExampleFolderID())
 }
 
-func testAccStorageBucketConfigWithNamePrefix() string {
+func testAccStorageBucketConfigWithNamePrefix(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-with-name-prefix"
+	name = "test-sa-for-tf-test-bucket-with-name-prefix-%[1]d"
 }
 
 resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%s"
+	folder_id = "%[2]s"
 
 	role = "editor"
 
@@ -938,17 +940,17 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-`, getExampleFolderID())
+`, randInt, getExampleFolderID())
 }
 
-func testAccStorageBucketConfigWithGeneratedName() string {
+func testAccStorageBucketConfigWithGeneratedName(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-with-generated-name"
+	name = "test-sa-for-tf-test-bucket-with-gen-name-%[1]d"
 }
 
 resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%s"
+	folder_id = "%[2]s"
 
 	role = "editor"
 
@@ -969,7 +971,7 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-`, getExampleFolderID())
+`, randInt, getExampleFolderID())
 }
 
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {

@@ -469,6 +469,8 @@ func TestAccComputeInstance_update(t *testing.T) {
 					testAccCheckComputeInstanceMetadata(
 						&instance, "bar", "baz"),
 					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
+					testAccCheckComputeInstanceHasNoLabel(&instance, "my_key"),
+					testAccCheckComputeInstanceHasNoLabel(&instance, "my_other_key"),
 					testAccCheckComputeInstanceHasServiceAccount(&instance),
 				),
 			},
@@ -935,6 +937,21 @@ func testAccCheckComputeInstanceLabel(instance *compute.Instance, key string, va
 		}
 		if v != value {
 			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on instance %s", value, v, key, instance.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasNoLabel(instance *compute.Instance, key string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Labels == nil {
+			return nil
+		}
+
+		_, ok := instance.Labels[key]
+		if ok {
+			return fmt.Errorf("There is label '%s' on instance %s but should not be", key, instance.Name)
 		}
 
 		return nil
