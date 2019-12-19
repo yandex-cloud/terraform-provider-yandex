@@ -108,9 +108,12 @@ type MysqlConfig8_0_AuthPlugin int32
 
 const (
 	MysqlConfig8_0_AUTH_PLUGIN_UNSPECIFIED MysqlConfig8_0_AuthPlugin = 0
-	MysqlConfig8_0_MYSQL_NATIVE_PASSWORD   MysqlConfig8_0_AuthPlugin = 1
-	MysqlConfig8_0_CACHING_SHA2_PASSWORD   MysqlConfig8_0_AuthPlugin = 2
-	MysqlConfig8_0_SHA256_PASSWORD         MysqlConfig8_0_AuthPlugin = 3
+	// Using [Native Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html).
+	MysqlConfig8_0_MYSQL_NATIVE_PASSWORD MysqlConfig8_0_AuthPlugin = 1
+	// Using [Caching SHA-2 Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html).
+	MysqlConfig8_0_CACHING_SHA2_PASSWORD MysqlConfig8_0_AuthPlugin = 2
+	// Using [SHA-256 Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/sha256-pluggable-authentication.html).
+	MysqlConfig8_0_SHA256_PASSWORD MysqlConfig8_0_AuthPlugin = 3
 )
 
 var MysqlConfig8_0_AuthPlugin_name = map[int32]string{
@@ -164,7 +167,8 @@ type MysqlConfig8_0 struct {
 	// The maximum size in bytes of one packet.
 	//
 	// For details, see [MySQL documentation for the variable](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_max_allowed_packet).
-	MaxAllowedPacket            *wrappers.Int64Value      `protobuf:"bytes,7,opt,name=max_allowed_packet,json=maxAllowedPacket,proto3" json:"max_allowed_packet,omitempty"`
+	MaxAllowedPacket *wrappers.Int64Value `protobuf:"bytes,7,opt,name=max_allowed_packet,json=maxAllowedPacket,proto3" json:"max_allowed_packet,omitempty"`
+	// Authentication plugin used in the managed MySQL cluster.
 	DefaultAuthenticationPlugin MysqlConfig8_0_AuthPlugin `protobuf:"varint,8,opt,name=default_authentication_plugin,json=defaultAuthenticationPlugin,proto3,enum=yandex.cloud.mdb.mysql.v1.config.MysqlConfig8_0_AuthPlugin" json:"default_authentication_plugin,omitempty"`
 	XXX_NoUnkeyedLiteral        struct{}                  `json:"-"`
 	XXX_unrecognized            []byte                    `json:"-"`

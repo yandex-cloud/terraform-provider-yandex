@@ -165,6 +165,10 @@ func (sdk *SDK) MDB() *MDB {
 	return &MDB{sdk: sdk}
 }
 
+func (sdk *SDK) Marketplace() *Marketplace {
+	return &Marketplace{sdk: sdk}
+}
+
 // Operation gets OperationService client
 func (sdk *SDK) Operation() *gen_operation.OperationServiceClient {
 	group := gen_operation.NewOperation(sdk.getConn(OperationServiceID))

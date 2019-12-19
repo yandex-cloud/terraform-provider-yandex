@@ -30,6 +30,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetTriggerRequest struct {
+	// ID of the trigger to return.
+	//
+	// To get a trigger ID make a [TriggerService.List] request.
 	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -69,9 +72,27 @@ func (m *GetTriggerRequest) GetTriggerId() string {
 }
 
 type ListTriggersRequest struct {
-	FolderId             string   `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// ID of the folder to list triggers in.
+	//
+	// To get a folder ID use a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
+	// The maximum number of results per page to return. If the number of available
+	// results is larger than `pageSize`, the service returns a [ListTriggersResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	//
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `pageToken` to the
+	// [ListTriggersResponse.next_page_token] returned by a previous list request.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// A filter expression that filters triggers listed in the response.
+	//
+	// The expression must specify:
+	// 1. The field name. Currently filtering can only be applied to the [Trigger.name] field.
+	// 2. A conditional operator. Can be either `=` or `!=` for single values, `IN` or `NOT IN`
+	// for lists of values.
+	// 3. The value. Must be 3-63 characters long and match the regular expression `^[a-z][-a-z0-9]{1,61}[a-z0-9]$`.
+	// Example of a filter: `name=my-trigger`.
 	Filter               string   `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -132,11 +153,17 @@ func (m *ListTriggersRequest) GetFilter() string {
 }
 
 type ListTriggersResponse struct {
-	Triggers             []*Trigger `protobuf:"bytes,1,rep,name=triggers,proto3" json:"triggers,omitempty"`
-	NextPageToken        string     `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+	// List of triggers in the specified folder.
+	Triggers []*Trigger `protobuf:"bytes,1,rep,name=triggers,proto3" json:"triggers,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListTriggersRequest.page_size], use `nextPageToken` as the value
+	// for the [ListTriggersRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `nextPageToken` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListTriggersResponse) Reset()         { *m = ListTriggersResponse{} }
@@ -179,14 +206,22 @@ func (m *ListTriggersResponse) GetNextPageToken() string {
 }
 
 type CreateTriggerRequest struct {
-	FolderId             string            `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	Name                 string            `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string            `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Labels               map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Rule                 *Trigger_Rule     `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	// ID of the folder to create a trigger in.
+	//
+	// To get a folder ID make a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
+	// Name of the trigger.
+	// The name must be unique within the folder.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the trigger.
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Resource labels as `key:value` pairs.
+	Labels map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Trigger type.
+	Rule                 *Trigger_Rule `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *CreateTriggerRequest) Reset()         { *m = CreateTriggerRequest{} }
@@ -250,6 +285,7 @@ func (m *CreateTriggerRequest) GetRule() *Trigger_Rule {
 }
 
 type CreateTriggerMetadata struct {
+	// ID of the trigger that is being created.
 	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -289,14 +325,25 @@ func (m *CreateTriggerMetadata) GetTriggerId() string {
 }
 
 type UpdateTriggerRequest struct {
-	TriggerId            string                `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
-	UpdateMask           *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	Name                 string                `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Labels               map[string]string     `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	// ID of the trigger to update.
+	//
+	// To get a trigger ID make a [TriggerService.List] request.
+	TriggerId string `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
+	// Field mask that specifies which attributes of the trigger should be updated.
+	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// New name for the trigger.
+	// The name must be unique within the folder.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// New description of the trigger.
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// Trigger labels as `key:value` pairs.
+	//
+	// Existing set of labels is completely replaced by the provided set, so if you just want
+	// to add or remove a label, request the current set of labels with a [TriggerService.Get] request.
+	Labels               map[string]string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *UpdateTriggerRequest) Reset()         { *m = UpdateTriggerRequest{} }
@@ -360,6 +407,7 @@ func (m *UpdateTriggerRequest) GetLabels() map[string]string {
 }
 
 type UpdateTriggerMetadata struct {
+	// ID of the trigger that is being updated.
 	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -399,6 +447,9 @@ func (m *UpdateTriggerMetadata) GetTriggerId() string {
 }
 
 type DeleteTriggerRequest struct {
+	// ID of the trigger to delete.
+	//
+	// To get a trigger ID make a [TriggerService.List] request.
 	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -438,6 +489,7 @@ func (m *DeleteTriggerRequest) GetTriggerId() string {
 }
 
 type DeleteTriggerMetadata struct {
+	// ID of the trigger that is being deleted.
 	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -477,9 +529,25 @@ func (m *DeleteTriggerMetadata) GetTriggerId() string {
 }
 
 type ListTriggerOperationsRequest struct {
-	TriggerId            string   `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// ID of the trigger to list operations for.
+	TriggerId string `protobuf:"bytes,1,opt,name=trigger_id,json=triggerId,proto3" json:"trigger_id,omitempty"`
+	// The maximum number of results per page that should be returned. If the number of available
+	// results is larger than `pageSize`, the service returns a [ListTriggerOperationsResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	//
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `pageToken` to the
+	// [ListTriggerOperationsResponse.next_page_token] returned by a previous list request.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// A filter expression that filters resources listed in the response.
+	//
+	// The expression must specify:
+	// 1. The field name. Currently filtering can only be applied to the [Trigger.name] field.
+	// 2. A conditional operator. Can be either `=` or `!=` for single values, `IN` or `NOT IN`
+	// for lists of values.
+	// 3. The value. Must be 3-63 characters long and match the regular expression `^[a-z][-a-z0-9]{1,61}[a-z0-9]$`.
+	// Example of a filter: `name=my-function`.
 	Filter               string   `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -540,11 +608,17 @@ func (m *ListTriggerOperationsRequest) GetFilter() string {
 }
 
 type ListTriggerOperationsResponse struct {
-	Operations           []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
-	NextPageToken        string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+	// List of operations for the specified trigger.
+	Operations []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListTriggerOperationsRequest.page_size], use `nextPageToken` as the value
+	// for the [ListTriggerOperationsRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `nextPageToken` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListTriggerOperationsResponse) Reset()         { *m = ListTriggerOperationsResponse{} }
@@ -687,11 +761,19 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type TriggerServiceClient interface {
+	// Returns the specified trigger.
+	//
+	// To get the list of all available triggers, make a [List] request.
 	Get(ctx context.Context, in *GetTriggerRequest, opts ...grpc.CallOption) (*Trigger, error)
+	// Retrieves the list of triggers in the specified folder.
 	List(ctx context.Context, in *ListTriggersRequest, opts ...grpc.CallOption) (*ListTriggersResponse, error)
+	// Creates a trigger in the specified folder.
 	Create(ctx context.Context, in *CreateTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified trigger.
 	Update(ctx context.Context, in *UpdateTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified trigger.
 	Delete(ctx context.Context, in *DeleteTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Lists operations for the specified trigger.
 	ListOperations(ctx context.Context, in *ListTriggerOperationsRequest, opts ...grpc.CallOption) (*ListTriggerOperationsResponse, error)
 }
 
@@ -759,11 +841,19 @@ func (c *triggerServiceClient) ListOperations(ctx context.Context, in *ListTrigg
 
 // TriggerServiceServer is the server API for TriggerService service.
 type TriggerServiceServer interface {
+	// Returns the specified trigger.
+	//
+	// To get the list of all available triggers, make a [List] request.
 	Get(context.Context, *GetTriggerRequest) (*Trigger, error)
+	// Retrieves the list of triggers in the specified folder.
 	List(context.Context, *ListTriggersRequest) (*ListTriggersResponse, error)
+	// Creates a trigger in the specified folder.
 	Create(context.Context, *CreateTriggerRequest) (*operation.Operation, error)
+	// Updates the specified trigger.
 	Update(context.Context, *UpdateTriggerRequest) (*operation.Operation, error)
+	// Deletes the specified trigger.
 	Delete(context.Context, *DeleteTriggerRequest) (*operation.Operation, error)
+	// Lists operations for the specified trigger.
 	ListOperations(context.Context, *ListTriggerOperationsRequest) (*ListTriggerOperationsResponse, error)
 }
 

@@ -18,10 +18,11 @@ func CreateResolverFilter(nameField string, value string) string {
 }
 
 type resolveOptions struct {
-	out       *string
-	folderID  string
-	cloudID   string
-	clusterID string
+	out          *string
+	folderID     string
+	cloudID      string
+	clusterID    string
+	federationID string
 }
 
 type ResolveOption func(*resolveOptions)
@@ -50,6 +51,13 @@ func CloudID(cloudID string) ResolveOption {
 func ClusterID(clusterID string) ResolveOption {
 	return func(o *resolveOptions) {
 		o.clusterID = clusterID
+	}
+}
+
+// FederationID specifies federation id for resolvers that need it, e.g. CertificateResolver
+func FederationID(federationID string) ResolveOption {
+	return func(o *resolveOptions) {
+		o.federationID = federationID
 	}
 }
 
@@ -130,6 +138,10 @@ func (r *BaseResolver) CloudID() string {
 
 func (r *BaseResolver) ClusterID() string {
 	return r.opts.clusterID
+}
+
+func (r *BaseResolver) FederationID() string {
+	return r.opts.federationID
 }
 
 func (r *BaseResolver) writeOut() {

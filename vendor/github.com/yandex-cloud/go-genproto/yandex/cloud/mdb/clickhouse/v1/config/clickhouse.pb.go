@@ -93,11 +93,16 @@ type ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode int32
 
 const (
 	ClickhouseConfig_ExternalDictionary_PostgresqlSource_SSL_MODE_UNSPECIFIED ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 0
-	ClickhouseConfig_ExternalDictionary_PostgresqlSource_DISABLE              ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 1
-	ClickhouseConfig_ExternalDictionary_PostgresqlSource_ALLOW                ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 2
-	ClickhouseConfig_ExternalDictionary_PostgresqlSource_PREFER               ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 3
-	ClickhouseConfig_ExternalDictionary_PostgresqlSource_VERIFY_CA            ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 4
-	ClickhouseConfig_ExternalDictionary_PostgresqlSource_VERIFY_FULL          ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 5
+	// Only try a non-SSL connection.
+	ClickhouseConfig_ExternalDictionary_PostgresqlSource_DISABLE ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 1
+	// First try a non-SSL connection; if that fails, try an SSL connection.
+	ClickhouseConfig_ExternalDictionary_PostgresqlSource_ALLOW ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 2
+	// First try an SSL connection; if that fails, try a non-SSL connection.
+	ClickhouseConfig_ExternalDictionary_PostgresqlSource_PREFER ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 3
+	// Only try an SSL connection, and verify that the server certificate is issued by a trusted certificate authority (CA).
+	ClickhouseConfig_ExternalDictionary_PostgresqlSource_VERIFY_CA ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 4
+	// Only try an SSL connection, verify that the server certificate is issued by a trusted CA and that the requested server host name matches that in the certificate.
+	ClickhouseConfig_ExternalDictionary_PostgresqlSource_VERIFY_FULL ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode = 5
 )
 
 var ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode_name = map[int32]string{
@@ -1163,8 +1168,8 @@ type ClickhouseConfig_ExternalDictionary_PostgresqlSource struct {
 	// Query for checking the dictionary status, to pull only updated data.
 	// For more details, see [ClickHouse documentation on dictionaries](https://clickhouse.yandex/docs/en/query_language/dicts/external_dicts_dict_lifetime/).
 	InvalidateQuery string `protobuf:"bytes,7,opt,name=invalidate_query,json=invalidateQuery,proto3" json:"invalidate_query,omitempty"`
-	// Mode of SSL TCP/IP connection to the PostgreSQL host. There are six modes: `disable`, `allow`, `prefer` (default), `require`, `verify-ca`, `verify-full`.
-	// For more details, see [PostgreSQL documentation](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS).
+	// Mode of SSL TCP/IP connection to the PostgreSQL host.
+	// For more details, see [PostgreSQL documentation](https://www.postgresql.org/docs/current/libpq-ssl.html).
 	SslMode              ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode `protobuf:"varint,8,opt,name=ssl_mode,json=sslMode,proto3,enum=yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfig_ExternalDictionary_PostgresqlSource_SslMode" json:"ssl_mode,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                                                     `json:"-"`
 	XXX_unrecognized     []byte                                                       `json:"-"`

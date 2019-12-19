@@ -76,7 +76,6 @@ github.com/golang/protobuf/ptypes/timestamp
 github.com/golang/protobuf/ptypes/wrappers
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes/any
-github.com/golang/protobuf/ptypes/empty
 github.com/golang/protobuf/jsonpb
 github.com/golang/protobuf/protoc-gen-go/descriptor
 github.com/golang/protobuf/ptypes/struct
@@ -260,7 +259,7 @@ github.com/ulikunitz/xz/internal/hash
 # github.com/vmihailenco/msgpack v3.3.3+incompatible
 github.com/vmihailenco/msgpack
 github.com/vmihailenco/msgpack/codes
-# github.com/yandex-cloud/go-genproto v0.0.0-20191128100621-cab2652ec604
+# github.com/yandex-cloud/go-genproto v0.0.0-20191219225045-ae0c002fa552
 github.com/yandex-cloud/go-genproto/yandex/cloud/access
 github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup
@@ -269,6 +268,8 @@ github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility
 github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1
+github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1
+github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config
 github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1
@@ -276,19 +277,19 @@ github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud
 github.com/yandex-cloud/go-genproto/yandex/cloud/api
 github.com/yandex-cloud/go-genproto/yandex/cloud/operation
+github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config
+github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config
 github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint
-github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1
-github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1
+github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1
-github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config
-github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config
+github.com/yandex-cloud/go-genproto/yandex/cloud/marketplace/v1/metering
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config
 github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config
-# github.com/yandex-cloud/go-sdk v0.0.0-20191128125608-2a86cdc11a13
+# github.com/yandex-cloud/go-sdk v0.0.0-20191220085741-e7ba48991416
 github.com/yandex-cloud/go-sdk
 github.com/yandex-cloud/go-sdk/iamkey
 github.com/yandex-cloud/go-sdk/operation
@@ -300,11 +301,13 @@ github.com/yandex-cloud/go-sdk/gen/apiendpoint
 github.com/yandex-cloud/go-sdk/gen/compute
 github.com/yandex-cloud/go-sdk/gen/compute/instancegroup
 github.com/yandex-cloud/go-sdk/gen/containerregistry
+github.com/yandex-cloud/go-sdk/gen/dataproc
 github.com/yandex-cloud/go-sdk/gen/functions
 github.com/yandex-cloud/go-sdk/gen/iam
 github.com/yandex-cloud/go-sdk/gen/iot/devices
 github.com/yandex-cloud/go-sdk/gen/kubernetes
 github.com/yandex-cloud/go-sdk/gen/loadbalancer
+github.com/yandex-cloud/go-sdk/gen/marketplace/metering
 github.com/yandex-cloud/go-sdk/gen/mdb/clickhouse
 github.com/yandex-cloud/go-sdk/gen/mdb/mongodb
 github.com/yandex-cloud/go-sdk/gen/mdb/mysql
@@ -413,10 +416,10 @@ google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 # google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 google.golang.org/genproto/googleapis/rpc/errdetails
+google.golang.org/genproto/googleapis/type/timeofday
 google.golang.org/genproto/protobuf/field_mask
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/type/dayofweek
-google.golang.org/genproto/googleapis/type/timeofday
 google.golang.org/genproto/googleapis/rpc/status
 google.golang.org/genproto/googleapis/iam/v1
 google.golang.org/genproto/googleapis/rpc/code
