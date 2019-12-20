@@ -1,4 +1,4 @@
-## 0.27.0 (unreleased)
+## 0.27.0 (Unreleased)
 FEATURES:
 * **New Data Source:** `yandex_mdb_mongodb_cluster`
 * **New Resource:** `yandex_mdb_mongodb_cluster`
