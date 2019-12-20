@@ -1,4 +1,4 @@
-## 0.27.0 (Unreleased)
+## 0.27.0 (December 20, 2019)
 FEATURES:
 * **New Data Source:** `yandex_mdb_mongodb_cluster`
 * **New Resource:** `yandex_mdb_mongodb_cluster`
