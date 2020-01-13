@@ -539,7 +539,7 @@ func (m *DeleteSubclusterRequest) GetSubclusterId() string {
 type DeleteSubclusterMetadata struct {
 	// ID of the cluster whose subcluster is being deleted.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// ID of the ubcluster resource that is being to deleted.
+	// ID of the subcluster that is being deleted.
 	SubclusterId         string   `protobuf:"bytes,2,opt,name=subcluster_id,json=subclusterId,proto3" json:"subcluster_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

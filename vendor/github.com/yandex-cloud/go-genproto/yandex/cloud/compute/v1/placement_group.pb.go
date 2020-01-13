@@ -23,20 +23,21 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type PlacementGroup struct {
-	// ID of the placement group.
+	// ID of the placement group. Generated at creation time.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// ID of the folder that the placement group belongs to.
 	FolderId string `protobuf:"bytes,2,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	// Creation timestamp in [RFC3339](https://www.ietf.org/rfc/rfc3339.txt) text format.
+	// Creation timestamp.
 	CreatedAt *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// Name of the placement group.
 	// The name is unique within the folder.
 	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	// Description of the placement group.
+	// Description of the placement group. 0-256 characters long.
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	// Resource labels as `key:value` pairs.
+	// Placement group labels as `key:value` pairs.
 	Labels map[string]string `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// Placement strategy.
+	// Placement strategy. To specify a placement strategy, send the corresponding
+	// field containing an empty structure.
 	//
 	// Types that are valid to be assigned to PlacementStrategy:
 	//	*PlacementGroup_SpreadPlacementStrategy
@@ -144,6 +145,8 @@ func (*PlacementGroup) XXX_OneofWrappers() []interface{} {
 	}
 }
 
+// This is an empty structure that must be passed to explicitly
+// specify the required placement strategy.
 type SpreadPlacementStrategy struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

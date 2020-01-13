@@ -30,6 +30,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetRegistryRequest struct {
+	// ID of the registry to return.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -69,8 +72,17 @@ func (m *GetRegistryRequest) GetRegistryId() string {
 }
 
 type ListRegistriesRequest struct {
-	FolderId             string   `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// ID of the folder to list registries in.
+	//
+	// To get a folder ID make a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
+	// The maximum number of results per page that should be returned. If the number of available
+	// results is larger than `page_size`, the service returns a [ListRegistriesResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListRegistriesResponse.next_page_token] returned by a previous list request.
 	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -124,11 +136,17 @@ func (m *ListRegistriesRequest) GetPageToken() string {
 }
 
 type ListRegistriesResponse struct {
-	Registries           []*Registry `protobuf:"bytes,1,rep,name=registries,proto3" json:"registries,omitempty"`
-	NextPageToken        string      `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+	// List of registries.
+	Registries []*Registry `protobuf:"bytes,1,rep,name=registries,proto3" json:"registries,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListRegistriesRequest.page_size], use `next_page_token` as the value
+	// for the [ListRegistriesRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListRegistriesResponse) Reset()         { *m = ListRegistriesResponse{} }
@@ -171,12 +189,21 @@ func (m *ListRegistriesResponse) GetNextPageToken() string {
 }
 
 type CreateRegistryRequest struct {
-	FolderId     string                               `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	Name         string                               `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description  string                               `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Labels       map[string]string                    `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// ID of the folder to create a registry in.
+	//
+	// To get a folder ID, make a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
+	// Name of the registry. The name must be unique within the folder.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the registry.
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Resource labels as `key:value` pairs.
+	Labels map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Registry certificates.
 	Certificates []*CreateRegistryRequest_Certificate `protobuf:"bytes,5,rep,name=certificates,proto3" json:"certificates,omitempty"`
-	// if specified, must contain at least 3 of 4 ASCII character groups: upper case latin, lower case latin, numbers and special symbols
+	// Registry passwords.
+	//
+	// The password must contain at least three character categories among the following: upper case latin, lower case latin, numbers and special symbols.
 	Password             string   `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -250,7 +277,9 @@ func (m *CreateRegistryRequest) GetPassword() string {
 	return ""
 }
 
+// Specification of a registry certificate.
 type CreateRegistryRequest_Certificate struct {
+	// Public part of the registry certificate.
 	CertificateData      string   `protobuf:"bytes,1,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -290,6 +319,7 @@ func (m *CreateRegistryRequest_Certificate) GetCertificateData() string {
 }
 
 type CreateRegistryMetadata struct {
+	// ID of the registry that is being created.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -329,14 +359,23 @@ func (m *CreateRegistryMetadata) GetRegistryId() string {
 }
 
 type UpdateRegistryRequest struct {
-	RegistryId           string                `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	UpdateMask           *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	Name                 string                `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string                `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Labels               map[string]string     `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	// ID of the registry to update.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Field mask that specifies which fields of the registry are going to be updated.
+	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// Name of the registry. The name must be unique within the folder.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the registry.
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// Resource labels as `key:value` pairs.
+	//
+	// Existing set of `labels` is completely replaced by the provided set.
+	Labels               map[string]string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
 }
 
 func (m *UpdateRegistryRequest) Reset()         { *m = UpdateRegistryRequest{} }
@@ -400,6 +439,7 @@ func (m *UpdateRegistryRequest) GetLabels() map[string]string {
 }
 
 type UpdateRegistryMetadata struct {
+	// ID of the registry that is being updated.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -439,6 +479,9 @@ func (m *UpdateRegistryMetadata) GetRegistryId() string {
 }
 
 type DeleteRegistryRequest struct {
+	// ID of the registry to delete.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -478,6 +521,7 @@ func (m *DeleteRegistryRequest) GetRegistryId() string {
 }
 
 type DeleteRegistryMetadata struct {
+	// ID of the registry that is being deleted.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -517,6 +561,7 @@ func (m *DeleteRegistryMetadata) GetRegistryId() string {
 }
 
 type ListRegistryCertificatesRequest struct {
+	// ID of the registry to list certificates for.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -556,6 +601,7 @@ func (m *ListRegistryCertificatesRequest) GetRegistryId() string {
 }
 
 type ListRegistryCertificatesResponse struct {
+	// List of certificates for the specified registry.
 	Certificates         []*RegistryCertificate `protobuf:"bytes,1,rep,name=certificates,proto3" json:"certificates,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
@@ -595,7 +641,11 @@ func (m *ListRegistryCertificatesResponse) GetCertificates() []*RegistryCertific
 }
 
 type AddRegistryCertificateRequest struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the registry for which the certificate is being added.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Public part of the certificate that is being added.
 	CertificateData      string   `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -642,7 +692,9 @@ func (m *AddRegistryCertificateRequest) GetCertificateData() string {
 }
 
 type AddRegistryCertificateMetadata struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the registry certificate that is being added.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Fingerprint of the certificate that is being added.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -689,7 +741,11 @@ func (m *AddRegistryCertificateMetadata) GetFingerprint() string {
 }
 
 type DeleteRegistryCertificateRequest struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the registry to delete a certificate for.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Fingerprint of the certificate that is being deleted.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -736,7 +792,9 @@ func (m *DeleteRegistryCertificateRequest) GetFingerprint() string {
 }
 
 type DeleteRegistryCertificateMetadata struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of a registry for which the certificate is being delete.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Fingerprint of the certificate to deleted.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -783,6 +841,9 @@ func (m *DeleteRegistryCertificateMetadata) GetFingerprint() string {
 }
 
 type ListRegistryPasswordsRequest struct {
+	// ID of the registry to list passwords in.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
 	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -822,6 +883,7 @@ func (m *ListRegistryPasswordsRequest) GetRegistryId() string {
 }
 
 type ListRegistryPasswordsResponse struct {
+	// List of passwords for the specified registry.
 	Passwords            []*RegistryPassword `protobuf:"bytes,1,rep,name=passwords,proto3" json:"passwords,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
 	XXX_unrecognized     []byte              `json:"-"`
@@ -861,8 +923,13 @@ func (m *ListRegistryPasswordsResponse) GetPasswords() []*RegistryPassword {
 }
 
 type AddRegistryPasswordRequest struct {
+	// ID of the registry to add a password for.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
 	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	// must contain at least 3 of 4 ASCII character groups: upper case latin, lower case latin, numbers and special symbols
+	// Passwords for the registry.
+	//
+	// The password must contain at least three character categories among the following: upper case latin, lower case latin, numbers and special symbols.
 	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -909,7 +976,9 @@ func (m *AddRegistryPasswordRequest) GetPassword() string {
 }
 
 type AddRegistryPasswordMetadata struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the registry for which the password is being added.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of a password that is being added.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -956,7 +1025,13 @@ func (m *AddRegistryPasswordMetadata) GetPasswordId() string {
 }
 
 type DeleteRegistryPasswordRequest struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the registry to delete a password for.
+	//
+	// To get a registry ID make a [DeviceService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the password to delete.
+	//
+	// To get a password ID make a [RegistryService.ListPasswords] request.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1003,7 +1078,11 @@ func (m *DeleteRegistryPasswordRequest) GetPasswordId() string {
 }
 
 type DeleteRegistryPasswordMetadata struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of a registry for which the password is being delete.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the password to delete.
+	//
+	// To get a password ID make a [RegistryService.ListPasswords] request.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1050,8 +1129,17 @@ func (m *DeleteRegistryPasswordMetadata) GetPasswordId() string {
 }
 
 type ListDeviceTopicAliasesRequest struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// ID of the registry to list aliases for device topic.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// The maximum number of results per page that should be returned. If the number of available
+	// results is larger than `page_size`, the service returns a [ListDeviceTopicAliasesResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListDeviceTopicAliasesResponse.next_page_token] returned by a previous list request.
 	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1105,11 +1193,17 @@ func (m *ListDeviceTopicAliasesRequest) GetPageToken() string {
 }
 
 type ListDeviceTopicAliasesResponse struct {
-	Aliases              []*DeviceAlias `protobuf:"bytes,1,rep,name=aliases,proto3" json:"aliases,omitempty"`
-	NextPageToken        string         `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	// List of device aliases for the specified registry.
+	Aliases []*DeviceAlias `protobuf:"bytes,1,rep,name=aliases,proto3" json:"aliases,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListDeviceTopicAliasesRequest.page_size], use `next_page_token` as the value
+	// for the [ListDeviceTopicAliasesRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListDeviceTopicAliasesResponse) Reset()         { *m = ListDeviceTopicAliasesResponse{} }
@@ -1152,9 +1246,18 @@ func (m *ListDeviceTopicAliasesResponse) GetNextPageToken() string {
 }
 
 type ListRegistryOperationsRequest struct {
-	RegistryId           string   `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// ID of the registry to list operations for.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// The maximum number of results per page that should be returned. If the number of available
+	// results is larger than `page_size`, the service returns a [ListRegistryOperationsResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListRegistryOperationsResponse.next_page_token] returned by a previous list request.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// A filter expression that filters resources listed in the response.
+	// Currently you can use filtering only on [Registry.name] field.
 	Filter               string   `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1215,11 +1318,17 @@ func (m *ListRegistryOperationsRequest) GetFilter() string {
 }
 
 type ListRegistryOperationsResponse struct {
-	Operations           []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
-	NextPageToken        string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+	// List of operations for the specified registry.
+	Operations []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListRegistryOperationsRequest.page_size], use `next_page_token` as the value
+	// for the [ListRegistryOperationsRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListRegistryOperationsResponse) Reset()         { *m = ListRegistryOperationsResponse{} }
@@ -1410,18 +1519,33 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RegistryServiceClient interface {
+	// Returns the specified registry.
+	//
+	// To get the list of available registries, make a [List] request.
 	Get(ctx context.Context, in *GetRegistryRequest, opts ...grpc.CallOption) (*Registry, error)
+	// Retrieves the list of registries in the specified folder.
 	List(ctx context.Context, in *ListRegistriesRequest, opts ...grpc.CallOption) (*ListRegistriesResponse, error)
+	// Creates a registry in the specified folder.
 	Create(ctx context.Context, in *CreateRegistryRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified registry.
 	Update(ctx context.Context, in *UpdateRegistryRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified registry.
 	Delete(ctx context.Context, in *DeleteRegistryRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of registry certificates for the specified registry.
 	ListCertificates(ctx context.Context, in *ListRegistryCertificatesRequest, opts ...grpc.CallOption) (*ListRegistryCertificatesResponse, error)
+	// Adds a certificate.
 	AddCertificate(ctx context.Context, in *AddRegistryCertificateRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified registry certificate.
 	DeleteCertificate(ctx context.Context, in *DeleteRegistryCertificateRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of passwords for the specified registry.
 	ListPasswords(ctx context.Context, in *ListRegistryPasswordsRequest, opts ...grpc.CallOption) (*ListRegistryPasswordsResponse, error)
+	// Adds password for the specified registry.
 	AddPassword(ctx context.Context, in *AddRegistryPasswordRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified password.
 	DeletePassword(ctx context.Context, in *DeleteRegistryPasswordRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of device topic aliases for the specified registry.
 	ListDeviceTopicAliases(ctx context.Context, in *ListDeviceTopicAliasesRequest, opts ...grpc.CallOption) (*ListDeviceTopicAliasesResponse, error)
+	// Lists operations for the specified registry.
 	ListOperations(ctx context.Context, in *ListRegistryOperationsRequest, opts ...grpc.CallOption) (*ListRegistryOperationsResponse, error)
 }
 
@@ -1552,18 +1676,33 @@ func (c *registryServiceClient) ListOperations(ctx context.Context, in *ListRegi
 
 // RegistryServiceServer is the server API for RegistryService service.
 type RegistryServiceServer interface {
+	// Returns the specified registry.
+	//
+	// To get the list of available registries, make a [List] request.
 	Get(context.Context, *GetRegistryRequest) (*Registry, error)
+	// Retrieves the list of registries in the specified folder.
 	List(context.Context, *ListRegistriesRequest) (*ListRegistriesResponse, error)
+	// Creates a registry in the specified folder.
 	Create(context.Context, *CreateRegistryRequest) (*operation.Operation, error)
+	// Updates the specified registry.
 	Update(context.Context, *UpdateRegistryRequest) (*operation.Operation, error)
+	// Deletes the specified registry.
 	Delete(context.Context, *DeleteRegistryRequest) (*operation.Operation, error)
+	// Retrieves the list of registry certificates for the specified registry.
 	ListCertificates(context.Context, *ListRegistryCertificatesRequest) (*ListRegistryCertificatesResponse, error)
+	// Adds a certificate.
 	AddCertificate(context.Context, *AddRegistryCertificateRequest) (*operation.Operation, error)
+	// Deletes the specified registry certificate.
 	DeleteCertificate(context.Context, *DeleteRegistryCertificateRequest) (*operation.Operation, error)
+	// Retrieves the list of passwords for the specified registry.
 	ListPasswords(context.Context, *ListRegistryPasswordsRequest) (*ListRegistryPasswordsResponse, error)
+	// Adds password for the specified registry.
 	AddPassword(context.Context, *AddRegistryPasswordRequest) (*operation.Operation, error)
+	// Deletes the specified password.
 	DeletePassword(context.Context, *DeleteRegistryPasswordRequest) (*operation.Operation, error)
+	// Retrieves the list of device topic aliases for the specified registry.
 	ListDeviceTopicAliases(context.Context, *ListDeviceTopicAliasesRequest) (*ListDeviceTopicAliasesResponse, error)
+	// Lists operations for the specified registry.
 	ListOperations(context.Context, *ListRegistryOperationsRequest) (*ListRegistryOperationsResponse, error)
 }
 

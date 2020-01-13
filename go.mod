@@ -19,11 +19,13 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20191219225045-ae0c002fa552
-	github.com/yandex-cloud/go-sdk v0.0.0-20191220085741-e7ba48991416
-	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7
-	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
-	google.golang.org/grpc v1.23.0
+	github.com/yandex-cloud/go-genproto v0.0.0-20200113111713-27a750dfd05a
+	github.com/yandex-cloud/go-sdk v0.0.0-20200113201139-dc3c759a1204
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
+	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1 // indirect
+	google.golang.org/genproto v0.0.0-20200113173426-e1de0a7b01eb
+	google.golang.org/grpc v1.26.0
+	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.12.0

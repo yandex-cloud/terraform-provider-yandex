@@ -33,7 +33,7 @@ const (
 	Job_RUNNING Job_Status = 3
 	// Job failed to finish the run properly.
 	Job_ERROR Job_Status = 4
-	// Job is finished
+	// Job is finished.
 	Job_DONE Job_Status = 5
 )
 
@@ -67,7 +67,7 @@ func (Job_Status) EnumDescriptor() ([]byte, []int) {
 type Job struct {
 	// ID of the job. Generated at creation time.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique ID of the Data Proc cluster.
+	// ID of the Data Proc cluster that the job belongs to.
 	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Creation timestamp.
 	CreatedAt *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -377,7 +377,7 @@ type SparkJob struct {
 	ArchiveUris []string `protobuf:"bytes,4,rep,name=archive_uris,json=archiveUris,proto3" json:"archive_uris,omitempty"`
 	// Property names and values, used to configure Data Proc and Spark.
 	Properties map[string]string `protobuf:"bytes,5,rep,name=properties,proto3" json:"properties,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// The HCFS URI of the jar file containing the `main` class for the job.
+	// The HCFS URI of the JAR file containing the `main` class for the job.
 	MainJarFileUri string `protobuf:"bytes,6,opt,name=main_jar_file_uri,json=mainJarFileUri,proto3" json:"main_jar_file_uri,omitempty"`
 	// The name of the driver class.
 	MainClass            string   `protobuf:"bytes,7,opt,name=main_class,json=mainClass,proto3" json:"main_class,omitempty"`

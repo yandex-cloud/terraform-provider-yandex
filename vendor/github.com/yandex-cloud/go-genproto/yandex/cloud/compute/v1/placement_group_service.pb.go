@@ -31,7 +31,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetPlacementGroupRequest struct {
 	// ID of the placement group to return.
-	// To get the placement group ID, use [PlacementGroupService.List] request.
+	//
+	// To get a placement group ID make a [PlacementGroupService.List] request.
 	PlacementGroupId     string   `protobuf:"bytes,1,opt,name=placement_group_id,json=placementGroupId,proto3" json:"placement_group_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -72,7 +73,8 @@ func (m *GetPlacementGroupRequest) GetPlacementGroupId() string {
 
 type ListPlacementGroupsRequest struct {
 	// ID of the folder to list placement groups in.
-	// To get the folder ID, use [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	//
+	// To get the folder ID make a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
 	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
 	// The maximum number of results per page to return. If the number of available
 	// results is larger than [page_size],
@@ -145,14 +147,13 @@ func (m *ListPlacementGroupsRequest) GetFilter() string {
 }
 
 type ListPlacementGroupsResponse struct {
-	// Lists placement groups for the specified folder.
+	// Lists placement groups in the specified folder.
 	PlacementGroups []*PlacementGroup `protobuf:"bytes,1,rep,name=placement_groups,json=placementGroups,proto3" json:"placement_groups,omitempty"`
-	// This token allows you to get the next page of results for list requests. If the number of results
-	// is larger than [ListPlacementGroupsRequest.page_size], use
-	// [next_page_token] as the value
-	// for the [ListPlacementGroupsRequest.page_token] query parameter
-	// in the next list request. Each subsequent list request will have its own
-	// [next_page_token] to continue paging through the results.
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListPlacementGroupsRequest.page_size], use `next_page_token` as the value
+	// for the [ListPlacementGroupsRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
 	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -200,7 +201,8 @@ func (m *ListPlacementGroupsResponse) GetNextPageToken() string {
 
 type CreatePlacementGroupRequest struct {
 	// ID of the folder to create a placement group in.
-	// To get the folder ID, use a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
+	//
+	// To get a folder ID, use a [yandex.cloud.resourcemanager.v1.FolderService.List] request.
 	FolderId string `protobuf:"bytes,1,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
 	// Name of the placement group.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -345,9 +347,10 @@ func (m *CreatePlacementGroupMetadata) GetPlacementGroupId() string {
 
 type UpdatePlacementGroupRequest struct {
 	// ID of the placement group to update.
+	//
 	// To get the placement group ID, use an [PlacementGroupService.List] request.
 	PlacementGroupId string `protobuf:"bytes,1,opt,name=placement_group_id,json=placementGroupId,proto3" json:"placement_group_id,omitempty"`
-	// Field mask that specifies which fields of the PlacementGroup resource are going to be updated.
+	// Field mask that specifies which fields of the PlacementGroup resource should be updated.
 	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	// Name of the placement group.
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
@@ -464,6 +467,7 @@ func (m *UpdatePlacementGroupMetadata) GetPlacementGroupId() string {
 
 type DeletePlacementGroupRequest struct {
 	// ID of the placement group to delete.
+	//
 	// To get the placement group ID, use [PlacementGroupService.List] request.
 	PlacementGroupId     string   `protobuf:"bytes,1,opt,name=placement_group_id,json=placementGroupId,proto3" json:"placement_group_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -545,6 +549,7 @@ func (m *DeletePlacementGroupMetadata) GetPlacementGroupId() string {
 
 type ListPlacementGroupInstancesRequest struct {
 	// ID of the placement group to list instances for.
+	//
 	// To get the placement group ID, use [PlacementGroupService.List] request.
 	PlacementGroupId string `protobuf:"bytes,1,opt,name=placement_group_id,json=placementGroupId,proto3" json:"placement_group_id,omitempty"`
 	// The maximum number of results per page to return. If the number of available
@@ -663,6 +668,7 @@ func (m *ListPlacementGroupInstancesResponse) GetNextPageToken() string {
 
 type ListPlacementGroupOperationsRequest struct {
 	// ID of the placement group to list operations for.
+	//
 	// To get the placement group ID, use [PlacementGroupService.List] request.
 	PlacementGroupId string `protobuf:"bytes,1,opt,name=placement_group_id,json=placementGroupId,proto3" json:"placement_group_id,omitempty"`
 	// The maximum number of results per page to return. If the number of available
@@ -877,6 +883,8 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PlacementGroupServiceClient interface {
 	// Returns the specified placement group.
+	//
+	// To get the list of all available placement groups, make a [List] request.
 	Get(ctx context.Context, in *GetPlacementGroupRequest, opts ...grpc.CallOption) (*PlacementGroup, error)
 	// Retrieves the list of placement groups in the specified folder.
 	List(ctx context.Context, in *ListPlacementGroupsRequest, opts ...grpc.CallOption) (*ListPlacementGroupsResponse, error)
@@ -966,6 +974,8 @@ func (c *placementGroupServiceClient) ListOperations(ctx context.Context, in *Li
 // PlacementGroupServiceServer is the server API for PlacementGroupService service.
 type PlacementGroupServiceServer interface {
 	// Returns the specified placement group.
+	//
+	// To get the list of all available placement groups, make a [List] request.
 	Get(context.Context, *GetPlacementGroupRequest) (*PlacementGroup, error)
 	// Retrieves the list of placement groups in the specified folder.
 	List(context.Context, *ListPlacementGroupsRequest) (*ListPlacementGroupsResponse, error)

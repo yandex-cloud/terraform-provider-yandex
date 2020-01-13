@@ -344,7 +344,7 @@ type HadoopConfig struct {
 	// the service and the property.
 	//
 	// For example, use the key 'hdfs:dfs.replication' to set the `dfs.replication` property
-	// in `/etc/hadoop/conf/hdfs-site.xml`.
+	// in the file `/etc/hadoop/conf/hdfs-site.xml`.
 	Properties map[string]string `protobuf:"bytes,2,rep,name=properties,proto3" json:"properties,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// List of public SSH keys to access to cluster hosts.
 	SshPublicKeys        []string `protobuf:"bytes,3,rep,name=ssh_public_keys,json=sshPublicKeys,proto3" json:"ssh_public_keys,omitempty"`

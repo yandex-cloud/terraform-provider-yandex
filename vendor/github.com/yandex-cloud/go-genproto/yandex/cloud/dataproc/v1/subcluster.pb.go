@@ -35,21 +35,21 @@ const (
 	// * Hive: Server, Metastore, HCatalog
 	// * Spark History Server
 	// * Zeppelin
-	// * Zookeeper
+	// * ZooKeeper
 	Role_MASTERNODE Role = 1
 	// The subcluster is a DATANODE in a Data Proc cluster.
 	//
 	// DATANODE can run the following services, depending on the requested components:
-	// * HDFS DataNode,
-	// * YARN NodeManager,
-	// * HBase RegionServer,
-	// * Spark libraries.
+	// * HDFS DataNode
+	// * YARN NodeManager
+	// * HBase RegionServer
+	// * Spark libraries
 	Role_DATANODE Role = 2
 	// The subcluster is a COMPUTENODE in a Data Proc cluster.
 	//
 	// COMPUTENODE can run the following services, depending on the requested components:
-	// * YARN NodeManager.
-	// * Spark libraries.
+	// * YARN NodeManager
+	// * Spark libraries
 	Role_COMPUTENODE Role = 3
 )
 
@@ -179,7 +179,7 @@ func (m *Subcluster) GetHostsCount() int64 {
 	return 0
 }
 
-// A Data Proc host resource. For details about the concept, see [documentation](/docs/data-proc/concepts/).
+// A Data Proc host. For details about the concept, see [documentation](/docs/data-proc/concepts/).
 type Host struct {
 	// Name of the Data Proc host. The host name is assigned by Data Proc at creation time
 	// and cannot be changed. The name is generated to be unique across all existing Data Proc

@@ -30,6 +30,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetDeviceRequest struct {
+	// ID of the device to return.
+	//
+	// To get a device ID make a [DeviceService.List] request.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -72,12 +75,18 @@ type ListDevicesRequest struct {
 	// Types that are valid to be assigned to Id:
 	//	*ListDevicesRequest_RegistryId
 	//	*ListDevicesRequest_FolderId
-	Id                   isListDevicesRequest_Id `protobuf_oneof:"id"`
-	PageSize             int64                   `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken            string                  `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
-	XXX_unrecognized     []byte                  `json:"-"`
-	XXX_sizecache        int32                   `json:"-"`
+	Id isListDevicesRequest_Id `protobuf_oneof:"id"`
+	// The maximum number of results per page to return. If the number of available
+	// results is larger than `page_size`, the service returns a [ListDevicesResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListDevicesResponse.next_page_token] returned by a previous list request.
+	PageToken            string   `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListDevicesRequest) Reset()         { *m = ListDevicesRequest{} }
@@ -165,11 +174,17 @@ func (*ListDevicesRequest) XXX_OneofWrappers() []interface{} {
 }
 
 type ListDevicesResponse struct {
-	Devices              []*Device `protobuf:"bytes,1,rep,name=devices,proto3" json:"devices,omitempty"`
-	NextPageToken        string    `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
-	XXX_unrecognized     []byte    `json:"-"`
-	XXX_sizecache        int32     `json:"-"`
+	// List of devices.
+	Devices []*Device `protobuf:"bytes,1,rep,name=devices,proto3" json:"devices,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListDevicesRequest.page_size], use `next_page_token` as the value
+	// for the [ListDevicesRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListDevicesResponse) Reset()         { *m = ListDevicesResponse{} }
@@ -212,13 +227,23 @@ func (m *ListDevicesResponse) GetNextPageToken() string {
 }
 
 type CreateDeviceRequest struct {
-	RegistryId   string                             `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	Name         string                             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description  string                             `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// ID of the registry to create a device in.
+	//
+	// To get a registry ID, make a [yandex.cloud.iot.devices.v1.RegistryService.List] request.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Name of the device. The name must be unique within the registry.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the device.
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Device certificate.
 	Certificates []*CreateDeviceRequest_Certificate `protobuf:"bytes,4,rep,name=certificates,proto3" json:"certificates,omitempty"`
-	// map from alias to canonical topic name prefix, e.g. my/custom/alias -> $device/{id}/events
+	// Alias of a device topic.
+	//
+	// Alias is an alternate name of a device topic assigned by the user. Map alias to canonical topic name prefix, e.g. `my/custom/alias` match to `$device/{id}/events`.
 	TopicAliases map[string]string `protobuf:"bytes,5,rep,name=topic_aliases,json=topicAliases,proto3" json:"topic_aliases,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// if specified, must contain at least 3 of 4 ASCII character groups: upper case latin, lower case latin, numbers and special symbols
+	// Device password.
+	//
+	// The password must contain at least three character categories among the following: upper case latin, lower case latin, numbers and special symbols.
 	Password             string   `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -292,7 +317,9 @@ func (m *CreateDeviceRequest) GetPassword() string {
 	return ""
 }
 
+// Specification of a device certificate.
 type CreateDeviceRequest_Certificate struct {
+	// Public part of the device certificate.
 	CertificateData      string   `protobuf:"bytes,1,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -332,6 +359,7 @@ func (m *CreateDeviceRequest_Certificate) GetCertificateData() string {
 }
 
 type CreateDeviceMetadata struct {
+	// ID of the device that is being created.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -371,11 +399,19 @@ func (m *CreateDeviceMetadata) GetDeviceId() string {
 }
 
 type UpdateDeviceRequest struct {
-	DeviceId    string                `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	UpdateMask  *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	Name        string                `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description string                `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	// map from alias to canonical topic name prefix, e.g. my/custom/alias -> $device/abcdef/events
+	// ID of the device to update.
+	//
+	// To get a device ID make a [DeviceService.List] request.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Field mask that specifies which fields of the device are going to be updated.
+	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// Name of the device. The name must be unique within the registry.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the device.
+	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// Alias of a device topic.
+	//
+	// Alias is an alternate name of a device topic assigned by the user. Map alias to canonical topic name prefix, e.g. `my/custom/alias` match to `$device/{id}/events`.
 	TopicAliases         map[string]string `protobuf:"bytes,5,rep,name=topic_aliases,json=topicAliases,proto3" json:"topic_aliases,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -443,6 +479,7 @@ func (m *UpdateDeviceRequest) GetTopicAliases() map[string]string {
 }
 
 type UpdateDeviceMetadata struct {
+	// ID of the device that is being updated.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -482,6 +519,9 @@ func (m *UpdateDeviceMetadata) GetDeviceId() string {
 }
 
 type DeleteDeviceRequest struct {
+	// ID of the device to delete.
+	//
+	// To get a device ID make a [DeviceService.List] request.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -521,6 +561,7 @@ func (m *DeleteDeviceRequest) GetDeviceId() string {
 }
 
 type DeleteDeviceMetadata struct {
+	// ID of the device that is being deleted.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -560,6 +601,7 @@ func (m *DeleteDeviceMetadata) GetDeviceId() string {
 }
 
 type ListDeviceCertificatesRequest struct {
+	// ID of the device to list certificates for.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -599,6 +641,7 @@ func (m *ListDeviceCertificatesRequest) GetDeviceId() string {
 }
 
 type ListDeviceCertificatesResponse struct {
+	// List of certificates for the specified device.
 	Certificates         []*DeviceCertificate `protobuf:"bytes,1,rep,name=certificates,proto3" json:"certificates,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -638,7 +681,11 @@ func (m *ListDeviceCertificatesResponse) GetCertificates() []*DeviceCertificate 
 }
 
 type AddDeviceCertificateRequest struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device for which the certificate is being added.
+	//
+	// To get a device ID make a [DeviceService.List] request.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Public part of the certificate.
 	CertificateData      string   `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -685,7 +732,9 @@ func (m *AddDeviceCertificateRequest) GetCertificateData() string {
 }
 
 type AddDeviceCertificateMetadata struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device certificate that is being added.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Fingerprint of the certificate that is being added.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -732,7 +781,11 @@ func (m *AddDeviceCertificateMetadata) GetFingerprint() string {
 }
 
 type DeleteDeviceCertificateRequest struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device to delete a certificate for.
+	//
+	// To get a device ID make a [DeviceService.List] request.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Fingerprint of the certificate to delete.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -779,7 +832,9 @@ func (m *DeleteDeviceCertificateRequest) GetFingerprint() string {
 }
 
 type DeleteDeviceCertificateMetadata struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device certificate that is being deleted.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Fingerprint of the certificate that is being deleted.
 	Fingerprint          string   `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -826,6 +881,9 @@ func (m *DeleteDeviceCertificateMetadata) GetFingerprint() string {
 }
 
 type ListDevicePasswordsRequest struct {
+	// ID of the registry to list passwords in.
+	//
+	// To get a registry ID make a [RegistryService.List] request.
 	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -865,6 +923,7 @@ func (m *ListDevicePasswordsRequest) GetDeviceId() string {
 }
 
 type ListDevicePasswordsResponse struct {
+	// List of passwords for the specified device.
 	Passwords            []*DevicePassword `protobuf:"bytes,1,rep,name=passwords,proto3" json:"passwords,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -904,8 +963,13 @@ func (m *ListDevicePasswordsResponse) GetPasswords() []*DevicePassword {
 }
 
 type AddDevicePasswordRequest struct {
+	// ID of the device to add a password for.
+	//
+	// To get a device ID make a [DeviceService.List] request.
 	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	// must contain at least 3 of 4 ASCII character groups: upper case latin, lower case latin, numbers and special symbols
+	// Passwords for the device.
+	//
+	// The password must contain at least three character categories among the following: upper case latin, lower case latin, numbers and special symbols.
 	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -952,7 +1016,9 @@ func (m *AddDevicePasswordRequest) GetPassword() string {
 }
 
 type AddDevicePasswordMetadata struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device for which the password is being added.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the password that is being added.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -999,7 +1065,13 @@ func (m *AddDevicePasswordMetadata) GetPasswordId() string {
 }
 
 type DeleteDevicePasswordRequest struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device to delete a password for.
+	//
+	// To get a device ID make a [DeviceService.List] request.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the password to delete.
+	//
+	// To get a password ID make a [DeviceService.ListPasswords] request.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1046,7 +1118,9 @@ func (m *DeleteDevicePasswordRequest) GetPasswordId() string {
 }
 
 type DeleteDevicePasswordMetadata struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the device for which the password is being deleted.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the password that is being deleted.
 	PasswordId           string   `protobuf:"bytes,2,opt,name=password_id,json=passwordId,proto3" json:"password_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1093,9 +1167,20 @@ func (m *DeleteDevicePasswordMetadata) GetPasswordId() string {
 }
 
 type ListDeviceOperationsRequest struct {
-	DeviceId             string   `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// ID of the device to list operations for.
+	//
+	// To get a device ID make a [DeviceService.List] request.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// The maximum number of results per page that should be returned. If the number of available
+	// results is larger than `page_size`, the service returns a [ListDeviceOperationsResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListDeviceOperationsResponse.next_page_token] returned by a previous list request.
+	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	// A filter expression that filters resources listed in the response.
+	// Currently you can use filtering only on [Device.name] field.
 	Filter               string   `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1156,11 +1241,17 @@ func (m *ListDeviceOperationsRequest) GetFilter() string {
 }
 
 type ListDeviceOperationsResponse struct {
-	Operations           []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
-	NextPageToken        string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+	// List of operations for the specified device certificate.
+	Operations []*operation.Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListDeviceOperationsRequest.page_size], use `next_page_token` as the value
+	// for the [ListDeviceOperationsRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListDeviceOperationsResponse) Reset()         { *m = ListDeviceOperationsResponse{} }
@@ -1344,17 +1435,31 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DeviceServiceClient interface {
+	// Returns the specified device.
+	//
+	// To get the list of available devices, make a [List] request.
 	Get(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*Device, error)
+	// Retrieves the list of devices in the specified registry.
 	List(ctx context.Context, in *ListDevicesRequest, opts ...grpc.CallOption) (*ListDevicesResponse, error)
+	// Creates a device in the specified registry.
 	Create(ctx context.Context, in *CreateDeviceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified device.
 	Update(ctx context.Context, in *UpdateDeviceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified device.
 	Delete(ctx context.Context, in *DeleteDeviceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of device certificates for the specified device.
 	ListCertificates(ctx context.Context, in *ListDeviceCertificatesRequest, opts ...grpc.CallOption) (*ListDeviceCertificatesResponse, error)
+	// Adds a certificate.
 	AddCertificate(ctx context.Context, in *AddDeviceCertificateRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified device certificate.
 	DeleteCertificate(ctx context.Context, in *DeleteDeviceCertificateRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of passwords for the specified device.
 	ListPasswords(ctx context.Context, in *ListDevicePasswordsRequest, opts ...grpc.CallOption) (*ListDevicePasswordsResponse, error)
+	// Adds password for the specified device.
 	AddPassword(ctx context.Context, in *AddDevicePasswordRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified password.
 	DeletePassword(ctx context.Context, in *DeleteDevicePasswordRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Lists operations for the specified device.
 	ListOperations(ctx context.Context, in *ListDeviceOperationsRequest, opts ...grpc.CallOption) (*ListDeviceOperationsResponse, error)
 }
 
@@ -1476,17 +1581,31 @@ func (c *deviceServiceClient) ListOperations(ctx context.Context, in *ListDevice
 
 // DeviceServiceServer is the server API for DeviceService service.
 type DeviceServiceServer interface {
+	// Returns the specified device.
+	//
+	// To get the list of available devices, make a [List] request.
 	Get(context.Context, *GetDeviceRequest) (*Device, error)
+	// Retrieves the list of devices in the specified registry.
 	List(context.Context, *ListDevicesRequest) (*ListDevicesResponse, error)
+	// Creates a device in the specified registry.
 	Create(context.Context, *CreateDeviceRequest) (*operation.Operation, error)
+	// Updates the specified device.
 	Update(context.Context, *UpdateDeviceRequest) (*operation.Operation, error)
+	// Deletes the specified device.
 	Delete(context.Context, *DeleteDeviceRequest) (*operation.Operation, error)
+	// Retrieves the list of device certificates for the specified device.
 	ListCertificates(context.Context, *ListDeviceCertificatesRequest) (*ListDeviceCertificatesResponse, error)
+	// Adds a certificate.
 	AddCertificate(context.Context, *AddDeviceCertificateRequest) (*operation.Operation, error)
+	// Deletes the specified device certificate.
 	DeleteCertificate(context.Context, *DeleteDeviceCertificateRequest) (*operation.Operation, error)
+	// Retrieves the list of passwords for the specified device.
 	ListPasswords(context.Context, *ListDevicePasswordsRequest) (*ListDevicePasswordsResponse, error)
+	// Adds password for the specified device.
 	AddPassword(context.Context, *AddDevicePasswordRequest) (*operation.Operation, error)
+	// Deletes the specified password.
 	DeletePassword(context.Context, *DeleteDevicePasswordRequest) (*operation.Operation, error)
+	// Lists operations for the specified device.
 	ListOperations(context.Context, *ListDeviceOperationsRequest) (*ListDeviceOperationsResponse, error)
 }
 

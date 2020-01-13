@@ -22,13 +22,21 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+// A device. For more information, see [Device](/docs/iot-core/concepts/index#device).
 type Device struct {
-	Id          string               `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RegistryId  string               `protobuf:"bytes,2,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	CreatedAt   *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Name        string               `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Description string               `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	// map from alias to canonical topic name prefix, e.g. my/custom/alias -> $device/abcdef/events
+	// ID of the device.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// ID of the registry that the device belongs to.
+	RegistryId string `protobuf:"bytes,2,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// Creation timestamp.
+	CreatedAt *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Name of the device. The name is unique within the registry.
+	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the device. 0-256 characters long.
+	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	// Alias of a device topic.
+	//
+	// Alias is an alternate name of a device topic assigned by the user. Map alias to canonical topic name prefix, e.g. `my/custom/alias` match to `$device/abcdef/events`.
 	TopicAliases         map[string]string `protobuf:"bytes,6,rep,name=topic_aliases,json=topicAliases,proto3" json:"topic_aliases,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -102,10 +110,15 @@ func (m *Device) GetTopicAliases() map[string]string {
 	return nil
 }
 
+// A device certificate. For more information, see [Managing device certificates](/docs/iot-core/operations/certificates/device-certificates).
 type DeviceCertificate struct {
-	DeviceId             string               `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	Fingerprint          string               `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
-	CertificateData      string               `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
+	// ID of the device that the certificate belongs to.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// SHA256 hash of the certificate.
+	Fingerprint string `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	// Public part of the certificate.
+	CertificateData string `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
+	// Creation timestamp.
 	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -165,9 +178,13 @@ func (m *DeviceCertificate) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+// A device password.
 type DevicePassword struct {
-	DeviceId             string               `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	Id                   string               `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// ID of the device that the password belongs to.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// ID of the password.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Creation timestamp.
 	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`

@@ -26,9 +26,12 @@ type Registry_Status int32
 
 const (
 	Registry_STATUS_UNSPECIFIED Registry_Status = 0
-	Registry_CREATING           Registry_Status = 1
-	Registry_ACTIVE             Registry_Status = 2
-	Registry_DELETING           Registry_Status = 3
+	// Registry is being created.
+	Registry_CREATING Registry_Status = 1
+	// Registry is ready to use.
+	Registry_ACTIVE Registry_Status = 2
+	// Registry is being deleted.
+	Registry_DELETING Registry_Status = 3
 )
 
 var Registry_Status_name = map[int32]string{
@@ -53,18 +56,27 @@ func (Registry_Status) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_39c05472a87f1ea4, []int{0, 0}
 }
 
+// A registry. For more information, see [Registry](/docs/iot-core/concepts/index#registry).
 type Registry struct {
-	Id                   string               `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	FolderId             string               `protobuf:"bytes,2,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
-	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Name                 string               `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Description          string               `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	Labels               map[string]string    `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Status               Registry_Status      `protobuf:"varint,7,opt,name=status,proto3,enum=yandex.cloud.iot.devices.v1.Registry_Status" json:"status,omitempty"`
-	LogGroupId           string               `protobuf:"bytes,8,opt,name=log_group_id,json=logGroupId,proto3" json:"log_group_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	// ID of the registry.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// ID of the folder that the registry belongs to.
+	FolderId string `protobuf:"bytes,2,opt,name=folder_id,json=folderId,proto3" json:"folder_id,omitempty"`
+	// Creation timestamp.
+	CreatedAt *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Name of the registry. The name is unique within the folder.
+	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	// Description of the registry. 0-256 characters long.
+	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	// Resource labels as `key:value` pairs. Мaximum of 64 per resource.
+	Labels map[string]string `protobuf:"bytes,6,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Status of the registry.
+	Status Registry_Status `protobuf:"varint,7,opt,name=status,proto3,enum=yandex.cloud.iot.devices.v1.Registry_Status" json:"status,omitempty"`
+	// ID of the logs group for the specified registry.
+	LogGroupId           string   `protobuf:"bytes,8,opt,name=log_group_id,json=logGroupId,proto3" json:"log_group_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *Registry) Reset()         { *m = Registry{} }
@@ -148,10 +160,15 @@ func (m *Registry) GetLogGroupId() string {
 	return ""
 }
 
+// A registry certificate. For more information, see [Managing registry certificates](/docs/iot-core/operations/certificates/registry-certificates).
 type RegistryCertificate struct {
-	RegistryId           string               `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	Fingerprint          string               `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
-	CertificateData      string               `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
+	// ID of the registry that the certificate belongs to.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// SHA256 hash of the certificates.
+	Fingerprint string `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	// Public part of the certificate.
+	CertificateData string `protobuf:"bytes,3,opt,name=certificate_data,json=certificateData,proto3" json:"certificate_data,omitempty"`
+	// Creation timestamp.
 	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
@@ -211,10 +228,15 @@ func (m *RegistryCertificate) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+// A device topic alias.
+//
+// Alias is an alternate name of a device topic assigned by the user. Map alias to canonical topic name prefix, e.g. `my/custom/alias` match to `$device/abcdef/events`. For more information, see [Using topic aliases](/docs/iot-core/concepts/topic#aliases).
 type DeviceAlias struct {
+	// ID of the device that the alias belongs to.
 	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	// prefix of canonical topic name to be aliased, e.g. $devices/abcdef
-	TopicPrefix          string   `protobuf:"bytes,2,opt,name=topic_prefix,json=topicPrefix,proto3" json:"topic_prefix,omitempty"`
+	// Prefix of a canonical topic name to be aliased, e.g. `$devices/abcdef`.
+	TopicPrefix string `protobuf:"bytes,2,opt,name=topic_prefix,json=topicPrefix,proto3" json:"topic_prefix,omitempty"`
+	// Alias of a device topic.
 	Alias                string   `protobuf:"bytes,3,opt,name=alias,proto3" json:"alias,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -267,9 +289,13 @@ func (m *DeviceAlias) GetAlias() string {
 	return ""
 }
 
+// A registry password.
 type RegistryPassword struct {
-	RegistryId           string               `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
-	Id                   string               `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// ID of the registry that the password belongs to.
+	RegistryId string `protobuf:"bytes,1,opt,name=registry_id,json=registryId,proto3" json:"registry_id,omitempty"`
+	// ID of the password.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Creation timestamp.
 	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
