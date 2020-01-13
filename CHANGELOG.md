@@ -1,4 +1,4 @@
-## 0.28.0 (Unreleased)
+## 0.28.0 (January 13, 2020)
 FEATURES:
 * **New Resource:** `yandex_kms_symmetric_key`
 
@@ -7,7 +7,7 @@ ENHANCEMENTS:
 * lb: `yandex_lb_network_load_balancer` now supports UDP for `protocol` attribute.
 
 BUG FIXES:
-* provider: fix `message type "google.protobuf.Empty" isn't linked in` [GH-35]
+* provider: fix `message type "google.protobuf.Empty" isn't linked in` ([#35](https://github.com/terraform-providers/terraform-provider-yandex/issues/35))
 
 ## 0.27.0 (December 20, 2019)
 FEATURES:
