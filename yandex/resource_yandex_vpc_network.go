@@ -36,7 +36,7 @@ func resourceYandexVPCNetwork() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "",
+				Computed: true,
 			},
 
 			"description": {

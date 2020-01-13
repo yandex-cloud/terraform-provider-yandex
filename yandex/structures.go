@@ -4,14 +4,19 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/genproto/googleapis/type/dayofweek"
+	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
@@ -842,6 +847,15 @@ func parseIamKeyFormat(format string) (iam.KeyFormat, error) {
 	return iam.KeyFormat(val), nil
 }
 
+func parseKmsDefaultAlgorithm(algo string) (kms.SymmetricAlgorithm, error) {
+	val, ok := kms.SymmetricAlgorithm_value[algo]
+	if !ok {
+		return kms.SymmetricAlgorithm(0), fmt.Errorf("value for 'default_algorithm' should be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(kms.SymmetricAlgorithm_value)), algo)
+	}
+	return kms.SymmetricAlgorithm(val), nil
+}
+
 func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.SchedulingPolicy, error) {
 	sp := d.Get("scheduling_policy").([]interface{})
 	var schedulingPolicy *compute.SchedulingPolicy
@@ -1191,4 +1205,135 @@ func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]
 	}
 
 	return res, nil
+}
+
+func flattenMaintenanceWindow(mw *k8s.MaintenanceWindow) (*schema.Set, error) {
+	maintenanceWindow := &schema.Set{F: dayOfWeekHash}
+	if mw != nil {
+		switch p := mw.GetPolicy().(type) {
+		case *k8s.MaintenanceWindow_Anytime:
+			// do nothing
+		case *k8s.MaintenanceWindow_DailyMaintenanceWindow:
+			dailyPolicy := map[string]interface{}{
+				"start_time": formatTimeOfDay(p.DailyMaintenanceWindow.GetStartTime()),
+				"duration":   formatDuration(p.DailyMaintenanceWindow.GetDuration()),
+			}
+			maintenanceWindow.Add(dailyPolicy)
+		case *k8s.MaintenanceWindow_WeeklyMaintenanceWindow:
+			for _, v := range p.WeeklyMaintenanceWindow.GetDaysOfWeek() {
+				for _, d := range v.GetDays() {
+					dailyPolicy := map[string]interface{}{
+						"day":        strings.ToLower(d.String()),
+						"start_time": formatTimeOfDay(v.GetStartTime()),
+						"duration":   formatDuration(v.GetDuration()),
+					}
+					if maintenanceWindow.Contains(dailyPolicy) {
+						return nil, fmt.Errorf("duplication for day of week found in maintenance window")
+					}
+					maintenanceWindow.Add(dailyPolicy)
+				}
+			}
+		default:
+			return nil, fmt.Errorf("unsupported Kubernetes master maintenance policy type")
+		}
+	}
+
+	return maintenanceWindow, nil
+}
+
+func expandMaintenanceWindow(days []interface{}) (*k8s.MaintenanceWindow, error) {
+	if len(days) == 0 {
+		return nil, nil
+	}
+
+	var (
+		windows    []*dayMaintenanceWindow
+		anyDaySeen bool
+	)
+
+	for _, v := range days {
+		window, err := expandDayMaintenanceWindow(v.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+
+		if anyDaySeen {
+			// if we are here, then there is an error in config. Though, its different, depending on 'ok' var
+			if window.day == dayofweek.DayOfWeek_DAY_OF_WEEK_UNSPECIFIED {
+				// using 'any' day twice (probably, can't happen, since we use Set in scheme)
+				return nil, fmt.Errorf("can not use two time intervals for daily maintenance window")
+			}
+
+			// using specific day along with 'any' day.
+			return nil, fmt.Errorf("can not use daily maintenance window along with weekly")
+		}
+
+		if window.day == dayofweek.DayOfWeek_DAY_OF_WEEK_UNSPECIFIED {
+			anyDaySeen = true
+		}
+
+		windows = append(windows, window)
+	}
+
+	if anyDaySeen {
+		if len(windows) != 1 {
+			return nil, fmt.Errorf("unexpected error occured during parsing of mantenance window. Please contact developers")
+		}
+
+		return &k8s.MaintenanceWindow{
+			Policy: &k8s.MaintenanceWindow_DailyMaintenanceWindow{
+				DailyMaintenanceWindow: &k8s.DailyMaintenanceWindow{
+					StartTime: windows[0].startTime,
+					Duration:  windows[0].duration,
+				},
+			},
+		}, nil
+	}
+
+	var dw []*k8s.DaysOfWeekMaintenanceWindow
+	for _, w := range windows {
+		dw = append(dw, &k8s.DaysOfWeekMaintenanceWindow{
+			Days:      []dayofweek.DayOfWeek{w.day},
+			StartTime: w.startTime,
+			Duration:  w.duration,
+		})
+	}
+
+	return &k8s.MaintenanceWindow{
+		Policy: &k8s.MaintenanceWindow_WeeklyMaintenanceWindow{
+			WeeklyMaintenanceWindow: &k8s.WeeklyMaintenanceWindow{
+				DaysOfWeek: dw,
+			},
+		},
+	}, nil
+}
+
+func expandDayMaintenanceWindow(daySpec map[string]interface{}) (*dayMaintenanceWindow, error) {
+	var (
+		window dayMaintenanceWindow
+		err    error
+	)
+
+	// special case. Terraform fills fields in Set resource, that are not present in original user config!
+	if dayName, ok := daySpec["day"]; ok && dayName != "" {
+		if window.day, err = parseDayOfWeek(dayName.(string)); err != nil {
+			return nil, err
+		}
+	}
+
+	if window.startTime, err = parseDayTime(daySpec["start_time"].(string)); err != nil {
+		return nil, err
+	}
+
+	if window.duration, err = parseDuration(daySpec["duration"].(string)); err != nil {
+		return nil, err
+	}
+
+	return &window, nil
+}
+
+type dayMaintenanceWindow struct {
+	day       dayofweek.DayOfWeek
+	startTime *timeofday.TimeOfDay
+	duration  *duration.Duration
 }

@@ -95,7 +95,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "tcp",
-							ValidateFunc: validation.StringInSlice([]string{"tcp"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"tcp", "udp"}, false),
 						},
 						"external_address_spec": {
 							Type:          schema.TypeList,

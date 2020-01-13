@@ -419,6 +419,9 @@ func (action instanceAction) String() string {
 }
 
 func getTimestamp(protots *timestamp.Timestamp) (string, error) {
+	if protots == nil {
+		return "", nil
+	}
 	ts, err := ptypes.Timestamp(protots)
 	if err != nil {
 		return "", fmt.Errorf("failed to convert protobuf timestamp: %s", err)
@@ -427,9 +430,25 @@ func getTimestamp(protots *timestamp.Timestamp) (string, error) {
 	return ts.Format(defaultTimeFormat), nil
 }
 
+func stringSliceToLower(s []string) []string {
+	var ret []string
+	for _, v := range s {
+		ret = append(ret, strings.ToLower(v))
+	}
+	return ret
+}
+
 func getEnumValueMapKeys(m map[string]int32) []string {
+	return getEnumValueMapKeysExt(m, false)
+}
+
+func getEnumValueMapKeysExt(m map[string]int32, skipDefault bool) []string {
 	keys := make([]string, 0, len(m))
-	for k := range m {
+	for k, v := range m {
+		if v == 0 && skipDefault {
+			continue
+		}
+
 		keys = append(keys, k)
 	}
 	return keys
@@ -562,8 +581,19 @@ func schemaHelper(d *schema.ResourceData, path string) *schemaGetHelper {
 	}
 }
 
+func (h *schemaGetHelper) AppendPath(path string) *schemaGetHelper {
+	return &schemaGetHelper{
+		pathPrefix: h.pathPrefix + path,
+		d:          h.d,
+	}
+}
+
 func (h *schemaGetHelper) Get(key string) interface{} {
 	return h.d.Get(h.pathPrefix + key)
+}
+
+func (h *schemaGetHelper) GetOk(key string) (interface{}, bool) {
+	return h.d.GetOk(h.pathPrefix + key)
 }
 
 func (h *schemaGetHelper) GetString(key string) string {

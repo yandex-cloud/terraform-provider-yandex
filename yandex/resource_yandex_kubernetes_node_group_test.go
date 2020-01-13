@@ -25,10 +25,32 @@ func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) reso
 
 //revive:disable:var-naming
 func TestAccKubernetesNodeGroup_basic(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroupDailyMaintenance_basic", true)
+	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, true, dailyMaintenancePolicy)
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
@@ -91,8 +113,6 @@ func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
 }
 
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
 	clusterResource.MasterVersion = "1.15"
@@ -111,6 +131,9 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource.Cores = "2"
 	nodeUpdatedResource.DiskSize = "65"
 	nodeUpdatedResource.Preemptible = "false"
+
+	// update maintenance policy
+	nodeUpdatedResource.constructMaintenancePolicyField(false, false, dailyMaintenancePolicy)
 
 	// commented, because of current quotes for summary disk size
 	//nodeUpdatedResource.FixedScale = "2"
@@ -156,10 +179,20 @@ type resourceNodeGroupInfo struct {
 
 	LabelKey   string
 	LabelValue string
+
+	MaintenancePolicy string
+
+	autoUpgrade bool
+	autoRepair  bool
+	policy      maintenancePolicyType
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
-	return resourceNodeGroupInfo{
+	return nodeGroupInfoWithMaintenance(clusterResourceName, true, true, anyMaintenancePolicy)
+}
+
+func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoRepair bool, policyType maintenancePolicyType) resourceNodeGroupInfo {
+	info := resourceNodeGroupInfo{
 		ClusterResourceName:   clusterResourceName,
 		NodeGroupResourceName: randomResourceName("nodegroup"),
 		Name:                  safeResourceName("nodegroupname"),
@@ -173,6 +206,9 @@ func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
 		LabelKey:              "label_key",
 		LabelValue:            "label_value",
 	}
+
+	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
+	return info
 }
 
 func (i *resourceNodeGroupInfo) Map() map[string]interface{} {
@@ -186,6 +222,57 @@ func (i *resourceNodeGroupInfo) ResourceFullName(resource bool) string {
 
 	return "data.yandex_kubernetes_node_group." + i.NodeGroupResourceName
 }
+
+func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, autoRepair bool, policy maintenancePolicyType) {
+	m := map[string]interface{}{
+		"AutoUpgrade": autoUpgrade,
+		"AutoRepair":  autoRepair,
+	}
+
+	i.autoUpgrade = autoUpgrade
+	i.autoRepair = autoRepair
+	i.policy = policy
+
+	switch policy {
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = ""
+	case dailyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(ngDailyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(ngWeeklyMaintenancePolicyTemplate, m)
+	}
+}
+
+const ngDailyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+			start_time = "15:00"
+			duration   = "3h"
+		}
+    }
+`
+
+const ngWeeklyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "3h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "10:00"
+			duration   = "4h"
+		}
+    }
+`
 
 const nodeGroupConfigTemplate = `
 resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
@@ -229,6 +316,8 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   }
 
   version = {{.Version}}
+
+  {{.MaintenancePolicy}}
 }
 `
 
@@ -297,8 +386,33 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.zone", locations[0].GetZoneId()),
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.subnet_id", locations[0].GetSubnetId()),
 
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoUpgrade())),
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoRepair())),
+			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(info.autoRepair)),
+
 			testAccCheckNodeGroupLabel(ng, info, rs),
 			testAccCheckCreatedAtAttr(resourceFullName),
+		}
+
+		const maintenanceWindowPrefix = "maintenance_policy.0.maintenance_window."
+		switch info.policy {
+		case dailyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", "15:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", "3h"),
+			)
+		case weeklyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"3755093257.day", "monday"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"3755093257.start_time", "15:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"3755093257.duration", "3h"),
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"2964502080.day", "friday"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"2964502080.start_time", "10:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"2964502080.duration", "4h"),
+			)
 		}
 
 		if rs {

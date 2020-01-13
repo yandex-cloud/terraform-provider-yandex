@@ -60,6 +60,48 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"public_ip": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"maintenance_policy": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auto_upgrade": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"maintenance_window": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Set:      dayOfWeekHash,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"start_time": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"duration": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"zonal": {
 							Type:     schema.TypeList,
 							Computed: true,

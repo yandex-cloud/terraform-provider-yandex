@@ -1423,13 +1423,14 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 
 // Update metadata, network_interface, service account id
 func testAccComputeInstance_update(instance string) string {
+	// language=tf
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
 }
 
 resource "yandex_compute_instance" "foobar" {
-  name = "%s"
+  name = "%[1]s"
   zone = "ru-central1-a"
 
   resources {
@@ -1460,7 +1461,7 @@ resource "yandex_compute_instance" "foobar" {
 }
 
 resource "yandex_iam_service_account" "inst-test-sa" {
-  name        = "insttestsa"
+  name        = "%[1]s"
   description = "instance update test service account"
 }
 

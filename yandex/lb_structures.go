@@ -459,11 +459,13 @@ func parseListenerProtocol(s string) (loadbalancer.Listener_Protocol, error) {
 	switch strings.ToLower(s) {
 	case "tcp":
 		return loadbalancer.Listener_TCP, nil
+	case "udp":
+		return loadbalancer.Listener_UDP, nil
 	case "":
 		return loadbalancer.Listener_TCP, nil
 	default:
 		return loadbalancer.Listener_PROTOCOL_UNSPECIFIED,
-			fmt.Errorf("value for 'protocol' must be 'tcp', not '%s'", s)
+			fmt.Errorf("value for 'protocol' must be 'tcp' or 'udp', not '%s'", s)
 	}
 }
 

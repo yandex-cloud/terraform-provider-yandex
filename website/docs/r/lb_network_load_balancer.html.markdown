@@ -115,7 +115,7 @@ The `listener` block supports:
 
 * `target_port` - (Optional) Port of a target. The default is the same as listener's port.
 
-* `protocol` - (Optional) Protocol for incoming traffic. Only tcp network load balancers are currently available.
+* `protocol` - (Optional) Protocol for incoming traffic. TCP or UDP and the default is TCP.
 
 * `external_address_spec` - (Optional) External IP address specification. The structure is documented below.
 

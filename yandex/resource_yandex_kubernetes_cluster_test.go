@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
 
 func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) resource.TestStep {
@@ -27,8 +27,6 @@ func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) res
 
 //revive:disable:var-naming
 func TestAccKubernetesClusterZonal_basic(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
@@ -53,8 +51,6 @@ func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 }
 
 func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
 	clusterResource.MasterVersion = ""
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
@@ -78,9 +74,56 @@ func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
 	})
 }
 
-func TestAccKubernetesClusterRegional_basic(t *testing.T) {
-	t.Parallel()
+func TestAccKubernetesClusterZonalDailyMaintenance_basic(t *testing.T) {
+	clusterResource := clusterInfoWithMaintenance("TestAccKubernetesClusterZonalDailyMaintenance_basic",
+		true, true, dailyMaintenancePolicy)
 
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonalWeeklyMaintenance_basic(t *testing.T) {
+	clusterResource := clusterInfoWithMaintenance("TestAccKubernetesClusterZonalWeeklyMaintenance_basic",
+		true, false, weeklyMaintenancePolicy)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_basic(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
@@ -105,8 +148,6 @@ func TestAccKubernetesClusterRegional_basic(t *testing.T) {
 }
 
 func TestAccKubernetesClusterZonal_update(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
@@ -121,6 +162,9 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
 	clusterUpdatedResource.MasterVersion = "1.14"
+
+	// update maintenance policy
+	clusterUpdatedResource.constructMaintenancePolicyField(false, dailyMaintenancePolicy)
 
 	var cluster k8s.Cluster
 
@@ -150,8 +194,6 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 }
 
 func TestAccKubernetesClusterRegional_update(t *testing.T) {
-	t.Parallel()
-
 	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
@@ -219,7 +261,11 @@ func safeResourceName(tp string) string {
 }
 
 func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
-	return resourceClusterInfo{
+	return clusterInfoWithMaintenance(testDesc, zonal, true, anyMaintenancePolicy)
+}
+
+func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
+	res := resourceClusterInfo{
 		ClusterResourceName:            randomResourceName("cluster"),
 		FolderID:                       os.Getenv("YC_FOLDER_ID"),
 		Name:                           safeResourceName("clustername"),
@@ -237,6 +283,9 @@ func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 		ReleaseChannel:                 k8s.ReleaseChannel_STABLE.String(),
 		zonal:                          zonal,
 	}
+
+	res.constructMaintenancePolicyField(autoUpgrade, policyType)
+	return res
 }
 
 type clusterResourceIDs struct {
@@ -320,6 +369,8 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.new_revision_available", strconv.FormatBool(versionInfo.GetNewRevisionAvailable())),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.new_revision_summary", versionInfo.GetNewRevisionSummary()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.version_deprecated", strconv.FormatBool(versionInfo.GetVersionDeprecated())),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(master.GetMaintenancePolicy().GetAutoUpgrade())),
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
 
 			resource.TestCheckResourceAttr(resourceFullName, "name", cluster.Name),
 			resource.TestCheckResourceAttr(resourceFullName, "description", cluster.Description),
@@ -330,6 +381,26 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
 			testAccCheckClusterLabel(cluster, info, rs),
+		}
+
+		const maintenanceWindowPrefix = "master.0.maintenance_policy.0.maintenance_window."
+		switch info.policy {
+		case dailyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", "15:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", "3h"),
+			)
+		case weeklyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"3755093257.day", "monday"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"3755093257.start_time", "15:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"3755093257.duration", "3h"),
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"2964502080.day", "friday"),
+				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"2964502080.start_time", "10:00"),
+				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"2964502080.duration", "4h"),
+			)
 		}
 
 		if zonalMaster != nil {
@@ -419,6 +490,54 @@ func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, r
 	}
 }
 
+func testAccCheckStartTime(resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		startTime, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		if !shouldSuppressDiffForTimeOfDay("", expectedValue, startTime, nil) {
+			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", startTime, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckDuration(resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		dur, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		if !shouldSuppressDiffForTimeDuration("", expectedValue, dur, nil) {
+			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", dur, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+type maintenancePolicyType int
+
+const (
+	anyMaintenancePolicy    maintenancePolicyType = 0
+	dailyMaintenancePolicy  maintenancePolicyType = 1
+	weeklyMaintenancePolicy maintenancePolicyType = 2
+)
+
 type resourceClusterInfo struct {
 	ClusterResourceName string
 	FolderID            string
@@ -440,7 +559,30 @@ type resourceClusterInfo struct {
 	NodeServiceAccountResourceName string
 	ReleaseChannel                 string
 
+	MaintenancePolicy string
+
 	zonal bool
+
+	autoUpgrade bool
+	policy      maintenancePolicyType
+}
+
+func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
+	m := map[string]interface{}{
+		"AutoUpgrade": autoUpgrade,
+	}
+
+	i.autoUpgrade = autoUpgrade
+	i.policy = policy
+
+	switch policy {
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = ""
+	case dailyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(dailyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(weeklyMaintenancePolicyTemplate, m)
+	}
 }
 
 func (i *resourceClusterInfo) ResourceFullName(resource bool) string {
@@ -479,6 +621,36 @@ func (i *resourceClusterInfo) nodeServiceAccountResourceName() string {
 	return "yandex_iam_service_account." + i.NodeServiceAccountResourceName
 }
 
+const dailyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        
+        maintenance_window {
+			start_time = "15:00"
+			duration   = "3h"
+		}
+    }
+`
+
+const weeklyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "3h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "10:00"
+			duration   = "4h"
+		}
+
+    }
+`
+
 const zonalClusterConfigTemplate = `
 resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
@@ -498,7 +670,9 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
 	  subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
     }
   
-    public_ip = true 
+    public_ip = true
+    
+    {{.MaintenancePolicy}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
@@ -511,6 +685,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   release_channel = "{{.ReleaseChannel}}"
 }
 `
+
 const regionalClusterConfigTemplate = `
 resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
@@ -541,7 +716,9 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
 	  }
     }
   
-    public_ip = true 
+    public_ip = true
+
+    {{.MaintenancePolicy}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"

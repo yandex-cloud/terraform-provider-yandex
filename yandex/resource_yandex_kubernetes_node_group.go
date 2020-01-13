@@ -214,21 +214,47 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
+				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_upgrade": {
 							Type:     schema.TypeBool,
-							Computed: true,
+							Required: true,
 						},
 						"auto_repair": {
 							Type:     schema.TypeBool,
-							Computed: true,
+							Required: true,
 						},
-						//"maintenance_window": {
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
+						"maintenance_window": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Optional: true,
+							Set:      dayOfWeekHash,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"day": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										Computed:         true,
+										ValidateFunc:     validateParsableValue(parseDayOfWeek),
+										DiffSuppressFunc: shouldSuppressDiffForDayOfWeek,
+									},
+									"start_time": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ValidateFunc:     validateParsableValue(parseDayTime),
+										DiffSuppressFunc: shouldSuppressDiffForTimeOfDay,
+									},
+									"duration": {
+										Type:             schema.TypeString,
+										Required:         true,
+										ValidateFunc:     validateParsableValue(parseDuration),
+										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -342,21 +368,47 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 
 	tpl, err := getNodeGroupTemplate(d)
 	if err != nil {
-		return nil, fmt.Errorf("error getting node template while creating Kubernetes node group: %s", err)
+		return nil, fmt.Errorf("error getting node group template while creating Kubernetes node group: %s", err)
+	}
+
+	mp, err := getNodeGroupMaintenancePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group maintenance policy while creating Kubernetes node group: %s", err)
 	}
 
 	req := &k8s.CreateNodeGroupRequest{
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		ClusterId:        d.Get("cluster_id").(string),
-		NodeTemplate:     tpl,
-		ScalePolicy:      getNodeGroupScalePolicy(d),
-		AllocationPolicy: getNodeGroupAllocationPolicy(d),
-		Version:          d.Get("version").(string),
+		Name:              d.Get("name").(string),
+		Description:       d.Get("description").(string),
+		Labels:            labels,
+		ClusterId:         d.Get("cluster_id").(string),
+		NodeTemplate:      tpl,
+		ScalePolicy:       getNodeGroupScalePolicy(d),
+		AllocationPolicy:  getNodeGroupAllocationPolicy(d),
+		Version:           d.Get("version").(string),
+		MaintenancePolicy: mp,
 	}
 
 	return req, nil
+}
+
+func getNodeGroupMaintenancePolicy(d *schema.ResourceData) (*k8s.NodeGroupMaintenancePolicy, error) {
+	if _, ok := d.GetOk("maintenance_policy"); !ok {
+		return nil, nil
+	}
+
+	mp := &k8s.NodeGroupMaintenancePolicy{
+		AutoUpgrade: d.Get("maintenance_policy.0.auto_upgrade").(bool),
+		AutoRepair:  d.Get("maintenance_policy.0.auto_repair").(bool),
+	}
+
+	if mw, ok := d.GetOk("maintenance_policy.0.maintenance_window"); ok {
+		var err error
+		if mp.MaintenanceWindow, err = expandMaintenanceWindow(mw.(*schema.Set).List()); err != nil {
+			return nil, err
+		}
+	}
+
+	return mp, nil
 }
 
 func getNodeGroupAllocationPolicy(d *schema.ResourceData) *k8s.NodeGroupAllocationPolicy {
@@ -500,7 +552,11 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
-	maintenancePolicy := flattenKubernetesNodeGroupMaintenancePolicy(ng.GetMaintenancePolicy())
+	maintenancePolicy, err := flattenKubernetesNodeGroupMaintenancePolicy(ng.GetMaintenancePolicy())
+	if err != nil {
+		return err
+	}
+
 	if err := d.Set("maintenance_policy", maintenancePolicy); err != nil {
 		return err
 	}
@@ -523,6 +579,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.scheduling_policy.0.preemptible": "node_template.scheduling_policy.preemptible",
 	"scale_policy.0.fixed_scale.0.size":                   "scale_policy",
 	"version":                                             "version",
+	"maintenance_policy":                                  "maintenance_policy",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -571,7 +628,12 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 
 	tpl, err := getNodeGroupTemplate(d)
 	if err != nil {
-		return nil, fmt.Errorf("error getting node template while updating Kubernetes node group: %s", err)
+		return nil, fmt.Errorf("error getting node group template while updating Kubernetes node group: %s", err)
+	}
+
+	mp, err := getNodeGroupMaintenancePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group maintenance policy while updating Kubernetes node group: %s", err)
 	}
 
 	req := &k8s.UpdateNodeGroupRequest{
@@ -586,6 +648,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 				Version: d.Get("version").(string),
 			},
 		},
+		MaintenancePolicy: mp,
 	}
 
 	return req, nil
@@ -644,16 +707,21 @@ func flattenKubernetesNodeGroupLocation(l *k8s.NodeGroupLocation) map[string]int
 	}
 }
 
-func flattenKubernetesNodeGroupMaintenancePolicy(mp *k8s.NodeGroupMaintenancePolicy) []map[string]interface{} {
+func flattenKubernetesNodeGroupMaintenancePolicy(mp *k8s.NodeGroupMaintenancePolicy) ([]map[string]interface{}, error) {
+	mw, err := flattenMaintenanceWindow(mp.GetMaintenanceWindow())
+	if err != nil {
+		return nil, err
+	}
+
 	p := map[string]interface{}{
-		"auto_upgrade": mp.GetAutoUpgrade(),
-		"auto_repair":  mp.GetAutoRepair(),
-		//"maintenance_window": mp.GetMaintenanceWindow(),
+		"auto_upgrade":       mp.GetAutoUpgrade(),
+		"auto_repair":        mp.GetAutoRepair(),
+		"maintenance_window": mw,
 	}
 
 	return []map[string]interface{}{
 		p,
-	}
+	}, nil
 }
 
 func flattenKubernetesNodeGroupVersionInfo(vi *k8s.VersionInfo) []map[string]interface{} {

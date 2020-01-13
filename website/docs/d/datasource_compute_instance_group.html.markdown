@@ -118,6 +118,7 @@ will not decrease even if the average load falls below the value of `cpu_utiliza
 * `cpu_utilization_target` - Target CPU load level.
 
 * `custom_rule` - A list of custom rules.
+
 The structure is documented below.
 
 ---
@@ -156,7 +157,6 @@ The structure is documented below.
 * `secondary_disk` - An array with the secondary disks that will be attached to the instance.
 The structure is documented below.
 * `boot_disk` - The specifications for boot disk that will be attached to the instance.
-
 The structure is documented below.
 
 ---
@@ -166,7 +166,6 @@ The `boot_disk` block supports:
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `initialize_params` - The parameters used for creating a disk alongside the instance.
-
 The structure is documented below.
 
 ---
@@ -223,7 +222,6 @@ The `instances` block supports:
 * `status_message` - The status message of the instance.
 * `zone_id` - The ID of the availability zone where the instance resides.
 * `network_interface` - An array with the network interfaces attached to the managed instance.
-
 The structure is documented below.
 
 ---
@@ -277,11 +275,8 @@ The `health_check` block supports:
 * `healthy_threshold` - The number of successful health checks before the managed instance is declared healthy.
 * `unhealthy_threshold` - The number of failed health checks before the managed instance is declared unhealthy.
 * `tcp_options` - TCP check options.
-
 The structure is documented below.
-
 * `http_options` - HTTP check options.
-
 The structure is documented below.
 
 ---

@@ -10,9 +10,8 @@ import (
 
 //revive:disable:var-naming
 func TestAccDataSourceKubernetesClusterZonal_basic(t *testing.T) {
-	t.Parallel()
-
-	clusterResource := clusterInfo("testAccDataSourceKubernetesClusterZonalConfig_basic", true)
+	clusterResource := clusterInfoWithMaintenance("testAccDataSourceKubernetesClusterZonalConfig_basic",
+		true, true, dailyMaintenancePolicy)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
 
@@ -37,9 +36,8 @@ func TestAccDataSourceKubernetesClusterZonal_basic(t *testing.T) {
 }
 
 func TestAccDataSourceKubernetesClusterRegional_basic(t *testing.T) {
-	t.Parallel()
-
-	clusterResource := clusterInfo("testAccDataSourceKubernetesClusterRegionalConfig_basic", false)
+	clusterResource := clusterInfoWithMaintenance("testAccDataSourceKubernetesClusterRegionalConfig_basic", false,
+		false, weeklyMaintenancePolicy)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
 

@@ -135,7 +135,15 @@ Subnet specified by `subnet_id` should be allocated in zone specified by 'zone' 
 The `maintenance_policy` block supports:
 
 * `auto_upgrade` - Boolean flag.
-* `auto_repair`- Boolean flag.
+* `auto_repair` - Boolean flag.
+* `maintenance_window` - Set of day intervals, when maintenance is allowed for this node group.
+When omitted, it defaults to any time.
+
+Weekly maintenance policy expands to one element, with only two fields set: `start_time`, `duration`, and `day` field omitted.
+
+Daily maintenance policy expands to list of elements, with all fields set, that specify time interval for selected days.
+Only one interval is possible for any week day. Some days can be omitted, when there is no allowed interval for
+maintenance specified.
 
 ---
 

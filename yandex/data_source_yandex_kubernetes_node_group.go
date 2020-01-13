@@ -216,10 +216,27 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						//"maintenance_window": {
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
+						"maintenance_window": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Set:      dayOfWeekHash,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"day": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"start_time": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"duration": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

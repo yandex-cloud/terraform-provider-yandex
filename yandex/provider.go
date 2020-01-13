@@ -140,6 +140,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_iam_service_account_iam_policy":        resourceYandexIAMServiceAccountIAMPolicy(),
 			"yandex_iam_service_account_key":               resourceYandexIAMServiceAccountKey(),
 			"yandex_iam_service_account_static_access_key": resourceYandexIAMServiceAccountStaticAccessKey(),
+			"yandex_kms_symmetric_key":                     resourceYandexKMSSymmetricKeyKey(),
 			"yandex_kubernetes_cluster":                    resourceYandexKubernetesCluster(),
 			"yandex_kubernetes_node_group":                 resourceYandexKubernetesNodeGroup(),
 			"yandex_lb_network_load_balancer":              resourceYandexLBNetworkLoadBalancer(),

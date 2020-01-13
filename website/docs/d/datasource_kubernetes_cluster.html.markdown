@@ -61,6 +61,13 @@ The structure is documented below.
 
 The `master` block supports:
 
+* `version` - Version of Kubernetes master.
+* `public_ip` - Boolean flag. When `true`, Kubernetes master have visible ipv4 address.
+
+* `maintenance_policy` - Maintenance policy for Kubernetes master.
+
+The structure is documented below.
+
 * `zonal` - Information about cluster zonal master.
 
 The structure is documented below.
@@ -78,6 +85,20 @@ The structure is documented below.
 * `version_info` - Information about cluster version.
 
 The structure is documented below.
+
+---
+
+The `maintenance_policy` block supports:
+
+* `auto_upgrade` - Boolean flag that specifies if master can be upgraded automatically.
+* `maintenance_window` - Set of day intervals, when maintenance is allowed, when update for master is allowed.
+When omitted, it defaults to any time.
+
+Weekly maintenance policy expands to one element, with only two fields set: `start_time`, `duration`, and `day` field omitted.
+
+Daily maintenance policy expands to list of elements, with all fields set, that specify time interval for selected days.
+Only one interval is possible for any week day. Some days can be omitted, when there is no allowed interval for
+maintenance specified.
 
 ---
 

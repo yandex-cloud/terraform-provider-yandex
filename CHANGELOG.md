@@ -1,4 +1,14 @@
-## 0.27.1 (Unreleased)
+## 0.28.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_kms_symmetric_key`
+
+ENHANCEMENTS:
+* managed-kubernetes: support maintenance policy for `yandex_kubernetes_cluster` and `yandex_kubernetes_node_group`
+* lb: `yandex_lb_network_load_balancer` now supports UDP for `protocol` attribute.
+
+BUG FIXES:
+* provider: fix `message type "google.protobuf.Empty" isn't linked in` [GH-35]
+
 ## 0.27.0 (December 20, 2019)
 FEATURES:
 * **New Data Source:** `yandex_mdb_mongodb_cluster`

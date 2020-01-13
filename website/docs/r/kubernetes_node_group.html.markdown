@@ -54,6 +54,23 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
       zone = "ru-central1-a"
     }
   }
+
+  maintenance_policy {
+    auto_upgrade = true
+    auto_repair  = true
+
+    maintenance_window {
+      day        = "monday"
+	  start_time = "15:00"
+	  duration   = "3h"
+    }
+
+    maintenance_window {
+      day		   = "friday"
+	  start_time = "10:00"
+	  duration   = "4h30m"
+	}
+  }
 }
 ```
 
@@ -80,7 +97,10 @@ The structure is documented below.
 
 * `instance_group_id` - (Computed) ID of instance group that is used to manage this Kubernetes node group.
 
-* `maintenance_policy` - (Computed) Information about maintenance policy for this Kubernetes node group.
+* `maintenance_policy` - (Optional) (Computed) Maintenance policy for this Kubernetes node group.
+If policy is omitted, automatic revision upgrades are enabled and could happen at any time.
+Revision upgrades are performed only within the same minor version, e.g. 1.13.
+Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
 
 The structure is documented below.
 
@@ -158,8 +178,14 @@ Subnet specified by `subnet_id` should be allocated in zone specified by 'zone' 
 
 The `maintenance_policy` block supports:
 
-* `auto_upgrade` - Boolean flag.
-* `auto_repair`- Boolean flag.
+* `auto_upgrade` - (Required) Boolean flag that specifies if node group can be upgraded automatically. When omitted, default value is TRUE.
+* `auto_repair`- (Required) Boolean flag that specifies if node group can be repaired automatically. When omitted, default value is TRUE.
+* `maintenance_window` - (Optional) (Computed) Set of day intervals, when maintenance is allowed for this node group. When omitted, it defaults to any time. 
+
+To specify time of day interval, for all days, one element should be provided, with two fields set, `start_time` and `duration`.
+
+To allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one 
+time interval is allowed for each day of week. Please see `my_node_group` config example.
 
 ---
 

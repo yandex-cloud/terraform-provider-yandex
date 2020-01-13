@@ -9,11 +9,34 @@ import (
 )
 
 //revive:disable:var-naming
-func TestAccDataSourceKubernetesNodeGroup_basic(t *testing.T) {
-	t.Parallel()
+func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic", true)
+	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, false, dailyMaintenancePolicy)
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
-	clusterResource := clusterInfo("testAccDataSourceKubernetesNodeGroupConfig_basic", true)
-	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false),
+					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
+					testAccCheckCreatedAtAttr(nodeResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic", true)
+	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, false, true, weeklyMaintenancePolicy)
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup

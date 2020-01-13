@@ -7,7 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/duration"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"google.golang.org/genproto/googleapis/type/dayofweek"
+	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
@@ -67,6 +72,49 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
+						},
+						"maintenance_policy": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auto_upgrade": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"maintenance_window": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Optional: true,
+										Set:      dayOfWeekHash,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"day": {
+													Type:             schema.TypeString,
+													Optional:         true,
+													Computed:         true,
+													ValidateFunc:     validateParsableValue(parseDayOfWeek),
+													DiffSuppressFunc: shouldSuppressDiffForDayOfWeek,
+												},
+												"start_time": {
+													Type:             schema.TypeString,
+													Required:         true,
+													ValidateFunc:     validateParsableValue(parseDayTime),
+													DiffSuppressFunc: shouldSuppressDiffForTimeOfDay,
+												},
+												"duration": {
+													Type:             schema.TypeString,
+													Required:         true,
+													ValidateFunc:     validateParsableValue(parseDuration),
+													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
+												},
+											},
+										},
+									},
+								},
+							},
 						},
 						"zonal": {
 							Type:          schema.TypeList,
@@ -293,12 +341,13 @@ func resourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interface{
 }
 
 var updateKubernetesClusterFieldsMap = map[string]string{
-	"name":                    "name",
-	"description":             "description",
-	"labels":                  "labels",
-	"service_account_id":      "service_account_id",
-	"node_service_account_id": "node_service_account_id",
-	"master.0.version":        "master_spec.version.specifier.version",
+	"name":                        "name",
+	"description":                 "description",
+	"labels":                      "labels",
+	"service_account_id":          "service_account_id",
+	"node_service_account_id":     "node_service_account_id",
+	"master.0.version":            "master_spec.version.specifier.version",
+	"master.0.maintenance_policy": "master_spec.maintenance_policy",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -345,6 +394,11 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 		return nil, fmt.Errorf("error expanding labels while updating Kubernetes cluster: %s", err)
 	}
 
+	mp, err := getKubernetesClusterMasterMaintenancePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cluster master maintenance policy: %s", err)
+	}
+
 	req := &k8s.UpdateClusterRequest{
 		ClusterId:            d.Id(),
 		Name:                 d.Get("name").(string),
@@ -358,6 +412,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 					Version: d.Get("master.0.version").(string),
 				},
 			},
+			MaintenancePolicy: mp,
 		},
 	}
 
@@ -472,6 +527,11 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 		MasterType: nil,
 	}
 
+	var err error
+	if spec.MaintenancePolicy, err = getKubernetesClusterMasterMaintenancePolicy(d); err != nil {
+		return nil, err
+	}
+
 	if _, ok := d.GetOk("master.0.zonal"); ok {
 		spec.MasterType = getKubernetesClusterZonalMaster(d, meta)
 		return spec, nil
@@ -483,7 +543,25 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 	}
 
 	return nil, fmt.Errorf("either zonal or regional master should be specified for Kubernetes cluster")
+}
 
+func getKubernetesClusterMasterMaintenancePolicy(d *schema.ResourceData) (*k8s.MasterMaintenancePolicy, error) {
+	if _, ok := d.GetOk("master.0.maintenance_policy"); !ok {
+		return nil, nil
+	}
+
+	p := &k8s.MasterMaintenancePolicy{
+		AutoUpgrade: d.Get("master.0.maintenance_policy.0.auto_upgrade").(bool),
+	}
+
+	if mw, ok := d.GetOk("master.0.maintenance_policy.0.maintenance_window"); ok {
+		var err error
+		if p.MaintenanceWindow, err = expandMaintenanceWindow(mw.(*schema.Set).List()); err != nil {
+			return nil, err
+		}
+	}
+
+	return p, nil
 }
 
 func getKubernetesClusterZonalMaster(d *schema.ResourceData, meta *Config) *k8s.MasterSpec_ZonalMasterSpec {
@@ -619,10 +697,6 @@ func (h *masterSchemaHelper) schema() []map[string]interface{} {
 }
 
 func (h *masterSchemaHelper) fillClusterMasterResourceFields(cluster *k8s.Cluster, d *schema.ResourceData) {
-	clusterMaster := cluster.GetMaster()
-	h.master["version"] = clusterMaster.GetVersion()
-	h.master["public_ip"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint() != ""
-
 	if subnet, ok := d.GetOk("master.0.zonal.0.subnet_id"); ok {
 		h.getZonalMaster()["subnet_id"] = subnet
 	}
@@ -658,6 +732,22 @@ func (h *masterSchemaHelper) getRegionalMaster() map[string]interface{} {
 	return h.regionalMaster
 }
 
+func (h *masterSchemaHelper) flattenMasterMaintenancePolicy(m *k8s.MasterMaintenancePolicy) error {
+	maintenanceWindow, err := flattenMaintenanceWindow(m.GetMaintenanceWindow())
+	if err != nil {
+		return err
+	}
+
+	h.master["maintenance_policy"] = []map[string]interface{}{
+		{
+			"auto_upgrade":       m.GetAutoUpgrade(),
+			"maintenance_window": maintenanceWindow,
+		},
+	}
+
+	return nil
+}
+
 func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster) {
 	h.master["internal_v4_address"] = m.ZonalMaster.GetInternalV4Address()
 	h.master["external_v4_address"] = m.ZonalMaster.GetExternalV4Address()
@@ -679,9 +769,20 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 		return nil, fmt.Errorf("failed to get cluster master spec")
 	}
 
+	h.master["version"] = clusterMaster.GetVersion()
+	h.master["public_ip"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint() != ""
 	h.master["internal_v4_endpoint"] = clusterMaster.GetEndpoints().GetInternalV4Endpoint()
 	h.master["external_v4_endpoint"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint()
 	h.master["cluster_ca_certificate"] = clusterMaster.GetMasterAuth().GetClusterCaCertificate()
+
+	p := clusterMaster.GetMaintenancePolicy()
+	if p == nil {
+		return nil, fmt.Errorf("failed to get cluster master maintenance policy")
+	}
+
+	if err := h.flattenMasterMaintenancePolicy(p); err != nil {
+		return nil, err
+	}
 
 	switch m := clusterMaster.GetMasterType().(type) {
 	case *k8s.Master_ZonalMaster:
@@ -702,4 +803,120 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	h.versionInfo["new_revision_summary"] = versionInfo.GetNewRevisionSummary()
 	h.versionInfo["version_deprecated"] = versionInfo.GetVersionDeprecated()
 	return h, nil
+}
+
+func dayOfWeekHash(v interface{}) int {
+	m := v.(map[string]interface{})
+
+	if v, ok := m["day"]; ok {
+		return hashcode.String(v.(string))
+	}
+
+	return 0
+}
+
+func parseDayOfWeek(v string) (dayofweek.DayOfWeek, error) {
+	upper := strings.ToUpper(v)
+	val, ok := dayofweek.DayOfWeek_value[upper]
+
+	// do not allow DAY_OF_WEEK_UNSPECIFIED here
+	if !ok || val == 0 {
+		return dayofweek.DayOfWeek(0), fmt.Errorf("value for 'day' should be one of %s (any case), not `%s`",
+			getJoinedKeys(stringSliceToLower(getEnumValueMapKeysExt(dayofweek.DayOfWeek_value, true))), v)
+	}
+	return dayofweek.DayOfWeek(val), nil
+}
+
+func shouldSuppressDiffForDayOfWeek(k, old, new string, d *schema.ResourceData) bool {
+	return strings.EqualFold(old, new)
+}
+
+func shouldSuppressDiffForTimeOfDay(k, old, new string, d *schema.ResourceData) bool {
+	t1, err := parseDayTime(old)
+	if err != nil {
+		return false
+	}
+
+	t2, err := parseDayTime(new)
+	if err != nil {
+		return false
+	}
+
+	return formatTimeOfDay(t1) == formatTimeOfDay(t2)
+}
+
+func formatTimeOfDay(ts *timeofday.TimeOfDay) string {
+	tt := time.Date(0, 0, 0, int(ts.GetHours()), int(ts.GetMinutes()), int(ts.GetSeconds()), int(ts.GetNanos()), time.UTC)
+	return tt.Format("15:04:05.000000000")
+}
+
+func parseDuration(s string) (*duration.Duration, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	v, err := time.ParseDuration(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse duration: %v", err)
+	}
+
+	if v < 0 {
+		return nil, fmt.Errorf("can not use negative duration")
+	}
+
+	return ptypes.DurationProto(v), nil
+}
+
+func formatDuration(d *duration.Duration) string {
+	if d == nil {
+		return ""
+	}
+
+	td := time.Nanosecond*time.Duration(d.GetNanos()) + time.Second*time.Duration(d.GetSeconds())
+	return td.String()
+}
+
+func shouldSuppressDiffForTimeDuration(k, old, new string, d *schema.ResourceData) bool {
+	d1, err := parseDuration(old)
+	if err != nil {
+		return false
+	}
+
+	d2, err := parseDuration(new)
+	if err != nil {
+		return false
+	}
+
+	if d1 == nil && d2 == nil {
+		return true
+	}
+
+	if d1 != nil && d2 != nil {
+		return d1.Seconds == d2.Seconds && d1.Nanos == d2.Nanos
+	}
+
+	return false
+}
+
+func parseDayTime(s string) (*timeofday.TimeOfDay, error) {
+	formats := []string{"15:04:05.000000000", "15:04:05", "15:04"}
+
+	var ts time.Time
+	var err error
+	for _, f := range formats {
+		if ts, err = time.ParseInLocation(f, s, time.UTC); err == nil {
+			break
+		}
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse time of day. Expected HH:MM:SS or HH:MM, got: %s", s)
+	}
+
+	return &timeofday.TimeOfDay{
+		Hours:   int32(ts.Hour()),
+		Minutes: int32(ts.Minute()),
+		Seconds: int32(ts.Second()),
+		Nanos:   int32(ts.Nanosecond()),
+	}, nil
 }

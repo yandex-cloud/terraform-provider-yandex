@@ -52,7 +52,7 @@ func resourceYandexVPCSubnet() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "",
+				Computed: true,
 			},
 
 			"description": {

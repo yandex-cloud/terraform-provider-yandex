@@ -28,6 +28,15 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
     }
 
     public_ip = true
+
+    maintenance_policy {
+      auto_upgrade = true
+
+      maintenance_window {
+	    start_time = "15:00"
+	    duration   = "3h"
+	  }
+    }
   }
 
   service_account_id      = "${yandex_iam_service_account.service_account_resource_name.id}"
@@ -71,6 +80,22 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
 
     version   = "1.14"
     public_ip = true
+
+    maintenance_policy {
+      auto_upgrade = true
+
+      maintenance_window {
+        day        = "monday"
+	    start_time = "15:00"
+		duration   = "3h"
+      }
+
+      maintenance_window {
+        day		   = "friday"
+	    start_time = "10:00"
+		duration   = "4h30m"
+	  }
+    }
   }
 
   service_account_id      = "${yandex_iam_service_account.service_account_resource_name.id}"
@@ -113,6 +138,18 @@ cluster will be located and on the folder where selected network resides.
 * `node_service_account_id` - Service account to be used by the worker nodes of the Kubernetes cluster
 to access Container Registry or to push node logs and metrics.
 
+**Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources,
+it is necessary to add dependency on these access resources to cluster config:
+```hcl
+  depends_on = [
+	"yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
+	"yandex_resourcemanager_folder_iam_member.NodeServiceAccountResourceName"
+  ]
+```
+
+Without it, on destroy, terraform will delete cluster and remove access rights for service account(s) simultaneously,
+that will cause problems for cluster and related node group deletion.
+
 * `release_channel` - Cluster release channel.
 
 * `master` - IP allocation policy of the Kubernetes cluster.
@@ -131,7 +168,14 @@ The structure is documented below.
 The `master` block supports:
 
 * `version` - (Optional) (Computed) Version of Kubernetes that will be used for master.
-* `public_ip` - (Optional) (Computed) Boolean flag. When `true`, Kubernetes master will have visible ipv4 address. 
+* `public_ip` - (Optional) (Computed) Boolean flag. When `true`, Kubernetes master will have visible ipv4 address.
+
+* `maintenance_policy` - (Optional) (Computed) Maintenance policy for Kubernetes master.
+If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time.
+Revision upgrades are performed only within the same minor version, e.g. 1.13.
+Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
+
+The structure is documented below.
 
 * `zonal` - (Optional) Initialize parameters for Zonal Master (one node master).
 
@@ -150,6 +194,18 @@ The structure is documented below.
 * `internal_v4_endpoint` - (Computed) Internal endpoint that can be used to connect to the master from cloud networks. 
 * `external_v4_endpoint` - (Computed) External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
 * `cluster_ca_certificate` - (Computed) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.  
+
+---
+
+The `maintenance_policy` block supports:
+
+* `auto_upgrade` - (Required) Boolean flag that specifies if master can be upgraded automatically. When omitted, default value is TRUE.
+* `maintenance_window` - (Optional) (Computed) This structure specifies maintenance window, when update for master is allowed. When omitted, it defaults to any time.
+To specify time of day interval, for all days, one element should be provided, with two fields set, `start_time` and `duration`.
+Please see `zonal_cluster_resource_name` config example.
+
+To allow maintenance only on specific days of week, please provide list of elements, with all fields set. Only one 
+time interval (`duration`) is allowed for each day of week. Please see  `regional_cluster_resource_name` config example.
 
 ---
 
