@@ -6,7 +6,7 @@ description: |-
  Allows management of the IAM policy for a Yandex Resource Manager folder.
 ---
 
-# yandex\_folder\_iam\_policy
+# yandex\_resourcemanager\_folder\_iam\_policy
 
 Allows creation and management of the IAM policy for an existing Yandex Resource
 Manager folder.
@@ -28,7 +28,7 @@ data "yandex_iam_policy" "admin" {
   }
 }
 
-resource "yandex_resourcemanager_iam_policy" "folder_admin_policy" {
+resource "yandex_resourcemanager_folder_iam_policy" "folder_admin_policy" {
   folder_id   = "${data.yandex_folder.project1.id}"
   policy_data = "${data.yandex_iam_policy.admin.policy_data}"
 }
