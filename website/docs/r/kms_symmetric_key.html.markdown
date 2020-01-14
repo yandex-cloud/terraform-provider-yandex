@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_kms_symmetric_key"
 sidebar_current: "docs-yandex-kms-symmetric-key"
 description: |-
-Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
+  Creates a Yandex KMS symmetric key that can be used for cryptographic operation.
 ---
 
 # yandex\_kms\_symmetric\_key
@@ -42,7 +42,7 @@ is not provided, the default provider folder is used.
 * `labels` - (Optional) A set of key/value label pairs to assign to the key.
 
 * `default_algorithm` - (Optional) Encryption algorithm to be used with a new key version, 
-generated with the next rotation. The default is 'AES_128'.
+generated with the next rotation. The default value is `AES_128`.
 
 * `rotation_period` - (Optional) Interval between automatic rotations. To disable automatic rotation, omit this parameter.
 
