@@ -17,6 +17,8 @@ It's integrated with the Yandex.Cloud platform, which allows you to:
 * Update running Docker containers with minimum downtime.
 * Access Docker container open network ports without any additional configuration.
 
+Read more [documentation](https://cloud.yandex.com/docs/container-registry/concepts/coi) about container optimized image.
+
 ## Creating Container Optimized Image configuration with Terraform
 
 This example shows how to create a simple project with a single container optimized image from scratch.
