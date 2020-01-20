@@ -41,8 +41,8 @@ provider "yandex" {
 Configure Yandex provider:
 
 * The `token` field should be replaced with your personal Yandex.Cloud authentication token.
-* The `folder` field is the id of your folder to create container optimized image.
-* The `zone` field should be replaced with default availability zone operate under.
+* The `folder` field is id of your folder to create container optimized image.
+* The `zone` field should be replaced with default [availability zone]((https://cloud.yandex.com/docs/overview/concepts/geo-scope)) operate under.
 
 Use already created Container Optimized Image from [image family](https://cloud.yandex.com/docs/compute/concepts/images#family) collection :
 
@@ -60,11 +60,11 @@ resource "yandex_compute_instance" "instance-with-coi" {
 
   boot_disk {
     initialize_params {
-      image_id = "${data.yandex_compute_image.container-optimized-image.id}"
+      image_id = data.yandex_compute_image.container-optimized-image.id
     }
   }
   network_interface {
-    subnet_id = "your-subnet-id"
+    subnet_id = "your subnet id"
     nat       = true
   }
   resources {
@@ -82,7 +82,7 @@ resource "yandex_compute_instance" "instance-with-coi" {
 
 Configure compute instance:
 
-* The `subnet_id` field is the id of your virtual private cloud [subnet](https://www.terraform.io/docs/providers/yandex/d/datasource_vpc_subnet.html).
+* The `subnet_id` field is id of your virtual private cloud [subnet](https://www.terraform.io/docs/providers/yandex/d/datasource_vpc_subnet.html).
 
 Create cloud specification file named  ```cloud-config.yaml``` and put it to the same folder:
 
@@ -164,7 +164,7 @@ Now everything is set to launch the COI in Terraform. Make following list of ins
   
 ## Creating Instance Group with Container Optimized Image
 
-This example shows how to create an instance group with container optimized image. 
+This example shows how to create an instance group of container optimized images. 
 
 Use [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html) and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html) 
 from the previous examples showing creation of container optimized image with compute instance. 
@@ -222,9 +222,9 @@ resource "yandex_compute_instance_group" "ig-with-coi" {
 
 Configure instance group:
 
-* The `name` field is the name instance group name.
-* The `folder_id` field is the id of your folder to create container optimized image.
-* The `service_account_id` field is the id of your [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
-* The `network_id` field is the id of your cloud [network](https://cloud.yandex.com/docs/vpc/concepts/network#network).
-* The `subnet_id` field is an array of your [subnet ids](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
-* The `zones` field is an array of your [availability zones](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* The `name` field is your instance group name.
+* The `folder_id` field is id of your folder to create container optimized image.
+* The `service_account_id` field is id of your [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+* The `network_id` field is id of your cloud [network](https://cloud.yandex.com/docs/vpc/concepts/network#network).
+* The `subnet_id` field is array of your [subnet ids](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+* The `zones` field is array of your [availability zones](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
