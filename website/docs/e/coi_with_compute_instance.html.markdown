@@ -56,7 +56,7 @@ data "yandex_compute_image" "container-optimized-image" {
 Create compute instance:
 
 ```hcl
-resource "yandex_compute_instance" "this" {
+resource "yandex_compute_instance" "instance-with-coi" {
 
   boot_disk {
     initialize_params {
@@ -82,7 +82,7 @@ resource "yandex_compute_instance" "this" {
 
 Configure compute instance:
 
-* The subnet_id field is the id of your virtual private cloud [subnet](https://www.terraform.io/docs/providers/yandex/d/datasource_vpc_subnet.html).
+* The `subnet_id` field is the id of your virtual private cloud [subnet](https://www.terraform.io/docs/providers/yandex/d/datasource_vpc_subnet.html).
 
 Create cloud specification file named  ```cloud-config.yaml``` and put it to the same folder:
 
@@ -99,7 +99,7 @@ users:
 
 Configure cloud specification:
 
-* Fill the ssh_authorized_keys value with your public ssh key.
+* Fill the `ssh_authorized_keys` value with your public ssh key.
 
 Create container optimized image specification file named ```declaration.yaml``` and put to the same folder:
 
@@ -161,3 +161,70 @@ Now everything is set to launch the COI in Terraform. Make following list of ins
   </body>
   </html>
   ```
+  
+## Creating Instance Group with Container Optimized Image
+
+This example shows how to create an instance group with container optimized image. 
+
+Use [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html) and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html) 
+from the previous examples showing creation of container optimized image with compute instance. 
+Use cloud specification in ```cloud-config.yaml``` file and container optimized image specification in ```declaration.yaml``` file.
+
+Create instance group:
+
+ ```hcl
+resource "yandex_compute_instance_group" "ig-with-coi" {
+  name               = "ig with coi"
+  folder_id          = "your folder"
+  service_account_id = "your service account id"
+  instance_template {
+    platform_id = "standard-v1"
+    resources {
+      memory = 1
+      cores  = 1
+    }
+    boot_disk {
+      mode = "READ_WRITE"
+      initialize_params {
+        image_id = data.yandex_compute_image.container-optimized-image.id
+      }
+    }
+    network_interface {
+      network_id = "your network id"
+      subnet_ids = ["all your subnet ids"]
+    }
+
+    metadata = {
+      docker-container-declaration = file("${path.module}/declaration.yaml")
+      ec2-user-data = file("${path.module}/cloud_config.yaml")
+      user-data = file("${path.module}/cloud_config.yaml")
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 3
+    }
+  }
+
+  allocation_policy {
+    zones = ["all your availability zones"]
+  }
+
+  deploy_policy {
+    max_unavailable = 2
+    max_creating    = 2
+    max_expansion   = 2
+    max_deleting    = 2
+  }
+}
+ ```
+
+Configure instance group:
+
+* The `name` field is the name instance group name.
+* The `folder_id` field is the id of your folder to create container optimized image.
+* The `service_account_id` field is the id of your [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts).
+* The `network_id` field is the id of your cloud [network](https://cloud.yandex.com/docs/vpc/concepts/network#network).
+* The `subnet_id` field is an array of your [subnet ids](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+* The `zones` field is an array of your [availability zones](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
