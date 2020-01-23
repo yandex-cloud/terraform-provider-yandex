@@ -23,7 +23,7 @@ Read more [documentation](https://cloud.yandex.com/docs/container-registry/conce
 
 This example shows how to create a simple project with a single instance based on Container Optimized Image from scratch.
  
-First create a Terraform config file named ```main.tf```. Inside, you'll want to include the configuration of 
+First, create a Terraform config file named ```main.tf```. Inside, you'll want to include the configuration of 
 [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html), 
 [compute instance](https://www.terraform.io/docs/providers/yandex/r/compute_instance.html)
 and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html).
@@ -112,7 +112,7 @@ spec:
     tty: false
 ```
 
-Create ```output.tf``` file to get IP address of the Container Optimized Image:
+Create ```output.tf``` file to get the IP address of the Container Optimized Image:
 
 ```hcl
 output "external_ip" {
@@ -122,7 +122,7 @@ output "external_ip" {
 
 ## Launching Container Optimized Image
 
-Now everything is set to launch the COI instance in Terraform. Make following list of instructions:
+Now everything is set to launch the COI instance in Terraform. Execute the following list of instructions:
 
 * Run ```terraform plan```, then ```terraform apply```.
 
@@ -165,7 +165,7 @@ Now everything is set to launch the COI instance in Terraform. Make following li
 This example shows how to create an instance group of Container Optimized Images. 
 
 Use [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html) and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html) 
-from the previous examples showing creation of Container Optimized Image with compute instance. 
+from the previous examples showing the creation of Container Optimized Image with compute instance. 
 Use cloud specification in ```cloud-config.yaml``` file and container specification in ```declaration.yaml``` file.
 
 Create Instance Group:
@@ -224,6 +224,6 @@ Configure Instance Group:
 * The `folder_id` field is the id of your folder to create Container Optimized Image.
 * The `service_account_id` field is the id of your [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts) authorized for this instance group.
 * The `network_id` field is the id of your cloud [network](https://cloud.yandex.com/docs/vpc/concepts/network#network).
-* The `subnet_id` field is array of your [subnet ids](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
-* The `zones` field is array of your [availability zones](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+* The `subnet_id` field is an array of your [subnet ids](https://cloud.yandex.com/docs/vpc/concepts/network#subnet).
+* The `zones` field is an array of your [availability zones](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
 * The `instance_template.service_account_id` field is the id of your [service account](https://cloud.yandex.com/docs/iam/concepts/users/service-accounts) authorized for this instance.
