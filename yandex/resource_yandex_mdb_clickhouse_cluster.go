@@ -869,12 +869,12 @@ func createClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 		}),
 	)
 	if err != nil {
-		return fmt.Errorf("error while requesting API to delete database from ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to create user for ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while deleting database from ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while creating user for ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }

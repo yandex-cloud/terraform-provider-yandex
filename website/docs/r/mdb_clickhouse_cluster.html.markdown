@@ -340,7 +340,7 @@ The `access` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `created_at` - Creation timestamp of the key.
+* `created_at` - Timestamp of cluster creation.
 
 * `health` - Aggregated health of the cluster.
 
