@@ -1,4 +1,4 @@
-## 0.29.0 (Unreleased)
+## 0.29.0 (January 24, 2020)
 FEATURES:
 * **New Data Source:** `yandex_mdb_mysql_cluster`
 * **New Data Source:** `yandex_mdb_postgresql_cluster`
