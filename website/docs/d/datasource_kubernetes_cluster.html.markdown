@@ -104,12 +104,14 @@ maintenance specified.
 
 The `zonal` block supports:
 
-* `zone` - ID of the availability zone where the master resides. 
+* `zone` - ID of the availability zone where the master resides.
+
 ---
 
 The `regional` block supports:
 
 * `region` - ID of the availability region where the master resides. 
+
 ---
 
 The `version_info` block supports:
