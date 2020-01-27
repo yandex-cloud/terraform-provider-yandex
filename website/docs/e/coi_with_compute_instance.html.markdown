@@ -8,7 +8,7 @@ description: |-
 
 # Container Optimized Image
 
-Container Optimized Image is an [image](https://cloud.yandex.com/docs/compute/concepts/image) that is optimized for running Docker containers. 
+Container Optimized Image is an [image](https://cloud.yandex.com/docs/compute/concepts/image) that is optimized for running Docker containers.
 The image includes Ubuntu LTS, Docker, and a daemon for launching Docker containers.
 
 It's integrated with the Yandex.Cloud platform, which allows you to:
@@ -22,9 +22,9 @@ Read more [documentation](https://cloud.yandex.com/docs/container-registry/conce
 ## Creating Container Optimized Image configuration with Terraform
 
 This example shows how to create a simple project with a single instance based on Container Optimized Image from scratch.
- 
-First, create a Terraform config file named ```main.tf```. Inside, you'll want to include the configuration of 
-[Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html), 
+
+First, create a Terraform config file named `main.tf`. Inside, you'll want to include the configuration of
+[Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html),
 [compute instance](https://www.terraform.io/docs/providers/yandex/r/compute_instance.html)
 and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html).
 
@@ -42,7 +42,7 @@ Configure Yandex provider:
 
 * The `token` field should be replaced with your personal Yandex.Cloud authentication token.
 * The `folder` field is the id of your folder to create Container Optimized Image.
-* The `zone` field should be replaced with default [availability zone]((https://cloud.yandex.com/docs/overview/concepts/geo-scope)) to operate under.
+* The `zone` field should be replaced with default [availability zone](https://cloud.yandex.com/docs/overview/concepts/geo-scope) to operate under.
 
 Use already created Container Optimized Image from [image family](https://cloud.yandex.com/docs/compute/concepts/images#family) collection :
 
@@ -82,9 +82,9 @@ Configure compute instance:
 
 * The `subnet_id` field is the id of your virtual private cloud [subnet](https://www.terraform.io/docs/providers/yandex/d/datasource_vpc_subnet.html).
 
-Create a cloud specification file named  ```cloud-config.yaml``` and put it to the same folder:
+Create a cloud specification file named  `cloud-config.yaml` and put it to the same folder:
 
-```hcl
+```yaml
 #cloud-config.yaml
 ssh_pwauth: no
 users:
@@ -99,9 +99,9 @@ Configure cloud specification:
 
 * Fill the `ssh_authorized_keys` value with your public ssh key.
 
-Create Container Optimized Image specification file named ```declaration.yaml``` and put it to the same folder:
+Create Container Optimized Image specification file named `declaration.yaml` and put it to the same folder:
 
-```hcl
+```yaml
 #declaration.yaml
 spec:
   containers:
@@ -112,7 +112,7 @@ spec:
     tty: false
 ```
 
-Create ```output.tf``` file to get the IP address of the Container Optimized Image:
+Create `output.tf` file to get the IP address of the Container Optimized Image:
 
 ```hcl
 output "external_ip" {
@@ -124,53 +124,53 @@ output "external_ip" {
 
 Now everything is set to launch the COI instance in Terraform. Execute the following list of instructions:
 
-* Run ```terraform plan```, then ```terraform apply```.
+* Run `terraform plan`, then `terraform apply`.
 
-* After ```terraform apply``` you will have public IPv4 address in the outputs:
-  
-  ```hcl
-  Outputs:
+* After `terraform apply` you will have public IPv4 address in the outputs:
 
-  external_ip = <some_IPv4>
-  ```
+    ```
+    Outputs:
+
+    external_ip = <some_IPv4>
+    ```
 * Access newly created virtual machine:
-  
-  ```hcl
-  ssh yc-user@<some_IPv4>
-  ```
+
+    ```shell
+    ssh yc-user@<some_IPv4>
+    ```
 
 * Make http request to your virtual machine:
-  
-  ```hcl
-  curl <some_IPv4>
-  ```
-  
-  You will get in the response:
-  
-  ```hcl
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-     <meta http-equiv="refresh" content="3">
-     <title>Yandex.Scale</title>
-  </head>
-  <body>
-  <h1>Hello v1</h1>
-  </body>
-  </html>
-  ```
-  
+
+    ```shell
+    curl <some_IPv4>
+    ```
+
+    You will get in the response:
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+       <meta http-equiv="refresh" content="3">
+       <title>Yandex.Scale</title>
+    </head>
+    <body>
+    <h1>Hello v1</h1>
+    </body>
+    </html>
+    ```
+
 ## Creating Instance Group with Container Optimized Image
 
-This example shows how to create an instance group of Container Optimized Images. 
+This example shows how to create an instance group of Container Optimized Images.
 
-Use [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html) and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html) 
-from the previous examples showing the creation of Container Optimized Image with compute instance. 
-Use cloud specification in ```cloud-config.yaml``` file and container specification in ```declaration.yaml``` file.
+Use [Yandex.Cloud Provider](https://www.terraform.io/docs/providers/yandex/index.html) and [compute image](https://www.terraform.io/docs/providers/yandex/d/datasource_compute_image.html)
+from the previous examples showing the creation of Container Optimized Image with compute instance.
+Use cloud specification in `cloud-config.yaml` file and container specification in `declaration.yaml` file.
 
 Create Instance Group:
 
- ```hcl
+```hcl
 resource "yandex_compute_instance_group" "ig-with-coi" {
   name               = "ig with coi"
   folder_id          = "your folder"
@@ -216,7 +216,7 @@ resource "yandex_compute_instance_group" "ig-with-coi" {
     max_deleting    = 2
   }
 }
- ```
+```
 
 Configure Instance Group:
 
