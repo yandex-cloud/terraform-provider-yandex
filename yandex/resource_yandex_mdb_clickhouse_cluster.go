@@ -541,9 +541,10 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 }
 
 var mdbClickHouseUpdateFieldsMap = map[string]string{
+	"name":                "name",
 	"description":         "description",
 	"labels":              "labels",
-	"version":             "version",
+	"version":             "config_spec.version",
 	"access":              "config_spec.access",
 	"backup_window_start": "config_spec.backup_window_start",
 	"clickhouse":          "config_spec.clickhouse",
@@ -620,6 +621,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 
 	req := &clickhouse.UpdateClusterRequest{
 		ClusterId:   d.Id(),
+		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Labels:      labels,
 		ConfigSpec: &clickhouse.ConfigSpec{

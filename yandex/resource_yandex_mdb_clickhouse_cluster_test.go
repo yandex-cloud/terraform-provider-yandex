@@ -93,7 +93,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
