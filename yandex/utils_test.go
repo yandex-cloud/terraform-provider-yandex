@@ -289,3 +289,18 @@ func testDecryptKeyAndTest(name, key, pgpKey string) resource.TestCheckFunc {
 		return nil
 	}
 }
+
+func DefaultAndEmptyFolderProviders() []map[string]terraform.ResourceProvider {
+	return []map[string]terraform.ResourceProvider{
+		testAccProviders,
+		testAccProviderEmptyFolder,
+	}
+}
+
+func CustomProvidersTest(t *testing.T, providers []map[string]terraform.ResourceProvider, testCase resource.TestCase) {
+	for _, provider := range providers {
+		customTest := testCase
+		customTest.Providers = provider
+		resource.Test(t, customTest)
+	}
+}

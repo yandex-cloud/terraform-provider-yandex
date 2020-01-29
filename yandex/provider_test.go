@@ -19,6 +19,9 @@ const providerDefaultValuePlaintext = false
 const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
 var testAccProviders map[string]terraform.ResourceProvider
+
+// WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
+// testAccCheck***Destroy functions tend to use static testAccProvider
 var testAccProviderEmptyFolder map[string]terraform.ResourceProvider
 
 var testAccProvider *schema.Provider
@@ -51,8 +54,7 @@ func init() {
 	}
 
 	testAccProviderEmptyFolder = map[string]terraform.ResourceProvider{
-		"yandex":              testAccProvider,
-		"yandex_empty_folder": emptyFolderProvider().(*schema.Provider),
+		"yandex": emptyFolderProvider().(*schema.Provider),
 	}
 
 	if os.Getenv("TF_ACC") != "" {

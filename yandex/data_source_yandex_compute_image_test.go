@@ -79,7 +79,7 @@ func TestAccDataSourceComputeImage_byIDAndFolder(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviderEmptyFolder,
+		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeImageDestroy,
 			testAccCheckComputeDiskDestroy,
@@ -110,7 +110,7 @@ func TestAccDataSourceComputeImage_byNameAndFolder(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviderEmptyFolder,
+		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccCheckComputeImageDestroy,
 			testAccCheckComputeDiskDestroy,

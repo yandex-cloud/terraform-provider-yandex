@@ -13,9 +13,8 @@ import (
 func TestAccDataSourceYandexResourceManagerCloud_byIDNotFound(t *testing.T) {
 	notExistCloudID := acctest.RandString(18)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckResourceManagerCloud_byID(notExistCloudID),
@@ -30,9 +29,8 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultID(t *testing.T) {
 	defaultCloudID := getExampleCloudID()
 	defaultCloudName := getExampleCloudName()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckResourceManagerCloud_byID(defaultCloudID),
@@ -50,9 +48,8 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultID(t *testing.T) {
 func TestAccDataSourceYandexResourceManagerCloud_byDefaultCloudName(t *testing.T) {
 	defaultCloudName := getExampleCloudName()
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckResourceManagerCloud_byName(defaultCloudName),
@@ -71,9 +68,8 @@ func TestAccDataSourceYandexResourceManagerCloud_byDefaultCloudName(t *testing.T
 func TestAccDataSourceYandexResourceManagerCloud_byName(t *testing.T) {
 	cloudName := acctest.RandString(10)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
+		PreCheck: func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckResourceManagerCloud_byName(cloudName),

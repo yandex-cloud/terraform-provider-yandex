@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -45,10 +46,10 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 	}
 
 	cloudID := d.Get("cloud_id").(string)
-	_, cloudNameOk := d.GetOk("name")
+	cloudName, cloudNameOk := d.GetOk("name")
 
 	if cloudNameOk {
-		cloudID, err = resolveObjectID(ctx, config, d, sdkresolvers.CloudResolver)
+		cloudID, err = resolveCloudIDByName(ctx, config, cloudName.(string))
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source cloud by name: %v", err)
 		}
@@ -74,4 +75,16 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 	d.SetId(cloud.Id)
 
 	return nil
+}
+
+func resolveCloudIDByName(ctx context.Context, config *Config, name string) (string, error) {
+	var objectID string
+	resolver := sdkresolvers.CloudResolver(name, sdkresolvers.Out(&objectID))
+
+	err := config.sdk.Resolve(ctx, resolver)
+	if err != nil {
+		return "", err
+	}
+
+	return objectID, nil
 }

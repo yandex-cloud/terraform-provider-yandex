@@ -481,6 +481,8 @@ func checkOneOf(d *schema.ResourceData, keys ...string) error {
 
 type objectResolverFunc func(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver
 
+// this function can be only used to resolve objects that belong to some folder (have folder_id attribute)
+// do not use this function to resolve cloud (or similar objects) ID by name.
 func resolveObjectID(ctx context.Context, config *Config, d *schema.ResourceData, resolverFunc objectResolverFunc) (string, error) {
 	name, ok := d.GetOk("name")
 

@@ -1,4 +1,7 @@
 ## 0.29.1 (Unreleased)
+BUG FIXES:
+* resourcemanager: data source cloud. fixed cloud_id resolve by name (would fail without folder_id in provider config)   
+
 ## 0.29.0 (January 24, 2020)
 FEATURES:
 * **New Data Source:** `yandex_mdb_mysql_cluster`
