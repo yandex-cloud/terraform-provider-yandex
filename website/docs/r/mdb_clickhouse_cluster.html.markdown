@@ -189,23 +189,23 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.bar.id}"
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-b"
+    subnet_id  = "${yandex_vpc_subnet.bar.id}"
     shard_name = "shard1"
   }
 
   host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.bar.id}"
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-b"
+    subnet_id  = "${yandex_vpc_subnet.bar.id}"
     shard_name = "shard2"
   }
 
   host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.baz.id}"
+    type       = "CLICKHOUSE"
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.baz.id}"
     shard_name = "shard2"
   }
 }

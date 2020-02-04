@@ -61,15 +61,15 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
 
     maintenance_window {
       day        = "monday"
-	  start_time = "15:00"
-	  duration   = "3h"
+      start_time = "15:00"
+      duration   = "3h"
     }
 
     maintenance_window {
-      day		   = "friday"
-	  start_time = "10:00"
-	  duration   = "4h30m"
-	}
+      day        = "friday"
+      start_time = "10:00"
+      duration   = "4h30m"
+    }
   }
 }
 ```
@@ -147,15 +147,22 @@ The `scheduling_policy` block supports:
 
 The `scale_policy` block supports:
 
-* `fixed_scale` - The fixed scaling policy of the instance group.
-
-The structure is documented below.
+* `fixed_scale` - Scale policy for a fixed scale node group. The structure is documented below.
+* `auto_scale` - Scale policy for an autoscaled node group. The structure is documented below.
 
 ---
 
 The `fixed_scale` block supports:
 
 * `size` - The number of instances in the node group.
+
+---
+
+The `auto_scale` block supports:
+
+* `min` - Minimum number of instances in the node group.
+* `max` - Maximum number of instances in the node group.
+* `initial` - Initial number of instances in the node group.
 
 ---
 

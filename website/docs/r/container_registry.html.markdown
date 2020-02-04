@@ -19,7 +19,7 @@ resource "yandex_container_registry" "default" {
   folder_id = "test_folder_id"
 
   labels = {
-     my-label = "my-label-value"
+    my-label = "my-label-value"
   }
 }
 ```

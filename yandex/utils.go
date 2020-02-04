@@ -203,7 +203,7 @@ func handleNotFoundError(err error, d *schema.ResourceData, resourceName string)
 		d.SetId("")
 		return nil
 	}
-	return fmt.Errorf("Error reading %s: %s", resourceName, err)
+	return fmt.Errorf("error reading %s: %s", resourceName, err)
 }
 
 func isStatusWithCode(err error, code codes.Code) bool {
@@ -329,6 +329,17 @@ func convertStringSet(set *schema.Set) []string {
 		s[i] = v.(string)
 	}
 	return s
+}
+
+func convertStringMap(v map[string]interface{}) map[string]string {
+	m := make(map[string]string)
+	if v == nil {
+		return m
+	}
+	for k, val := range v {
+		m[k] = val.(string)
+	}
+	return m
 }
 
 func shouldSuppressDiffForPolicies(k, old, new string, d *schema.ResourceData) bool {
@@ -561,11 +572,11 @@ func templateConfig(tmpl string, ctx ...map[string]interface{}) string {
 func getResourceID(n string, s *terraform.State) (string, error) {
 	rs, ok := s.RootModule().Resources[n]
 	if !ok {
-		return "", fmt.Errorf("not found: %s", n)
+		return "", fmt.Errorf("terraform resource '%s' not found", n)
 	}
 
 	if rs.Primary.ID == "" {
-		return "", fmt.Errorf("no ID is set")
+		return "", fmt.Errorf("no ID is set for terraform resource '%s'", n)
 	}
 
 	return rs.Primary.ID, nil
@@ -604,4 +615,38 @@ func (h *schemaGetHelper) GetString(key string) string {
 
 func (h *schemaGetHelper) GetInt(key string) int {
 	return h.d.Get(h.pathPrefix + key).(int)
+}
+
+func convertResourceToDataSource(resource *schema.Resource) *schema.Resource {
+	return recursivelyUpdateResource(resource, func(schema *schema.Schema) {
+		schema.Computed = true
+		schema.Required = false
+		schema.Optional = false
+		schema.ForceNew = false
+		schema.Default = nil
+		schema.ValidateFunc = nil
+	})
+}
+
+func recursivelyUpdateResource(resource *schema.Resource, callback func(*schema.Schema)) *schema.Resource {
+	attributes := make(map[string]*schema.Schema)
+	for key, attributeSchema := range resource.Schema {
+		copyOfAttributeSchema := *attributeSchema
+		callback(&copyOfAttributeSchema)
+		if copyOfAttributeSchema.Elem != nil {
+			switch elem := copyOfAttributeSchema.Elem.(type) {
+			case *schema.Schema:
+				elementCopy := *elem
+				copyOfAttributeSchema.Elem = &elementCopy
+			case *schema.Resource:
+				copyOfAttributeSchema.Elem = recursivelyUpdateResource(elem, callback)
+			default:
+				log.Printf("[ERROR] Unexpected Elem type %T for attribute %s!\n", elem, key)
+			}
+		}
+
+		attributes[key] = &copyOfAttributeSchema
+	}
+
+	return &schema.Resource{Schema: attributes}
 }

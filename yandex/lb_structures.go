@@ -28,7 +28,7 @@ func resourceLBTargetGroupTargetHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceLBNetowrkLoadBalancerListenerHash(v interface{}) int {
+func resourceLBNetworkLoadBalancerListenerHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
@@ -39,7 +39,7 @@ func resourceLBNetowrkLoadBalancerListenerHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceLBNetowrkLoadBalancerAttachedTargetGroupHash(v interface{}) int {
+func resourceLBNetworkLoadBalancerAttachedTargetGroupHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
@@ -335,7 +335,7 @@ func flattenLBTargets(tg *loadbalancer.TargetGroup) (*schema.Set, error) {
 }
 
 func flattenLBListenerSpecs(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set, error) {
-	result := &schema.Set{F: resourceLBNetowrkLoadBalancerListenerHash}
+	result := &schema.Set{F: resourceLBNetworkLoadBalancerListenerHash}
 	var (
 		addressSpecKey     string
 		flattenAddressSpec func(*loadbalancer.Listener) (map[string]interface{}, error)
@@ -403,7 +403,7 @@ func flattenLBInternalAddressSpec(ls *loadbalancer.Listener) (map[string]interfa
 }
 
 func flattenLBAttachedTargetGroups(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set, error) {
-	result := &schema.Set{F: resourceLBNetowrkLoadBalancerAttachedTargetGroupHash}
+	result := &schema.Set{F: resourceLBNetworkLoadBalancerAttachedTargetGroupHash}
 
 	for _, atg := range nlb.AttachedTargetGroups {
 		hcs, err := flattenLBHealthchecks(atg)

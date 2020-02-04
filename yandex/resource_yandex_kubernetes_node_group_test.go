@@ -40,7 +40,7 @@ func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, true),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
 				),
 			},
 			k8sNodeGroupImportStep(nodeResourceFullName),
@@ -64,7 +64,7 @@ func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, true),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
 				),
 			},
 			k8sNodeGroupImportStep(nodeResourceFullName),
@@ -149,16 +149,43 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, true),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
 				),
 			},
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
 				),
 			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
+	clusterResource.MasterVersion = "1.15"
+	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
+	nodeResource.Version = "1.15"
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_autoscaled(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, true),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
 		},
 	})
 }
@@ -175,7 +202,7 @@ type resourceNodeGroupInfo struct {
 
 	DiskSize    string
 	Preemptible string
-	FixedScale  string
+	ScalePolicy string
 
 	LabelKey   string
 	LabelValue string
@@ -202,12 +229,18 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		Cores:                 "1",
 		DiskSize:              "64",
 		Preemptible:           "true",
-		FixedScale:            "1",
 		LabelKey:              "label_key",
 		LabelValue:            "label_value",
+		ScalePolicy:           fixedScalePolicy,
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
+	return info
+}
+
+func nodeGroupInfoAutoscaled(clusterResourceName string) resourceNodeGroupInfo {
+	info := nodeGroupInfo(clusterResourceName)
+	info.ScalePolicy = autoscaledScalePolicy
 	return info
 }
 
@@ -274,6 +307,32 @@ const ngWeeklyMaintenancePolicyTemplate = `
     }
 `
 
+const (
+	autoscaledMinSize     = 1
+	autoscaledMaxSize     = 3
+	autoscaledInitialSize = 2
+)
+
+var autoscaledScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    auto_scale {
+      min = %d
+      max = %d
+      initial = %d
+    }
+  }
+`, autoscaledMinSize, autoscaledMaxSize, autoscaledInitialSize)
+
+const fixedScaleSize = 1
+
+var fixedScalePolicy = fmt.Sprintf(`
+  scale_policy {
+    fixed_scale {
+      size = %d
+    }
+  }
+`, fixedScaleSize)
+
 const nodeGroupConfigTemplate = `
 resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   cluster_id = "${yandex_kubernetes_cluster.{{.ClusterResourceName}}.id}"
@@ -303,11 +362,7 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     }
   }
 
-  scale_policy {
-    fixed_scale {
-      size = {{.FixedScale}}
-    }
-  }
+  {{.ScalePolicy}}
   
   allocation_policy {
     location {
@@ -326,10 +381,15 @@ func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng reso
 	return deps + templateConfig(nodeGroupConfigTemplate, ng.Map())
 }
 
-func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool) resource.TestCheckFunc {
+func testAccKubernetesNodeGroupConfig_autoscaled(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
+	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
+	return deps + templateConfig(nodeGroupConfigTemplate, ng.Map())
+}
+
+func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool, autoscaled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		versionInfo := ng.GetVersionInfo()
-		scalePolicy := ng.GetScalePolicy().GetFixedScale()
+		scalePolicy := ng.GetScalePolicy()
 		locations := ng.GetAllocationPolicy().GetLocations()
 		tpl := ng.GetNodeTemplate()
 		if tpl == nil || versionInfo == nil || scalePolicy == nil || len(locations) != 1 {
@@ -379,9 +439,6 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.version_deprecated",
 				strconv.FormatBool(versionInfo.GetVersionDeprecated())),
 
-			resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(int(scalePolicy.GetSize()))),
-			resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", info.FixedScale),
-
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.#", "1"),
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.zone", locations[0].GetZoneId()),
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.subnet_id", locations[0].GetSubnetId()),
@@ -412,6 +469,22 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"2964502080.day", "friday"),
 				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"2964502080.start_time", "10:00"),
 				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"2964502080.duration", "4h"),
+			)
+		}
+
+		if !autoscaled {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(int(scalePolicy.GetFixedScale().GetSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.fixed_scale.0.size", strconv.Itoa(fixedScaleSize)),
+			)
+		} else {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.min", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMinSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.min", strconv.Itoa(autoscaledMinSize)),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.max", strconv.Itoa(int(scalePolicy.GetAutoScale().GetMaxSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.max", strconv.Itoa(autoscaledMaxSize)),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.initial", strconv.Itoa(int(scalePolicy.GetAutoScale().GetInitialSize()))),
+				resource.TestCheckResourceAttr(resourceFullName, "scale_policy.0.auto_scale.0.initial", strconv.Itoa(autoscaledInitialSize)),
 			)
 		}
 

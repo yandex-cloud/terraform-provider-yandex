@@ -166,7 +166,8 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 			Bucket: aws.String(bucket),
 			ACL:    aws.String(acl),
 		})
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "OperationAborted" {
+		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "OperationAborted" ||
+			awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
 			log.Printf("[WARN] Got an error while trying to create storage bucket %s: %s", bucket, err)
 			return resource.RetryableError(
 				fmt.Errorf("error creating storage bucket %s, retrying: %s", bucket, err))
@@ -222,7 +223,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
-	resp, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+	resp, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.HeadBucket(&s3.HeadBucketInput{
 			Bucket: aws.String(d.Id()),
 		})
@@ -245,7 +246,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("bucket_domain_name", domainName)
 
-	corsResponse, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+	corsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketCors(&s3.GetBucketCorsInput{
 			Bucket: aws.String(d.Id()),
 		})
@@ -282,7 +283,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	// Read the website configuration
-	wsResponse, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+	wsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketWebsite(&s3.GetBucketWebsiteInput{
 			Bucket: aws.String(d.Id()),
 		})
@@ -344,8 +345,10 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Storage Delete Bucket: %s", d.Id())
 
-	_, err = s3Client.DeleteBucket(&s3.DeleteBucketInput{
-		Bucket: aws.String(d.Id()),
+	_, err = retryOnAwsCodes([]string{"AccessDenied", "Forbidden"}, func() (interface{}, error) {
+		return s3Client.DeleteBucket(&s3.DeleteBucketInput{
+			Bucket: aws.String(d.Id()),
+		})
 	})
 
 	if isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
@@ -434,7 +437,7 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 		// Delete CORS
 		log.Printf("[DEBUG] Storage bucket: %s, delete CORS", bucket)
 
-		_, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
 			return s3Client.DeleteBucketCors(&s3.DeleteBucketCorsInput{
 				Bucket: aws.String(bucket),
 			})
@@ -487,7 +490,7 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 		}
 		log.Printf("[DEBUG] Storage bucket: %s, put CORS: %#v", bucket, corsInput)
 
-		_, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
 			return s3Client.PutBucketCors(corsInput)
 		})
 		if err == nil {
@@ -549,7 +552,7 @@ func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceDa
 
 	log.Printf("[DEBUG] Storage put bucket website: %#v", putInput)
 
-	_, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.PutBucketWebsite(putInput)
 	})
 	if err == nil {
@@ -568,7 +571,7 @@ func resourceYandexStorageBucketWebsiteDelete(s3Client *s3.S3, d *schema.Resourc
 
 	log.Printf("[DEBUG] Storage delete bucket website: %#v", deleteInput)
 
-	_, err := retryOnAwsCode("NoSuchBucket", func() (interface{}, error) {
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.DeleteBucketWebsite(deleteInput)
 	})
 	if err == nil {
@@ -615,7 +618,7 @@ func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceDat
 	}
 	log.Printf("[DEBUG] Storage put bucket ACL: %#v", i)
 
-	_, err := retryOnAwsCode(s3.ErrCodeNoSuchBucket, func() (interface{}, error) {
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.PutBucketAcl(i)
 	})
 	if err != nil {
@@ -644,21 +647,29 @@ type S3Website struct {
 	Endpoint, Domain string
 }
 
-func retryOnAwsCode(code string, f func() (interface{}, error)) (interface{}, error) {
+func retryOnAwsCodes(codes []string, f func() (interface{}, error)) (interface{}, error) {
 	var resp interface{}
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 		var err error
 		resp, err = f()
 		if err != nil {
 			awsErr, ok := err.(awserr.Error)
-			if ok && awsErr.Code() == code {
-				return resource.RetryableError(err)
+			if ok {
+				for _, code := range codes {
+					if awsErr.Code() == code {
+						return resource.RetryableError(err)
+					}
+				}
 			}
 			return resource.NonRetryableError(err)
 		}
 		return nil
 	})
 	return resp, err
+}
+
+func retryFlakyS3Responses(f func() (interface{}, error)) (interface{}, error) {
+	return retryOnAwsCodes([]string{"NoSuchBucket", "AccessDenied", "Forbidden"}, f)
 }
 
 func waitConditionStable(check func() (bool, error)) error {

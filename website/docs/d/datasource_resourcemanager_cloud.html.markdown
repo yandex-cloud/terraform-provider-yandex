@@ -20,7 +20,7 @@ data "yandex_resourcemanager_cloud" "foo" {
 
 output "cloud_create_timestamp" {
   value = "${data.yandex_resourcemanager_cloud.foo.created_at}"
-} 
+}
 ```
 
 ## Argument Reference

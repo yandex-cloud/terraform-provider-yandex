@@ -25,7 +25,7 @@ func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, false),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
 					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
 					testAccCheckCreatedAtAttr(nodeResourceFullName),
 				),
@@ -50,9 +50,36 @@ func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
 				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, false),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
 					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
 					testAccCheckCreatedAtAttr(nodeResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceKubernetesNodeGroup_autoscaled(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroup_autoscaled", true)
+	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
+	clusterResource.MasterVersion = "1.15"
+
+	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
+	nodeResource.Version = "1.15"
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, true),
 				),
 			},
 		},

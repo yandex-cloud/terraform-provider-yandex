@@ -75,7 +75,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			"listener": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Set:      resourceLBNetowrkLoadBalancerListenerHash,
+				Set:      resourceLBNetworkLoadBalancerListenerHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -150,7 +150,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			"attached_target_group": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Set:      resourceLBNetowrkLoadBalancerAttachedTargetGroupHash,
+				Set:      resourceLBNetworkLoadBalancerAttachedTargetGroupHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"target_group_id": {

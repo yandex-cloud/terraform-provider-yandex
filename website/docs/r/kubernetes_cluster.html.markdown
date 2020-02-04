@@ -21,7 +21,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
   network_id = "${yandex_vpc_network.network_resource_name.id}"
 
   master {
-    version     = "1.14"
+    version = "1.14"
     zonal {
       zone      = "${yandex_vpc_subnet.subnet_resource_name.zone}"
       subnet_id = "${yandex_vpc_subnet.subnet_resource_name.id}"
@@ -33,9 +33,9 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
       auto_upgrade = true
 
       maintenance_window {
-	    start_time = "15:00"
-	    duration   = "3h"
-	  }
+        start_time = "15:00"
+        duration   = "3h"
+      }
     }
   }
 
@@ -86,15 +86,15 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
 
       maintenance_window {
         day        = "monday"
-	    start_time = "15:00"
-		duration   = "3h"
+        start_time = "15:00"
+        duration   = "3h"
       }
 
       maintenance_window {
-        day		   = "friday"
-	    start_time = "10:00"
-		duration   = "4h30m"
-	  }
+        day        = "friday"
+        start_time = "10:00"
+        duration   = "4h30m"
+      }
     }
   }
 
@@ -141,10 +141,10 @@ to access Container Registry or to push node logs and metrics.
 **Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources,
 it is necessary to add dependency on these access resources to cluster config:
 ```hcl
-  depends_on = [
-	"yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
-	"yandex_resourcemanager_folder_iam_member.NodeServiceAccountResourceName"
-  ]
+depends_on = [
+  "yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
+  "yandex_resourcemanager_folder_iam_member.NodeServiceAccountResourceName"
+]
 ```
 
 Without it, on destroy, terraform will delete cluster and remove access rights for service account(s) simultaneously,

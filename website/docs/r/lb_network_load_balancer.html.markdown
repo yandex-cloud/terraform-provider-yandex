@@ -15,7 +15,7 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 
 ```hcl
 resource "yandex_lb_network_load_balancer" "foo" {
-  name = "my-netwotk-load-balancer"
+  name = "my-network-load-balancer"
 
   listener {
     name = "my-listener"

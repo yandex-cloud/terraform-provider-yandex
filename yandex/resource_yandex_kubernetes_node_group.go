@@ -139,16 +139,42 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_scale": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
+							Type:          schema.TypeList,
+							MaxItems:      1,
+							Optional:      true,
+							ConflictsWith: []string{"scale_policy.0.auto_scale"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Computed: true,
+									},
+								},
+							},
+						},
+						"auto_scale": {
+							Type:          schema.TypeList,
+							MaxItems:      1,
+							Optional:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"scale_policy.0.fixed_scale"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min": {
+										Type:     schema.TypeInt,
+										Required: true,
+										ForceNew: true,
+									},
+									"max": {
+										Type:     schema.TypeInt,
+										Required: true,
+										ForceNew: true,
+									},
+									"initial": {
+										Type:     schema.TypeInt,
+										Required: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -376,13 +402,18 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		return nil, fmt.Errorf("error getting node group maintenance policy while creating Kubernetes node group: %s", err)
 	}
 
+	sp, err := getNodeGroupScalePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group scale policy for a Kubernetes node group creation: %s", err)
+	}
+
 	req := &k8s.CreateNodeGroupRequest{
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
 		Labels:            labels,
 		ClusterId:         d.Get("cluster_id").(string),
 		NodeTemplate:      tpl,
-		ScalePolicy:       getNodeGroupScalePolicy(d),
+		ScalePolicy:       sp,
 		AllocationPolicy:  getNodeGroupAllocationPolicy(d),
 		Version:           d.Get("version").(string),
 		MaintenancePolicy: mp,
@@ -439,18 +470,47 @@ func getNodeGroupAllocationPolicyLocations(d *schema.ResourceData) []*k8s.NodeGr
 
 }
 
-func getNodeGroupScalePolicy(d *schema.ResourceData) *k8s.ScalePolicy {
-	if size, ok := d.GetOk("scale_policy.0.fixed_scale.0.size"); ok {
+func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
+	_, okFixed := d.GetOk("scale_policy.0.fixed_scale")
+	_, okAuto := d.GetOk("scale_policy.0.auto_scale")
+	switch {
+	case !okFixed && !okAuto:
+		return nil, fmt.Errorf("no scale policy has been specified fo a node group")
+	case okFixed && okAuto:
+		return nil, fmt.Errorf("scale policy should be exactly one of fixed scale or auto scale")
+	case okFixed:
+		if size, ok := d.GetOk("scale_policy.0.fixed_scale.0.size"); ok {
+			return &k8s.ScalePolicy{
+				ScaleType: &k8s.ScalePolicy_FixedScale_{
+					FixedScale: &k8s.ScalePolicy_FixedScale{
+						Size: int64(size.(int)),
+					},
+				},
+			}, nil
+		}
+		return nil, fmt.Errorf("no size has been specified for a node group with a fixed scale policy")
+	default: // okAuto
+		var min, max, initial interface{}
+		var ok bool
+		if min, ok = d.GetOk("scale_policy.0.auto_scale.0.min"); !ok {
+			return nil, fmt.Errorf("no min size has been specified for a node group with an auto scale policy")
+		}
+		if max, ok = d.GetOk("scale_policy.0.auto_scale.0.max"); !ok {
+			return nil, fmt.Errorf("no max size has been specified for a node group with an auto scale policy")
+		}
+		if initial, ok = d.GetOk("scale_policy.0.auto_scale.0.initial"); !ok {
+			return nil, fmt.Errorf("no initial size has been specified for a node group with an auto scale policy")
+		}
 		return &k8s.ScalePolicy{
-			ScaleType: &k8s.ScalePolicy_FixedScale_{
-				FixedScale: &k8s.ScalePolicy_FixedScale{
-					Size: int64(size.(int)),
+			ScaleType: &k8s.ScalePolicy_AutoScale_{
+				AutoScale: &k8s.ScalePolicy_AutoScale{
+					MinSize:     int64(min.(int)),
+					MaxSize:     int64(max.(int)),
+					InitialSize: int64(initial.(int)),
 				},
 			},
-		}
+		}, nil
 	}
-
-	return nil
 }
 
 func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
@@ -636,13 +696,18 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		return nil, fmt.Errorf("error getting node group maintenance policy while updating Kubernetes node group: %s", err)
 	}
 
+	sp, err := getNodeGroupScalePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group scale policy for a Kubernetes node group update: %s", err)
+	}
+
 	req := &k8s.UpdateNodeGroupRequest{
 		NodeGroupId:  d.Id(),
 		Name:         d.Get("name").(string),
 		Description:  d.Get("description").(string),
 		Labels:       labels,
 		NodeTemplate: tpl,
-		ScalePolicy:  getNodeGroupScalePolicy(d),
+		ScalePolicy:  sp,
 		Version: &k8s.UpdateVersionSpec{
 			Specifier: &k8s.UpdateVersionSpec_Version{
 				Version: d.Get("version").(string),
@@ -750,11 +815,24 @@ func flattenKubernetesNodeGroupAllocationPolicy(ap *k8s.NodeGroupAllocationPolic
 }
 
 func flattenKubernetesNodeScalePolicy(sp *k8s.ScalePolicy) []map[string]interface{} {
+	if sp.GetFixedScale() != nil {
+		return []map[string]interface{}{
+			{
+				"fixed_scale": []map[string]interface{}{
+					{
+						"size": sp.GetFixedScale().GetSize(),
+					},
+				},
+			},
+		}
+	}
 	return []map[string]interface{}{
 		{
-			"fixed_scale": []map[string]interface{}{
+			"auto_scale": []map[string]interface{}{
 				{
-					"size": sp.GetFixedScale().GetSize(),
+					"min":     sp.GetAutoScale().GetMinSize(),
+					"max":     sp.GetAutoScale().GetMaxSize(),
+					"initial": sp.GetAutoScale().GetInitialSize(),
 				},
 			},
 		},

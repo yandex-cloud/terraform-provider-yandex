@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -14,6 +15,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
@@ -1336,4 +1338,144 @@ type dayMaintenanceWindow struct {
 	day       dayofweek.DayOfWeek
 	startTime *timeofday.TimeOfDay
 	duration  *duration.Duration
+}
+
+func expandDataprocCreateClusterConfigSpec(d *schema.ResourceData) *dataproc.CreateClusterConfigSpec {
+	return &dataproc.CreateClusterConfigSpec{
+		VersionId:       d.Get("cluster_config.0.version_id").(string),
+		Hadoop:          expandDataprocHadoopConfig(d),
+		SubclustersSpec: expandDataprocSubclustersSpec(d),
+	}
+}
+
+func expandDataprocHadoopConfig(d *schema.ResourceData) *dataproc.HadoopConfig {
+	return &dataproc.HadoopConfig{
+		Services:      expandDataprocServices(d),
+		Properties:    expandDataprocProperties(d),
+		SshPublicKeys: expandDataprocSSHPublicKeys(d),
+	}
+}
+
+func expandDataprocServices(d *schema.ResourceData) []dataproc.HadoopConfig_Service {
+	set := d.Get("cluster_config.0.hadoop.0.services").(*schema.Set)
+	serviceNames := convertStringSet(set)
+	sort.Strings(serviceNames)
+	services := make([]dataproc.HadoopConfig_Service, len(serviceNames))
+
+	for i, serviceName := range serviceNames {
+		// service name is checked by validation
+		serviceID := dataproc.HadoopConfig_Service_value[serviceName]
+		services[i] = dataproc.HadoopConfig_Service(serviceID)
+	}
+
+	return services
+}
+
+func expandDataprocProperties(d *schema.ResourceData) map[string]string {
+	v := d.Get("cluster_config.0.hadoop.0.properties").(map[string]interface{})
+	return convertStringMap(v)
+}
+
+func expandDataprocSSHPublicKeys(d *schema.ResourceData) []string {
+	v := d.Get("cluster_config.0.hadoop.0.ssh_public_keys").(*schema.Set)
+	return convertStringSet(v)
+}
+
+func expandDataprocSubclustersSpec(d *schema.ResourceData) []*dataproc.CreateSubclusterConfigSpec {
+	rootKey := "cluster_config.0.subcluster_spec"
+	list := d.Get(rootKey).([]interface{})
+	subclusters := make([]*dataproc.CreateSubclusterConfigSpec, len(list))
+	for index, element := range list {
+		subclusters[index] = expandDataprocSubclusterSpec(element)
+	}
+
+	return subclusters
+}
+
+func expandDataprocSubclusterSpec(element interface{}) *dataproc.CreateSubclusterConfigSpec {
+	subclusterSpec := element.(map[string]interface{})
+	roleName := subclusterSpec["role"].(string)
+	roleID := dataproc.Role_value[roleName]
+	resourcesSpec := subclusterSpec["resources"].([]interface{})[0]
+
+	return &dataproc.CreateSubclusterConfigSpec{
+		Role:       dataproc.Role(roleID),
+		Name:       subclusterSpec["name"].(string),
+		SubnetId:   subclusterSpec["subnet_id"].(string),
+		HostsCount: int64(subclusterSpec["hosts_count"].(int)),
+		Resources:  expandDataprocResources(resourcesSpec),
+	}
+}
+
+func expandDataprocResources(r interface{}) *dataproc.Resources {
+	resources := &dataproc.Resources{}
+	resourcesMap := r.(map[string]interface{})
+
+	if v, ok := resourcesMap["resource_preset_id"]; ok {
+		resources.ResourcePresetId = v.(string)
+	}
+	if v, ok := resourcesMap["disk_size"]; ok {
+		resources.DiskSize = toBytes(v.(int))
+	}
+	if v, ok := resourcesMap["disk_type_id"]; ok {
+		resources.DiskTypeId = v.(string)
+	}
+	return resources
+}
+
+func flattenDataprocClusterConfig(cluster *dataproc.Cluster, subclusters []*dataproc.Subcluster) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"version_id":      cluster.Config.VersionId,
+			"hadoop":          flattenDataprocHadoopConfig(cluster.Config.Hadoop),
+			"subcluster_spec": flattenDataprocSubclusters(subclusters),
+		},
+	}
+}
+
+func flattenDataprocHadoopConfig(config *dataproc.HadoopConfig) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"services":        flattenDataprocServices(config.Services),
+			"properties":      config.Properties,
+			"ssh_public_keys": config.SshPublicKeys,
+		},
+	}
+}
+
+func flattenDataprocServices(services []dataproc.HadoopConfig_Service) []string {
+	serviceNames := make([]string, len(services))
+	for idx, service := range services {
+		serviceNames[idx] = service.String()
+	}
+	return serviceNames
+}
+
+func flattenDataprocSubclusters(subclusters []*dataproc.Subcluster) []interface{} {
+	result := make([]interface{}, len(subclusters))
+	for idx, subcluster := range subclusters {
+		result[idx] = flattenDataprocSubcluster(subcluster)
+	}
+	return result
+}
+
+func flattenDataprocSubcluster(subcluster *dataproc.Subcluster) map[string]interface{} {
+	return map[string]interface{}{
+		"id":          subcluster.Id,
+		"name":        subcluster.Name,
+		"role":        subcluster.Role.String(),
+		"resources":   flattenDataprocResources(subcluster.Resources),
+		"subnet_id":   subcluster.SubnetId,
+		"hosts_count": subcluster.HostsCount,
+	}
+}
+
+func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
+	res := map[string]interface{}{}
+
+	res["resource_preset_id"] = r.ResourcePresetId
+	res["disk_type_id"] = r.DiskTypeId
+	res["disk_size"] = toGigabytes(r.DiskSize)
+
+	return []map[string]interface{}{res}
 }

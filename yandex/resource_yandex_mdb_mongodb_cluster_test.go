@@ -22,7 +22,8 @@ func mdbMongoDBClusterImportStep() resource.TestStep {
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
 			"user",
-			"host", // order may differ
+			"health", // volatile value
+			"host",   // order may differ
 		},
 	}
 }

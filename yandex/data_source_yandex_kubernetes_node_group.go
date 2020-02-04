@@ -145,6 +145,27 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"auto_scale": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"min": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"max": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"initial": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
