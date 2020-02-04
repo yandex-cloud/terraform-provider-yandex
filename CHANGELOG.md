@@ -3,7 +3,6 @@ FEATURES:
 * **New Data Source:** `yandex_dataproc_cluster`
 * **New Resource:** `yandex_dataproc_cluster`
 
-## 0.29.2 (Unreleased)
 ENHANCEMENTS:
 * managed-kubernetes: support autoscaled `yandex_kubernetes_node_group`
 
