@@ -1,11 +1,10 @@
 ## 0.31.0 (Unreleased)
 FEATURES:
-* compute: software network acceleration for instance
+* compute: software network acceleration for `yandex_compute_instance`
+* mdb: support roles for users in `yandex_mdb_mysql_cluster`
 
 ENHANCEMENTS:
-* support metric labels for custom rules in `yandex_compute_instance_group.scale_policy.auto_scale`
-FEATURES:
-* support roles for users in `resource_yandex_mdb_mysql_cluster`
+* compute: support metric labels for custom rules in `yandex_compute_instance_group` resource `scale_policy.auto_scale` attribute
 
 BUG FIXES:
 * lb: fix modifying health check settings 
