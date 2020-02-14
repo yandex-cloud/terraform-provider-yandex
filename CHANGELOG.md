@@ -1,4 +1,4 @@
-## 0.31.0 (Unreleased)
+## 0.31.0 (February 14, 2020)
 FEATURES:
 * compute: software network acceleration for `yandex_compute_instance`
 * mdb: support roles for users in `yandex_mdb_mysql_cluster`
