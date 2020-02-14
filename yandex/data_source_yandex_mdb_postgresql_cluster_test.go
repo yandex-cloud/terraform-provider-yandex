@@ -135,24 +135,24 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"database.#",
 			},
 			{
-				"database.2700260790.extension.#",
-				"database.2700260790.extension.#",
+				"database.3669116385.extension.#",
+				"database.3669116385.extension.#",
 			},
 			{
-				"database.2700260790.lc_collate",
-				"database.2700260790.lc_collate",
+				"database.3669116385.lc_collate",
+				"database.3669116385.lc_collate",
 			},
 			{
-				"database.2700260790.lc_type",
-				"database.2700260790.lc_type",
+				"database.3669116385.lc_type",
+				"database.3669116385.lc_type",
 			},
 			{
-				"database.2700260790.name",
-				"database.2700260790.name",
+				"database.3669116385.name",
+				"database.3669116385.name",
 			},
 			{
-				"database.2700260790.owner",
-				"database.2700260790.owner",
+				"database.3669116385.owner",
+				"database.3669116385.owner",
 			},
 			{
 				"description",

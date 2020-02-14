@@ -337,6 +337,8 @@ This type of metric must have the `zone_id` label.
 
 * `target` - (Required) Target metric value level.
 
+* `labels` - (Optional) A map of labels of metric.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

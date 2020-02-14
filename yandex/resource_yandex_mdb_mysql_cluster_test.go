@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 const mysqlResource = "yandex_mdb_mysql_cluster.foo"
@@ -26,6 +27,11 @@ func mdbMysqlClusterImportStep(name string) resource.TestStep {
 			"host",   // the order of hosts differs
 		},
 	}
+}
+
+type MockPermission struct {
+	DatabaseName string
+	Roles        []string
 }
 
 // Test that a MySQL Cluster can be created, updated and destroyed
@@ -53,7 +59,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
@@ -71,7 +78,9 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]string{"john": {"testdb"}, "mary": {"testdb", "new_testdb"}}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
+						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
@@ -90,7 +99,9 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.fqdn"),
 					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]string{"john": {"testdb"}, "mary": {"testdb", "new_testdb"}}),
+					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
+						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
+						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
@@ -116,6 +127,19 @@ func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
 
 		if err == nil {
 			return fmt.Errorf("MySQL Cluster still exists")
+		}
+	}
+
+	for _, rs := range state.RootModule().Resources {
+		if rs.Type != "yandex_vpc_network" {
+			continue
+		}
+
+		_, err := config.sdk.VPC().Network().Get(context.Background(), &vpc.GetNetworkRequest{
+			NetworkId: rs.Primary.ID,
+		})
+		if err == nil {
+			return fmt.Errorf("Network still exists")
 		}
 	}
 
@@ -220,7 +244,7 @@ func testAccCheckMDBMysqlClusterHasHosts(resource string, expectedHostCount int)
 	}
 }
 
-func testAccCheckMDBMysqlClusterHasUsers(resource string, perms map[string][]string) resource.TestCheckFunc {
+func testAccCheckMDBMysqlClusterHasUsers(resource string, perms map[string][]MockPermission) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
@@ -252,20 +276,46 @@ func testAccCheckMDBMysqlClusterHasUsers(resource string, perms map[string][]str
 				return fmt.Errorf("Unexpected user: %s", u.Name)
 			}
 
-			ups := []string{}
-			for _, p := range u.Permissions {
-				ups = append(ups, p.DatabaseName)
+			databases := []string{}
+			for _, permission := range u.Permissions {
+				databases = append(databases, permission.DatabaseName)
+				err = checkRoles(u.Name, permission, ps)
+				if err != nil {
+					return err
+				}
 			}
 
-			sort.Strings(ps)
-			sort.Strings(ups)
-			if fmt.Sprintf("%v", ps) != fmt.Sprintf("%v", ups) {
-				return fmt.Errorf("User %s has wrong permissions, %v. Expected %v", u.Name, ups, ps)
+			expectedDatabases := []string{}
+			for _, permission := range ps {
+				expectedDatabases = append(expectedDatabases, permission.DatabaseName)
+			}
+
+			sort.Strings(expectedDatabases)
+			sort.Strings(databases)
+			if fmt.Sprintf("%v", expectedDatabases) != fmt.Sprintf("%v", databases) {
+				return fmt.Errorf("User %s has wrong permissions, %v. Expected %v", u.Name, databases, expectedDatabases)
 			}
 		}
 
 		return nil
 	}
+}
+
+func checkRoles(name string, permission *mysql.Permission, expectedPermissions []MockPermission) error {
+	for _, expectedPermission := range expectedPermissions {
+		if permission.DatabaseName != expectedPermission.DatabaseName {
+			continue
+		}
+		roles := permission.Roles
+		expectedRoles, err := bindDatabaseRoles(expectedPermission.Roles)
+		if err != nil {
+			return err
+		}
+		if fmt.Sprintf("%v", roles) != fmt.Sprintf("%v", expectedRoles) {
+			return fmt.Errorf("User %s has wrong permissions, wrong roles, %v. Expected %v", name, roles, expectedRoles)
+		}
+	}
+	return nil
 }
 
 func testAccCheckMDBMysqlClusterHasResources(resource *mysql.Cluster, resourcePresetID, diskTypeID string, diskSize int64) resource.TestCheckFunc {
@@ -347,6 +397,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
     }
   }
 
@@ -390,6 +441,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
     }
   }
 
@@ -399,10 +451,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
     permission {
       database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
     }
 
     permission {
       database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
     }
   }
 
@@ -446,6 +500,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
     }
   }
 
@@ -455,10 +510,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
     permission {
       database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
     }
 
     permission {
       database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
     }
   }
 

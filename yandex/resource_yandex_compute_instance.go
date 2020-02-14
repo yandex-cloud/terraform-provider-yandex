@@ -172,6 +172,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 
+			"network_acceleration_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "standard",
+				ValidateFunc: validation.StringInSlice([]string{"standard", "software_accelerated"}, false),
+			},
+
 			"network_interface": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -483,6 +490,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	if instance.NetworkSettings != nil {
+		d.Set("network_acceleration_type", strings.ToLower(instance.NetworkSettings.Type.String()))
+	}
+
 	if err := d.Set("network_interface", networkInterfaces); err != nil {
 		return err
 	}
@@ -620,9 +631,10 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	resourcesPropName := "resources"
 	secDiskPropName := "secondary_disk"
 	platformIDPropName := "platform_id"
-	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) {
+	networkAccelerationTypePropName := "network_acceleration_type"
+	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) {
 		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id` on an instance requires stopping it. " +
+			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id`, `network_acceleration_type` on an instance requires stopping it. " +
 				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 		}
 
@@ -630,8 +642,8 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		// update platform and resources in one request
-		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) {
+		// update platform, resources and network_settings in one request
+		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) {
 			req := &compute.UpdateInstanceRequest{
 				InstanceId: d.Id(),
 				UpdateMask: &field_mask.FieldMask{
@@ -660,6 +672,20 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 				onDone = append(onDone, func() {
 					d.SetPartial(platformIDPropName)
+				})
+			}
+
+			if d.HasChange(networkAccelerationTypePropName) {
+				networkSettings, err := expandInstanceNetworkSettingsSpecs(d)
+				if err != nil {
+					return err
+				}
+
+				req.NetworkSettings = networkSettings
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "network_settings")
+
+				onDone = append(onDone, func() {
+					d.SetPartial(networkAccelerationTypePropName)
 				})
 			}
 
@@ -839,6 +865,11 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'secondary_disk' object of api request: %s", err)
 	}
 
+	networkSettingsSpecs, err := expandInstanceNetworkSettingsSpecs(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
+	}
+
 	nicSpecs, err := expandInstanceNetworkInterfaceSpecs(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
@@ -862,6 +893,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		ResourcesSpec:         resourcesSpec,
 		BootDiskSpec:          bootDiskSpec,
 		SecondaryDiskSpecs:    secondaryDiskSpecs,
+		NetworkSettings:       networkSettingsSpecs,
 		NetworkInterfaceSpecs: nicSpecs,
 		SchedulingPolicy:      schedulingPolicy,
 	}

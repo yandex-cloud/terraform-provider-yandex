@@ -313,6 +313,12 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
+												"labels": {
+													Type:     schema.TypeMap,
+													Elem:     &schema.Schema{Type: schema.TypeString},
+													Set:      schema.HashString,
+													Computed: true,
+												},
 												"target": {
 													Type:     schema.TypeFloat,
 													Computed: true,

@@ -714,6 +714,7 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-with-sa-%s", acctest.RandString(10))
+	var saName = acctest.RandomWithPrefix("test-sa-for-vm")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -721,12 +722,67 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_service_account(instanceName),
+				Config: testAccComputeInstance_service_account(instanceName, saName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasServiceAccount(&instance),
 					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-with-ns-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// create without setting acceleration type
+			{
+				Config: testAccComputeInstance_network_acceleration_type_empty(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
+				),
+			},
+			computeInstanceImportStep(),
+			// set standard - nothing changes
+			{
+				Config: testAccComputeInstance_network_acceleration_type(instanceName, "standard"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
+				),
+			},
+			computeInstanceImportStep(),
+			//change to software_accelerated
+			{
+				Config: testAccComputeInstance_network_acceleration_type(instanceName, "software_accelerated"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_SOFTWARE_ACCELERATED),
+				),
+			},
+			computeInstanceImportStep(),
+			//clear
+			{
+				Config: testAccComputeInstance_network_acceleration_type_empty(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1065,6 +1121,16 @@ func testAccCheckComputeInstanceHasServiceAccount(instance *compute.Instance) re
 	return func(s *terraform.State) error {
 		if instance.ServiceAccountId == "" {
 			return fmt.Errorf("No Service Account assigned to instance")
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasNetworkAccelerationType(instance *compute.Instance, expected compute.NetworkSettings_Type) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.NetworkSettings.Type != expected {
+			return fmt.Errorf("Unexpected network acceleration type, actual = %v, expected = %v", instance.NetworkSettings.Type, expected)
 		}
 
 		return nil
@@ -2334,7 +2400,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance)
 }
 
-func testAccComputeInstance_service_account(instance string) string {
+func testAccComputeInstance_service_account(instance, sa string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
@@ -2376,8 +2442,98 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 }
 
 resource "yandex_iam_service_account" "sa-test" {
-  name        = "test-sa-for-vm"
+  name        = "%s"
   description = "Test SA for VM"
+}
+`, instance, sa)
+}
+
+func testAccComputeInstance_network_acceleration_type(instance string, accelerationType string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name               = "%s"
+  description        = "testAccComputeInstance_basic"
+  zone               = "ru-central1-a"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_acceleration_type = "%s"
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance, accelerationType)
+}
+
+func testAccComputeInstance_network_acceleration_type_empty(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name               = "%s"
+  description        = "testAccComputeInstance_basic"
+  zone               = "ru-central1-a"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
 }

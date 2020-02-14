@@ -127,16 +127,28 @@ func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, reso
 				"user.#",
 			},
 			{
-				"user.418783599.name",
-				"user.315235038.name",
+				"user.295780749.name",
+				"user.3221207591.name",
 			},
 			{
-				"user.418783599.permission.#",
-				"user.315235038.permission.#",
+				"user.295780749.permission.#",
+				"user.3221207591.permission.#",
 			},
 			{
-				"user.418783599.permission.4177295200.database_name",
-				"user.315235038.permission.4177295200.database_name",
+				"user.295780749.permission.1976334414.database_name",
+				"user.3221207591.permission.1976334414.database_name",
+			},
+			{
+				"user.295780749.permission.1976334414.roles.#",
+				"user.3221207591.permission.1976334414.roles.#",
+			},
+			{
+				"user.295780749.permission.1976334414.roles.0",
+				"user.3221207591.permission.1976334414.roles.0",
+			},
+			{
+				"user.295780749.permission.1976334414.roles.1",
+				"user.3221207591.permission.1976334414.roles.1",
 			},
 			{
 				"database.#",

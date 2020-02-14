@@ -1,4 +1,15 @@
 ## 0.31.0 (Unreleased)
+FEATURES:
+* compute: software network acceleration for instance
+
+ENHANCEMENTS:
+* support metric labels for custom rules in `yandex_compute_instance_group.scale_policy.auto_scale`
+FEATURES:
+* support roles for users in `resource_yandex_mdb_mysql_cluster`
+
+BUG FIXES:
+* lb: fix modifying health check settings 
+
 ## 0.30.0 (February 04, 2020)
 FEATURES:
 * **New Data Source:** `yandex_dataproc_cluster`

@@ -240,6 +240,129 @@ func TestAccLBNetworkLoadBalancer_update(t *testing.T) {
 	})
 }
 
+func TestAccLBNetworkLoadBalancer_update_healthcheck(t *testing.T) {
+	var nlb loadbalancer.NetworkLoadBalancer
+	nlbDefaults := lbDefaultNLBValues()
+
+	nlbUpdatedNewPing := lbDefaultNLBValues()
+	nlbUpdatedNewPing["HTTPPath"] = "/new_ping"
+
+	nlbUpdatedNewPort := copyNlbSettings(nlbUpdatedNewPing)
+	nlbUpdatedNewPort["HTTPPort"] = 8090
+
+	nlbUpdatedNewUnhealthyTreshold := copyNlbSettings(nlbUpdatedNewPort)
+	nlbUpdatedNewUnhealthyTreshold["HTTPUnhealthyTreshold"] = 7
+
+	nlbUpdatedNewHealthyTreshold := copyNlbSettings(nlbUpdatedNewUnhealthyTreshold)
+	nlbUpdatedNewHealthyTreshold["HTTPHealthyTreshold"] = 9
+
+	nlbUpdatedNewHTTPInterval := copyNlbSettings(nlbUpdatedNewHealthyTreshold)
+	nlbUpdatedNewHTTPInterval["HTTPInterval"] = 30
+
+	nlbUpdatedNewHTTPTimeout := copyNlbSettings(nlbUpdatedNewHTTPInterval)
+	nlbUpdatedNewHTTPTimeout["HTTPTimeout"] = 25
+
+	updatedListenerChecker := func(ls *loadbalancer.Listener) error {
+		return nil
+	}
+
+	updatedATGChecker := func(settings map[string]interface{}) func(atg *loadbalancer.AttachedTargetGroup) error {
+		return func(atg *loadbalancer.AttachedTargetGroup) error {
+			return checkLBAttachedTargetGroup(
+				atg,
+				settings["HTTPName"].(string),
+				int64(settings["HTTPInterval"].(int)),
+				int64(settings["HTTPTimeout"].(int)),
+				int64(settings["HTTPUnhealthyTreshold"].(int)),
+				int64(settings["HTTPHealthyTreshold"].(int)),
+				int64(settings["HTTPPort"].(int)),
+				settings["HTTPPath"].(string),
+			)
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbDefaults, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(
+						&nlb, 1, 1,
+						func(ls *loadbalancer.Listener) error {
+							return checkLBListener(
+								ls, lbDefaultListenerName, lbDefaultListenerPort, lbDefaultListenerTargetPort,
+							)
+						},
+						func(atg *loadbalancer.AttachedTargetGroup) error {
+							return checkLBAttachedTargetGroup(
+								atg, lbDefaultHCHTTPName,
+								lbDefaultHCHTTPInterval, lbDefaultHCHTTPTimeout,
+								lbDefaultHCHTTPHealthyTreshold, lbDefaultHCHTTPUnhealthyTreshold,
+								lbDefaultHCHTTPPort, lbDefaultHCHTTPPath,
+							)
+						},
+					),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewPing, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewPing)),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewPort, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewPort)),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewUnhealthyTreshold, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewUnhealthyTreshold)),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewHealthyTreshold, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewHealthyTreshold)),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewHTTPInterval, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewHTTPInterval)),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbUpdatedNewHTTPTimeout, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewHTTPTimeout)),
+				),
+			},
+			networkLoadBalancerImportStep(),
+		},
+	})
+}
+
+func copyNlbSettings(settings map[string]interface{}) map[string]interface{} {
+	newSettings := map[string]interface{}{}
+	for k, v := range settings {
+		newSettings[k] = v
+	}
+	return newSettings
+}
+
 func testAccCheckLBNetworkLoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 

@@ -51,17 +51,42 @@ func resourceLBNetworkLoadBalancerAttachedTargetGroupHash(v interface{}) int {
 	case []interface{}:
 		for _, hcc := range hcs {
 			hc := hcc.(map[string]interface{})
-			if v, ok := hc["name"]; ok {
-				buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-			}
+			buf.WriteString(fmt.Sprintf("%d-", healthCheckSettingsHash(hc)))
 		}
 	case []map[string]interface{}:
 		for _, hc := range hcs {
-			if v, ok := hc["name"]; ok {
-				buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-			}
+			buf.WriteString(fmt.Sprintf("%d-", healthCheckSettingsHash(hc)))
 		}
 	default:
+	}
+
+	return hashcode.String(buf.String())
+}
+
+func healthCheckSettingsHash(hc map[string]interface{}) int {
+	var buf bytes.Buffer
+
+	for _, k := range []string{"name", "interval", "timeout", "unhealthy_threshold", "healthy_threshold"} {
+		if v, ok := hc[k]; ok {
+			buf.WriteString(fmt.Sprintf("\"%v\":", v))
+		}
+	}
+
+	if httpOptions, ok := getFirstElement(hc, "http_options"); ok {
+		buf.WriteString("http:")
+		if v, ok := httpOptions["port"]; ok {
+			buf.WriteString(fmt.Sprintf("%v-", v))
+		}
+		if v, ok := httpOptions["path"]; ok {
+			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		}
+	}
+
+	if tcpOptions, ok := getFirstElement(hc, "tcp_options"); ok {
+		buf.WriteString("tcp:")
+		if v, ok := tcpOptions["port"]; ok {
+			buf.WriteString(fmt.Sprintf("%v-", v))
+		}
 	}
 
 	return hashcode.String(buf.String())
@@ -499,10 +524,20 @@ func parseIPVersion(s string) (loadbalancer.IpVersion, error) {
 
 func getFirstElement(config map[string]interface{}, name string) (map[string]interface{}, bool) {
 	if v, ok := config[name]; ok {
-		cfgList := v.([]interface{})
-		if len(cfgList) > 0 {
-			return cfgList[0].(map[string]interface{}), true
+		switch v := v.(type) {
+		case map[string]interface{}:
+			return v, true
+		case []interface{}:
+			if len(v) > 0 {
+				return v[0].(map[string]interface{}), true
+			}
+		case []map[string]interface{}:
+			if len(v) > 0 {
+				return v[0], true
+			}
+		default:
 		}
+
 	}
 	return nil, false
 }

@@ -501,7 +501,7 @@ func expandPGDatabase(m map[string]interface{}) (*postgresql.DatabaseSpec, error
 		out.LcCollate = v.(string)
 	}
 
-	if v, ok := m["lc_ctype"]; ok {
+	if v, ok := m["lc_type"]; ok {
 		out.LcCtype = v.(string)
 	}
 

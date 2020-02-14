@@ -143,6 +143,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"network_acceleration_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"network_interface": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -323,6 +327,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	if err := d.Set("boot_disk", bootDisk); err != nil {
 		return err
+	}
+
+	if instance.NetworkSettings != nil {
+		d.Set("network_acceleration_type", strings.ToLower(instance.NetworkSettings.Type.String()))
 	}
 
 	if err := d.Set("network_interface", networkInterfaces); err != nil {

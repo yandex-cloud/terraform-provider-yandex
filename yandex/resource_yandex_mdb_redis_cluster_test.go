@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,55 @@ import (
 
 const redisResource = "yandex_mdb_redis_cluster.foo"
 const redisResourceSharded = "yandex_mdb_redis_cluster.bar"
+
+func init() {
+	resource.AddTestSweepers("yandex_mdb_redis_cluster", &resource.Sweeper{
+		Name: "yandex_mdb_redis_cluster",
+		F:    testSweepMDBRedisCluster,
+	})
+}
+
+func testSweepMDBRedisCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.MDB().Redis().Cluster().List(conf.Context(), &redis.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting Redis clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepMDBRedisCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Redis cluster %q", c.Id))
+		} else {
+			if !sweepVPCNetwork(conf, c.NetworkId) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
+			}
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepMDBRedisCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepMDBRedisClusterOnce, conf, "Redis cluster", id)
+}
+
+func sweepMDBRedisClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBRedisClusterDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func mdbRedisClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{

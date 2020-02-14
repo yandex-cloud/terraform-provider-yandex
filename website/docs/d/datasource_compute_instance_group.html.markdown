@@ -137,6 +137,8 @@ This type of metric must have the `zone_id` label.
 
 * `target` - Target metric value level.
 
+* `labels` - A map of labels of metric.
+
 ---
 
 The `instance_template` block supports:

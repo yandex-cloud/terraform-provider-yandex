@@ -116,6 +116,13 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"roles": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -625,7 +632,10 @@ func updateMysqlClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers := mysqlChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	changedUsers, err := mysqlChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	if err != nil {
+		return err
+	}
 	for _, u := range changedUsers {
 		err := updateMysqlUser(ctx, config, d, u)
 		if err != nil {
@@ -702,22 +712,28 @@ func createMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 
 // Takes the old set of user specs and the new set of user specs.
 // Returns the slice of user specs which have changed.
-func mysqlChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*mysql.UserSpec {
+func mysqlChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*mysql.UserSpec, error) {
 	result := []*mysql.UserSpec{}
 	m := map[string]*mysql.UserSpec{}
 	for _, spec := range oldSpecs.List() {
-		user := expandMysqlUser(spec.(map[string]interface{}))
+		user, err := expandMysqlUser(spec.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 		m[user.Name] = user
 	}
 	for _, spec := range newSpecs.List() {
-		user := expandMysqlUser(spec.(map[string]interface{}))
+		user, err := expandMysqlUser(spec.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
 		if u, ok := m[user.Name]; ok {
 			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
 				result = append(result, user)
 			}
 		}
 	}
-	return result
+	return result, nil
 }
 
 func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mysql.UserSpec) error {

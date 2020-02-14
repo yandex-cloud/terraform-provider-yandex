@@ -125,6 +125,13 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+									"roles": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+									},
 								},
 							},
 						},

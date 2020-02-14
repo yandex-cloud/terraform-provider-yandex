@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	yandexKubernetesClusterCreateTimeout  = 20 * time.Minute
+	yandexKubernetesClusterCreateTimeout  = 30 * time.Minute
 	yandexKubernetesClusterReadTimeout    = 5 * time.Minute
 	yandexKubernetesClusterDefaultTimeout = 20 * time.Minute
 )

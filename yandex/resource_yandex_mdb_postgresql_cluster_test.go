@@ -100,6 +100,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgResource, "name", pgName),
 					resource.TestCheckResourceAttr(pgResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(pgResource, "description", pgDesc),
+					resource.TestCheckResourceAttr(pgResource, "database.3669116385.lc_collate", "en_US.UTF-8"),
+					resource.TestCheckResourceAttr(pgResource, "database.3669116385.lc_type", "en_US.UTF-8"),
 					resource.TestCheckResourceAttrSet(pgResource, "host.0.fqdn"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "test_key", "test_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
@@ -406,8 +408,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   database {
-    owner = "alice"
-    name  = "testdb"
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
   }
 }
 `, name, desc)
@@ -466,8 +470,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   database {
-    owner = "alice"
-    name  = "testdb"
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
   }
   database {
     owner = "alice"
@@ -534,8 +540,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   database {
-    owner = "alice"
-    name  = "testdb"
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
   }
   database {
     owner = "alice"

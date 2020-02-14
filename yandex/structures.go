@@ -357,6 +357,7 @@ func flattenInstanceGroupScalePolicy(ig *instancegroup.InstanceGroup) ([]map[str
 					"metric_type": instancegroup.ScalePolicy_CustomRule_MetricType_name[int32(rule.MetricType)],
 					"metric_name": rule.MetricName,
 					"target":      rule.Target,
+					"labels":      rule.GetLabels(),
 				}
 			}
 		}
@@ -715,6 +716,19 @@ func expandSecondaryDiskSpec(diskConfig map[string]interface{}) (*compute.Attach
 	}
 
 	return disk, nil
+}
+
+func expandInstanceNetworkSettingsSpecs(d *schema.ResourceData) (*compute.NetworkSettings, error) {
+	if v, ok := d.GetOk("network_acceleration_type"); ok {
+		typeVal, ok := compute.NetworkSettings_Type_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'network_acceleration_type' should be 'standard' or 'software_accelerated'', not '%s'", v)
+		}
+		return &compute.NetworkSettings{
+			Type: compute.NetworkSettings_Type(typeVal),
+		}, nil
+	}
+	return nil, nil
 }
 
 func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.NetworkInterfaceSpec, error) {
@@ -1076,11 +1090,17 @@ func expandCustomRule(d *schema.ResourceData, prefix string) (*instancegroup.Sca
 		return nil, fmt.Errorf("invalid value for metric_type")
 	}
 
+	labels, err := expandLabels(d.Get(prefix + ".labels"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding labels while creating custom rule: %s", err)
+	}
+
 	return &instancegroup.ScalePolicy_CustomRule{
 		RuleType:   instancegroup.ScalePolicy_CustomRule_RuleType(ruleType),
 		MetricType: instancegroup.ScalePolicy_CustomRule_MetricType(metricType),
 		MetricName: d.Get(prefix + ".metric_name").(string),
 		Target:     d.Get(prefix + ".target").(float64),
+		Labels:     labels,
 	}, nil
 }
 

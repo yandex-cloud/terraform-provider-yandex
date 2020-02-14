@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -38,7 +40,7 @@ func expandMysqlDatabases(d *schema.ResourceData) ([]*mysql.DatabaseSpec, error)
 	return result, nil
 }
 
-func expandMysqlUser(u map[string]interface{}) *mysql.UserSpec {
+func expandMysqlUser(u map[string]interface{}) (*mysql.UserSpec, error) {
 	user := &mysql.UserSpec{}
 
 	if v, ok := u["name"]; ok {
@@ -50,10 +52,14 @@ func expandMysqlUser(u map[string]interface{}) *mysql.UserSpec {
 	}
 
 	if v, ok := u["permission"]; ok {
-		user.Permissions = expandMysqlUserPermissions(v.(*schema.Set))
+		a, err := expandMysqlUserPermissions(v.(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
+		user.Permissions = a
 	}
 
-	return user
+	return user, nil
 }
 
 func expandMysqlUserSpecs(d *schema.ResourceData) ([]*mysql.UserSpec, error) {
@@ -63,13 +69,17 @@ func expandMysqlUserSpecs(d *schema.ResourceData) ([]*mysql.UserSpec, error) {
 	for _, u := range users.List() {
 		m := u.(map[string]interface{})
 
-		result = append(result, expandMysqlUser(m))
+		user, err := expandMysqlUser(m)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, user)
 	}
 
 	return result, nil
 }
 
-func expandMysqlUserPermissions(ps *schema.Set) []*mysql.Permission {
+func expandMysqlUserPermissions(ps *schema.Set) ([]*mysql.Permission, error) {
 	result := []*mysql.Permission{}
 
 	for _, p := range ps.List() {
@@ -78,9 +88,21 @@ func expandMysqlUserPermissions(ps *schema.Set) []*mysql.Permission {
 		if v, ok := m["database_name"]; ok {
 			permission.DatabaseName = v.(string)
 		}
+		if v, ok := m["roles"]; ok {
+			strings := v.([]interface{})
+			stringRoles := make([]string, 0)
+			for _, role := range strings {
+				stringRoles = append(stringRoles, role.(string))
+			}
+			a, err := bindDatabaseRoles(stringRoles)
+			permission.Roles = a
+			if err != nil {
+				return nil, err
+			}
+		}
 		result = append(result, permission)
 	}
-	return result
+	return result, nil
 }
 
 func expandMysqlHosts(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
@@ -161,12 +183,16 @@ func mysqlDatabaseHash(v interface{}) int {
 }
 
 func mysqlUserPermissionHash(v interface{}) int {
+	buf := bytes.Buffer{}
 	m := v.(map[string]interface{})
 
 	if n, ok := m["database_name"]; ok {
-		return hashcode.String(n.(string))
+		buf.WriteString(fmt.Sprintf("%s-", n.(string)))
 	}
-	return 0
+	if n, ok := m["roles"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", n))
+	}
+	return hashcode.String(buf.String())
 }
 
 func flattenMysqlResources(r *mysql.Resources) ([]map[string]interface{}, error) {
@@ -319,8 +345,10 @@ func flattenMysqlUserPermissions(ps []*mysql.Permission) (*schema.Set, error) {
 	out := schema.NewSet(mysqlUserPermissionHash, nil)
 
 	for _, p := range ps {
+		roles := unbindDatabaseRoles(p.Roles)
 		op := map[string]interface{}{
 			"database_name": p.DatabaseName,
+			"roles":         roles,
 		}
 
 		out.Add(op)
@@ -364,4 +392,90 @@ func flattenMysqlDatabases(dbs []*mysql.Database) *schema.Set {
 	}
 
 	return out
+}
+
+var rolesMap = map[string]mysql.Permission_Privilege{
+	"ALL":                     mysql.Permission_ALL_PRIVILEGES,
+	"ALTER":                   mysql.Permission_ALTER,
+	"ALTER_ROUTINE":           mysql.Permission_ALTER_ROUTINE,
+	"CREATE":                  mysql.Permission_CREATE,
+	"CREATE_ROUTINE":          mysql.Permission_CREATE_ROUTINE,
+	"CREATE_TEMPORARY_TABLES": mysql.Permission_CREATE_TEMPORARY_TABLES,
+	"CREATE_VIEW":             mysql.Permission_CREATE_VIEW,
+	"DELETE":                  mysql.Permission_DELETE,
+	"DROP":                    mysql.Permission_DROP,
+	"EVENT":                   mysql.Permission_EVENT,
+	"EXECUTE":                 mysql.Permission_EXECUTE,
+	"INDEX":                   mysql.Permission_INDEX,
+	"INSERT":                  mysql.Permission_INSERT,
+	"LOCK_TABLES":             mysql.Permission_LOCK_TABLES,
+	"SELECT":                  mysql.Permission_SELECT,
+	"SHOW_VIEW":               mysql.Permission_SHOW_VIEW,
+	"TRIGGER":                 mysql.Permission_TRIGGER,
+	"UPDATE":                  mysql.Permission_UPDATE,
+}
+
+var revertedRolesMap = map[mysql.Permission_Privilege]string{
+	mysql.Permission_ALL_PRIVILEGES:          "ALL",
+	mysql.Permission_ALTER:                   "ALTER",
+	mysql.Permission_ALTER_ROUTINE:           "ALTER_ROUTINE",
+	mysql.Permission_CREATE:                  "CREATE",
+	mysql.Permission_CREATE_ROUTINE:          "CREATE_ROUTINE",
+	mysql.Permission_CREATE_TEMPORARY_TABLES: "CREATE_TEMPORARY_TABLES",
+	mysql.Permission_CREATE_VIEW:             "CREATE_VIEW",
+	mysql.Permission_DELETE:                  "DELETE",
+	mysql.Permission_DROP:                    "DROP",
+	mysql.Permission_EVENT:                   "EVENT",
+	mysql.Permission_EXECUTE:                 "EXECUTE",
+	mysql.Permission_INDEX:                   "INDEX",
+	mysql.Permission_INSERT:                  "INSERT",
+	mysql.Permission_LOCK_TABLES:             "LOCK_TABLES",
+	mysql.Permission_SELECT:                  "SELECT",
+	mysql.Permission_SHOW_VIEW:               "SHOW_VIEW",
+	mysql.Permission_TRIGGER:                 "TRIGGER",
+	mysql.Permission_UPDATE:                  "UPDATE",
+}
+
+func getRoleNames() string {
+	values := []string{}
+	for k := range rolesMap {
+		values = append(values, k)
+	}
+	sort.Strings(values)
+
+	return strings.Join(values, ",")
+}
+
+func getRole(s string) (mysql.Permission_Privilege, error) {
+	sup := strings.ToUpper(s)
+	if role, ok := rolesMap[sup]; ok {
+		return role, nil
+	}
+
+	return mysql.Permission_PRIVILEGE_UNSPECIFIED, fmt.Errorf("unsupported database permission role flag: %v, supported values: %v", s, getRoleNames())
+}
+
+func bindDatabaseRoles(permissions []string) ([]mysql.Permission_Privilege, error) {
+	var roles []mysql.Permission_Privilege
+	for _, v := range permissions {
+		role, err := getRole(v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	return roles, nil
+}
+
+func unbindDatabaseRoles(permissions []mysql.Permission_Privilege) []string {
+	var roles []string
+	for _, v := range permissions {
+		role := revertedRolesMap[v]
+		roles = append(roles, role)
+	}
+
+	return roles
 }

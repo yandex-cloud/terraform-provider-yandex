@@ -33,13 +33,6 @@ func testSweepVPCNetworks(_ string) error {
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
-		subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), id)
-		for subIt.Next() {
-			subID := subIt.Value().GetId()
-			if !sweepVPCSubnet(conf, subID) {
-				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC subnet %q", subID))
-			}
-		}
 		if !sweepVPCNetwork(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", id))
 		}
@@ -55,6 +48,15 @@ func sweepVPCNetwork(conf *Config, id string) bool {
 func sweepVPCNetworkOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
 	defer cancel()
+
+	subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), id)
+	for subIt.Next() {
+		subID := subIt.Value().GetId()
+		err := sweepVPCSubnetOnce(conf, subID)
+		if err != nil {
+			return err
+		}
+	}
 
 	op, err := conf.sdk.VPC().Network().Delete(ctx, &vpc.DeleteNetworkRequest{
 		NetworkId: id,

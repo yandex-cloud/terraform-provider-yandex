@@ -367,6 +367,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeFloat,
 													Required: true,
 												},
+												"labels": {
+													Type:     schema.TypeMap,
+													Optional: true,
+													Elem:     &schema.Schema{Type: schema.TypeString},
+													Set:      schema.HashString,
+												},
 											},
 										},
 									},
