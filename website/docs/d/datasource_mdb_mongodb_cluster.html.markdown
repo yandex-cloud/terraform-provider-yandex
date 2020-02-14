@@ -96,6 +96,7 @@ The `user` block supports:
 The `permission` block supports:
 
 * `database_name` - The name of the database that the permission grants access to.
+* `roles` - List of roles that the user is granted on the database.
 
 The `database` block supports:
 

@@ -78,6 +78,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"roles": {
+										Type:     schema.TypeList,
+										Elem:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
