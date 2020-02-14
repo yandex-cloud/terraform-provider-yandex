@@ -59,6 +59,10 @@ func (m *CreateInstanceGroupRequest) SetServiceAccountId(v string) {
 	m.ServiceAccountId = v
 }
 
+func (m *CreateInstanceGroupRequest) SetVariables(v []*Variable) {
+	m.Variables = v
+}
+
 func (m *CreateInstanceGroupFromYamlRequest) SetFolderId(v string) {
 	m.FolderId = v
 }
@@ -117,6 +121,10 @@ func (m *UpdateInstanceGroupRequest) SetServiceAccountId(v string) {
 
 func (m *UpdateInstanceGroupRequest) SetLoadBalancerSpec(v *LoadBalancerSpec) {
 	m.LoadBalancerSpec = v
+}
+
+func (m *UpdateInstanceGroupRequest) SetVariables(v []*Variable) {
+	m.Variables = v
 }
 
 func (m *UpdateInstanceGroupFromYamlRequest) SetInstanceGroupId(v string) {

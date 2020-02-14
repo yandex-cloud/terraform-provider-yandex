@@ -4,6 +4,7 @@ package awscompatibility
 
 import (
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	field_mask "google.golang.org/genproto/protobuf/field_mask"
 )
 
 func (m *GetAccessKeyRequest) SetAccessKeyId(v string) {
@@ -44,6 +45,22 @@ func (m *CreateAccessKeyResponse) SetAccessKey(v *AccessKey) {
 
 func (m *CreateAccessKeyResponse) SetSecret(v string) {
 	m.Secret = v
+}
+
+func (m *UpdateAccessKeyRequest) SetAccessKeyId(v string) {
+	m.AccessKeyId = v
+}
+
+func (m *UpdateAccessKeyRequest) SetUpdateMask(v *field_mask.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateAccessKeyRequest) SetDescription(v string) {
+	m.Description = v
+}
+
+func (m *UpdateAccessKeyMetadata) SetAccessKeyId(v string) {
+	m.AccessKeyId = v
 }
 
 func (m *DeleteAccessKeyRequest) SetAccessKeyId(v string) {

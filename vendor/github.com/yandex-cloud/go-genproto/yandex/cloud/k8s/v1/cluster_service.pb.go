@@ -1321,7 +1321,7 @@ func (m *ZonalMasterSpec) GetExternalV4AddressSpec() *ExternalAddressSpec {
 type RegionalMasterSpec struct {
 	RegionId  string            `protobuf:"bytes,1,opt,name=region_id,json=regionId,proto3" json:"region_id,omitempty"`
 	Locations []*MasterLocation `protobuf:"bytes,2,rep,name=locations,proto3" json:"locations,omitempty"`
-	// Specify to allocate a static public IP for the master
+	// Specify to allocate a static public IP for the master.
 	ExternalV4AddressSpec *ExternalAddressSpec `protobuf:"bytes,3,opt,name=external_v4_address_spec,json=externalV4AddressSpec,proto3" json:"external_v4_address_spec,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{}             `json:"-"`
 	XXX_unrecognized      []byte               `json:"-"`

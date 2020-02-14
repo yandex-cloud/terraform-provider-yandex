@@ -30,18 +30,6 @@ func (m *Permission) SetDatabaseName(v string) {
 	m.DatabaseName = v
 }
 
-func (m *Permission) SetDataFilters(v []*Permission_DataFilter) {
-	m.DataFilters = v
-}
-
-func (m *Permission_DataFilter) SetTableName(v string) {
-	m.TableName = v
-}
-
-func (m *Permission_DataFilter) SetFilter(v string) {
-	m.Filter = v
-}
-
 func (m *UserSpec) SetName(v string) {
 	m.Name = v
 }

@@ -218,7 +218,7 @@ type Instance struct {
 	// ID of the service account to use for [authentication inside the instance](/docs/compute/operations/vm-connect/auth-inside-vm).
 	// To get the service account ID, use a [yandex.cloud.iam.v1.ServiceAccountService.List] request.
 	ServiceAccountId string `protobuf:"bytes,18,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
-	// Do not specify this field, network settings are not supported yet.
+	// Network Settings
 	NetworkSettings *NetworkSettings `protobuf:"bytes,19,opt,name=network_settings,json=networkSettings,proto3" json:"network_settings,omitempty"`
 	// Placement policy configuration.
 	PlacementPolicy      *PlacementPolicy `protobuf:"bytes,20,opt,name=placement_policy,json=placementPolicy,proto3" json:"placement_policy,omitempty"`
@@ -739,7 +739,7 @@ func (m *SchedulingPolicy) GetPreemptible() bool {
 }
 
 type NetworkSettings struct {
-	// Do not specify this field, network settings are not supported yet.
+	// Network Type
 	Type                 NetworkSettings_Type `protobuf:"varint,1,opt,name=type,proto3,enum=yandex.cloud.compute.v1.NetworkSettings_Type" json:"type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`

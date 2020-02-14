@@ -62,8 +62,8 @@ func (m *UpdateMlModelRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
 
-func (m *UpdateMlModelRequest) SetMlModeName(v string) {
-	m.MlModeName = v
+func (m *UpdateMlModelRequest) SetMlModelName(v string) {
+	m.MlModelName = v
 }
 
 func (m *UpdateMlModelRequest) SetUpdateMask(v *field_mask.FieldMask) {

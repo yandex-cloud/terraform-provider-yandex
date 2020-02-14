@@ -62,6 +62,10 @@ func (m *NodeGroup) SetMaintenancePolicy(v *NodeGroupMaintenancePolicy) {
 	m.MaintenancePolicy = v
 }
 
+func (m *NodeGroup) SetAllowedUnsafeSysctls(v []string) {
+	m.AllowedUnsafeSysctls = v
+}
+
 func (m *NodeTemplate) SetPlatformId(v string) {
 	m.PlatformId = v
 }

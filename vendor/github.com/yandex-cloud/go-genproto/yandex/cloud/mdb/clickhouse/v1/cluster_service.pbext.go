@@ -83,6 +83,10 @@ func (m *CreateClusterRequest) SetShardName(v string) {
 	m.ShardName = v
 }
 
+func (m *CreateClusterRequest) SetServiceAccountId(v string) {
+	m.ServiceAccountId = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -109,6 +113,10 @@ func (m *UpdateClusterRequest) SetConfigSpec(v *ConfigSpec) {
 
 func (m *UpdateClusterRequest) SetName(v string) {
 	m.Name = v
+}
+
+func (m *UpdateClusterRequest) SetServiceAccountId(v string) {
+	m.ServiceAccountId = v
 }
 
 func (m *UpdateClusterMetadata) SetClusterId(v string) {

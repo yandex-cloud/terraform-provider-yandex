@@ -74,6 +74,10 @@ func (m *UpdateUserRequest) SetSettings(v *UserSettings) {
 	m.Settings = v
 }
 
+func (m *UpdateUserRequest) SetQuotas(v []*UserQuota) {
+	m.Quotas = v
+}
+
 func (m *UpdateUserMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }

@@ -57,6 +57,10 @@ func (m *Cluster) SetStatus(v Cluster_Status) {
 	m.Status = v
 }
 
+func (m *Cluster) SetServiceAccountId(v string) {
+	m.ServiceAccountId = v
+}
+
 func (m *Monitoring) SetName(v string) {
 	m.Name = v
 }
@@ -195,4 +199,8 @@ func (m *Access) SetDataLens(v bool) {
 
 func (m *Access) SetWebSql(v bool) {
 	m.WebSql = v
+}
+
+func (m *Access) SetMetrika(v bool) {
+	m.Metrika = v
 }

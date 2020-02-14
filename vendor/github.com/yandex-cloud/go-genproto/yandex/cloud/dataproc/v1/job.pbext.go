@@ -36,6 +36,10 @@ func (m *Job) SetName(v string) {
 	m.Name = v
 }
 
+func (m *Job) SetCreatedBy(v string) {
+	m.CreatedBy = v
+}
+
 func (m *Job) SetStatus(v Job_Status) {
 	m.Status = v
 }
