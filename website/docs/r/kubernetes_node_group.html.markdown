@@ -209,6 +209,15 @@ when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
 
+## Timeouts
+
+This resource provides the following configuration options for 
+[timeouts](/docs/configuration/resources.html#timeouts):
+
+- `create` - Default is 60 minute.
+- `update` - Default is 60 minute.
+- `delete` - Default is 20 minute.
+
 ## Import
 
 A Yandex Kubernetes Node Group can be imported using the `id` of the resource, e.g.:

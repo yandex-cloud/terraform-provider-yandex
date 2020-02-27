@@ -217,6 +217,10 @@ func (m *CreateFunctionVersionRequest) SetEnvironment(v map[string]string) {
 	m.Environment = v
 }
 
+func (m *CreateFunctionVersionRequest) SetTag(v []string) {
+	m.Tag = v
+}
+
 func (m *CreateFunctionVersionMetadata) SetFunctionVersionId(v string) {
 	m.FunctionVersionId = v
 }

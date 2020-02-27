@@ -85,10 +85,14 @@ type UserSettings_DistributedProductMode int32
 
 const (
 	UserSettings_DISTRIBUTED_PRODUCT_MODE_UNSPECIFIED UserSettings_DistributedProductMode = 0
-	UserSettings_DISTRIBUTED_PRODUCT_MODE_DENY        UserSettings_DistributedProductMode = 1
-	UserSettings_DISTRIBUTED_PRODUCT_MODE_LOCAL       UserSettings_DistributedProductMode = 2
-	UserSettings_DISTRIBUTED_PRODUCT_MODE_GLOBAL      UserSettings_DistributedProductMode = 3
-	UserSettings_DISTRIBUTED_PRODUCT_MODE_ALLOW       UserSettings_DistributedProductMode = 4
+	// Default value. Prohibits using these types of subqueries (returns the "Double-distributed in/JOIN subqueries is denied" exception).
+	UserSettings_DISTRIBUTED_PRODUCT_MODE_DENY UserSettings_DistributedProductMode = 1
+	//Replaces the database and table in the subquery with local ones for the destination server (shard), leaving the normal IN/JOIN.
+	UserSettings_DISTRIBUTED_PRODUCT_MODE_LOCAL UserSettings_DistributedProductMode = 2
+	//Replaces the IN/JOIN query with GLOBAL IN/GLOBAL JOIN.
+	UserSettings_DISTRIBUTED_PRODUCT_MODE_GLOBAL UserSettings_DistributedProductMode = 3
+	//Allows the use of these types of subqueries.
+	UserSettings_DISTRIBUTED_PRODUCT_MODE_ALLOW UserSettings_DistributedProductMode = 4
 )
 
 var UserSettings_DistributedProductMode_name = map[int32]string{

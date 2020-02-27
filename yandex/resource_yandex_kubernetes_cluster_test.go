@@ -27,7 +27,7 @@ func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) res
 
 //revive:disable:var-naming
 func TestAccKubernetesClusterZonal_basic(t *testing.T) {
-	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
+	clusterResource := clusterInfoWithNetworkPolicy("testAccKubernetesClusterZonalConfig_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
 	var cluster k8s.Cluster
@@ -124,7 +124,7 @@ func TestAccKubernetesClusterZonalWeeklyMaintenance_basic(t *testing.T) {
 }
 
 func TestAccKubernetesClusterRegional_basic(t *testing.T) {
-	clusterResource := clusterInfo("testAccKubernetesClusterRegionalConfig_basic", false)
+	clusterResource := clusterInfoWithNetworkPolicy("testAccKubernetesClusterRegionalConfig_basic", false)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 
 	var cluster k8s.Cluster
@@ -270,7 +270,7 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		FolderID:                       os.Getenv("YC_FOLDER_ID"),
 		Name:                           safeResourceName("clustername"),
 		Description:                    "description",
-		MasterVersion:                  "1.13",
+		MasterVersion:                  "1.15",
 		LabelKey:                       "label_key",
 		LabelValue:                     "label_value",
 		TestDescription:                testDesc,
@@ -280,11 +280,23 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		SubnetResourceNameC:            randomResourceName("subnet"),
 		ServiceAccountResourceName:     safeResourceName("serviceaccount"),
 		NodeServiceAccountResourceName: safeResourceName("nodeserviceaccount"),
-		ReleaseChannel:                 k8s.ReleaseChannel_STABLE.String(),
+		ReleaseChannel:                 k8s.ReleaseChannel_REGULAR.String(),
 		zonal:                          zonal,
 	}
 
 	res.constructMaintenancePolicyField(autoUpgrade, policyType)
+	return res
+}
+
+func clusterInfoWithNetworkPolicy(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructNetworkPolicy(k8s.NetworkPolicy_CALICO)
+	return res
+}
+
+func clusterInfoWithNetworkAndMaintenancePolicies(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
+	res := clusterInfoWithMaintenance(testDesc, zonal, autoUpgrade, policyType)
+	res.constructNetworkPolicy(k8s.NetworkPolicy_CALICO)
 	return res
 }
 
@@ -380,7 +392,15 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_endpoint", master.GetEndpoints().GetInternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
+
 			testAccCheckClusterLabel(cluster, info, rs),
+		}
+
+		if npp := info.networkPolicyProvider; npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "network_policy_provider", npp.String()),
+				resource.TestCheckResourceAttr(resourceFullName, "network_policy_provider", cluster.GetNetworkPolicy().GetProvider().String()),
+			)
 		}
 
 		const maintenanceWindowPrefix = "master.0.maintenance_policy.0.maintenance_window."
@@ -561,6 +581,9 @@ type resourceClusterInfo struct {
 
 	MaintenancePolicy string
 
+	NetworkPolicy         string
+	networkPolicyProvider k8s.NetworkPolicy_Provider
+
 	zonal bool
 
 	autoUpgrade bool
@@ -582,6 +605,13 @@ func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, 
 		i.MaintenancePolicy = templateConfig(dailyMaintenancePolicyTemplate, m)
 	case weeklyMaintenancePolicy:
 		i.MaintenancePolicy = templateConfig(weeklyMaintenancePolicyTemplate, m)
+	}
+}
+
+func (i *resourceClusterInfo) constructNetworkPolicy(npp k8s.NetworkPolicy_Provider) {
+	if npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
+		i.networkPolicyProvider = npp
+		i.NetworkPolicy = fmt.Sprintf("network_policy_provider = \"%s\"", npp.String())
 	}
 }
 
@@ -683,6 +713,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   }
 
   release_channel = "{{.ReleaseChannel}}"
+
+  {{.NetworkPolicy}}
 }
 `
 
@@ -729,6 +761,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   }
 
   release_channel = "{{.ReleaseChannel}}"
+
+  {{.NetworkPolicy}}
 }
 `
 

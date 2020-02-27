@@ -39,3 +39,11 @@ func (m *SamlUserAccount) SetFederationId(v string) {
 func (m *SamlUserAccount) SetNameId(v string) {
 	m.NameId = v
 }
+
+func (m *SamlUserAccount) SetAttributes(v map[string]*SamlUserAccount_Attribute) {
+	m.Attributes = v
+}
+
+func (m *SamlUserAccount_Attribute) SetValue(v []string) {
+	m.Value = v
+}

@@ -261,6 +261,42 @@ func (m *DetachInstanceDiskMetadata) SetDiskId(v string) {
 	m.DiskId = v
 }
 
+func (m *AddInstanceOneToOneNatRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *AddInstanceOneToOneNatRequest) SetNetworkInterfaceIndex(v string) {
+	m.NetworkInterfaceIndex = v
+}
+
+func (m *AddInstanceOneToOneNatRequest) SetInternalAddress(v string) {
+	m.InternalAddress = v
+}
+
+func (m *AddInstanceOneToOneNatRequest) SetOneToOneNatSpec(v *OneToOneNatSpec) {
+	m.OneToOneNatSpec = v
+}
+
+func (m *AddInstanceOneToOneNatMetadata) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *RemoveInstanceOneToOneNatRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *RemoveInstanceOneToOneNatRequest) SetNetworkInterfaceIndex(v string) {
+	m.NetworkInterfaceIndex = v
+}
+
+func (m *RemoveInstanceOneToOneNatRequest) SetInternalAddress(v string) {
+	m.InternalAddress = v
+}
+
+func (m *RemoveInstanceOneToOneNatMetadata) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
 func (m *ListInstanceOperationsRequest) SetInstanceId(v string) {
 	m.InstanceId = v
 }
@@ -383,4 +419,8 @@ func (m *PrimaryAddressSpec) SetOneToOneNatSpec(v *OneToOneNatSpec) {
 
 func (m *OneToOneNatSpec) SetIpVersion(v IpVersion) {
 	m.IpVersion = v
+}
+
+func (m *OneToOneNatSpec) SetAddress(v string) {
+	m.Address = v
 }

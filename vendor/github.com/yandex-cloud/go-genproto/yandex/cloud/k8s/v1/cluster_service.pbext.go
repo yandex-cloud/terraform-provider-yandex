@@ -107,6 +107,10 @@ func (m *UpdateClusterRequest) SetNodeServiceAccountId(v string) {
 	m.NodeServiceAccountId = v
 }
 
+func (m *UpdateClusterRequest) SetNetworkPolicy(v *NetworkPolicy) {
+	m.NetworkPolicy = v
+}
+
 func (m *MasterUpdateSpec) SetVersion(v *UpdateVersionSpec) {
 	m.Version = v
 }
@@ -169,6 +173,10 @@ func (m *CreateClusterRequest) SetNodeServiceAccountId(v string) {
 
 func (m *CreateClusterRequest) SetReleaseChannel(v ReleaseChannel) {
 	m.ReleaseChannel = v
+}
+
+func (m *CreateClusterRequest) SetNetworkPolicy(v *NetworkPolicy) {
+	m.NetworkPolicy = v
 }
 
 func (m *CreateClusterMetadata) SetClusterId(v string) {

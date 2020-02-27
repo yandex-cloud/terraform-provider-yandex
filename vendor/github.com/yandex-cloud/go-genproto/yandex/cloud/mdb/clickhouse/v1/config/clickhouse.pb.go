@@ -190,6 +190,7 @@ func (ClickhouseConfig_ExternalDictionary_Layout_Type) EnumDescriptor() ([]byte,
 // Any options not listed here are not supported.
 type ClickhouseConfig struct {
 	// Logging level for the ClickHouse cluster.
+	// See description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#server_settings-logger).
 	LogLevel ClickhouseConfig_LogLevel `protobuf:"varint,1,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfig_LogLevel" json:"log_level,omitempty"`
 	// Settings for the MergeTree engine.
 	// See description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#merge_tree).

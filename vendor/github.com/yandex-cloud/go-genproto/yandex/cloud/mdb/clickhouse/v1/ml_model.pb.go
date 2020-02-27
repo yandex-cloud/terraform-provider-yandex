@@ -24,7 +24,8 @@ type MlModelType int32
 
 const (
 	MlModelType_ML_MODEL_TYPE_UNSPECIFIED MlModelType = 0
-	MlModelType_ML_MODEL_TYPE_CATBOOST    MlModelType = 1
+	// CatBoost model.
+	MlModelType_ML_MODEL_TYPE_CATBOOST MlModelType = 1
 )
 
 var MlModelType_name = map[int32]string{
@@ -46,13 +47,17 @@ func (MlModelType) EnumDescriptor() ([]byte, []int) {
 }
 
 type MlModel struct {
-	Name                 string      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	ClusterId            string      `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	Type                 MlModelType `protobuf:"varint,3,opt,name=type,proto3,enum=yandex.cloud.mdb.clickhouse.v1.MlModelType" json:"type,omitempty"`
-	Uri                  string      `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+	// Name of the the model.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// ID of the ClickHouse cluster that the model belongs to.
+	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Type of the model.
+	Type MlModelType `protobuf:"varint,3,opt,name=type,proto3,enum=yandex.cloud.mdb.clickhouse.v1.MlModelType" json:"type,omitempty"`
+	// Model file URL. You can only use models stored in Yandex Object Storage.
+	Uri                  string   `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MlModel) Reset()         { *m = MlModel{} }

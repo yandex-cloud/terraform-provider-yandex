@@ -19,11 +19,11 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20200210145029-64c742969595
+	github.com/yandex-cloud/go-genproto v0.0.0-20200217105319-9cedee3a8695
 	github.com/yandex-cloud/go-sdk v0.0.0-20200113201139-dc3c759a1204
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
-	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4 // indirect
-	google.golang.org/genproto v0.0.0-20200212174721-66ed5ce911ce
+	golang.org/x/net v0.0.0-20200219183655-46282727080f
+	golang.org/x/sys v0.0.0-20200219091948-cb0a6d8edb6c // indirect
+	google.golang.org/genproto v0.0.0-20200218151345-dad8c97a84f5
 	google.golang.org/grpc v1.27.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )

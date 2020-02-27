@@ -30,7 +30,11 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetMlModelRequest struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// ID of the cluster that the model belongs to.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the model to return.
+	//
+	// To get a model name make a [MlModelService.List] request.
 	MlModelName          string   `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -77,8 +81,15 @@ func (m *GetMlModelRequest) GetMlModelName() string {
 }
 
 type ListMlModelsRequest struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	PageSize             int64    `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// ID of the cluster that models belongs to.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// The maximum number of results per page to return. If the number of available
+	// results is larger than `page_size`, the service returns a [ListMlModelsResponse.next_page_token]
+	// that can be used to get the next page of results in subsequent list requests.
+	// Default value: 100.
+	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Page token. To get the next page of results, set `page_token` to the
+	// [ListMlModelsResponse.next_page_token] returned by a previous list request.
 	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -132,11 +143,17 @@ func (m *ListMlModelsRequest) GetPageToken() string {
 }
 
 type ListMlModelsResponse struct {
-	MlModels             []*MlModel `protobuf:"bytes,1,rep,name=ml_models,json=mlModels,proto3" json:"ml_models,omitempty"`
-	NextPageToken        string     `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+	// List of models in the specified cluster.
+	MlModels []*MlModel `protobuf:"bytes,1,rep,name=ml_models,json=mlModels,proto3" json:"ml_models,omitempty"`
+	// Token for getting the next page of the list. If the number of results is greater than
+	// the specified [ListMlModelsRequest.page_size], use `next_page_token` as the value
+	// for the [ListMlModelsRequest.page_token] parameter in the next list request.
+	//
+	// Each subsequent page will have its own `next_page_token` to continue paging through the results.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ListMlModelsResponse) Reset()         { *m = ListMlModelsResponse{} }
@@ -179,13 +196,19 @@ func (m *ListMlModelsResponse) GetNextPageToken() string {
 }
 
 type CreateMlModelRequest struct {
-	ClusterId            string      `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	MlModelName          string      `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
-	Type                 MlModelType `protobuf:"varint,3,opt,name=type,proto3,enum=yandex.cloud.mdb.clickhouse.v1.MlModelType" json:"type,omitempty"`
-	Uri                  string      `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+	// ID of the cluster to create a model in.
+	//
+	// To get a cluster ID make a [ClusterService.List] request.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Model name. The model name is one of the arguments of the modelEvaluate() function, which is used to call the model in ClickHouse.
+	MlModelName string `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
+	// Type of the model.
+	Type MlModelType `protobuf:"varint,3,opt,name=type,proto3,enum=yandex.cloud.mdb.clickhouse.v1.MlModelType" json:"type,omitempty"`
+	// Model file URL. You can only use models stored in Yandex Object Storage.
+	Uri                  string   `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *CreateMlModelRequest) Reset()         { *m = CreateMlModelRequest{} }
@@ -242,7 +265,9 @@ func (m *CreateMlModelRequest) GetUri() string {
 }
 
 type CreateMlModelMetadata struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// ID of the cluster that a model is being added to.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the the model that is being created.
 	MlModelName          string   `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -289,13 +314,18 @@ func (m *CreateMlModelMetadata) GetMlModelName() string {
 }
 
 type UpdateMlModelRequest struct {
-	ClusterId            string                `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	MlModelName          string                `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
-	UpdateMask           *field_mask.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	Uri                  string                `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	// ID of the cluster to update the model in.
+	//
+	// To get a cluster ID make a [ClusterService.List] request.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the the model to update.
+	MlModelName string                `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
+	UpdateMask  *field_mask.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	// The new model file URL. You can only use models stored in Yandex Object Storage.
+	Uri                  string   `protobuf:"bytes,4,opt,name=uri,proto3" json:"uri,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UpdateMlModelRequest) Reset()         { *m = UpdateMlModelRequest{} }
@@ -352,7 +382,9 @@ func (m *UpdateMlModelRequest) GetUri() string {
 }
 
 type UpdateMlModelMetadata struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// ID of the cluster that contains the model being updated.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the the model that is being updated.
 	MlModelName          string   `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -399,7 +431,11 @@ func (m *UpdateMlModelMetadata) GetMlModelName() string {
 }
 
 type DeleteMlModelRequest struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// ID of the cluster to delete the model in.
+	//
+	// To get a cluster ID make a [ClusterService.List] request.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the the model to delete.
 	MlModelName          string   `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -446,7 +482,9 @@ func (m *DeleteMlModelRequest) GetMlModelName() string {
 }
 
 type DeleteMlModelMetadata struct {
-	ClusterId            string   `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// ID of the cluster that contains the model being deleted.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Name of the the model that is being deleted.
 	MlModelName          string   `protobuf:"bytes,2,opt,name=ml_model_name,json=mlModelName,proto3" json:"ml_model_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -575,10 +613,17 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MlModelServiceClient interface {
+	// Returns the specified machine learning model.
+	//
+	// To get the list of all available models, make a [List] request.
 	Get(ctx context.Context, in *GetMlModelRequest, opts ...grpc.CallOption) (*MlModel, error)
+	// Retrieves the list of machine learning models in the specified cluster.
 	List(ctx context.Context, in *ListMlModelsRequest, opts ...grpc.CallOption) (*ListMlModelsResponse, error)
+	// Creates a machine learning model in the specified cluster.
 	Create(ctx context.Context, in *CreateMlModelRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates the specified machine learning model.
 	Update(ctx context.Context, in *UpdateMlModelRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Deletes the specified machine learning model.
 	Delete(ctx context.Context, in *DeleteMlModelRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
 
@@ -637,10 +682,17 @@ func (c *mlModelServiceClient) Delete(ctx context.Context, in *DeleteMlModelRequ
 
 // MlModelServiceServer is the server API for MlModelService service.
 type MlModelServiceServer interface {
+	// Returns the specified machine learning model.
+	//
+	// To get the list of all available models, make a [List] request.
 	Get(context.Context, *GetMlModelRequest) (*MlModel, error)
+	// Retrieves the list of machine learning models in the specified cluster.
 	List(context.Context, *ListMlModelsRequest) (*ListMlModelsResponse, error)
+	// Creates a machine learning model in the specified cluster.
 	Create(context.Context, *CreateMlModelRequest) (*operation.Operation, error)
+	// Updates the specified machine learning model.
 	Update(context.Context, *UpdateMlModelRequest) (*operation.Operation, error)
+	// Deletes the specified machine learning model.
 	Delete(context.Context, *DeleteMlModelRequest) (*operation.Operation, error)
 }
 
