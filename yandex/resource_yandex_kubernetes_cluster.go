@@ -226,7 +226,6 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
@@ -236,7 +235,6 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 			},
 			"labels": {
@@ -275,6 +273,11 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"network_policy_provider": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -469,6 +472,10 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 	if err != nil {
 		return nil, err
 	}
+	networkPolicy, err := getKubernetesClusterNetworkPolicy(d)
+	if err != nil {
+		return nil, err
+	}
 
 	req := &k8s.CreateClusterRequest{
 		FolderId:             folderID,
@@ -481,6 +488,7 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 		ServiceAccountId:     d.Get("service_account_id").(string),
 		NodeServiceAccountId: d.Get("node_service_account_id").(string),
 		ReleaseChannel:       releaseChannel,
+		NetworkPolicy:        networkPolicy,
 	}
 
 	return req, nil
@@ -517,6 +525,33 @@ func getKubernetesClusterReleaseChannel(d *schema.ResourceData) (k8s.ReleaseChan
 	}
 
 	return k8s.ReleaseChannel_RELEASE_CHANNEL_UNSPECIFIED, nil
+}
+
+func getKubernetesClusterNetworkPolicyProviders() string {
+	var values []string
+	for k, v := range k8s.NetworkPolicy_Provider_value {
+		if v == int32(k8s.NetworkPolicy_PROVIDER_UNSPECIFIED) {
+			continue
+		}
+		values = append(values, k)
+	}
+	sort.Strings(values)
+
+	return strings.Join(values, ",")
+}
+
+func getKubernetesClusterNetworkPolicy(d *schema.ResourceData) (*k8s.NetworkPolicy, error) {
+	provName, ok := d.GetOk("network_policy_provider")
+	if !ok {
+		return nil, nil
+	}
+	prov, ok := k8s.NetworkPolicy_Provider_value[strings.ToUpper(provName.(string))]
+	if ok && prov != int32(k8s.NetworkPolicy_PROVIDER_UNSPECIFIED) {
+		return &k8s.NetworkPolicy{
+			Provider: k8s.NetworkPolicy_Provider(prov),
+		}, nil
+	}
+	return nil, fmt.Errorf("invalid network_policy_provider field value, possible values: %v", getKubernetesClusterNetworkPolicyProviders())
 }
 
 func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.MasterSpec, error) {
@@ -647,6 +682,13 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	d.Set("service_account_id", cluster.ServiceAccountId)
 	d.Set("node_service_account_id", cluster.NodeServiceAccountId)
 	d.Set("release_channel", cluster.ReleaseChannel.String())
+	d.Set("cluster_ipv4_range", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlock())
+	d.Set("service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock())
+	if np := cluster.GetNetworkPolicy(); np != nil {
+		if prov := np.GetProvider(); prov != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
+			d.Set("network_policy_provider", prov.String())
+		}
+	}
 
 	if err := d.Set("labels", cluster.Labels); err != nil {
 		return err
