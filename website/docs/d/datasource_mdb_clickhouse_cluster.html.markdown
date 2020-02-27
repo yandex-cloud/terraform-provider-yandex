@@ -102,3 +102,4 @@ The `access` block supports:
 
 * `web_sql` - Allow access for DataLens.
 * `data_lens` - Allow access for Web SQL.
+* `metrika` - Allow access for Yandex.Metrika.

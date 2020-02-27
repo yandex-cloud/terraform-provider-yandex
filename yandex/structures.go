@@ -718,6 +718,24 @@ func expandSecondaryDiskSpec(diskConfig map[string]interface{}) (*compute.Attach
 	return disk, nil
 }
 
+func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatSpec, error) {
+	if v, ok := config["nat"]; ok {
+		if !v.(bool) {
+			return nil, nil
+		}
+
+		if ipAddress, ok := config["nat_ip_address"].(string); ok && ipAddress != "" {
+			return &compute.OneToOneNatSpec{
+				Address: ipAddress,
+			}, nil
+		}
+		return &compute.OneToOneNatSpec{
+			IpVersion: compute.IpVersion_IPV4,
+		}, nil
+	}
+	return nil, nil
+}
+
 func expandInstanceNetworkSettingsSpecs(d *schema.ResourceData) (*compute.NetworkSettings, error) {
 	if v, ok := d.GetOk("network_acceleration_type"); ok {
 		typeVal, ok := compute.NetworkSettings_Type_value[strings.ToUpper(v.(string))]
@@ -772,16 +790,22 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 		}
 
 		if nat, ok := data["nat"].(bool); ok && nat {
+			natSpec := &compute.OneToOneNatSpec{
+				IpVersion: compute.IpVersion_IPV4,
+			}
+
+			if natAddress, ok := data["nat_ip_address"].(string); ok && natAddress != "" {
+				natSpec = &compute.OneToOneNatSpec{
+					Address: natAddress,
+				}
+			}
+
 			if nics[i].PrimaryV4AddressSpec == nil {
 				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
-					OneToOneNatSpec: &compute.OneToOneNatSpec{
-						IpVersion: compute.IpVersion_IPV4,
-					},
+					OneToOneNatSpec: natSpec,
 				}
 			} else {
-				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = &compute.OneToOneNatSpec{
-					IpVersion: compute.IpVersion_IPV4,
-				}
+				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
 			}
 		}
 	}
@@ -1268,10 +1292,9 @@ func expandMaintenanceWindow(days []interface{}) (*k8s.MaintenanceWindow, error)
 		return nil, nil
 	}
 
-	var (
-		windows    []*dayMaintenanceWindow
-		anyDaySeen bool
-	)
+	windows := []*dayMaintenanceWindow{}
+	parsedDays := map[dayofweek.DayOfWeek]struct{}{}
+	dailyWindowSpecified := false
 
 	for _, v := range days {
 		window, err := expandDayMaintenanceWindow(v.(map[string]interface{}))
@@ -1279,27 +1302,22 @@ func expandMaintenanceWindow(days []interface{}) (*k8s.MaintenanceWindow, error)
 			return nil, err
 		}
 
-		if anyDaySeen {
-			// if we are here, then there is an error in config. Though, its different, depending on 'ok' var
-			if window.day == dayofweek.DayOfWeek_DAY_OF_WEEK_UNSPECIFIED {
-				// using 'any' day twice (probably, can't happen, since we use Set in scheme)
-				return nil, fmt.Errorf("can not use two time intervals for daily maintenance window")
-			}
-
-			// using specific day along with 'any' day.
-			return nil, fmt.Errorf("can not use daily maintenance window along with weekly")
-		}
-
 		if window.day == dayofweek.DayOfWeek_DAY_OF_WEEK_UNSPECIFIED {
-			anyDaySeen = true
+			dailyWindowSpecified = true
 		}
 
+		// duplicate day from config. can be either, any day, or specific day.
+		if _, ok := parsedDays[window.day]; ok {
+			return nil, fmt.Errorf("can not specify two time intervals for one day")
+		}
+
+		parsedDays[window.day] = struct{}{}
 		windows = append(windows, window)
 	}
 
-	if anyDaySeen {
+	if dailyWindowSpecified {
 		if len(windows) != 1 {
-			return nil, fmt.Errorf("unexpected error occured during parsing of mantenance window. Please contact developers")
+			return nil, fmt.Errorf("can not use daily and weekly maintenance window policies simultaneously")
 		}
 
 		return &k8s.MaintenanceWindow{

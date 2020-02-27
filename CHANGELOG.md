@@ -1,4 +1,15 @@
 ## 0.32.0 (Unreleased)
+FEATURES:
+* compute: allow setting public IP address for `yandex_compute_instance`
+* mdb: support ClickHouse cluster access for Yandex.Metrica
+
+BUG FIXES:
+* mdb: disallow change `lc_collate` and `lc_ctype` in `yandex_mdb_postgresql_cluster` after creation.
+* container-registry: prevent terraform crash during `terraform destroy` execution for non-existent container registry.
+* resourcemanager: data source folder. fixed folder_id resolve by name (would fail without folder_id in provider config)
+* managed-kubernetes: k8s cluster version update no longer requires destroying of resource
+* managed-kubernetes: update of maintenance window `start_time` and `duration` will now trigger resource update 
+
 ## 0.31.0 (February 14, 2020)
 FEATURES:
 * compute: software network acceleration for `yandex_compute_instance`

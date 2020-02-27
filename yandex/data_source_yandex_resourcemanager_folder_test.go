@@ -15,7 +15,7 @@ func TestAccDataSourceYandexResourceManagerFolder_byID(t *testing.T) {
 	folderID := getExampleFolderID()
 	folderName := getExampleFolderName()
 
-	resource.Test(t, resource.TestCase{
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -35,7 +35,7 @@ func TestAccDataSourceYandexResourceManagerFolder_byName(t *testing.T) {
 	folderID := getExampleFolderID()
 	folderName := getExampleFolderName()
 
-	resource.Test(t, resource.TestCase{
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -56,7 +56,7 @@ func TestAccDataSourceYandexResourceManagerFolder_byNameAndCloudID(t *testing.T)
 	cloudID := getExampleCloudID()
 	folderID := getExampleFolderID()
 
-	resource.Test(t, resource.TestCase{
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -77,7 +77,7 @@ func TestAccDataSourceYandexResourceManagerFolder_wrongCloudID(t *testing.T) {
 	folderName := getExampleFolderName()
 	wrongCloudID := acctest.RandString(12)
 
-	resource.Test(t, resource.TestCase{
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -92,7 +92,7 @@ func TestAccDataSourceYandexResourceManagerFolder_wrongCloudID(t *testing.T) {
 func TestAccDataSourceYandexResourceManagerFolder_byIDNotFound(t *testing.T) {
 	name := "terraform-test-" + acctest.RandString(12)
 
-	resource.Test(t, resource.TestCase{
+	CustomProvidersTest(t, DefaultAndEmptyFolderProviders(), resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

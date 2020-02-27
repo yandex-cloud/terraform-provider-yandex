@@ -154,6 +154,8 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 
 // Test that a sharded ClickHouse Cluster can be created, updated and destroyed
 func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
+	t.Skip("CLOUD-38473")
+
 	t.Parallel()
 
 	var r clickhouse.Cluster

@@ -134,9 +134,20 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 
 	// update maintenance policy
 	nodeUpdatedResource.constructMaintenancePolicyField(false, false, dailyMaintenancePolicy)
-
 	// commented, because of current quotes for summary disk size
 	//nodeUpdatedResource.FixedScale = "2"
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.constructMaintenancePolicyField(true, true, weeklyMaintenancePolicy)
+
+	nodeUpdatedResource3 := nodeUpdatedResource2
+	nodeUpdatedResource3.constructMaintenancePolicyField(true, true, emptyMaintenancePolicy)
+
+	nodeUpdatedResource4 := nodeUpdatedResource3
+	nodeUpdatedResource4.constructMaintenancePolicyField(false, true, weeklyMaintenancePolicySecond)
+
+	nodeUpdatedResource5 := nodeUpdatedResource4
+	nodeUpdatedResource5.constructMaintenancePolicyField(true, false, anyMaintenancePolicy)
 
 	var ng k8s.NodeGroup
 
@@ -157,6 +168,34 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
 					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource3, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource4, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource5, true, false),
 				),
 			},
 		},
@@ -267,14 +306,25 @@ func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, aut
 	i.policy = policy
 
 	switch policy {
-	case anyMaintenancePolicy:
+	case emptyMaintenancePolicy:
 		i.MaintenancePolicy = ""
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(ngAnyMaintenancePolicyTemplate, m)
 	case dailyMaintenancePolicy:
 		i.MaintenancePolicy = templateConfig(ngDailyMaintenancePolicyTemplate, m)
 	case weeklyMaintenancePolicy:
 		i.MaintenancePolicy = templateConfig(ngWeeklyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicySecond:
+		i.MaintenancePolicy = templateConfig(ngWeeklyMaintenancePolicyTemplateSecond, m)
 	}
 }
+
+const ngAnyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+    }
+`
 
 const ngDailyMaintenancePolicyTemplate = `
 	maintenance_policy {
@@ -302,6 +352,25 @@ const ngWeeklyMaintenancePolicyTemplate = `
         maintenance_window {
             day		   = "friday"
 			start_time = "10:00"
+			duration   = "4h"
+		}
+    }
+`
+
+const ngWeeklyMaintenancePolicyTemplateSecond = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+        auto_repair  = {{.AutoRepair}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "5h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "12:00"
 			duration   = "4h"
 		}
     }
@@ -444,31 +513,41 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "allocation_policy.0.location.0.subnet_id", locations[0].GetSubnetId()),
 
 			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoUpgrade())),
-			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
 			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(ng.GetMaintenancePolicy().GetAutoRepair())),
-			resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(info.autoRepair)),
 
 			testAccCheckNodeGroupLabel(ng, info, rs),
 			testAccCheckCreatedAtAttr(resourceFullName),
 		}
 
+		if info.policy != emptyMaintenancePolicy {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
+				resource.TestCheckResourceAttr(resourceFullName, "maintenance_policy.0.auto_repair", strconv.FormatBool(info.autoRepair)),
+			)
+		}
+
 		const maintenanceWindowPrefix = "maintenance_policy.0.maintenance_window."
 		switch info.policy {
+		case anyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "0"),
+			)
 		case dailyMaintenancePolicy:
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", "15:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "", "15:00", "3h"),
 			)
 		case weeklyMaintenancePolicy:
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
-				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"3755093257.day", "monday"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"3755093257.start_time", "15:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"3755093257.duration", "3h"),
-				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"2964502080.day", "friday"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"2964502080.start_time", "10:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"2964502080.duration", "4h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "10:00", "4h"),
+			)
+		case weeklyMaintenancePolicySecond:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "5h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "12:00", "4h"),
 			)
 		}
 

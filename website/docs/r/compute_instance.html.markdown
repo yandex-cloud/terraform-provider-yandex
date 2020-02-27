@@ -94,6 +94,8 @@ The following arguments are supported:
 
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
     If you try to update a property that requires stopping the instance without setting this field, the update will fail.
+    
+* `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software-accelerated`
 
 ---
 
@@ -154,6 +156,8 @@ The `network_interface` block supports:
 * `ipv6_address` - (Optional) The private IPv6 address to assign to the instance.
 
 * `nat` - (Optional) Provide a public address, for instance, to access the internet over NAT.
+
+* `nat_ip_address` - (Optional) Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.
 
 The `secondary_disk` block supports:
 

@@ -48,6 +48,7 @@ The following arguments are supported:
 * `resources.0.core_fraction` - Baseline performance for a core, set as a percent.
 * `resources.0.gpus` - Number of GPU cores allocated for the instance.
 * `boot_disk` - The boot disk for the instance. Structure is documented below.
+* `network_acceleration_type` - Type of network acceleration. The default is `standard`. Values: `standard`, `software-accelerated`
 * `network_interface` - The networks attached to the instance. Structure is documented below.
 * `network_interface.0.ip_address` - An internal IP address of the instance, either manually or dynamically assigned.
 * `network_interface.0.nat_ip_address` - An assigned external IP address if the instance has NAT enabled.

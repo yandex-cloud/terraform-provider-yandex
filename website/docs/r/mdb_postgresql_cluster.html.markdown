@@ -206,9 +206,9 @@ The `database` block supports:
 
 * `extension` - (Optional) Set of database extensions. The structure is documented below
 
-* `lc_collate` - (Optional) POSIX locale for string sorting order.
+* `lc_collate` - (Optional) POSIX locale for string sorting order. Forbidden to change in an existing database.
 
-* `lc_type` - (Optional) POSIX locale for character classification.
+* `lc_type` - (Optional) POSIX locale for character classification. Forbidden to change in an existing database.
 
 The `extension` block supports:
 

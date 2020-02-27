@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	yandexMDBClickHouseClusterCreateTimeout = 30 * time.Minute
-	yandexMDBClickHouseClusterDeleteTimeout = 15 * time.Minute
-	yandexMDBClickHouseClusterUpdateTimeout = 60 * time.Minute
+	yandexMDBClickHouseClusterCreateTimeout = 60 * time.Minute
+	yandexMDBClickHouseClusterDeleteTimeout = 30 * time.Minute
+	yandexMDBClickHouseClusterUpdateTimeout = 90 * time.Minute
 )
 
 func resourceYandexMDBClickHouseCluster() *schema.Resource {
@@ -217,6 +217,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Default:  false,
 						},
 						"data_lens": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"metrika": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,

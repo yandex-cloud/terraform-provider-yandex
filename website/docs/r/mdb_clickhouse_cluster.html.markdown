@@ -336,6 +336,8 @@ The `access` block supports:
 
 * `data_lens` - (Optional) Allow access for Web SQL.
 
+* `metrika` - (Optional) Allow access for Yandex.Metrika.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

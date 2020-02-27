@@ -167,10 +167,6 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"folder_id",
 			},
 			{
-				"health",
-				"health",
-			},
-			{
 				"host.#",
 				"host.#",
 			},

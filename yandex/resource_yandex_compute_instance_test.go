@@ -790,6 +790,75 @@ func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_nat_create_specific(t *testing.T) {
+	t.Skip("Need address reservation api")
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-with-ns-%s", acctest.RandString(10))
+
+	reservedAddress := "TODO: replace with reservation in config"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// create with nat, not set address
+			{
+				Config: testAccComputeInstance_network_nat(instanceName, true, reservedAddress, false, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceNat(&instance, true, reservedAddress, false, ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_nat(t *testing.T) {
+	t.Skip("Need address reservation api")
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-with-ns-%s", acctest.RandString(10))
+
+	reservedAddress1 := "TODO: replace with reservation in config"
+	reservedAddress2 := "TODO: replace with reservation in config"
+
+	testStep := func(nat1 bool, natAddress1 string, nat2 bool, natAddress2 string) resource.TestStep {
+		return resource.TestStep{
+			Config: testAccComputeInstance_network_nat(instanceName, nat1, natAddress1, nat2, natAddress2),
+			Check: resource.ComposeTestCheckFunc(
+				testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+				testAccCheckComputeInstanceNat(&instance, nat1, natAddress1, nat2, natAddress2),
+			),
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// create with nat, not set address
+			testStep(true, "", false, ""),
+			// set nat address for iface 1
+			testStep(true, reservedAddress1, false, ""),
+			// change nat address for iface 1
+			testStep(true, reservedAddress2, false, ""),
+			// add nat for iface2, drop specific address for iface1
+			testStep(true, "", true, ""),
+			// drop all nat
+			testStep(false, "", false, ""),
+			// add two specific addresses
+			testStep(true, reservedAddress2, true, reservedAddress1),
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1135,6 +1204,36 @@ func testAccCheckComputeInstanceHasNetworkAccelerationType(instance *compute.Ins
 
 		return nil
 	}
+}
+
+func testAccCheckComputeInstanceNat(instance *compute.Instance, expectedNat1 bool, expectedNatAddress1 string, expectedNat2 bool, expectedNatAddress2 string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.NetworkInterfaces) != 2 {
+			return fmt.Errorf("Unexpected count of network interfaces, actual = %d, expected = %d", len(instance.NetworkInterfaces), 1)
+		}
+
+		err := testIfaceNat(instance.NetworkInterfaces[0], 0, expectedNat1, expectedNatAddress1)
+		if err != nil {
+			return err
+		}
+		return testIfaceNat(instance.NetworkInterfaces[1], 1, expectedNat2, expectedNatAddress2)
+	}
+}
+
+func testIfaceNat(iface *compute.NetworkInterface, index int, expectedNat bool, expectedNatAddress string) error {
+	if iface.PrimaryV4Address.OneToOneNat == nil {
+		if expectedNat {
+			return fmt.Errorf("Expected nat on the interface %d", index)
+		}
+		return nil
+	}
+	if !expectedNat {
+		return fmt.Errorf("Unexpected nat on the interface %d", index)
+	}
+	if expectedNatAddress != "" && expectedNatAddress != iface.PrimaryV4Address.OneToOneNat.Address {
+		return fmt.Errorf("Unexpected nat address on the interface %d, expected = %v, actual = %v", index, expectedNatAddress, iface.PrimaryV4Address.OneToOneNat.Address)
+	}
+	return nil
 }
 
 //revive:disable:var-naming
@@ -2536,4 +2635,62 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)
+}
+
+func testAccComputeInstance_network_nat(instance string, nat1 bool, natAddress1 string, nat2 bool, natAddress2 string) string {
+	addressStr1 := ""
+	if natAddress1 != "" {
+		addressStr1 = "nat_ip_address = \"" + natAddress1 + "\""
+	}
+	addressStr2 := ""
+	if natAddress2 != "" {
+		addressStr2 = "nat_ip_address = \"" + natAddress2 + "\""
+	}
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name               = "%s"
+  description        = "testAccComputeInstance_basic"
+  zone               = "ru-central1-c"
+
+  resources {
+    cores  = 1
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+	nat = %v
+    %s
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+	nat = %v
+    %s
+  }
+
+  scheduling_policy {
+    preemptible = true
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance, nat1, addressStr1, nat2, addressStr2)
 }

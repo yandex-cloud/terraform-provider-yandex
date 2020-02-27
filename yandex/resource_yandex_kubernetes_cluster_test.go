@@ -11,6 +11,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
@@ -166,6 +167,25 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	// update maintenance policy
 	clusterUpdatedResource.constructMaintenancePolicyField(false, dailyMaintenancePolicy)
 
+	// test update of weekly maintenance policy (change start time && duration, without changing the 'days')
+	clusterUpdatedResource2 := clusterUpdatedResource
+	clusterUpdatedResource2.constructMaintenancePolicyField(true, weeklyMaintenancePolicy)
+
+	clusterUpdatedResource3 := clusterUpdatedResource2
+	clusterUpdatedResource3.constructMaintenancePolicyField(true, weeklyMaintenancePolicySecond)
+
+	clusterUpdatedResource4 := clusterUpdatedResource3
+	clusterUpdatedResource4.constructMaintenancePolicyField(false, anyMaintenancePolicy)
+
+	clusterUpdatedResource5 := clusterUpdatedResource4
+	clusterUpdatedResource5.constructMaintenancePolicyField(true, emptyMaintenancePolicy)
+
+	clusterUpdatedResource6 := clusterUpdatedResource5
+	clusterUpdatedResource6.constructMaintenancePolicyField(true, weeklyMaintenancePolicySecond)
+
+	clusterUpdatedResource7 := clusterUpdatedResource6
+	clusterUpdatedResource7.constructMaintenancePolicyField(true, emptyMaintenancePolicy)
+
 	var cluster k8s.Cluster
 
 	resource.Test(t, resource.TestCase{
@@ -186,6 +206,54 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
 					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource2, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource3, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource4),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource4, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource5),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource5, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource6),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource6, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource7),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource7, true),
 					testAccCheckCreatedAtAttr(clusterResourceFullName),
 				),
 			},
@@ -370,7 +438,6 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.new_revision_summary", versionInfo.GetNewRevisionSummary()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.version_info.0.version_deprecated", strconv.FormatBool(versionInfo.GetVersionDeprecated())),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(master.GetMaintenancePolicy().GetAutoUpgrade())),
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
 
 			resource.TestCheckResourceAttr(resourceFullName, "name", cluster.Name),
 			resource.TestCheckResourceAttr(resourceFullName, "description", cluster.Description),
@@ -383,23 +450,34 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			testAccCheckClusterLabel(cluster, info, rs),
 		}
 
+		if info.policy != emptyMaintenancePolicy {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
+			)
+		}
+
 		const maintenanceWindowPrefix = "master.0.maintenance_policy.0.maintenance_window."
 		switch info.policy {
+		case anyMaintenancePolicy:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "0"),
+			)
 		case dailyMaintenancePolicy:
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "1"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", "15:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "", "15:00", "3h"),
 			)
 		case weeklyMaintenancePolicy:
 			checkFuncsAr = append(checkFuncsAr,
 				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
-				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"3755093257.day", "monday"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"3755093257.start_time", "15:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"3755093257.duration", "3h"),
-				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"2964502080.day", "friday"),
-				testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"2964502080.start_time", "10:00"),
-				testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"2964502080.duration", "4h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "3h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "10:00", "4h"),
+			)
+		case weeklyMaintenancePolicySecond:
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"#", "2"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "monday", "15:00", "5h"),
+				testAccCheckMaintenanceWindow(resourceFullName, maintenanceWindowPrefix, "friday", "12:00", "4h"),
 			)
 		}
 
@@ -490,7 +568,22 @@ func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, r
 	}
 }
 
-func testAccCheckStartTime(resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
+func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPrefix, day, startTime, duration string) resource.TestCheckFunc {
+	window := map[string]interface{}{
+		"day":        day,
+		"start_time": startTime,
+		"duration":   duration,
+	}
+
+	hash := strconv.Itoa(dayOfWeekHash(window))
+	return resource.ComposeTestCheckFunc(
+		resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+hash+".day", day),
+		testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+hash+".start_time", startTime),
+		testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+hash+".duration", duration),
+	)
+}
+
+func testAccCheckAttributeWithSuppress(suppressDiff schema.SchemaDiffSuppressFunc, resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
@@ -502,7 +595,7 @@ func testAccCheckStartTime(resourceName string, attributePath string, expectedVa
 			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
 		}
 
-		if !shouldSuppressDiffForTimeOfDay("", expectedValue, startTime, nil) {
+		if !suppressDiff("", expectedValue, startTime, nil) {
 			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", startTime, expectedValue)
 		}
 
@@ -510,32 +603,22 @@ func testAccCheckStartTime(resourceName string, attributePath string, expectedVa
 	}
 }
 
-func testAccCheckDuration(resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
+func testAccCheckStartTime(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
+	return testAccCheckAttributeWithSuppress(shouldSuppressDiffForTimeOfDay, resourceName, attributePath, expectedValue)
+}
 
-		dur, ok := rs.Primary.Attributes[attributePath]
-		if !ok {
-			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
-		}
-
-		if !shouldSuppressDiffForTimeDuration("", expectedValue, dur, nil) {
-			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", dur, expectedValue)
-		}
-
-		return nil
-	}
+func testAccCheckDuration(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
+	return testAccCheckAttributeWithSuppress(shouldSuppressDiffForTimeDuration, resourceName, attributePath, expectedValue)
 }
 
 type maintenancePolicyType int
 
 const (
-	anyMaintenancePolicy    maintenancePolicyType = 0
-	dailyMaintenancePolicy  maintenancePolicyType = 1
-	weeklyMaintenancePolicy maintenancePolicyType = 2
+	anyMaintenancePolicy          maintenancePolicyType = 0
+	dailyMaintenancePolicy        maintenancePolicyType = 1
+	weeklyMaintenancePolicy       maintenancePolicyType = 2
+	weeklyMaintenancePolicySecond maintenancePolicyType = 3
+	emptyMaintenancePolicy        maintenancePolicyType = 4
 )
 
 type resourceClusterInfo struct {
@@ -576,12 +659,16 @@ func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, 
 	i.policy = policy
 
 	switch policy {
-	case anyMaintenancePolicy:
+	case emptyMaintenancePolicy:
 		i.MaintenancePolicy = ""
+	case anyMaintenancePolicy:
+		i.MaintenancePolicy = templateConfig(anyMaintenancePolicyTemplate, m)
 	case dailyMaintenancePolicy:
 		i.MaintenancePolicy = templateConfig(dailyMaintenancePolicyTemplate, m)
 	case weeklyMaintenancePolicy:
 		i.MaintenancePolicy = templateConfig(weeklyMaintenancePolicyTemplate, m)
+	case weeklyMaintenancePolicySecond:
+		i.MaintenancePolicy = templateConfig(weeklyMaintenancePolicyTemplateSecond, m)
 	}
 }
 
@@ -621,6 +708,12 @@ func (i *resourceClusterInfo) nodeServiceAccountResourceName() string {
 	return "yandex_iam_service_account." + i.NodeServiceAccountResourceName
 }
 
+const anyMaintenancePolicyTemplate = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+    }
+`
+
 const dailyMaintenancePolicyTemplate = `
 	maintenance_policy {
         auto_upgrade = {{.AutoUpgrade}}
@@ -648,6 +741,25 @@ const weeklyMaintenancePolicyTemplate = `
 			duration   = "4h"
 		}
 
+    }
+`
+
+// used to test update for start time and duration, without changing of 'days'
+const weeklyMaintenancePolicyTemplateSecond = `
+	maintenance_policy {
+        auto_upgrade = {{.AutoUpgrade}}
+
+        maintenance_window {
+            day		   = "monday"
+			start_time = "15:00"
+			duration   = "5h"
+		}
+
+        maintenance_window {
+            day		   = "friday"
+			start_time = "12:00"
+			duration   = "4h"
+		}
     }
 `
 

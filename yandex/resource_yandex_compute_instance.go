@@ -182,7 +182,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 			"network_interface": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
@@ -215,7 +214,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 
 						"index": {
@@ -230,6 +228,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 						"nat_ip_address": {
 							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
 
@@ -628,6 +627,70 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial(serviceAccountPropName)
 	}
 
+	networkInterfacecPropName := "network_interface"
+	if d.HasChange(networkInterfacecPropName) {
+		o, n := d.GetChange(networkInterfacecPropName)
+		oldList := o.([]interface{})
+		newList := n.([]interface{})
+
+		if len(oldList) != len(newList) {
+			return fmt.Errorf("Changing count of network interfaces is't supported yet")
+		}
+
+		for ifaceIndex := 0; ifaceIndex < len(oldList); ifaceIndex++ {
+			oldSpec, err := expandOneToOneNatSpec(oldList[ifaceIndex].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+
+			newSpec, err := expandOneToOneNatSpec(newList[ifaceIndex].(map[string]interface{}))
+			if err != nil {
+				return err
+			}
+
+			if newSpec != oldSpec {
+				needRemoveOneToOneNat := false
+				needAddOneToOneNat := false
+
+				if newSpec == nil {
+					needRemoveOneToOneNat = true
+					needAddOneToOneNat = false
+				} else {
+					if oldSpec == nil {
+						needAddOneToOneNat = true
+					}
+					if oldSpec != nil && newSpec.Address != oldSpec.Address && newSpec.Address != "" {
+						needRemoveOneToOneNat = true
+						needAddOneToOneNat = true
+					}
+				}
+
+				if needRemoveOneToOneNat {
+					err := makeInstanceRemoveOneToOneNatRequest(&compute.RemoveInstanceOneToOneNatRequest{
+						InstanceId:            d.Id(),
+						NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+					}, d, meta)
+					if err != nil {
+						return err
+					}
+				}
+
+				if needAddOneToOneNat {
+					err := makeInstanceAddOneToOneNatRequest(&compute.AddInstanceOneToOneNatRequest{
+						InstanceId:            d.Id(),
+						NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+						OneToOneNatSpec:       newSpec,
+					}, d, meta)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		d.SetPartial(networkInterfacecPropName)
+	}
+
 	resourcesPropName := "resources"
 	secDiskPropName := "secondary_disk"
 	platformIDPropName := "platform_id"
@@ -910,6 +973,44 @@ func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.Res
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Update(ctx, req))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeInstanceAddOneToOneNatRequest(req *compute.AddInstanceOneToOneNatRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AddOneToOneNat(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to add one-to-one nat for Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeInstanceRemoveOneToOneNatRequest(req *compute.RemoveInstanceOneToOneNatRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().RemoveOneToOneNat(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to remove one-to-one nat for Instance %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

@@ -65,7 +65,6 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 						"public_ip": {
 							Type:     schema.TypeBool,
@@ -86,7 +85,6 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 									},
 									"maintenance_window": {
 										Type:     schema.TypeSet,
-										Computed: true,
 										Optional: true,
 										Set:      dayOfWeekHash,
 										Elem: &schema.Resource{
@@ -346,7 +344,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"labels":                      "labels",
 	"service_account_id":          "service_account_id",
 	"node_service_account_id":     "node_service_account_id",
-	"master.0.version":            "master_spec.version.specifier.version",
+	"master.0.version":            "master_spec.version.version",
 	"master.0.maintenance_policy": "master_spec.maintenance_policy",
 }
 
@@ -806,13 +804,18 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 }
 
 func dayOfWeekHash(v interface{}) int {
-	m := v.(map[string]interface{})
-
-	if v, ok := m["day"]; ok {
-		return hashcode.String(v.(string))
+	window, err := expandDayMaintenanceWindow(v.(map[string]interface{}))
+	if err != nil {
+		return 0
 	}
 
-	return 0
+	hashString := fmt.Sprintf("%s-%s-%s",
+		strings.ToLower(window.day.String()),
+		formatTimeOfDay(window.startTime),
+		formatDuration(window.duration),
+	)
+
+	return hashcode.String(hashString)
 }
 
 func parseDayOfWeek(v string) (dayofweek.DayOfWeek, error) {

@@ -127,7 +127,7 @@ func resourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{
 		})
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Get("id").(string)))
+		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Id()))
 	}
 
 	createdAt, err := getTimestamp(registry.CreatedAt)

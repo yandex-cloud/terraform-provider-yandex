@@ -98,8 +98,8 @@ The `database` block supports:
 
 * `name` - The name of the database.
 * `owner` - Name of the user assigned as the owner of the database.
-* `lc_collate` - POSIX locale for string sorting order.
-* `lc_type` - POSIX locale for character classification.
+* `lc_collate` - POSIX locale for string sorting order. Forbidden to change in an existing database.
+* `lc_type` - POSIX locale for character classification. Forbidden to change in an existing database.
 * `extension` - Set of database extensions. The structure is documented below
 
 The `extension` block supports:

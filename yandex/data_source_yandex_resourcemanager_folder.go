@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -8,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -55,13 +55,6 @@ func dataSourceYandexResourceManagerFolder() *schema.Resource {
 	}
 }
 
-type cloudID string
-
-func (id cloudID) folderResolver(name string, opts ...sdkresolvers.ResolveOption) ycsdk.Resolver {
-	opts = append(opts, sdkresolvers.CloudID(string(id)))
-	return sdkresolvers.FolderResolver(name, opts...)
-}
-
 func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.Context()
@@ -72,7 +65,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	}
 
 	folderID := d.Get("folder_id").(string)
-	_, folderNameOk := d.GetOk("name")
+	folderName, folderNameOk := d.GetOk("name")
 
 	if folderNameOk {
 		dsCloudID, err := getCloudID(d, config)
@@ -80,8 +73,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 			return fmt.Errorf("error getting cloud ID to resolve data source for folder: %s", err)
 		}
 
-		resolver := cloudID(dsCloudID).folderResolver
-		folderID, err = resolveObjectID(ctx, config, d, resolver)
+		folderID, err = resolveFolderIDByName(ctx, config, folderName.(string), dsCloudID)
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source folder by name: %v", err)
 		}
@@ -114,4 +106,16 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	d.SetId(folder.Id)
 
 	return nil
+}
+
+func resolveFolderIDByName(ctx context.Context, config *Config, folderName, cloudID string) (string, error) {
+	var objectID string
+	resolver := sdkresolvers.FolderResolver(folderName, sdkresolvers.CloudID(cloudID), sdkresolvers.Out(&objectID))
+
+	err := config.sdk.Resolve(ctx, resolver)
+	if err != nil {
+		return "", err
+	}
+
+	return objectID, nil
 }

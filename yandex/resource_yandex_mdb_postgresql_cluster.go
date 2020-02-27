@@ -590,6 +590,11 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	err = validateNoUpdatingCollation(currDBs, targetDBs)
+	if err != nil {
+		return err
+	}
+
 	toDelete, toAdd := pgDatabasesDiff(currDBs, targetDBs)
 
 	for _, dbn := range toDelete {
@@ -620,6 +625,18 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetPartial("database")
+	return nil
+}
+
+func validateNoUpdatingCollation(currentDatabases []*postgresql.Database, targetDatabases []*postgresql.DatabaseSpec) error {
+	for _, currentDatabase := range currentDatabases {
+		for _, targetDatabase := range targetDatabases {
+			if currentDatabase.Name == targetDatabase.Name &&
+				(currentDatabase.LcCollate != targetDatabase.LcCollate || currentDatabase.LcCtype != targetDatabase.LcCtype) {
+				return fmt.Errorf("impossible to change lc_collate or lc_type for PostgreSQL Cluster database %s", currentDatabase.Name)
+			}
+		}
+	}
 	return nil
 }
 

@@ -174,6 +174,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"metrika": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},

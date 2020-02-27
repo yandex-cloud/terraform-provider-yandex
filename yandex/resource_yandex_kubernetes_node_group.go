@@ -254,7 +254,6 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"maintenance_window": {
 							Type:     schema.TypeSet,
-							Computed: true,
 							Optional: true,
 							Set:      dayOfWeekHash,
 							Elem: &schema.Resource{
