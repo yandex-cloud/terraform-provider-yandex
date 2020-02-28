@@ -8,7 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/golang/protobuf v1.3.3
+	github.com/golang/protobuf v1.3.4
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/hashicorp/go-getter v1.4.0
@@ -19,11 +19,11 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20200210145029-64c742969595
-	github.com/yandex-cloud/go-sdk v0.0.0-20200113201139-dc3c759a1204
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
-	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4 // indirect
-	google.golang.org/genproto v0.0.0-20200212174721-66ed5ce911ce
+	github.com/yandex-cloud/go-genproto v0.0.0-20200226094542-96658959dec4
+	github.com/yandex-cloud/go-sdk v0.0.0-20200227103939-01c219f4f3ee
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
+	google.golang.org/genproto v0.0.0-20200227132054-3f1135a288c9
 	google.golang.org/grpc v1.27.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
