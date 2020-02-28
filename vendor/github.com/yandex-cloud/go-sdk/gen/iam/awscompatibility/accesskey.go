@@ -190,3 +190,12 @@ func (it *AccessKeyOperationsIterator) Value() *operation.Operation {
 func (it *AccessKeyOperationsIterator) Error() error {
 	return it.err
 }
+
+// Update implements awscompatibility.AccessKeyServiceClient
+func (c *AccessKeyServiceClient) Update(ctx context.Context, in *awscompatibility.UpdateAccessKeyRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return awscompatibility.NewAccessKeyServiceClient(conn).Update(ctx, in, opts...)
+}

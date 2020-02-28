@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	kms "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
@@ -125,6 +126,78 @@ func (it *SymmetricKeyIterator) Value() *kms.SymmetricKey {
 }
 
 func (it *SymmetricKeyIterator) Error() error {
+	return it.err
+}
+
+// ListAccessBindings implements kms.SymmetricKeyServiceClient
+func (c *SymmetricKeyServiceClient) ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return kms.NewSymmetricKeyServiceClient(conn).ListAccessBindings(ctx, in, opts...)
+}
+
+type SymmetricKeyAccessBindingsIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *SymmetricKeyServiceClient
+	request *access.ListAccessBindingsRequest
+
+	items []*access.AccessBinding
+}
+
+func (c *SymmetricKeyServiceClient) SymmetricKeyAccessBindingsIterator(ctx context.Context, resourceId string, opts ...grpc.CallOption) *SymmetricKeyAccessBindingsIterator {
+	return &SymmetricKeyAccessBindingsIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &access.ListAccessBindingsRequest{
+			ResourceId: resourceId,
+			PageSize:   1000,
+		},
+	}
+}
+
+func (it *SymmetricKeyAccessBindingsIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListAccessBindings(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.AccessBindings
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *SymmetricKeyAccessBindingsIterator) Value() *access.AccessBinding {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *SymmetricKeyAccessBindingsIterator) Error() error {
 	return it.err
 }
 
@@ -290,6 +363,15 @@ func (c *SymmetricKeyServiceClient) ScheduleVersionDestruction(ctx context.Conte
 	return kms.NewSymmetricKeyServiceClient(conn).ScheduleVersionDestruction(ctx, in, opts...)
 }
 
+// SetAccessBindings implements kms.SymmetricKeyServiceClient
+func (c *SymmetricKeyServiceClient) SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return kms.NewSymmetricKeyServiceClient(conn).SetAccessBindings(ctx, in, opts...)
+}
+
 // SetPrimaryVersion implements kms.SymmetricKeyServiceClient
 func (c *SymmetricKeyServiceClient) SetPrimaryVersion(ctx context.Context, in *kms.SetPrimarySymmetricKeyVersionRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -306,4 +388,13 @@ func (c *SymmetricKeyServiceClient) Update(ctx context.Context, in *kms.UpdateSy
 		return nil, err
 	}
 	return kms.NewSymmetricKeyServiceClient(conn).Update(ctx, in, opts...)
+}
+
+// UpdateAccessBindings implements kms.SymmetricKeyServiceClient
+func (c *SymmetricKeyServiceClient) UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return kms.NewSymmetricKeyServiceClient(conn).UpdateAccessBindings(ctx, in, opts...)
 }

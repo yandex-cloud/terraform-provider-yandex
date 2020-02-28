@@ -74,6 +74,10 @@ func (m *Cluster) SetReleaseChannel(v ReleaseChannel) {
 	m.ReleaseChannel = v
 }
 
+func (m *Cluster) SetNetworkPolicy(v *NetworkPolicy) {
+	m.NetworkPolicy = v
+}
+
 type Master_MasterType = isMaster_MasterType
 
 func (m *Master) SetMasterType(v Master_MasterType) {
@@ -162,4 +166,8 @@ func (m *MasterMaintenancePolicy) SetAutoUpgrade(v bool) {
 
 func (m *MasterMaintenancePolicy) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
+}
+
+func (m *NetworkPolicy) SetProvider(v NetworkPolicy_Provider) {
+	m.Provider = v
 }

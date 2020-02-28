@@ -20,6 +20,15 @@ type InstanceServiceClient struct {
 	getConn func(ctx context.Context) (*grpc.ClientConn, error)
 }
 
+// AddOneToOneNat implements compute.InstanceServiceClient
+func (c *InstanceServiceClient) AddOneToOneNat(ctx context.Context, in *compute.AddInstanceOneToOneNatRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return compute.NewInstanceServiceClient(conn).AddOneToOneNat(ctx, in, opts...)
+}
+
 // AttachDisk implements compute.InstanceServiceClient
 func (c *InstanceServiceClient) AttachDisk(ctx context.Context, in *compute.AttachInstanceDiskRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -216,6 +225,15 @@ func (it *InstanceOperationsIterator) Value() *operation.Operation {
 
 func (it *InstanceOperationsIterator) Error() error {
 	return it.err
+}
+
+// RemoveOneToOneNat implements compute.InstanceServiceClient
+func (c *InstanceServiceClient) RemoveOneToOneNat(ctx context.Context, in *compute.RemoveInstanceOneToOneNatRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return compute.NewInstanceServiceClient(conn).RemoveOneToOneNat(ctx, in, opts...)
 }
 
 // Restart implements compute.InstanceServiceClient

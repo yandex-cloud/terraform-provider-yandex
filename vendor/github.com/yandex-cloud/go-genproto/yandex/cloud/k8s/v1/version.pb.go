@@ -22,13 +22,13 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type VersionInfo struct {
-	// Current kubernetes version, major.minor (e.g. 1.15).
+	// Current Kubernetes version, format: major.minor (e.g. 1.15).
 	CurrentVersion string `protobuf:"bytes,1,opt,name=current_version,json=currentVersion,proto3" json:"current_version,omitempty"`
-	// Newer revisions may include kubernetes patches (e.g 1.15.1 -> 1.15.2) as well
-	// as some internal component updates - new features or bug fixes in yandex-specific
+	// Newer revisions may include Kubernetes patches (e.g 1.15.1 -> 1.15.2) as well
+	// as some internal component updates — new features or bug fixes in Yandex specific
 	// components either on the master or nodes.
 	NewRevisionAvailable bool `protobuf:"varint,2,opt,name=new_revision_available,json=newRevisionAvailable,proto3" json:"new_revision_available,omitempty"`
-	// Human readable description of the changes to be applied when updating to the latest
+	// Description of the changes to be applied when updating to the latest
 	// revision. Empty if new_revision_available is false.
 	NewRevisionSummary string `protobuf:"bytes,3,opt,name=new_revision_summary,json=newRevisionSummary,proto3" json:"new_revision_summary,omitempty"`
 	// The current version is on the deprecation schedule, component (master or node group)

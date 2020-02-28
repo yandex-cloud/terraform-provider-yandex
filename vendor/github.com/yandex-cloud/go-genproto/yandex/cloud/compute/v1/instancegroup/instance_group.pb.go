@@ -1317,7 +1317,7 @@ type InstanceTemplate struct {
 	//   {instance.labels.another_label_key}
 	// These placeholders will be substituted for each created instance anywhere in the value text.
 	// In the rare case the value requires to contain this placeholder explicitly,
-	// it must be escaped with double brackets, in example {{instance.index}}
+	// it must be escaped with double brackets, in example {instance.index}.
 	//
 	// For example, you may use the metadata in order to provide your public SSH key to the instance.
 	// For more information, see [Metadata](/docs/compute/concepts/vm-metadata).

@@ -165,6 +165,10 @@ func (sdk *SDK) MDB() *MDB {
 	return &MDB{sdk: sdk}
 }
 
+func (sdk *SDK) Serverless() *Serverless {
+	return &Serverless{sdk: sdk}
+}
+
 func (sdk *SDK) Marketplace() *Marketplace {
 	return &Marketplace{sdk: sdk}
 }
@@ -187,12 +191,17 @@ func (sdk *SDK) ApiEndpoint() *apiendpoint.APIEndpoint {
 	return apiendpoint.NewAPIEndpoint(sdk.getConn(ApiEndpointServiceID))
 }
 
+// revive:enable:var-naming
+
 // Kubernetes returns Kubernetes object that is used to operate on Yandex Managed Kubernetes
 func (sdk *SDK) Kubernetes() *k8s.Kubernetes {
 	return k8s.NewKubernetes(sdk.getConn(KubernetesServiceID))
 }
 
-// revive:enable:var-naming
+// AI returns AI object that is used to do AI stuff.
+func (sdk *SDK) AI() *AI {
+	return &AI{sdk: sdk}
+}
 
 func (sdk *SDK) Resolve(ctx context.Context, r ...Resolver) error {
 	args := make([]func() error, len(r))

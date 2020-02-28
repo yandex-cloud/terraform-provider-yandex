@@ -167,6 +167,34 @@ func (m *Trigger_ObjectStorage) SetInvokeFunction(v *InvokeFunctionWithRetry) {
 	}
 }
 
+type Trigger_ContainerRegistry_Action = isTrigger_ContainerRegistry_Action
+
+func (m *Trigger_ContainerRegistry) SetAction(v Trigger_ContainerRegistry_Action) {
+	m.Action = v
+}
+
+func (m *Trigger_ContainerRegistry) SetEventType(v []Trigger_ContainerRegistryEventType) {
+	m.EventType = v
+}
+
+func (m *Trigger_ContainerRegistry) SetRegistryId(v string) {
+	m.RegistryId = v
+}
+
+func (m *Trigger_ContainerRegistry) SetImageName(v string) {
+	m.ImageName = v
+}
+
+func (m *Trigger_ContainerRegistry) SetTagName(v string) {
+	m.TagName = v
+}
+
+func (m *Trigger_ContainerRegistry) SetInvokeFunction(v *InvokeFunctionWithRetry) {
+	m.Action = &Trigger_ContainerRegistry_InvokeFunction{
+		InvokeFunction: v,
+	}
+}
+
 func (m *InvokeFunctionOnce) SetFunctionId(v string) {
 	m.FunctionId = v
 }

@@ -190,3 +190,12 @@ func (it *ApiKeyOperationsIterator) Value() *operation.Operation {
 func (it *ApiKeyOperationsIterator) Error() error {
 	return it.err
 }
+
+// Update implements iam.ApiKeyServiceClient
+func (c *ApiKeyServiceClient) Update(ctx context.Context, in *iam.UpdateApiKeyRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return iam.NewApiKeyServiceClient(conn).Update(ctx, in, opts...)
+}

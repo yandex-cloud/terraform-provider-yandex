@@ -25,6 +25,8 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type MaintenanceWindow struct {
+	// Maintenance policy.
+	//
 	// Types that are valid to be assigned to Policy:
 	//	*MaintenanceWindow_Anytime
 	//	*MaintenanceWindow_DailyMaintenanceWindow
@@ -151,11 +153,13 @@ func (m *AnytimeMaintenanceWindow) XXX_DiscardUnknown() {
 var xxx_messageInfo_AnytimeMaintenanceWindow proto.InternalMessageInfo
 
 type DailyMaintenanceWindow struct {
-	StartTime            *timeofday.TimeOfDay `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	Duration             *duration.Duration   `protobuf:"bytes,2,opt,name=duration,proto3" json:"duration,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	// Window start time, in the UTC timezone.
+	StartTime *timeofday.TimeOfDay `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// Window duration.
+	Duration             *duration.Duration `protobuf:"bytes,2,opt,name=duration,proto3" json:"duration,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *DailyMaintenanceWindow) Reset()         { *m = DailyMaintenanceWindow{} }
@@ -198,12 +202,15 @@ func (m *DailyMaintenanceWindow) GetDuration() *duration.Duration {
 }
 
 type DaysOfWeekMaintenanceWindow struct {
-	Days                 []dayofweek.DayOfWeek `protobuf:"varint,1,rep,packed,name=days,proto3,enum=google.type.DayOfWeek" json:"days,omitempty"`
-	StartTime            *timeofday.TimeOfDay  `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	Duration             *duration.Duration    `protobuf:"bytes,3,opt,name=duration,proto3" json:"duration,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	// Days of the week when automatic updates are allowed.
+	Days []dayofweek.DayOfWeek `protobuf:"varint,1,rep,packed,name=days,proto3,enum=google.type.DayOfWeek" json:"days,omitempty"`
+	// Window start time, in the UTC timezone.
+	StartTime *timeofday.TimeOfDay `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// Window duration.
+	Duration             *duration.Duration `protobuf:"bytes,3,opt,name=duration,proto3" json:"duration,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *DaysOfWeekMaintenanceWindow) Reset()         { *m = DaysOfWeekMaintenanceWindow{} }
@@ -253,6 +260,7 @@ func (m *DaysOfWeekMaintenanceWindow) GetDuration() *duration.Duration {
 }
 
 type WeeklyMaintenanceWindow struct {
+	// Days of the week and the maintenance window for these days when automatic updates are allowed.
 	DaysOfWeek           []*DaysOfWeekMaintenanceWindow `protobuf:"bytes,1,rep,name=days_of_week,json=daysOfWeek,proto3" json:"days_of_week,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
 	XXX_unrecognized     []byte                         `json:"-"`

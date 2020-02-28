@@ -32,3 +32,8 @@ func (d *Dataproc) Subcluster() *SubclusterServiceClient {
 func (d *Dataproc) Job() *JobServiceClient {
 	return &JobServiceClient{getConn: d.getConn}
 }
+
+// ResourcePreset gets ResourcePresetService client
+func (d *Dataproc) ResourcePreset() *ResourcePresetServiceClient {
+	return &ResourcePresetServiceClient{getConn: d.getConn}
+}

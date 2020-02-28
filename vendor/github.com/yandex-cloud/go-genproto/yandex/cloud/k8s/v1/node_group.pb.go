@@ -128,13 +128,16 @@ type NodeGroup struct {
 	InstanceGroupId string `protobuf:"bytes,11,opt,name=instance_group_id,json=instanceGroupId,proto3" json:"instance_group_id,omitempty"`
 	// Version of Kubernetes components that runs on the nodes.
 	// Deprecated. Use version_info.current_version.
-	NodeVersion          string                      `protobuf:"bytes,12,opt,name=node_version,json=nodeVersion,proto3" json:"node_version,omitempty"`
-	VersionInfo          *VersionInfo                `protobuf:"bytes,13,opt,name=version_info,json=versionInfo,proto3" json:"version_info,omitempty"`
-	MaintenancePolicy    *NodeGroupMaintenancePolicy `protobuf:"bytes,14,opt,name=maintenance_policy,json=maintenancePolicy,proto3" json:"maintenance_policy,omitempty"`
-	AllowedUnsafeSysctls []string                    `protobuf:"bytes,15,rep,name=allowed_unsafe_sysctls,json=allowedUnsafeSysctls,proto3" json:"allowed_unsafe_sysctls,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
-	XXX_unrecognized     []byte                      `json:"-"`
-	XXX_sizecache        int32                       `json:"-"`
+	NodeVersion string `protobuf:"bytes,12,opt,name=node_version,json=nodeVersion,proto3" json:"node_version,omitempty"`
+	// Detailed information about the Kubernetes version that is running on the node.
+	VersionInfo *VersionInfo `protobuf:"bytes,13,opt,name=version_info,json=versionInfo,proto3" json:"version_info,omitempty"`
+	// Maintenance policy of the node group.
+	MaintenancePolicy *NodeGroupMaintenancePolicy `protobuf:"bytes,14,opt,name=maintenance_policy,json=maintenancePolicy,proto3" json:"maintenance_policy,omitempty"`
+	// Support for unsafe sysctl parameters. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/).
+	AllowedUnsafeSysctls []string `protobuf:"bytes,15,rep,name=allowed_unsafe_sysctls,json=allowedUnsafeSysctls,proto3" json:"allowed_unsafe_sysctls,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *NodeGroup) Reset()         { *m = NodeGroup{} }
@@ -272,12 +275,13 @@ type NodeTemplate struct {
 	PlatformId string `protobuf:"bytes,1,opt,name=platform_id,json=platformId,proto3" json:"platform_id,omitempty"`
 	// Computing resources of the node such as the amount of memory and number of cores.
 	ResourcesSpec *ResourcesSpec `protobuf:"bytes,2,opt,name=resources_spec,json=resourcesSpec,proto3" json:"resources_spec,omitempty"`
+	// Specification for the boot disk that will be attached to the node.
+	BootDiskSpec *DiskSpec `protobuf:"bytes,3,opt,name=boot_disk_spec,json=bootDiskSpec,proto3" json:"boot_disk_spec,omitempty"`
 	// The metadata as `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys.
 	//
 	// For example, you may use the metadata in order to provide your public SSH key to the node.
 	// For more information, see [Metadata](/docs/compute/concepts/vm-metadata).
-	BootDiskSpec *DiskSpec         `protobuf:"bytes,3,opt,name=boot_disk_spec,json=bootDiskSpec,proto3" json:"boot_disk_spec,omitempty"`
-	Metadata     map[string]string `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Metadata map[string]string `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Specification for the create network interfaces for the node group compute instances.
 	V4AddressSpec *NodeAddressSpec `protobuf:"bytes,5,opt,name=v4_address_spec,json=v4AddressSpec,proto3" json:"v4_address_spec,omitempty"`
 	// Scheduling policy configuration.
@@ -852,8 +856,13 @@ func (m *SchedulingPolicy) GetPreemptible() bool {
 }
 
 type NodeGroupMaintenancePolicy struct {
-	AutoUpgrade          bool               `protobuf:"varint,1,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
-	AutoRepair           bool               `protobuf:"varint,2,opt,name=auto_repair,json=autoRepair,proto3" json:"auto_repair,omitempty"`
+	// If set to true, automatic updates are installed in the specified period of time with no interaction from the user.
+	// If set to false, automatic upgrades are disabled.
+	AutoUpgrade bool `protobuf:"varint,1,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
+	// If set to true, automatic repairs are enabled. Default value is false.
+	AutoRepair bool `protobuf:"varint,2,opt,name=auto_repair,json=autoRepair,proto3" json:"auto_repair,omitempty"`
+	// Maintenance window settings. Update will start at the specified time and last no more than the specified duration.
+	// The time is set in UTC.
 	MaintenanceWindow    *MaintenanceWindow `protobuf:"bytes,3,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`

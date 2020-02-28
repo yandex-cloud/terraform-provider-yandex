@@ -190,3 +190,12 @@ func (it *KeyOperationsIterator) Value() *operation.Operation {
 func (it *KeyOperationsIterator) Error() error {
 	return it.err
 }
+
+// Update implements iam.KeyServiceClient
+func (c *KeyServiceClient) Update(ctx context.Context, in *iam.UpdateKeyRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return iam.NewKeyServiceClient(conn).Update(ctx, in, opts...)
+}
