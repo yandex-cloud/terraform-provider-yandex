@@ -1,4 +1,4 @@
-## 0.32.0 (Unreleased)
+## 0.32.0 (February 28, 2020)
 FEATURES:
 * compute: allow setting public IP address for `yandex_compute_instance`
 * mdb: support ClickHouse cluster access for Yandex.Metrica
