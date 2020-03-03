@@ -1,4 +1,6 @@
 ## 0.33.0 (Unreleased)
+* managed-kubernetes: support network policy provider for `yandex_kubernetes_cluster`
+
 ## 0.32.0 (February 28, 2020)
 FEATURES:
 * compute: allow setting public IP address for `yandex_compute_instance`
