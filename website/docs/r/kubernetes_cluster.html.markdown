@@ -48,6 +48,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
   }
 
   release_channel = "STABLE"
+  network_policy_provider = "CALICO"
 }
 ```
 
@@ -152,7 +153,9 @@ that will cause problems for cluster and related node group deletion.
 
 * `release_channel` - Cluster release channel.
 
-* `master` - IP allocation policy of the Kubernetes cluster.
+* `network_policy_provider` - (Optional) Network policy provider for the cluster. Possible values: `CALICO`.
+
+* `master` - Kubernetes master configuration options.
 
 The structure is documented below.
 
@@ -249,9 +252,9 @@ component (master or node group) should be upgraded.
 This resource provides the following configuration options for 
 [timeouts](/docs/configuration/resources.html#timeouts):
 
-- `create` - Default is 15 minute.
-- `update` - Default is 5 minute.
-- `delete` - Default is 5 minute.
+- `create` - Default is 30 minute.
+- `update` - Default is 20 minute.
+- `delete` - Default is 20 minute.
 
 ## Import
 

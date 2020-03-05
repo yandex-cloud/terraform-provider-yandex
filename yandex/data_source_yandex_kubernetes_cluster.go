@@ -50,6 +50,14 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"cluster_ipv4_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"service_ipv4_range": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"release_channel": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -185,6 +193,10 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Computed: true,
 			},
 			"health": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"network_policy_provider": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
