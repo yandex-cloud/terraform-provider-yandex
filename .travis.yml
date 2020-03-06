@@ -10,6 +10,19 @@ go:
 install:
   - make tools
 
+jobs:
+  fast_finish: true
+  include:
+    - name: "Code Lint"
+      script:
+        - make lint
+    - name: "Code UnitTest"
+      script:
+        - make test
+    - name: "Website"
+      script:
+        - make website-test
+
 script:
   - make lint
   - make test
