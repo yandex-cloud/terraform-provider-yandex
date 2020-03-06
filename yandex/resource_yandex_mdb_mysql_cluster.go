@@ -270,9 +270,9 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("error while expanding databases on Mysql Cluster create: %s", err)
 	}
 
-	hosts, err := expandMysqlHosts(d)
+	hostsFromScheme, err := expandMysqlHosts(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding hosts on MySQL Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding hostsFromScheme on MySQL Cluster create: %s", err)
 	}
 
 	users, err := expandMysqlUserSpecs(d)
@@ -287,6 +287,10 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		BackupWindowStart: backupWindowStart,
 	}
 
+	hostSpecs := make([]*mysql.HostSpec, 0)
+	for _, host := range hostsFromScheme {
+		hostSpecs = append(hostSpecs, host.HostSpec)
+	}
 	req := mysql.CreateClusterRequest{
 		FolderId:      folderID,
 		Name:          d.Get("name").(string),
@@ -296,7 +300,7 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		ConfigSpec:    configSpec,
 		DatabaseSpecs: dbSpecs,
 		UserSpecs:     users,
-		HostSpecs:     hosts,
+		HostSpecs:     hostSpecs,
 		Labels:        labels,
 	}
 	return &req, nil
@@ -756,6 +760,19 @@ func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 	return nil
 }
 
+func validateMysqlAssignPublicIP(currentHosts []*mysql.Host, targetHosts []*MySQLHostSpec) error {
+	for _, currentHost := range currentHosts {
+		for _, targetHost := range targetHosts {
+			if currentHost.Name == targetHost.Fqdn &&
+				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
+				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host %s in resource_yandex_mdb_mysql_cluster, "+
+					"if you really need it you should delete one host and add another", currentHost.Name)
+			}
+		}
+	}
+	return nil
+}
+
 func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -767,6 +784,11 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	targetHosts, err := expandMysqlHosts(d)
+	if err != nil {
+		return err
+	}
+
+	err = validateMysqlAssignPublicIP(currHosts, targetHosts)
 	if err != nil {
 		return err
 	}
@@ -788,29 +810,24 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func mysqlHostsDiff(currHosts []*mysql.Host, targetHosts []*mysql.HostSpec) ([]string, []*mysql.HostSpec) {
-	m := map[string][]*mysql.HostSpec{}
+func mysqlHostsDiff(currHosts []*mysql.Host, targetHosts []*MySQLHostSpec) ([]string, []*mysql.HostSpec) {
+	m := map[string]*MySQLHostSpec{}
 
+	toAdd := []*mysql.HostSpec{}
 	for _, h := range targetHosts {
-		m[h.ZoneId] = append(m[h.ZoneId], h)
+		if !h.HasComputedFqdn {
+			toAdd = append(toAdd, h.HostSpec)
+		} else {
+			m[h.Fqdn] = h
+		}
 	}
 
 	toDelete := []string{}
 	for _, h := range currHosts {
-		hs, ok := m[h.ZoneId]
+		_, ok := m[h.Name]
 		if !ok {
 			toDelete = append(toDelete, h.Name)
 		}
-		if len(hs) > 1 {
-			m[h.ZoneId] = hs[1:]
-		} else {
-			delete(m, h.ZoneId)
-		}
-	}
-
-	toAdd := []*mysql.HostSpec{}
-	for _, hs := range m {
-		toAdd = append(toAdd, hs...)
 	}
 
 	return toDelete, toAdd

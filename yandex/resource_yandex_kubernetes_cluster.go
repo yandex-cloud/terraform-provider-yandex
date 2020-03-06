@@ -22,6 +22,7 @@ const (
 	yandexKubernetesClusterCreateTimeout  = 30 * time.Minute
 	yandexKubernetesClusterReadTimeout    = 5 * time.Minute
 	yandexKubernetesClusterDefaultTimeout = 20 * time.Minute
+	yandexKubernetesClusterUpdateTimeout  = 30 * time.Minute
 )
 
 func resourceYandexKubernetesCluster() *schema.Resource {
@@ -37,7 +38,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexKubernetesClusterCreateTimeout),
 			Read:   schema.DefaultTimeout(yandexKubernetesClusterReadTimeout),
-			Update: schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexKubernetesClusterUpdateTimeout),
 			Delete: schema.DefaultTimeout(yandexKubernetesClusterDefaultTimeout),
 		},
 		Schema: map[string]*schema.Schema{
@@ -226,6 +227,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
@@ -235,6 +237,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 			},
 			"description": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 			"labels": {

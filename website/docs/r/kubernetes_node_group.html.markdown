@@ -104,6 +104,12 @@ Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
 
 The structure is documented below.
 
+* `node_labels` - (Optional, Forces new resource) A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+
+* `node_taints` - (Optional, Forces new resource) A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+
+* `allowed_unsafe_sysctls` - (Optional, Forces new resource) A list of allowed unsafe sysctl parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/).
+
 * `version_info` - (Computed) Information about Kubernetes node group version.
 
 The structure is documented below.
@@ -127,8 +133,6 @@ The structure is documented below.
 
 The structure is documented below.
 
-* `status` - (Computed) Status of the Kubernetes node group.
-* `created_at` - (Computed) The Kubernetes node group creation timestamp.
 
 ---
 
@@ -208,6 +212,13 @@ components either on the master or nodes.
 when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
+
+## Attributes Reference
+
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `status` - (Computed) Status of the Kubernetes node group.
+* `created_at` - (Computed) The Kubernetes node group creation timestamp.
 
 ## Timeouts
 

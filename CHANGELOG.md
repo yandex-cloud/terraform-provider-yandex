@@ -1,5 +1,16 @@
 ## 0.33.0 (Unreleased)
-* managed-kubernetes: support network policy provider for `yandex_kubernetes_cluster`
+FEATURES:
+* **New Data Source:** `yandex_iot_core_registry`
+* **New Data Source:** `yandex_iot_core_device`
+* **New Resource:** `yandex_iot_core_registry`
+* **New Resource:** `yandex_iot_core_device`
+
+ENHANCEMENTS:
+* managed-kubernetes: support network policy provider for `yandex_kubernetes_cluster` [GH-45]
+* managed-kubernetes: add `node_labels`, `node_taints` and `allowed_unsafe_sysctls` fields for `yandex_kubernetes_node_group`
+
+BUG FIXES:
+* mdb: throw error when trying to modify `assign_public_ip` in `resource_yandex_mdb_postgresql_cluster`,`resource_yandex_mdb_mysql_cluster`
 
 ## 0.32.0 (February 28, 2020)
 FEATURES:

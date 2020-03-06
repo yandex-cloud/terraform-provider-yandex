@@ -230,12 +230,12 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	hostSpecs, err := expandMysqlHosts(d)
+	hostFromScheme, err := expandMysqlHosts(d)
 	if err != nil {
 		return err
 	}
 
-	sortMysqlHosts(hosts, hostSpecs)
+	sortMysqlHosts(hosts, hostFromScheme)
 
 	fHosts, err := flattenMysqlHosts(hosts)
 

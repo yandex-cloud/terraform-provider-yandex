@@ -52,7 +52,7 @@ to access Container Registry or to push node logs and metrics.
 
 * `release_channel` - Cluster release channel.
 
-* `master` - IP allocation policy of the Kubernetes cluster.
+* `master` - Kubernetes master configuration options.
 
 The structure is documented below.
 

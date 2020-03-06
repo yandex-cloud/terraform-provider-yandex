@@ -442,6 +442,17 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   version = {{.Version}}
 
   {{.MaintenancePolicy}}
+
+  node_labels = {
+    label1 = "value1"
+  }
+  node_taints = [
+    "key1=value1:NoSchedule"
+  ]
+  allowed_unsafe_sysctls = [
+    "kernel.msg*",
+    "net.core.somaxconn",
+  ]
 }
 `
 
@@ -517,6 +528,10 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			testAccCheckNodeGroupLabel(ng, info, rs),
 			testAccCheckCreatedAtAttr(resourceFullName),
+
+			testCheckResourceMap(resourceFullName, "node_labels", ng.GetNodeLabels()),
+			testCheckResourceList(resourceFullName, "node_taints", formatTaints(ng.GetNodeTaints())),
+			testCheckResourceList(resourceFullName, "allowed_unsafe_sysctls", ng.GetAllowedUnsafeSysctls()),
 		}
 
 		if info.policy != emptyMaintenancePolicy {
@@ -648,4 +663,47 @@ func testAccCheckKubernetesNodeGroupDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func formatTaints(taints []*k8s.Taint) []string {
+	var formatted []string
+	for _, t := range taints {
+		var effect string
+		switch t.Effect {
+		case k8s.Taint_NO_EXECUTE:
+			effect = "NoExecute"
+		case k8s.Taint_NO_SCHEDULE:
+			effect = "NoSchedule"
+		case k8s.Taint_PREFER_NO_SCHEDULE:
+			effect = "PreferNoSchedule"
+		}
+		formatted = append(formatted, fmt.Sprintf("%s=%s:%s", t.Key, t.Value, effect))
+	}
+	return formatted
+}
+
+func testCheckResourceMap(objName string, key string, m map[string]string) resource.TestCheckFunc {
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(objName, fmt.Sprintf("%s.%%", key), strconv.Itoa(len(m))),
+	}
+
+	for k, v := range m {
+		labelPath := fmt.Sprintf("%s.%s", key, k)
+		checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(objName, labelPath, v))
+	}
+
+	return resource.ComposeTestCheckFunc(checkFuncs...)
+}
+
+func testCheckResourceList(objName string, key string, values []string) resource.TestCheckFunc {
+	checkFuncs := []resource.TestCheckFunc{
+		resource.TestCheckResourceAttr(objName, fmt.Sprintf("%s.#", key), strconv.Itoa(len(values))),
+	}
+
+	for i, v := range values {
+		labelPath := fmt.Sprintf("%s.%d", key, i)
+		checkFuncs = append(checkFuncs, resource.TestCheckResourceAttr(objName, labelPath, v))
+	}
+
+	return resource.ComposeTestCheckFunc(checkFuncs...)
 }

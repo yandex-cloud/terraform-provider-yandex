@@ -13,6 +13,12 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
 
+type PostgreSQLHostSpec struct {
+	HostSpec        *postgresql.HostSpec
+	Fqdn            string
+	HasComputedFqdn bool
+}
+
 func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
 	poolerConf, err := flattenPGPoolerConfig(c.PoolerConfig)
 	if err != nil {
@@ -424,8 +430,8 @@ func expandPGUserPermissions(ps *schema.Set) ([]*postgresql.Permission, error) {
 	return out, nil
 }
 
-func expandPGHosts(d *schema.ResourceData) ([]*postgresql.HostSpec, error) {
-	out := []*postgresql.HostSpec{}
+func expandPGHosts(d *schema.ResourceData) ([]*PostgreSQLHostSpec, error) {
+	out := []*PostgreSQLHostSpec{}
 	hosts := d.Get("host").([]interface{})
 
 	for _, v := range hosts {
@@ -440,28 +446,32 @@ func expandPGHosts(d *schema.ResourceData) ([]*postgresql.HostSpec, error) {
 	return out, nil
 }
 
-func expandPGHost(m map[string]interface{}) (*postgresql.HostSpec, error) {
-	host := &postgresql.HostSpec{}
-
+func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
+	hostSpec := &postgresql.HostSpec{}
+	host := &PostgreSQLHostSpec{HostSpec: hostSpec, HasComputedFqdn: false}
 	if v, ok := m["zone"]; ok {
-		host.ZoneId = v.(string)
+		host.HostSpec.ZoneId = v.(string)
 	}
 
 	if v, ok := m["subnet_id"]; ok {
-		host.SubnetId = v.(string)
+		host.HostSpec.SubnetId = v.(string)
 	}
 
 	if v, ok := m["assign_public_ip"]; ok {
-		host.AssignPublicIp = v.(bool)
+		host.HostSpec.AssignPublicIp = v.(bool)
+	}
+	if v, ok := m["fqdn"]; ok && v.(string) != "" {
+		host.HasComputedFqdn = true
+		host.Fqdn = v.(string)
 	}
 
 	return host, nil
 }
 
-func sortPGHosts(hosts []*postgresql.Host, specs []*postgresql.HostSpec) {
+func sortPGHosts(hosts []*postgresql.Host, specs []*PostgreSQLHostSpec) {
 	for i, h := range specs {
 		for j := i + 1; j < len(hosts); j++ {
-			if h.ZoneId == hosts[j].ZoneId {
+			if h.HostSpec.ZoneId == hosts[j].ZoneId {
 				hosts[i], hosts[j] = hosts[j], hosts[i]
 				break
 			}
@@ -666,29 +676,24 @@ func pgChangedDatabases(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*postgres
 	return out, nil
 }
 
-func pgHostsDiff(currHosts []*postgresql.Host, targetHosts []*postgresql.HostSpec) ([]string, []*postgresql.HostSpec) {
-	m := map[string][]*postgresql.HostSpec{}
+func pgHostsDiff(currHosts []*postgresql.Host, targetHosts []*PostgreSQLHostSpec) ([]string, []*postgresql.HostSpec) {
+	m := map[string]*PostgreSQLHostSpec{}
 
+	toAdd := []*postgresql.HostSpec{}
 	for _, h := range targetHosts {
-		m[h.ZoneId] = append(m[h.ZoneId], h)
+		if !h.HasComputedFqdn {
+			toAdd = append(toAdd, h.HostSpec)
+		} else {
+			m[h.Fqdn] = h
+		}
 	}
 
 	toDelete := []string{}
 	for _, h := range currHosts {
-		hs, ok := m[h.ZoneId]
+		_, ok := m[h.Name]
 		if !ok {
 			toDelete = append(toDelete, h.Name)
 		}
-		if len(hs) > 1 {
-			m[h.ZoneId] = hs[1:]
-		} else {
-			delete(m, h.ZoneId)
-		}
-	}
-
-	toAdd := []*postgresql.HostSpec{}
-	for _, hs := range m {
-		toAdd = append(toAdd, hs...)
 	}
 
 	return toDelete, toAdd

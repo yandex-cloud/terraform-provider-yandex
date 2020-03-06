@@ -459,13 +459,12 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_endpoint", master.GetEndpoints().GetInternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
-
 			testAccCheckClusterLabel(cluster, info, rs),
 		}
 
 		if info.policy != emptyMaintenancePolicy {
 			checkFuncsAr = append(checkFuncsAr,
-				resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.maintenance_policy.0.auto_upgrade", strconv.FormatBool(info.autoUpgrade)))
 		}
 
 		if npp := info.networkPolicyProvider; npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {

@@ -91,4 +91,4 @@ The `host` block supports:
 * `fqdn` - The fully qualified domain name of the host.
 * `zone` - The availability zone where the MySQL host will be created.
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
-* `assign_public_ip` - Sets whether the host should get a public IP address on creation.
+* `assign_public_ip` - Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment

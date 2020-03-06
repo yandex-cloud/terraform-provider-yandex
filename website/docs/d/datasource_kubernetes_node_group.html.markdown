@@ -61,6 +61,12 @@ The structure is documented below.
 
 The structure is documented below.
 
+* `node_labels` - A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
+
+* `node_taints` - A list of Kubernetes taints, that are applied to all the nodes of this Kubernetes node group.
+
+* `allowed_unsafe_sysctls` - A list of allowed unsafe sysctl parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/).
+
 * `version_info` - Information about Kubernetes node group version.
 
 The structure is documented below.

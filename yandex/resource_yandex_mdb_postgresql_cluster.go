@@ -426,7 +426,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error getting folder ID while creating PostgreSQL Cluster: %s", err)
 	}
 
-	hostSpecs, err := expandPGHosts(d)
+	hostsFromScheme, err := expandPGHosts(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding host specs on PostgreSQL Cluster create: %s", err)
 	}
@@ -451,7 +451,10 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding database specs on PostgreSQL Cluster create: %s", err)
 	}
-
+	hostSpecs := make([]*postgresql.HostSpec, 0)
+	for _, host := range hostsFromScheme {
+		hostSpecs = append(hostSpecs, host.HostSpec)
+	}
 	req := &postgresql.CreateClusterRequest{
 		FolderId:      folderID,
 		Name:          d.Get("name").(string),
@@ -689,6 +692,19 @@ func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func validatePGAssignPublicIP(currentHosts []*postgresql.Host, targetHosts []*PostgreSQLHostSpec) error {
+	for _, currentHost := range currentHosts {
+		for _, targetHost := range targetHosts {
+			if currentHost.Name == targetHost.Fqdn &&
+				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
+				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host %s in resource_yandex_mdb_postgresql_cluster, "+
+					"if you really need it you should delete one host and add another", currentHost.Name)
+			}
+		}
+	}
+	return nil
+}
+
 func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -700,6 +716,11 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	targetHosts, err := expandPGHosts(d)
+	if err != nil {
+		return err
+	}
+
+	err = validatePGAssignPublicIP(currHosts, targetHosts)
 	if err != nil {
 		return err
 	}

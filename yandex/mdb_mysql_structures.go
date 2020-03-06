@@ -14,6 +14,12 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 )
 
+type MySQLHostSpec struct {
+	HostSpec        *mysql.HostSpec
+	Fqdn            string
+	HasComputedFqdn bool
+}
+
 func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
 	v, ok := mysql.Cluster_Environment_value[e]
 	if !ok {
@@ -105,8 +111,8 @@ func expandMysqlUserPermissions(ps *schema.Set) ([]*mysql.Permission, error) {
 	return result, nil
 }
 
-func expandMysqlHosts(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
-	var result []*mysql.HostSpec
+func expandMysqlHosts(d *schema.ResourceData) ([]*MySQLHostSpec, error) {
+	var result []*MySQLHostSpec
 	hosts := d.Get("host").([]interface{})
 
 	for _, v := range hosts {
@@ -121,18 +127,24 @@ func expandMysqlHosts(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
 	return result, nil
 }
 
-func expandMysqlHost(config map[string]interface{}) (*mysql.HostSpec, error) {
-	host := &mysql.HostSpec{}
+func expandMysqlHost(config map[string]interface{}) (*MySQLHostSpec, error) {
+	hostSpec := &mysql.HostSpec{}
+	host := &MySQLHostSpec{HostSpec: hostSpec, HasComputedFqdn: false}
 	if v, ok := config["zone"]; ok {
-		host.ZoneId = v.(string)
+		host.HostSpec.ZoneId = v.(string)
 	}
 
 	if v, ok := config["subnet_id"]; ok {
-		host.SubnetId = v.(string)
+		host.HostSpec.SubnetId = v.(string)
 	}
 
 	if v, ok := config["assign_public_ip"]; ok {
-		host.AssignPublicIp = v.(bool)
+		host.HostSpec.AssignPublicIp = v.(bool)
+	}
+
+	if v, ok := config["fqdn"]; ok && v.(string) != "" {
+		host.HasComputedFqdn = true
+		host.Fqdn = v.(string)
 	}
 
 	return host, nil
@@ -253,10 +265,10 @@ func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Ho
 	return hosts, nil
 }
 
-func sortMysqlHosts(hosts []*mysql.Host, specs []*mysql.HostSpec) {
+func sortMysqlHosts(hosts []*mysql.Host, specs []*MySQLHostSpec) {
 	for i, h := range specs {
 		for j := i + 1; j < len(hosts); j++ {
-			if h.ZoneId == hosts[j].ZoneId {
+			if h.HostSpec.ZoneId == hosts[j].ZoneId {
 				hosts[i], hosts[j] = hosts[j], hosts[i]
 				break
 			}

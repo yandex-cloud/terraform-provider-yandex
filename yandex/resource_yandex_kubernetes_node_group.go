@@ -237,10 +237,29 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 					},
 				},
 			},
+			"allowed_unsafe_sysctls": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"node_labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"node_taints": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"maintenance_policy": {
 				Type:     schema.TypeList,
-				Computed: true,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -406,16 +425,27 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		return nil, fmt.Errorf("error getting node group scale policy for a Kubernetes node group creation: %s", err)
 	}
 
+	sysctls := getNodeGroupAllowedUnsafeSysctls(d)
+	nodeLabels := getNodeGroupNodeLabels(d)
+
+	nodeTaints, err := getNodeGroupNodeTaints(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node taints for a Kubernetes node group creation: %s", err)
+	}
+
 	req := &k8s.CreateNodeGroupRequest{
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Labels:            labels,
-		ClusterId:         d.Get("cluster_id").(string),
-		NodeTemplate:      tpl,
-		ScalePolicy:       sp,
-		AllocationPolicy:  getNodeGroupAllocationPolicy(d),
-		Version:           d.Get("version").(string),
-		MaintenancePolicy: mp,
+		Name:                 d.Get("name").(string),
+		Description:          d.Get("description").(string),
+		Labels:               labels,
+		ClusterId:            d.Get("cluster_id").(string),
+		NodeTemplate:         tpl,
+		ScalePolicy:          sp,
+		AllocationPolicy:     getNodeGroupAllocationPolicy(d),
+		Version:              d.Get("version").(string),
+		MaintenancePolicy:    mp,
+		AllowedUnsafeSysctls: sysctls,
+		NodeLabels:           nodeLabels,
+		NodeTaints:           nodeTaints,
 	}
 
 	return req, nil
@@ -474,7 +504,7 @@ func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
 	_, okAuto := d.GetOk("scale_policy.0.auto_scale")
 	switch {
 	case !okFixed && !okAuto:
-		return nil, fmt.Errorf("no scale policy has been specified fo a node group")
+		return nil, fmt.Errorf("no scale policy has been specified for a node group")
 	case okFixed && okAuto:
 		return nil, fmt.Errorf("scale policy should be exactly one of fixed scale or auto scale")
 	case okFixed:
@@ -509,6 +539,88 @@ func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
 				},
 			},
 		}, nil
+	}
+}
+
+func getNodeGroupAllowedUnsafeSysctls(d *schema.ResourceData) []string {
+	obj := d.Get("allowed_unsafe_sysctls")
+	if obj == nil {
+		return nil
+	}
+	var sysctls []string
+	for _, s := range obj.([]interface{}) {
+		sysctls = append(sysctls, s.(string))
+	}
+	return sysctls
+}
+
+func getNodeGroupNodeLabels(d *schema.ResourceData) map[string]string {
+	obj := d.Get("node_labels")
+	if obj == nil {
+		return nil
+	}
+	m := map[string]string{}
+	for k, v := range obj.(map[string]interface{}) {
+		m[k] = v.(string)
+	}
+	return m
+}
+
+func getNodeGroupNodeTaints(d *schema.ResourceData) ([]*k8s.Taint, error) {
+	obj := d.Get("node_taints")
+	if obj == nil {
+		return nil, nil
+	}
+	var taints []*k8s.Taint
+	for _, v := range obj.([]interface{}) {
+		taint, err := parseTaint(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		taints = append(taints, taint)
+	}
+	return taints, nil
+}
+
+// parseTaint parses a taint from a string, whose form must be
+// '<key>=<value>:<effect>'.
+func parseTaint(st string) (*k8s.Taint, error) {
+	parts := strings.Split(st, ":")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid taint spec: %v", st)
+	}
+	effect, err := toAPI(parts[1])
+	if err != nil {
+		return nil, err
+	}
+
+	partsKV := strings.Split(parts[0], "=")
+	if len(partsKV) != 2 {
+		return nil, fmt.Errorf("invalid taint spec: %v", st)
+	}
+
+	return &k8s.Taint{
+		Key:    partsKV[0],
+		Value:  partsKV[1],
+		Effect: effect,
+	}, nil
+}
+
+func toAPI(effect string) (k8s.Taint_Effect, error) {
+	switch effect {
+	case "NoSchedule":
+		return k8s.Taint_NO_SCHEDULE, nil
+	case "PreferNoSchedule":
+		return k8s.Taint_PREFER_NO_SCHEDULE, nil
+	case "NoExecute":
+		return k8s.Taint_NO_EXECUTE, nil
+	default:
+		supported := []string{
+			"NoSchedule",
+			"PreferNoSchedule",
+			"NoExecute",
+		}
+		return 0, fmt.Errorf("invalid taint effect: %v, supported taint effects %s", effect, strings.Join(supported, ", "))
 	}
 }
 
@@ -620,8 +732,38 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
+	if err := d.Set("allowed_unsafe_sysctls", ng.AllowedUnsafeSysctls); err != nil {
+		return err
+	}
+
+	if err := d.Set("node_labels", ng.NodeLabels); err != nil {
+		return err
+	}
+
+	taints := flattenKubernetesNodeGroupTaints(ng.NodeTaints)
+	if err := d.Set("node_taints", taints); err != nil {
+		return err
+	}
+
 	d.SetId(ng.Id)
 	return nil
+}
+
+func flattenKubernetesNodeGroupTaints(taints []*k8s.Taint) interface{} {
+	var values []interface{}
+	for _, t := range taints {
+		var effect string
+		switch t.GetEffect() {
+		case k8s.Taint_NO_SCHEDULE:
+			effect = "NoSchedule"
+		case k8s.Taint_PREFER_NO_SCHEDULE:
+			effect = "PreferNoSchedule"
+		case k8s.Taint_NO_EXECUTE:
+			effect = "NoExecute"
+		}
+		values = append(values, fmt.Sprintf("%s=%s:%s", t.GetKey(), t.GetValue(), effect))
+	}
+	return values
 }
 
 var nodeGroupUpdateFieldsMap = map[string]string{

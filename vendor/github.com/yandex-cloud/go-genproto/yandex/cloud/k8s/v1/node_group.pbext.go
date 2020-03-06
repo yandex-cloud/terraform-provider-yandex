@@ -66,6 +66,14 @@ func (m *NodeGroup) SetAllowedUnsafeSysctls(v []string) {
 	m.AllowedUnsafeSysctls = v
 }
 
+func (m *NodeGroup) SetNodeTaints(v []*Taint) {
+	m.NodeTaints = v
+}
+
+func (m *NodeGroup) SetNodeLabels(v map[string]string) {
+	m.NodeLabels = v
+}
+
 func (m *NodeTemplate) SetPlatformId(v string) {
 	m.PlatformId = v
 }
@@ -178,4 +186,16 @@ func (m *NodeGroupMaintenancePolicy) SetAutoRepair(v bool) {
 
 func (m *NodeGroupMaintenancePolicy) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
+}
+
+func (m *Taint) SetKey(v string) {
+	m.Key = v
+}
+
+func (m *Taint) SetValue(v string) {
+	m.Value = v
+}
+
+func (m *Taint) SetEffect(v Taint_Effect) {
+	m.Effect = v
 }

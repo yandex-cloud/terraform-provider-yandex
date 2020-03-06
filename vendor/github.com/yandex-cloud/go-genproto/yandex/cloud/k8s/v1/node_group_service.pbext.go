@@ -87,6 +87,14 @@ func (m *UpdateNodeGroupRequest) SetAllowedUnsafeSysctls(v []string) {
 	m.AllowedUnsafeSysctls = v
 }
 
+func (m *UpdateNodeGroupRequest) SetNodeTaints(v []*Taint) {
+	m.NodeTaints = v
+}
+
+func (m *UpdateNodeGroupRequest) SetNodeLabels(v map[string]string) {
+	m.NodeLabels = v
+}
+
 func (m *UpdateNodeGroupMetadata) SetNodeGroupId(v string) {
 	m.NodeGroupId = v
 }
@@ -129,6 +137,14 @@ func (m *CreateNodeGroupRequest) SetMaintenancePolicy(v *NodeGroupMaintenancePol
 
 func (m *CreateNodeGroupRequest) SetAllowedUnsafeSysctls(v []string) {
 	m.AllowedUnsafeSysctls = v
+}
+
+func (m *CreateNodeGroupRequest) SetNodeTaints(v []*Taint) {
+	m.NodeTaints = v
+}
+
+func (m *CreateNodeGroupRequest) SetNodeLabels(v map[string]string) {
+	m.NodeLabels = v
 }
 
 func (m *CreateNodeGroupMetadata) SetNodeGroupId(v string) {

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"testing"
 
@@ -68,6 +69,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
+			{
+				Config: testAccMDBMySQLClusterConfigDisallowedUpdatePublicIP(mysqlName, mysqlDesc),
+				ExpectError: regexp.MustCompile("forbidden to change assign_public_ip setting for existing host .* " +
+					"in resource_yandex_mdb_mysql_cluster, if you really need it you should delete one host and add another"),
+			},
 			// Change some options
 			{
 				Config: testAccMDBMySQLClusterConfigUpdated(mysqlName, mysqlDesc2),
@@ -404,6 +410,46 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   host {
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.foo_c.id}"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBMySQLClusterConfigDisallowedUpdatePublicIP(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  version     = "5.7"
+  labels = {
+    test_key = "test_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone             = "ru-central1-c"
+    subnet_id        = "${yandex_vpc_subnet.foo_c.id}"
+    assign_public_ip = true
   }
 }
 `, name, desc)

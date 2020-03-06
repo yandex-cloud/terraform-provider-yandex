@@ -189,7 +189,7 @@ The `host` block supports:
 
 * `subnet_id` - (Optional) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
-* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation.
+* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
 
 ## Attributes Reference
 

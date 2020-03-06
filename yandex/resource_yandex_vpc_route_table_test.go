@@ -5,12 +5,52 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_vpc_route_table", &resource.Sweeper{
+		Name: "yandex_vpc_route_table",
+		F:    testSweepVPCRouteTables,
+	})
+}
+
+func testSweepVPCRouteTables(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.VPC().RouteTable().RouteTableIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepVPCRouteTable(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC Route Table %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepVPCRouteTable(conf *Config, id string) bool {
+	return sweepWithRetry(sweepVPCRouteTableOnce, conf, "VPC Route Table", id)
+}
+
+func sweepVPCRouteTableOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCRouteTableDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.VPC().RouteTable().Delete(ctx, &vpc.DeleteRouteTableRequest{
+		RouteTableId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccVPCRouteTable_basic(t *testing.T) {
 	t.Parallel()
