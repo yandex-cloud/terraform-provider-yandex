@@ -1,4 +1,4 @@
-## 0.33.0 (Unreleased)
+## 0.33.0 (March 06, 2020)
 FEATURES:
 * **New Data Source:** `yandex_iot_core_registry`
 * **New Data Source:** `yandex_iot_core_device`
@@ -6,7 +6,7 @@ FEATURES:
 * **New Resource:** `yandex_iot_core_device`
 
 ENHANCEMENTS:
-* managed-kubernetes: support network policy provider for `yandex_kubernetes_cluster` [GH-45]
+* managed-kubernetes: support network policy provider for `yandex_kubernetes_cluster` ([#45](https://github.com/terraform-providers/terraform-provider-yandex/issues/45))
 * managed-kubernetes: add `node_labels`, `node_taints` and `allowed_unsafe_sysctls` fields for `yandex_kubernetes_node_group`
 
 BUG FIXES:
