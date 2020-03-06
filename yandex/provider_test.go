@@ -58,7 +58,9 @@ func init() {
 	}
 
 	if os.Getenv("TF_ACC") != "" {
-		setTestIDs()
+		if err := setTestIDs(); err != nil {
+			panic(err)
+		}
 	}
 }
 
