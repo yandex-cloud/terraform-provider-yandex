@@ -23,11 +23,6 @@ jobs:
       script:
         - make website-test
 
-script:
-  - make lint
-  - make test
-  - make website-test
-
 branches:
   only:
     - master
