@@ -61,7 +61,7 @@ func TestConfigUserAgent(t *testing.T) {
 	endpoint.RegisterApiEndpointServiceServer(grpcServer, mockServerImpl)
 
 	l := localListener(t)
-	go grpcServer.Serve(l)
+	go func() { _ = grpcServer.Serve(l) }()
 	defer grpcServer.Stop()
 
 	// instance of sdk
@@ -80,8 +80,8 @@ func TestConfigUserAgent(t *testing.T) {
 		t.Fatalf("error: %v", err)
 	}
 
-	// get request to mock server
-	config.sdk.ApiEndpoint().ApiEndpoint().List(context.Background(), &endpoint.ListApiEndpointsRequest{})
+	// make a request to the mock server
+	_, _ = config.sdk.ApiEndpoint().ApiEndpoint().List(context.Background(), &endpoint.ListApiEndpointsRequest{})
 
 	// check user-agent value
 	assert.Contains(t, mockServerImpl.userAgent, "terraform.io")
