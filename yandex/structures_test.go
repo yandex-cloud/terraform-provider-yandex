@@ -105,6 +105,96 @@ func TestExpandProductIds(t *testing.T) {
 	}
 }
 
+func TestParseInstanceGroupNetworkSettingsType(t *testing.T) {
+	cases := []struct {
+		name   string
+		nsType string
+		parsed instancegroup.NetworkSettings_Type
+	}{
+		{
+			name:   "soft",
+			nsType: "SOFTWARE_ACCELERATED",
+			parsed: instancegroup.NetworkSettings_SOFTWARE_ACCELERATED,
+		},
+		{
+			name:   "base",
+			nsType: "STANDARD",
+			parsed: instancegroup.NetworkSettings_STANDARD,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := parseInstanceGroupNetworkSettignsType(tc.nsType)
+			if err != nil {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(result, tc.parsed) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.parsed)
+			}
+		})
+	}
+}
+
+func TestExpandNetworkSettings(t *testing.T) {
+	cases := []struct {
+		name     string
+		ns       interface{}
+		expected instancegroup.NetworkSettings
+	}{
+		{
+			name:     "soft",
+			ns:       "SOFTWARE_ACCELERATED",
+			expected: instancegroup.NetworkSettings{Type: instancegroup.NetworkSettings_SOFTWARE_ACCELERATED},
+		},
+		{
+			name:     "base",
+			ns:       "STANDARD",
+			expected: instancegroup.NetworkSettings{Type: instancegroup.NetworkSettings_STANDARD},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := expandNetworkSettings(tc.ns)
+			if err != nil {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(*result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestFlattenInstanceGroupNetworkSettings(t *testing.T) {
+	cases := []struct {
+		name     string
+		ns       instancegroup.NetworkSettings
+		expected []map[string]interface{}
+	}{
+		{
+			name:     "soft",
+			ns:       instancegroup.NetworkSettings{Type: instancegroup.NetworkSettings_SOFTWARE_ACCELERATED},
+			expected: []map[string]interface{}{{"type": "SOFTWARE_ACCELERATED"}},
+		},
+		{
+			name:     "base",
+			ns:       instancegroup.NetworkSettings{Type: instancegroup.NetworkSettings_STANDARD},
+			expected: []map[string]interface{}{{"type": "STANDARD"}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := flattenInstanceGroupNetworkSettings(&tc.ns)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
 func TestFlattenInstanceResources(t *testing.T) {
 	cases := []struct {
 		name      string

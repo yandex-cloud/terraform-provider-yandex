@@ -37,7 +37,7 @@ func TestAccKMSSymmetricKey_basic(t *testing.T) {
 						"yandex_kms_symmetric_key.key-b", &symmetricKey2),
 					testAccCheckKMSSymmetricKeyExists(
 						"yandex_kms_symmetric_key.key-b", &symmetricKey3),
-					testAccCheckDuration("yandex_kms_symmetric_key.key-a", "rotation_period", "4h"),
+					testAccCheckDuration("yandex_kms_symmetric_key.key-a", "rotation_period", "24h"),
 					testAccCheckDuration("yandex_kms_symmetric_key.key-b", "rotation_period", "8760h"),
 					testAccCheckDuration("yandex_kms_symmetric_key.key-c", "rotation_period", ""),
 					testAccCheckCreatedAtAttr("yandex_kms_symmetric_key.key-a"),
@@ -90,7 +90,7 @@ func TestAccKMSSymmetricKey_update(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_kms_symmetric_key.key-a", "name", key1Name),
 					resource.TestCheckResourceAttr("yandex_kms_symmetric_key.key-a", "description", "description for key-a"),
 					resource.TestCheckResourceAttr("yandex_kms_symmetric_key.key-a", "default_algorithm", "AES_128"),
-					testAccCheckDuration("yandex_kms_symmetric_key.key-a", "rotation_period", "4h"),
+					testAccCheckDuration("yandex_kms_symmetric_key.key-a", "rotation_period", "24h"),
 
 					testAccCheckKMSSymmetricKeyContainsLabel(&symmetricKey1, "tf-label", "tf-label-value-a"),
 					testAccCheckKMSSymmetricKeyContainsLabel(&symmetricKey1, "empty-label", ""),
@@ -228,7 +228,7 @@ resource "yandex_kms_symmetric_key" "key-a" {
   name              = "%s"
   description       = "description for key-a"
   default_algorithm = "AES_128"
-  rotation_period   = "4h"
+  rotation_period   = "24h"
 
   labels = {
     tf-label    = "tf-label-value-a"

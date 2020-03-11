@@ -19,6 +19,9 @@ func init() {
 		F:    testSweepVPCSubnets,
 		Dependencies: []string{
 			"yandex_compute_instance_group",
+			"yandex_mdb_clickhouse_cluster",
+			"yandex_mdb_postgresql_cluster",
+			"yandex_mdb_redis_cluster",
 		},
 	})
 }

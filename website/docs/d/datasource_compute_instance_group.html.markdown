@@ -160,6 +160,8 @@ The structure is documented below.
 The structure is documented below.
 * `boot_disk` - The specifications for boot disk that will be attached to the instance.
 The structure is documented below.
+* `network_settings` -  Network acceleration settings.
+The structure is documented below.
 
 ---
 
@@ -293,3 +295,9 @@ The `http_options` block supports:
 The `tcp_options` block supports:
 
 * `port` - The port to use for TCP health checks.
+
+---
+
+The `network_settings` block supports:
+
+* `type` - Network acceleration type. By default a network is in `STANDARD` mode.

@@ -281,6 +281,19 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+
+						"network_settings": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -965,6 +978,7 @@ func getStaticUpdatePath() []string {
 		"instance_template.boot_disk_spec",
 		"instance_template.scheduling_policy",
 		"instance_template.service_account_id",
+		"instance_template.network_settings",
 		"scale_policy",
 		"deploy_policy",
 		"allocation_policy",

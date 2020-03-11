@@ -253,7 +253,15 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 		templateMap["scheduling_policy"] = []map[string]interface{}{{"preemptible": template.SchedulingPolicy.Preemptible}}
 	}
 
+	if template.NetworkSettings != nil {
+		templateMap["network_settings"] = flattenInstanceGroupNetworkSettings(template.GetNetworkSettings())
+	}
+
 	return []map[string]interface{}{templateMap}, nil
+}
+
+func flattenInstanceGroupNetworkSettings(ns *instancegroup.NetworkSettings) []map[string]interface{} {
+	return []map[string]interface{}{{"type": ns.GetType().String()}}
 }
 
 func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) (map[string]interface{}, error) {
@@ -862,7 +870,7 @@ func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
 }
 
 func parseInstanceGroupDiskMode(mode string) (instancegroup.AttachedDiskSpec_Mode, error) {
-	val, ok := compute.AttachedDiskSpec_Mode_value[mode]
+	val, ok := instancegroup.AttachedDiskSpec_Mode_value[mode]
 	if !ok {
 		return instancegroup.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
 	}
@@ -1031,6 +1039,11 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		return nil, fmt.Errorf("Error expanding metadata while creating instance group: %s", err)
 	}
 
+	networkSettings, err := expandNetworkSettings(d.Get(prefix + ".network_settings.0.type"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding network settings while creating instance group: %s", err)
+	}
+
 	template := &instancegroup.InstanceTemplate{
 		BootDiskSpec:          bootDiskSpec,
 		Description:           description,
@@ -1042,9 +1055,31 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		SchedulingPolicy:      schedulingPolicy,
 		SecondaryDiskSpecs:    secondaryDiskSpecs,
 		ServiceAccountId:      serviceAccount,
+		NetworkSettings:       networkSettings,
 	}
 
 	return template, nil
+}
+
+func expandNetworkSettings(v interface{}) (*instancegroup.NetworkSettings, error) {
+	ns := &instancegroup.NetworkSettings{}
+	if v == nil || v.(string) == "" {
+		return nil, nil
+	}
+	t, err := parseInstanceGroupNetworkSettignsType(v.(string))
+	if err != nil {
+		return nil, err
+	}
+	ns.Type = t
+	return ns, nil
+}
+
+func parseInstanceGroupNetworkSettignsType(str string) (instancegroup.NetworkSettings_Type, error) {
+	val, ok := instancegroup.NetworkSettings_Type_value[str]
+	if !ok {
+		return instancegroup.NetworkSettings_TYPE_UNSPECIFIED, fmt.Errorf("value for 'type' should be 'STANDARD' or 'SOFTWARE_ACCELERATED' or 'HARDWARE_ACCELERATED', not '%s'", str)
+	}
+	return instancegroup.NetworkSettings_Type(val), nil
 }
 
 func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.ScalePolicy, error) {

@@ -241,6 +241,19 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						"network_settings": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

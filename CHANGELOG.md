@@ -1,4 +1,7 @@
 ## 0.34.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `instance_template.network_settings` attribute in `yandex_compute_instance_group` resource and data source
+
 ## 0.33.0 (March 06, 2020)
 FEATURES:
 * **New Data Source:** `yandex_iot_core_registry`

@@ -43,6 +43,9 @@ resource "yandex_compute_instance_group" "group1" {
       foo      = "bar"
       ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
     }
+    network_settings {
+      type = "STANDARD"
+    }
   }
 
   scale_policy {
@@ -174,6 +177,8 @@ The structure is documented below.
 The structure is documented below.
 
 * `service_account_id` - (Optional) The ID of the service account authorized for this instance.
+
+* `network_settings` - (Optional) Network acceleration type for instance. The structure is documented below.
 
 ---
 
@@ -338,6 +343,12 @@ This type of metric must have the `zone_id` label.
 * `target` - (Required) Target metric value level.
 
 * `labels` - (Optional) A map of labels of metric.
+
+---
+
+The `network_settings` block supports:
+
+* `type` - (Optional) Network acceleration type. By default a network is in `STANDARD` mode.
 
 ## Attributes Reference
 

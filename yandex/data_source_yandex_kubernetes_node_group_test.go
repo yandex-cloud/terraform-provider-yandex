@@ -12,6 +12,7 @@ import (
 func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, false, dailyMaintenancePolicy)
+	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup
@@ -37,6 +38,7 @@ func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, false, true, weeklyMaintenancePolicy)
+	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup

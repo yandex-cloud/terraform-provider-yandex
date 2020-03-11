@@ -8,11 +8,51 @@ import (
 	"testing"
 
 	"github.com/fatih/structs"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_kubernetes_node_group", &resource.Sweeper{
+		Name: "yandex_kubernetes_node_group",
+		F:    testSweepKubernetesNodeGroups,
+	})
+}
+
+func testSweepKubernetesNodeGroups(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Kubernetes().NodeGroup().NodeGroupIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepKubernetesNodeGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Kubernetes Node Group %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepKubernetesNodeGroup(conf *Config, id string) bool {
+	return sweepWithRetry(sweepKubernetesNodeGroupOnce, conf, "Kubernetes Node Group", id)
+}
+
+func sweepKubernetesNodeGroupOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexKubernetesNodeGroupDeleteTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Kubernetes().Cluster().Delete(ctx, &k8s.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) resource.TestStep {
 	return resource.TestStep{
@@ -27,6 +67,7 @@ func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) reso
 func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
@@ -51,6 +92,7 @@ func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesNodeGroupDailyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, true, dailyMaintenancePolicy)
+	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup

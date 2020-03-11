@@ -18,6 +18,9 @@ func init() {
 	resource.AddTestSweepers("yandex_compute_instance_group", &resource.Sweeper{
 		Name: "yandex_compute_instance_group",
 		F:    testSweepComputeInstanceGroups,
+		Dependencies: []string{
+			"yandex_kubernetes_node_group",
+		},
 	})
 }
 
@@ -191,6 +194,29 @@ func TestAccComputeInstanceGroup_Gpus(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupHasGpus(&ig, 1),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_NetworkSettings(t *testing.T) {
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigNetworkSettings(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupNetworkSettings(&ig, "SOFTWARE_ACCELERATED"),
 				),
 			},
 			computeInstanceGroupImportStep(),
@@ -1061,6 +1087,90 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
+func testAccComputeInstanceGroupConfigNetworkSettings(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v1"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 1
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    network_settings {
+      type = "SOFTWARE_ACCELERATED"
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 1
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-b"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
+}
+
 func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1098,6 +1208,15 @@ func testAccCheckComputeInstanceGroupHasGpus(ig *instancegroup.InstanceGroup, gp
 			return fmt.Errorf("invalid resources.gpus value in instance_template in instance group %s", ig.Name)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupNetworkSettings(ig *instancegroup.InstanceGroup, nst string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.GetInstanceTemplate().GetNetworkSettings().GetType().String() != nst {
+			return fmt.Errorf("invalid network_settings.type value in instance_template in instance group %s", ig.Name)
+		}
 		return nil
 	}
 }

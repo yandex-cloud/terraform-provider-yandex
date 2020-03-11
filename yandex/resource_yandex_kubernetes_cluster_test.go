@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/fatih/structs"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -16,6 +17,48 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_kubernetes_cluster", &resource.Sweeper{
+		Name: "yandex_kubernetes_cluster",
+		F:    testSweepKubernetesClusters,
+		Dependencies: []string{
+			"yandex_kubernetes_node_group",
+		},
+	})
+}
+
+func testSweepKubernetesClusters(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Kubernetes().Cluster().ClusterIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepKubernetesCluster(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Kubernetes Cluster %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepKubernetesCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepKubernetesClusterOnce, conf, "Kubernetes Cluster", id)
+}
+
+func sweepKubernetesClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexKubernetesClusterDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Kubernetes().Cluster().Delete(ctx, &k8s.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) resource.TestStep {
 	return resource.TestStep{
@@ -162,7 +205,7 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
-	clusterUpdatedResource.MasterVersion = "1.14"
+	clusterUpdatedResource.MasterVersion = "1.16"
 
 	// update maintenance policy
 	clusterUpdatedResource.constructMaintenancePolicyField(false, dailyMaintenancePolicy)
@@ -275,7 +318,7 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterRegionalConfig_update"
-	clusterUpdatedResource.MasterVersion = "1.14"
+	clusterUpdatedResource.MasterVersion = "1.16"
 
 	var cluster k8s.Cluster
 
