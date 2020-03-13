@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
@@ -34,10 +35,28 @@ func testSweepKubernetesClusters(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
+	var serviceAccountID string
+	var depsCreated bool
+
 	it := conf.sdk.Kubernetes().Cluster().ClusterIterator(conf.Context(), conf.FolderID)
 	result := &multierror.Error{}
 	for it.Next() {
+		if !depsCreated {
+			depsCreated = true
+			serviceAccountID, err = createIAMServiceAccountForSweeper(conf)
+			if err != nil {
+				result = multierror.Append(result, err)
+				break
+			}
+		}
+
 		id := it.Value().GetId()
+		if !updateKubernetesClusterWithSweeperDeps(conf, id, serviceAccountID) {
+			result = multierror.Append(result,
+				fmt.Errorf("failed to sweep (update with dependencies) Kubernetes Cluster %q", id))
+			continue
+		}
+
 		if !sweepKubernetesCluster(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Kubernetes Cluster %q", id))
 		}
@@ -67,6 +86,34 @@ func k8sClusterImportStep(clusterResourceFullName string, ignored ...string) res
 		ImportStateVerify:       true,
 		ImportStateVerifyIgnore: ignored,
 	}
+}
+
+func updateKubernetesClusterWithSweeperDeps(conf *Config, clusterID, serviceAccountID string) bool {
+	debugLog("started updating Kubernetes Cluster %q", clusterID)
+
+	client := conf.sdk.Kubernetes().Cluster()
+	for i := 1; i <= conf.MaxRetries; i++ {
+		req := &k8s.UpdateClusterRequest{
+			ClusterId:        clusterID,
+			ServiceAccountId: serviceAccountID,
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{
+					"service_account_id",
+				},
+			},
+		}
+
+		_, err := conf.sdk.WrapOperation(client.Update(conf.Context(), req))
+		if err != nil {
+			debugLog("[kubernetes cluster %q] update try #%d: %v", clusterID, i, err)
+		} else {
+			debugLog("[kubernetes cluster %q] update try #%d: request was successfully sent", clusterID, i)
+			return true
+		}
+	}
+
+	debugLog("[kubernetes cluster %q] update failed", clusterID)
+	return false
 }
 
 //revive:disable:var-naming
