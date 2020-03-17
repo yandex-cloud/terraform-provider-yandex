@@ -26,15 +26,14 @@ func dataSourceYandexIoTCoreRegistry() *schema.Resource {
 				Optional: true,
 			},
 
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
 			},
 
 			"labels": {
@@ -106,11 +105,6 @@ func dataSourceYandexIotCoreRegistryRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Registry %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(registry.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	certsResp, err := config.sdk.IoT().Devices().Registry().ListCertificates(ctx, &iot.ListRegistryCertificatesRequest{RegistryId: regID})
 	if err != nil {
 		return err
@@ -133,13 +127,9 @@ func dataSourceYandexIotCoreRegistryRead(d *schema.ResourceData, meta interface{
 
 	d.SetId(registry.Id)
 	d.Set("registry_id", registry.Id)
-	d.Set("name", registry.Name)
-	d.Set("description", registry.Description)
-	d.Set("folder_id", registry.FolderId)
-	if err := d.Set("labels", registry.Labels); err != nil {
+	if err := flattenYandexIoTCoreRegistry(d, registry); err != nil {
 		return err
 	}
-	d.Set("created_at", createdAt)
 	if err := d.Set("certificates", flattenIoTSet(certs)); err != nil {
 		return err
 	}

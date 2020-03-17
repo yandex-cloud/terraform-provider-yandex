@@ -97,11 +97,6 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("IoT Device %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(device.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	certsResp, err := config.sdk.IoT().Devices().Device().ListCertificates(ctx, &iot.ListDeviceCertificatesRequest{DeviceId: devID})
 	if err != nil {
 		return err
@@ -123,14 +118,13 @@ func dataSourceYandexIotCoreDeviceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.SetId(device.Id)
-	d.Set("registry_id", device.RegistryId)
 	d.Set("device_id", device.Id)
-	d.Set("name", device.Name)
-	d.Set("description", device.Description)
+	if err := flattenYandexIoTCoreDevice(d, device); err != nil {
+		return err
+	}
 	if err := d.Set("aliases", device.TopicAliases); err != nil {
 		return err
 	}
-	d.Set("created_at", createdAt)
 	if err := d.Set("certificates", flattenIoTSet(certs)); err != nil {
 		return err
 	}

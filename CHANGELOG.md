@@ -1,4 +1,10 @@
 ## 0.34.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_function`
+* **New Data Source:** `yandex_function_trigger`
+* **New Resource:** `yandex_function`
+* **New Resource:** `yandex_function_trigger`
+
 ENHANCEMENTS:
 * compute: add `instance_template.network_settings` attribute in `yandex_compute_instance_group` resource and data source
 

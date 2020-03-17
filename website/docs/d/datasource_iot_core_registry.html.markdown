@@ -27,6 +27,8 @@ The following arguments are supported:
 
 * `name` (Optional) - IoT Core Registry name used to define registry
 
+* `folder_id` (Optional) - Folder ID for the IoT Core Registry
+
 ~> **NOTE:** Either `registry_id` or `name` must be specified.
 
 ## Attributes Reference
@@ -34,7 +36,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `description` - Description of the IoT Core Registry
-* `folder_id` - Folder ID for the IoT Core Registry
 * `labels` - A set of key/value label pairs to assign to the IoT Core Registry.
 * `created_at` - Creation timestamp of the IoT Core Registry
 * `certificates` - A set of certificate's fingerprints for the IoT Core Registry
