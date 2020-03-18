@@ -1,4 +1,4 @@
-## 0.34.0 (Unreleased)
+## 0.34.0 (March 18, 2020)
 FEATURES:
 * **New Data Source:** `yandex_function`
 * **New Data Source:** `yandex_function_trigger`
