@@ -153,6 +153,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_iot_core_device":                       resourceYandexIoTCoreDevice(),
 			"yandex_iot_core_registry":                     resourceYandexIoTCoreRegistry(),
 			"yandex_kms_symmetric_key":                     resourceYandexKMSSymmetricKeyKey(),
+			"yandex_kms_secret_ciphertext":                 resourceYandexKMSSecretCiphertext(),
 			"yandex_kubernetes_cluster":                    resourceYandexKubernetesCluster(),
 			"yandex_kubernetes_node_group":                 resourceYandexKubernetesNodeGroup(),
 			"yandex_lb_network_load_balancer":              resourceYandexLBNetworkLoadBalancer(),
