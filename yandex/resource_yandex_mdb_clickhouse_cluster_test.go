@@ -283,6 +283,7 @@ func testAccCheckMDBClickHouseClusterHasResources(r *clickhouse.Cluster, resourc
 	}
 }
 
+//nolint:unused
 func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -636,6 +637,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc)
 }
 
+//nolint:unused
 func testAccMDBClickHouseClusterConfigSharded(name, desc string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
@@ -681,6 +683,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 `, name, desc)
 }
 
+//nolint:unused
 func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
