@@ -157,7 +157,7 @@ func testAccFolderIamPolicy_basic(cloudID, folderID string, policy *Policy) stri
 	for role, members := range rolesMap {
 		bindingBuffer.WriteString("binding {\n")
 		bindingBuffer.WriteString(fmt.Sprintf("role = \"%s\"\n", role))
-		bindingBuffer.WriteString(fmt.Sprintf("members = [\n"))
+		bindingBuffer.WriteString("members = [\n")
 		for m := range members {
 			bindingBuffer.WriteString(fmt.Sprintf("\"%s\",\n", m))
 		}
