@@ -136,6 +136,55 @@ func TestParseInstanceGroupNetworkSettingsType(t *testing.T) {
 	}
 }
 
+func TestFlattenInstanceGroupVariable(t *testing.T) {
+	cases := []struct {
+		name     string
+		v        []*instancegroup.Variable
+		expected map[string]string
+	}{
+		{
+			name:     "test1",
+			v:        append(make([]*instancegroup.Variable, 0), &instancegroup.Variable{Key: "test_key", Value: "test_value"}),
+			expected: map[string]string{"test_key": "test_value"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := flattenInstanceGroupVariable(tc.v)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestExpandInstanceGroupVariables(t *testing.T) {
+	cases := []struct {
+		name     string
+		v        interface{}
+		expected instancegroup.Variable
+	}{
+		{
+			name:     "soft",
+			v:        map[string]interface{}{"test_key": "test_value"},
+			expected: instancegroup.Variable{Key: "test_key", Value: "test_value"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := expandInstanceGroupVariables(tc.v)
+			if err != nil {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(*result[0], tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
 func TestExpandNetworkSettings(t *testing.T) {
 	cases := []struct {
 		name     string

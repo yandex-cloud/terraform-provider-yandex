@@ -48,6 +48,11 @@ resource "yandex_compute_instance_group" "group1" {
     }
   }
 
+  variables = {
+    test_key1 = "test_value1"
+    test_key2 = "test_value2"
+  }
+
   scale_policy {
     fixed_scale {
       size = 3
@@ -100,6 +105,7 @@ The structure is documented below.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance group.
 
+* `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
 ---
 
 The `load_balancer` block supports:

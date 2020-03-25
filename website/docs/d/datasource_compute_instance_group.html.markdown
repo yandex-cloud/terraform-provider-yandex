@@ -69,6 +69,7 @@ The structure is documented below.
 
 * `created_at` - The instance group creation timestamp.
 
+* `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
 ---
 
 The `load_balancer_state` block supports:

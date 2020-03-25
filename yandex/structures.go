@@ -260,6 +260,14 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 	return []map[string]interface{}{templateMap}, nil
 }
 
+func flattenInstanceGroupVariable(v []*instancegroup.Variable) map[string]string {
+	variables := make(map[string]string)
+	for _, raw := range v {
+		variables[raw.GetKey()] = raw.GetValue()
+	}
+	return variables
+}
+
 func flattenInstanceGroupNetworkSettings(ns *instancegroup.NetworkSettings) []map[string]interface{} {
 	return []map[string]interface{}{{"type": ns.GetType().String()}}
 }
@@ -1059,6 +1067,21 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 	}
 
 	return template, nil
+}
+
+func expandInstanceGroupVariables(v interface{}) ([]*instancegroup.Variable, error) {
+	variables := make([]*instancegroup.Variable, 0)
+	if v == nil {
+		return variables, nil
+	}
+
+	for key, val := range v.(map[string]interface{}) {
+		variables = append(variables, &instancegroup.Variable{
+			Key:   key,
+			Value: val.(string),
+		})
+	}
+	return variables, nil
 }
 
 func expandNetworkSettings(v interface{}) (*instancegroup.NetworkSettings, error) {
