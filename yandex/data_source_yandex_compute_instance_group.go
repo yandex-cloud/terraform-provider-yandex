@@ -258,6 +258,24 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"variables": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"value": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"scale_policy": {
 				Type:     schema.TypeList,
 				MaxItems: 1,

@@ -298,6 +298,24 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"variables": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"value": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"scale_policy": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -741,6 +759,15 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
+	variableList := instanceGroup.GetVariables()
+	variables := make([]map[string]interface{}, len(variableList))
+	for i, variable := range variableList {
+		variables[i] = flattenInstanceGroupVariable(variable)
+	}
+	if err := d.Set("variables", variables); err != nil {
+		return err
+	}
+
 	scalePolicy, err := flattenInstanceGroupScalePolicy(instanceGroup)
 	if err != nil {
 		return err
@@ -881,6 +908,11 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'load_balancer_spec' object of api request: %s", err)
 	}
 
+	variables, err := expandInstanceGroupVariables(d.Get("variables").([]interface{}))
+	if err != nil {
+		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
+	}
+
 	req := &instancegroup.CreateInstanceGroupRequest{
 		FolderId:         folderID,
 		Name:             d.Get("name").(string),
@@ -893,6 +925,7 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		LoadBalancerSpec: loadBalancerSpec,
 		HealthChecksSpec: healthChecksSpec,
 		ServiceAccountId: d.Get("service_account_id").(string),
+		Variables:        variables,
 	}
 
 	return req, nil
@@ -934,6 +967,11 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'load_balancer_spec' object of api request: %s", err)
 	}
 
+	variables, err := expandInstanceGroupVariables(d.Get("variables").([]interface{}))
+	if err != nil {
+		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
+	}
+
 	var updatePath = getStaticUpdatePath()
 
 	var instanceGroupTemplateFieldsMap = map[string]string{
@@ -960,6 +998,7 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		HealthChecksSpec: healthChecksSpec,
 		ServiceAccountId: d.Get("service_account_id").(string),
 		UpdateMask:       &field_mask.FieldMask{Paths: updatePath},
+		Variables:        variables,
 	}
 
 	return req, nil
@@ -979,6 +1018,7 @@ func getStaticUpdatePath() []string {
 		"instance_template.scheduling_policy",
 		"instance_template.service_account_id",
 		"instance_template.network_settings",
+		"variables",
 		"scale_policy",
 		"deploy_policy",
 		"allocation_policy",

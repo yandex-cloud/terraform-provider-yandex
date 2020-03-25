@@ -1,4 +1,7 @@
 ## 0.35.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
+
 FEATURES:
 * **New Resource:** `yandex_kms_secret_ciphertext`
 

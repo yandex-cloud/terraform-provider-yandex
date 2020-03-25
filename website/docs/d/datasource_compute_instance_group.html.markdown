@@ -69,6 +69,9 @@ The structure is documented below.
 
 * `created_at` - The instance group creation timestamp.
 
+* `variables` - (Optional) A recurring block with key/value pairs to assign to the instance group.
+
+The structure is documented below.
 ---
 
 The `load_balancer_state` block supports:
@@ -141,6 +144,13 @@ This type of metric must have the `zone_id` label.
 
 ---
 
+The `variables` block supports:
+
+* `key` - (Required) Variable key..
+
+* `value` - (Required) Variable value.
+
+---
 The `instance_template` block supports:
 
 * `description` - A description of the instance template.

@@ -48,6 +48,15 @@ resource "yandex_compute_instance_group" "group1" {
     }
   }
 
+  variables {
+    key = "Test_key1"
+    value = "Test_value1"
+  }
+  variables {
+    key = "Test_key2"
+    value = "Test_value2"
+  }
+
   scale_policy {
     fixed_scale {
       size = 3
@@ -100,6 +109,9 @@ The structure is documented below.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance group.
 
+* `variables` - (Optional) A recurring block with key/value pairs to assign to the instance group.
+The structure is documented below.
+
 ---
 
 The `load_balancer` block supports:
@@ -147,6 +159,14 @@ The `tcp_options` block supports:
 The `allocation_policy` block supports:
 
 * `zones` - (Required) A list of availability zones.
+
+---
+
+The `variables` block supports:
+
+* `key` - (Required) Variable key..
+
+* `value` - (Required) Variable value.
 
 ---
 
