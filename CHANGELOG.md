@@ -1,4 +1,7 @@
 ## 0.35.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_kms_secret_ciphertext`
+
 ## 0.34.0 (March 18, 2020)
 FEATURES:
 * **New Data Source:** `yandex_function`
