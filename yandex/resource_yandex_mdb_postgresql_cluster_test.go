@@ -134,6 +134,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb"}}),
+					testAccCheckUnmodifiedUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
@@ -303,6 +304,41 @@ func testAccCheckMDBPGClusterHasUsers(r string, perms map[string][]string) resou
 			}
 		}
 
+		return nil
+	}
+}
+
+var defaultUserSettings = map[string]interface{}{
+	"conn_limit": int64(50),
+}
+
+func testAccCheckUnmodifiedUserSettings(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		for _, user := range resp.Users {
+			defaultConnLimit := defaultUserSettings["conn_limit"].(int64)
+			if user.ConnLimit != defaultConnLimit {
+				return fmt.Errorf("Unmodified field 'conn_limit' was changed for user %s with value %d ",
+					user.Name, user.ConnLimit)
+			}
+		}
 		return nil
 	}
 }

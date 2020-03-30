@@ -180,11 +180,11 @@ Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
 
 The structure is documented below.
 
-* `zonal` - (Optional) Initialize parameters for Zonal Master (one node master).
+* `zonal` - (Optional) Initialize parameters for Zonal Master (single node master).
 
 The structure is documented below.
 
-* `regional` - (Optional) Initialize parameters for Zonal Master (one node master).
+* `regional` - (Optional) Initialize parameters for Regional Master (highly available master).
 
 The structure is documented below.
 
@@ -221,7 +221,8 @@ The `zonal` block supports:
 
 The `regional` block supports:
 
-* `location` - Array of locations, where master will be allocated. 
+* `region` - (Required) Name of availability region (e.g. "ru-central1"), where master instances will be allocated.
+* `location` - Array of locations, where master instances will be allocated.
 
 The structure is documented below.
 

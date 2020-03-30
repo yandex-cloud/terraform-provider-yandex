@@ -338,6 +338,8 @@ The `access` block supports:
 
 * `metrika` - (Optional) Allow access for Yandex.Metrika.
 
+* `serverless` - (Optional) Allow access for Serverless.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

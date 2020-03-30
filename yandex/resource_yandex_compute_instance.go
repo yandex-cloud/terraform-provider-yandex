@@ -275,6 +275,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -464,6 +465,12 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", instance.Description)
 	d.Set("service_account_id", instance.ServiceAccountId)
 	d.Set("status", strings.ToLower(instance.Status.String()))
+
+	hostname, err := parseHostnameFromFQDN(instance.Fqdn)
+	if err != nil {
+		return err
+	}
+	d.Set("hostname", hostname)
 
 	if err := d.Set("metadata", instance.Metadata); err != nil {
 		return err
@@ -962,6 +969,15 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 	}
 
 	return req, nil
+}
+
+func parseHostnameFromFQDN(fqdn string) (string, error) {
+	p := strings.Split(fqdn, ".")
+	if len(p) < 1 {
+		return "", fmt.Errorf("failed to get instance hostname from its fqdn")
+	}
+
+	return p[0], nil
 }
 
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {

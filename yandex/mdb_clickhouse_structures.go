@@ -347,6 +347,7 @@ func flattenClickHouseAccess(a *clickhouse.Access) []map[string]interface{} {
 	res["web_sql"] = a.WebSql
 	res["data_lens"] = a.DataLens
 	res["metrika"] = a.Metrika
+	res["serverless"] = a.Serverless
 
 	return []map[string]interface{}{res}
 }
@@ -362,6 +363,9 @@ func expandClickHouseAccess(d *schema.ResourceData) *clickhouse.Access {
 	}
 	if v, ok := d.GetOk("access.0.metrika"); ok {
 		result.Metrika = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.serverless"); ok {
+		result.Serverless = v.(bool)
 	}
 	return result
 }

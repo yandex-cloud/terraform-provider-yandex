@@ -226,6 +226,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"serverless": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},

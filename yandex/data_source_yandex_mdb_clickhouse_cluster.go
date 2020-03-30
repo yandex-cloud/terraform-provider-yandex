@@ -178,6 +178,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"serverless": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},

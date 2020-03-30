@@ -77,7 +77,7 @@ The structure is documented below.
 
 The structure is documented below.
 
-* `regional` - Information about cluster zonal master.
+* `regional` - Information about cluster regional master.
 
 The structure is documented below.
 
@@ -109,13 +109,13 @@ maintenance specified.
 
 The `zonal` block supports:
 
-* `zone` - ID of the availability zone where the master resides.
+* `zone` - ID of the availability zone where the master compute instance resides.
 
 ---
 
 The `regional` block supports:
 
-* `region` - ID of the availability region where the master resides. 
+* `region` - ID of the availability region where the master compute instances resides. 
 
 ---
 

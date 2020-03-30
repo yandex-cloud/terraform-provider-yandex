@@ -306,7 +306,6 @@ resource "yandex_compute_disk" "seconddisk" {
 `, firstDiskName, snapshotName, secondDiskName)
 }
 
-//nolint:unused
 func testAccComputeDisk_deleteDetach(instanceName, diskName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {

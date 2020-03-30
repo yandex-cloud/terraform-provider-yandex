@@ -1,6 +1,10 @@
 ## 0.35.0 (Unreleased)
-FEATURES:
-* **New Resource:** `yandex_kms_secret_ciphertext`
+ENHANCEMENTS:
+* mdb: add `config_spec.access.serverless` attribute in `resource_yandex_mdb_clickhouse_cluster` resource and data source
+
+BUG FIXES:
+* mdb: forbidden to change user settings that are not present in the scheme of `resource_yandex_mdb_postgresql_cluster`
+* compute: compute instance attribute `hostname` is now filled when imported
 
 ## 0.34.0 (March 18, 2020)
 FEATURES:

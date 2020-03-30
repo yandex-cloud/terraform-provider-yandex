@@ -679,9 +679,8 @@ func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	for _, u := range changedUsers {
-		err := updatePGUser(ctx, config, d, u)
+	for _, user := range changedUsers {
+		err := updatePGUser(ctx, config, d, user)
 		if err != nil {
 			return err
 		}
@@ -799,7 +798,30 @@ func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	return nil
 }
 
-func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, user *postgresql.UserSpec) error {
+func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, mapUser map[string]interface{}) error {
+	user, _ := expandPGUser(mapUser)
+	mdbPGUserUpdateFieldsMap := map[string]string{
+		"user.%d.password":   "password",
+		"user.%d.permission": "permission",
+		"user.%d.login":      "login",
+		"user.%d.grants":     "grants",
+	}
+
+	onDone := []func(){}
+	updatePath := []string{}
+	for field, path := range mdbPGUserUpdateFieldsMap {
+		if d.HasChange(fmt.Sprintf(field, pgUserHash(mapUser))) {
+			updatePath = append(updatePath, path)
+			onDone = append(onDone, func() {
+				d.SetPartial(field)
+			})
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().User().Update(ctx, &postgresql.UpdateUserRequest{
 			ClusterId:   d.Id(),
@@ -809,6 +831,7 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 			ConnLimit:   user.ConnLimit.GetValue(),
 			Login:       user.Login,
 			Grants:      user.Grants,
+			UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
 		}),
 	)
 	if err != nil {
@@ -818,6 +841,10 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating user in PostgreSQL Cluster %q: %s", d.Id(), err)
+	}
+
+	for _, f := range onDone {
+		f()
 	}
 
 	if _, err := op.Response(); err != nil {

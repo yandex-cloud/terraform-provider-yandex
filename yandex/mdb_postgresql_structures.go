@@ -598,8 +598,8 @@ func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpe
 	return toDel, toAdd
 }
 
-func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*postgresql.UserSpec, error) {
-	out := []*postgresql.UserSpec{}
+func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]map[string]interface{}, error) {
+	out := make([]map[string]interface{}, 0)
 
 	m := map[string]*postgresql.UserSpec{}
 	for _, spec := range oldSpecs.List() {
@@ -611,13 +611,14 @@ func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*postgresql.U
 	}
 
 	for _, spec := range newSpecs.List() {
-		user, err := expandPGUser(spec.(map[string]interface{}))
+		mapUser := spec.(map[string]interface{})
+		user, err := expandPGUser(mapUser)
 		if err != nil {
 			return nil, err
 		}
 		if u, ok := m[user.Name]; ok {
 			if !reflect.DeepEqual(user, u) {
-				out = append(out, user)
+				out = append(out, mapUser)
 			}
 		}
 	}
