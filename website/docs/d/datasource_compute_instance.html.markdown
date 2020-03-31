@@ -38,7 +38,7 @@ The following arguments are supported:
 * `description` - Description of the instance.
 * `fqdn` - FQDN of the instance.
 * `zone` - Availability zone where the instance resides.
-* `labels` - A set of key/value label pairs to assign to the instance.
+* `labels` - A set of key/value label pairs assigned to the instance.
 * `metadata` - Metadata key/value pairs to make available from
     within the instance.
 * `platform_id` - Type of virtual machine to create. Default is 'standard-v1'.
@@ -48,7 +48,7 @@ The following arguments are supported:
 * `resources.0.core_fraction` - Baseline performance for a core, set as a percent.
 * `resources.0.gpus` - Number of GPU cores allocated for the instance.
 * `boot_disk` - The boot disk for the instance. Structure is documented below.
-* `network_acceleration_type` - Type of network acceleration. The default is `standard`. Values: `standard`, `software-accelerated`
+* `network_acceleration_type` - Type of network acceleration. The default is `standard`. Values: `standard`, `software_accelerated`
 * `network_interface` - The networks attached to the instance. Structure is documented below.
 * `network_interface.0.ip_address` - An internal IP address of the instance, either manually or dynamically assigned.
 * `network_interface.0.nat_ip_address` - An assigned external IP address if the instance has NAT enabled.
