@@ -937,11 +937,11 @@ var fileDescriptor_53eed3308238c6c4 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // TargetGroupServiceClient is the client API for TargetGroupService service.
 //
@@ -966,10 +966,10 @@ type TargetGroupServiceClient interface {
 }
 
 type targetGroupServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewTargetGroupServiceClient(cc *grpc.ClientConn) TargetGroupServiceClient {
+func NewTargetGroupServiceClient(cc grpc.ClientConnInterface) TargetGroupServiceClient {
 	return &targetGroupServiceClient{cc}
 }
 

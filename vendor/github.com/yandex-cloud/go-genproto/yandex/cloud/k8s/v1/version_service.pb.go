@@ -184,11 +184,11 @@ var fileDescriptor_fdec834344f5858f = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // VersionServiceClient is the client API for VersionService service.
 //
@@ -199,10 +199,10 @@ type VersionServiceClient interface {
 }
 
 type versionServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewVersionServiceClient(cc *grpc.ClientConn) VersionServiceClient {
+func NewVersionServiceClient(cc grpc.ClientConnInterface) VersionServiceClient {
 	return &versionServiceClient{cc}
 }
 

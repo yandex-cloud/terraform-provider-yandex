@@ -566,11 +566,11 @@ var fileDescriptor_7a66ff94ae18f1fd = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // FormatSchemaServiceClient is the client API for FormatSchemaService service.
 //
@@ -584,10 +584,10 @@ type FormatSchemaServiceClient interface {
 }
 
 type formatSchemaServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewFormatSchemaServiceClient(cc *grpc.ClientConn) FormatSchemaServiceClient {
+func NewFormatSchemaServiceClient(cc grpc.ClientConnInterface) FormatSchemaServiceClient {
 	return &formatSchemaServiceClient{cc}
 }
 

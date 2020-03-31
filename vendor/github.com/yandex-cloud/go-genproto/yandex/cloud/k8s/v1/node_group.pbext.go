@@ -74,58 +74,6 @@ func (m *NodeGroup) SetNodeLabels(v map[string]string) {
 	m.NodeLabels = v
 }
 
-func (m *NodeTemplate) SetPlatformId(v string) {
-	m.PlatformId = v
-}
-
-func (m *NodeTemplate) SetResourcesSpec(v *ResourcesSpec) {
-	m.ResourcesSpec = v
-}
-
-func (m *NodeTemplate) SetBootDiskSpec(v *DiskSpec) {
-	m.BootDiskSpec = v
-}
-
-func (m *NodeTemplate) SetMetadata(v map[string]string) {
-	m.Metadata = v
-}
-
-func (m *NodeTemplate) SetV4AddressSpec(v *NodeAddressSpec) {
-	m.V4AddressSpec = v
-}
-
-func (m *NodeTemplate) SetSchedulingPolicy(v *SchedulingPolicy) {
-	m.SchedulingPolicy = v
-}
-
-func (m *NodeAddressSpec) SetOneToOneNatSpec(v *OneToOneNatSpec) {
-	m.OneToOneNatSpec = v
-}
-
-func (m *OneToOneNatSpec) SetIpVersion(v IpVersion) {
-	m.IpVersion = v
-}
-
-func (m *ResourcesSpec) SetMemory(v int64) {
-	m.Memory = v
-}
-
-func (m *ResourcesSpec) SetCores(v int64) {
-	m.Cores = v
-}
-
-func (m *ResourcesSpec) SetCoreFraction(v int64) {
-	m.CoreFraction = v
-}
-
-func (m *DiskSpec) SetDiskTypeId(v string) {
-	m.DiskTypeId = v
-}
-
-func (m *DiskSpec) SetDiskSize(v int64) {
-	m.DiskSize = v
-}
-
 type ScalePolicy_ScaleType = isScalePolicy_ScaleType
 
 func (m *ScalePolicy) SetScaleType(v ScalePolicy_ScaleType) {
@@ -172,10 +120,6 @@ func (m *NodeGroupLocation) SetSubnetId(v string) {
 	m.SubnetId = v
 }
 
-func (m *SchedulingPolicy) SetPreemptible(v bool) {
-	m.Preemptible = v
-}
-
 func (m *NodeGroupMaintenancePolicy) SetAutoUpgrade(v bool) {
 	m.AutoUpgrade = v
 }
@@ -186,16 +130,4 @@ func (m *NodeGroupMaintenancePolicy) SetAutoRepair(v bool) {
 
 func (m *NodeGroupMaintenancePolicy) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
-}
-
-func (m *Taint) SetKey(v string) {
-	m.Key = v
-}
-
-func (m *Taint) SetValue(v string) {
-	m.Value = v
-}
-
-func (m *Taint) SetEffect(v Taint_Effect) {
-	m.Effect = v
 }

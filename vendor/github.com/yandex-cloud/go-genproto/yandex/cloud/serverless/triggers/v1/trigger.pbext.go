@@ -65,6 +65,12 @@ func (m *Trigger_Rule) SetObjectStorage(v *Trigger_ObjectStorage) {
 	}
 }
 
+func (m *Trigger_Rule) SetContainerRegistry(v *Trigger_ContainerRegistry) {
+	m.Rule = &Trigger_Rule_ContainerRegistry{
+		ContainerRegistry: v,
+	}
+}
+
 type Trigger_Timer_Action = isTrigger_Timer_Action
 
 func (m *Trigger_Timer) SetAction(v Trigger_Timer_Action) {
@@ -185,8 +191,8 @@ func (m *Trigger_ContainerRegistry) SetImageName(v string) {
 	m.ImageName = v
 }
 
-func (m *Trigger_ContainerRegistry) SetTagName(v string) {
-	m.TagName = v
+func (m *Trigger_ContainerRegistry) SetTag(v string) {
+	m.Tag = v
 }
 
 func (m *Trigger_ContainerRegistry) SetInvokeFunction(v *InvokeFunctionWithRetry) {

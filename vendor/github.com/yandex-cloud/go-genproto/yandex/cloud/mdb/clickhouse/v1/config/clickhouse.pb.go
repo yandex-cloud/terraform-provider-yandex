@@ -190,7 +190,7 @@ func (ClickhouseConfig_ExternalDictionary_Layout_Type) EnumDescriptor() ([]byte,
 // Any options not listed here are not supported.
 type ClickhouseConfig struct {
 	// Logging level for the ClickHouse cluster.
-	// See description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#server_settings-logger).
+	// Possible values: TRACE, DEBUG, INFORMATION, WARNING and ERROR.
 	LogLevel ClickhouseConfig_LogLevel `protobuf:"varint,1,opt,name=log_level,json=logLevel,proto3,enum=yandex.cloud.mdb.clickhouse.v1.config.ClickhouseConfig_LogLevel" json:"log_level,omitempty"`
 	// Settings for the MergeTree engine.
 	// See description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#merge_tree).
@@ -211,22 +211,18 @@ type ClickhouseConfig struct {
 	// Number of milliseconds that ClickHouse waits for incoming requests before closing the connection.
 	KeepAliveTimeout *wrappers.Int64Value `protobuf:"bytes,8,opt,name=keep_alive_timeout,json=keepAliveTimeout,proto3" json:"keep_alive_timeout,omitempty"`
 	// Cache size (in bytes) for uncompressed data used by MergeTree tables.
-	// See in-depth description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#uncompressed_cache_size).
 	UncompressedCacheSize *wrappers.Int64Value `protobuf:"bytes,9,opt,name=uncompressed_cache_size,json=uncompressedCacheSize,proto3" json:"uncompressed_cache_size,omitempty"`
 	// Approximate size (in bytes) of the cache of "marks" used by MergeTree tables.
-	// See details in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#mark_cache_size).
 	MarkCacheSize *wrappers.Int64Value `protobuf:"bytes,10,opt,name=mark_cache_size,json=markCacheSize,proto3" json:"mark_cache_size,omitempty"`
 	// Maximum size of the table that can be deleted using a DROP query.
-	// See in-depth description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#max_table_size_to_drop).
 	MaxTableSizeToDrop *wrappers.Int64Value `protobuf:"bytes,11,opt,name=max_table_size_to_drop,json=maxTableSizeToDrop,proto3" json:"max_table_size_to_drop,omitempty"`
 	// Maximum size of the partition that can be deleted using a DROP query.
-	// See in-depth description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#max_partition_size_to_drop).
 	MaxPartitionSizeToDrop *wrappers.Int64Value `protobuf:"bytes,13,opt,name=max_partition_size_to_drop,json=maxPartitionSizeToDrop,proto3" json:"max_partition_size_to_drop,omitempty"`
 	// The setting is deprecated and has no effect.
 	BuiltinDictionariesReloadInterval *wrappers.Int64Value `protobuf:"bytes,12,opt,name=builtin_dictionaries_reload_interval,json=builtinDictionariesReloadInterval,proto3" json:"builtin_dictionaries_reload_interval,omitempty"` // Deprecated: Do not use.
 	// The server's time zone to be used in DateTime fields conversions. Specified as an IANA identifier.
-	// See in-depth description in [ClickHouse documentation](https://clickhouse.yandex/docs/en/operations/server_settings/settings/#timezone).
-	Timezone             string   `protobuf:"bytes,14,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	Timezone string `protobuf:"bytes,14,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	// Address of the archive with the user geobase in Object Storage.
 	GeobaseUri           string   `protobuf:"bytes,15,opt,name=geobase_uri,json=geobaseUri,proto3" json:"geobase_uri,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -367,19 +363,23 @@ func (m *ClickhouseConfig) GetGeobaseUri() string {
 // Options specific to the MergeTree table engine.
 type ClickhouseConfig_MergeTree struct {
 	// Number of blocks of hashes to keep in ZooKeeper.
-	// See detailed description in [ClickHouse sources](https://github.com/yandex/ClickHouse/blob/v18.1.0-stable/dbms/src/Storages/MergeTree/MergeTreeSettings.h#L59).
 	ReplicatedDeduplicationWindow *wrappers.Int64Value `protobuf:"bytes,1,opt,name=replicated_deduplication_window,json=replicatedDeduplicationWindow,proto3" json:"replicated_deduplication_window,omitempty"`
 	// Period of time to keep blocks of hashes for.
-	// See detailed description in [ClickHouse sources](https://github.com/yandex/ClickHouse/blob/v18.1.0-stable/dbms/src/Storages/MergeTree/MergeTreeSettings.h#L64).
-	ReplicatedDeduplicationWindowSeconds           *wrappers.Int64Value `protobuf:"bytes,2,opt,name=replicated_deduplication_window_seconds,json=replicatedDeduplicationWindowSeconds,proto3" json:"replicated_deduplication_window_seconds,omitempty"`
-	PartsToDelayInsert                             *wrappers.Int64Value `protobuf:"bytes,3,opt,name=parts_to_delay_insert,json=partsToDelayInsert,proto3" json:"parts_to_delay_insert,omitempty"`
-	PartsToThrowInsert                             *wrappers.Int64Value `protobuf:"bytes,4,opt,name=parts_to_throw_insert,json=partsToThrowInsert,proto3" json:"parts_to_throw_insert,omitempty"`
-	MaxReplicatedMergesInQueue                     *wrappers.Int64Value `protobuf:"bytes,5,opt,name=max_replicated_merges_in_queue,json=maxReplicatedMergesInQueue,proto3" json:"max_replicated_merges_in_queue,omitempty"`
+	ReplicatedDeduplicationWindowSeconds *wrappers.Int64Value `protobuf:"bytes,2,opt,name=replicated_deduplication_window_seconds,json=replicatedDeduplicationWindowSeconds,proto3" json:"replicated_deduplication_window_seconds,omitempty"`
+	// If table contains at least that many active parts in single partition, artificially slow down insert into table.
+	PartsToDelayInsert *wrappers.Int64Value `protobuf:"bytes,3,opt,name=parts_to_delay_insert,json=partsToDelayInsert,proto3" json:"parts_to_delay_insert,omitempty"`
+	// If more than this number active parts in single partition, throw 'Too many parts ...' exception.
+	PartsToThrowInsert *wrappers.Int64Value `protobuf:"bytes,4,opt,name=parts_to_throw_insert,json=partsToThrowInsert,proto3" json:"parts_to_throw_insert,omitempty"`
+	// How many tasks of merging and mutating parts are allowed simultaneously in ReplicatedMergeTree queue.
+	MaxReplicatedMergesInQueue *wrappers.Int64Value `protobuf:"bytes,5,opt,name=max_replicated_merges_in_queue,json=maxReplicatedMergesInQueue,proto3" json:"max_replicated_merges_in_queue,omitempty"`
+	// When there is less than specified number of free entries in pool (or replicated queue), start to lower maximum size of merge to process (or to put in queue).
+	// This is to allow small merges to process - not filling the pool with long running merges.
 	NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge *wrappers.Int64Value `protobuf:"bytes,6,opt,name=number_of_free_entries_in_pool_to_lower_max_size_of_merge,json=numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge,proto3" json:"number_of_free_entries_in_pool_to_lower_max_size_of_merge,omitempty"`
-	MaxBytesToMergeAtMinSpaceInPool                *wrappers.Int64Value `protobuf:"bytes,7,opt,name=max_bytes_to_merge_at_min_space_in_pool,json=maxBytesToMergeAtMinSpaceInPool,proto3" json:"max_bytes_to_merge_at_min_space_in_pool,omitempty"`
-	XXX_NoUnkeyedLiteral                           struct{}             `json:"-"`
-	XXX_unrecognized                               []byte               `json:"-"`
-	XXX_sizecache                                  int32                `json:"-"`
+	// Maximum in total size of parts to merge, when there are minimum free threads in background pool (or entries in replication queue).
+	MaxBytesToMergeAtMinSpaceInPool *wrappers.Int64Value `protobuf:"bytes,7,opt,name=max_bytes_to_merge_at_min_space_in_pool,json=maxBytesToMergeAtMinSpaceInPool,proto3" json:"max_bytes_to_merge_at_min_space_in_pool,omitempty"`
+	XXX_NoUnkeyedLiteral            struct{}             `json:"-"`
+	XXX_unrecognized                []byte               `json:"-"`
+	XXX_sizecache                   int32                `json:"-"`
 }
 
 func (m *ClickhouseConfig_MergeTree) Reset()         { *m = ClickhouseConfig_MergeTree{} }

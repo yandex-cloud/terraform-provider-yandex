@@ -191,6 +191,78 @@ func (it *ClusterNodeGroupsIterator) Error() error {
 	return it.err
 }
 
+// ListNodes implements k8s.ClusterServiceClient
+func (c *ClusterServiceClient) ListNodes(ctx context.Context, in *k8s.ListClusterNodesRequest, opts ...grpc.CallOption) (*k8s.ListClusterNodesResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return k8s.NewClusterServiceClient(conn).ListNodes(ctx, in, opts...)
+}
+
+type ClusterNodesIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *ClusterServiceClient
+	request *k8s.ListClusterNodesRequest
+
+	items []*k8s.Node
+}
+
+func (c *ClusterServiceClient) ClusterNodesIterator(ctx context.Context, clusterId string, opts ...grpc.CallOption) *ClusterNodesIterator {
+	return &ClusterNodesIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListClusterNodesRequest{
+			ClusterId: clusterId,
+			PageSize:  1000,
+		},
+	}
+}
+
+func (it *ClusterNodesIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListNodes(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Nodes
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *ClusterNodesIterator) Value() *k8s.Node {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *ClusterNodesIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements k8s.ClusterServiceClient
 func (c *ClusterServiceClient) ListOperations(ctx context.Context, in *k8s.ListClusterOperationsRequest, opts ...grpc.CallOption) (*k8s.ListClusterOperationsResponse, error) {
 	conn, err := c.getConn(ctx)

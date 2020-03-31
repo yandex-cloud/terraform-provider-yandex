@@ -662,11 +662,11 @@ var fileDescriptor_7823c2139024242e = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // ApiKeyServiceClient is the client API for ApiKeyService service.
 //
@@ -689,10 +689,10 @@ type ApiKeyServiceClient interface {
 }
 
 type apiKeyServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewApiKeyServiceClient(cc *grpc.ClientConn) ApiKeyServiceClient {
+func NewApiKeyServiceClient(cc grpc.ClientConnInterface) ApiKeyServiceClient {
 	return &apiKeyServiceClient{cc}
 }
 

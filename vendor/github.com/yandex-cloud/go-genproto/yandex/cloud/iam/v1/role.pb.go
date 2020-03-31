@@ -74,7 +74,9 @@ func init() {
 	proto.RegisterType((*Role)(nil), "yandex.cloud.iam.v1.Role")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/iam/v1/role.proto", fileDescriptor_1c9c017dca8060cc) }
+func init() {
+	proto.RegisterFile("yandex/cloud/iam/v1/role.proto", fileDescriptor_1c9c017dca8060cc)
+}
 
 var fileDescriptor_1c9c017dca8060cc = []byte{
 	// 165 bytes of a gzipped FileDescriptorProto

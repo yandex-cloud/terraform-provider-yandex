@@ -179,6 +179,10 @@ func (m *CreateClusterRequest) SetNetworkPolicy(v *NetworkPolicy) {
 	m.NetworkPolicy = v
 }
 
+func (m *CreateClusterRequest) SetKmsProvider(v *KMSProvider) {
+	m.KmsProvider = v
+}
+
 func (m *CreateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -232,6 +236,26 @@ func (m *ListClusterNodeGroupsResponse) SetNodeGroups(v []*NodeGroup) {
 }
 
 func (m *ListClusterNodeGroupsResponse) SetNextPageToken(v string) {
+	m.NextPageToken = v
+}
+
+func (m *ListClusterNodesRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *ListClusterNodesRequest) SetPageSize(v int64) {
+	m.PageSize = v
+}
+
+func (m *ListClusterNodesRequest) SetPageToken(v string) {
+	m.PageToken = v
+}
+
+func (m *ListClusterNodesResponse) SetNodes(v []*Node) {
+	m.Nodes = v
+}
+
+func (m *ListClusterNodesResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 

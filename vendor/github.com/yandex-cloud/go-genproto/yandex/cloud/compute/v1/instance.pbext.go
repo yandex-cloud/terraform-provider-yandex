@@ -134,6 +134,10 @@ func (m *NetworkInterface) SetPrimaryV6Address(v *PrimaryAddress) {
 	m.PrimaryV6Address = v
 }
 
+func (m *NetworkInterface) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
 func (m *PrimaryAddress) SetAddress(v string) {
 	m.Address = v
 }

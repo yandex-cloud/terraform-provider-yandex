@@ -588,11 +588,11 @@ var fileDescriptor_9e6479678b0fb5ad = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // RegistryServiceClient is the client API for RegistryService service.
 //
@@ -619,10 +619,10 @@ type RegistryServiceClient interface {
 }
 
 type registryServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewRegistryServiceClient(cc *grpc.ClientConn) RegistryServiceClient {
+func NewRegistryServiceClient(cc grpc.ClientConnInterface) RegistryServiceClient {
 	return &registryServiceClient{cc}
 }
 

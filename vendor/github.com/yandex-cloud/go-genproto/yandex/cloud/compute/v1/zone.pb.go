@@ -114,7 +114,9 @@ func init() {
 	proto.RegisterType((*Zone)(nil), "yandex.cloud.compute.v1.Zone")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/compute/v1/zone.proto", fileDescriptor_65f3e219794453a2) }
+func init() {
+	proto.RegisterFile("yandex/cloud/compute/v1/zone.proto", fileDescriptor_65f3e219794453a2)
+}
 
 var fileDescriptor_65f3e219794453a2 = []byte{
 	// 247 bytes of a gzipped FileDescriptorProto

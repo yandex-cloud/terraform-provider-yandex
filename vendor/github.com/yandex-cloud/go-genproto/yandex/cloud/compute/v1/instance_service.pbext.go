@@ -297,6 +297,30 @@ func (m *RemoveInstanceOneToOneNatMetadata) SetInstanceId(v string) {
 	m.InstanceId = v
 }
 
+func (m *UpdateNetworkInterfaceRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *UpdateNetworkInterfaceRequest) SetNetworkInterfaceIndex(v string) {
+	m.NetworkInterfaceIndex = v
+}
+
+func (m *UpdateNetworkInterfaceRequest) SetUpdateMask(v *field_mask.FieldMask) {
+	m.UpdateMask = v
+}
+
+func (m *UpdateNetworkInterfaceRequest) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
+func (m *UpdateNetworkInterfaceMetadata) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *UpdateNetworkInterfaceMetadata) SetNetworkInterfaceIndex(v string) {
+	m.NetworkInterfaceIndex = v
+}
+
 func (m *ListInstanceOperationsRequest) SetInstanceId(v string) {
 	m.InstanceId = v
 }
@@ -407,6 +431,10 @@ func (m *NetworkInterfaceSpec) SetPrimaryV4AddressSpec(v *PrimaryAddressSpec) {
 
 func (m *NetworkInterfaceSpec) SetPrimaryV6AddressSpec(v *PrimaryAddressSpec) {
 	m.PrimaryV6AddressSpec = v
+}
+
+func (m *NetworkInterfaceSpec) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
 }
 
 func (m *PrimaryAddressSpec) SetAddress(v string) {

@@ -529,7 +529,9 @@ func init() {
 	proto.RegisterType((*AccessBindingDelta)(nil), "yandex.cloud.access.AccessBindingDelta")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/access/access.proto", fileDescriptor_f72fa1116199e82e) }
+func init() {
+	proto.RegisterFile("yandex/cloud/access/access.proto", fileDescriptor_f72fa1116199e82e)
+}
 
 var fileDescriptor_f72fa1116199e82e = []byte{
 	// 581 bytes of a gzipped FileDescriptorProto

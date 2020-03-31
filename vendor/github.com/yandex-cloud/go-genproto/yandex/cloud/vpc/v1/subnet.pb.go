@@ -161,7 +161,9 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "yandex.cloud.vpc.v1.Subnet.LabelsEntry")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/vpc/v1/subnet.proto", fileDescriptor_40c0de762dc72cc6) }
+func init() {
+	proto.RegisterFile("yandex/cloud/vpc/v1/subnet.proto", fileDescriptor_40c0de762dc72cc6)
+}
 
 var fileDescriptor_40c0de762dc72cc6 = []byte{
 	// 413 bytes of a gzipped FileDescriptorProto

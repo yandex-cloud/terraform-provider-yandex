@@ -260,7 +260,9 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "yandex.cloud.compute.v1.Disk.LabelsEntry")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/compute/v1/disk.proto", fileDescriptor_6ed05fced9465d11) }
+func init() {
+	proto.RegisterFile("yandex/cloud/compute/v1/disk.proto", fileDescriptor_6ed05fced9465d11)
+}
 
 var fileDescriptor_6ed05fced9465d11 = []byte{
 	// 541 bytes of a gzipped FileDescriptorProto

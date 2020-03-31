@@ -227,11 +227,11 @@ var fileDescriptor_bd1400cd9541828d = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // BackupServiceClient is the client API for BackupService service.
 //
@@ -246,10 +246,10 @@ type BackupServiceClient interface {
 }
 
 type backupServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewBackupServiceClient(cc *grpc.ClientConn) BackupServiceClient {
+func NewBackupServiceClient(cc grpc.ClientConnInterface) BackupServiceClient {
 	return &backupServiceClient{cc}
 }
 

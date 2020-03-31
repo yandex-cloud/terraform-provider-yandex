@@ -261,7 +261,7 @@ github.com/ulikunitz/xz/lzma
 # github.com/vmihailenco/msgpack v3.3.3+incompatible
 github.com/vmihailenco/msgpack
 github.com/vmihailenco/msgpack/codes
-# github.com/yandex-cloud/go-genproto v0.0.0-20200302082922-e3950fcb53dd
+# github.com/yandex-cloud/go-genproto v0.0.0-20200330101522-37b51d1c4572
 github.com/yandex-cloud/go-genproto/yandex/cloud
 github.com/yandex-cloud/go-genproto/yandex/cloud/access
 github.com/yandex-cloud/go-genproto/yandex/cloud/ai/stt/v2
@@ -295,7 +295,7 @@ github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1
 github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1
-# github.com/yandex-cloud/go-sdk v0.0.0-20200306133551-1e4c0ef0a537
+# github.com/yandex-cloud/go-sdk v0.0.0-20200323080541-1b2fb4d2247e
 github.com/yandex-cloud/go-sdk
 github.com/yandex-cloud/go-sdk/dial
 github.com/yandex-cloud/go-sdk/gen/ai/stt

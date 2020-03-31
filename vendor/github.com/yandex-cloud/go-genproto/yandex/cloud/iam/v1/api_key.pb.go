@@ -93,7 +93,9 @@ func init() {
 	proto.RegisterType((*ApiKey)(nil), "yandex.cloud.iam.v1.ApiKey")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/iam/v1/api_key.proto", fileDescriptor_9a44132a3bbfe52c) }
+func init() {
+	proto.RegisterFile("yandex/cloud/iam/v1/api_key.proto", fileDescriptor_9a44132a3bbfe52c)
+}
 
 var fileDescriptor_9a44132a3bbfe52c = []byte{
 	// 255 bytes of a gzipped FileDescriptorProto

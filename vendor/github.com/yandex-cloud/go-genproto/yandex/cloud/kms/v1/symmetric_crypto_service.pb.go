@@ -658,11 +658,11 @@ var fileDescriptor_a384b1425a1aa84e = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // SymmetricCryptoServiceClient is the client API for SymmetricCryptoService service.
 //
@@ -680,10 +680,10 @@ type SymmetricCryptoServiceClient interface {
 }
 
 type symmetricCryptoServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewSymmetricCryptoServiceClient(cc *grpc.ClientConn) SymmetricCryptoServiceClient {
+func NewSymmetricCryptoServiceClient(cc grpc.ClientConnInterface) SymmetricCryptoServiceClient {
 	return &symmetricCryptoServiceClient{cc}
 }
 

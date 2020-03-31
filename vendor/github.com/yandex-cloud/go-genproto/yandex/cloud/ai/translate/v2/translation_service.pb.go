@@ -617,11 +617,11 @@ var fileDescriptor_07212bd16e7bdb8a = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // TranslationServiceClient is the client API for TranslationService service.
 //
@@ -636,10 +636,10 @@ type TranslationServiceClient interface {
 }
 
 type translationServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewTranslationServiceClient(cc *grpc.ClientConn) TranslationServiceClient {
+func NewTranslationServiceClient(cc grpc.ClientConnInterface) TranslationServiceClient {
 	return &translationServiceClient{cc}
 }
 

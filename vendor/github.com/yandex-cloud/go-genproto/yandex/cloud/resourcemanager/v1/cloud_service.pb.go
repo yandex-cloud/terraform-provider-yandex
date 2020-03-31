@@ -492,11 +492,11 @@ var fileDescriptor_c0ca0d4f81d9e76e = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // CloudServiceClient is the client API for CloudService service.
 //
@@ -521,10 +521,10 @@ type CloudServiceClient interface {
 }
 
 type cloudServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewCloudServiceClient(cc *grpc.ClientConn) CloudServiceClient {
+func NewCloudServiceClient(cc grpc.ClientConnInterface) CloudServiceClient {
 	return &cloudServiceClient{cc}
 }
 

@@ -204,3 +204,7 @@ func (m *Access) SetWebSql(v bool) {
 func (m *Access) SetMetrika(v bool) {
 	m.Metrika = v
 }
+
+func (m *Access) SetServerless(v bool) {
+	m.Serverless = v
+}

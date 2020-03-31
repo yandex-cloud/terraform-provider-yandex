@@ -119,6 +119,78 @@ func (it *NodeGroupIterator) Error() error {
 	return it.err
 }
 
+// ListNodes implements k8s.NodeGroupServiceClient
+func (c *NodeGroupServiceClient) ListNodes(ctx context.Context, in *k8s.ListNodeGroupNodesRequest, opts ...grpc.CallOption) (*k8s.ListNodeGroupNodesResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return k8s.NewNodeGroupServiceClient(conn).ListNodes(ctx, in, opts...)
+}
+
+type NodeGroupNodesIterator struct {
+	ctx  context.Context
+	opts []grpc.CallOption
+
+	err     error
+	started bool
+
+	client  *NodeGroupServiceClient
+	request *k8s.ListNodeGroupNodesRequest
+
+	items []*k8s.Node
+}
+
+func (c *NodeGroupServiceClient) NodeGroupNodesIterator(ctx context.Context, nodeGroupId string, opts ...grpc.CallOption) *NodeGroupNodesIterator {
+	return &NodeGroupNodesIterator{
+		ctx:    ctx,
+		opts:   opts,
+		client: c,
+		request: &k8s.ListNodeGroupNodesRequest{
+			NodeGroupId: nodeGroupId,
+			PageSize:    1000,
+		},
+	}
+}
+
+func (it *NodeGroupNodesIterator) Next() bool {
+	if it.err != nil {
+		return false
+	}
+	if len(it.items) > 1 {
+		it.items[0] = nil
+		it.items = it.items[1:]
+		return true
+	}
+	it.items = nil // consume last item, if any
+
+	if it.started && it.request.PageToken == "" {
+		return false
+	}
+	it.started = true
+
+	response, err := it.client.ListNodes(it.ctx, it.request, it.opts...)
+	it.err = err
+	if err != nil {
+		return false
+	}
+
+	it.items = response.Nodes
+	it.request.PageToken = response.NextPageToken
+	return len(it.items) > 0
+}
+
+func (it *NodeGroupNodesIterator) Value() *k8s.Node {
+	if len(it.items) == 0 {
+		panic("calling Value on empty iterator")
+	}
+	return it.items[0]
+}
+
+func (it *NodeGroupNodesIterator) Error() error {
+	return it.err
+}
+
 // ListOperations implements k8s.NodeGroupServiceClient
 func (c *NodeGroupServiceClient) ListOperations(ctx context.Context, in *k8s.ListNodeGroupOperationsRequest, opts ...grpc.CallOption) (*k8s.ListNodeGroupOperationsResponse, error) {
 	conn, err := c.getConn(ctx)

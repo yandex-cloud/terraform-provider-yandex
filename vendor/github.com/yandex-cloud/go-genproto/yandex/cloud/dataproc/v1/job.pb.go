@@ -735,7 +735,9 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "yandex.cloud.dataproc.v1.HiveJob.ScriptVariablesEntry")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/dataproc/v1/job.proto", fileDescriptor_2e94b92233e6cd71) }
+func init() {
+	proto.RegisterFile("yandex/cloud/dataproc/v1/job.proto", fileDescriptor_2e94b92233e6cd71)
+}
 
 var fileDescriptor_2e94b92233e6cd71 = []byte{
 	// 939 bytes of a gzipped FileDescriptorProto

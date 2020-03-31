@@ -35,6 +35,26 @@ func (m *ListNodeGroupsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 
+func (m *ListNodeGroupNodesRequest) SetNodeGroupId(v string) {
+	m.NodeGroupId = v
+}
+
+func (m *ListNodeGroupNodesRequest) SetPageSize(v int64) {
+	m.PageSize = v
+}
+
+func (m *ListNodeGroupNodesRequest) SetPageToken(v string) {
+	m.PageToken = v
+}
+
+func (m *ListNodeGroupNodesResponse) SetNodes(v []*Node) {
+	m.Nodes = v
+}
+
+func (m *ListNodeGroupNodesResponse) SetNextPageToken(v string) {
+	m.NextPageToken = v
+}
+
 func (m *DeleteNodeGroupRequest) SetNodeGroupId(v string) {
 	m.NodeGroupId = v
 }

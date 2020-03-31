@@ -2,6 +2,10 @@
 
 package mysql
 
+import (
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+)
+
 func (m *User) SetName(v string) {
 	m.Name = v
 }
@@ -22,6 +26,22 @@ func (m *Permission) SetRoles(v []Permission_Privilege) {
 	m.Roles = v
 }
 
+func (m *ConnectionLimits) SetMaxQuestions(v *wrappers.Int64Value) {
+	m.MaxQuestions = v
+}
+
+func (m *ConnectionLimits) SetMaxUpdates(v *wrappers.Int64Value) {
+	m.MaxUpdates = v
+}
+
+func (m *ConnectionLimits) SetMaxConnections(v *wrappers.Int64Value) {
+	m.MaxConnections = v
+}
+
+func (m *ConnectionLimits) SetMaxUserConnections(v *wrappers.Int64Value) {
+	m.MaxUserConnections = v
+}
+
 func (m *UserSpec) SetName(v string) {
 	m.Name = v
 }
@@ -32,4 +52,16 @@ func (m *UserSpec) SetPassword(v string) {
 
 func (m *UserSpec) SetPermissions(v []*Permission) {
 	m.Permissions = v
+}
+
+func (m *UserSpec) SetGlobalPermissions(v GlobalPermission) {
+	m.GlobalPermissions = v
+}
+
+func (m *UserSpec) SetConnectionLimits(v *ConnectionLimits) {
+	m.ConnectionLimits = v
+}
+
+func (m *UserSpec) SetAuthenticationPlugin(v AuthPlugin) {
+	m.AuthenticationPlugin = v
 }

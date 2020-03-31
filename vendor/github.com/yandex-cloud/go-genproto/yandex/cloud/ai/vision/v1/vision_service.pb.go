@@ -694,11 +694,11 @@ var fileDescriptor_6d06b6b52fd28cc5 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // VisionServiceClient is the client API for VisionService service.
 //
@@ -709,10 +709,10 @@ type VisionServiceClient interface {
 }
 
 type visionServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewVisionServiceClient(cc *grpc.ClientConn) VisionServiceClient {
+func NewVisionServiceClient(cc grpc.ClientConnInterface) VisionServiceClient {
 	return &visionServiceClient{cc}
 }
 

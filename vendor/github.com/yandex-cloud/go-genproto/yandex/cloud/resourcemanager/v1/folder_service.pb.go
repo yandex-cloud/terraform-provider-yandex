@@ -722,11 +722,11 @@ var fileDescriptor_7ee014449f956281 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // FolderServiceClient is the client API for FolderService service.
 //
@@ -757,10 +757,10 @@ type FolderServiceClient interface {
 }
 
 type folderServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewFolderServiceClient(cc *grpc.ClientConn) FolderServiceClient {
+func NewFolderServiceClient(cc grpc.ClientConnInterface) FolderServiceClient {
 	return &folderServiceClient{cc}
 }
 

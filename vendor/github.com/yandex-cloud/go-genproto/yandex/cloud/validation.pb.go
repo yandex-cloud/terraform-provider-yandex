@@ -160,7 +160,9 @@ func init() {
 	proto.RegisterExtension(E_MapKey)
 }
 
-func init() { proto.RegisterFile("yandex/cloud/validation.proto", fileDescriptor_3c1b148dbcaf4bce) }
+func init() {
+	proto.RegisterFile("yandex/cloud/validation.proto", fileDescriptor_3c1b148dbcaf4bce)
+}
 
 var fileDescriptor_3c1b148dbcaf4bce = []byte{
 	// 359 bytes of a gzipped FileDescriptorProto

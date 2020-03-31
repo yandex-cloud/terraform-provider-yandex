@@ -177,7 +177,9 @@ func init() {
 	proto.RegisterType((*UpdateVersionSpec)(nil), "yandex.cloud.k8s.v1.UpdateVersionSpec")
 }
 
-func init() { proto.RegisterFile("yandex/cloud/k8s/v1/version.proto", fileDescriptor_4f67617620d3cace) }
+func init() {
+	proto.RegisterFile("yandex/cloud/k8s/v1/version.proto", fileDescriptor_4f67617620d3cace)
+}
 
 var fileDescriptor_4f67617620d3cace = []byte{
 	// 323 bytes of a gzipped FileDescriptorProto

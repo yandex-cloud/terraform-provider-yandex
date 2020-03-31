@@ -176,11 +176,11 @@ var fileDescriptor_613da1456bc6e886 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // ImageProductUsageServiceClient is the client API for ImageProductUsageService service.
 //
@@ -191,10 +191,10 @@ type ImageProductUsageServiceClient interface {
 }
 
 type imageProductUsageServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewImageProductUsageServiceClient(cc *grpc.ClientConn) ImageProductUsageServiceClient {
+func NewImageProductUsageServiceClient(cc grpc.ClientConnInterface) ImageProductUsageServiceClient {
 	return &imageProductUsageServiceClient{cc}
 }
 

@@ -603,11 +603,11 @@ var fileDescriptor_f35e6f9d9932e714 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // MlModelServiceClient is the client API for MlModelService service.
 //
@@ -628,10 +628,10 @@ type MlModelServiceClient interface {
 }
 
 type mlModelServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewMlModelServiceClient(cc *grpc.ClientConn) MlModelServiceClient {
+func NewMlModelServiceClient(cc grpc.ClientConnInterface) MlModelServiceClient {
 	return &mlModelServiceClient{cc}
 }
 

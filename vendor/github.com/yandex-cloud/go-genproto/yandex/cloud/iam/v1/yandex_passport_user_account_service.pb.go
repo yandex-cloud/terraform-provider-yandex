@@ -99,11 +99,11 @@ var fileDescriptor_681b9335544bf99c = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // YandexPassportUserAccountServiceClient is the client API for YandexPassportUserAccountService service.
 //
@@ -114,10 +114,10 @@ type YandexPassportUserAccountServiceClient interface {
 }
 
 type yandexPassportUserAccountServiceClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewYandexPassportUserAccountServiceClient(cc *grpc.ClientConn) YandexPassportUserAccountServiceClient {
+func NewYandexPassportUserAccountServiceClient(cc grpc.ClientConnInterface) YandexPassportUserAccountServiceClient {
 	return &yandexPassportUserAccountServiceClient{cc}
 }
 

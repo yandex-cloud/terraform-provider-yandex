@@ -450,6 +450,14 @@ func (m *PostgresqlConfig10_1C) SetPgHintPlanMessageLevel(v PostgresqlConfig10_1
 	m.PgHintPlanMessageLevel = v
 }
 
+func (m *PostgresqlConfig10_1C) SetOnlineAnalyzeEnable(v *wrappers.BoolValue) {
+	m.OnlineAnalyzeEnable = v
+}
+
+func (m *PostgresqlConfig10_1C) SetPlantunerFixEmptyTable(v *wrappers.BoolValue) {
+	m.PlantunerFixEmptyTable = v
+}
+
 func (m *PostgresqlConfigSet10_1C) SetEffectiveConfig(v *PostgresqlConfig10_1C) {
 	m.EffectiveConfig = v
 }

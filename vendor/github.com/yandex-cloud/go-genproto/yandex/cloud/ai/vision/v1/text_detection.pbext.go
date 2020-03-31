@@ -18,6 +18,18 @@ func (m *Page) SetBlocks(v []*Block) {
 	m.Blocks = v
 }
 
+func (m *Page) SetEntities(v []*Entity) {
+	m.Entities = v
+}
+
+func (m *Entity) SetName(v string) {
+	m.Name = v
+}
+
+func (m *Entity) SetText(v string) {
+	m.Text = v
+}
+
 func (m *Block) SetBoundingBox(v *Polygon) {
 	m.BoundingBox = v
 }
@@ -52,6 +64,10 @@ func (m *Word) SetConfidence(v float64) {
 
 func (m *Word) SetLanguages(v []*Word_DetectedLanguage) {
 	m.Languages = v
+}
+
+func (m *Word) SetEntityIndex(v int64) {
+	m.EntityIndex = v
 }
 
 func (m *Word_DetectedLanguage) SetLanguageCode(v string) {
