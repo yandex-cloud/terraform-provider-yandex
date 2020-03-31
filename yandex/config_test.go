@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -118,7 +119,7 @@ func localListener(t *testing.T) net.Listener {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		l, err = net.Listen("tcp6", "[::1]:0")
-		t.Fatal(err, "failed to listen on any port")
 	}
+	require.NoError(t, err, "failed to listen on any port")
 	return l
 }
