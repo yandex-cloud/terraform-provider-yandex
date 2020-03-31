@@ -95,7 +95,7 @@ The following arguments are supported:
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
     If you try to update a property that requires stopping the instance without setting this field, the update will fail.
     
-* `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software-accelerated`
+* `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software_accelerated`
 
 ---
 
