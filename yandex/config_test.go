@@ -118,7 +118,7 @@ func localListener(t *testing.T) net.Listener {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		l, err = net.Listen("tcp6", "[::1]:0")
-		t.Fatal(err, "failed to listen on a any port")
+		t.Fatal(err, "failed to listen on any port")
 	}
 	return l
 }

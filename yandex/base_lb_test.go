@@ -117,11 +117,7 @@ func getSubnetIPMap(instanceNames []string) (map[string][]string, error) {
 		}
 		subnetID := ifs[0].GetSubnetId()
 		address := ifs[0].GetPrimaryV4Address().GetAddress()
-		if _, ok := result[subnetID]; ok {
-			result[subnetID] = append(result[subnetID], address)
-		} else {
-			result[subnetID] = []string{address}
-		}
+		result[subnetID] = append(result[subnetID], address)
 	}
 
 	return result, nil

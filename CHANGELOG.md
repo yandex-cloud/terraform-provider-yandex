@@ -1,4 +1,7 @@
 ## 0.35.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_kms_secret_ciphertext`
+
 ENHANCEMENTS:
 * mdb: add `config_spec.access.serverless` attribute in `resource_yandex_mdb_clickhouse_cluster` resource and data source
 

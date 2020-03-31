@@ -65,7 +65,7 @@ func testPolicyUnmarshal(n string) resource.TestCheckFunc {
 }
 
 func testAccDataSourceYandexIAMPolicy() string {
-	return fmt.Sprintf(`
+	return `
 data "yandex_iam_policy" "foo" {
   binding {
     role = "editor"
@@ -85,11 +85,11 @@ data "yandex_iam_policy" "foo" {
     ]
   }
 }
-`)
+`
 }
 
 func testAccDataSourceYandexIAMPolicy_invalidConfig() string {
-	return fmt.Sprintf(`
+	return `
 data "yandex_iam_policy" "foo" {
   binding {
     role = "role_editor"
@@ -108,5 +108,5 @@ data "yandex_iam_policy" "foo" {
     ]
   }
 }
-`)
+`
 }

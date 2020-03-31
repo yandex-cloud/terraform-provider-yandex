@@ -305,6 +305,7 @@ resource "yandex_function_trigger" "test-trigger" {
 	`, regName, devName, name)
 }
 
+//nolint:unused
 func testYandexFunctionTriggerMessageQueue(name, queueID, serviceAccountID string) string {
 	return fmt.Sprintf(`
 resource "yandex_function_trigger" "test-trigger" {

@@ -1167,6 +1167,7 @@ func testAccCheckComputeInstanceHasNatAddress(instance *compute.Instance) resour
 	}
 }
 
+//nolint:unused
 func testAccCheckComputeInstanceHasMultiNic(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.NetworkInterfaces) < 2 {
@@ -1783,6 +1784,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, disk, instance)
 }
 
+//nolint:unused
 func testAccComputeInstance_attachedDisk_modeRo(disk, instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -2063,6 +2065,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance, diskType)
 }
 
+//nolint:unused
 func testAccComputeInstance_subnet_auto(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "u_image" {
@@ -2208,6 +2211,7 @@ resource "yandex_compute_instance" "foobar" {
 `, acctest.RandString(10), acctest.RandString(10), instance, address)
 }
 
+//nolint:unused
 func testAccComputeInstance_multiNic(instance, network, subnetwork string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
