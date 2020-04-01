@@ -1,4 +1,7 @@
 ## 0.36.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
+
 ## 0.35.0 (March 31, 2020)
 FEATURES:
 * **New Resource:** `yandex_kms_secret_ciphertext`
