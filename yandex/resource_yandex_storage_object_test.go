@@ -220,28 +220,6 @@ func testAccStorageObjectCreateTempFile(t *testing.T, data string) string {
 
 func testAccStorageObjectConfigSource(randInt int, source string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%[3]s"
-
-	role = "editor"
-
-	members = [
-		"serviceAccount:${yandex_iam_service_account.sa.id}",
-	]
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_binding.binding
-	]
-}
-
 resource "yandex_storage_bucket" "test" {
 	bucket = "tf-object-test-bucket-%[1]d"
 
@@ -258,33 +236,11 @@ resource "yandex_storage_object" "test" {
 	key     = "test-key"
 	source  = "%[2]s"
 }
-`, randInt, source, getExampleFolderID())
+`, randInt, source) + testAccStorageCommonIamDependenciesEditor(randInt)
 }
 
 func testAccStorageObjectConfigContent(randInt int, content string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%[3]s"
-
-	role = "editor"
-
-	members = [
-		"serviceAccount:${yandex_iam_service_account.sa.id}",
-	]
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_binding.binding
-	]
-}
-
 resource "yandex_storage_bucket" "test" {
 	bucket = "tf-object-test-bucket-%[1]d"
 
@@ -301,33 +257,11 @@ resource "yandex_storage_object" "test" {
 	key     = "test-key"
 	content = "%[2]s"
 }
-`, randInt, content, getExampleFolderID())
+`, randInt, content) + testAccStorageCommonIamDependenciesEditor(randInt)
 }
 
 func testAccStorageObjectConfigContentBase64(randInt int, contentBase64 string) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%[3]s"
-
-	role = "editor"
-
-	members = [
-		"serviceAccount:${yandex_iam_service_account.sa.id}",
-	]
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_binding.binding
-	]
-}
-
 resource "yandex_storage_bucket" "test" {
 	bucket = "tf-object-test-bucket-%[1]d"
 
@@ -344,33 +278,11 @@ resource "yandex_storage_object" "test" {
 	key            = "test-key"
 	content_base64 = "%[2]s"
 }
-`, randInt, contentBase64, getExampleFolderID())
+`, randInt, contentBase64) + testAccStorageCommonIamDependenciesEditor(randInt)
 }
 
 func testAccStorageObjectAclPreConfig(randInt int) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%[2]s"
-
-	role = "admin"
-
-	members = [
-		"serviceAccount:${yandex_iam_service_account.sa.id}",
-	]
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_binding.binding
-	]
-}
-
 resource "yandex_storage_bucket" "test" {
 	bucket = "tf-object-test-bucket-%[1]d"
 
@@ -389,33 +301,11 @@ resource "yandex_storage_object" "test" {
 
 	acl = "public-read"
 }
-`, randInt, getExampleFolderID())
+`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
 }
 
 func testAccStorageObjectAclPostConfig(randInt int) string {
 	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-bucket-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "binding" {
-	folder_id = "%[2]s"
-
-	role = "admin"
-
-	members = [
-		"serviceAccount:${yandex_iam_service_account.sa.id}",
-	]
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_binding.binding
-	]
-}
-
 resource "yandex_storage_bucket" "test" {
 	bucket = "tf-object-test-bucket-%[1]d"
 
@@ -434,5 +324,5 @@ resource "yandex_storage_object" "test" {
 
 	acl = "private"
 }
-`, randInt, getExampleFolderID())
+`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
 }

@@ -493,35 +493,26 @@ resource "yandex_iam_service_account" "tf-dataproc-sa-2" {
   description = "service account to manage Dataproc Cluster created by Terraform"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "dataproc-manager" {
-  folder_id = "{{.FolderID}}"
-
-  role = "mdb.dataproc.agent"
-
-  members = [
-    "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}",
-  ]
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-manager" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
+	role        = "mdb.dataproc.agent"
+	sleep_after = 30
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "dataproc-manager-2" {
-  folder_id = "{{.FolderID}}"
-
-  role = "mdb.dataproc.agent"
-
-  members = [
-    "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}",
-  ]
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-manager-2" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
+	role        = "mdb.dataproc.agent"
+	sleep_after = 30
 }
 
 // required in order to create bucket
-resource "yandex_resourcemanager_folder_iam_binding" "bucket-creator" {
-  folder_id = "{{.FolderID}}"
-
-  role = "editor"
-
-  members = [
-    "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}",
-  ]
+resource "yandex_resourcemanager_folder_iam_member" "bucket-creator" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
+	role        = "editor"
+	sleep_after = 30
 }
 
 resource "yandex_iam_service_account_static_access_key" "tf-dataproc-sa-static-key" {
@@ -529,7 +520,7 @@ resource "yandex_iam_service_account_static_access_key" "tf-dataproc-sa-static-k
   description        = "static access key for object storage"
 
   depends_on = [
-    yandex_resourcemanager_folder_iam_binding.bucket-creator
+    yandex_resourcemanager_folder_iam_member.bucket-creator
   ]
 }
 
@@ -546,7 +537,8 @@ resource "yandex_storage_bucket" "tf-dataproc-2" {
 }
 
 resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
-  depends_on = [yandex_resourcemanager_folder_iam_binding.dataproc-manager]
+  depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-manager,
+				yandex_resourcemanager_folder_iam_member.dataproc-manager-2]
 
   bucket             = {{.CurrentBucket}}
   description        = "{{.Description}}"
