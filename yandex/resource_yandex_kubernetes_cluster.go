@@ -252,6 +252,12 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"node_ipv4_cidr_mask_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  24,
+			},
 			"service_ipv4_range": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -499,6 +505,7 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 func getIPAllocationPolicy(d *schema.ResourceData) *k8s.IPAllocationPolicy {
 	p := &k8s.IPAllocationPolicy{
 		ClusterIpv4CidrBlock: d.Get("cluster_ipv4_range").(string),
+		NodeIpv4CidrMaskSize: int64(d.Get("node_ipv4_cidr_mask_size").(int)),
 		ServiceIpv4CidrBlock: d.Get("service_ipv4_range").(string),
 	}
 
@@ -685,6 +692,7 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	d.Set("node_service_account_id", cluster.NodeServiceAccountId)
 	d.Set("release_channel", cluster.ReleaseChannel.String())
 	d.Set("cluster_ipv4_range", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlock())
+	d.Set("node_ipv4_cidr_mask_size", cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize())
 	d.Set("service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock())
 	if np := cluster.GetNetworkPolicy(); np != nil {
 		if prov := np.GetProvider(); prov != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {

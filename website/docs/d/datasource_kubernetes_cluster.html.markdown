@@ -41,6 +41,7 @@ The following arguments are supported:
 * `network_id` - The ID of the cluster network.
 
 * `cluster_ipv4_range` - IP range for allocating pod addresses.
+* `node_ipv4_cidr_mask_size` - Size of the masks that are assigned to each node in the cluster.
 * `service_ipv4_range` - IP range Kubernetes services Kubernetes cluster IP addresses will be allocated from
 
 * `service_account_id` - Service account to be used for provisioning Compute Cloud and VPC resources
