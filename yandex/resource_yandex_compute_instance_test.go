@@ -41,7 +41,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasInstanceID(&instance, "yandex_compute_instance.foobar"),
-					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 					testAccCheckComputeInstanceIsPreemptible(&instance, false),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
@@ -93,7 +93,7 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 					testAccCheckComputeInstanceFqdn(&instance, instanceName),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
@@ -495,7 +495,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 2),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 				),
 			},
 			computeInstanceImportStep(),
@@ -506,7 +506,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
-					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 4),
+					testAccCheckComputeInstanceHasResources(&instance, 4, 100, 4),
 				),
 			},
 			computeInstanceImportStep(),
@@ -517,7 +517,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
-					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
+					testAccCheckComputeInstanceHasResources(&instance, 4, 5, 1),
 				),
 			},
 			computeInstanceImportStep(),
@@ -543,7 +543,7 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
-					testAccCheckComputeInstanceHasResources(&instance, 1, 100, 1),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 1),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1250,7 +1250,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1349,7 +1349,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2276,7 +2276,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2315,7 +2315,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores         = 1
+    cores         = 2
     core_fraction = 100
     memory        = 1
   }
@@ -2395,7 +2395,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 2
+    cores  = 4
     memory = 4
   }
 
@@ -2435,9 +2435,9 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores         = 2
+    cores         = 4
     core_fraction = 5
-    memory        = 0.5
+    memory        = 1
   }
 
   boot_disk {
