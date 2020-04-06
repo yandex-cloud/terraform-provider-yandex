@@ -128,6 +128,8 @@ If it is not provided, the default provider folder is used.
 It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be
 set up for this CIDR blocks in node subnets.
 
+* `node_ipv4_cidr_mask_size` - (Optional) Size of the masks that are assigned to each node in the cluster. Effectively limits maximum number of pods for each node.
+
 * `service_ipv4_range` - (Optional) CIDR block. IP range Kubernetes service Kubernetes cluster
 IP addresses will be allocated from. It should not overlap with any subnet in the network
 the Kubernetes cluster located in.

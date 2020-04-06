@@ -550,6 +550,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
 			testAccCheckClusterLabel(cluster, info, rs),
+
+			resource.TestCheckResourceAttr(resourceFullName,
+				"cluster_ipv4_range", cluster.GetIpAllocationPolicy().ClusterIpv4CidrBlock),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
 		}
 
 		if info.policy != emptyMaintenancePolicy {

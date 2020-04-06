@@ -54,6 +54,10 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"node_ipv4_cidr_mask_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"service_ipv4_range": {
 				Type:     schema.TypeString,
 				Computed: true,

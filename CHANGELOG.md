@@ -1,6 +1,7 @@
 ## 0.36.0 (Unreleased)
 ENHANCEMENTS:
 * compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
+* managed-kubernetes: add `node_ipv4_cidr_mask_size` attribute to `yandex_kubernetes_cluster` resource and data source
 
 ## 0.35.0 (March 31, 2020)
 FEATURES:
@@ -47,7 +48,7 @@ BUG FIXES:
 * container-registry: prevent terraform crash during `terraform destroy` execution for non-existent container registry.
 * resourcemanager: data source folder. fixed folder_id resolve by name (would fail without folder_id in provider config)
 * managed-kubernetes: k8s cluster version update no longer requires destroying of resource
-* managed-kubernetes: update of maintenance window `start_time` and `duration` will now trigger resource update 
+* managed-kubernetes: update of maintenance window `start_time` and `duration` will now trigger resource update
 
 ## 0.31.0 (February 14, 2020)
 FEATURES:
@@ -58,7 +59,7 @@ ENHANCEMENTS:
 * compute: support metric labels for custom rules in `yandex_compute_instance_group` resource `scale_policy.auto_scale` attribute
 
 BUG FIXES:
-* lb: fix modifying health check settings 
+* lb: fix modifying health check settings
 
 ## 0.30.0 (February 04, 2020)
 FEATURES:
@@ -70,7 +71,7 @@ ENHANCEMENTS:
 
 ## 0.29.1 (January 29, 2020)
 BUG FIXES:
-* resourcemanager: data source cloud. fixed cloud_id resolve by name (would fail without folder_id in provider config)   
+* resourcemanager: data source cloud. fixed cloud_id resolve by name (would fail without folder_id in provider config)
 
 ## 0.29.0 (January 24, 2020)
 FEATURES:
@@ -118,7 +119,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * compute: support update of service_account_id in `yandex_compute_instance` without resource recreation.
-* datasource resolving by name now uses folder_id from its config (when provided), affected datasources: 
+* datasource resolving by name now uses folder_id from its config (when provided), affected datasources:
 `yandex_compute_disk`,  `yandex_compute_image`, `yandex_compute_instance`, `yandex_compute_snapshot`,
 `yandex_container_registry`, `yandex_kubernetes_cluster`, `yandex_kubernetes_node_group`,
 `yandex_lb_network_load_balancer`, `yandex_lb_target_group`, `yandex_mdb_redis_cluster`,
@@ -203,18 +204,18 @@ ENHANCEMENTS:
 * provider: provider uses permanent client-request-id identifier while the terraform is running
 
 BUG FIXES:
-* provider: fix provider name and version detection   
+* provider: fix provider name and version detection
 
 ## 0.11.1 (September 13, 2019)
 ENHANCEMENTS:
 * provider: set provider name and version in user agent header.
 
 BUG FIXES:
-* compute: fix flattening of health checks for `yandex_compute_instance_group` resource   
+* compute: fix flattening of health checks for `yandex_compute_instance_group` resource
 
 ## 0.11.0 (September 11, 2019)
 ENHANCEMENTS:
-* compute: add `resources.0.gpus` attribute in `yandex_compute_instance` resource and data source 
+* compute: add `resources.0.gpus` attribute in `yandex_compute_instance` resource and data source
 * compute: add `resources.0.gpus` attribute in `yandex_compute_instance_group` resource and data source
 
 ## 0.10.2 (September 09, 2019)
@@ -223,7 +224,7 @@ ENHANCEMENTS:
 * iam: `yandex_iam_service_account` resource can now be imported
 
 BUG FIXES:
-* compute: fix read operation of `yandex_compute_instance`  
+* compute: fix read operation of `yandex_compute_instance`
 
 ## 0.10.1 (August 26, 2019)
 BUG FIXES:
@@ -254,10 +255,10 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: change attribute `folder_id` from Required to Optional for `yandex_compute_instance_group` resource [[#14](https://github.com/terraform-providers/terraform-provider-yandex/issues/14)].
-   
+
 ## 0.8.1 (July 04, 2019)
 BUG FIXES:
-* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/terraform-providers/terraform-provider-yandex/issues/13)].   
+* compute: fix `yandex_compute_instance_group` with `load_balancer_spec` defined [[#13](https://github.com/terraform-providers/terraform-provider-yandex/issues/13)].
 
 ## 0.8.0 (June 25, 2019)
 FEATURES:
@@ -266,11 +267,11 @@ FEATURES:
 
 ## 0.7.0 (June 06, 2019)
 ENHANCEMENTS:
-* provider: Support SDK retries.  
- 
+* provider: Support SDK retries.
+
 ## 0.6.0 (May 29, 2019)
 NOTES:
-* provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. 
+* provider: This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12.
 * provider: Switch dependency management to Go modules. ([#5](https://github.com/terraform-providers/terraform-provider-yandex/issues/5))
 
 ## 0.5.2 (April 24, 2019)
@@ -280,7 +281,7 @@ ENHANCEMENTS:
 
 ## 0.5.1 (April 20, 2019)
 BUG FIXES:
-* compute: fix migration process for `yandex_compute_instance`.   
+* compute: fix migration process for `yandex_compute_instance`.
 
 ## 0.5.0 (April 17, 2019)
 ENHANCEMENTS:
@@ -290,7 +291,7 @@ ENHANCEMENTS:
 
 ## 0.4.1 (April 11, 2019)
 BUG FIXES:
-* compute: fix properties of `service_account_id` attribute.   
+* compute: fix properties of `service_account_id` attribute.
 
 ## 0.4.0 (April 09, 2019)
 ENHANCEMENTS:
@@ -299,7 +300,7 @@ ENHANCEMENTS:
 ## 0.3.0 (April 03, 2019)
 FEATURES:
 * **New Datasource**: `yandex_vpc_route_table`
-* **New Resource**: `yandex_vpc_route_table` 
+* **New Resource**: `yandex_vpc_route_table`
 
 ENHANCEMENTS:
 * vpc: `yandex_vpc_subnet` adds a `route_table_id` field.
@@ -314,11 +315,11 @@ ENHANCEMENTS:
 
 ## 0.1.16 (March 14, 2019)
 ENHANCEMENTS:
-* compute: support preemptible instance type.   
+* compute: support preemptible instance type.
 
 BUG FIXES:
 * compute: fix update method on compute resources for description attribute.
-   
+
 ## 0.1.15 (February 22, 2019)
 
 BACKWARDS INCOMPATIBILITIES:
@@ -327,10 +328,10 @@ BACKWARDS INCOMPATIBILITIES:
 
 ENHANCEMENTS:
 * provider: more descriptive error messages.
-* compute: `yandex_compute_disk` support for increasing size without force recreation of the resource.   
+* compute: `yandex_compute_disk` support for increasing size without force recreation of the resource.
 
 BUG FIXES:
-* compute: make consistent disk type attribute name `type_id` -> `type`.   
+* compute: make consistent disk type attribute name `type_id` -> `type`.
 * compute: remove attr `instance_id` from `yandex_compute_instance`.
 * compute: make `yandex_compute_instancenet.network_interface.*.nat` ForceNew.
 
