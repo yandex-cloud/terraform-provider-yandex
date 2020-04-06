@@ -429,7 +429,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -509,7 +509,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -593,7 +593,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -678,7 +678,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -766,7 +766,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -856,7 +856,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory        = 2
-      cores         = 1
+      cores         = 2
       core_fraction = 20
     }
 
@@ -964,7 +964,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -1144,7 +1144,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -1228,7 +1228,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -1313,7 +1313,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       memory = 2
-      cores  = 1
+      cores  = 2
     }
 
     boot_disk {
@@ -1518,7 +1518,7 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		if ig.GetInstanceTemplate().ResourcesSpec == nil {
 			return fmt.Errorf("no ResourcesSpec in instance group %s", ig.Name)
 		}
-		if ig.GetInstanceTemplate().ResourcesSpec.Cores != 1 {
+		if ig.GetInstanceTemplate().ResourcesSpec.Cores != 2 {
 			return fmt.Errorf("invalid Cores value in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().ResourcesSpec.Memory != toBytes(2) {
