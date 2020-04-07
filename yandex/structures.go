@@ -1283,6 +1283,103 @@ func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) 
 	return &instancegroup.SchedulingPolicy{Preemptible: p}, nil
 }
 
+func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupRuleSpec, error) {
+	rulesCount := d.Get("rule.#").(int)
+
+	if rulesCount == 0 {
+		return nil, nil
+	}
+
+	securityRules := make([]*vpc.SecurityGroupRuleSpec, rulesCount)
+
+	var err error
+
+	for i := 0; i < rulesCount; i++ {
+		key := fmt.Sprintf("rule.%d", i)
+		if securityRules[i], err = expandSecurityGroupRuleSpec(d, key); err != nil {
+			return securityRules, err
+		}
+	}
+
+	return securityRules, nil
+}
+
+func expandSecurityGroupRuleSpec(d *schema.ResourceData, key string) (*vpc.SecurityGroupRuleSpec, error) {
+	res := &vpc.SecurityGroupRuleSpec{}
+	var err error
+
+	res.Description = d.Get(key + ".description").(string)
+
+	directionId := vpc.SecurityGroupRule_Direction_value[d.Get(key+".direction").(string)]
+	res.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
+
+	if s, ok := d.GetOk(key + ".protocol_number"); ok {
+		res.SetProtocolNumber(int64(s.(int)))
+	} else {
+		if s, ok := d.GetOk(key + ".protocol_name"); ok && s != "any" {
+			res.SetProtocolName(s.(string))
+		}
+	}
+
+	if res.Labels, err = expandLabels(d.Get(key + ".labels")); err != nil {
+		return nil, err
+	}
+
+	cidr := &vpc.CidrBlocks{}
+
+	if v, ok := d.GetOk(key + ".v4_cidr_blocks"); ok {
+		arr := v.([]interface{})
+		cidr.V4CidrBlocks = make([]string, len(arr))
+		for i, c := range arr {
+			cidr.V4CidrBlocks[i] = c.(string)
+		}
+	}
+	if v, ok := d.GetOk(key + ".v6_cidr_blocks"); ok {
+		arr := v.([]interface{})
+		cidr.V6CidrBlocks = make([]string, len(arr))
+		for i, c := range arr {
+			cidr.V6CidrBlocks[i] = c.(string)
+		}
+	}
+	if cidr.V4CidrBlocks == nil && cidr.V6CidrBlocks == nil {
+		return nil, fmt.Errorf("v4_cidr_blocks or v6_cidr_blocks must be defined")
+	}
+	res.SetCidrBlocks(cidr)
+
+	if s, ok := d.GetOk(key + ".port"); ok {
+		if _, ok := d.GetOk(key + ".from_port"); ok {
+			return nil, fmt.Errorf("port or from_port + to_port must be defined")
+		}
+		if _, ok := d.GetOk(key + ".to_port"); ok {
+			return nil, fmt.Errorf("port or from_port + to_port must be defined")
+		}
+		res.SetPorts(&vpc.PortRange{FromPort: int64(s.(int)), ToPort: int64(s.(int))})
+	} else {
+		fr, okFr := d.GetOk(key + ".from_port")
+		to, okTo := d.GetOk(key + ".to_port")
+		if !(okFr && okTo) {
+			return nil, fmt.Errorf("port or from_port + to_port must be defined")
+		}
+		res.SetPorts(&vpc.PortRange{FromPort: int64(fr.(int)), ToPort: int64(to.(int))})
+	}
+
+	if s := d.Get(key + ".port").(int); s > 0 {
+		if d.Get(key+".from_port").(int) != 0 || d.Get(key+".to_port").(int) != 0 {
+			return nil, fmt.Errorf("only port or from_port + to_port can be defined")
+		}
+		res.SetPorts(&vpc.PortRange{FromPort: int64(s), ToPort: int64(s)})
+	} else {
+		if d.Get(key+".from_port").(int) == 0 {
+			return nil, fmt.Errorf("port or from_port must be defined")
+		}
+		if d.Get(key+".to_port").(int) == 0 {
+			return nil, fmt.Errorf("port or to_port must be defined")
+		}
+		res.SetPorts(&vpc.PortRange{FromPort: int64(d.Get(key + ".from_port").(int)), ToPort: int64(d.Get(key + ".to_port").(int))})
+	}
+	return res, nil
+}
+
 func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]interface{}, error) {
 	if instances == nil {
 		return []map[string]interface{}{}, nil
@@ -1574,4 +1671,43 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	res["disk_size"] = toGigabytes(r.DiskSize)
 
 	return []map[string]interface{}{res}
+}
+
+func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) ([]map[string]interface{}, error) {
+	res := make([]map[string]interface{}, len(sg))
+
+	for i, g := range sg {
+		r := map[string]interface{}{}
+		r["direction"] = g.GetDirection().String()
+		r["description"] = g.GetDescription()
+		r["labels"] = g.GetLabels()
+		r["protocol_name"] = g.GetProtocolName()
+		r["protocol_number"] = g.GetProtocolNumber()
+
+		if r["protocol_name"] == "" {
+			r["protocol_name"] = "any"
+		}
+
+		if g.GetPorts() != nil {
+			if g.GetPorts().FromPort == g.GetPorts().ToPort {
+				r["port"] = g.GetPorts().FromPort
+			} else {
+				r["from_port"] = g.GetPorts().FromPort
+				r["to_port"] = g.GetPorts().ToPort
+			}
+		}
+
+		if g.GetCidrBlocks() != nil && g.GetCidrBlocks().V4CidrBlocks != nil {
+			r["v4_cidr_blocks"] = convertStringArrToInterface(g.GetCidrBlocks().V4CidrBlocks)
+		}
+
+		if g.GetCidrBlocks() != nil && g.GetCidrBlocks().V6CidrBlocks != nil {
+			r["v6_cidr_blocks"] = convertStringArrToInterface(g.GetCidrBlocks().V6CidrBlocks)
+		}
+
+		r["id"] = g.Id
+
+		res[i] = r
+	}
+	return res, nil
 }

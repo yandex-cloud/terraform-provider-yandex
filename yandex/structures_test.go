@@ -12,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 type DiskClientGetter struct {
@@ -1095,6 +1096,101 @@ func TestFlattenInstances(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			res, err := flattenInstances(tt.spec)
+
+			if err != nil {
+				t.Errorf("%v", err)
+			}
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("flattenInstances() got = %v, want %v", res, tt.expected)
+			}
+		})
+	}
+}
+
+func TestFlattenRules(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     []*vpc.SecurityGroupRule
+		expected []map[string]interface{}
+	}{
+		{
+			name: "2 rules",
+			spec: []*vpc.SecurityGroupRule{
+				{
+					Id:          "21",
+					Description: "desc1",
+					Labels: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					Direction: 1,
+					Ports: &vpc.PortRange{
+						FromPort: 22,
+						ToPort:   23,
+					},
+					ProtocolName: "tcp",
+					Target: &vpc.SecurityGroupRule_CidrBlocks{
+						CidrBlocks: &vpc.CidrBlocks{
+							V4CidrBlocks: []string{"10.0.0.0/24"},
+						},
+					},
+				},
+				{
+					Id:          "22",
+					Description: "desc2",
+					Labels: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					Direction: 2,
+					Ports: &vpc.PortRange{
+						FromPort: 25,
+						ToPort:   25,
+					},
+					ProtocolName:   "",
+					ProtocolNumber: 25,
+					Target: &vpc.SecurityGroupRule_CidrBlocks{
+						CidrBlocks: &vpc.CidrBlocks{
+							V4CidrBlocks: []string{"10.0.0.0/24"},
+						},
+					},
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"id":          "21",
+					"description": "desc1",
+					"direction":   "INGRESS",
+					"labels": map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24"},
+					"protocol_name":   "tcp",
+					"protocol_number": int64(0),
+					"from_port":       int64(22),
+					"to_port":         int64(23),
+				},
+				{
+					"id":          "22",
+					"description": "desc2",
+					"direction":   "EGRESS",
+					"labels": map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24"},
+					"protocol_name":   "any",
+					"protocol_number": int64(25),
+					"port":            int64(25),
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := flattenSecurityGroupRulesSpec(tt.spec)
 
 			if err != nil {
 				t.Errorf("%v", err)
