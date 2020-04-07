@@ -1375,20 +1375,6 @@ func expandSecurityGroupRuleSpec(d *schema.ResourceData, key string) (*vpc.Secur
 		res.SetPorts(&vpc.PortRange{FromPort: int64(fr.(int)), ToPort: int64(to.(int))})
 	}
 
-	if s := d.Get(key + ".port").(int); s > 0 {
-		if d.Get(key+".from_port").(int) != 0 || d.Get(key+".to_port").(int) != 0 {
-			return nil, fmt.Errorf("only port or from_port + to_port can be defined")
-		}
-		res.SetPorts(&vpc.PortRange{FromPort: int64(s), ToPort: int64(s)})
-	} else {
-		if d.Get(key+".from_port").(int) == 0 {
-			return nil, fmt.Errorf("port or from_port must be defined")
-		}
-		if d.Get(key+".to_port").(int) == 0 {
-			return nil, fmt.Errorf("port or to_port must be defined")
-		}
-		res.SetPorts(&vpc.PortRange{FromPort: int64(d.Get(key + ".from_port").(int)), ToPort: int64(d.Get(key + ".to_port").(int))})
-	}
 	return res, nil
 }
 
