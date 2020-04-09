@@ -254,6 +254,16 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"hostname": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -523,6 +533,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"status_changed_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"instance_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -590,6 +604,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 					},
 				},
 			},
+
 			"load_balancer_state": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -606,6 +621,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}

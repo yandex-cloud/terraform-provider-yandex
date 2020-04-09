@@ -294,6 +294,16 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+
+						"hostname": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -591,6 +601,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"status_changed_at": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"instance_id": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -657,6 +671,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -735,6 +754,7 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 	d.Set("name", instanceGroup.GetName())
 	d.Set("description", instanceGroup.GetDescription())
 	d.Set("service_account_id", instanceGroup.GetServiceAccountId())
+	d.Set("status", instanceGroup.GetStatus().String())
 
 	if err := d.Set("labels", instanceGroup.GetLabels()); err != nil {
 		return err
@@ -1003,6 +1023,8 @@ func getStaticUpdatePath() []string {
 		"instance_template.scheduling_policy",
 		"instance_template.service_account_id",
 		"instance_template.network_settings",
+		"instance_template.name",
+		"instance_template.hostname",
 		"variables",
 		"scale_policy",
 		"deploy_policy",

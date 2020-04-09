@@ -853,6 +853,8 @@ resource "yandex_compute_instance_group" "group1" {
   instance_template {
     platform_id = "standard-v1"
     description = "template_description"
+    name        = "my-instance-{instance.index}"
+    hostname    = "my-hostname-{instance.index}"
 
     resources {
       memory        = 2
@@ -1513,6 +1515,12 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		}
 		if ig.GetInstanceTemplate().Description != "template_description" {
 			return fmt.Errorf("invalid Description value in instance group %s", ig.Name)
+		}
+		if ig.GetInstanceTemplate().Name != "my-instance-{instance.index}" {
+			return fmt.Errorf("invalid name value in instance group %s", ig.Name)
+		}
+		if ig.GetInstanceTemplate().Hostname != "my-hostname-{instance.index}" {
+			return fmt.Errorf("invalid hostname value in instance group %s", ig.Name)
 		}
 		// Resources
 		if ig.GetInstanceTemplate().ResourcesSpec == nil {
