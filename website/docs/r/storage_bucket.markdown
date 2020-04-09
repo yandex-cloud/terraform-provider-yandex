@@ -37,6 +37,26 @@ resource "yandex_storage_bucket" "test" {
 }
 ```
 
+### Using ACL policy grants
+
+```hcl
+resource "yandex_storage_bucket" "test" {
+  bucket = "mybucket"
+
+  grant {
+    id          = "myuser"
+    type        = "CanonicalUser"
+    permissions = ["FULL_CONTROL"]
+  }
+
+  grant {
+    type        = "Group"
+    permissions = ["READ", "WRITE"]
+    uri         = "http://acs.amazonaws.com/groups/global/AllUsers"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -49,9 +69,11 @@ The following arguments are supported:
 
 * `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in provider config is used.
 
-* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
+* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
 ~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `admin` role, though this role is not necessary to be able to create a bucket with any ACL.
+
+* `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.ru/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 

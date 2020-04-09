@@ -416,6 +416,42 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_UpdateGrant(t *testing.T) {
+	resourceName := "yandex_storage_bucket.test"
+	userID := getExampleUserID2()
+	ri := acctest.RandInt()
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithGrants(ri, userID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "grant.#", "1"),
+					testAccCheckStorageBucketUpdateGrantSingle(resourceName, userID),
+				),
+			},
+			{
+				Config: testAccStorageBucketConfigWithGrantsUpdate(ri, userID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "grant.#", "2"),
+					testAccCheckStorageBucketUpdateGrantMulti(resourceName, userID),
+				),
+			},
+			{
+				Config: testAccStorageBucketBasic(ri),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "grant.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestStorageBucketName(t *testing.T) {
 	validNames := []string{
 		"foobar",
@@ -839,6 +875,118 @@ resource "yandex_storage_bucket" "test" {
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
 ` + testAccStorageCommonIamDependenciesEditor(randInt)
+}
+
+func testAccStorageBucketConfigWithGrants(randInt int, userID string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	bucket = "tf-test-bucket-%d"
+	grant {
+        id = "%s"
+        type = "CanonicalUser"
+		permissions = ["WRITE", "READ"]
+    }
+}
+`, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
+}
+
+func testAccStorageBucketConfigWithGrantsUpdate(randInt int, userID string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	bucket = "tf-test-bucket-%d"
+	grant {
+        id = "%s"
+        type = "CanonicalUser"
+        permissions = ["READ"]
+    }
+    grant {
+        type = "Group"
+        permissions = ["READ"]
+        uri = "http://acs.amazonaws.com/groups/global/AllUsers"
+    }
+}
+`, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
+}
+
+func testAccStorageBucketBasic(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	bucket = "tf-test-bucket-%d"
+}
+`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+}
+
+func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		gh := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
+			"id":   id,
+			"type": "CanonicalUser",
+			"uri":  "",
+			"permissions": schema.NewSet(
+				schema.HashString,
+				[]interface{}{"READ", "WRITE"},
+			),
+		}))
+
+		for _, t := range []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceName, gh+".permissions.#", "2"),
+			resource.TestCheckResourceAttr(resourceName, gh+".permissions.2931993811", "READ"),
+			resource.TestCheckResourceAttr(resourceName, gh+".permissions.2319431919", "WRITE"),
+			resource.TestCheckResourceAttr(resourceName, gh+".type", "CanonicalUser"),
+		} {
+			if err := t(s); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+}
+
+
+func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) func(s *terraform.State) error {
+	return func(s *terraform.State) error {
+		gh1 := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
+			"id":   id,
+			"type": "CanonicalUser",
+			"uri":  "",
+			"permissions": schema.NewSet(
+				schema.HashString,
+				[]interface{}{"READ"},
+			),
+		}))
+		gh2 := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
+			"id":   "",
+			"type": "Group",
+			"uri":  "http://acs.amazonaws.com/groups/global/AllUsers",
+			"permissions": schema.NewSet(
+				schema.HashString,
+				[]interface{}{"READ"},
+			),
+		}))
+		for _, t := range []resource.TestCheckFunc{
+			resource.TestCheckResourceAttr(resourceName, gh1+".permissions.#", "1"),
+			resource.TestCheckResourceAttr(resourceName, gh1+".permissions.2931993811", "READ"),
+			resource.TestCheckResourceAttr(resourceName, gh1+".type", "CanonicalUser"),
+			resource.TestCheckResourceAttr(resourceName, gh2+".permissions.#", "1"),
+			resource.TestCheckResourceAttr(resourceName, gh2+".permissions.2931993811", "READ"),
+			resource.TestCheckResourceAttr(resourceName, gh2+".type", "Group"),
+			resource.TestCheckResourceAttr(resourceName, gh2+".uri", "http://acs.amazonaws.com/groups/global/AllUsers"),
+		} {
+			if err := t(s); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 }
 
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
