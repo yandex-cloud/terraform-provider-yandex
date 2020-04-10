@@ -12,6 +12,11 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceYandexVPCSecurityGroupRead,
 		Schema: map[string]*schema.Schema{
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
 			"network_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -111,10 +116,11 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx := config.Context()
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
 
 	securityGroup, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
-		SecurityGroupId: d.Id(),
+		SecurityGroupId: d.Get("security_group_id").(string),
 	})
 
 	if err != nil {
@@ -132,7 +138,9 @@ func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface
 	d.Set("network_id", securityGroup.GetNetworkId())
 	d.Set("description", securityGroup.GetDescription())
 	d.Set("status", securityGroup.GetStatus())
-	d.Set("labels", securityGroup.GetLabels())
+	if err := d.Set("labels", securityGroup.GetLabels()); err != nil {
+		return err
+	}
 
 	rules, err := flattenSecurityGroupRulesSpec(securityGroup.Rules)
 	if err != nil {

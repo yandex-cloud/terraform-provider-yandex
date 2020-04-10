@@ -130,8 +130,8 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_resourcemanager_folder":   dataSourceYandexResourceManagerFolder(),
 			"yandex_vpc_network":              dataSourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":          dataSourceYandexVPCRouteTable(),
-			"yandex_vpc_subnet":               dataSourceYandexVPCSubnet(),
 			"yandex_vpc_security_group":       dataSourceYandexVPCSecurityGroup(),
+			"yandex_vpc_subnet":               dataSourceYandexVPCSubnet(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -173,8 +173,8 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_storage_object":                        resourceYandexStorageObject(),
 			"yandex_vpc_network":                           resourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
-			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
 			"yandex_vpc_security_group":                    resourceYandexVPCSecurityGroup(),
+			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
 		},
 	}
 	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)

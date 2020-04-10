@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_vpc_security_group"
 sidebar_current: "docs-yandex-datasource-vpc-security-group"
 description: |-
-  Get information about a Yandex VPC security group.
+  Get information about a Yandex VPC Security Group.
 ---
 
 # yandex\_vpc\_security\_group
@@ -11,7 +11,7 @@ description: |-
 Get information about a Yandex VPC Security Group. For more information, see
 [Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/index).
 
-Security groups is in private preview phase and not available right now. Please wait for public preview announcement.
+Security Groups is in private preview phase and not available right now. Please wait for public preview announcement.
 
 
 ```hcl
@@ -42,7 +42,7 @@ The following attribute is exported:
 
 The structure is documented below.
 
-* `status` - ID of the route table to assign to this security group.
+* `status` - Status of this security group.
 * `created_at` - Creation timestamp of this security group.
 
 ---
@@ -50,7 +50,7 @@ The structure is documented below.
 The `rule` block supports:
 * `id` - Id of the rule.
 * `description` - Description of the rule.
-* `direction` - ("INGRESS" or "EGRESS")
+* `direction` - One of `INGRESS` or `EGRESS`.
 * `labels` - Labels to assign to this rule.
 * `protocol_name` - Name of the protocol.
 * `protocol_number` - Number of the protocol.
