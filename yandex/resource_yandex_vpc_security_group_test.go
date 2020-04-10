@@ -159,18 +159,18 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule1 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    port = 8080
+    direction      = "INGRESS"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
   }
 
   rule {
-    direction = "EGRESS"
-    description = "rule2 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    from_port = 8090
-    to_port = 8099
+    direction      = "EGRESS"
+    description    = "rule2 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
   }
 }
 
@@ -195,18 +195,18 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule1 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    port = 8080
+    direction      = "INGRESS"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule2 description2"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    from_port = 8091
-    to_port = 8099
+    direction      = "INGRESS"
+    description    = "rule2 description2"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8091
+    to_port        = 8099
   }
 }
 
@@ -231,25 +231,25 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule1 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    port = 8080
+    direction      = "INGRESS"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule2 description2"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    from_port = 8091
-    to_port = 8099
+    direction      = "INGRESS"
+    description    = "rule2 description2"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8091
+    to_port        = 8099
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule3 description2"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    port = 9999
+    direction      = "INGRESS"
+    description    = "rule3 description2"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 9999
   }
 }
 

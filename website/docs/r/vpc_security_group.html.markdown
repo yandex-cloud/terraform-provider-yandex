@@ -3,12 +3,12 @@ layout: "yandex"
 page_title: "Yandex: yandex_vpc_security_group"
 sidebar_current: "docs-yandex-vpc-security-group"
 description: |-
-  Yandex VPC security group.
+  Yandex VPC Security Group.
 ---
 
 # yandex\_vpc\_security\_group
 
-Manages a security group within the Yandex.Cloud. For more information, see
+Manages a Security Group within the Yandex.Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/vpc/concepts).
 
 Security groups is in private preview phase and not available right now. Please wait for public preview announcement.
@@ -27,22 +27,22 @@ resource "yandex_vpc_security_group" "group1" {
   network_id  = "${yandex_vpc_network.lab-net.id}"
 
   labels = {
-    my-label    = "my-label-value"
+    my-label = "my-label-value"
   }
 
   rule {
-    direction = "INGRESS"
-    description = "rule1 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    port = 8080
+    direction      = "INGRESS"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
+    port           = 8080
   }
 
   rule {
-    direction = "EGRESS"
-    description = "rule2 description"
-	v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
-    from_port = 8090
-    to_port = 8099
+    direction      = "EGRESS"
+    description    = "rule2 description"
+    v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
+    from_port      = 8090
+    to_port        = 8099
   }
 }
 ```
@@ -67,14 +67,14 @@ The structure is documented below.
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `status` - ID of the route table to assign to this security group.
+* `status` - Status of this security group.
 * `created_at` - Creation timestamp of this security group.
 
 ---
 
 The `rule` block supports:
 
-* `direction` (Required) - Direction of the rule. Values are `INGRESS` or `EGRESS`
+* `direction` (Required) - Direction of the rule. One of `INGRESS` or `EGRESS` should be specified.
 
 ---
 
@@ -82,15 +82,15 @@ The `rule` block supports:
 * `labels` (Optional) - Labels to assign to this rule.
 * `protocol_name` (Optional) -  Name of the protocol. Values are `tcp`, `udp`, `icmp`, `any`.
 * `protocol_number` (Optional) - Number of the protocol defined by [IANA](https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml). Values are `0`,`6`,`17`.
-* `from_port` (Optional) - Minimum port number. Values
+* `from_port` (Optional) - Minimum port number.
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 
 
-~> **NOTE:** Only one of `protocol_name` or `protocol_number` can be specified. If non of them is set all protocols are allowed. Either `port` argument or `from_port` and `to_port` arguments together can be specified.
-
+~> **NOTE:** Only one of `protocol_name` or `protocol_number` can be specified. If none of them is set, all protocols are allowed.
+~> **NOTE:** Either one `port` argument or both `from_port` and `to_port` arguments can be specified.
 
 ## Attributes Reference
 
