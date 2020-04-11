@@ -543,7 +543,7 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
-					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 1),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1558,7 +1558,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2317,7 +2317,7 @@ resource "yandex_compute_instance" "foobar" {
   resources {
     cores         = 2
     core_fraction = 100
-    memory        = 1
+    memory        = 2
   }
 
   boot_disk {
