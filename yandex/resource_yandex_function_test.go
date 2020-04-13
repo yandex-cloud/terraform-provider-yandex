@@ -15,7 +15,7 @@ import (
 
 const functionResource = "yandex_function.test-function"
 
-func TestYandexFunction_basic(t *testing.T) {
+func TestAccYandexFunction_basic(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function
@@ -34,7 +34,7 @@ func TestYandexFunction_basic(t *testing.T) {
 	})
 }
 
-func TestYandexFunction_update(t *testing.T) {
+func TestAccYandexFunction_update(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function
@@ -61,7 +61,7 @@ func TestYandexFunction_update(t *testing.T) {
 	})
 }
 
-func TestYandexFunction_full(t *testing.T) {
+func TestAccYandexFunction_full(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function

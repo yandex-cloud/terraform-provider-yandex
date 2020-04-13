@@ -12,7 +12,7 @@ import (
 
 const functionDataSource = "data.yandex_function.test-function"
 
-func TestDataSourceYandexFunction_byID(t *testing.T) {
+func TestAccDataSourceYandexFunction_byID(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function
@@ -40,7 +40,7 @@ func TestDataSourceYandexFunction_byID(t *testing.T) {
 	})
 }
 
-func TestDataSourceYandexFunction_byName(t *testing.T) {
+func TestAccDataSourceYandexFunction_byName(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function
@@ -68,7 +68,7 @@ func TestDataSourceYandexFunction_byName(t *testing.T) {
 	})
 }
 
-func TestDataSourceYandexFunction_full(t *testing.T) {
+func TestAccDataSourceYandexFunction_full(t *testing.T) {
 	t.Parallel()
 
 	var function functions.Function

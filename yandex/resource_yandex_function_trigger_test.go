@@ -15,7 +15,7 @@ import (
 
 const triggerResource = "yandex_function_trigger.test-trigger"
 
-func TestYandexFunctionTrigger_basic(t *testing.T) {
+func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger
@@ -46,7 +46,7 @@ func TestYandexFunctionTrigger_basic(t *testing.T) {
 	})
 }
 
-func TestYandexFunctionTrigger_update(t *testing.T) {
+func TestAccYandexFunctionTrigger_update(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger
@@ -91,7 +91,7 @@ func TestYandexFunctionTrigger_update(t *testing.T) {
 	})
 }
 
-func TestYandexFunctionTrigger_iot(t *testing.T) {
+func TestAccYandexFunctionTrigger_iot(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger
@@ -124,7 +124,7 @@ func TestYandexFunctionTrigger_iot(t *testing.T) {
 	})
 }
 
-func TestYandexFunctionTrigger_message(t *testing.T) {
+func TestAccYandexFunctionTrigger_message(t *testing.T) {
 	t.Skip("TODO: Use the test in manual mode or when YMQ will be implemented for provider")
 
 	t.Parallel()
@@ -158,7 +158,7 @@ func TestYandexFunctionTrigger_message(t *testing.T) {
 	})
 }
 
-func TestYandexFunctionTrigger_object(t *testing.T) {
+func TestAccYandexFunctionTrigger_object(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger

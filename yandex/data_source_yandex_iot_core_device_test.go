@@ -11,7 +11,7 @@ import (
 
 const iotDataSourceDeviceResource = "data.yandex_iot_core_device.test-dev-ds"
 
-func TestYandexDataSourceIoTDevice_byID(t *testing.T) {
+func TestAccYandexDataSourceIoTDevice_byID(t *testing.T) {
 	t.Parallel()
 
 	registryName := acctest.RandomWithPrefix("tf-iot-core-registry")
@@ -38,7 +38,7 @@ func TestYandexDataSourceIoTDevice_byID(t *testing.T) {
 	})
 }
 
-func TestYandexDataSourceIoTDevice_byName(t *testing.T) {
+func TestAccYandexDataSourceIoTDevice_byName(t *testing.T) {
 	t.Parallel()
 
 	registryName := acctest.RandomWithPrefix("tf-iot-core-registry")
@@ -65,7 +65,7 @@ func TestYandexDataSourceIoTDevice_byName(t *testing.T) {
 	})
 }
 
-func TestYandexDataSourceIoTCoreDevice_full(t *testing.T) {
+func TestAccYandexDataSourceIoTCoreDevice_full(t *testing.T) {
 	t.Parallel()
 
 	registryName := acctest.RandomWithPrefix("tf-iot-core-registry")

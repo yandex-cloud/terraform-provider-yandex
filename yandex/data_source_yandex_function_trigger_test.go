@@ -12,7 +12,7 @@ import (
 
 const triggerDataSource = "data.yandex_function_trigger.test-trigger"
 
-func TestDataSourceYandexFunctionTrigger_byID(t *testing.T) {
+func TestAccDataSourceYandexFunctionTrigger_byID(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger
@@ -41,7 +41,7 @@ func TestDataSourceYandexFunctionTrigger_byID(t *testing.T) {
 	})
 }
 
-func TestDataSourceYandexFunctionTrigger_byName(t *testing.T) {
+func TestAccDataSourceYandexFunctionTrigger_byName(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger

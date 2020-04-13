@@ -15,7 +15,7 @@ import (
 
 const iotRegistryResource = "yandex_iot_core_registry.test-registry"
 
-func TestYandexIoTCoreRegistry_basic(t *testing.T) {
+func TestAccYandexIoTCoreRegistry_basic(t *testing.T) {
 	t.Parallel()
 
 	var registry iot.Registry
@@ -48,7 +48,7 @@ type yandexIotCoreAuth struct {
 	passwords    map[string]interface{}
 }
 
-func TestYandexIoTCoreRegistry_update(t *testing.T) {
+func TestAccYandexIoTCoreRegistry_update(t *testing.T) {
 	t.Parallel()
 
 	var registry iot.Registry

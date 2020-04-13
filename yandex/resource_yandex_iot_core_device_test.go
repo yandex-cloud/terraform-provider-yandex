@@ -17,7 +17,7 @@ import (
 const iotRegistryResourceForDevices = "yandex_iot_core_registry.test-registry"
 const iotDeviceResource = "yandex_iot_core_device.test-device"
 
-func TestYandexIoTCoreDevice_basic(t *testing.T) {
+func TestAccYandexIoTCoreDevice_basic(t *testing.T) {
 	t.Parallel()
 
 	var registry iot.Registry
@@ -45,7 +45,7 @@ func TestYandexIoTCoreDevice_basic(t *testing.T) {
 	})
 }
 
-func TestYandexIoTCoreDevice_update(t *testing.T) {
+func TestAccYandexIoTCoreDevice_update(t *testing.T) {
 	t.Parallel()
 
 	var registry iot.Registry
