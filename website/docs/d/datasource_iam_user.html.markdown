@@ -31,7 +31,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attribute is exported:
+The following attributes are exported:
 
 * `user_id` - ID of IAM user account.
 * `login` - Login name of IAM user account.

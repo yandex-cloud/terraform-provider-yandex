@@ -32,7 +32,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attribute is exported:
+The following attributes are exported:
 
 * `description` - Description of the route table.
 * `network_id` - ID of the network this route table belongs to.

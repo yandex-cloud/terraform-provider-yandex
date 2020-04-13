@@ -33,7 +33,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attribute is exported:
+The following attributes are exported:
 
 * `description` - Description of the target group.
 * `labels` - Labels to assign to this target group.

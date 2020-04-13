@@ -32,7 +32,7 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-The following attribute is exported:
+The following attributes are exported:
 
 * `description` - Description of the network.
 * `labels` - Labels assigned to this network.
