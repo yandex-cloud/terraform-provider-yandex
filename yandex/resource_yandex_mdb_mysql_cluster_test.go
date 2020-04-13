@@ -63,6 +63,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 17179869184),
+					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 3, 22),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
@@ -88,6 +89,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
 						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
+					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
@@ -109,6 +111,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
 						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
+					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
 					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
@@ -324,6 +327,22 @@ func checkRoles(name string, permission *mysql.Permission, expectedPermissions [
 	return nil
 }
 
+func testAccCheckMDBMysqlClusterHasBackupWindow(resource *mysql.Cluster, hours, minutes int32) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		window := resource.Config.BackupWindowStart
+		if window == nil {
+			return fmt.Errorf("Missing backup_window_start for '%s'", resource.Id)
+		}
+		if window.Hours != hours {
+			return fmt.Errorf("Expected backup_window_start hours '%d', got '%d'", hours, window.Hours)
+		}
+		if window.Minutes != minutes {
+			return fmt.Errorf("Expected backup_window_start minutes '%d', got '%d'", minutes, window.Minutes)
+		}
+		return nil
+	}
+}
+
 func testAccCheckMDBMysqlClusterHasResources(resource *mysql.Cluster, resourcePresetID, diskTypeID string, diskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := resource.Config.Resources
@@ -394,6 +413,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
+  backup_window_start {
+    hours   = 3
+    minutes = 22
+  }
+
   database {
     name = "testdb"
   }
@@ -431,6 +455,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 16
+  }
+
+  backup_window_start {
+    hours   = 3
+    minutes = 22
   }
 
   database {
@@ -472,6 +501,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
   }
 
   database {
@@ -531,6 +565,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
   }
 
   database {
