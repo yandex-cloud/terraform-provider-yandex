@@ -135,6 +135,7 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 		}
 
 		if iface.PrimaryV4Address != nil {
+			nics[i]["ipv4"] = true
 			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
 			if internalIP == "" {
 				internalIP = iface.PrimaryV4Address.Address
@@ -788,6 +789,10 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 
 		// By default allocate any unassigned IPv4 address
 		if ipV4Address == "" && ipV6Address == "" {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
+		}
+
+		if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
 			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
 		}
 

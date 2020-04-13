@@ -190,6 +190,12 @@ func resourceYandexComputeInstance() *schema.Resource {
 							ForceNew: true,
 						},
 
+						"ipv4": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+
 						"ip_address": {
 							Type:     schema.TypeString,
 							Optional: true,
