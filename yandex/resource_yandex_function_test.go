@@ -75,6 +75,8 @@ func TestAccYandexFunction_full(t *testing.T) {
 	params.memory = "128"
 	params.executionTimeout = "10"
 	params.serviceAccount = acctest.RandomWithPrefix("tf-service-account")
+	params.envKey = "tf_function_env"
+	params.envValue = "tf_function_env_value"
 	params.tags = acctest.RandomWithPrefix("tf-function-tag")
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 
@@ -88,6 +90,8 @@ func TestAccYandexFunction_full(t *testing.T) {
 	paramsUpdated.memory = "256"
 	paramsUpdated.executionTimeout = "11"
 	paramsUpdated.serviceAccount = acctest.RandomWithPrefix("tf-service-account")
+	paramsUpdated.envKey = "tf_function_env_updated"
+	paramsUpdated.envValue = "tf_function_env_value_updated"
 	paramsUpdated.tags = acctest.RandomWithPrefix("tf-function-tag-updated")
 	paramsUpdated.zipFilename = "test-fixtures/serverless/main.zip"
 
@@ -105,6 +109,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttr(functionResource, "memory", params.memory),
 				resource.TestCheckResourceAttr(functionResource, "execution_timeout", params.executionTimeout),
 				resource.TestCheckResourceAttrSet(functionResource, "service_account_id"),
+				testYandexFunctionContainsEnv(functionResource, params.envKey, params.envValue),
 				testYandexFunctionContainsTag(functionResource, params.tags),
 				resource.TestCheckResourceAttrSet(functionResource, "version"),
 				resource.TestCheckResourceAttrSet(functionResource, "image_size"),
@@ -201,6 +206,23 @@ func testYandexFunctionContainsLabel(function *functions.Function, key string, v
 	}
 }
 
+func testYandexFunctionContainsEnv(name string, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		resources, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found environment: %s in %s", value, s.RootModule().Path)
+		}
+
+		for k, v := range resources.Primary.Attributes {
+			if strings.HasPrefix(k, "environment") && strings.Contains(k, key) && v == value {
+				return nil
+			}
+		}
+
+		return fmt.Errorf("Not found environment: %s, value: %s in %s", key, value, s.RootModule().Path)
+	}
+}
+
 func testYandexFunctionContainsTag(name, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		resources, ok := s.RootModule().Resources[name]
@@ -248,6 +270,8 @@ type testYandexFunctionParameters struct {
 	memory           string
 	executionTimeout string
 	serviceAccount   string
+	envKey           string
+	envValue         string
 	tags             string
 	zipFilename      string
 }
@@ -267,7 +291,10 @@ resource "yandex_function" "test-function" {
   memory             = "%s"
   execution_timeout  = "%s"
   service_account_id = "${yandex_iam_service_account.test-account.id}"
-  tags               = ["%s"]
+  environment = {
+    %s = "%s"
+  }
+  tags = ["%s"]
   content {
     zip_filename = "%s"
   }
@@ -285,6 +312,8 @@ resource "yandex_iam_service_account" "test-account" {
 		params.runtime,
 		params.memory,
 		params.executionTimeout,
+		params.envKey,
+		params.envValue,
 		params.tags,
 		params.zipFilename,
 		params.serviceAccount)

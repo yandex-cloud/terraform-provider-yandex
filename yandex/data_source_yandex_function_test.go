@@ -82,6 +82,8 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 	params.memory = "128"
 	params.executionTimeout = "10"
 	params.serviceAccount = acctest.RandomWithPrefix("tf-service-account")
+	params.envKey = "tf_function_env"
+	params.envValue = "tf_function_env_value"
 	params.tags = acctest.RandomWithPrefix("tf-function-tag")
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 
@@ -102,6 +104,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					resource.TestCheckResourceAttr(functionDataSource, "memory", params.memory),
 					resource.TestCheckResourceAttr(functionDataSource, "execution_timeout", params.executionTimeout),
 					resource.TestCheckResourceAttrSet(functionDataSource, "service_account_id"),
+					testYandexFunctionContainsEnv(functionResource, params.envKey, params.envValue),
 					testYandexFunctionContainsTag(functionDataSource, params.tags),
 					resource.TestCheckResourceAttrSet(functionDataSource, "version"),
 					resource.TestCheckResourceAttrSet(functionDataSource, "image_size"),
@@ -172,7 +175,10 @@ resource "yandex_function" "test-function" {
   memory             = "%s"
   execution_timeout  = "%s"
   service_account_id = "${yandex_iam_service_account.test-account.id}"
-  tags               = ["%s"]
+  environment = {
+    %s = "%s"
+  }
+  tags = ["%s"]
   content {
     zip_filename = "%s"
   }
@@ -190,6 +196,8 @@ resource "yandex_iam_service_account" "test-account" {
 		params.runtime,
 		params.memory,
 		params.executionTimeout,
+		params.envKey,
+		params.envValue,
 		params.tags,
 		params.zipFilename,
 		params.serviceAccount)
