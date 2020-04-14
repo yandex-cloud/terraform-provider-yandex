@@ -4,11 +4,9 @@ go 1.12
 
 require (
 	github.com/aws/aws-sdk-go v1.19.39
-	github.com/c2h5oh/datasize v0.0.0-20171227191756-4eba002a5eae
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/fatih/structs v1.1.0
-	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/golang/protobuf v1.3.4
+	github.com/golang/protobuf v1.3.5
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/hashicorp/go-getter v1.4.0
@@ -18,14 +16,13 @@ require (
 	github.com/hashicorp/vault v0.10.4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
-	github.com/stretchr/testify v1.3.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20200330101522-37b51d1c4572
-	github.com/yandex-cloud/go-sdk v0.0.0-20200323080541-1b2fb4d2247e
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	github.com/stretchr/testify v1.5.1
+	github.com/yandex-cloud/go-genproto v0.0.0-20200403155014-561458df7bd3
+	github.com/yandex-cloud/go-sdk v0.0.0-20200403155346-96693d292acf
+	golang.org/x/net v0.0.0-20200320220750-118fecf932d8
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
-	google.golang.org/genproto v0.0.0-20200305110556-506484158171
-	google.golang.org/grpc v1.27.1
-	gopkg.in/yaml.v2 v2.2.8 // indirect
+	google.golang.org/genproto v0.0.0-20200323114720-3f67cca34472
+	google.golang.org/grpc v1.28.0
 )
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.12.0
