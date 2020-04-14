@@ -302,6 +302,26 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 					},
 				},
 			},
+			"deploy_policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_expansion": {
+							Type:     schema.TypeInt,
+							Required: true,
+							// Default:  3,
+						},
+						"max_unavailable": {
+							Type:     schema.TypeInt,
+							Required: true,
+							// Default:  0,
+						},
+					},
+				},
+			},
 			"instance_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -425,6 +445,11 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		return nil, fmt.Errorf("error getting node group scale policy for a Kubernetes node group creation: %s", err)
 	}
 
+	dp, err := getNodeGroupDeployPolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group deploy policy for while creating Kubernetes node group: %s", err)
+	}
+
 	sysctls := getNodeGroupAllowedUnsafeSysctls(d)
 	nodeLabels := getNodeGroupNodeLabels(d)
 
@@ -446,6 +471,7 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 		AllowedUnsafeSysctls: sysctls,
 		NodeLabels:           nodeLabels,
 		NodeTaints:           nodeTaints,
+		DeployPolicy:         dp,
 	}
 
 	return req, nil
@@ -540,6 +566,18 @@ func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
 			},
 		}, nil
 	}
+}
+
+func getNodeGroupDeployPolicy(d *schema.ResourceData) (*k8s.DeployPolicy, error) {
+	if _, ok := d.GetOk("deploy_policy"); !ok {
+		return nil, nil
+	}
+
+	dp := &k8s.DeployPolicy{
+		MaxExpansion:   int64(d.Get("deploy_policy.0.max_expansion").(int)),
+		MaxUnavailable: int64(d.Get("deploy_policy.0.max_unavailable").(int)),
+	}
+	return dp, nil
 }
 
 func getNodeGroupAllowedUnsafeSysctls(d *schema.ResourceData) []string {
@@ -732,6 +770,15 @@ func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error
 		return err
 	}
 
+	deployPolicy, err := flattenKubernetesNodeGroupDeployPolicy(ng.GetDeployPolicy())
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("deploy_policy", deployPolicy); err != nil {
+		return err
+	}
+
 	if err := d.Set("allowed_unsafe_sysctls", ng.AllowedUnsafeSysctls); err != nil {
 		return err
 	}
@@ -781,6 +828,8 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"scale_policy.0.fixed_scale.0.size":                   "scale_policy",
 	"version":                                             "version",
 	"maintenance_policy":                                  "maintenance_policy",
+	"deploy_policy.0.max_expansion":                       "deploy_policy.max_expansion",
+	"deploy_policy.0.max_unavailable":                     "deploy_policy.max_unavailable",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -842,6 +891,11 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		return nil, fmt.Errorf("error getting node group scale policy for a Kubernetes node group update: %s", err)
 	}
 
+	dp, err := getNodeGroupDeployPolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("error getting node group deploy policy while updating Kubernetes node group: %s", err)
+	}
+
 	req := &k8s.UpdateNodeGroupRequest{
 		NodeGroupId:  d.Id(),
 		Name:         d.Get("name").(string),
@@ -855,6 +909,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 			},
 		},
 		MaintenancePolicy: mp,
+		DeployPolicy:      dp,
 	}
 
 	return req, nil
@@ -978,6 +1033,17 @@ func flattenKubernetesNodeScalePolicy(sp *k8s.ScalePolicy) []map[string]interfac
 			},
 		},
 	}
+}
+
+func flattenKubernetesNodeGroupDeployPolicy(mp *k8s.DeployPolicy) ([]map[string]interface{}, error) {
+	p := map[string]interface{}{
+		"max_expansion":   mp.GetMaxExpansion(),
+		"max_unavailable": mp.GetMaxUnavailable(),
+	}
+
+	return []map[string]interface{}{
+		p,
+	}, nil
 }
 
 func flattenKubernetesNodeGroupTemplateSchedulingPolicy(p *k8s.SchedulingPolicy) []map[string]interface{} {

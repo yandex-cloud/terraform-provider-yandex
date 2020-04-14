@@ -277,6 +277,24 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			// FIXME:
+			"deploy_policy": {
+				Type:     schema.TypeList,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"max_expansion": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"max_unavailable": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
