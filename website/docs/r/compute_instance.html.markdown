@@ -147,6 +147,8 @@ The `network_interface` block supports:
     interface to. The subnet must exist in the same zone where this instance will be
     created.
 
+* `ipv4` - (Optional) Allocate an IPv4 address for the interface. The default value is `true`.
+
 * `ip_address` - (Optional) The private IP address to assign to the instance. If
     empty, the address will be automatically assigned from the specified subnet.
 
