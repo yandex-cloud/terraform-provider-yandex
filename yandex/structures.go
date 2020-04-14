@@ -1296,19 +1296,18 @@ func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) 
 }
 
 func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupRuleSpec, error) {
-	rulesCount := d.Get("rule.#").(int)
+	v, ok := d.GetOk("rule")
 
-	if rulesCount == 0 {
-		return nil, nil
+	if !ok {
+		return nil, fmt.Errorf("no rules")
 	}
 
-	securityRules := make([]*vpc.SecurityGroupRuleSpec, rulesCount)
+	securityRules := make([]*vpc.SecurityGroupRuleSpec, 0)
 
-	var err error
-
-	for i := 0; i < rulesCount; i++ {
-		key := fmt.Sprintf("rule.%d", i)
-		if securityRules[i], err = expandSecurityGroupRuleSpec(d, key); err != nil {
+	for _, rule := range v.(*schema.Set).List() {
+		if r, err := securityRuleDescriptionToRuleSpec(rule); err == nil {
+			securityRules = append(securityRules, r)
+		} else {
 			return securityRules, err
 		}
 	}
@@ -1316,37 +1315,46 @@ func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupR
 	return securityRules, nil
 }
 
-func expandSecurityGroupRuleSpec(d *schema.ResourceData, key string) (*vpc.SecurityGroupRuleSpec, error) {
-	res := &vpc.SecurityGroupRuleSpec{}
-	var err error
+func securityRuleDescriptionToRuleSpec(v interface{}) (*vpc.SecurityGroupRuleSpec, error) {
+	res, ok := v.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
+	}
 
-	res.Description = d.Get(key + ".description").(string)
+	sr := new(vpc.SecurityGroupRuleSpec)
 
-	directionId := vpc.SecurityGroupRule_Direction_value[d.Get(key+".direction").(string)]
-	res.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
+	if v, ok := res["description"].(string); ok {
+		sr.Description = v
+	}
 
-	if s, ok := d.GetOk(key + ".protocol_number"); ok {
-		res.SetProtocolNumber(int64(s.(int)))
+	if v, ok := res["protocol_number"].(int); ok {
+		sr.SetProtocolNumber(int64(v))
 	} else {
-		if s, ok := d.GetOk(key + ".protocol_name"); ok && s != "any" {
-			res.SetProtocolName(s.(string))
+		if v, ok := res["protocol_name"].(string); ok {
+			if v != "any" {
+				sr.SetProtocolName(v)
+			}
 		}
 	}
 
-	if res.Labels, err = expandLabels(d.Get(key + ".labels")); err != nil {
-		return nil, err
+	if v, ok := res["labels"]; ok {
+		labels, err := expandLabels(v)
+		if err != nil {
+			return sr, err
+		}
+		sr.Labels = labels
 	}
 
-	cidr := &vpc.CidrBlocks{}
+	cidr := new(vpc.CidrBlocks)
 
-	if v, ok := d.GetOk(key + ".v4_cidr_blocks"); ok {
+	if v, ok := res["v4_cidr_blocks"]; ok {
 		arr := v.([]interface{})
 		cidr.V4CidrBlocks = make([]string, len(arr))
 		for i, c := range arr {
 			cidr.V4CidrBlocks[i] = c.(string)
 		}
 	}
-	if v, ok := d.GetOk(key + ".v6_cidr_blocks"); ok {
+	if v, ok := res["v4_cidr_blocks"]; ok {
 		arr := v.([]interface{})
 		cidr.V6CidrBlocks = make([]string, len(arr))
 		for i, c := range arr {
@@ -1356,26 +1364,25 @@ func expandSecurityGroupRuleSpec(d *schema.ResourceData, key string) (*vpc.Secur
 	if cidr.V4CidrBlocks == nil && cidr.V6CidrBlocks == nil {
 		return nil, fmt.Errorf("v4_cidr_blocks or v6_cidr_blocks must be defined")
 	}
-	res.SetCidrBlocks(cidr)
+	sr.SetCidrBlocks(cidr)
 
-	if s, ok := d.GetOk(key + ".port"); ok {
-		if _, ok := d.GetOk(key + ".from_port"); ok {
-			return nil, fmt.Errorf("port or from_port + to_port must be defined")
+	port := res["port"].(int)
+	frPort := res["from_port"].(int)
+	toPort := res["to_port"].(int)
+
+	if port != -1 {
+		if frPort != -1 || toPort != -1 {
+			return nil, fmt.Errorf("port or from_port + to_port must be defined %v", res)
 		}
-		if _, ok := d.GetOk(key + ".to_port"); ok {
-			return nil, fmt.Errorf("port or from_port + to_port must be defined")
-		}
-		res.SetPorts(&vpc.PortRange{FromPort: int64(s.(int)), ToPort: int64(s.(int))})
+		sr.SetPorts(&vpc.PortRange{FromPort: int64(port), ToPort: int64(port)})
 	} else {
-		fr, okFr := d.GetOk(key + ".from_port")
-		to, okTo := d.GetOk(key + ".to_port")
-		if !(okFr && okTo) {
+		if frPort == -1 || toPort == -1 {
 			return nil, fmt.Errorf("port or from_port + to_port must be defined")
 		}
-		res.SetPorts(&vpc.PortRange{FromPort: int64(fr.(int)), ToPort: int64(to.(int))})
+		sr.SetPorts(&vpc.PortRange{FromPort: int64(frPort), ToPort: int64(toPort)})
 	}
 
-	return res, nil
+	return sr, nil
 }
 
 func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]interface{}, error) {
@@ -1677,10 +1684,10 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	return []map[string]interface{}{res}
 }
 
-func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) ([]map[string]interface{}, error) {
-	res := make([]map[string]interface{}, len(sg))
+func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, error) {
+	res := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
 
-	for i, g := range sg {
+	for _, g := range sg {
 		r := map[string]interface{}{}
 		r["direction"] = g.GetDirection().String()
 		r["description"] = g.GetDescription()
@@ -1695,7 +1702,10 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) ([]map[string]in
 		if g.GetPorts() != nil {
 			if g.GetPorts().FromPort == g.GetPorts().ToPort {
 				r["port"] = g.GetPorts().FromPort
+				r["from_port"] = -1
+				r["to_port"] = -1
 			} else {
+				r["port"] = -1
 				r["from_port"] = g.GetPorts().FromPort
 				r["to_port"] = g.GetPorts().ToPort
 			}
@@ -1711,7 +1721,7 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) ([]map[string]in
 
 		r["id"] = g.Id
 
-		res[i] = r
+		res.Add(r)
 	}
 	return res, nil
 }

@@ -1,8 +1,11 @@
 package yandex
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"reflect"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -65,7 +68,7 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 			},
 
 			"rule": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -98,16 +101,19 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 65535),
+							Default:      -1,
 						},
 						"from_port": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 65535),
+							Default:      -1,
 						},
 						"to_port": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							ValidateFunc: validation.IntBetween(0, 65535),
+							Default:      -1,
 						},
 						"v4_cidr_blocks": {
 							Type:     schema.TypeList,
@@ -125,6 +131,7 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 						},
 					},
 				},
+				Set: resourceYandexVPCSecurityGroupRuleHash,
 			},
 
 			"status": {
@@ -309,46 +316,69 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 		return handleNotFoundError(err, d, fmt.Sprintf("Security group %q", d.Id()))
 	}
 
+	cloudRules := map[string]*vpc.SecurityGroupRule{}
+
+	for _, r := range sg.Rules {
+		cloudRules[r.Id] = r
+	}
+
 	newRules := make([]*vpc.SecurityGroupRuleSpec, 0)
 	delRules := make([]string, 0)
+	ruleIds := make([]string, 0)
 
-	rulenum := d.Get("rule.#").(int)
-	ruleIds := make([]string, rulenum)
+	v, ok := d.GetOk("rule")
 
-	for i := 0; i < rulenum; i++ {
-		key := fmt.Sprintf("rule.%d", i)
+	if !ok {
+		return fmt.Errorf("no rules")
+	}
 
-		if v, ok := d.GetOk(key + ".id"); ok {
-			ruleIds[i] = v.(string)
+	for _, v := range v.(*schema.Set).List() {
+		rule, ok := v.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
+		}
 
-			if d.HasChange(key) {
-				r, err := expandSecurityGroupRuleSpec(d, key)
+		if id, ok := rule["id"].(string); ok {
+			// existed rule
+			if cloudRule, ok := cloudRules[id]; ok {
+				ruleSpec, err := securityRuleDescriptionToRuleSpec(v)
 				if err != nil {
 					return err
 				}
-				newRules = append(newRules, r)
-				delRules = append(delRules, v.(string))
+
+				if ruleChanged(cloudRule, ruleSpec) {
+					delRules = append(delRules, id)
+					newRules = append(newRules, ruleSpec)
+				} else {
+					ruleIds = append(ruleIds, id)
+				}
+
+			} else {
+				return fmt.Errorf("no rule with id %s on cloud", id)
 			}
+
+			ruleIds = append(ruleIds, id)
 		} else {
-			r, err := expandSecurityGroupRuleSpec(d, key)
+			// new rule
+			ruleSpec, err := securityRuleDescriptionToRuleSpec(v)
 			if err != nil {
 				return err
 			}
-			newRules = append(newRules, r)
+			newRules = append(newRules, ruleSpec)
 		}
 	}
 
-	for _, r := range sg.Rules {
+	for cid := range cloudRules {
 		found := false
 		for _, id := range ruleIds {
-			if r.Id == id {
+			if cid == id {
 				found = true
 				break
 			}
 		}
 
 		if !found {
-			delRules = append(delRules, r.Id)
+			delRules = append(delRules, cid)
 		}
 	}
 
@@ -367,6 +397,38 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 	}
 
 	return nil
+}
+
+func ruleChanged(r1 *vpc.SecurityGroupRule, r2 *vpc.SecurityGroupRuleSpec) bool {
+	if r1.GetDescription() != r2.GetDescription() {
+		return false
+	}
+
+	if !reflect.DeepEqual(r1.GetLabels(), r2.GetLabels()) {
+		return false
+	}
+
+	if r1.GetDirection() != r2.GetDirection() {
+		return false
+	}
+
+	if r1.GetPorts() != r2.GetPorts() {
+		return false
+	}
+
+	if r1.GetCidrBlocks() != r2.GetCidrBlocks() {
+		return false
+	}
+
+	if r1.GetProtocolName() != r2.GetProtocolName() {
+		return false
+	}
+
+	if r1.GetProtocolNumber() != r2.GetProtocolNumber() {
+		return false
+	}
+
+	return true
 }
 
 func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
@@ -396,4 +458,20 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
+	var buf bytes.Buffer
+	m, ok := v.(map[string]interface{})
+	if !ok {
+		return 0
+	}
+
+	for _, name := range []string{"direction", "protocol_name", "protocol_number", "port", "from_port", "to_port"} {
+		if v, ok := m[name]; ok {
+			buf.WriteString(fmt.Sprintf("%v-", v))
+		}
+	}
+
+	return hashcode.String(buf.String())
 }

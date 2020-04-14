@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"reflect"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 type DiskClientGetter struct {
@@ -1112,7 +1112,7 @@ func TestFlattenRules(t *testing.T) {
 	tests := []struct {
 		name     string
 		spec     []*vpc.SecurityGroupRule
-		expected []map[string]interface{}
+		expected *schema.Set
 	}{
 		{
 			name: "2 rules",
@@ -1129,7 +1129,7 @@ func TestFlattenRules(t *testing.T) {
 						FromPort: 22,
 						ToPort:   23,
 					},
-					ProtocolName: "tcp",
+					ProtocolName: "TCP",
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
 							V4CidrBlocks: []string{"10.0.0.0/24"},
@@ -1156,9 +1156,29 @@ func TestFlattenRules(t *testing.T) {
 						},
 					},
 				},
-			},
-			expected: []map[string]interface{}{
 				{
+					Id:          "23",
+					Description: "desc3",
+					Labels: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					Direction: 2,
+					Ports: &vpc.PortRange{
+						FromPort: 1,
+						ToPort:   65535,
+					},
+					ProtocolName:   "",
+					ProtocolNumber: 25,
+					Target: &vpc.SecurityGroupRule_CidrBlocks{
+						CidrBlocks: &vpc.CidrBlocks{
+							V4CidrBlocks: []string{"10.0.0.0/24", "10.0.1.0/24"},
+						},
+					},
+				},
+			},
+			expected: schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, []interface{}{
+				map[string]interface{}{
 					"id":          "21",
 					"description": "desc1",
 					"direction":   "INGRESS",
@@ -1167,12 +1187,26 @@ func TestFlattenRules(t *testing.T) {
 						"key2": "value2",
 					},
 					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24"},
-					"protocol_name":   "tcp",
+					"protocol_name":   "TCP",
 					"protocol_number": int64(0),
 					"from_port":       int64(22),
 					"to_port":         int64(23),
 				},
-				{
+				map[string]interface{}{
+					"id":          "23",
+					"description": "desc3",
+					"direction":   "EGRESS",
+					"labels": map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24", "10.0.1.0/24"},
+					"protocol_name":   "any",
+					"protocol_number": int64(25),
+					"from_port":       int64(1),
+					"to_port":         int64(65535),
+				},
+				map[string]interface{}{
 					"id":          "22",
 					"description": "desc2",
 					"direction":   "EGRESS",
@@ -1185,7 +1219,7 @@ func TestFlattenRules(t *testing.T) {
 					"protocol_number": int64(25),
 					"port":            int64(25),
 				},
-			},
+			}),
 		},
 	}
 
@@ -1196,8 +1230,8 @@ func TestFlattenRules(t *testing.T) {
 			if err != nil {
 				t.Errorf("%v", err)
 			}
-			if !reflect.DeepEqual(res, tt.expected) {
-				t.Errorf("flattenInstances() got = %v, want %v", res, tt.expected)
+			if res.Difference(tt.expected).Len() > 0 {
+				t.Errorf("flattenInstances() got = %v, want %v", res.List(), tt.expected.List())
 			}
 		})
 	}
