@@ -277,7 +277,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			// FIXME:
 			"deploy_policy": {
 				Type:     schema.TypeList,
 				Computed: true,

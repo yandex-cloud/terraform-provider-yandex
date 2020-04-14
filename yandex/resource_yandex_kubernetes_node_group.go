@@ -312,12 +312,10 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 						"max_expansion": {
 							Type:     schema.TypeInt,
 							Required: true,
-							// Default:  3,
 						},
 						"max_unavailable": {
 							Type:     schema.TypeInt,
 							Required: true,
-							// Default:  0,
 						},
 					},
 				},
