@@ -132,6 +132,8 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 			"index":       index,
 			"mac_address": iface.MacAddress,
 			"subnet_id":   iface.SubnetId,
+			"ipv4":        false,
+			"ipv6":        false,
 		}
 
 		if iface.PrimaryV4Address != nil {
