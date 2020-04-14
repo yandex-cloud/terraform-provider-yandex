@@ -194,6 +194,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
+							Default:  true,
 						},
 
 						"ip_address": {
