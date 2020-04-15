@@ -880,15 +880,15 @@ resource "yandex_storage_bucket" "test" {
 func testAccStorageBucketConfigWithGrants(randInt int, userID string) string {
 	return fmt.Sprintf(`
 resource "yandex_storage_bucket" "test" {
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	bucket = "tf-test-bucket-%d"
-	grant {
-        id = "%s"
-        type = "CanonicalUser"
-		permissions = ["WRITE", "READ"]
-    }
+  bucket = "tf-test-bucket-%d"
+  grant {
+    id          = "%s"
+    type        = "CanonicalUser"
+    permissions = ["WRITE", "READ"]
+  }
 }
 `, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
 }
@@ -896,20 +896,20 @@ resource "yandex_storage_bucket" "test" {
 func testAccStorageBucketConfigWithGrantsUpdate(randInt int, userID string) string {
 	return fmt.Sprintf(`
 resource "yandex_storage_bucket" "test" {
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	bucket = "tf-test-bucket-%d"
-	grant {
-        id = "%s"
-        type = "CanonicalUser"
-        permissions = ["READ"]
-    }
-    grant {
-        type = "Group"
-        permissions = ["READ"]
-        uri = "http://acs.amazonaws.com/groups/global/AllUsers"
-    }
+  bucket = "tf-test-bucket-%d"
+  grant {
+    id          = "%s"
+    type        = "CanonicalUser"
+    permissions = ["READ"]
+  }
+  grant {
+    type        = "Group"
+    permissions = ["READ"]
+    uri         = "http://acs.amazonaws.com/groups/global/AllUsers"
+  }
 }
 `, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
 }

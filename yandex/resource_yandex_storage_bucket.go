@@ -1070,11 +1070,11 @@ func validateBucketPermissions(permissions []interface{}) error {
 	}
 
 	if fullControl && len(permissions) > 1 {
-		return fmt.Errorf(`should not use other ACP permissions along with "FULL_CONTROL" permission`)
+		return fmt.Errorf("do not use other ACP permissions along with `FULL_CONTROL` permission for Storage Bucket")
 	}
 
 	if permissionWrite && !permissionRead {
-		return fmt.Errorf(`Please always provide "READ" permission, when granting "WRITE"`)
+		return fmt.Errorf("should always provide `READ` permission, when granting `WRITE` for Storage Bucket")
 	}
 
 	return nil
