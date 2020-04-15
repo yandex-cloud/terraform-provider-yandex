@@ -950,16 +950,16 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	} else {
 		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 			return s3conn.GetBucketAcl(&s3.GetBucketAclInput{
-				Bucket: aws.String(d.Id()),
+				Bucket: aws.String(bucket),
 			})
 		})
 
 		if err != nil {
-			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
+			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", bucket, err)
 		}
 
 		ap := apResponse.(*s3.GetBucketAclOutput)
-		log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", d.Id(), ap)
+		log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", bucket, ap)
 
 		grants := make([]*s3.Grant, 0, len(rawGrants))
 		for _, rawGrant := range rawGrants {
