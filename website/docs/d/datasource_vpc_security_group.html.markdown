@@ -52,8 +52,7 @@ The `rule` block supports:
 * `description` - Description of the rule.
 * `direction` - One of `INGRESS` or `EGRESS`.
 * `labels` - Labels to assign to this rule.
-* `protocol_name` - Name of the protocol.
-* `protocol_number` - Number of the protocol.
+* `protocol` - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number.
 * `from_port` - Minimum port number.
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).

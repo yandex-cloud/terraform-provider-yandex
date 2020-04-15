@@ -1315,14 +1315,17 @@ func securityRuleDescriptionToRuleSpec(v interface{}) (*vpc.SecurityGroupRuleSpe
 		sr.Description = v
 	}
 
-	if v, ok := res["protocol_number"].(int); ok {
-		sr.SetProtocolNumber(int64(v))
-	} else {
-		if v, ok := res["protocol_name"].(string); ok {
-			if v != "any" {
-				sr.SetProtocolName(v)
-			}
+	directionId := vpc.SecurityGroupRule_Direction_value[res["direction"].(string)]
+	sr.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
+
+	if protoName, protoNum, err := getProtocol(res["protocol"]); err == nil {
+		if protoName != "" {
+			sr.SetProtocolName(protoName)
+		} else {
+			sr.SetProtocolNumber(protoNum)
 		}
+	} else {
+		return nil, err
 	}
 
 	if v, ok := res["labels"]; ok {
@@ -1342,7 +1345,7 @@ func securityRuleDescriptionToRuleSpec(v interface{}) (*vpc.SecurityGroupRuleSpe
 			cidr.V4CidrBlocks[i] = c.(string)
 		}
 	}
-	if v, ok := res["v4_cidr_blocks"]; ok {
+	if v, ok := res["v6_cidr_blocks"]; ok {
 		arr := v.([]interface{})
 		cidr.V6CidrBlocks = make([]string, len(arr))
 		for i, c := range arr {
@@ -1666,19 +1669,31 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	return []map[string]interface{}{res}
 }
 
-func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, error) {
+func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) *schema.Set {
 	res := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
 
 	for _, g := range sg {
-		r := map[string]interface{}{}
+		r := make(map[string]interface{})
 		r["direction"] = g.GetDirection().String()
 		r["description"] = g.GetDescription()
 		r["labels"] = g.GetLabels()
-		r["protocol_name"] = g.GetProtocolName()
-		r["protocol_number"] = g.GetProtocolNumber()
 
-		if r["protocol_name"] == "" {
-			r["protocol_name"] = "any"
+		if g.GetProtocolNumber() == 0 {
+			r["protocol"] = "ANY"
+		} else {
+			found := false
+
+			for _, s := range validProtocols {
+				if g.GetProtocolName() == s {
+					r["protocol"] = s
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				r["protocol"] = fmt.Sprintf("%d", g.GetProtocolNumber())
+			}
 		}
 
 		if g.GetPorts() != nil {
@@ -1705,5 +1720,5 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, er
 
 		res.Add(r)
 	}
-	return res, nil
+	return res
 }

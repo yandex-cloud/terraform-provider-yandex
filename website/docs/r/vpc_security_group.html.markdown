@@ -32,15 +32,26 @@ resource "yandex_vpc_security_group" "group1" {
 
   rule {
     direction      = "INGRESS"
+    protocol       = "TCP"
     description    = "rule1 description"
-    v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
 
   rule {
     direction      = "EGRESS"
+    protocol       = "ANY"
     description    = "rule2 description"
-    v4_cidr_blocks = ["10.0.0.1/24", "10.0.0.2/24"]
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+
+  rule {
+    direction      = "EGRESS"
+    protocol       = "27"
+    description    = "rule3 description"
+    v4_cidr_blocks = ["10.0.1.0/24"]
     from_port      = 8090
     to_port        = 8099
   }
@@ -78,9 +89,9 @@ The `rule` block supports:
 
 ---
 
+* `protocol` (Required) - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number..
 * `description` (Optional) - Description of the rule.
 * `labels` (Optional) - Labels to assign to this rule.
-* `protocol_name` (Optional) -  Name of the protocol. Values are `tcp`, `udp`, `icmp`, `any`.
 * `protocol_number` (Optional) - Number of the protocol defined by [IANA](https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml). Values are `0`,`6`,`17`.
 * `from_port` (Optional) - Minimum port number.
 * `to_port` (Optional) - Maximum port number.

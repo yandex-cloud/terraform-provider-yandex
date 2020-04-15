@@ -1128,7 +1128,8 @@ func TestFlattenRules(t *testing.T) {
 						FromPort: 22,
 						ToPort:   23,
 					},
-					ProtocolName: "TCP",
+					ProtocolName:   "TCP",
+					ProtocolNumber: 6,
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
 							V4CidrBlocks: []string{"10.0.0.0/24"},
@@ -1148,10 +1149,10 @@ func TestFlattenRules(t *testing.T) {
 						ToPort:   25,
 					},
 					ProtocolName:   "",
-					ProtocolNumber: 25,
+					ProtocolNumber: 0,
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
-							V4CidrBlocks: []string{"10.0.0.0/24"},
+							V4CidrBlocks: []string{"10.0.3.0/24"},
 						},
 					},
 				},
@@ -1167,8 +1168,8 @@ func TestFlattenRules(t *testing.T) {
 						FromPort: 1,
 						ToPort:   65535,
 					},
-					ProtocolName:   "",
-					ProtocolNumber: 25,
+					ProtocolName:   "IGP",
+					ProtocolNumber: 9,
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
 							V4CidrBlocks: []string{"10.0.0.0/24", "10.0.1.0/24"},
@@ -1185,25 +1186,11 @@ func TestFlattenRules(t *testing.T) {
 						"key1": "value1",
 						"key2": "value2",
 					},
-					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24"},
-					"protocol_name":   "TCP",
-					"protocol_number": int64(0),
-					"from_port":       int64(22),
-					"to_port":         int64(23),
-				},
-				map[string]interface{}{
-					"id":          "23",
-					"description": "desc3",
-					"direction":   "EGRESS",
-					"labels": map[string]string{
-						"key1": "value1",
-						"key2": "value2",
-					},
-					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24", "10.0.1.0/24"},
-					"protocol_name":   "any",
-					"protocol_number": int64(25),
-					"from_port":       int64(1),
-					"to_port":         int64(65535),
+					"v4_cidr_blocks": []interface{}{"10.0.0.0/24"},
+					"protocol":       "TCP",
+					"port":           int64(-1),
+					"from_port":      int64(22),
+					"to_port":        int64(23),
 				},
 				map[string]interface{}{
 					"id":          "22",
@@ -1213,10 +1200,25 @@ func TestFlattenRules(t *testing.T) {
 						"key1": "value1",
 						"key2": "value2",
 					},
-					"v4_cidr_blocks":  []interface{}{"10.0.0.0/24"},
-					"protocol_name":   "any",
-					"protocol_number": int64(25),
-					"port":            int64(25),
+					"v4_cidr_blocks": []interface{}{"10.0.3.0/24"},
+					"protocol":       "ANY",
+					"port":           int64(25),
+					"from_port":      int64(-1),
+					"to_port":        int64(-1),
+				},
+				map[string]interface{}{
+					"id":          "23",
+					"description": "desc3",
+					"direction":   "EGRESS",
+					"labels": map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+					"v4_cidr_blocks": []interface{}{"10.0.0.0/24", "10.0.1.0/24"},
+					"protocol":       "9",
+					"port":           int64(-1),
+					"from_port":      int64(1),
+					"to_port":        int64(65535),
 				},
 			}),
 		},
@@ -1224,11 +1226,8 @@ func TestFlattenRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := flattenSecurityGroupRulesSpec(tt.spec)
+			res := flattenSecurityGroupRulesSpec(tt.spec)
 
-			if err != nil {
-				t.Errorf("%v", err)
-			}
 			if res.Difference(tt.expected).Len() > 0 {
 				t.Errorf("flattenInstances() got = %v, want %v", res.List(), tt.expected.List())
 			}

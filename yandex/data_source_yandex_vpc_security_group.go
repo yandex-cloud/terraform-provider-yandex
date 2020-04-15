@@ -142,10 +142,5 @@ func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	rules, err := flattenSecurityGroupRulesSpec(securityGroup.Rules)
-	if err != nil {
-		return err
-	}
-
-	return d.Set("rule", rules)
+	return d.Set("rule", flattenSecurityGroupRulesSpec(securityGroup.Rules))
 }
