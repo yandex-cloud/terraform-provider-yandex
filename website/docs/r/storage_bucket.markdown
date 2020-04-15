@@ -71,9 +71,11 @@ The following arguments are supported:
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
-~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `admin` role, though this role is not necessary to be able to create a bucket with any ACL.
+~> **Note:** To change ACL after creation, service account with 'admin' role should be used, though this role is not necessary to create a bucket with any ACL.
 
 * `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.ru/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+
+~> **Note:** To manage 'grant' field, service account with 'admin' role should be used.
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 
