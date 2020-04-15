@@ -418,7 +418,6 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-
 	return nil
 }
 
@@ -1053,8 +1052,8 @@ func flattenGrants(ap *s3.GetBucketAclOutput) []interface{} {
 
 func validateBucketPermissions(permissions []interface{}) error {
 	var (
-		fullControl bool
-		permissionRead bool
+		fullControl     bool
+		permissionRead  bool
 		permissionWrite bool
 	)
 

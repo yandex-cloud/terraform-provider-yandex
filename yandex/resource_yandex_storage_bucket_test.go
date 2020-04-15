@@ -951,7 +951,6 @@ func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) 
 	}
 }
 
-
 func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		gh1 := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
