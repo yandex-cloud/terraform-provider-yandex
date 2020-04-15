@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"context"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"reflect"
 	"testing"
 
@@ -13,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
 type DiskClientGetter struct {
