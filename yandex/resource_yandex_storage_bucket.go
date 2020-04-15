@@ -387,7 +387,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	//Read the Grant ACL. Reset if `acl` (canned ACL) is set.
 	if acl, ok := d.GetOk("acl"); ok && acl.(string) != "private" {
 		if err := d.Set("grant", nil); err != nil {
-			return fmt.Errorf("error resetting Storage Bucket grant %s", err)
+			return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
 		}
 	} else {
 		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
@@ -402,7 +402,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
 
 				if err := d.Set("grant", nil); err != nil {
-					return fmt.Errorf("error resetting Storage Bucket grant %s", err)
+					return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
 				}
 
 				return nil
@@ -413,7 +413,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 			log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
 			grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
 			if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
-				return fmt.Errorf("error setting grant %s", err)
+				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
 			}
 		}
 	}
@@ -945,7 +945,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	if len(rawGrants) == 0 {
 		log.Printf("[DEBUG] Storage Bucket: %s, Grants fallback to canned ACL", bucket)
 		if err := resourceYandexStorageBucketACLUpdate(s3conn, d); err != nil {
-			return fmt.Errorf("Error fallback to canned ACL, %s", err)
+			return fmt.Errorf("error fallback to canned ACL, %s", err)
 		}
 	} else {
 		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
@@ -1004,7 +1004,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 		})
 
 		if err != nil {
-			return fmt.Errorf("Error putting bucket Grants: %s", err)
+			return fmt.Errorf("error putting Storage Bucket (%s) ACL: %s", bucket, err)
 		}
 	}
 	return nil
