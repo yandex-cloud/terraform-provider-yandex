@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"reflect"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -16,6 +18,8 @@ import (
 )
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
+
+var validProtocols = []string{"ANY", "TCP", "UDP", "ICMP", "IPV6_ICMP"}
 
 func resourceYandexVPCSecurityGroup() *schema.Resource {
 	return &schema.Resource{
@@ -77,6 +81,11 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS"}, false),
 						},
+						"protocol": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: protocolMatch(),
+						},
 						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -86,16 +95,6 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
-						},
-						"protocol_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"protocol_number": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
 						},
 						"port": {
 							Type:         schema.TypeInt,
@@ -235,12 +234,7 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 	d.Set("status", securityGroup.GetStatus())
 	d.Set("labels", securityGroup.GetLabels())
 
-	rules, err := flattenSecurityGroupRulesSpec(securityGroup.Rules)
-	if err != nil {
-		return err
-	}
-
-	return d.Set("rule", rules)
+	return d.Set("rule", flattenSecurityGroupRulesSpec(securityGroup.Rules))
 }
 
 func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -338,7 +332,7 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 			return fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
 		}
 
-		if id, ok := rule["id"].(string); ok {
+		if id, ok := rule["id"].(string); ok && id != "" {
 			// existed rule
 			if cloudRule, ok := cloudRules[id]; ok {
 				ruleSpec, err := securityRuleDescriptionToRuleSpec(v)
@@ -467,11 +461,54 @@ func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
 		return 0
 	}
 
-	for _, name := range []string{"direction", "protocol_name", "protocol_number", "port", "from_port", "to_port"} {
+	for _, name := range []string{"direction", "protocol", "port", "from_port", "to_port"} {
 		if v, ok := m[name]; ok {
 			buf.WriteString(fmt.Sprintf("%v-", v))
 		}
 	}
 
+	for _, name := range []string{"v4_cidr_blocks", "v6_cidr_blocks"} {
+		if v, ok := m[name]; ok {
+			arr := v.([]interface{})
+			for _, c := range arr {
+				buf.WriteString(c.(string))
+			}
+		}
+	}
+
 	return hashcode.String(buf.String())
+}
+
+func getProtocol(i interface{}) (string, int64, error) {
+	v, ok := i.(string)
+	if !ok {
+		return "", -1, fmt.Errorf("expected type to be string")
+	}
+
+	for _, s := range validProtocols {
+		if v == s {
+			if s == "ANY" {
+				return "", 0, nil
+			}
+			return s, -1, nil
+		}
+	}
+
+	if i, err := strconv.ParseInt(v, 10, 64); err == nil {
+		if i < 0 || i > 255 {
+			return "", -1, fmt.Errorf("invalid protocol number: %s", v)
+		}
+		return "", i, nil
+	}
+
+	return "", -1, fmt.Errorf("protocol must be one of %s or number", strings.Join(validProtocols, ","))
+}
+
+func protocolMatch() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) ([]string, []error) {
+		if _, _, err := getProtocol(i); err != nil {
+			return nil, []error{err}
+		}
+		return nil, nil
+	}
 }

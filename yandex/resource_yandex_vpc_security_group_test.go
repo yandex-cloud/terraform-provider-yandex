@@ -59,17 +59,20 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCSecurityGroupBasic(networkName, sg1Name),
+				Config: testAccVPCSecurityGroupBasic2(networkName, sg1Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSecurityGroupExists(
 						"yandex_vpc_security_group.sgr1", &securityGroup),
 
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.direction", "EGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.port", "0"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.direction", "INGRESS"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.direction", "EGRESS"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -80,26 +83,14 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 						"yandex_vpc_security_group.sgr1", &securityGroup),
 
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.port", "0"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.from_port", "8091"),
-					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
-				),
-			},
-			{
-				Config: testAccVPCSecurityGroupBasic3(networkName, sg1Name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCSecurityGroupExists(
-						"yandex_vpc_security_group.sgr1", &securityGroup),
-
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.#", "3"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.port", "0"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.from_port", "8091"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.direction", "INGRESS"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.direction", "EGRESS"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.from_port", "8091"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -161,6 +152,7 @@ resource "yandex_vpc_security_group" "sgr1" {
   rule {
     direction      = "INGRESS"
     description    = "rule1 description"
+    protocol       = "TCP"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
@@ -168,6 +160,7 @@ resource "yandex_vpc_security_group" "sgr1" {
   rule {
     direction      = "EGRESS"
     description    = "rule2 description"
+    protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     from_port      = 8090
     to_port        = 8099
@@ -197,6 +190,7 @@ resource "yandex_vpc_security_group" "sgr1" {
   rule {
     direction      = "INGRESS"
     description    = "rule1 description"
+    protocol       = "TCP"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
@@ -204,52 +198,10 @@ resource "yandex_vpc_security_group" "sgr1" {
   rule {
     direction      = "INGRESS"
     description    = "rule2 description2"
+    protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     from_port      = 8091
     to_port        = 8099
-  }
-}
-
-`, networkName, getExampleFolderID(), sgr1Name)
-}
-
-func testAccVPCSecurityGroupBasic3(networkName, sgr1Name string) string {
-	return fmt.Sprintf(`
-resource "yandex_vpc_network" "foo" {
-  name = "%s"
-}
-
-resource "yandex_vpc_security_group" "sgr1" {
-  name        = "%s"
-  description = "description for security group"
-  network_id  = "${yandex_vpc_network.foo.id}"
-  folder_id   = "%s"
-
-  labels = {
-    tf-label    = "tf-label-value-a"
-    empty-label = ""
-  }
-
-  rule {
-    direction      = "INGRESS"
-    description    = "rule1 description"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    port           = 8080
-  }
-
-  rule {
-    direction      = "INGRESS"
-    description    = "rule2 description2"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    from_port      = 8091
-    to_port        = 8099
-  }
-
-  rule {
-    direction      = "INGRESS"
-    description    = "rule3 description2"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    port           = 9999
   }
 }
 
