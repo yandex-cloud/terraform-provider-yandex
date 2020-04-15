@@ -73,7 +73,7 @@ The following arguments are supported:
 
 ~> **Note:** To change ACL after creation, service account with 'admin' role should be used, though this role is not necessary to create a bucket with any ACL.
 
-* `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.ru/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
+* `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.com/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
 ~> **Note:** To manage 'grant' field, service account with 'admin' role should be used.
 

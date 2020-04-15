@@ -193,7 +193,7 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := validateS3BucketName(bucket); err != nil {
-		return fmt.Errorf("error validating storage bucket name: %s", err)
+		return fmt.Errorf("error validating Storage Bucket name: %s", err)
 	}
 
 	d.Set("bucket", bucket)
@@ -206,16 +206,16 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		log.Printf("[DEBUG] Trying to create new storage bucket: %q, ACL: %q", bucket, acl)
+		log.Printf("[DEBUG] Trying to create new Storage Bucket: %q, ACL: %q", bucket, acl)
 		_, err := s3Client.CreateBucket(&s3.CreateBucketInput{
 			Bucket: aws.String(bucket),
 			ACL:    aws.String(acl),
 		})
 		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "OperationAborted" ||
 			awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-			log.Printf("[WARN] Got an error while trying to create storage bucket %s: %s", bucket, err)
+			log.Printf("[WARN] Got an error while trying to create Storage Bucket %s: %s", bucket, err)
 			return resource.RetryableError(
-				fmt.Errorf("error creating storage bucket %s, retrying: %s", bucket, err))
+				fmt.Errorf("error creating Storage Bucket %s, retrying: %s", bucket, err))
 		}
 		if err != nil {
 			return resource.NonRetryableError(err)
@@ -224,7 +224,7 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	})
 
 	if err != nil {
-		return fmt.Errorf("error creating storage bucket: %s", err)
+		return fmt.Errorf("error creating Storage Bucket: %s", err)
 	}
 
 	d.SetId(bucket)
@@ -283,7 +283,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
-		return fmt.Errorf("error reading storage bucket (%s): %s", d.Id(), err)
+		return fmt.Errorf("error reading Storage Bucket (%s): %s", d.Id(), err)
 	}
 	log.Printf("[DEBUG] Storage head bucket output: %#v", resp)
 
@@ -306,7 +306,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
-		return fmt.Errorf("error getting storage bucket CORS configuration: %s", err)
+		return fmt.Errorf("error getting Storage Bucket CORS configuration: %s", err)
 	}
 
 	corsRules := make([]map[string]interface{}, 0)
@@ -343,7 +343,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
-		return fmt.Errorf("error getting storage bucket website configuration: %s", err)
+		return fmt.Errorf("error getting Storage Bucket website configuration: %s", err)
 	}
 
 	websites := make([]map[string]interface{}, 0, 1)
@@ -387,7 +387,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	//Read the Grant ACL. Reset if `acl` (canned ACL) is set.
 	if acl, ok := d.GetOk("acl"); ok && acl.(string) != "private" {
 		if err := d.Set("grant", nil); err != nil {
-			return fmt.Errorf("error resetting grant %s", err)
+			return fmt.Errorf("error resetting Storage Bucket grant %s", err)
 		}
 	} else {
 		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
@@ -399,16 +399,16 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			//Ignore access denied error, when reading ACL for bucket.
 			if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-				log.Printf("[WARN] Got an error while trying to read storage bucket (%s) ACL: %s", d.Id(), err)
+				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
 
 				if err := d.Set("grant", nil); err != nil {
-					return fmt.Errorf("error resetting grant %s", err)
+					return fmt.Errorf("error resetting Storage Bucket grant %s", err)
 				}
 
 				return nil
 			}
 
-			return fmt.Errorf("error getting getting storage bucket (%s) ACL: %s", d.Id(), err)
+			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
 		} else {
 			log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
 			grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
@@ -443,7 +443,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 	if isAWSErr(err, "BucketNotEmpty", "") {
 		if d.Get("force_destroy").(bool) {
 			// bucket may have things delete them
-			log.Printf("[DEBUG] Storage bucket attempting to forceDestroy %+v", err)
+			log.Printf("[DEBUG] Storage Bucket attempting to forceDestroy %+v", err)
 
 			bucket := d.Get("bucket").(string)
 			resp, err := s3Client.ListObjectVersions(
@@ -453,7 +453,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 			)
 
 			if err != nil {
-				return fmt.Errorf("error listing storage bucket object versions: %s", err)
+				return fmt.Errorf("error listing Storage Bucket object versions: %s", err)
 			}
 
 			objectsToDelete := make([]*s3.ObjectIdentifier, 0)
@@ -486,7 +486,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 			_, err = s3Client.DeleteObjects(params)
 
 			if err != nil {
-				return fmt.Errorf("error force_destroy deleting storage bucket (%s): %s", d.Id(), err)
+				return fmt.Errorf("error force_destroy deleting Storage Bucket (%s): %s", d.Id(), err)
 			}
 
 			// this line recurses until all objects are deleted or an error is returned
@@ -508,7 +508,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	if err != nil {
-		return fmt.Errorf("error deleting storage bucket (%s): %s", d.Id(), err)
+		return fmt.Errorf("error deleting Storage Bucket (%s): %s", d.Id(), err)
 	}
 
 	return nil
@@ -520,7 +520,7 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 
 	if len(rawCors) == 0 {
 		// Delete CORS
-		log.Printf("[DEBUG] Storage bucket: %s, delete CORS", bucket)
+		log.Printf("[DEBUG] Storage Bucket: %s, delete CORS", bucket)
 
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
 			return s3Client.DeleteBucketCors(&s3.DeleteBucketCorsInput{
@@ -540,7 +540,7 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 			corsMap := cors.(map[string]interface{})
 			r := &s3.CORSRule{}
 			for k, v := range corsMap {
-				log.Printf("[DEBUG] Storage bucket: %s, put CORS: %#v, %#v", bucket, k, v)
+				log.Printf("[DEBUG] Storage Bucket: %s, put CORS: %#v, %#v", bucket, k, v)
 				if k == "max_age_seconds" {
 					r.MaxAgeSeconds = aws.Int64(int64(v.(int)))
 				} else {
@@ -573,7 +573,7 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 			Bucket:            aws.String(bucket),
 			CORSConfiguration: corsConfiguration,
 		}
-		log.Printf("[DEBUG] Storage bucket: %s, put CORS: %#v", bucket, corsInput)
+		log.Printf("[DEBUG] Storage Bucket: %s, put CORS: %#v", bucket, corsInput)
 
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
 			return s3Client.PutBucketCors(corsInput)
@@ -707,7 +707,7 @@ func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceDat
 		return s3Client.PutBucketAcl(i)
 	})
 	if err != nil {
-		return fmt.Errorf("error putting storage bucket ACL: %s", err)
+		return fmt.Errorf("error putting Storage Bucket ACL: %s", err)
 	}
 
 	return nil
@@ -883,7 +883,7 @@ func isAWSErr(err error, code string, message string) bool {
 
 func handleS3BucketNotFoundError(d *schema.ResourceData, err error) bool {
 	if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
-		log.Printf("[WARN] Storage bucket (%s) not found, error code (404)", d.Id())
+		log.Printf("[WARN] Storage Bucket (%s) not found, error code (404)", d.Id())
 		d.SetId("")
 		return true
 	}
@@ -943,7 +943,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	rawGrants := d.Get("grant").(*schema.Set).List()
 
 	if len(rawGrants) == 0 {
-		log.Printf("[DEBUG] Storage bucket: %s, Grants fallback to canned ACL", bucket)
+		log.Printf("[DEBUG] Storage Bucket: %s, Grants fallback to canned ACL", bucket)
 		if err := resourceYandexStorageBucketACLUpdate(s3conn, d); err != nil {
 			return fmt.Errorf("Error fallback to canned ACL, %s", err)
 		}
@@ -959,11 +959,11 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 		}
 
 		ap := apResponse.(*s3.GetBucketAclOutput)
-		log.Printf("[DEBUG] Storage bucket: %s, read ACL grants policy: %+v", d.Id(), ap)
+		log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", d.Id(), ap)
 
 		grants := make([]*s3.Grant, 0, len(rawGrants))
 		for _, rawGrant := range rawGrants {
-			log.Printf("[DEBUG] Storage bucket: %s, put grant: %#v", bucket, rawGrant)
+			log.Printf("[DEBUG] Storage Bucket: %s, put grant: %#v", bucket, rawGrant)
 			grantMap := rawGrant.(map[string]interface{})
 			permissions := grantMap["permissions"].(*schema.Set).List()
 			if err := validateBucketPermissions(permissions); err != nil {
