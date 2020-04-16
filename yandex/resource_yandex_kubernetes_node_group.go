@@ -445,7 +445,7 @@ func prepareCreateNodeGroupRequest(d *schema.ResourceData) (*k8s.CreateNodeGroup
 
 	dp, err := getNodeGroupDeployPolicy(d)
 	if err != nil {
-		return nil, fmt.Errorf("error getting node group deploy policy for while creating Kubernetes node group: %s", err)
+		return nil, fmt.Errorf("error getting node group deploy policy while creating Kubernetes node group: %s", err)
 	}
 
 	sysctls := getNodeGroupAllowedUnsafeSysctls(d)
