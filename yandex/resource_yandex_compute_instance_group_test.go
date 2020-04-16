@@ -56,7 +56,8 @@ func testSweepComputeInstanceGroups(_ string) error {
 		}
 
 		id := it.Value().GetId()
-		if !updateComputeInstanceGroupWithSweeperDeps(conf, id, serviceAccountID, networkID, subnetID) {
+		status := it.Value().GetStatus()
+		if !updateComputeInstanceGroupWithSweeperDeps(conf, status, id, serviceAccountID, networkID, subnetID) {
 			result = multierror.Append(result,
 				fmt.Errorf("failed to sweep (update with dependencies) compute instance group %q", id))
 			continue
@@ -101,8 +102,16 @@ func sweepComputeInstanceGroupOnce(conf *Config, id string) error {
 	return handleSweepOperation(ctx, conf, op, err)
 }
 
-func updateComputeInstanceGroupWithSweeperDeps(conf *Config, instanceGroupID, serviceAccountID, networkID, subnetID string) bool {
+func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegroup.InstanceGroup_Status, instanceGroupID, serviceAccountID, networkID, subnetID string) bool {
 	debugLog("started updating instance group %q", instanceGroupID)
+	updateMaskPath := []string{
+		"allocation_policy",
+		"service_account_id",
+		"instance_template.network_interface_specs",
+	}
+	if status == instancegroup.InstanceGroup_DELETING {
+		updateMaskPath = []string{"service_account_id"}
+	}
 
 	client := conf.sdk.InstanceGroup().InstanceGroup()
 	for i := 1; i <= conf.MaxRetries; i++ {
@@ -124,11 +133,7 @@ func updateComputeInstanceGroupWithSweeperDeps(conf *Config, instanceGroupID, se
 				},
 			},
 			UpdateMask: &field_mask.FieldMask{
-				Paths: []string{
-					"allocation_policy",
-					"service_account_id",
-					"instance_template.network_interface_specs",
-				},
+				Paths: updateMaskPath,
 			},
 		}
 

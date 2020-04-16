@@ -22,10 +22,9 @@ import (
 
 func init() {
 	resource.AddTestSweepers("yandex_storage_bucket", &resource.Sweeper{
-		Name: "yandex_storage_bucket",
-		F:    testSweepStorageBucket,
-		Dependencies: []string{
-		},
+		Name:         "yandex_storage_bucket",
+		F:            testSweepStorageBucket,
+		Dependencies: []string{},
 	})
 }
 
