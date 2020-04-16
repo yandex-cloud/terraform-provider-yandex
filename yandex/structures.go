@@ -1296,26 +1296,25 @@ func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) 
 }
 
 func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupRuleSpec, error) {
-	v, ok := d.GetOk("rule")
-
-	if !ok {
-		return nil, fmt.Errorf("no rules")
-	}
 
 	securityRules := make([]*vpc.SecurityGroupRuleSpec, 0)
 
-	for _, rule := range v.(*schema.Set).List() {
-		if r, err := securityRuleDescriptionToRuleSpec(rule); err == nil {
-			securityRules = append(securityRules, r)
-		} else {
-			return securityRules, err
+	for _, dir := range []string{"egress", "ingress"} {
+		if v, ok := d.GetOk(dir); ok {
+			for _, rule := range v.(*schema.Set).List() {
+				if r, err := securityRuleDescriptionToRuleSpec(dir, rule); err == nil {
+					securityRules = append(securityRules, r)
+				} else {
+					return securityRules, err
+				}
+			}
 		}
 	}
 
 	return securityRules, nil
 }
 
-func securityRuleDescriptionToRuleSpec(v interface{}) (*vpc.SecurityGroupRuleSpec, error) {
+func securityRuleDescriptionToRuleSpec(dir string, v interface{}) (*vpc.SecurityGroupRuleSpec, error) {
 	res, ok := v.(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
@@ -1323,12 +1322,12 @@ func securityRuleDescriptionToRuleSpec(v interface{}) (*vpc.SecurityGroupRuleSpe
 
 	sr := new(vpc.SecurityGroupRuleSpec)
 
+	directionId := vpc.SecurityGroupRule_Direction_value[strings.ToUpper(dir)]
+	sr.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
+
 	if v, ok := res["description"].(string); ok {
 		sr.Description = v
 	}
-
-	directionId := vpc.SecurityGroupRule_Direction_value[res["direction"].(string)]
-	sr.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
 
 	if protoName, protoNum, err := getProtocol(res["protocol"]); err == nil {
 		if protoName != "" {
@@ -1687,12 +1686,12 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	return []map[string]interface{}{res}
 }
 
-func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) *schema.Set {
-	res := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
+func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *schema.Set) {
+	ingress := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
+	egress := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
 
 	for _, g := range sg {
 		r := make(map[string]interface{})
-		r["direction"] = g.GetDirection().String()
 		r["description"] = g.GetDescription()
 		r["labels"] = g.GetLabels()
 
@@ -1736,7 +1735,13 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) *schema.Set {
 
 		r["id"] = g.Id
 
-		res.Add(r)
+		switch g.GetDirection().String() {
+		case "INGRESS":
+			ingress.Add(r)
+		case "EGRESS":
+			egress.Add(r)
+		}
+
 	}
-	return res
+	return ingress, egress
 }

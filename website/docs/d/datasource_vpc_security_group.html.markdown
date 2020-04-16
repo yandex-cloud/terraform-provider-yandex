@@ -38,7 +38,11 @@ The following attribute is exported:
 * `network_id` - ID of the network this security group belongs to.
 * `folder_id` - ID of the folder this security group belongs to.
 * `labels` - Labels to assign to this security group.
-* `rule` - A list of rules.
+* `ingress` - A list of ingress rules.
+
+The structure is documented below.
+
+* `egress` - A list of egress rules.
 
 The structure is documented below.
 
@@ -47,10 +51,9 @@ The structure is documented below.
 
 ---
 
-The `rule` block supports:
+The `ingress` and `egress` block supports:
 * `id` - Id of the rule.
 * `description` - Description of the rule.
-* `direction` - One of `INGRESS` or `EGRESS`.
 * `labels` - Labels to assign to this rule.
 * `protocol` - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number.
 * `from_port` - Minimum port number.

@@ -1180,23 +1180,8 @@ func TestFlattenRules(t *testing.T) {
 			},
 			expected: schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, []interface{}{
 				map[string]interface{}{
-					"id":          "21",
-					"description": "desc1",
-					"direction":   "INGRESS",
-					"labels": map[string]string{
-						"key1": "value1",
-						"key2": "value2",
-					},
-					"v4_cidr_blocks": []interface{}{"10.0.0.0/24"},
-					"protocol":       "TCP",
-					"port":           int64(-1),
-					"from_port":      int64(22),
-					"to_port":        int64(23),
-				},
-				map[string]interface{}{
 					"id":          "22",
 					"description": "desc2",
-					"direction":   "EGRESS",
 					"labels": map[string]string{
 						"key1": "value1",
 						"key2": "value2",
@@ -1210,7 +1195,6 @@ func TestFlattenRules(t *testing.T) {
 				map[string]interface{}{
 					"id":          "23",
 					"description": "desc3",
-					"direction":   "EGRESS",
 					"labels": map[string]string{
 						"key1": "value1",
 						"key2": "value2",
@@ -1227,10 +1211,10 @@ func TestFlattenRules(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res := flattenSecurityGroupRulesSpec(tt.spec)
+			_, egress := flattenSecurityGroupRulesSpec(tt.spec)
 
-			if res.Difference(tt.expected).Len() > 0 {
-				t.Errorf("flattenInstances() got = %v, want %v", res.List(), tt.expected.List())
+			if egress.Difference(tt.expected).Len() > 0 {
+				t.Errorf("flattenInstances() got = %v, want %v", egress.List(), tt.expected.List())
 			}
 		})
 	}

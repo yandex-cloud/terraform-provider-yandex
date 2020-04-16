@@ -71,66 +71,18 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"rule": {
+			"ingress": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"direction": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"INGRESS", "EGRESS"}, false),
-						},
-						"protocol": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: protocolMatch(),
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"labels": {
-							Type:     schema.TypeMap,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-						},
-						"port": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Default:      -1,
-						},
-						"from_port": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Default:      -1,
-						},
-						"to_port": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 65535),
-							Default:      -1,
-						},
-						"v4_cidr_blocks": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"v6_cidr_blocks": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-				Set: resourceYandexVPCSecurityGroupRuleHash,
+				Elem:     resourceYandexSecurityGroupRule(),
+				Set:      resourceYandexVPCSecurityGroupRuleHash,
+			},
+
+			"egress": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     resourceYandexSecurityGroupRule(),
+				Set:      resourceYandexVPCSecurityGroupRuleHash,
 			},
 
 			"status": {
@@ -139,6 +91,60 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 			},
 
 			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceYandexSecurityGroupRule() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"protocol": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: protocolMatch(),
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"port": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 65535),
+				Default:      -1,
+			},
+			"from_port": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 65535),
+				Default:      -1,
+			},
+			"to_port": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validation.IntBetween(0, 65535),
+				Default:      -1,
+			},
+			"v4_cidr_blocks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"v6_cidr_blocks": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -232,9 +238,17 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 	d.Set("network_id", securityGroup.GetNetworkId())
 	d.Set("description", securityGroup.GetDescription())
 	d.Set("status", securityGroup.GetStatus())
-	d.Set("labels", securityGroup.GetLabels())
 
-	return d.Set("rule", flattenSecurityGroupRulesSpec(securityGroup.Rules))
+	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
+
+	if err := d.Set("ingress", ingress); err != nil {
+		return err
+	}
+	if err := d.Set("egress", egress); err != nil {
+		return err
+	}
+
+	return d.Set("labels", securityGroup.GetLabels())
 }
 
 func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -287,11 +301,12 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 		}
 	}
 
-	if d.HasChange("rule") {
+	if d.HasChange("egress") || d.HasChange("ingress") {
 		if err := resourceYandexVPCSecurityGroupUpdateRules(ctx, d, config); err != nil {
 			return err
 		}
-		d.SetPartial("rule")
+		d.SetPartial("egress")
+		d.SetPartial("ingress")
 	}
 
 	d.Partial(false)
@@ -320,45 +335,43 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 	delRules := make([]string, 0)
 	ruleIds := make([]string, 0)
 
-	v, ok := d.GetOk("rule")
-
-	if !ok {
-		return fmt.Errorf("no rules")
-	}
-
-	for _, v := range v.(*schema.Set).List() {
-		rule, ok := v.(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
-		}
-
-		if id, ok := rule["id"].(string); ok && id != "" {
-			// existed rule
-			if cloudRule, ok := cloudRules[id]; ok {
-				ruleSpec, err := securityRuleDescriptionToRuleSpec(v)
-				if err != nil {
-					return err
+	for _, dir := range []string{"egress", "ingress"} {
+		if v, ok := d.GetOk(dir); ok {
+			for _, v := range v.(*schema.Set).List() {
+				rule, ok := v.(map[string]interface{})
+				if !ok {
+					return fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
 				}
 
-				if ruleChanged(cloudRule, ruleSpec) {
-					delRules = append(delRules, id)
-					newRules = append(newRules, ruleSpec)
-				} else {
+				if id, ok := rule["id"].(string); ok && id != "" {
+					// existed rule
+					if cloudRule, ok := cloudRules[id]; ok {
+						ruleSpec, err := securityRuleDescriptionToRuleSpec(dir, v)
+						if err != nil {
+							return err
+						}
+
+						if ruleChanged(cloudRule, ruleSpec) {
+							delRules = append(delRules, id)
+							newRules = append(newRules, ruleSpec)
+						} else {
+							ruleIds = append(ruleIds, id)
+						}
+
+					} else {
+						return fmt.Errorf("no rule with id %s on cloud", id)
+					}
+
 					ruleIds = append(ruleIds, id)
+				} else {
+					// new rule
+					ruleSpec, err := securityRuleDescriptionToRuleSpec(dir, v)
+					if err != nil {
+						return err
+					}
+					newRules = append(newRules, ruleSpec)
 				}
-
-			} else {
-				return fmt.Errorf("no rule with id %s on cloud", id)
 			}
-
-			ruleIds = append(ruleIds, id)
-		} else {
-			// new rule
-			ruleSpec, err := securityRuleDescriptionToRuleSpec(v)
-			if err != nil {
-				return err
-			}
-			newRules = append(newRules, ruleSpec)
 		}
 	}
 
@@ -406,11 +419,11 @@ func ruleChanged(r1 *vpc.SecurityGroupRule, r2 *vpc.SecurityGroupRuleSpec) bool 
 		return false
 	}
 
-	if r1.GetPorts() != r2.GetPorts() {
+	if !reflect.DeepEqual(r1.GetPorts(), r2.GetPorts()) {
 		return false
 	}
 
-	if r1.GetCidrBlocks() != r2.GetCidrBlocks() {
+	if !reflect.DeepEqual(r1.GetCidrBlocks(), r2.GetCidrBlocks()) {
 		return false
 	}
 
