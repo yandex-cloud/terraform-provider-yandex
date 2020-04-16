@@ -17,7 +17,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.5.1
-	github.com/yandex-cloud/go-genproto v0.0.0-20200403155014-561458df7bd3
+	github.com/yandex-cloud/go-genproto v0.0.0-20200413083723-32529223d06f
 	github.com/yandex-cloud/go-sdk v0.0.0-20200403155346-96693d292acf
 	golang.org/x/net v0.0.0-20200320220750-118fecf932d8
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect

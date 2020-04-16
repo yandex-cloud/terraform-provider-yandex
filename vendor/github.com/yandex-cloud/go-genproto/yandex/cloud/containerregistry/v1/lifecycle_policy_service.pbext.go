@@ -161,11 +161,11 @@ func (m *ListDryRunLifecyclePolicyResultsRequest) SetOrderBy(v string) {
 	m.OrderBy = v
 }
 
-func (m *ListRunLifecyclePolicyResultsResponse) SetDryRunLifecyclePolicyResults(v []*DryRunLifecyclePolicyResult) {
+func (m *ListDryRunLifecyclePolicyResultsResponse) SetDryRunLifecyclePolicyResults(v []*DryRunLifecyclePolicyResult) {
 	m.DryRunLifecyclePolicyResults = v
 }
 
-func (m *ListRunLifecyclePolicyResultsResponse) SetNextPageToken(v string) {
+func (m *ListDryRunLifecyclePolicyResultsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 

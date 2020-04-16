@@ -379,6 +379,10 @@ func (m *NetworkInterfaceSpec) SetPrimaryV6AddressSpec(v *PrimaryAddressSpec) {
 	m.PrimaryV6AddressSpec = v
 }
 
+func (m *NetworkInterfaceSpec) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
 func (m *PrimaryAddressSpec) SetOneToOneNatSpec(v *OneToOneNatSpec) {
 	m.OneToOneNatSpec = v
 }

@@ -70,6 +70,18 @@ func (m *UpdateUserRequest) SetPermissions(v []*Permission) {
 	m.Permissions = v
 }
 
+func (m *UpdateUserRequest) SetGlobalPermissions(v []GlobalPermission) {
+	m.GlobalPermissions = v
+}
+
+func (m *UpdateUserRequest) SetConnectionLimits(v *ConnectionLimits) {
+	m.ConnectionLimits = v
+}
+
+func (m *UpdateUserRequest) SetAuthenticationPlugin(v AuthPlugin) {
+	m.AuthenticationPlugin = v
+}
+
 func (m *UpdateUserMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }

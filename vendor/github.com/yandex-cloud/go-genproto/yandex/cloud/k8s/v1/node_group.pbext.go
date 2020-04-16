@@ -46,6 +46,10 @@ func (m *NodeGroup) SetAllocationPolicy(v *NodeGroupAllocationPolicy) {
 	m.AllocationPolicy = v
 }
 
+func (m *NodeGroup) SetDeployPolicy(v *DeployPolicy) {
+	m.DeployPolicy = v
+}
+
 func (m *NodeGroup) SetInstanceGroupId(v string) {
 	m.InstanceGroupId = v
 }
@@ -130,4 +134,12 @@ func (m *NodeGroupMaintenancePolicy) SetAutoRepair(v bool) {
 
 func (m *NodeGroupMaintenancePolicy) SetMaintenanceWindow(v *MaintenanceWindow) {
 	m.MaintenanceWindow = v
+}
+
+func (m *DeployPolicy) SetMaxUnavailable(v int64) {
+	m.MaxUnavailable = v
+}
+
+func (m *DeployPolicy) SetMaxExpansion(v int64) {
+	m.MaxExpansion = v
 }

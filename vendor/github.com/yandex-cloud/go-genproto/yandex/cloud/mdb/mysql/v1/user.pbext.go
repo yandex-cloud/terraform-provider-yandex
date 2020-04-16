@@ -54,7 +54,7 @@ func (m *UserSpec) SetPermissions(v []*Permission) {
 	m.Permissions = v
 }
 
-func (m *UserSpec) SetGlobalPermissions(v GlobalPermission) {
+func (m *UserSpec) SetGlobalPermissions(v []GlobalPermission) {
 	m.GlobalPermissions = v
 }
 

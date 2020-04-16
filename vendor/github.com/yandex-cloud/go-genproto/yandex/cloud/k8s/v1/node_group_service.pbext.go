@@ -95,6 +95,10 @@ func (m *UpdateNodeGroupRequest) SetAllocationPolicy(v *NodeGroupAllocationPolic
 	m.AllocationPolicy = v
 }
 
+func (m *UpdateNodeGroupRequest) SetDeployPolicy(v *DeployPolicy) {
+	m.DeployPolicy = v
+}
+
 func (m *UpdateNodeGroupRequest) SetVersion(v *UpdateVersionSpec) {
 	m.Version = v
 }
@@ -145,6 +149,10 @@ func (m *CreateNodeGroupRequest) SetScalePolicy(v *ScalePolicy) {
 
 func (m *CreateNodeGroupRequest) SetAllocationPolicy(v *NodeGroupAllocationPolicy) {
 	m.AllocationPolicy = v
+}
+
+func (m *CreateNodeGroupRequest) SetDeployPolicy(v *DeployPolicy) {
+	m.DeployPolicy = v
 }
 
 func (m *CreateNodeGroupRequest) SetVersion(v string) {
