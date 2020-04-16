@@ -31,8 +31,14 @@ func TestAccVPCSecurityGroup_basic(t *testing.T) {
 					testAccCheckVPCSecurityGroupExists(
 						"yandex_vpc_security_group.sgr1", &securityGroup),
 
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.0.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1.direction", "EGRESS"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -59,20 +65,19 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 		CheckDestroy: testAccCheckVPCSecurityGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCSecurityGroupBasic2(networkName, sg1Name),
+				Config: testAccVPCSecurityGroupBasic(networkName, sg1Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSecurityGroupExists(
 						"yandex_vpc_security_group.sgr1", &securityGroup),
 
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.direction", "EGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.from_port", "8090"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1832674944.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -82,15 +87,13 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 					testAccCheckVPCSecurityGroupExists(
 						"yandex_vpc_security_group.sgr1", &securityGroup),
 
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.direction", "INGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.1593554396.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.direction", "EGRESS"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.from_port", "8091"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "rule.816617486.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "2"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.from_port", "8091"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -149,16 +152,14 @@ resource "yandex_vpc_security_group" "sgr1" {
     empty-label = ""
   }
 
-  rule {
-    direction      = "INGRESS"
+  ingress {
     description    = "rule1 description"
     protocol       = "TCP"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
 
-  rule {
-    direction      = "EGRESS"
+  egress {
     description    = "rule2 description"
     protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -187,16 +188,14 @@ resource "yandex_vpc_security_group" "sgr1" {
     empty-label = ""
   }
 
-  rule {
-    direction      = "INGRESS"
+  ingress {
     description    = "rule1 description"
     protocol       = "TCP"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
 
-  rule {
-    direction      = "INGRESS"
+  ingress {
     description    = "rule2 description2"
     protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
