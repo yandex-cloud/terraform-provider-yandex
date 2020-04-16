@@ -184,18 +184,18 @@ The structure is documented below.
 
 * `network_settings` - (Optional) Network acceleration type for instance. The structure is documented below.
 
-* `name` - (Optional) Name of the instance.  
-In order to be unique it must contain at least on of instance unique placeholders:   
+* `name` - (Optional) Name template of the instance.  
+In order to be unique it must contain at least one of instance unique placeholders:   
 {instance.short_id}   
 {instance.index}   
 combination of {instance.zone_id} and {instance.index_in_zone}   
 Example: my-instance-{instance.index}  
 If not set, default is used: {instance_group.id}-{instance.short_id}   
 It may also contain another placeholders, see metadata doc for full list.
-* `hostname` - (Optional) Host name for the instance.   
-This field is used to generate the [yandex.cloud.compute.v1.Instance.fqdn] value.   
-The host name must be unique within the network and region.   
-If not specified, the host name will be equal to [yandex.cloud.compute.v1.Instance.id] of the instance   
+* `hostname` - (Optional) Hostname template for the instance.   
+This field is used to generate the FQDN value of instance.   
+The hostname must be unique within the network and region.   
+If not specified, the hostname will be equal to id of the instance   
 and FQDN will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.   
 In order to be unique it must contain at least on of instance unique placeholders:   
  {instance.short_id}   

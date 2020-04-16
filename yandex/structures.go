@@ -1311,11 +1311,11 @@ func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]
 		instDict["status_message"] = instance.GetStatusMessage()
 		instDict["zone_id"] = instance.GetZoneId()
 
-		changeAt, err := getTimestamp(instance.GetStatusChangedAt())
+		changedAt, err := getTimestamp(instance.GetStatusChangedAt())
 		if err != nil {
 			return res, err
 		}
-		instDict["status_changed_at"] = changeAt
+		instDict["status_changed_at"] = changedAt
 
 		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
 		if err != nil {
