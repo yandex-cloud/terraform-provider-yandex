@@ -85,6 +85,10 @@ func testSweepStorageBucket(_ string) error {
 		})
 
 		if err != nil {
+			// ignore this error until we have sweeper for storage objects
+			if err, ok := err.(awserr.Error); ok && err.Code() == "BucketNotEmpty" {
+				continue
+			}
 			result = multierror.Append(result, fmt.Errorf("failed to delete bucket: %s, error: %s", *b.Name, err))
 		}
 	}
