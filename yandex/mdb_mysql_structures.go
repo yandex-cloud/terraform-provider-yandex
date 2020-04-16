@@ -229,11 +229,11 @@ func flattenMysqlBackupWindowStart(t *timeofday.TimeOfDay) ([]interface{}, error
 func expandMysqlBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
 	out := &timeofday.TimeOfDay{}
 
-	if v, ok := d.GetOk("config.0.backup_window_start.0.hours"); ok {
+	if v, ok := d.GetOk("backup_window_start.0.hours"); ok {
 		out.Hours = int32(v.(int))
 	}
 
-	if v, ok := d.GetOk("config.0.backup_window_start.0.minutes"); ok {
+	if v, ok := d.GetOk("backup_window_start.0.minutes"); ok {
 		out.Minutes = int32(v.(int))
 	}
 

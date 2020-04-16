@@ -43,6 +43,7 @@ The following attributes are exported:
 * `memory` - Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function
 * `execution_timeout` - Execution timeout in seconds for Yandex Cloud Function
 * `service_account_id` - Service account ID for Yandex Cloud Function
+* `environment` - A set of key/value environment variables for Yandex Cloud Function
 * `tags` - Tags for Yandex Cloud Function. Tag "$latest" isn't returned.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.

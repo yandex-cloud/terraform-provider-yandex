@@ -93,6 +93,13 @@ func resourceYandexFunction() *schema.Resource {
 				Optional: true,
 			},
 
+			"environment": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
 			"tags": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -253,7 +260,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 		partialPaths = append(partialPaths, "labels")
 	}
 
-	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "service_account_id", "tags", "package", "content"}
+	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "service_account_id", "environment", "tags", "package", "content"}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
 		if d.HasChange(p) {
@@ -373,6 +380,15 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 	if v, ok := d.GetOk("service_account_id"); ok {
 		versionReq.ServiceAccountId = v.(string)
 	}
+	if v, ok := d.GetOk("environment"); ok {
+		env, err := expandLabels(v)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot define environment variables for Yandex Cloud Function: %s", err)
+		}
+		if len(env) != 0 {
+			versionReq.Environment = env
+		}
+	}
 	if v, ok := d.GetOk("tags"); ok {
 		set := v.(*schema.Set)
 		for _, t := range set.List() {
@@ -429,6 +445,7 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	d.Set("runtime", version.Runtime)
 	d.Set("entrypoint", version.Entrypoint)
 	d.Set("service_account_id", version.ServiceAccountId)
+	d.Set("environment", version.Environment)
 
 	if version.Resources != nil {
 		d.Set("memory", int(version.Resources.Memory/int64(datasize.MB.Bytes())))
