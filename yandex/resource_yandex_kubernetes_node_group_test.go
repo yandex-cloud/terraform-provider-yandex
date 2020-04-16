@@ -574,6 +574,9 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			testCheckResourceMap(resourceFullName, "node_labels", ng.GetNodeLabels()),
 			testCheckResourceList(resourceFullName, "node_taints", formatTaints(ng.GetNodeTaints())),
 			testCheckResourceList(resourceFullName, "allowed_unsafe_sysctls", ng.GetAllowedUnsafeSysctls()),
+
+			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_unavailable", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxUnavailable()))),
+			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_expansion", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxExpansion()))),
 		}
 
 		if info.policy != emptyMaintenancePolicy {

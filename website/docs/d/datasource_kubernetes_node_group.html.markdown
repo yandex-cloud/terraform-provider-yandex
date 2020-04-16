@@ -71,6 +71,10 @@ The structure is documented below.
 
 The structure is documented below.
 
+* `deploy_policy` - Deploy policy of the node group.
+
+The structure is documented below.
+
 ---
 
 The `instance_template` block supports:
@@ -173,6 +177,13 @@ components either on the master or nodes.
 when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
+
+---
+
+The `deploy_policy` block supports:
+
+* `max_expansion` - The maximum number of instances that can be temporarily allocated above the group's target size during the update.
+* `max_unavailable` - The maximum number of running instances that can be taken offline during update.
 
 ---
 
