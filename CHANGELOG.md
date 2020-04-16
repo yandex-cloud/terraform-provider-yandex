@@ -1,4 +1,4 @@
-## 0.36.0 (Unreleased)
+## 0.36.0 (April 16, 2020)
 ENHANCEMENTS:
 * compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
 * compute: add `status` attribute in `yandex_compute_instance_group` resource and data source
