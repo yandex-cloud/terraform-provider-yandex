@@ -218,6 +218,8 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 	templateMap["platform_id"] = template.GetPlatformId()
 	templateMap["metadata"] = template.GetMetadata()
 	templateMap["service_account_id"] = template.GetServiceAccountId()
+	templateMap["name"] = template.GetName()
+	templateMap["hostname"] = template.GetHostname()
 
 	resourceSpec, err := flattenInstanceGroupInstanceTemplateResources(template.GetResourcesSpec())
 	if err != nil {
@@ -998,7 +1000,7 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 
 // revive:disable:var-naming
 func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.InstanceTemplate, error) {
-	var platformId, description, serviceAccount string
+	var platformId, description, serviceAccount, name, hostname string
 
 	if v, ok := d.GetOk(prefix + ".platform_id"); ok {
 		platformId = v.(string)
@@ -1010,6 +1012,14 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 
 	if v, ok := d.GetOk(prefix + ".service_account_id"); ok {
 		serviceAccount = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".name"); ok {
+		name = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".hostname"); ok {
+		hostname = v.(string)
 	}
 
 	resourceSpec, err := expandInstanceGroupResourcesSpec(d, prefix+".resources")
@@ -1064,6 +1074,8 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		SecondaryDiskSpecs:    secondaryDiskSpecs,
 		ServiceAccountId:      serviceAccount,
 		NetworkSettings:       networkSettings,
+		Name:                  name,
+		Hostname:              hostname,
 	}
 
 	return template, nil
@@ -1298,6 +1310,12 @@ func flattenInstances(instances []*instancegroup.ManagedInstance) ([]map[string]
 		instDict["name"] = instance.GetName()
 		instDict["status_message"] = instance.GetStatusMessage()
 		instDict["zone_id"] = instance.GetZoneId()
+
+		changedAt, err := getTimestamp(instance.GetStatusChangedAt())
+		if err != nil {
+			return res, err
+		}
+		instDict["status_changed_at"] = changedAt
 
 		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
 		if err != nil {

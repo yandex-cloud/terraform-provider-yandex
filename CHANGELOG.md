@@ -1,6 +1,10 @@
 ## 0.36.0 (Unreleased)
 ENHANCEMENTS:
 * compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
+* compute: add `status` attribute in `yandex_compute_instance_group` resource and data source
+* compute: add `instance_template.name` attribute in `yandex_compute_instance_group` resource and data source
+* compute: add `instance_template.hostname` attribute in `yandex_compute_instance_group` resource and data source
+* compute: add `instances.status_changed_at` attribute in `yandex_compute_instance_group` resource and data source
 * managed-kubernetes: add `node_ipv4_cidr_mask_size` attribute to `yandex_kubernetes_cluster` resource and data source
 * managed-kubernetes: add `deploy_policy.max_unavailable` and `deploy_policy.max_expansion` attributes to `yandex_kubernetes_node_group` resource and data source
 * serverless: add `environment` attribute in `yandex_function` resource and data source

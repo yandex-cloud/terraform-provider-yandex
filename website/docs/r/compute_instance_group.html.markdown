@@ -92,7 +92,6 @@ The structure is documented below.
 * `allocation_policy` - (Required) The allocation policy of the instance group by zone and region.
 The structure is documented below.
 
-- - -
 * `name` - (Optional) The name of the instance group.
 
 * `health_check` - (Optional) Health check specifications.
@@ -167,7 +166,6 @@ The structure is documented below.
 * `network_interface` - (Required) Network specifications for the instance. This can be used multiple times for adding multiple interfaces.
 The structure is documented below.
 
-- - -
 * `scheduling_policy` - (Optional) The scheduling policy configuration.
 The structure is documented below.
 
@@ -186,6 +184,26 @@ The structure is documented below.
 
 * `network_settings` - (Optional) Network acceleration type for instance. The structure is documented below.
 
+* `name` - (Optional) Name template of the instance.  
+In order to be unique it must contain at least one of instance unique placeholders:   
+{instance.short_id}   
+{instance.index}   
+combination of {instance.zone_id} and {instance.index_in_zone}   
+Example: my-instance-{instance.index}  
+If not set, default is used: {instance_group.id}-{instance.short_id}   
+It may also contain another placeholders, see metadata doc for full list.
+* `hostname` - (Optional) Hostname template for the instance.   
+This field is used to generate the FQDN value of instance.   
+The hostname must be unique within the network and region.   
+If not specified, the hostname will be equal to id of the instance   
+and FQDN will be `<id>.auto.internal`. Otherwise FQDN will be `<hostname>.<region_id>.internal`.   
+In order to be unique it must contain at least on of instance unique placeholders:   
+ {instance.short_id}   
+ {instance.index}   
+ combination of {instance.zone_id} and {instance.index_in_zone}   
+Example: my-instance-{instance.index}   
+If not set, `name` value will be used   
+It may also contain another placeholders, see metadata doc for full list.
 ---
 
 The `secondary_disk` block supports:

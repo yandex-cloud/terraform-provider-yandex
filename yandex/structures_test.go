@@ -1087,6 +1087,7 @@ func TestFlattenInstances(t *testing.T) {
 							"ipv6_address": "2001:db8::370:7348",
 						},
 					},
+					"status_changed_at": "1970-01-06T18:53:20Z",
 				},
 			},
 		},

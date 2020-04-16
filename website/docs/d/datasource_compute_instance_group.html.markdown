@@ -69,7 +69,9 @@ The structure is documented below.
 
 * `created_at` - The instance group creation timestamp.
 
-* `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
+* `variables` - A set of key/value  variables pairs to assign to the instance group.
+
+* `status` - Status of the instance group.
 ---
 
 The `load_balancer_state` block supports:
@@ -163,6 +165,8 @@ The structure is documented below.
 The structure is documented below.
 * `network_settings` -  Network acceleration settings.
 The structure is documented below.
+* `name` - Name template of the instance.
+* `hostname` - Hostname temaplate for the instance.
 
 ---
 
@@ -228,6 +232,7 @@ The `instances` block supports:
 * `zone_id` - The ID of the availability zone where the instance resides.
 * `network_interface` - An array with the network interfaces attached to the managed instance.
 The structure is documented below.
+* `status_changed_at` -The timestamp when the status of the managed instance was last changed.
 
 ---
 
