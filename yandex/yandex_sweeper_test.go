@@ -47,13 +47,14 @@ func configForSweepers() (*Config, error) {
 	}
 
 	conf := &Config{
-		Zone:       zone,
-		Insecure:   insecure,
-		MaxRetries: maxRetries,
-		Token:      token,
-		CloudID:    cloudID,
-		FolderID:   folderID,
-		Endpoint:   os.Getenv("YC_ENDPOINT"),
+		Zone:            zone,
+		Insecure:        insecure,
+		MaxRetries:      maxRetries,
+		Token:           token,
+		CloudID:         cloudID,
+		FolderID:        folderID,
+		Endpoint:        os.Getenv("YC_ENDPOINT"),
+		StorageEndpoint: os.Getenv("YC_STORAGE_ENDPOINT_URL"),
 	}
 
 	err = conf.initAndValidate(context.Background(), "", true)

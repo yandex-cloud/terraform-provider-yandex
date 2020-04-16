@@ -12,11 +12,86 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_storage_bucket", &resource.Sweeper{
+		Name: "yandex_storage_bucket",
+		F:    testSweepStorageBucket,
+		Dependencies: []string{
+		},
+	})
+}
+
+func testSweepStorageBucket(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	result := &multierror.Error{}
+	serviceAccountID, err := createIAMServiceAccountForSweeper(conf)
+	if serviceAccountID != "" {
+		defer func() {
+			if !sweepIAMServiceAccount(conf, serviceAccountID) {
+				result = multierror.Append(result,
+					fmt.Errorf("failed to sweep IAM service account %q", serviceAccountID))
+			}
+		}()
+	}
+	if err != nil {
+		result = multierror.Append(result, fmt.Errorf("error creating service account: %s", err))
+		return result.ErrorOrNil()
+	}
+
+	resp, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
+		ServiceAccountId: serviceAccountID,
+		Description:      "Storage Bucket sweeper static key",
+	})
+	if err != nil {
+		result = multierror.Append(result, fmt.Errorf("error creating service account static key: %s", err))
+		return result.ErrorOrNil()
+	}
+
+	defer func() {
+		_, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
+			AccessKeyId: resp.AccessKey.Id,
+		})
+		if err != nil {
+			result = multierror.Append(result, fmt.Errorf("error deleting service account static key: %s", err))
+		}
+	}()
+
+	s3client, err := getS3ClientByKeys(resp.AccessKey.KeyId, resp.Secret, conf)
+	if err != nil {
+		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
+		return result.ErrorOrNil()
+	}
+
+	buckets, err := s3client.ListBuckets(&s3.ListBucketsInput{})
+	if err != nil {
+		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
+		return result.ErrorOrNil()
+	}
+
+	for _, b := range buckets.Buckets {
+		_, err := s3client.DeleteBucket(&s3.DeleteBucketInput{
+			Bucket: b.Name,
+		})
+
+		if err != nil {
+			result = multierror.Append(result, fmt.Errorf("failed to delete bucket: %s, error: %s", *b.Name, err))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
 
 func TestAccStorageBucket_basic(t *testing.T) {
 	rInt := acctest.RandInt()
