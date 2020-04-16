@@ -15,6 +15,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	ycsdk "github.com/yandex-cloud/go-sdk"
 )
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
@@ -154,7 +155,7 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 
 func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := config.sdk
+	sdk := getSdk(config)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -214,7 +215,7 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 
 func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := config.sdk
+	sdk := getSdk(config)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -253,7 +254,7 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 
 func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := config.sdk
+	sdk := getSdk(config)
 
 	d.Partial(true)
 
@@ -315,7 +316,7 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.ResourceData, config *Config) error {
-	sdk := config.sdk
+	sdk := getSdk(config)
 
 	sg, err := sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: d.Id(),
@@ -440,7 +441,7 @@ func ruleChanged(r1 *vpc.SecurityGroupRule, r2 *vpc.SecurityGroupRuleSpec) bool 
 
 func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := config.sdk
+	sdk := getSdk(config)
 
 	req := &vpc.DeleteSecurityGroupRequest{
 		SecurityGroupId: d.Id(),
@@ -465,6 +466,10 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func getSdk(config *Config) *ycsdk.SDK {
+	return config.sdk
 }
 
 func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
