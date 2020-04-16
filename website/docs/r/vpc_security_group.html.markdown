@@ -30,16 +30,14 @@ resource "yandex_vpc_security_group" "group1" {
     my-label = "my-label-value"
   }
 
-  rule {
-    direction      = "INGRESS"
+  ingress {
     protocol       = "TCP"
     description    = "rule1 description"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
 
-  rule {
-    direction      = "EGRESS"
+  egress {
     protocol       = "ANY"
     description    = "rule2 description"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -47,8 +45,7 @@ resource "yandex_vpc_security_group" "group1" {
     to_port        = 8099
   }
 
-  rule {
-    direction      = "EGRESS"
+  egress {
     protocol       = "27"
     description    = "rule3 description"
     v4_cidr_blocks = ["10.0.1.0/24"]
@@ -70,7 +67,8 @@ The following arguments are supported:
 * `description` (Optional) - Description of the security group.
 * `folder_id` (Optional) - ID of the folder this security group belongs to.
 * `labels` (Optional) - Labels to assign to this security group.
-* `rule` (Optional) - A list of rules.
+* `ingress` (Optional) - A list of ingress rules.
+* `egress` (Optional) - A list of egress rules.
 
 The structure is documented below.
 
@@ -83,12 +81,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 ---
 
-The `rule` block supports:
-
-* `direction` (Required) - Direction of the rule. One of `INGRESS` or `EGRESS` should be specified.
-
----
-
+The `ingress` and `egress` block supports:
 * `protocol` (Required) - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number..
 * `description` (Optional) - Description of the rule.
 * `labels` (Optional) - Labels to assign to this rule.

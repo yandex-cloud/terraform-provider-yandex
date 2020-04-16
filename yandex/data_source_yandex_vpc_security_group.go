@@ -44,60 +44,18 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"rule": {
-				Type:     schema.TypeList,
+			"ingress": {
+				Type:     schema.TypeSet,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"direction": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"labels": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-						},
-						"protocol_name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"protocol_number": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"from_port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"to_port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
+				Elem:     aaa(),
+				Set:      resourceYandexVPCSecurityGroupRuleHash,
+			},
 
-						"v4_cidr_blocks": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-						},
-						"v6_cidr_blocks": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-						},
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+			"egress": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     aaa(),
+				Set:      resourceYandexVPCSecurityGroupRuleHash,
 			},
 
 			"status": {
@@ -106,6 +64,60 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 			},
 
 			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func aaa() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"direction": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"protocol_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"protocol_number": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"from_port": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"to_port": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"v4_cidr_blocks": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"v6_cidr_blocks": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -138,9 +150,15 @@ func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface
 	d.Set("network_id", securityGroup.GetNetworkId())
 	d.Set("description", securityGroup.GetDescription())
 	d.Set("status", securityGroup.GetStatus())
-	if err := d.Set("labels", securityGroup.GetLabels()); err != nil {
+
+	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
+
+	if err := d.Set("ingress", ingress); err != nil {
+		return err
+	}
+	if err := d.Set("egress", egress); err != nil {
 		return err
 	}
 
-	return d.Set("rule", flattenSecurityGroupRulesSpec(securityGroup.Rules))
+	return d.Set("labels", securityGroup.GetLabels())
 }
