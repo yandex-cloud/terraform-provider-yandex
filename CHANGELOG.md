@@ -1,4 +1,7 @@
 ## 0.37.0 (Unreleased)
+ENHANCEMENTS:
+* storage: support custom acl grants for `yandex_storage_bucket` 
+
 ## 0.36.0 (April 16, 2020)
 ENHANCEMENTS:
 * compute: add `variables` attribute in `yandex_compute_instance_group` resource and data source
@@ -9,7 +12,6 @@ ENHANCEMENTS:
 * managed-kubernetes: add `node_ipv4_cidr_mask_size` attribute to `yandex_kubernetes_cluster` resource and data source
 * managed-kubernetes: add `deploy_policy.max_unavailable` and `deploy_policy.max_expansion` attributes to `yandex_kubernetes_node_group` resource and data source
 * serverless: add `environment` attribute in `yandex_function` resource and data source
-* storage: support custom acl grants for `yandex_storage_bucket` 
 
 BUG FIXES:
 * mdb: fix modifying `yandex_mdb_mysql_cluster` attribute `backup_window_start`
