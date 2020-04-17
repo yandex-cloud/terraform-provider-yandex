@@ -63,6 +63,8 @@ The structure is documented below.
 
 * `network_policy_provider` - Network policy provider for the cluster, if present. Possible values: `CALICO`.
 
+* `kms_provider` - cluster KMS provider parameters.
+
 ---
 
 The `master` block supports:
@@ -133,5 +135,10 @@ when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - True/false flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
 
+---
+
+The `kms_provider` block contains:
+
+* `key_id` - KMS key ID.
 
 ---

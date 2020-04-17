@@ -438,8 +438,9 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		SubnetResourceNameC:            randomResourceName("subnet"),
 		ServiceAccountResourceName:     safeResourceName("serviceaccount"),
 		NodeServiceAccountResourceName: safeResourceName("nodeserviceaccount"),
-		ReleaseChannel:                 k8s.ReleaseChannel_REGULAR.String(),
+		ReleaseChannel:                 k8s.ReleaseChannel_RAPID.String(),
 		zonal:                          zonal,
+		KMSKeyResourceName:             randomResourceName("key"),
 	}
 
 	res.constructMaintenancePolicyField(autoUpgrade, policyType)
@@ -448,13 +449,13 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 
 func clusterInfoWithNetworkPolicy(testDesc string, zonal bool) resourceClusterInfo {
 	res := clusterInfo(testDesc, zonal)
-	res.constructNetworkPolicy(k8s.NetworkPolicy_CALICO)
+	res.constructNetworkPolicyField(k8s.NetworkPolicy_CALICO)
 	return res
 }
 
 func clusterInfoWithNetworkAndMaintenancePolicies(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
 	res := clusterInfoWithMaintenance(testDesc, zonal, autoUpgrade, policyType)
-	res.constructNetworkPolicy(k8s.NetworkPolicy_CALICO)
+	res.constructNetworkPolicyField(k8s.NetworkPolicy_CALICO)
 	return res
 }
 
@@ -465,6 +466,7 @@ type clusterResourceIDs struct {
 	subnetCResourceID            string
 	serviceAccountResourceID     string
 	nodeServiceAccountResourceID string
+	kmsKeyResourceID             string
 }
 
 func getClusterResourcesIds(s *terraform.State, info *resourceClusterInfo) (ids clusterResourceIDs, err error) {
@@ -494,6 +496,11 @@ func getClusterResourcesIds(s *terraform.State, info *resourceClusterInfo) (ids 
 	}
 
 	ids.nodeServiceAccountResourceID, err = getResourceID(info.nodeServiceAccountResourceName(), s)
+	if err != nil {
+		return
+	}
+
+	ids.kmsKeyResourceID, err = getResourceID(info.kmsKeyResourceName(), s)
 	if err != nil {
 		return
 	}
@@ -549,6 +556,8 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_endpoint", master.GetEndpoints().GetInternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v4_endpoint", master.GetEndpoints().GetExternalV4Endpoint()),
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.cluster_ca_certificate", master.GetMasterAuth().GetClusterCaCertificate()),
+			resource.TestCheckResourceAttr(resourceFullName, "kms_provider.0.key_id", ids.kmsKeyResourceID),
+			resource.TestCheckResourceAttr(resourceFullName, "kms_provider.0.key_id", cluster.GetKmsProvider().GetKeyId()),
 			testAccCheckClusterLabel(cluster, info, rs),
 
 			resource.TestCheckResourceAttr(resourceFullName,
@@ -766,6 +775,8 @@ type resourceClusterInfo struct {
 
 	autoUpgrade bool
 	policy      maintenancePolicyType
+
+	KMSKeyResourceName string
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -790,7 +801,7 @@ func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, 
 	}
 }
 
-func (i *resourceClusterInfo) constructNetworkPolicy(npp k8s.NetworkPolicy_Provider) {
+func (i *resourceClusterInfo) constructNetworkPolicyField(npp k8s.NetworkPolicy_Provider) {
 	if npp != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
 		i.networkPolicyProvider = npp
 		i.NetworkPolicy = fmt.Sprintf("network_policy_provider = \"%s\"", npp.String())
@@ -831,6 +842,10 @@ func (i *resourceClusterInfo) serviceAccountResourceName() string {
 
 func (i *resourceClusterInfo) nodeServiceAccountResourceName() string {
 	return "yandex_iam_service_account." + i.NodeServiceAccountResourceName
+}
+
+func (i *resourceClusterInfo) kmsKeyResourceName() string {
+	return "yandex_kms_symmetric_key." + i.KMSKeyResourceName
 }
 
 const anyMaintenancePolicyTemplate = `
@@ -922,6 +937,11 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   release_channel = "{{.ReleaseChannel}}"
 
   {{.NetworkPolicy}}
+
+
+  kms_provider {
+    key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
+  }
 }
 `
 
@@ -970,6 +990,10 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   release_channel = "{{.ReleaseChannel}}"
 
   {{.NetworkPolicy}}
+
+  kms_provider {
+    key_id = "${yandex_kms_key.{{.KMSKeyResourceName}}.id}"
+  }
 }
 `
 
@@ -1021,6 +1045,11 @@ resource "yandex_resourcemanager_folder_iam_member" "{{.NodeServiceAccountResour
   member      = "serviceAccount:${yandex_iam_service_account.{{.NodeServiceAccountResourceName}}.id}"
   role        = "editor"
   sleep_after = 30
+}
+
+resource "yandex_kms_symmetric_key" "{{.KMSKeyResourceName}}" {
+  name        = "{{.KMSKeyResourceName}}"
+  description = "{{.TestDescription}}"
 }
 `
 

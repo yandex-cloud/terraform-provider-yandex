@@ -287,6 +287,21 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"kms_provider": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -497,6 +512,7 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 		NodeServiceAccountId: d.Get("node_service_account_id").(string),
 		ReleaseChannel:       releaseChannel,
 		NetworkPolicy:        networkPolicy,
+		KmsProvider:          getKubernetesClusterKMSProvider(d),
 	}
 
 	return req, nil
@@ -561,6 +577,16 @@ func getKubernetesClusterNetworkPolicy(d *schema.ResourceData) (*k8s.NetworkPoli
 		}, nil
 	}
 	return nil, fmt.Errorf("invalid network_policy_provider field value, possible values: %v", getKubernetesClusterNetworkPolicyProviders())
+}
+
+func getKubernetesClusterKMSProvider(d *schema.ResourceData) *k8s.KMSProvider {
+	kmsKeyID, ok := d.Get("kms_provider.0.key_id").(string)
+	if !ok {
+		return nil
+	}
+	return &k8s.KMSProvider{
+		KeyId: kmsKeyID,
+	}
 }
 
 func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.MasterSpec, error) {
@@ -697,6 +723,15 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	if np := cluster.GetNetworkPolicy(); np != nil {
 		if prov := np.GetProvider(); prov != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
 			d.Set("network_policy_provider", prov.String())
+		}
+	}
+	if kms := cluster.GetKmsProvider(); kms != nil {
+		if keyID := kms.GetKeyId(); keyID != "" {
+			if err := d.Set("kms_provider", []map[string]interface{}{
+				{"key_id": keyID},
+			}); err != nil {
+				return err
+			}
 		}
 	}
 

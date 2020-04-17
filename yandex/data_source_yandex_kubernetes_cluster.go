@@ -204,6 +204,19 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"kms_provider": {
+				Type:     schema.TypeList,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
