@@ -6,6 +6,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,55 @@ import (
 )
 
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
+
+func init() {
+	resource.AddTestSweepers("yandex_mdb_mongodb_cluster", &resource.Sweeper{
+		Name: "yandex_mdb_mongodb_cluster",
+		F:    testSweepMDBMongoDBCluster,
+	})
+}
+
+func testSweepMDBMongoDBCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.MDB().MongoDB().Cluster().List(conf.Context(), &mongodb.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting MongoDB clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepMDBMongoDBCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep MongoDB cluster %q", c.Id))
+		} else {
+			if !sweepVPCNetwork(conf, c.NetworkId) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
+			}
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepMDBMongoDBCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepMDBMongoDBClusterOnce, conf, "MongoDB cluster", id)
+}
+
+func sweepMDBMongoDBClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBMongodbClusterDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.MDB().MongoDB().Cluster().Delete(ctx, &mongodb.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func mdbMongoDBClusterImportStep() resource.TestStep {
 	return resource.TestStep{
