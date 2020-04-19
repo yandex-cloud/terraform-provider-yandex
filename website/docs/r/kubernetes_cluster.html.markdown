@@ -21,7 +21,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
   network_id = "${yandex_vpc_network.network_resource_name.id}"
 
   master {
-    version = "1.14"
+    version = "1.15"
     zonal {
       zone      = "${yandex_vpc_subnet.subnet_resource_name.zone}"
       subnet_id = "${yandex_vpc_subnet.subnet_resource_name.id}"
@@ -47,8 +47,12 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
     my_other_key = "my_other_value"
   }
 
-  release_channel = "STABLE"
+  release_channel = "RAPID"
   network_policy_provider = "CALICO"
+
+  kms_provider {
+    key_id = "${yandex_kms_symmetric_key.kms_key_resource_name.id}"
+  }
 }
 ```
 
@@ -157,6 +161,8 @@ that will cause problems for cluster and related node group deletion.
 
 * `network_policy_provider` - (Optional) Network policy provider for the cluster. Possible values: `CALICO`.
 
+* `kms_provider` - (Optional) cluster KMS provider parameters.
+
 * `master` - Kubernetes master configuration options.
 
 The structure is documented below.
@@ -249,6 +255,12 @@ components either on the master or nodes.
 when updating to the latest revision. Empty if new_revision_available is false.
 * `version_deprecated` - Boolean flag. The current version is on the deprecation schedule,
 component (master or node group) should be upgraded.
+
+---
+
+The `kms_provider` block contains:
+
+* `key_id` - KMS key ID.
 
 ## Timeouts
 
