@@ -992,7 +992,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   {{.NetworkPolicy}}
 
   kms_provider {
-    key_id = "${yandex_kms_key.{{.KMSKeyResourceName}}.id}"
+    key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
   }
 }
 `
