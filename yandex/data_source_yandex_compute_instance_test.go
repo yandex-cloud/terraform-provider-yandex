@@ -137,12 +137,14 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foo" {
   name        = "%s"
   hostname    = "%s"
+  platform_id = "standard-v2"
   description = "description"
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
-    memory = 2
+    cores         = 2
+    core_fraction = 20
+    memory        = 2
   }
 
   boot_disk {
@@ -173,7 +175,8 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
-}`, instanceName, instanceName)
+}
+`, instanceName, instanceName)
 }
 
 func testAccDataSourceComputeInstanceResourceGpusConfig(instanceName string) string {

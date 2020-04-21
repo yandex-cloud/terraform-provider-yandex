@@ -324,7 +324,7 @@ resource "yandex_compute_instance" "bar" {
   name = "%s"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 

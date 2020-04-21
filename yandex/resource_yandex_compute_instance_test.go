@@ -1391,7 +1391,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1433,7 +1433,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1475,7 +1475,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1600,7 +1600,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1658,7 +1658,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-c"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1708,7 +1708,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1755,7 +1755,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1803,7 +1803,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1862,7 +1862,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1922,7 +1922,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -1969,7 +1969,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2003,7 +2003,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2039,7 +2039,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2115,7 +2115,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2154,7 +2154,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2193,7 +2193,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2223,7 +2223,7 @@ resource "yandex_compute_instance" "foobar" {
   zone = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2473,7 +2473,7 @@ resource "yandex_compute_instance" "foobar" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2516,7 +2516,7 @@ resource "yandex_compute_instance" "foobar" {
   service_account_id = "${yandex_iam_service_account.sa-test.id}"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2565,7 +2565,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2611,7 +2611,7 @@ resource "yandex_compute_instance" "foobar" {
   allow_stopping_for_update = true
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
@@ -2661,7 +2661,7 @@ resource "yandex_compute_instance" "foobar" {
   zone               = "ru-central1-c"
 
   resources {
-    cores  = 1
+    cores  = 2
     memory = 2
   }
 
