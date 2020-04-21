@@ -168,7 +168,7 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 }
 
-`, networkName, getExampleFolderID(), sgr1Name)
+`, networkName, sgr1Name, getExampleFolderID())
 }
 
 func testAccVPCSecurityGroupBasic2(networkName, sgr1Name string) string {
@@ -204,7 +204,7 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 }
 
-`, networkName, getExampleFolderID(), sgr1Name)
+`, networkName, sgr1Name, getExampleFolderID())
 }
 
 func testAccCheckVPCSecurityGroupDestroy(s *terraform.State) error {
