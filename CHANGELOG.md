@@ -1,4 +1,8 @@
 ## 0.38.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_vpc_security_group`
+* **New Resource:** `yandex_vpc_security_group`
+
 ENHANCEMENTS:
 * managed-kubernetes: allow to create cluster with KMS provider for secrets encryption.
 
