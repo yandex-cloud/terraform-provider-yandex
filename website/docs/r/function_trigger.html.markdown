@@ -1,7 +1,7 @@
 ---
 layout: "yandex"
 page_title: "Yandex: yandex_function_trigger"
-sidebar_current: "docs-yandex-function_trigger"
+sidebar_current: "docs-yandex-function-trigger"
 description: |-
  Allows management of a Yandex Cloud Functions Trigger.
 ---
