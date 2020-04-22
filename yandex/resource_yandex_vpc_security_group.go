@@ -238,7 +238,7 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 	d.Set("folder_id", securityGroup.GetFolderId())
 	d.Set("network_id", securityGroup.GetNetworkId())
 	d.Set("description", securityGroup.GetDescription())
-	d.Set("status", securityGroup.GetStatus())
+	d.Set("status", vpc.SecurityGroup_Status_name[int32(securityGroup.GetStatus())])
 
 	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
 
