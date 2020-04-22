@@ -6,7 +6,7 @@ description: |-
  Allows management of a Yandex.Cloud IoT Core Device.
 ---
 
-# yandex\_iot\_registry
+# yandex\_iot\_device
 
 Allows management of [Yandex.Cloud IoT Device](https://cloud.yandex.com/docs/iot-core/quickstart).
 
