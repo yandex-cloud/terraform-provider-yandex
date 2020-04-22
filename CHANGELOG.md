@@ -1,4 +1,4 @@
-## 0.38.0 (Unreleased)
+## 0.38.0 (April 22, 2020)
 FEATURES:
 * **New Data Source:** `yandex_vpc_security_group`
 * **New Resource:** `yandex_vpc_security_group`
