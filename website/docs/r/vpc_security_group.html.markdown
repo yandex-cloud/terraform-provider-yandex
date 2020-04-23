@@ -82,6 +82,7 @@ In addition to the arguments listed above, the following computed attributes are
 ---
 
 The `ingress` and `egress` block supports:
+
 * `protocol` (Required) - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number..
 * `description` (Optional) - Description of the rule.
 * `labels` (Optional) - Labels to assign to this rule.
