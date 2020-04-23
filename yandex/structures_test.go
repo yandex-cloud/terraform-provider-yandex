@@ -1094,6 +1094,7 @@ func TestFlattenInstances(t *testing.T) {
 							"index":        1,
 							"mac_address":  "aa-bb-cc-dd-ee-ff",
 							"subnet_id":    "some-subnet-id",
+							"ipv4":         false,
 							"ipv6":         true,
 							"ipv6_address": "2001:db8::370:7348",
 						},
