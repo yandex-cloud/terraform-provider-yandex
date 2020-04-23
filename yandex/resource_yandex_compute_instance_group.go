@@ -161,6 +161,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										},
 									},
 
+									"ipv4": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  true,
+									},
+
 									"nat": {
 										Type:     schema.TypeBool,
 										Optional: true,
@@ -636,6 +642,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 									"mac_address": {
 										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ipv4": {
+										Type:     schema.TypeBool,
 										Computed: true,
 									},
 									"ip_address": {

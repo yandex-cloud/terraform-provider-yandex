@@ -184,6 +184,7 @@ func flattenInstanceGroupManagedInstanceNetworkInterfaces(instance *instancegrou
 		}
 
 		if iface.PrimaryV4Address != nil {
+			nics[i]["ipv4"] = true
 			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
 			if internalIP == "" {
 				internalIP = iface.PrimaryV4Address.Address
@@ -300,23 +301,24 @@ func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) 
 	return bootDisk, nil
 }
 
-func flattenInstanceGroupNetworkInterfaceSpec(netSpec *instancegroup.NetworkInterfaceSpec) map[string]interface{} {
-	nat := (netSpec.PrimaryV4AddressSpec != nil && netSpec.PrimaryV4AddressSpec.GetOneToOneNatSpec() != nil) ||
-		(netSpec.PrimaryV6AddressSpec != nil && netSpec.PrimaryV6AddressSpec.GetOneToOneNatSpec() != nil)
+func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInterfaceSpec) map[string]interface{} {
+	nat := (nicSpec.PrimaryV4AddressSpec != nil && nicSpec.PrimaryV4AddressSpec.GetOneToOneNatSpec() != nil) ||
+		(nicSpec.PrimaryV6AddressSpec != nil && nicSpec.PrimaryV6AddressSpec.GetOneToOneNatSpec() != nil)
 
 	subnets := &schema.Set{F: schema.HashString}
 
-	if netSpec.SubnetIds != nil {
-		for _, s := range netSpec.SubnetIds {
+	if nicSpec.SubnetIds != nil {
+		for _, s := range nicSpec.SubnetIds {
 			subnets.Add(s)
 		}
 	}
 
 	networkInterface := map[string]interface{}{
-		"network_id": netSpec.NetworkId,
+		"network_id": nicSpec.NetworkId,
 		"subnet_ids": subnets,
 		"nat":        nat,
-		"ipv6":       netSpec.PrimaryV6AddressSpec != nil,
+		"ipv4":       nicSpec.PrimaryV4AddressSpec != nil,
+		"ipv6":       nicSpec.PrimaryV6AddressSpec != nil,
 	}
 
 	return networkInterface
@@ -859,19 +861,25 @@ func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix str
 			}
 		}
 
+		if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
+			nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{}
+		}
+
 		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
 			nics[i].PrimaryV6AddressSpec = &instancegroup.PrimaryAddressSpec{}
 		}
 
 		if nat, ok := data["nat"].(bool); ok && nat {
-			nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{
-				OneToOneNatSpec: &instancegroup.OneToOneNatSpec{
-					IpVersion: instancegroup.IpVersion_IPV4,
-				},
+			natSpec := &instancegroup.OneToOneNatSpec{
+				IpVersion: instancegroup.IpVersion_IPV4,
 			}
-
-		} else {
-			nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{}
+			if nics[i].PrimaryV4AddressSpec == nil {
+				nics[i].PrimaryV4AddressSpec = &instancegroup.PrimaryAddressSpec{
+					OneToOneNatSpec: natSpec,
+				}
+			} else {
+				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
+			}
 		}
 	}
 

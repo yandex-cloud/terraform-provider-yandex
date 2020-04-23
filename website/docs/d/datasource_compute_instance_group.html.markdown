@@ -163,7 +163,7 @@ The structure is documented below.
 The structure is documented below.
 * `boot_disk` - The specifications for boot disk that will be attached to the instance.
 The structure is documented below.
-* `network_settings` -  Network acceleration settings.
+* `network_settings` - Network acceleration settings.
 The structure is documented below.
 * `name` - Name template of the instance.
 * `hostname` - Hostname temaplate for the instance.
@@ -212,6 +212,7 @@ The `network_interface` block supports:
 
 * `network_id` - The ID of the network.
 * `subnet_ids` - The IDs of the subnets.
+* `ipv4` - Is IPv4 address assigned.
 * `nat` - A public address that can be used to access the internet over NAT.
 
 ---
