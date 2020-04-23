@@ -1108,7 +1108,7 @@ func expandNetworkSettings(v interface{}) (*instancegroup.NetworkSettings, error
 	if v == nil || v.(string) == "" {
 		return nil, nil
 	}
-	t, err := parseInstanceGroupNetworkSettignsType(v.(string))
+	t, err := parseInstanceGroupNetworkSettingsType(v.(string))
 	if err != nil {
 		return nil, err
 	}
@@ -1116,7 +1116,7 @@ func expandNetworkSettings(v interface{}) (*instancegroup.NetworkSettings, error
 	return ns, nil
 }
 
-func parseInstanceGroupNetworkSettignsType(str string) (instancegroup.NetworkSettings_Type, error) {
+func parseInstanceGroupNetworkSettingsType(str string) (instancegroup.NetworkSettings_Type, error) {
 	val, ok := instancegroup.NetworkSettings_Type_value[str]
 	if !ok {
 		return instancegroup.NetworkSettings_TYPE_UNSPECIFIED, fmt.Errorf("value for 'type' should be 'STANDARD' or 'SOFTWARE_ACCELERATED' or 'HARDWARE_ACCELERATED', not '%s'", str)

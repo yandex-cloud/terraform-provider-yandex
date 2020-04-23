@@ -126,7 +126,7 @@ func TestParseInstanceGroupNetworkSettingsType(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := parseInstanceGroupNetworkSettignsType(tc.nsType)
+			result, err := parseInstanceGroupNetworkSettingsType(tc.nsType)
 			if err != nil {
 				t.Fatalf("bad: %#v", err)
 			}
