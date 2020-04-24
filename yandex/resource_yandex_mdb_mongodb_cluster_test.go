@@ -109,6 +109,19 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			},
 			mdbMongoDBClusterImportStep(),
 			{
+				Config: testAccMDBMongoDBClusterConfigRoles(mongodbName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckCreatedAtAttr(mongodbResource),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{
 				Config: testAccMDBMongoDBClusterConfigUpdated(mongodbName, mongodbDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
@@ -118,7 +131,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(mongodbResource, "host.0.name"),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
-					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}, "mary": {"newdb", "admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
 				),
@@ -495,6 +508,58 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 `, name)
 }
 
+func testAccMDBMongoDBClusterConfigRoles(name string) string {
+	return fmt.Sprintf(mongodbVPCDependencies+`
+resource "yandex_mdb_mongodb_cluster" "foo" {
+  name        = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.foo.id}"
+
+  cluster_config {
+    version = "4.2"
+    feature_compatibility_version = "4.2"
+    backup_window_start {
+      hours = 3
+      minutes = 3
+    }
+  }
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "admin"
+      roles         = ["mdbMonitor"]
+    }
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_size          = 16
+    disk_type_id       = "network-hdd"
+  }
+
+  host {
+    zone_id   = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+
+  host {
+    zone_id   = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.bar.id}"
+  }
+}
+`, name)
+}
+
 func testAccMDBMongoDBClusterConfigUpdated(name, desc string) string {
 	return fmt.Sprintf(mongodbVPCDependencies+`
 resource "yandex_mdb_mongodb_cluster" "foo" {
@@ -528,7 +593,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     name     = "john"
     password = "password"
     permission {
-      database_name = "testdb"
+      database_name = "admin"
+      roles         = ["mdbMonitor"]
     }
   }
 
@@ -539,7 +605,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
       database_name = "newdb"
     }
     permission {
-      database_name = "testdb"
+      database_name = "admin"
+      roles         = ["mdbMonitor"]
     }
   }
 

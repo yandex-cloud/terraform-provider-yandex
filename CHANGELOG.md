@@ -1,4 +1,7 @@
 ## 0.39.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: add `roles` attribute to `user` entity in `mdb_mongodb` resource and data source
+
 ## 0.38.0 (April 22, 2020)
 FEATURES:
 * **New Data Source:** `yandex_vpc_security_group`

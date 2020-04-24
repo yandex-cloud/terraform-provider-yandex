@@ -197,6 +197,13 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+									"roles": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},

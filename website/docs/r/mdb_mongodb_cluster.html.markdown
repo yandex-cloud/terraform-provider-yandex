@@ -134,6 +134,8 @@ The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
 
+* `role` - (Optional) The role of the user in this database. For more information see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/users-and-roles).
+
 The `database` block supports:
 
 * `name` - (Required) The name of the database.

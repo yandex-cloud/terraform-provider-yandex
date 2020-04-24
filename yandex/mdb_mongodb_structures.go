@@ -163,6 +163,7 @@ func flattenMongoDBUsers(users []*mongodb.User, passwords map[string]string) *sc
 		for _, perm := range user.Permissions {
 			p := map[string]interface{}{}
 			p["database_name"] = perm.DatabaseName
+			p["roles"] = perm.Roles
 			perms.Add(p)
 		}
 		u["permission"] = perms
@@ -225,6 +226,15 @@ func expandMongoDBUserPermissions(ps *schema.Set) []*mongodb.Permission {
 		permission := &mongodb.Permission{}
 		if v, ok := m["database_name"]; ok {
 			permission.DatabaseName = v.(string)
+		}
+
+		if v, ok := m["roles"]; ok {
+			roles := make([]string, len(v.([]interface{})))
+			for n, item := range v.([]interface{}) {
+				roles[n] = item.(string)
+			}
+
+			permission.Roles = roles
 		}
 		result = append(result, permission)
 	}

@@ -78,6 +78,13 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"roles": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
@@ -796,7 +803,6 @@ var mdbMongodbUpdateFieldsMap = map[string]string{
 	"version":             "config_spec.version",
 	"access":              "config_spec.access",
 	"backup_window_start": "config_spec.backup_window_start",
-	"mongodb":             "config_spec.mongodb",
 }
 
 func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {
