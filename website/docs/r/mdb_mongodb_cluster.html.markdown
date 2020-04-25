@@ -46,6 +46,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles         = ["readWrite"]
     }
   }
 
@@ -133,6 +134,8 @@ The `user` block supports:
 The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
+
+* `roles` - (Optional) List of roles that the user is granted on the database.
 
 The `database` block supports:
 

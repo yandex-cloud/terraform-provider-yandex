@@ -473,6 +473,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles = ["readWrite"]
     }
   }
 
@@ -529,6 +530,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     password = "password"
     permission {
       database_name = "testdb"
+      roles = ["readWrite"]
     }
   }
 
@@ -537,9 +539,11 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     password = "qwerty123"
     permission {
       database_name = "newdb"
+      roles = ["readWrite"]
     }
     permission {
       database_name = "testdb"
+      roles = ["read"]
     }
   }
 

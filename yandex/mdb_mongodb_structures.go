@@ -110,12 +110,19 @@ func parseMongoDBEnv(e string) (mongodb.Cluster_Environment, error) {
 }
 
 func mongodbUserPermissionHash(v interface{}) int {
+	var buf bytes.Buffer
+
 	m := v.(map[string]interface{})
 
 	if n, ok := m["database_name"]; ok {
-		return hashcode.String(n.(string))
+		buf.WriteString(fmt.Sprintf("%s-", n.(string)))
 	}
-	return 0
+
+	if r, ok := m["roles"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", r.(*schema.Set).List()))
+	}
+
+	return hashcode.String(buf.String())
 }
 
 func mongodbUserHash(v interface{}) int {
@@ -163,6 +170,7 @@ func flattenMongoDBUsers(users []*mongodb.User, passwords map[string]string) *sc
 		for _, perm := range user.Permissions {
 			p := map[string]interface{}{}
 			p["database_name"] = perm.DatabaseName
+			p["roles"] = perm.Roles
 			perms.Add(p)
 		}
 		u["permission"] = perms
@@ -226,6 +234,11 @@ func expandMongoDBUserPermissions(ps *schema.Set) []*mongodb.Permission {
 		if v, ok := m["database_name"]; ok {
 			permission.DatabaseName = v.(string)
 		}
+
+		if r, ok := m["roles"]; ok {
+			permission.Roles = r.([]string)
+		}
+
 		result = append(result, permission)
 	}
 	return result
