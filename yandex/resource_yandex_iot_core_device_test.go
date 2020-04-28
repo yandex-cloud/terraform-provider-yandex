@@ -22,6 +22,9 @@ func init() {
 	resource.AddTestSweepers("yandex_iot_core_device", &resource.Sweeper{
 		Name: "yandex_iot_core_device",
 		F:    testSweepIoTCoreDevice,
+		Dependencies: []string{
+			"yandex_function_trigger",
+		},
 	})
 }
 

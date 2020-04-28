@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -14,6 +15,45 @@ import (
 )
 
 const triggerResource = "yandex_function_trigger.test-trigger"
+
+func init() {
+	resource.AddTestSweepers("yandex_function_trigger", &resource.Sweeper{
+		Name: "yandex_function_trigger",
+		F:    testSweepFunctionTrigger,
+	})
+}
+
+func testSweepFunctionTrigger(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Serverless().Triggers().Trigger().TriggerIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepFunctionTrigger(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Function Trigger %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepFunctionTrigger(conf *Config, id string) bool {
+	return sweepWithRetry(sweepFunctionTriggerOnce, conf, "Function Trigger", id)
+}
+
+func sweepFunctionTriggerOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexFunctionDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Serverless().Triggers().Trigger().Delete(ctx, &triggers.DeleteTriggerRequest{
+		TriggerId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 	t.Parallel()
@@ -263,6 +303,29 @@ func testYandexFunctionTriggerContainsLabel(trigger *triggers.Trigger, key strin
 
 func testYandexFunctionTriggerBasic(name string, desc string, labelKey string, labelValue string) string {
 	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 60
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+}
+
 resource "yandex_function_trigger" "test-trigger" {
   name        = "%s"
   description = "%s"
@@ -274,66 +337,127 @@ resource "yandex_function_trigger" "test-trigger" {
     cron_expression = "* * * * ? *"
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
   }
 }
-	`, name, desc, labelKey, labelValue)
+	`, name, getExampleFolderID(), name, name, desc, labelKey, labelValue)
 }
 
 func testYandexFunctionTriggerIoT(regName, devName, name string) string {
 	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 60
+}
+
 resource "yandex_iot_core_registry" "test-registry" {
   name = "%s"
 }
 
 resource "yandex_iot_core_device" "test-device" {
-  registry_id = "${yandex_iot_core_registry.test-registry.id}"
+  registry_id = yandex_iot_core_registry.test-registry.id
   name        = "%s"
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
 }
 
 resource "yandex_function_trigger" "test-trigger" {
   name = "%s"
   iot {
-    registry_id = "${yandex_iot_core_registry.test-registry.id}"
-    device_id   = "${yandex_iot_core_device.test-device.id}"
-    topic       = join("/", ["$devices", "${yandex_iot_core_device.test-device.id}", "events"])
+    registry_id = yandex_iot_core_registry.test-registry.id
+    device_id   = yandex_iot_core_device.test-device.id
+    topic       = join("/", ["$devices", yandex_iot_core_device.test-device.id, "events"])
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
   }
 }
-	`, regName, devName, name)
+	`, name, getExampleFolderID(), regName, devName, name, name)
 }
 
 //nolint:unused
 func testYandexFunctionTriggerMessageQueue(name, queueID, serviceAccountID string) string {
 	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 60
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+}
+
 resource "yandex_function_trigger" "test-trigger" {
   name = "%s"
   message_queue {
     queue_id           = "%s"
-    service_account_id = "${yandex_iam_service_account.test-account.id}"
+    service_account_id = yandex_iam_service_account.test-account.id
     batch_cutoff       = "10"
     batch_size         = "3"
     visibility_timeout = "3"
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
   }
 }
 
 resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
-	`, name, queueID, serviceAccountID)
+	`, name, getExampleFolderID(), name, name, queueID, serviceAccountID)
 }
 
 func testYandexFunctionTriggerObjectStorage(name, bucket string) string {
 	return fmt.Sprintf(`
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.sa.id
+}
+
 resource "yandex_function_trigger" "test-trigger" {
   name = "%s"
   object_storage {
-    bucket_id = "${yandex_storage_bucket.tf-test.id}"
+    bucket_id = yandex_storage_bucket.tf-test.id
     prefix    = "prefix"
     suffix    = "suffix"
     create    = true
@@ -341,7 +465,8 @@ resource "yandex_function_trigger" "test-trigger" {
     delete    = true
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.sa.id
   }
 }
 
@@ -353,11 +478,11 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "%s"
   member      = "serviceAccount:${yandex_iam_service_account.sa.id}"
   role        = "editor"
-  sleep_after = 30
+  sleep_after = 60
 }
 
 resource "yandex_iam_service_account_static_access_key" "sa-key" {
-  service_account_id = "${yandex_iam_service_account.sa.id}"
+  service_account_id = yandex_iam_service_account.sa.id
 
   depends_on = [
     yandex_resourcemanager_folder_iam_member.test_account
@@ -370,5 +495,5 @@ resource "yandex_storage_bucket" "tf-test" {
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-	`, name, bucket, getExampleFolderID(), bucket)
+	`, name, name, bucket, getExampleFolderID(), bucket)
 }

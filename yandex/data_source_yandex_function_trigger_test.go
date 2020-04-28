@@ -73,7 +73,30 @@ func TestAccDataSourceYandexFunctionTrigger_byName(t *testing.T) {
 func testYandexFunctionTriggerByID(name string, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_function_trigger" "test-trigger" {
-  trigger_id = "${yandex_function_trigger.test-trigger.id}"
+  trigger_id = yandex_function_trigger.test-trigger.id
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 60
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
 }
 
 resource "yandex_function_trigger" "test-trigger" {
@@ -83,16 +106,40 @@ resource "yandex_function_trigger" "test-trigger" {
     cron_expression = "* * * * ? *"
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
   }
 }
-	`, name, desc)
+	`, name, getExampleFolderID(), name, name, desc)
 }
 
 func testYandexFunctionTriggerByName(name string, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_function_trigger" "test-trigger" {
-  name = "${yandex_function_trigger.test-trigger.name}"
+  name = yandex_function_trigger.test-trigger.name
+}
+
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 60
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
 }
 
 resource "yandex_function_trigger" "test-trigger" {
@@ -102,8 +149,9 @@ resource "yandex_function_trigger" "test-trigger" {
     cron_expression = "* * * * ? *"
   }
   function {
-    id = "tf-test"
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
   }
 }
-	`, name, desc)
+	`, name, getExampleFolderID(), name, name, desc)
 }

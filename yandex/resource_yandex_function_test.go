@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,48 @@ import (
 )
 
 const functionResource = "yandex_function.test-function"
+
+func init() {
+	resource.AddTestSweepers("yandex_function", &resource.Sweeper{
+		Name: "yandex_function",
+		F:    testSweepFunction,
+		Dependencies: []string{
+			"yandex_function_trigger",
+		},
+	})
+}
+
+func testSweepFunction(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Serverless().Functions().Function().FunctionIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepFunction(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Function %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepFunction(conf *Config, id string) bool {
+	return sweepWithRetry(sweepFunctionOnce, conf, "Function", id)
+}
+
+func sweepFunctionOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexFunctionDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Serverless().Functions().Function().Delete(ctx, &functions.DeleteFunctionRequest{
+		FunctionId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccYandexFunction_basic(t *testing.T) {
 	t.Parallel()
