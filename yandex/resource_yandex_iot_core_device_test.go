@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -16,6 +17,68 @@ import (
 
 const iotRegistryResourceForDevices = "yandex_iot_core_registry.test-registry"
 const iotDeviceResource = "yandex_iot_core_device.test-device"
+
+func init() {
+	resource.AddTestSweepers("yandex_iot_core_device", &resource.Sweeper{
+		Name: "yandex_iot_core_device",
+		F:    testSweepIoTCoreDevice,
+	})
+}
+
+func testSweepIoTCoreDevice(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for {
+		resp, err := listDevicesWithRetry(conf, conf.FolderID)
+		if err != nil {
+			result = multierror.Append(result, fmt.Errorf("failed to list IoT Core Devices"))
+			break
+		}
+		if len(resp.GetDevices()) == 0 {
+			break
+		}
+
+		for _, device := range resp.GetDevices() {
+			if !sweepIoTCoreDevice(conf, device.Id) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep IoT Core Device %q", device.Id))
+			}
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func listDevicesWithRetry(conf *Config, folderId string) (resp *iot.ListDevicesResponse, err error) {
+	for i := 1; i <= conf.MaxRetries; i++ {
+		resp, err = conf.sdk.IoT().Devices().Device().List(conf.Context(), &iot.ListDevicesRequest{
+			Id:        &iot.ListDevicesRequest_FolderId{FolderId: conf.FolderID},
+			PageSize:  100,
+			PageToken: "",
+		})
+		if err == nil {
+			break
+		}
+	}
+	return resp, err
+}
+
+func sweepIoTCoreDevice(conf *Config, id string) bool {
+	return sweepWithRetry(sweepIoTCoreDeviceOnce, conf, "IoT Core Device", id)
+}
+
+func sweepIoTCoreDeviceOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexIoTDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.IoT().Devices().Device().Delete(ctx, &iot.DeleteDeviceRequest{
+		DeviceId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccYandexIoTCoreDevice_basic(t *testing.T) {
 	t.Parallel()

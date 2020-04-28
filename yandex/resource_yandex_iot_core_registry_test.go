@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,48 @@ import (
 )
 
 const iotRegistryResource = "yandex_iot_core_registry.test-registry"
+
+func init() {
+	resource.AddTestSweepers("yandex_iot_core_registry", &resource.Sweeper{
+		Name: "yandex_iot_core_registry",
+		F:    testSweepIoTCoreRegistry,
+		Dependencies: []string{
+			"yandex_iot_core_device",
+		},
+	})
+}
+
+func testSweepIoTCoreRegistry(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.IoT().Devices().Registry().RegistryIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepIoTCoreRegistry(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep IoT Core Registry %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepIoTCoreRegistry(conf *Config, id string) bool {
+	return sweepWithRetry(sweepIoTCoreRegistryOnce, conf, "IoT Core Registry", id)
+}
+
+func sweepIoTCoreRegistryOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexIoTDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.IoT().Devices().Registry().Delete(ctx, &iot.DeleteRegistryRequest{
+		RegistryId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccYandexIoTCoreRegistry_basic(t *testing.T) {
 	t.Parallel()
