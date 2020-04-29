@@ -159,6 +159,8 @@ The `network_interface` block supports:
 
 * `nat_ip_address` - (Optional) Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.
 
+* `security_group_ids` - (Optional) Security group ids for network interface.
+
 The `secondary_disk` block supports:
 
 * `disk_id` - (Required) ID of the disk that is attached to the instance.

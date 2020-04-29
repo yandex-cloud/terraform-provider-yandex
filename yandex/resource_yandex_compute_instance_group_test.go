@@ -896,8 +896,9 @@ resource "yandex_compute_instance_group" "group1" {
     }
 
     network_interface {
-      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
-      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+      network_id         = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids         = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+      security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
     }
 
     scheduling_policy {
@@ -926,6 +927,33 @@ resource "yandex_compute_instance_group" "group1" {
 
 resource "yandex_vpc_network" "inst-group-test-network" {
   description = "tf-test"
+}
+
+resource "yandex_vpc_security_group" "sgr1" {
+  name        = "tf-test-sg-1"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-group-test-network.id}"
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
 }
 
 resource "yandex_vpc_subnet" "inst-group-test-subnet" {
@@ -1562,6 +1590,11 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		disk1 := &Disk{Size: 3, Type: "network-hdd", Description: "desc2"}
 		if err := checkDisk(fmt.Sprintf("instancegroup %s secondary disk #1", ig.Name), ig.InstanceTemplate.SecondaryDiskSpecs[1], disk1); err != nil {
 			return err
+		}
+
+		// NetworkSettings
+		if ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()[0].SecurityGroupIds == nil || len(ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()[0].SecurityGroupIds) == 0 {
+			return fmt.Errorf("invalid network_interface.security_group_ids value in instance group %s", ig.Name)
 		}
 
 		// AllocationPolicy

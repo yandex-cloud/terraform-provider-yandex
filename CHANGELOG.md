@@ -1,6 +1,8 @@
 ## 0.39.0 (Unreleased)
 ENHANCEMENTS:
 * mdb: add `roles` attribute to `user` entity in `mdb_mongodb` resource and data source
+* compute: add `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance_group` resource and data source
+* compute: add `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance` resource and data source
 
 ## 0.38.0 (April 22, 2020)
 FEATURES:

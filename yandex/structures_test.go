@@ -490,6 +490,35 @@ func TestFlattenInstanceNetworkInterfaces(t *testing.T) {
 			internalIP: "",
 			wantErr:    false,
 		},
+		{
+			name: "one nic with security group ids",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.16",
+						},
+						SubnetId:         "some-subnet-id",
+						MacAddress:       "aa-bb-cc-dd-ee-ff",
+						SecurityGroupIds: []string{"test-sg-id1", "test-sg-id2"},
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":              1,
+					"mac_address":        "aa-bb-cc-dd-ee-ff",
+					"subnet_id":          "some-subnet-id",
+					"ip_address":         "192.168.19.16",
+					"nat":                false,
+					"security_group_ids": append(make([]interface{}, 0), "test-sg-id1", "test-sg-id2"),
+				},
+			},
+			externalIP: "",
+			internalIP: "192.168.19.16",
+			wantErr:    false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

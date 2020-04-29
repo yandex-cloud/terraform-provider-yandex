@@ -248,6 +248,8 @@ The `network_interface` block supports:
 
 * `nat` - (Optional) A public address that can be used to access the internet over NAT.
 
+* `security_group_ids` - (Optional) Security group ids for network interface.
+
 ---
 
 The `resources` block supports:

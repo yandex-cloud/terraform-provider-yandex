@@ -213,6 +213,7 @@ The `network_interface` block supports:
 * `network_id` - The ID of the network.
 * `subnet_ids` - The IDs of the subnets.
 * `nat` - A public address that can be used to access the internet over NAT.
+* `security_group_ids` - Security group ids for network interface.
 
 ---
 
