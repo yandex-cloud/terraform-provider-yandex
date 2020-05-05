@@ -2,6 +2,7 @@
 ENHANCEMENTS:
 * mdb: add `roles` attribute to `user` entity in `mdb_mongodb` resource and data source
 * compute: change allowed disk type from `network-nvme` to `network-ssd`
+* compute: `ipv4` flag determines whether to assign a IPv4 address for `network_interface` in `yandex_compute_instance` and `yandex_compute_instance_group`
 
 ## 0.38.0 (April 22, 2020)
 FEATURES:
