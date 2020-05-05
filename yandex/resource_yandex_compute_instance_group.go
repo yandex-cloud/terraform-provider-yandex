@@ -107,7 +107,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													Default:      "network-hdd",
-													ValidateFunc: validation.StringInSlice([]string{"network-hdd", "network-nvme"}, false),
+													ValidateFunc: validation.StringInSlice([]string{"network-hdd", "network-ssd"}, false),
 												},
 
 												"image_id": {
@@ -228,7 +228,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:         schema.TypeString,
 													Optional:     true,
 													Default:      "network-hdd",
-													ValidateFunc: validation.StringInSlice([]string{"network-hdd", "network-nvme"}, false),
+													ValidateFunc: validation.StringInSlice([]string{"network-hdd", "network-ssd"}, false),
 												},
 
 												"image_id": {

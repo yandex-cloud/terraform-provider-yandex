@@ -1,6 +1,7 @@
 ## 0.39.0 (Unreleased)
 ENHANCEMENTS:
 * mdb: add `roles` attribute to `user` entity in `mdb_mongodb` resource and data source
+* compute: change allowed disk type from `network-nvme` to `network-ssd`
 
 ## 0.38.0 (April 22, 2020)
 FEATURES:

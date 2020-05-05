@@ -393,7 +393,7 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
-	var diskTypeID = "network-nvme"
+	var diskTypeID = "network-ssd"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

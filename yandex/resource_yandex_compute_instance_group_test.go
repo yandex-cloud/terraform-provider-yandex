@@ -882,7 +882,7 @@ resource "yandex_compute_instance_group" "group1" {
         description = "desc1"
         image_id    = "${data.yandex_compute_image.ubuntu.id}"
         size        = 3
-        type        = "network-nvme"
+        type        = "network-ssd"
       }
     }
 
@@ -1554,7 +1554,7 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 			return fmt.Errorf("invalid number of secondary disks in instance group %s", ig.Name)
 		}
 
-		disk0 := &Disk{Size: 3, Type: "network-nvme", Description: "desc1"}
+		disk0 := &Disk{Size: 3, Type: "network-ssd", Description: "desc1"}
 		if err := checkDisk(fmt.Sprintf("instancegroup %s secondary disk #0", ig.Name), ig.InstanceTemplate.SecondaryDiskSpecs[0], disk0); err != nil {
 			return err
 		}

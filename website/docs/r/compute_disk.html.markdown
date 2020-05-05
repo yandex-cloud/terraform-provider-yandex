@@ -25,7 +25,7 @@ For more information about disks in Yandex.Cloud, see:
 ```hcl
 resource "yandex_compute_disk" "default" {
   name     = "disk"
-  type     = "network-nvme"
+  type     = "network-ssd"
   zone     = "ru-central1-a"
   image_id = "ubuntu-16.04-v20180727"
 
@@ -71,7 +71,7 @@ The following arguments are supported:
   or the size of the snapshot.
 
 * `type` - (Optional) Type of disk to create. Provide this when creating a disk. 
-  One of `network-hdd` (default) or `network-nvme`.
+  One of `network-hdd` (default) or `network-ssd`.
 
 * `image_id` -  (Optional) The source image to use for disk creation.
 
