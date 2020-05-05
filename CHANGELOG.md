@@ -1,3 +1,4 @@
+## 0.40.0 (Unreleased)
 ## 0.39.0 (May 05, 2020)
 ENHANCEMENTS:
 * mdb: add `roles` attribute to `user` entity in `mdb_mongodb` resource and data source
