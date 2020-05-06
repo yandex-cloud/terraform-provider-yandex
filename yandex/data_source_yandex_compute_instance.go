@@ -160,6 +160,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"ipv4": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 						"ip_address": {
 							Type:     schema.TypeString,
 							Computed: true,
