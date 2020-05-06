@@ -28,7 +28,7 @@ func TestAccDataSourceComputeInstanceGroup_byID(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceComputeInstanceGroupGpus_byID(t *testing.T) {
+func TestAccDataSourceComputeInstanceGroup_GpusByID(t *testing.T) {
 	igName := acctest.RandomWithPrefix("tf-test")
 	saName := acctest.RandomWithPrefix("tf-test")
 
@@ -45,7 +45,7 @@ func TestAccDataSourceComputeInstanceGroupGpus_byID(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceComputeInstanceGroupAutoscale_byID(t *testing.T) {
+func TestAccDataSourceComputeInstanceGroup_AutoscaleByID(t *testing.T) {
 	igName := acctest.RandomWithPrefix("tf-test")
 	saName := acctest.RandomWithPrefix("tf-test")
 
