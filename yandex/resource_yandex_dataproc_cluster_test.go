@@ -291,11 +291,14 @@ func (cfg *dataprocTFConfigParams) update(updater func(*dataprocTFConfigParams))
 	return *cfg
 }
 
-func defaultDataprocConfigParams() dataprocTFConfigParams {
+func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 	clusterName := acctest.RandomWithPrefix("tf-dataproc")
 	description := "Dataproc Cluster created by Terraform"
 	folderID := getExampleFolderID()
-	sshKey, _ := ioutil.ReadFile("test-fixtures/id_rsa.pub")
+	sshKey, err := ioutil.ReadFile("test-fixtures/id_rsa.pub")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	return dataprocTFConfigParams{
 		Bucket1:       acctest.RandomWithPrefix("tf-dataproc"),
@@ -344,7 +347,7 @@ func defaultDataprocConfigParams() dataprocTFConfigParams {
 
 func TestAccDataprocCluster(t *testing.T) {
 	var cluster dataproc.Cluster
-	templateParams := defaultDataprocConfigParams()
+	templateParams := defaultDataprocConfigParams(t)
 	clusterName := templateParams.Name
 	services := []string{"HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"}
 	properties := map[string]string{

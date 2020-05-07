@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDataSourceDataprocCluster_byName(t *testing.T) {
-	templateParams := defaultDataprocConfigParams()
+	templateParams := defaultDataprocConfigParams(t)
 	config := testAccDataprocClusterConfig(t, templateParams) + `
 		data "yandex_dataproc_cluster" "tf-dataproc-cluster" {
 		  name = "${yandex_dataproc_cluster.tf-dataproc-cluster.name}"
@@ -33,7 +33,7 @@ func TestAccDataSourceDataprocCluster_byName(t *testing.T) {
 }
 
 func TestAccDataSourceDataprocCluster_byId(t *testing.T) {
-	templateParams := defaultDataprocConfigParams()
+	templateParams := defaultDataprocConfigParams(t)
 	config := testAccDataprocClusterConfig(t, templateParams) + `
 		data "yandex_dataproc_cluster" "tf-dataproc-cluster" {
 		  cluster_id = "${yandex_dataproc_cluster.tf-dataproc-cluster.id}"
