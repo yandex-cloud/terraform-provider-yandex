@@ -19,6 +19,7 @@ func init() {
 		Name: "yandex_iam_service_account",
 		F:    testSweepIAMServiceAccounts,
 		Dependencies: []string{
+			"yandex_dataproc_cluster",
 			"yandex_kubernetes_cluster",
 			"yandex_compute_instance_group",
 		},

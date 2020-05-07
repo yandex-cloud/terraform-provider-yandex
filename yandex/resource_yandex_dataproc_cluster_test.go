@@ -12,6 +12,7 @@ import (
 	"text/template"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -29,6 +30,48 @@ func init() {
 	if ok {
 		testDataprocZone = zone
 	}
+	resource.AddTestSweepers("yandex_dataproc_cluster", &resource.Sweeper{
+		Name: "yandex_dataproc_cluster",
+		F:    testSweepDataprocCluster,
+	})
+}
+
+func testSweepDataprocCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.Dataproc().Cluster().List(conf.Context(), &dataproc.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting Data Proc clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepDataprocCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Data Proc cluster %q", c.Id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepDataprocCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepDataprocClusterOnce, conf, "Data Proc cluster", id)
+}
+
+func sweepDataprocClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexDataprocClusterDeleteTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
 }
 
 func TestExpandDataprocClusterConfig(t *testing.T) {
