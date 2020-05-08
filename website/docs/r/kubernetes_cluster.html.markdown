@@ -147,6 +147,7 @@ to access Container Registry or to push node logs and metrics.
 
 **Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources,
 it is necessary to add dependency on these access resources to cluster config:
+
 ```hcl
 depends_on = [
   "yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
