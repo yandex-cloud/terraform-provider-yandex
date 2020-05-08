@@ -66,8 +66,7 @@ The `boot_disk` block supports:
     under `/dev/disk/by-id/`.
 * `mode` - Access to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `disk_id` - ID of the attached disk.
-* `initialize_params` - Parameters used for creating a disk alongside the instance.
-    The structure is documented below.
+* `initialize_params` - Parameters used for creating a disk alongside the instance. The structure is documented below.
 
 The `initialize_params` block supports:
 

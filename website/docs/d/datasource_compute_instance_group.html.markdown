@@ -34,38 +34,22 @@ The following arguments are supported:
 * `description` - A description of the instance group.
 * `folder_id` - The ID of the folder that the instance group belongs to.
 * `labels` - A set of key/value label pairs to assign to the instance group.
-* `health_check` - Health check specification.
+* `health_check` - Health check specification. The structure is documented below.
 
-The structure is documented below.
+* `load_balancer` - Load balancing specification. The structure is documented below.
 
-* `load_balancer` - Load balancing specification.
+* `deploy_policy` - The deployment policy of the instance group. The structure is documented below.
 
-The structure is documented below.
+* `allocation_policy` - The allocation policy of the instance group by zone and region. The structure is documented below.
 
-* `deploy_policy` - The deployment policy of the instance group.
+* `instances` - A list of instances in the specified instance group. The structure is documented below.
 
-The structure is documented below.
-
-* `allocation_policy` - The allocation policy of the instance group by zone and region.
-
-The structure is documented below.
-
-* `instances` - A list of instances in the specified instance group.
-
-The structure is documented below.
-
-* `instance_template` - The instance template that the instance group belongs to.
-
-The structure is documented below.
+* `instance_template` - The instance template that the instance group belongs to. The structure is documented below.
 
 * `service_account_id` - The ID of the service account authorized for this instance group. 
-* `scale_policy` - The scaling policy of the instance group.
+* `scale_policy` - The scaling policy of the instance group. The structure is documented below.
 
-The structure is documented below.
-
-* `load_balancer_state` - Information about which entities can be attached to this load balancer.
-
-The structure is documented below.
+* `load_balancer_state` - Information about which entities can be attached to this load balancer. The structure is documented below.
 
 * `created_at` - The instance group creation timestamp.
 
@@ -84,13 +68,9 @@ The `load_balancer_state` block supports:
 
 The `scale_policy` block supports:
 
-* `fixed_scale` - The fixed scaling policy of the instance group.
+* `fixed_scale` - The fixed scaling policy of the instance group. The structure is documented below.
 
-The structure is documented below.
-
-* `auto_scale` - The auto scaling policy of the instance group.
-
-The structure is documented below.
+* `auto_scale` - The auto scaling policy of the instance group. The structure is documented below.
 
 ---
 
@@ -121,9 +101,7 @@ will not decrease even if the average load falls below the value of `cpu_utiliza
 
 * `cpu_utilization_target` - Target CPU load level.
 
-* `custom_rule` - A list of custom rules.
-
-The structure is documented below.
+* `custom_rule` - A list of custom rules. The structure is documented below.
 
 ---
 
@@ -156,16 +134,11 @@ The `instance_template` block supports:
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
 * `resources.0.gpus` - Number of GPU cores allocated to the instance.
-* `scheduling_policy` - The scheduling policy for the instance.
-The structure is documented below.
-* `network_interface` - An array with the network interfaces that will be attached to the instance.
-The structure is documented below.
-* `secondary_disk` - An array with the secondary disks that will be attached to the instance.
-The structure is documented below.
-* `boot_disk` - The specifications for boot disk that will be attached to the instance.
-The structure is documented below.
-* `network_settings` - Network acceleration settings.
-The structure is documented below.
+* `scheduling_policy` - The scheduling policy for the instance. The structure is documented below.
+* `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
+* `secondary_disk` - An array with the secondary disks that will be attached to the instance. The structure is documented below.
+* `boot_disk` - The specifications for boot disk that will be attached to the instance. The structure is documented below.
+* `network_settings` - Network acceleration settings. The structure is documented below.
 * `name` - Name template of the instance.
 * `hostname` - Hostname temaplate for the instance.
 
@@ -175,8 +148,7 @@ The `boot_disk` block supports:
 
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
-* `initialize_params` - The parameters used for creating a disk alongside the instance.
-The structure is documented below.
+* `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
 
 ---
 
@@ -194,8 +166,7 @@ The `secondary_disk` block supports:
 
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
-* `initialize_params` - The parameters used for creating a disk alongside the instance.
-The structure is documented below.
+* `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
 
 ---
 
@@ -232,8 +203,7 @@ The `instances` block supports:
 * `status` - The status of the instance.
 * `status_message` - The status message of the instance.
 * `zone_id` - The ID of the availability zone where the instance resides.
-* `network_interface` - An array with the network interfaces attached to the managed instance.
-The structure is documented below.
+* `network_interface` - An array with the network interfaces attached to the managed instance. The structure is documented below.
 * `status_changed_at` -The timestamp when the status of the managed instance was last changed.
 
 ---
@@ -286,10 +256,8 @@ The `health_check` block supports:
 * `timeout` - Timeout for the managed instance to return a response for the health check in seconds.
 * `healthy_threshold` - The number of successful health checks before the managed instance is declared healthy.
 * `unhealthy_threshold` - The number of failed health checks before the managed instance is declared unhealthy.
-* `tcp_options` - TCP check options.
-The structure is documented below.
-* `http_options` - HTTP check options.
-The structure is documented below.
+* `tcp_options` - TCP check options. The structure is documented below.
+* `http_options` - HTTP check options. The structure is documented below.
 
 ---
 

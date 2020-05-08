@@ -59,8 +59,7 @@ The default is 'ru-central1'.
 
 * `attached_target_group` - (Optional) An AttachedTargetGroup resource. The structure is documented below.
 
-* `listener` - (Optional) Listener specification that will be used by a network load balancer. 
-The structure is documented below.
+* `listener` - (Optional) Listener specification that will be used by a network load balancer. The structure is documented below.
 
 ---
 
@@ -68,8 +67,7 @@ The `attached_target_group` block supports:
 
 * `target_group_id` - (Required) ID of the target group.
 
-* `healthcheck` - (Required) A HealthCheck resource. 
-The structure is documented below.
+* `healthcheck` - (Required) A HealthCheck resource. The structure is documented below.
 
 ---
 

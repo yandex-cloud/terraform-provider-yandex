@@ -52,11 +52,9 @@ resource "yandex_vpc_subnet" "foo" {
 
 The following arguments are supported:
 
-* `resources` - (Required) Compute resources that are allocated for the instance.
-    The structure is documented below.
+* `resources` - (Required) Compute resources that are allocated for the instance. The structure is documented below.
 
-* `boot_disk` - (Required) The boot disk for the instance.
-    The structure is documented below.
+* `boot_disk` - (Required) The boot disk for the instance. The structure is documented below.
 
 * `network_interface` - (Required) Networks to attach to the instance. This can
     be specified multiple times. The structure is documented below.
@@ -120,8 +118,7 @@ The `boot_disk` block supports:
     `yandex_compute_disk`) to attach as a boot disk.
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
-    alongside the new instance. Either `initialize_params` or `disk_id` must be set.
-    The structure is documented below.
+    alongside the new instance. Either `initialize_params` or `disk_id` must be set. The structure is documented below.
 
 ~> **NOTE:** Either `initialize_params` or `disk_id` must be specified.
 
