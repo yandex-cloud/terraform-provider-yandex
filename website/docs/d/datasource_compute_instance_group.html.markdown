@@ -72,6 +72,7 @@ The structure is documented below.
 * `variables` - A set of key/value  variables pairs to assign to the instance group.
 
 * `status` - Status of the instance group.
+
 ---
 
 The `load_balancer_state` block supports:

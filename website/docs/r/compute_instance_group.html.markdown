@@ -105,6 +105,7 @@ The structure is documented below.
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance group.
 
 * `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
+
 ---
 
 The `load_balancer` block supports:
@@ -204,6 +205,7 @@ In order to be unique it must contain at least on of instance unique placeholder
 Example: my-instance-{instance.index}   
 If not set, `name` value will be used   
 It may also contain another placeholders, see metadata doc for full list.
+
 ---
 
 The `secondary_disk` block supports:
