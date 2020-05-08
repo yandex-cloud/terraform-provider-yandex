@@ -84,7 +84,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "%s"
   member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
   role        = "editor"
-  sleep_after = 60
+  sleep_after = 30
 }
 
 resource "yandex_function" "tf-test" {
@@ -97,6 +97,7 @@ resource "yandex_function" "tf-test" {
     zip_filename = "test-fixtures/serverless/main.zip"
   }
   service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
 }
 
 resource "yandex_function_trigger" "test-trigger" {
@@ -127,7 +128,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   folder_id   = "%s"
   member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
   role        = "editor"
-  sleep_after = 60
+  sleep_after = 30
 }
 
 resource "yandex_function" "tf-test" {
@@ -140,6 +141,7 @@ resource "yandex_function" "tf-test" {
     zip_filename = "test-fixtures/serverless/main.zip"
   }
   service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
 }
 
 resource "yandex_function_trigger" "test-trigger" {
