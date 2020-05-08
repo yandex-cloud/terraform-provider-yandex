@@ -38,14 +38,8 @@ The following attribute is exported:
 * `network_id` - ID of the network this security group belongs to.
 * `folder_id` - ID of the folder this security group belongs to.
 * `labels` - Labels to assign to this security group.
-* `ingress` - A list of ingress rules.
-
-The structure is documented below.
-
-* `egress` - A list of egress rules.
-
-The structure is documented below.
-
+* `ingress` - A list of ingress rules. The structure is documented below.
+* `egress` - A list of egress rules. The structure is documented below.
 * `status` - Status of this security group.
 * `created_at` - Creation timestamp of this security group.
 

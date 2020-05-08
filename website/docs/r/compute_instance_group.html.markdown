@@ -78,27 +78,21 @@ The following arguments are supported:
 
 * `folder_id` - (Required) The ID of the folder that the resources belong to.
 
-* `scale_policy` - (Required) The scaling policy of the instance group.
-The structure is documented below.
+* `scale_policy` - (Required) The scaling policy of the instance group. The structure is documented below.
 
-* `deploy_policy` - (Required) The deployment policy of the instance group.
-The structure is documented below.
+* `deploy_policy` - (Required) The deployment policy of the instance group. The structure is documented below.
 
 * `service_account_id` - (Required) The ID of the service account authorized for this instance group.
 
-* `instance_template` - (Required) The template for creating new instances.
-The structure is documented below.
+* `instance_template` - (Required) The template for creating new instances. The structure is documented below.
 
-* `allocation_policy` - (Required) The allocation policy of the instance group by zone and region.
-The structure is documented below.
+* `allocation_policy` - (Required) The allocation policy of the instance group by zone and region. The structure is documented below.
 
 * `name` - (Optional) The name of the instance group.
 
-* `health_check` - (Optional) Health check specifications.
-The structure is documented below.
+* `health_check` - (Optional) Health check specifications. The structure is documented below.
 
-* `load_balancer` - (Optional) Load balancing specifications.
-The structure is documented below.
+* `load_balancer` - (Optional) Load balancing specifications. The structure is documented below.
 
 * `description` - (Optional) A description of the instance group.
 
@@ -128,11 +122,9 @@ The `health_check` block supports:
 
 * `unhealthy_threshold` - (Optional) The number of failed health checks before the managed instance is declared unhealthy.
 
-* `tcp_options` - (Optional) TCP check options.
-The structure is documented below.
+* `tcp_options` - (Optional) TCP check options. The structure is documented below.
 
-* `http_options` - (Optional) HTTP check options.
-The structure is documented below.
+* `http_options` - (Optional) HTTP check options. The structure is documented below.
 
 ---
 
@@ -158,17 +150,13 @@ The `allocation_policy` block supports:
 
 The `instance_template` block supports:
 
-* `boot_disk` - (Required) Boot disk specifications for the instance.
-The structure is documented below.
+* `boot_disk` - (Required) Boot disk specifications for the instance. The structure is documented below.
 
-* `resources` - (Required) Compute resource specifications for the instance.
-The structure is documented below.
+* `resources` - (Required) Compute resource specifications for the instance. The structure is documented below.
 
-* `network_interface` - (Required) Network specifications for the instance. This can be used multiple times for adding multiple interfaces.
-The structure is documented below.
+* `network_interface` - (Required) Network specifications for the instance. This can be used multiple times for adding multiple interfaces. The structure is documented below.
 
-* `scheduling_policy` - (Optional) The scheduling policy configuration.
-The structure is documented below.
+* `scheduling_policy` - (Optional) The scheduling policy configuration. The structure is documented below.
 
 * `description` - (Optional) A description of the instance.
 
@@ -178,8 +166,7 @@ The structure is documented below.
 
 * `platform_id` - (Optional) The ID of the hardware platform configuration for the instance. The default is 'standard-v1'.
 
-* `secondary_disk` - (Optional) A list of disks to attach to the instance. 
-The structure is documented below.
+* `secondary_disk` - (Optional) A list of disks to attach to the instance. The structure is documented below.
 
 * `service_account_id` - (Optional) The ID of the service account authorized for this instance.
 
@@ -212,8 +199,7 @@ The `secondary_disk` block supports:
 
 * `mode` - (Required) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
-* `initialize_params` - (Required) Parameters used for creating a disk alongside the instance.
-The structure is documented below.
+* `initialize_params` - (Required) Parameters used for creating a disk alongside the instance. The structure is documented below.
 
 - - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.
@@ -267,8 +253,7 @@ The `boot_disk` block supports:
 
 * `mode` - (Required) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
-* `initialize_params` - (Required) Parameters for creating a disk alongside the instance.
-The structure is documented below.
+* `initialize_params` - (Required) Parameters for creating a disk alongside the instance. The structure is documented below.
 
 - - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.
@@ -312,11 +297,9 @@ has elapsed and all health checks are passed.
 
 The `scale_policy` block supports:
 
-* `fixed_scale` - (Optional) The fixed scaling policy of the instance group.
-The structure is documented below.
+* `fixed_scale` - (Optional) The fixed scaling policy of the instance group. The structure is documented below.
 
-* `auto_scale` - (Optional) The auto scaling policy of the instance group.
-The structure is documented below.
+* `auto_scale` - (Optional) The auto scaling policy of the instance group. The structure is documented below.
 
 ~> **NOTE:** Either `fixed_scale` or `auto_scale` must be specified.
 
@@ -349,8 +332,7 @@ traffic is fed to the virtual machine, but load metrics are not taken into accou
 an instance group can reduce the number of virtual machines in the group. During this time, the group
 will not decrease even if the average load falls below the value of `cpu_utilization_target`.
 
-* `custom_rule` - (Optional) A list of custom rules.
-The structure is documented below.
+* `custom_rule` - (Optional) A list of custom rules. The structure is documented below.
 
 ---
 

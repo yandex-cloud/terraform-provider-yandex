@@ -43,23 +43,15 @@ The following arguments are supported:
 * `created_at` - The Kubernetes node group creation timestamp.
 * `status` - Status of the Kubernetes node group.
 
-* `instance_template` - Template used to create compute instances in this Kubernetes node group.
+* `instance_template` - Template used to create compute instances in this Kubernetes node group. The structure is documented below.
 
-The structure is documented below.
+* `scale_policy` - Scale policy of the node group. The structure is documented below.
 
-* `scale_policy` - Scale policy of the node group.
- 
-The structure is documented below.
-
-* `allocation_policy` - This argument specify subnets (zones), that will be used by node group compute instances.
-
-The structure is documented below.
+* `allocation_policy` - This argument specify subnets (zones), that will be used by node group compute instances. The structure is documented below.
 
 * `instance_group_id` - ID of instance group that is used to manage this Kubernetes node group.
 
-* `maintenance_policy` - Information about maintenance policy for this Kubernetes node group.
-
-The structure is documented below.
+* `maintenance_policy` - Information about maintenance policy for this Kubernetes node group. The structure is documented below.
 
 * `node_labels` - A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
 
@@ -67,13 +59,9 @@ The structure is documented below.
 
 * `allowed_unsafe_sysctls` - A list of allowed unsafe sysctl parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/).
 
-* `version_info` - Information about Kubernetes node group version.
+* `version_info` - Information about Kubernetes node group version. The structure is documented below.
 
-The structure is documented below.
-
-* `deploy_policy` - Deploy policy of the node group.
-
-The structure is documented below.
+* `deploy_policy` - Deploy policy of the node group. The structure is documented below.
 
 ---
 
@@ -87,13 +75,9 @@ The `instance_template` block supports:
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
 
-* `boot_disk` - The specifications for boot disks that will be attached to the instance.
+* `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 
-The structure is documented below.
-
-* `scheduling_policy` - The scheduling policy for the instances in node group.
-
-The structure is documented below.
+* `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
 
 ---
 
@@ -135,9 +119,7 @@ The `auto_scale` block supports:
 
 The `allocation_policy` block supports:
 
-* `location` - Repeated field, that specify subnets (zones), that will be used by node group compute instances.
-
-The structure is documented below.   
+* `location` - Repeated field, that specify subnets (zones), that will be used by node group compute instances. The structure is documented below.   
 
 ---
 
