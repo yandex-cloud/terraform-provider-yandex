@@ -142,6 +142,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_compute_instance_group":                resourceYandexComputeInstanceGroup(),
 			"yandex_compute_snapshot":                      resourceYandexComputeSnapshot(),
 			"yandex_dataproc_cluster":                      resourceYandexDataprocCluster(),
+			"yandex_function_iam_binding":                  resourceYandexFunctionIAMBinding(),
 			"yandex_function":                              resourceYandexFunction(),
 			"yandex_function_trigger":                      resourceYandexFunctionTrigger(),
 			"yandex_iam_service_account":                   resourceYandexIAMServiceAccount(),

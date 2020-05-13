@@ -81,6 +81,38 @@ func getFolderIamPolicyByFolderID(folderID string, config *Config) (*Policy, err
 	return f.GetResourceIamPolicy()
 }
 
+func testAccCheckFunctionIam(resourceName, role string, members []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		bindings, err := getFunctionAccessBindings(config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		var roleMembers []string
+		for _, binding := range bindings {
+			if binding.RoleId == role {
+				member := binding.Subject.Type + ":" + binding.Subject.Id
+				roleMembers = append(roleMembers, member)
+			}
+		}
+		sort.Strings(members)
+		sort.Strings(roleMembers)
+
+		if reflect.DeepEqual(members, roleMembers) {
+			return nil
+		}
+
+		return fmt.Errorf("Binding found but expected members is %v, got %v", members, roleMembers)
+	}
+}
+
 func testAccCheckServiceAccountIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)

@@ -44,7 +44,6 @@ func resourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUp
 	}
 }
 
-//
 func resourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
 	r := resourceAccessBinding(parentSpecificSchema, newUpdaterFunc)
 	r.Importer = &schema.ResourceImporter{
