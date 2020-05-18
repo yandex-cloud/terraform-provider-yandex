@@ -136,10 +136,6 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 			"ipv6":        false,
 		}
 
-		if iface.GetSecurityGroupIds() != nil {
-			nics[i]["security_group_ids"] = convertStringArrToInterface(iface.SecurityGroupIds)
-		}
-
 		if iface.PrimaryV4Address != nil {
 			nics[i]["ipv4"] = true
 			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
@@ -325,10 +321,6 @@ func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInte
 		"nat":        nat,
 		"ipv4":       nicSpec.PrimaryV4AddressSpec != nil,
 		"ipv6":       nicSpec.PrimaryV6AddressSpec != nil,
-	}
-
-	if netSpec.GetSecurityGroupIds() != nil {
-		networkInterface["security_group_ids"] = convertStringArrToInterface(netSpec.SecurityGroupIds)
 	}
 
 	return networkInterface
@@ -798,14 +790,6 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 			SubnetId: subnetID,
 		}
 
-		if sgids, ok := data["security_group_ids"]; ok {
-			arr := sgids.([]interface{})
-			nics[i].SecurityGroupIds = make([]string, len(arr))
-			for j, c := range arr {
-				nics[i].SecurityGroupIds[j] = c.(string)
-			}
-		}
-
 		ipV4Address := data["ip_address"].(string)
 		ipV6Address := data["ipv6_address"].(string)
 
@@ -897,14 +881,6 @@ func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix str
 				}
 			} else {
 				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
-			}
-		}
-
-		if sgids, ok := data["security_group_ids"]; ok {
-			arr := sgids.([]interface{})
-			nics[i].SecurityGroupIds = make([]string, len(arr))
-			for i, c := range arr {
-				nics[i].SecurityGroupIds[i] = c.(string)
 			}
 		}
 	}

@@ -192,12 +192,6 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"security_group_ids": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
-						},
 					},
 				},
 			},
@@ -221,12 +215,6 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 						"disk_id": {
 							Type:     schema.TypeString,
 							Computed: true,
-						},
-						"security_group_ids": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 					},
 				},

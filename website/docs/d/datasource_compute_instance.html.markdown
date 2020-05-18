@@ -87,7 +87,6 @@ The `network_interface` block supports:
 * `nat` - Assigned for the instance's public address that is used to access the internet over NAT.
 * `nat_ip_address` - Public IP address of the instance.
 * `nat_ip_version` - IP version for the public address.
-* `security_group_ids` - Security group ids for network interface.
 
 The `secondary_disk` block supports:
 

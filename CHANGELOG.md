@@ -3,9 +3,6 @@ FEATURES:
 * **New Resource:** `yandex_function_iam_binding`
 BUG FIXES:
 * compute: add `ipv4` flag in `yandex_compute_instance` data source 
-ENHANCEMENTS:
-* compute: add `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance_group` resource and data source
-* compute: add `network_interface.security_group_ids` attribute in `yandex_compute_instance` resource and data source
 
 ## 0.39.0 (May 05, 2020)
 ENHANCEMENTS:
