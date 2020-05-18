@@ -798,11 +798,11 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 }
 
 var mdbMongodbUpdateFieldsMap = map[string]string{
-	"description":         "description",
-	"labels":              "labels",
-	"version":             "config_spec.version",
-	"access":              "config_spec.access",
-	"backup_window_start": "config_spec.backup_window_start",
+	"description":                          "description",
+	"labels":                               "labels",
+	"cluster_config.0.version":             "config_spec.version",
+	"cluster_config.0.access":              "config_spec.access",
+	"cluster_config.0.backup_window_start": "config_spec.backup_window_start",
 }
 
 func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -819,6 +819,48 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
 				d.SetPartial(field)
+			})
+		}
+	}
+
+	if d.HasChange("resources") {
+		switch d.Get("cluster_config.0.version").(string) {
+		case "4.2":
+			{
+				updatePath = append(updatePath, "config_spec.mongodb_spec_4_2")
+			}
+		case "4.0":
+			{
+				updatePath = append(updatePath, "config_spec.mongodb_spec_4_0")
+			}
+		case "3.6":
+			{
+				updatePath = append(updatePath, "config_spec.mongodb_spec_3_6")
+			}
+		default:
+			{
+				return fmt.Errorf("wrong MongoDB version: required either 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
+			}
+		}
+
+		if d.HasChange("resources.0.disk_size") {
+			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_size")
+			onDone = append(onDone, func() {
+				d.SetPartial("resources.0.disk_size")
+			})
+		}
+
+		if d.HasChange("resources.0.disk_type_id") {
+			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_type_id")
+			onDone = append(onDone, func() {
+				d.SetPartial("resources.0.disk_type_id")
+			})
+		}
+
+		if d.HasChange("resources.0.resource_preset_id") {
+			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.resource_preset_id")
+			onDone = append(onDone, func() {
+				d.SetPartial("resources.0.resource_preset_id")
 			})
 		}
 	}

@@ -130,7 +130,8 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "description", mongodbDesc),
 					resource.TestCheckResourceAttrSet(mongodbResource, "host.0.name"),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
+					//testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
+					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.small", 27917287424),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}, "mary": {"newdb", "admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
@@ -469,7 +470,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     feature_compatibility_version = "4.2"
     backup_window_start {
       hours = 3
-      minutes = 3
+      minutes = 4
     }
   }
 
@@ -520,7 +521,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     feature_compatibility_version = "4.2"
     backup_window_start {
       hours = 3
-      minutes = 3
+      minutes = 4
     }
   }
 
@@ -577,7 +578,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     feature_compatibility_version = "4.2"
     backup_window_start {
       hours = 3
-      minutes = 3
+      minutes = 4
     }
   }
 
@@ -611,8 +612,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   resources {
-    resource_preset_id = "s2.micro"
-    disk_size          = 16
+    resource_preset_id = "s2.small"
+    disk_size          = 26
     disk_type_id       = "network-hdd"
   }
 

@@ -259,10 +259,12 @@ func expandMongoDBDatabases(d *schema.ResourceData) ([]*mongodb.DatabaseSpec, er
 }
 
 func expandMongoDBResources(d *schema.ResourceData) *mongodb.Resources {
-	res := mongodb.Resources{}
-	res.DiskSize = toBytes(d.Get("resources.0.disk_size").(int))
-	res.DiskTypeId = d.Get("resources.0.disk_type_id").(string)
-	res.ResourcePresetId = d.Get("resources.0.resource_preset_id").(string)
+	res := mongodb.Resources{
+		DiskSize:         toBytes(d.Get("resources.0.disk_size").(int)),
+		DiskTypeId:       d.Get("resources.0.disk_type_id").(string),
+		ResourcePresetId: d.Get("resources.0.resource_preset_id").(string),
+	}
+
 	return &res
 }
 
@@ -275,18 +277,16 @@ func expandMongoDBBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay
 	return &res
 }
 
+//the following expansion works only because sharded mongodb is not supported
+
 func expandMongoDBSpec4_2(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_4_2 {
 	return &mongodb.ConfigSpec_MongodbSpec_4_2{
 		MongodbSpec_4_2: &mongodb.MongodbSpec4_2{
 			Mongod: &mongodb.MongodbSpec4_2_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec4_2_Mongos{
-				Resources: expandMongoDBResources(d),
-			},
-			Mongocfg: &mongodb.MongodbSpec4_2_MongoCfg{
-				Resources: expandMongoDBResources(d),
-			},
+			Mongos: &mongodb.MongodbSpec4_2_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec4_2_MongoCfg{},
 		},
 	}
 }
@@ -297,12 +297,8 @@ func expandMongoDBSpec4_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			Mongod: &mongodb.MongodbSpec4_0_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec4_0_Mongos{
-				Resources: expandMongoDBResources(d),
-			},
-			Mongocfg: &mongodb.MongodbSpec4_0_MongoCfg{
-				Resources: expandMongoDBResources(d),
-			},
+			Mongos: &mongodb.MongodbSpec4_0_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec4_0_MongoCfg{},
 		},
 	}
 }
@@ -313,12 +309,8 @@ func expandMongoDBSpec3_6(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			Mongod: &mongodb.MongodbSpec3_6_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec3_6_Mongos{
-				Resources: expandMongoDBResources(d),
-			},
-			Mongocfg: &mongodb.MongodbSpec3_6_MongoCfg{
-				Resources: expandMongoDBResources(d),
-			},
+			Mongos: &mongodb.MongodbSpec3_6_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec3_6_MongoCfg{},
 		},
 	}
 }
