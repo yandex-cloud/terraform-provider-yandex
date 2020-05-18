@@ -147,6 +147,7 @@ to access Container Registry or to push node logs and metrics.
 
 **Note**: When access rights for `service_account_id` or `node_service_account_id` are provided using terraform resources,
 it is necessary to add dependency on these access resources to cluster config:
+
 ```hcl
 depends_on = [
   "yandex_resourcemanager_folder_iam_member.ServiceAccountResourceName",
@@ -163,9 +164,7 @@ that will cause problems for cluster and related node group deletion.
 
 * `kms_provider` - (Optional) cluster KMS provider parameters.
 
-* `master` - Kubernetes master configuration options.
-
-The structure is documented below.
+* `master` - Kubernetes master configuration options. The structure is documented below.
 
 ## Attributes Reference
 
@@ -184,21 +183,13 @@ The `master` block supports:
 * `maintenance_policy` - (Optional) (Computed) Maintenance policy for Kubernetes master.
 If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time.
 Revision upgrades are performed only within the same minor version, e.g. 1.13.
-Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
+Minor version upgrades (e.g. 1.13->1.14) should be performed manually. The structure is documented below.
 
-The structure is documented below.
+* `zonal` - (Optional) Initialize parameters for Zonal Master (single node master). The structure is documented below.
 
-* `zonal` - (Optional) Initialize parameters for Zonal Master (single node master).
+* `regional` - (Optional) Initialize parameters for Regional Master (highly available master). The structure is documented below.
 
-The structure is documented below.
-
-* `regional` - (Optional) Initialize parameters for Regional Master (highly available master).
-
-The structure is documented below.
-
-* `version_info` - (Computed) Information about cluster version.
-
-The structure is documented below.
+* `version_info` - (Computed) Information about cluster version. The structure is documented below.
 
 * `internal_v4_address` - (Computed) An IPv4 internal network address that is assigned to the master.
 * `external_v4_address` - (Computed) An IPv4 external network address that is assigned to the master.
@@ -230,9 +221,7 @@ The `zonal` block supports:
 The `regional` block supports:
 
 * `region` - (Required) Name of availability region (e.g. "ru-central1"), where master instances will be allocated.
-* `location` - Array of locations, where master instances will be allocated.
-
-The structure is documented below.
+* `location` - Array of locations, where master instances will be allocated. The structure is documented below.
 
 ---
 

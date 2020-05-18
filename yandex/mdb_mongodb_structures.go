@@ -285,7 +285,7 @@ func expandMongoDBSpec4_2(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			Mongod: &mongodb.MongodbSpec4_2_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec4_2_Mongos{},
+			Mongos:   &mongodb.MongodbSpec4_2_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec4_2_MongoCfg{},
 		},
 	}
@@ -297,7 +297,7 @@ func expandMongoDBSpec4_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			Mongod: &mongodb.MongodbSpec4_0_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec4_0_Mongos{},
+			Mongos:   &mongodb.MongodbSpec4_0_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec4_0_MongoCfg{},
 		},
 	}
@@ -309,7 +309,7 @@ func expandMongoDBSpec3_6(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			Mongod: &mongodb.MongodbSpec3_6_Mongod{
 				Resources: expandMongoDBResources(d),
 			},
-			Mongos: &mongodb.MongodbSpec3_6_Mongos{},
+			Mongos:   &mongodb.MongodbSpec3_6_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec3_6_MongoCfg{},
 		},
 	}

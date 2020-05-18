@@ -83,26 +83,18 @@ The following arguments are supported:
 * `description` - (Optional) A description of the Kubernetes node group.
 * `labels` - (Optional) A set of key/value label pairs assigned to the Kubernetes node group.
 * `version` - (Optional) Version of Kubernetes that will be used for Kubernetes node group.
-* `instance_template` - (Required) Template used to create compute instances in this Kubernetes node group.
+* `instance_template` - (Required) Template used to create compute instances in this Kubernetes node group. The structure is documented below.
 
-The structure is documented below.
+* `scale_policy` - (Required) Scale policy of the node group. The structure is documented below.
 
-* `scale_policy` - (Required) Scale policy of the node group.
- 
-The structure is documented below.
-
-* `allocation_policy` - This argument specify subnets (zones), that will be used by node group compute instances.
-
-The structure is documented below.
+* `allocation_policy` - This argument specify subnets (zones), that will be used by node group compute instances. The structure is documented below.
 
 * `instance_group_id` - (Computed) ID of instance group that is used to manage this Kubernetes node group.
 
 * `maintenance_policy` - (Optional) (Computed) Maintenance policy for this Kubernetes node group.
 If policy is omitted, automatic revision upgrades are enabled and could happen at any time.
 Revision upgrades are performed only within the same minor version, e.g. 1.13.
-Minor version upgrades (e.g. 1.13->1.14) should be performed manually.
-
-The structure is documented below.
+Minor version upgrades (e.g. 1.13->1.14) should be performed manually. The structure is documented below.
 
 * `node_labels` - (Optional, Forces new resource) A set of key/value label pairs, that are assigned to all the nodes of this Kubernetes node group.
 
@@ -110,13 +102,9 @@ The structure is documented below.
 
 * `allowed_unsafe_sysctls` - (Optional, Forces new resource) A list of allowed unsafe sysctl parameters for this node group. For more details see [documentation](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/).
 
-* `version_info` - (Computed) Information about Kubernetes node group version.
+* `version_info` - (Computed) Information about Kubernetes node group version. The structure is documented below.
 
-The structure is documented below.
-
-* `deploy_policy` - Deploy policy of the node group.
-
-The structure is documented below.
+* `deploy_policy` - Deploy policy of the node group. The structure is documented below.
 
 ---
 
@@ -129,13 +117,9 @@ The `instance_template` block supports:
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
 
-* `boot_disk` - The specifications for boot disks that will be attached to the instance.
+* `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 
-The structure is documented below.
-
-* `scheduling_policy` - The scheduling policy for the instances in node group.
-
-The structure is documented below.
+* `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
 
 
 ---
@@ -176,9 +160,7 @@ The `auto_scale` block supports:
 
 The `allocation_policy` block supports:
 
-* `location` - Repeated field, that specify subnets (zones), that will be used by node group compute instances.
-
-The structure is documented below.   
+* `location` - Repeated field, that specify subnets (zones), that will be used by node group compute instances. The structure is documented below.   
 
 ---
 

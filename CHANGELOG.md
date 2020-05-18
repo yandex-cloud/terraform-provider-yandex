@@ -1,4 +1,6 @@
 ## 0.40.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_function_iam_binding`
 BUG FIXES:
 * compute: add `ipv4` flag in `yandex_compute_instance` data source 
 

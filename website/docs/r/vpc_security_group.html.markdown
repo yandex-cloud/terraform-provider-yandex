@@ -68,9 +68,7 @@ The following arguments are supported:
 * `folder_id` (Optional) - ID of the folder this security group belongs to.
 * `labels` (Optional) - Labels to assign to this security group.
 * `ingress` (Optional) - A list of ingress rules.
-* `egress` (Optional) - A list of egress rules.
-
-The structure is documented below.
+* `egress` (Optional) - A list of egress rules. The structure is documented below.
 
 ## Attributes Reference
 

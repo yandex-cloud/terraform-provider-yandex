@@ -53,9 +53,7 @@ to access Container Registry or to push node logs and metrics.
 
 * `release_channel` - Cluster release channel.
 
-* `master` - Kubernetes master configuration options.
-
-The structure is documented below.
+* `master` - Kubernetes master configuration options. The structure is documented below.
 
 * `created_at` - The Kubernetes cluster creation timestamp.
 * `status` - Status of the Kubernetes cluster.
@@ -72,17 +70,11 @@ The `master` block supports:
 * `version` - Version of Kubernetes master.
 * `public_ip` - Boolean flag. When `true`, Kubernetes master have visible ipv4 address.
 
-* `maintenance_policy` - Maintenance policy for Kubernetes master.
+* `maintenance_policy` - Maintenance policy for Kubernetes master. The structure is documented below.
 
-The structure is documented below.
+* `zonal` - Information about cluster zonal master. The structure is documented below.
 
-* `zonal` - Information about cluster zonal master.
-
-The structure is documented below.
-
-* `regional` - Information about cluster regional master.
-
-The structure is documented below.
+* `regional` - Information about cluster regional master. The structure is documented below.
 
 * `internal_v4_address` - An IPv4 internal network address that is assigned to the master.
 * `external_v4_address` - An IPv4 external network address that is assigned to the master.
@@ -90,9 +82,7 @@ The structure is documented below.
 * `external_v4_endpoint` - External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
 * `cluster_ca_certificate` - PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.  
 
-* `version_info` - Information about cluster version.
-
-The structure is documented below.
+* `version_info` - Information about cluster version. The structure is documented below.
 
 ---
 
