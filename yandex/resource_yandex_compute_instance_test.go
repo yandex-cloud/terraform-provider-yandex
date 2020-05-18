@@ -199,6 +199,31 @@ func TestAccComputeInstance_basic6(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_SecurityGroups(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_SecurityGroups(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
+					testAccCheckComputeInstanceHasSG(&instance),
+					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_NatIP(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
@@ -1109,6 +1134,16 @@ func testAccCheckComputeInstanceHasResources(instance *compute.Instance, cores, 
 	}
 }
 
+func testAccCheckComputeInstanceHasSG(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ni := instance.GetNetworkInterfaces()[0]
+		if ni.SecurityGroupIds == nil || len(ni.SecurityGroupIds) == 0 {
+			return fmt.Errorf("invalid network_interface.security_group_ids value in instance group %s", instance.Name)
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceHasGpus(instance *compute.Instance, gpus int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		resources := instance.GetResources()
@@ -1536,6 +1571,73 @@ resource "yandex_compute_instance" "foobar" {
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_SecurityGroups(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic6"
+  zone        = "ru-central1-b"
+  platform_id = "standard-v2"
+
+  resources {
+    cores         = 2
+    core_fraction = 5
+    memory        = 0.5
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id          = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_security_group" "sgr1" {
+  name        = "tf-test-sg-1"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-test-network.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-b"
