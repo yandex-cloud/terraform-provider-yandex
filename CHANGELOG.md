@@ -3,6 +3,7 @@ FEATURES:
 * **New Resource:** `yandex_function_iam_binding`
 BUG FIXES:
 * compute: add `ipv4` flag in `yandex_compute_instance` data source 
+* mdb: fix disk size change on `mdb_mongodb` resource update
 
 ## 0.39.0 (May 05, 2020)
 ENHANCEMENTS:

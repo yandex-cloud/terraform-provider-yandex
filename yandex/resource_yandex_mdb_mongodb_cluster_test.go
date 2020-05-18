@@ -130,7 +130,6 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "description", mongodbDesc),
 					resource.TestCheckResourceAttrSet(mongodbResource, "host.0.name"),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "new_key", "new_value"),
-					//testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
 					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.small", 27917287424),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}, "mary": {"newdb", "admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
