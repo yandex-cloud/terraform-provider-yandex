@@ -6,12 +6,56 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_compute_disk", &resource.Sweeper{
+		Name: "yandex_compute_disk",
+		F:    testSweepComputeDisks,
+		Dependencies: []string{
+			"yandex_compute_instance",
+			"yandex_compute_instance_group",
+		},
+	})
+}
+
+func testSweepComputeDisks(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Compute().Disk().DiskIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepComputeDisk(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute Disk %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepComputeDisk(conf *Config, id string) bool {
+	return sweepWithRetry(sweepComputeDiskOnce, conf, "Compute Disk", id)
+}
+
+func sweepComputeDiskOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexComputeDiskDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Compute().Disk().Delete(ctx, &compute.DeleteDiskRequest{
+		DiskId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccComputeDisk_basic(t *testing.T) {
 	t.Parallel()
