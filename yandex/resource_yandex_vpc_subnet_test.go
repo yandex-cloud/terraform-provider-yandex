@@ -25,6 +25,7 @@ func init() {
 			"yandex_kubernetes_cluster",
 			"yandex_mdb_clickhouse_cluster",
 			"yandex_mdb_mongodb_cluster",
+			"yandex_mdb_mysql_cluster",
 			"yandex_mdb_postgresql_cluster",
 			"yandex_mdb_redis_cluster",
 			"yandex_lb_target_group",
