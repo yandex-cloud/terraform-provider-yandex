@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -13,6 +14,48 @@ import (
 )
 
 const nlbResource = "yandex_lb_network_load_balancer.test-nlb"
+
+func init() {
+	resource.AddTestSweepers("yandex_lb_network_load_balancer", &resource.Sweeper{
+		Name: "yandex_lb_network_load_balancer",
+		F:    testSweepLBNetworkLoadBalancers,
+		Dependencies: []string{
+			"yandex_lb_target_group",
+		},
+	})
+}
+
+func testSweepLBNetworkLoadBalancers(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepLBNetworkLoadBalancer(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Network Load Balancer %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepLBNetworkLoadBalancer(conf *Config, id string) bool {
+	return sweepWithRetry(sweepLBNetworkLoadBalancerOnce, conf, "Network Load Balancer", id)
+}
+
+func sweepLBNetworkLoadBalancerOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexLBNetworkLoadBalancerDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.LoadBalancer().NetworkLoadBalancer().Delete(ctx, &loadbalancer.DeleteNetworkLoadBalancerRequest{
+		NetworkLoadBalancerId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func networkLoadBalancerImportStep() resource.TestStep {
 	return resource.TestStep{

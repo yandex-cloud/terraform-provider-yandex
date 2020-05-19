@@ -18,14 +18,17 @@ func init() {
 		Name: "yandex_vpc_subnet",
 		F:    testSweepVPCSubnets,
 		Dependencies: []string{
+			"yandex_compute_instance",
+			"yandex_compute_instance_group",
 			"yandex_dataproc_cluster",
-			"yandex_mdb_clickhouse_cluster",
-			"yandex_mdb_mongodb_cluster",
-			"yandex_mdb_postgresql_cluster",
-			"yandex_mdb_redis_cluster",
 			"yandex_kubernetes_node_group",
 			"yandex_kubernetes_cluster",
-			"yandex_compute_instance_group",
+			"yandex_mdb_clickhouse_cluster",
+			"yandex_mdb_mongodb_cluster",
+			"yandex_mdb_mysql_cluster",
+			"yandex_mdb_postgresql_cluster",
+			"yandex_mdb_redis_cluster",
+			"yandex_lb_target_group",
 		},
 	})
 }

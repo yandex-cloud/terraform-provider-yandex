@@ -7,6 +7,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -16,6 +17,55 @@ import (
 )
 
 const mysqlResource = "yandex_mdb_mysql_cluster.foo"
+
+func init() {
+	resource.AddTestSweepers("yandex_mdb_mysql_cluster", &resource.Sweeper{
+		Name: "yandex_mdb_mysql_cluster",
+		F:    testSweepMDBMySQLCluster,
+	})
+}
+
+func testSweepMDBMySQLCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.MDB().MySQL().Cluster().List(conf.Context(), &mysql.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting MySQL clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepMDBMysqlCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep MySQL cluster %q", c.Id))
+		} else {
+			if !sweepVPCNetwork(conf, c.NetworkId) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
+			}
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepMDBMysqlCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepMDBMysqlClusterOnce, conf, "MySQL cluster", id)
+}
+
+func sweepMDBMysqlClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBMySQLClusterDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func mdbMysqlClusterImportStep(name string) resource.TestStep {
 	return resource.TestStep{

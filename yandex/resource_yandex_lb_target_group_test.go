@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -13,6 +14,46 @@ import (
 )
 
 const tgResource = "yandex_lb_target_group.test-tg"
+
+func init() {
+	resource.AddTestSweepers("yandex_lb_target_group", &resource.Sweeper{
+		Name:         "yandex_lb_target_group",
+		F:            testSweepLBTargetGroups,
+		Dependencies: []string{},
+	})
+}
+
+func testSweepLBTargetGroups(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepLBTargetGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep LB Target Group %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepLBTargetGroup(conf *Config, id string) bool {
+	return sweepWithRetry(sweepLBTargetGroupOnce, conf, "LB Target Group", id)
+}
+
+func sweepLBTargetGroupOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.LoadBalancer().TargetGroup().Delete(ctx, &loadbalancer.DeleteTargetGroupRequest{
+		TargetGroupId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func targetGroupImportStep() resource.TestStep {
 	return resource.TestStep{

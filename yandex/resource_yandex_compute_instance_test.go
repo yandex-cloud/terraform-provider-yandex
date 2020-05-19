@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -14,6 +15,50 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_compute_instance", &resource.Sweeper{
+		Name: "yandex_compute_instance",
+		F:    testSweepComputeInstances,
+		Dependencies: []string{
+			"yandex_dataproc_cluster",
+			"yandex_kubernetes_cluster",
+			"yandex_compute_instance_group",
+		},
+	})
+}
+
+func testSweepComputeInstances(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.Compute().Instance().InstanceIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepComputeInstance(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Compute Instance %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepComputeInstance(conf *Config, id string) bool {
+	return sweepWithRetry(sweepComputeInstanceOnce, conf, "Compute Instance", id)
+}
+
+func sweepComputeInstanceOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexComputeInstanceDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.Compute().Instance().Delete(ctx, &compute.DeleteInstanceRequest{
+		InstanceId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func computeInstanceImportStep() resource.TestStep {
 	return resource.TestStep{
