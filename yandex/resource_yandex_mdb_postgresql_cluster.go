@@ -478,6 +478,12 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
+	if d.HasChange("user") {
+		if err := updatePGClusterUsersWithoutPermissions(d, meta); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("database") {
 		if err := updatePGClusterDatabases(d, meta); err != nil {
 			return err
@@ -485,7 +491,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("user") {
-		if err := updatePGClusterUsers(d, meta); err != nil {
+		if err := updatePGClusterUserPermissions(d, meta); err != nil {
 			return err
 		}
 	}
@@ -643,7 +649,7 @@ func validateNoUpdatingCollation(currentDatabases []*postgresql.Database, target
 	return nil
 }
 
-func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
+func updatePGClusterUsersWithoutPermissions(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -667,6 +673,7 @@ func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	for _, u := range toAdd {
+		u.Permissions = make([]*postgresql.Permission, 0)
 		err := createPGUser(ctx, config, d, u)
 		if err != nil {
 			return err
@@ -675,7 +682,7 @@ func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
 
 	oldSpecs, newSpecs := d.GetChange("user")
 
-	changedUsers, err := pgChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	changedUsers, err := pgChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), false)
 	if err != nil {
 		return err
 	}
@@ -688,6 +695,30 @@ func updatePGClusterUsers(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetPartial("user")
 
+	return nil
+}
+
+func updatePGClusterUserPermissions(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	oldSpecs, newSpecs := d.GetChange("user")
+
+	changedUsers, err := pgChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), true)
+	if err != nil {
+		return err
+	}
+
+	for _, u := range changedUsers {
+		err := updatePGUser(ctx, config, d, u)
+		if err != nil {
+			return err
+		}
+	}
+
+	d.SetPartial("user")
 	return nil
 }
 

@@ -133,9 +133,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
-					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb"}}),
+					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckUnmodifiedUserSettings(pgResource),
-					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb"}),
+					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
 			},
@@ -153,8 +153,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
-					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb"}}),
-					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb"}),
+					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
+					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
 			},
@@ -590,16 +590,22 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     permission {
       database_name = "testdb"
     }
+
     permission {
       database_name = "newdb"
     }
   }
+
   user {
     name     = "bob"
     password = "anothersecurepassword"
 
     permission {
       database_name = "newdb"
+    }
+
+    permission {
+      database_name = "fornewuserdb"
     }
   }
 
@@ -614,9 +620,15 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     lc_collate = "en_US.UTF-8"
     lc_type    = "en_US.UTF-8"
   }
+
   database {
     owner = "alice"
     name  = "newdb"
+  }
+
+  database {
+    owner = "bob"
+    name  = "fornewuserdb"
   }
 }
 `, name, desc)
@@ -656,16 +668,22 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     permission {
       database_name = "testdb"
     }
+
     permission {
       database_name = "newdb"
     }
   }
+
   user {
     name     = "bob"
     password = "anothersecurepassword"
 
     permission {
       database_name = "newdb"
+    }
+
+    permission {
+      database_name = "fornewuserdb"
     }
   }
 
@@ -684,9 +702,15 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     lc_collate = "en_US.UTF-8"
     lc_type    = "en_US.UTF-8"
   }
+
   database {
     owner = "alice"
     name  = "newdb"
+  }
+
+   database {
+    owner = "bob"
+    name  = "fornewuserdb"
   }
 }
 `, name, desc)
