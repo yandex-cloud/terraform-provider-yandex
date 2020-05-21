@@ -4,6 +4,7 @@ FEATURES:
 BUG FIXES:
 * compute: add `ipv4` flag in `yandex_compute_instance` data source 
 * mdb: fix disk size change on `mdb_mongodb` resource update
+* mdb: adding database with its owner to existing `resource_yandex_mdb_postgresql_cluster` simultaneously
 
 ## 0.39.0 (May 05, 2020)
 ENHANCEMENTS:

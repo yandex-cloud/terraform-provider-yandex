@@ -598,28 +598,37 @@ func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpe
 	return toDel, toAdd
 }
 
-func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]map[string]interface{}, error) {
+func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, withNewPermissions bool) ([]map[string]interface{}, error) {
 	out := make([]map[string]interface{}, 0)
 
 	m := map[string]*postgresql.UserSpec{}
+	permissions := map[string]interface{}{}
 	for _, spec := range oldSpecs.List() {
-		user, err := expandPGUser(spec.(map[string]interface{}))
+		mapOldUser := spec.(map[string]interface{})
+		user, err := expandPGUser(mapOldUser)
 		if err != nil {
 			return nil, err
 		}
 		m[user.Name] = user
+		permissions[user.Name] = mapOldUser["permission"]
 	}
 
 	for _, spec := range newSpecs.List() {
 		mapUser := spec.(map[string]interface{})
-		user, err := expandPGUser(mapUser)
+		newUser, err := expandPGUser(mapUser)
 		if err != nil {
 			return nil, err
 		}
-		if u, ok := m[user.Name]; ok {
-			if !reflect.DeepEqual(user, u) {
+		if oldUser, ok := m[newUser.Name]; ok {
+			if !withNewPermissions {
+				newUser.Permissions = oldUser.Permissions
+				mapUser["permission"] = permissions[newUser.Name]
+			}
+			if !reflect.DeepEqual(newUser, oldUser) {
 				out = append(out, mapUser)
 			}
+		} else if withNewPermissions {
+			out = append(out, mapUser)
 		}
 	}
 
