@@ -1,4 +1,4 @@
-## 0.40.0 (Unreleased)
+## 0.40.0 (May 22, 2020)
 FEATURES:
 * **New Resource:** `yandex_function_iam_binding`
 
