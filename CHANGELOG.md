@@ -1,4 +1,8 @@
 ## 0.42.0 (Unreleased)
+
+ENHANCEMENTS:
+* mdb: add `role` attribute to `host` entity in `yandex_mdb_postgresql_cluster` resource and data source
+
 BUG FIXES:
 * compute: fix `secondary_disk` validation in `yandex_compute_instance_group` resource
 

@@ -188,6 +188,10 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"role": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
