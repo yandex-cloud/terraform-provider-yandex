@@ -9,7 +9,7 @@ description: |-
 # yandex\_compute\_image
 
 Creates a virtual machine image resource for the Yandex Compute Cloud service from an existing
-tarball. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/images).
+tarball. For more information, see [the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
 
 
 ## Example Usage

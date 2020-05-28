@@ -9,7 +9,7 @@ description: |-
 # yandex\_compute\_image
 
 Get information about a Yandex Compute image. For more information, see
-[the official documentation](https://cloud.yandex.com/docs/compute/concepts/images).
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/image).
 
 ## Example Usage
 
