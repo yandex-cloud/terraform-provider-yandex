@@ -833,7 +833,7 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, m
 	user, _ := expandPGUser(mapUser)
 	mdbPGUserUpdateFieldsMap := map[string]string{
 		"user.%d.password":   "password",
-		"user.%d.permission": "permission",
+		"user.%d.permission": "permissions",
 		"user.%d.login":      "login",
 		"user.%d.grants":     "grants",
 	}
