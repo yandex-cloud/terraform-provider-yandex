@@ -3,6 +3,9 @@ FEATURES:
 * **New Data Source:** `yandex_message_queue`
 * **New Resource:** `yandex_message_queue`
 
+BUG FIXES:
+* mdb: fix typo in using mdb api by `resource_yandex_mdb_postgresql_cluster`
+
 ## 0.40.0 (May 22, 2020)
 FEATURES:
 * **New Resource:** `yandex_function_iam_binding`
