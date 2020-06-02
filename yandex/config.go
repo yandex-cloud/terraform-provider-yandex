@@ -42,11 +42,17 @@ type Config struct {
 	Insecure              bool
 	MaxRetries            int
 	StorageEndpoint       string
+	YMQEndpoint           string
 
 	// These storage access keys are optional and only used when
 	// storage data/resource doesn't have own access keys explicitly specified.
 	StorageAccessKey string
 	StorageSecretKey string
+
+	// These YMQ access keys are optional and only used when
+	// Message Queue resource doesn't have own access keys explicitly specified.
+	YMQAccessKey string
+	YMQSecretKey string
 
 	// contextWithClientTraceID is a context that has client-trace-id in its metadata
 	// It is initialized from stopContext at the same time as ycsdk.SDK

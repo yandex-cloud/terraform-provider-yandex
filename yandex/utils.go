@@ -145,14 +145,17 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 	}
 
 	createKey := func() (*awscompatibility.CreateAccessKeyResponse, error) {
-		op, err = config.sdk.WrapOperation(config.sdk.ResourceManager().Folder().SetAccessBindings(context.Background(), &access.SetAccessBindingsRequest{
+		op, err = config.sdk.WrapOperation(config.sdk.ResourceManager().Folder().UpdateAccessBindings(context.Background(), &access.UpdateAccessBindingsRequest{
 			ResourceId: config.FolderID,
-			AccessBindings: []*access.AccessBinding{
+			AccessBindingDeltas: []*access.AccessBindingDelta{
 				{
-					RoleId: roleID,
-					Subject: &access.Subject{
-						Id:   saID,
-						Type: "serviceAccount",
+					Action: access.AccessBindingAction_ADD,
+					AccessBinding: &access.AccessBinding{
+						RoleId: roleID,
+						Subject: &access.Subject{
+							Id:   saID,
+							Type: "serviceAccount",
+						},
 					},
 				},
 			},

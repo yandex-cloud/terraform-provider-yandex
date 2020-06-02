@@ -10,6 +10,7 @@ const (
 	defaultMaxRetries      = 5
 	defaultEndpoint        = "api.cloud.yandex.net:443"
 	defaultStorageEndpoint = "storage.yandexcloud.net"
+	defaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
 )
 
 // Global MutexKV
@@ -99,6 +100,25 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 				Default:     defaultMaxRetries,
 				Description: descriptions["max_retries"],
 			},
+			"ymq_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_ENDPOINT", defaultYMQEndpoint),
+				Description: descriptions["ymq_endpoint"],
+			},
+			"ymq_access_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_ACCESS_KEY", nil),
+				Description: descriptions["ymq_access_key"],
+			},
+			"ymq_secret_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_SECRET_KEY", nil),
+				Description: descriptions["ymq_secret_key"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -132,6 +152,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_vpc_route_table":          dataSourceYandexVPCRouteTable(),
 			"yandex_vpc_security_group":       dataSourceYandexVPCSecurityGroup(),
 			"yandex_vpc_subnet":               dataSourceYandexVPCSubnet(),
+			"yandex_message_queue":            dataSourceYandexMessageQueue(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -176,6 +197,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_security_group":                    resourceYandexVPCSecurityGroup(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
+			"yandex_message_queue":                         resourceYandexMessageQueue(),
 		},
 	}
 	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)
@@ -212,6 +234,14 @@ var descriptions = map[string]string{
 
 	"storage_secret_key": "Yandex.Cloud storage service secret key. \n" +
 		"Used when a storage data/resource doesn't have a secret key explicitly specified.",
+
+	"ymq_endpoint": "Yandex.Cloud Message Queue service endpoint. Default is \n" + defaultYMQEndpoint,
+
+	"ymq_access_key": "Yandex.Cloud Message Queue service access key. \n" +
+		"Used when a message queue resource doesn't have an access key explicitly specified.",
+
+	"ymq_secret_key": "Yandex.Cloud Message Queue service secret key. \n" +
+		"Used when a message queue resource doesn't have a secret key explicitly specified.",
 }
 
 func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.ConfigureFunc {
@@ -229,6 +259,9 @@ func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.Confi
 			StorageEndpoint:       d.Get("storage_endpoint").(string),
 			StorageAccessKey:      d.Get("storage_access_key").(string),
 			StorageSecretKey:      d.Get("storage_secret_key").(string),
+			YMQEndpoint:           d.Get("ymq_endpoint").(string),
+			YMQAccessKey:          d.Get("ymq_access_key").(string),
+			YMQSecretKey:          d.Get("ymq_secret_key").(string),
 		}
 
 		if emptyFolder {

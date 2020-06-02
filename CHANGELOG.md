@@ -1,10 +1,14 @@
 ## 0.41.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_message_queue`
+* **New Resource:** `yandex_message_queue`
+
 ## 0.40.0 (May 22, 2020)
 FEATURES:
 * **New Resource:** `yandex_function_iam_binding`
 
 BUG FIXES:
-* compute: add `ipv4` flag in `yandex_compute_instance` data source 
+* compute: add `ipv4` flag in `yandex_compute_instance` data source
 * mdb: fix disk size change on `mdb_mongodb` resource update
 * mdb: adding database with its owner to existing `resource_yandex_mdb_postgresql_cluster` simultaneously
 
@@ -24,7 +28,7 @@ ENHANCEMENTS:
 
 ## 0.37.0 (April 16, 2020)
 ENHANCEMENTS:
-* storage: support custom acl grants for `yandex_storage_bucket` 
+* storage: support custom acl grants for `yandex_storage_bucket`
 
 ## 0.36.0 (April 16, 2020)
 ENHANCEMENTS:

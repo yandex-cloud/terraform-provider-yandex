@@ -336,3 +336,36 @@ func CustomProvidersTest(t *testing.T, providers []map[string]terraform.Resource
 		resource.Test(t, customTest)
 	}
 }
+
+// Helpers for tests.
+// Config for generated access key and secret key.
+func testAccCommonIamDependenciesEditorConfig(randInt int) string {
+	return testAccCommonIamDependenciesConfigImpl(randInt, "editor")
+}
+
+func testAccCommonIamDependenciesAdminConfig(randInt int) string {
+	return testAccCommonIamDependenciesConfigImpl(randInt, "admin")
+}
+
+func testAccCommonIamDependenciesConfigImpl(randInt int, role string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "sa" {
+	name = "test-sa-for-tf-test-%[1]d"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "binding" {
+	folder_id   = "%[3]s"
+	member      = "serviceAccount:${yandex_iam_service_account.sa.id}"
+	role        = "%[2]s"
+	sleep_after = 30
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-key" {
+	service_account_id = "${yandex_iam_service_account.sa.id}"
+
+	depends_on = [
+		yandex_resourcemanager_folder_iam_member.binding
+	]
+}
+`, randInt, role, getExampleFolderID())
+}

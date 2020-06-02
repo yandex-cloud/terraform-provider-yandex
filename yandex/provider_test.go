@@ -34,6 +34,7 @@ var testAccEnvVars = []string{
 	"YC_LOGIN",
 	"YC_LOGIN_2",
 	"YC_STORAGE_ENDPOINT_URL",
+	"YC_MESSAGE_QUEUE_ENDPOINT",
 }
 
 var testCloudID = "not initialized"

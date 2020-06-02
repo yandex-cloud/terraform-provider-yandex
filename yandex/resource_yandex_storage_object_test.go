@@ -236,7 +236,7 @@ resource "yandex_storage_object" "test" {
 	key     = "test-key"
 	source  = "%[2]s"
 }
-`, randInt, source) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt, source) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageObjectConfigContent(randInt int, content string) string {
@@ -257,7 +257,7 @@ resource "yandex_storage_object" "test" {
 	key     = "test-key"
 	content = "%[2]s"
 }
-`, randInt, content) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt, content) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageObjectConfigContentBase64(randInt int, contentBase64 string) string {
@@ -278,7 +278,7 @@ resource "yandex_storage_object" "test" {
 	key            = "test-key"
 	content_base64 = "%[2]s"
 }
-`, randInt, contentBase64) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt, contentBase64) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageObjectAclPreConfig(randInt int) string {
@@ -301,7 +301,7 @@ resource "yandex_storage_object" "test" {
 
 	acl = "public-read"
 }
-`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageObjectAclPostConfig(randInt int) string {
@@ -324,5 +324,5 @@ resource "yandex_storage_object" "test" {
 
 	acl = "private"
 }
-`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }

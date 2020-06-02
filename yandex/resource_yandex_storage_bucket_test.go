@@ -698,38 +698,7 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
-}
-
-func testAccStorageCommonIamDependenciesEditor(randInt int) string {
-	return testAccStorageCommonIamDependenciesImpl(randInt, "editor")
-}
-
-func testAccStorageCommonIamDependenciesAdmin(randInt int) string {
-	return testAccStorageCommonIamDependenciesImpl(randInt, "admin")
-}
-
-func testAccStorageCommonIamDependenciesImpl(randInt int, role string) string {
-	return fmt.Sprintf(`
-resource "yandex_iam_service_account" "sa" {
-	name = "test-sa-for-tf-test-storage-%[1]d"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "binding" {
-	folder_id   = "%[3]s"
-	member      = "serviceAccount:${yandex_iam_service_account.sa.id}"
-	role        = "%[2]s"
-	sleep_after = 30
-}
-
-resource "yandex_iam_service_account_static_access_key" "sa-key" {
-	service_account_id = "${yandex_iam_service_account.sa.id}"
-
-	depends_on = [
-		yandex_resourcemanager_folder_iam_member.binding
-	]
-}
-`, randInt, role, getExampleFolderID())
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketAclPreConfig(randInt int) string {
@@ -742,7 +711,7 @@ resource "yandex_storage_bucket" "test" {
 
 	acl = "public-read"
 }
-`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageBucketAclPostConfig(randInt int) string {
@@ -755,7 +724,7 @@ resource "yandex_storage_bucket" "test" {
 
 	acl = "private"
 }
-`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageBucketWebsiteConfig(randInt int) string {
@@ -770,7 +739,7 @@ resource "yandex_storage_bucket" "test" {
 		index_document = "index.html"
 	}
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketWebsiteConfigWithError(randInt int) string {
@@ -786,7 +755,7 @@ resource "yandex_storage_bucket" "test" {
 		error_document = "error.html"
 	}
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketDestroyedConfig(randInt int) string {
@@ -797,7 +766,7 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithCORS(randInt int) string {
@@ -816,7 +785,7 @@ resource "yandex_storage_bucket" "test" {
 		max_age_seconds = 3000
 	}
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithCORSUpdated(randInt int) string {
@@ -835,7 +804,7 @@ resource "yandex_storage_bucket" "test" {
 		max_age_seconds = 2000
 	}
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithCORSEmptyOrigin(randInt int) string {
@@ -854,7 +823,7 @@ resource "yandex_storage_bucket" "test" {
 		max_age_seconds = 3000
 	}
 }
-`, randInt) + testAccStorageCommonIamDependenciesEditor(randInt)
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithNamePrefix(randInt int) string {
@@ -865,7 +834,7 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-` + testAccStorageCommonIamDependenciesEditor(randInt)
+` + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithGeneratedName(randInt int) string {
@@ -874,7 +843,7 @@ resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
-` + testAccStorageCommonIamDependenciesEditor(randInt)
+` + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithGrants(randInt int, userID string) string {
@@ -890,7 +859,7 @@ resource "yandex_storage_bucket" "test" {
     permissions = ["WRITE", "READ"]
   }
 }
-`, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithGrantsUpdate(randInt int, userID string) string {
@@ -911,7 +880,7 @@ resource "yandex_storage_bucket" "test" {
     uri         = "http://acs.amazonaws.com/groups/global/AllUsers"
   }
 }
-`, randInt, userID) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageBucketBasic(randInt int) string {
@@ -922,7 +891,7 @@ resource "yandex_storage_bucket" "test" {
 
 	bucket = "tf-test-bucket-%d"
 }
-`, randInt) + testAccStorageCommonIamDependenciesAdmin(randInt)
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) func(s *terraform.State) error {
