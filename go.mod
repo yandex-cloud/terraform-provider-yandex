@@ -3,7 +3,7 @@ module github.com/terraform-providers/terraform-provider-yandex
 go 1.12
 
 require (
-	github.com/aws/aws-sdk-go v1.19.39
+	github.com/aws/aws-sdk-go v1.25.3
 	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/fatih/structs v1.1.0
 	github.com/golang/protobuf v1.3.5
@@ -12,7 +12,9 @@ require (
 	github.com/hashicorp/go-getter v1.4.0
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/hcl v0.0.0-20180906183839-65a6292f0157 // indirect
-	github.com/hashicorp/terraform-plugin-sdk v1.0.0
+	github.com/hashicorp/hcl2 v0.0.0-20190821123243-0c888d1241f6 // indirect
+	github.com/hashicorp/hil v0.0.0-20190212112733-ab17b08d6590 // indirect
+	github.com/hashicorp/terraform-plugin-sdk v1.13.1
 	github.com/hashicorp/vault v0.10.4
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
