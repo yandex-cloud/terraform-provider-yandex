@@ -70,7 +70,7 @@ The following arguments are supported:
 
 * `network_id` - (Required) ID of the network, to which the MongoDB cluster belongs.
 
-* `environment` - (Required) Deployment environment of the MongoDB cluster.
+* `environment` - (Required) Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
 * `cluster_config` - (Required) Configuration of the MongoDB subcluster. The structure is documented below.
 
@@ -84,7 +84,7 @@ The following arguments are supported:
 
 - - -
 
-* `version` - (Optional) Version of the MongoDB server software.
+* `version` - (Optional) Version of the MongoDB server software. Can be either `3.6`, `4.0` and `4.2`.
 
 * `description` - (Optional) Description of the MongoDB cluster.
 
@@ -101,7 +101,7 @@ The `cluster_config` block supports:
 
 * `version` - (Required) Version of MongoDB (either 4.2, 4.0 or 3.6).
 
-* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken.
+* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken. Can be either `4.2`, `4.0` and `3.6`.
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
@@ -121,6 +121,7 @@ The `resources` block supports:
 * `disk_size` - (Required) Volume of the storage available to a MongoDB host, in gigabytes.
 
 * `disk_type_id` - (Required) Type of the storage of MongoDB hosts.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
 
 The `user` block supports:
 
@@ -145,6 +146,7 @@ The `host` block supports:
 * `name` - (Computed) The fully qualified domain name of the host. Computed on server side.
 
 * `zone_id` - (Required) The availability zone where the MongoDB host will be created.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
 
 * `role` - (Optional) The role of the cluster (either PRIMARY or SECONDARY).
 
@@ -153,7 +155,7 @@ The `host` block supports:
 * `subnet_id` - (Required) The ID of the subnet, to which the host belongs. The subnet must
   be a part of the network to which the cluster belongs.
   
-* `assign_public_ip` -(Optional)  Has assigned public IP.
+* `assign_public_ip` -(Optional)  Should this host have assigned public IP assigned. Can be either `true` or `false`.
 
 * `shard_name` - (Optional) The name of the shard to which the host belongs.
 
@@ -169,9 +171,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
-* `health` - Aggregated health of the cluster.
+* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.
+  For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/api-ref/Cluster/).
 
-* `status` - Status of the cluster.
+* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.
+  For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/api-ref/Cluster/).
 
 * `cluster_id` - The ID of the cluster.
 

@@ -239,7 +239,7 @@ The following arguments are supported:
 
 * `network_id` - (Required) ID of the network, to which the ClickHouse cluster belongs.
 
-* `environment` - (Required) Deployment environment of the ClickHouse cluster.
+* `environment` - (Required) Deployment environment of the ClickHouse cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
 * `clickhouse` - (Required) Configuration of the ClickHouse subcluster. The structure is documented below.
 
@@ -280,6 +280,7 @@ The `resources` block supports:
 * `disk_size` - (Required) Volume of the storage available to a ClickHouse host, in gigabytes.
 
 * `disk_type_id` - (Required) Type of the storage of ClickHouse hosts.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
 
 The `zookeeper` block supports:
 
@@ -293,6 +294,7 @@ The `resources` block supports:
 * `disk_size` - (Optional) Volume of the storage available to a ZooKeeper host, in gigabytes.
 
 * `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
 
 The `user` block supports:
 
@@ -314,15 +316,16 @@ The `host` block supports:
 
 * `fqdn` - (Computed) The fully qualified domain name of the host.
 
-* `type` - (Required) The type of the host to be deployed.
+* `type` - (Required) The type of the host to be deployed. Can be either `CLICKHOUSE` or `ZOOKEEPER`.
 
 * `zone` - (Required) The availability zone where the ClickHouse host will be created.
-
+  For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+  
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
 * `shard_name` (Optional) - The name of the shard to which the host belongs.
 
-* `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation.
+* `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
 
 The `backup_window_start` block supports:
 
@@ -332,13 +335,13 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `web_sql` - (Optional) Allow access for DataLens.
+* `web_sql` - (Optional) Allow access for DataLens. Can be either `true` or `false`.
 
-* `data_lens` - (Optional) Allow access for Web SQL.
+* `data_lens` - (Optional) Allow access for Web SQL. Can be either `true` or `false`.
 
-* `metrika` - (Optional) Allow access for Yandex.Metrika.
+* `metrika` - (Optional) Allow access for Yandex.Metrika. Can be either `true` or `false`.
 
-* `serverless` - (Optional) Allow access for Serverless.
+* `serverless` - (Optional) Allow access for Serverless. Can be either `true` or `false`.
 
 ## Attributes Reference
 
@@ -346,9 +349,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Timestamp of cluster creation.
 
-* `health` - Aggregated health of the cluster.
+* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.
+  For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/api-ref/Cluster/).
 
-* `status` - Status of the cluster.
+* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.
+  For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/api-ref/Cluster/).
 
 ## Import
 

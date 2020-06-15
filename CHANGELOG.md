@@ -4,6 +4,7 @@ FEATURES:
 * **New Resource:** `yandex_message_queue`
 
 ENHANCEMENTS:
+* mdb: document mdb enumerables for Redis, MongoDB and ClickHouse
 * provider: support set 'service_account_key_file' as either the path to or the contents of a Service Account key file in JSON format 
 
 BUG FIXES:

@@ -111,7 +111,7 @@ The following arguments are supported:
 
 * `network_id` - (Required) ID of the network, to which the Redis cluster belongs.
 
-* `environment` - (Required) Deployment environment of the Redis cluster.
+* `environment` - (Required) Deployment environment of the Redis cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
 * `config` - (Required) Configuration of the Redis cluster. The structure is documented below.
 
@@ -139,6 +139,7 @@ The `config` block supports:
 * `timeout` - (Optional) Close the connection after a client is idle for N seconds.
 
 * `maxmemory_policy` - (Optional) Redis key eviction policy for a dataset that reaches maximum memory.
+  Can be any of the listed in [the official RedisDB documentation](https://docs.redislabs.com/latest/rs/administering/database-operations/eviction-policy/).
 
 The `resources` block supports:
 
@@ -152,7 +153,8 @@ The `host` block supports:
 * `fqdn` (Computed) - The fully qualified domain name of the host.
 
 * `zone` - (Required) The availability zone where the Redis host will be created.
-
+  For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+  
 * `subnet_id` (Optional) - The ID of the subnet, to which the host belongs. The subnet must
   be a part of the network to which the cluster belongs.
 
@@ -164,9 +166,11 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
-* `health` - Aggregated health of the cluster.
+* `health` - Aggregated health of the cluster. Can be either `ALIVE`, `DEGRADED`, `DEAD` or `HEALTH_UNKNOWN`.
+  For more information see `health` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-redis/api-ref/Cluster/).
 
-* `status` - Status of the cluster.
+* `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.
+  For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-redis/api-ref/Cluster/).
 
 ## Import
 
