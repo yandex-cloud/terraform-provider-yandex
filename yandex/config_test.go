@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"io/ioutil"
 	"net"
 	"testing"
 
@@ -19,6 +20,8 @@ const testConfigCloudID = "test-cloud-id"
 const testConfigFolder = "test-folder-id"
 const testConfigZone = "ru-central1-a"
 const testTerraformVersion = "test-terraform"
+
+const fakeSAKeyFile = "test-fixtures/fake_service_account_key.json"
 
 func TestConfigInitAndValidate(t *testing.T) {
 	config := Config{
@@ -39,13 +42,13 @@ func TestConfigInitAndValidate(t *testing.T) {
 
 func TestConfigInitByServiceAccountKey(t *testing.T) {
 	config := Config{
-		Endpoint:              testConfigEndpoint,
-		FolderID:              testConfigFolder,
-		CloudID:               testConfigCloudID,
-		Zone:                  testConfigZone,
-		ServiceAccountKeyFile: "test-fixtures/fake_service_account_key.json",
-		Plaintext:             false,
-		Insecure:              false,
+		Endpoint:                       testConfigEndpoint,
+		FolderID:                       testConfigFolder,
+		CloudID:                        testConfigCloudID,
+		Zone:                           testConfigZone,
+		ServiceAccountKeyFileOrContent: fakeSAKeyFile,
+		Plaintext:                      false,
+		Insecure:                       false,
 	}
 
 	err := config.initAndValidate(context.Background(), testTerraformVersion, false)
@@ -122,4 +125,11 @@ func localListener(t *testing.T) net.Listener {
 	}
 	require.NoError(t, err, "failed to listen on any port")
 	return l
+}
+
+func Test_iamKeyFromJSONContent(t *testing.T) {
+	content, err := ioutil.ReadFile(fakeSAKeyFile)
+	require.NoError(t, err, "fail on file read %s", fakeSAKeyFile)
+	_, err = iamKeyFromJSONContent(string(content))
+	require.NoError(t, err)
 }

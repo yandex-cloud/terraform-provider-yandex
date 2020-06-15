@@ -1,6 +1,10 @@
 package yandex
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -63,6 +67,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 				DefaultFunc:   schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
 				Description:   descriptions["service_account_key_file"],
 				ConflictsWith: []string{"token"},
+				ValidateFunc:  validateSAKey,
 			},
 			"storage_endpoint": {
 				Type:        schema.TypeString,
@@ -217,7 +222,7 @@ var descriptions = map[string]string{
 
 	"token": "The access token for API operations.",
 
-	"service_account_key_file": "Path to file with Yandex.Cloud Service Account key.",
+	"service_account_key_file": "Either the path to or the contents of a Service Account key file in JSON format.",
 
 	"insecure": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted," +
 		"default value is `false`.",
@@ -247,21 +252,21 @@ var descriptions = map[string]string{
 func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.ConfigureFunc {
 	return func(d *schema.ResourceData) (interface{}, error) {
 		config := Config{
-			Token:                 d.Get("token").(string),
-			ServiceAccountKeyFile: d.Get("service_account_key_file").(string),
-			Zone:                  d.Get("zone").(string),
-			FolderID:              d.Get("folder_id").(string),
-			CloudID:               d.Get("cloud_id").(string),
-			Endpoint:              d.Get("endpoint").(string),
-			Plaintext:             d.Get("plaintext").(bool),
-			Insecure:              d.Get("insecure").(bool),
-			MaxRetries:            d.Get("max_retries").(int),
-			StorageEndpoint:       d.Get("storage_endpoint").(string),
-			StorageAccessKey:      d.Get("storage_access_key").(string),
-			StorageSecretKey:      d.Get("storage_secret_key").(string),
-			YMQEndpoint:           d.Get("ymq_endpoint").(string),
-			YMQAccessKey:          d.Get("ymq_access_key").(string),
-			YMQSecretKey:          d.Get("ymq_secret_key").(string),
+			Token:                          d.Get("token").(string),
+			ServiceAccountKeyFileOrContent: d.Get("service_account_key_file").(string),
+			Zone:                           d.Get("zone").(string),
+			FolderID:                       d.Get("folder_id").(string),
+			CloudID:                        d.Get("cloud_id").(string),
+			Endpoint:                       d.Get("endpoint").(string),
+			Plaintext:                      d.Get("plaintext").(bool),
+			Insecure:                       d.Get("insecure").(bool),
+			MaxRetries:                     d.Get("max_retries").(int),
+			StorageEndpoint:                d.Get("storage_endpoint").(string),
+			StorageAccessKey:               d.Get("storage_access_key").(string),
+			StorageSecretKey:               d.Get("storage_secret_key").(string),
+			YMQEndpoint:                    d.Get("ymq_endpoint").(string),
+			YMQAccessKey:                   d.Get("ymq_access_key").(string),
+			YMQSecretKey:                   d.Get("ymq_secret_key").(string),
 		}
 
 		if emptyFolder {
@@ -281,4 +286,24 @@ func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.Confi
 
 		return &config, nil
 	}
+}
+
+func validateSAKey(v interface{}, k string) (warnings []string, errors []error) {
+	if v == nil || v.(string) == "" {
+		return
+	}
+
+	saKey := v.(string)
+	// if this is a path to file and we can stat it, assume it's ok
+	if _, err := os.Stat(saKey); err == nil {
+		return
+	}
+
+	// else check for a valid json data value
+	var f map[string]interface{}
+	if err := json.Unmarshal([]byte(saKey), &f); err != nil {
+		errors = append(errors, fmt.Errorf("JSON in %q are not valid: %s", saKey, err))
+	}
+
+	return
 }

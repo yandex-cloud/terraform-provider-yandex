@@ -3,6 +3,9 @@ FEATURES:
 * **New Data Source:** `yandex_message_queue`
 * **New Resource:** `yandex_message_queue`
 
+ENHANCEMENTS:
+* provider: support set 'service_account_key_file' as either the path to or the contents of a Service Account key file in JSON format 
+
 BUG FIXES:
 * mdb: fix typo in using mdb api by `resource_yandex_mdb_postgresql_cluster`
 

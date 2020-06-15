@@ -3,7 +3,9 @@ package yandex
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -16,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/mitchellh/go-homedir"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -32,17 +35,17 @@ const (
 )
 
 type Config struct {
-	Endpoint              string
-	FolderID              string
-	CloudID               string
-	Zone                  string
-	Token                 string
-	ServiceAccountKeyFile string
-	Plaintext             bool
-	Insecure              bool
-	MaxRetries            int
-	StorageEndpoint       string
-	YMQEndpoint           string
+	Endpoint                       string
+	FolderID                       string
+	CloudID                        string
+	Zone                           string
+	Token                          string
+	ServiceAccountKeyFileOrContent string
+	Plaintext                      bool
+	Insecure                       bool
+	MaxRetries                     int
+	StorageEndpoint                string
+	YMQEndpoint                    string
 
 	// These storage access keys are optional and only used when
 	// storage data/resource doesn't have own access keys explicitly specified.
@@ -141,8 +144,13 @@ func (c *Config) initializeDefaultS3Client() (err error) {
 }
 
 func (c *Config) credentials() (ycsdk.Credentials, error) {
-	if c.ServiceAccountKeyFile != "" {
-		key, err := iamkey.ReadFromJSONFile(c.ServiceAccountKeyFile)
+	if c.ServiceAccountKeyFileOrContent != "" {
+		contents, _, err := pathOrContents(c.ServiceAccountKeyFileOrContent)
+		if err != nil {
+			return nil, fmt.Errorf("Error loading credentials: %s", err)
+		}
+
+		key, err := iamKeyFromJSONContent(contents)
 		if err != nil {
 			return nil, err
 		}
@@ -158,6 +166,15 @@ func (c *Config) credentials() (ycsdk.Credentials, error) {
 	}
 
 	return nil, fmt.Errorf("one of 'token' or 'service_account_key_file' should be specified; if you are inside compute instance, you can attach service account to it in order to authenticate via instance service account")
+}
+
+func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {
+	key := &iamkey.Key{}
+	err := json.Unmarshal([]byte(content), key)
+	if err != nil {
+		return nil, fmt.Errorf("key unmarshal fail: %s", err)
+	}
+	return key, nil
 }
 
 func backoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.BackoffFunc {
@@ -206,4 +223,27 @@ func checkServiceAccountAvailable(ctx context.Context, sa ycsdk.NonExchangeableC
 	_ = conn.Close()
 	_, err = sa.IAMToken(ctx)
 	return err == nil
+}
+
+// copy of github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents.Read()
+func pathOrContents(poc string) (string, bool, error) {
+	if len(poc) == 0 {
+		return poc, false, nil
+	}
+
+	path := poc
+	if path[0] == '~' {
+		var err error
+		path, err = homedir.Expand(path)
+		if err != nil {
+			return path, true, err
+		}
+	}
+
+	if _, err := os.Stat(path); err == nil {
+		contents, err := ioutil.ReadFile(path)
+		return string(contents), true, err
+	}
+
+	return poc, false, nil
 }
