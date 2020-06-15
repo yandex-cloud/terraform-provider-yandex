@@ -212,7 +212,7 @@ type ListNodeGroupNodesRequest struct {
 	// Default value: 100.
 	PageSize int64 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	// Page token. To get the next page of results, set `page_token` to the
-	// [ListNodeGroupNodessResponse.next_page_token] returned by a previous list request.
+	// [ListNodeGroupNodesResponse.next_page_token] returned by a previous list request.
 	PageToken            string   `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

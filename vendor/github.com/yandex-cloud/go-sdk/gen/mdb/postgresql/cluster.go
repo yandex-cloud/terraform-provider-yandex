@@ -479,6 +479,15 @@ func (c *ClusterServiceClient) Stop(ctx context.Context, in *postgresql.StopClus
 	return postgresql.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
 }
 
+// StreamLogs implements postgresql.ClusterServiceClient
+func (c *ClusterServiceClient) StreamLogs(ctx context.Context, in *postgresql.StreamClusterLogsRequest, opts ...grpc.CallOption) (postgresql.ClusterService_StreamLogsClient, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return postgresql.NewClusterServiceClient(conn).StreamLogs(ctx, in, opts...)
+}
+
 // Update implements postgresql.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *postgresql.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

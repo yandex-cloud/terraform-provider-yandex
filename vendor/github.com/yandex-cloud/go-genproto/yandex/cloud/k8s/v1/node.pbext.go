@@ -142,6 +142,10 @@ func (m *ResourcesSpec) SetCoreFraction(v int64) {
 	m.CoreFraction = v
 }
 
+func (m *ResourcesSpec) SetGpus(v int64) {
+	m.Gpus = v
+}
+
 func (m *DiskSpec) SetDiskTypeId(v string) {
 	m.DiskTypeId = v
 }

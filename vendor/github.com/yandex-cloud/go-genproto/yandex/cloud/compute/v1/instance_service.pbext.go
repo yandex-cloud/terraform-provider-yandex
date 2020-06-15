@@ -297,27 +297,39 @@ func (m *RemoveInstanceOneToOneNatMetadata) SetInstanceId(v string) {
 	m.InstanceId = v
 }
 
-func (m *UpdateNetworkInterfaceRequest) SetInstanceId(v string) {
+func (m *UpdateInstanceNetworkInterfaceRequest) SetInstanceId(v string) {
 	m.InstanceId = v
 }
 
-func (m *UpdateNetworkInterfaceRequest) SetNetworkInterfaceIndex(v string) {
+func (m *UpdateInstanceNetworkInterfaceRequest) SetNetworkInterfaceIndex(v string) {
 	m.NetworkInterfaceIndex = v
 }
 
-func (m *UpdateNetworkInterfaceRequest) SetUpdateMask(v *field_mask.FieldMask) {
+func (m *UpdateInstanceNetworkInterfaceRequest) SetUpdateMask(v *field_mask.FieldMask) {
 	m.UpdateMask = v
 }
 
-func (m *UpdateNetworkInterfaceRequest) SetSecurityGroupIds(v []string) {
+func (m *UpdateInstanceNetworkInterfaceRequest) SetSubnetId(v string) {
+	m.SubnetId = v
+}
+
+func (m *UpdateInstanceNetworkInterfaceRequest) SetPrimaryV4AddressSpec(v *PrimaryAddressSpec) {
+	m.PrimaryV4AddressSpec = v
+}
+
+func (m *UpdateInstanceNetworkInterfaceRequest) SetPrimaryV6AddressSpec(v *PrimaryAddressSpec) {
+	m.PrimaryV6AddressSpec = v
+}
+
+func (m *UpdateInstanceNetworkInterfaceRequest) SetSecurityGroupIds(v []string) {
 	m.SecurityGroupIds = v
 }
 
-func (m *UpdateNetworkInterfaceMetadata) SetInstanceId(v string) {
+func (m *UpdateInstanceNetworkInterfaceMetadata) SetInstanceId(v string) {
 	m.InstanceId = v
 }
 
-func (m *UpdateNetworkInterfaceMetadata) SetNetworkInterfaceIndex(v string) {
+func (m *UpdateInstanceNetworkInterfaceMetadata) SetNetworkInterfaceIndex(v string) {
 	m.NetworkInterfaceIndex = v
 }
 

@@ -88,6 +88,12 @@ func (m *ClusterConfig) SetRedisConfig_5_0(v *config.RedisConfigSet5_0) {
 	}
 }
 
+func (m *ClusterConfig) SetRedisConfig_6_0(v *config.RedisConfigSet6_0) {
+	m.RedisConfig = &ClusterConfig_RedisConfig_6_0{
+		RedisConfig_6_0: v,
+	}
+}
+
 func (m *ClusterConfig) SetResources(v *Resources) {
 	m.Resources = v
 }

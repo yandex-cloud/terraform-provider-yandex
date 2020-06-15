@@ -587,6 +587,15 @@ func (c *ClusterServiceClient) Stop(ctx context.Context, in *redis.StopClusterRe
 	return redis.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
 }
 
+// StreamLogs implements redis.ClusterServiceClient
+func (c *ClusterServiceClient) StreamLogs(ctx context.Context, in *redis.StreamClusterLogsRequest, opts ...grpc.CallOption) (redis.ClusterService_StreamLogsClient, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return redis.NewClusterServiceClient(conn).StreamLogs(ctx, in, opts...)
+}
+
 // Update implements redis.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *redis.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

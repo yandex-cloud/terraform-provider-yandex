@@ -91,6 +91,22 @@ func (m *DeleteTriggerMetadata) SetTriggerId(v string) {
 	m.TriggerId = v
 }
 
+func (m *PauseTriggerRequest) SetTriggerId(v string) {
+	m.TriggerId = v
+}
+
+func (m *PauseTriggerMetadata) SetTriggerId(v string) {
+	m.TriggerId = v
+}
+
+func (m *ResumeTriggerRequest) SetTriggerId(v string) {
+	m.TriggerId = v
+}
+
+func (m *ResumeTriggerMetadata) SetTriggerId(v string) {
+	m.TriggerId = v
+}
+
 func (m *ListTriggerOperationsRequest) SetTriggerId(v string) {
 	m.TriggerId = v
 }

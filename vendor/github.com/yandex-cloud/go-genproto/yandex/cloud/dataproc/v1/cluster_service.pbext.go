@@ -155,12 +155,20 @@ func (m *UpdateClusterRequest) SetBucket(v string) {
 	m.Bucket = v
 }
 
+func (m *UpdateClusterRequest) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
+}
+
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
 
 func (m *DeleteClusterRequest) SetClusterId(v string) {
 	m.ClusterId = v
+}
+
+func (m *DeleteClusterRequest) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
 }
 
 func (m *DeleteClusterMetadata) SetClusterId(v string) {
@@ -177,6 +185,10 @@ func (m *StartClusterMetadata) SetClusterId(v string) {
 
 func (m *StopClusterRequest) SetClusterId(v string) {
 	m.ClusterId = v
+}
+
+func (m *StopClusterRequest) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
 }
 
 func (m *StopClusterMetadata) SetClusterId(v string) {

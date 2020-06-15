@@ -38,6 +38,54 @@ func (m *MysqlConfig5_7) SetDefaultAuthenticationPlugin(v MysqlConfig5_7_AuthPlu
 	m.DefaultAuthenticationPlugin = v
 }
 
+func (m *MysqlConfig5_7) SetInnodbFlushLogAtTrxCommit(v *wrappers.Int64Value) {
+	m.InnodbFlushLogAtTrxCommit = v
+}
+
+func (m *MysqlConfig5_7) SetInnodbLockWaitTimeout(v *wrappers.Int64Value) {
+	m.InnodbLockWaitTimeout = v
+}
+
+func (m *MysqlConfig5_7) SetTransactionIsolation(v MysqlConfig5_7_TransactionIsolation) {
+	m.TransactionIsolation = v
+}
+
+func (m *MysqlConfig5_7) SetInnodbPrintAllDeadlocks(v *wrappers.BoolValue) {
+	m.InnodbPrintAllDeadlocks = v
+}
+
+func (m *MysqlConfig5_7) SetNetReadTimeout(v *wrappers.Int64Value) {
+	m.NetReadTimeout = v
+}
+
+func (m *MysqlConfig5_7) SetNetWriteTimeout(v *wrappers.Int64Value) {
+	m.NetWriteTimeout = v
+}
+
+func (m *MysqlConfig5_7) SetGroupConcatMaxLen(v *wrappers.Int64Value) {
+	m.GroupConcatMaxLen = v
+}
+
+func (m *MysqlConfig5_7) SetTmpTableSize(v *wrappers.Int64Value) {
+	m.TmpTableSize = v
+}
+
+func (m *MysqlConfig5_7) SetMaxHeapTableSize(v *wrappers.Int64Value) {
+	m.MaxHeapTableSize = v
+}
+
+func (m *MysqlConfig5_7) SetDefaultTimeZone(v string) {
+	m.DefaultTimeZone = v
+}
+
+func (m *MysqlConfig5_7) SetCharacterSetServer(v string) {
+	m.CharacterSetServer = v
+}
+
+func (m *MysqlConfig5_7) SetCollationServer(v string) {
+	m.CollationServer = v
+}
+
 func (m *MysqlConfigSet5_7) SetEffectiveConfig(v *MysqlConfig5_7) {
 	m.EffectiveConfig = v
 }

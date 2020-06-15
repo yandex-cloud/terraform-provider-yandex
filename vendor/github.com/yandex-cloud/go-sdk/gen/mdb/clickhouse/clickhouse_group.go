@@ -47,3 +47,8 @@ func (c *Clickhouse) User() *UserServiceClient {
 func (c *Clickhouse) MlModel() *MlModelServiceClient {
 	return &MlModelServiceClient{getConn: c.getConn}
 }
+
+// FormatSchema gets FormatSchemaService client
+func (c *Clickhouse) FormatSchema() *FormatSchemaServiceClient {
+	return &FormatSchemaServiceClient{getConn: c.getConn}
+}

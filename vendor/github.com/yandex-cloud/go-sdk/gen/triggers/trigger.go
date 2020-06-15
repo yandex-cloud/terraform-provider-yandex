@@ -191,6 +191,24 @@ func (it *TriggerOperationsIterator) Error() error {
 	return it.err
 }
 
+// Pause implements triggers.TriggerServiceClient
+func (c *TriggerServiceClient) Pause(ctx context.Context, in *triggers.PauseTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return triggers.NewTriggerServiceClient(conn).Pause(ctx, in, opts...)
+}
+
+// Resume implements triggers.TriggerServiceClient
+func (c *TriggerServiceClient) Resume(ctx context.Context, in *triggers.ResumeTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return triggers.NewTriggerServiceClient(conn).Resume(ctx, in, opts...)
+}
+
 // Update implements triggers.TriggerServiceClient
 func (c *TriggerServiceClient) Update(ctx context.Context, in *triggers.UpdateTriggerRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

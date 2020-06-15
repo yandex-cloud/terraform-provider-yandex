@@ -479,6 +479,15 @@ func (c *ClusterServiceClient) Stop(ctx context.Context, in *mysql.StopClusterRe
 	return mysql.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
 }
 
+// StreamLogs implements mysql.ClusterServiceClient
+func (c *ClusterServiceClient) StreamLogs(ctx context.Context, in *mysql.StreamClusterLogsRequest, opts ...grpc.CallOption) (mysql.ClusterService_StreamLogsClient, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mysql.NewClusterServiceClient(conn).StreamLogs(ctx, in, opts...)
+}
+
 // Update implements mysql.ClusterServiceClient
 func (c *ClusterServiceClient) Update(ctx context.Context, in *mysql.UpdateClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)

@@ -254,6 +254,26 @@ func (m *ListClusterLogsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 
+func (m *StreamClusterLogsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *StreamClusterLogsRequest) SetColumnFilter(v []string) {
+	m.ColumnFilter = v
+}
+
+func (m *StreamClusterLogsRequest) SetServiceType(v StreamClusterLogsRequest_ServiceType) {
+	m.ServiceType = v
+}
+
+func (m *StreamClusterLogsRequest) SetFromTime(v *timestamp.Timestamp) {
+	m.FromTime = v
+}
+
+func (m *StreamClusterLogsRequest) SetToTime(v *timestamp.Timestamp) {
+	m.ToTime = v
+}
+
 func (m *ListClusterOperationsRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -443,6 +463,12 @@ func (m *ConfigSpec) SetVersion(v string) {
 func (m *ConfigSpec) SetRedisConfig_5_0(v *config.RedisConfig5_0) {
 	m.RedisSpec = &ConfigSpec_RedisConfig_5_0{
 		RedisConfig_5_0: v,
+	}
+}
+
+func (m *ConfigSpec) SetRedisConfig_6_0(v *config.RedisConfig6_0) {
+	m.RedisSpec = &ConfigSpec_RedisConfig_6_0{
+		RedisConfig_6_0: v,
 	}
 }
 

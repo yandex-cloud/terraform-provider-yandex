@@ -117,6 +117,22 @@ func (m *Shard) SetConfig(v *ShardConfig) {
 	m.Config = v
 }
 
+func (m *ShardGroup) SetName(v string) {
+	m.Name = v
+}
+
+func (m *ShardGroup) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *ShardGroup) SetDescription(v string) {
+	m.Description = v
+}
+
+func (m *ShardGroup) SetShardNames(v []string) {
+	m.ShardNames = v
+}
+
 func (m *ShardConfig) SetClickhouse(v *ShardConfig_Clickhouse) {
 	m.Clickhouse = v
 }

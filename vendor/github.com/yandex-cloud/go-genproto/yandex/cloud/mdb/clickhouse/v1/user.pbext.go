@@ -106,6 +106,10 @@ func (m *UserSettings) SetDistributedDdlTaskTimeout(v *wrappers.Int64Value) {
 	m.DistributedDdlTaskTimeout = v
 }
 
+func (m *UserSettings) SetSkipUnavailableShards(v *wrappers.BoolValue) {
+	m.SkipUnavailableShards = v
+}
+
 func (m *UserSettings) SetCompile(v *wrappers.BoolValue) {
 	m.Compile = v
 }

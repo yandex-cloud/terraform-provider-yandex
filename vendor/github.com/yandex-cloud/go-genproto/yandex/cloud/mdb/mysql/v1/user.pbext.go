@@ -18,6 +18,18 @@ func (m *User) SetPermissions(v []*Permission) {
 	m.Permissions = v
 }
 
+func (m *User) SetGlobalPermissions(v []GlobalPermission) {
+	m.GlobalPermissions = v
+}
+
+func (m *User) SetConnectionLimits(v *ConnectionLimits) {
+	m.ConnectionLimits = v
+}
+
+func (m *User) SetAuthenticationPlugin(v AuthPlugin) {
+	m.AuthenticationPlugin = v
+}
+
 func (m *Permission) SetDatabaseName(v string) {
 	m.DatabaseName = v
 }
@@ -26,16 +38,16 @@ func (m *Permission) SetRoles(v []Permission_Privilege) {
 	m.Roles = v
 }
 
-func (m *ConnectionLimits) SetMaxQuestions(v *wrappers.Int64Value) {
-	m.MaxQuestions = v
+func (m *ConnectionLimits) SetMaxQuestionsPerHour(v *wrappers.Int64Value) {
+	m.MaxQuestionsPerHour = v
 }
 
-func (m *ConnectionLimits) SetMaxUpdates(v *wrappers.Int64Value) {
-	m.MaxUpdates = v
+func (m *ConnectionLimits) SetMaxUpdatesPerHour(v *wrappers.Int64Value) {
+	m.MaxUpdatesPerHour = v
 }
 
-func (m *ConnectionLimits) SetMaxConnections(v *wrappers.Int64Value) {
-	m.MaxConnections = v
+func (m *ConnectionLimits) SetMaxConnectionsPerHour(v *wrappers.Int64Value) {
+	m.MaxConnectionsPerHour = v
 }
 
 func (m *ConnectionLimits) SetMaxUserConnections(v *wrappers.Int64Value) {

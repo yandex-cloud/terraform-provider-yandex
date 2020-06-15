@@ -48,6 +48,10 @@ func (m *Disk) SetSize(v int64) {
 	m.Size = v
 }
 
+func (m *Disk) SetBlockSize(v int64) {
+	m.BlockSize = v
+}
+
 func (m *Disk) SetProductIds(v []string) {
 	m.ProductIds = v
 }

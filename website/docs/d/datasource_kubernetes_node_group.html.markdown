@@ -74,6 +74,7 @@ The `instance_template` block supports:
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
+* `resources.0.gpus` - Number of GPU cores allocated to the instance.
 
 * `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 

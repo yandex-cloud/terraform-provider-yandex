@@ -282,7 +282,7 @@ func (c *InstanceServiceClient) UpdateMetadata(ctx context.Context, in *compute.
 }
 
 // UpdateNetworkInterface implements compute.InstanceServiceClient
-func (c *InstanceServiceClient) UpdateNetworkInterface(ctx context.Context, in *compute.UpdateNetworkInterfaceRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+func (c *InstanceServiceClient) UpdateNetworkInterface(ctx context.Context, in *compute.UpdateInstanceNetworkInterfaceRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
 	if err != nil {
 		return nil, err

@@ -56,6 +56,15 @@ func (c *LifecyclePolicyServiceClient) Get(ctx context.Context, in *containerreg
 	return containerregistry.NewLifecyclePolicyServiceClient(conn).Get(ctx, in, opts...)
 }
 
+// GetDryRunResult implements containerregistry.LifecyclePolicyServiceClient
+func (c *LifecyclePolicyServiceClient) GetDryRunResult(ctx context.Context, in *containerregistry.GetDryRunLifecyclePolicyResultRequest, opts ...grpc.CallOption) (*containerregistry.DryRunLifecyclePolicyResult, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return containerregistry.NewLifecyclePolicyServiceClient(conn).GetDryRunResult(ctx, in, opts...)
+}
+
 // List implements containerregistry.LifecyclePolicyServiceClient
 func (c *LifecyclePolicyServiceClient) List(ctx context.Context, in *containerregistry.ListLifecyclePoliciesRequest, opts ...grpc.CallOption) (*containerregistry.ListLifecyclePoliciesResponse, error) {
 	conn, err := c.getConn(ctx)

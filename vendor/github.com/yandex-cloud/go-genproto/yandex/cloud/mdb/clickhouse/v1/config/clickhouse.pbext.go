@@ -66,6 +66,74 @@ func (m *ClickhouseConfig) SetGeobaseUri(v string) {
 	m.GeobaseUri = v
 }
 
+func (m *ClickhouseConfig) SetQueryLogRetentionSize(v *wrappers.Int64Value) {
+	m.QueryLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetQueryLogRetentionTime(v *wrappers.Int64Value) {
+	m.QueryLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetQueryThreadLogEnabled(v *wrappers.BoolValue) {
+	m.QueryThreadLogEnabled = v
+}
+
+func (m *ClickhouseConfig) SetQueryThreadLogRetentionSize(v *wrappers.Int64Value) {
+	m.QueryThreadLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetQueryThreadLogRetentionTime(v *wrappers.Int64Value) {
+	m.QueryThreadLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetPartLogRetentionSize(v *wrappers.Int64Value) {
+	m.PartLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetPartLogRetentionTime(v *wrappers.Int64Value) {
+	m.PartLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetMetricLogEnabled(v *wrappers.BoolValue) {
+	m.MetricLogEnabled = v
+}
+
+func (m *ClickhouseConfig) SetMetricLogRetentionSize(v *wrappers.Int64Value) {
+	m.MetricLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetMetricLogRetentionTime(v *wrappers.Int64Value) {
+	m.MetricLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetTraceLogEnabled(v *wrappers.BoolValue) {
+	m.TraceLogEnabled = v
+}
+
+func (m *ClickhouseConfig) SetTraceLogRetentionSize(v *wrappers.Int64Value) {
+	m.TraceLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetTraceLogRetentionTime(v *wrappers.Int64Value) {
+	m.TraceLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetTextLogEnabled(v *wrappers.BoolValue) {
+	m.TextLogEnabled = v
+}
+
+func (m *ClickhouseConfig) SetTextLogRetentionSize(v *wrappers.Int64Value) {
+	m.TextLogRetentionSize = v
+}
+
+func (m *ClickhouseConfig) SetTextLogRetentionTime(v *wrappers.Int64Value) {
+	m.TextLogRetentionTime = v
+}
+
+func (m *ClickhouseConfig) SetTextLogLevel(v ClickhouseConfig_LogLevel) {
+	m.TextLogLevel = v
+}
+
 func (m *ClickhouseConfig_MergeTree) SetReplicatedDeduplicationWindow(v *wrappers.Int64Value) {
 	m.ReplicatedDeduplicationWindow = v
 }

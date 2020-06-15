@@ -221,6 +221,10 @@ func (m *CreateFunctionVersionRequest) SetTag(v []string) {
 	m.Tag = v
 }
 
+func (m *CreateFunctionVersionRequest) SetConnectivity(v *Connectivity) {
+	m.Connectivity = v
+}
+
 func (m *CreateFunctionVersionMetadata) SetFunctionVersionId(v string) {
 	m.FunctionVersionId = v
 }

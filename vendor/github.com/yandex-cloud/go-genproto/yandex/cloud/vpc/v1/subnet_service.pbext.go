@@ -67,6 +67,10 @@ func (m *CreateSubnetRequest) SetRouteTableId(v string) {
 	m.RouteTableId = v
 }
 
+func (m *CreateSubnetRequest) SetDhcpOptions(v *DhcpOptions) {
+	m.DhcpOptions = v
+}
+
 func (m *CreateSubnetMetadata) SetSubnetId(v string) {
 	m.SubnetId = v
 }
@@ -93,6 +97,10 @@ func (m *UpdateSubnetRequest) SetLabels(v map[string]string) {
 
 func (m *UpdateSubnetRequest) SetRouteTableId(v string) {
 	m.RouteTableId = v
+}
+
+func (m *UpdateSubnetRequest) SetDhcpOptions(v *DhcpOptions) {
+	m.DhcpOptions = v
 }
 
 func (m *UpdateSubnetMetadata) SetSubnetId(v string) {

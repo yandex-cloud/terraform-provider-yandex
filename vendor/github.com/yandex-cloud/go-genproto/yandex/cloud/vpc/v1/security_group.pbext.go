@@ -42,6 +42,10 @@ func (m *SecurityGroup) SetRules(v []*SecurityGroupRule) {
 	m.Rules = v
 }
 
+func (m *SecurityGroup) SetDefaultForNetwork(v bool) {
+	m.DefaultForNetwork = v
+}
+
 type SecurityGroupRule_Target = isSecurityGroupRule_Target
 
 func (m *SecurityGroupRule) SetTarget(v SecurityGroupRule_Target) {
@@ -79,6 +83,18 @@ func (m *SecurityGroupRule) SetProtocolNumber(v int64) {
 func (m *SecurityGroupRule) SetCidrBlocks(v *CidrBlocks) {
 	m.Target = &SecurityGroupRule_CidrBlocks{
 		CidrBlocks: v,
+	}
+}
+
+func (m *SecurityGroupRule) SetSecurityGroupId(v string) {
+	m.Target = &SecurityGroupRule_SecurityGroupId{
+		SecurityGroupId: v,
+	}
+}
+
+func (m *SecurityGroupRule) SetPredefinedTarget(v string) {
+	m.Target = &SecurityGroupRule_PredefinedTarget{
+		PredefinedTarget: v,
 	}
 }
 

@@ -79,3 +79,27 @@ func (m *CreateJobMetadata) SetClusterId(v string) {
 func (m *CreateJobMetadata) SetJobId(v string) {
 	m.JobId = v
 }
+
+func (m *ListJobLogRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *ListJobLogRequest) SetJobId(v string) {
+	m.JobId = v
+}
+
+func (m *ListJobLogRequest) SetPageSize(v int64) {
+	m.PageSize = v
+}
+
+func (m *ListJobLogRequest) SetPageToken(v string) {
+	m.PageToken = v
+}
+
+func (m *ListJobLogResponse) SetContent(v string) {
+	m.Content = v
+}
+
+func (m *ListJobLogResponse) SetNextPageToken(v string) {
+	m.NextPageToken = v
+}

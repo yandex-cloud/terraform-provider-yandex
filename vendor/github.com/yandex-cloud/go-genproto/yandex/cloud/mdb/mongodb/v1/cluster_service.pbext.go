@@ -198,6 +198,14 @@ func (m *RestoreClusterRequest) SetFolderId(v string) {
 	m.FolderId = v
 }
 
+func (m *RestoreClusterRequest) SetRecoveryTargetSpec(v *RestoreClusterRequest_RecoveryTargetSpec) {
+	m.RecoveryTargetSpec = v
+}
+
+func (m *RestoreClusterRequest_RecoveryTargetSpec) SetTimestamp(v int64) {
+	m.Timestamp = v
+}
+
 func (m *RestoreClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -248,6 +256,26 @@ func (m *ListClusterLogsResponse) SetLogs(v []*LogRecord) {
 
 func (m *ListClusterLogsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
+}
+
+func (m *StreamClusterLogsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *StreamClusterLogsRequest) SetColumnFilter(v []string) {
+	m.ColumnFilter = v
+}
+
+func (m *StreamClusterLogsRequest) SetServiceType(v StreamClusterLogsRequest_ServiceType) {
+	m.ServiceType = v
+}
+
+func (m *StreamClusterLogsRequest) SetFromTime(v *timestamp.Timestamp) {
+	m.FromTime = v
+}
+
+func (m *StreamClusterLogsRequest) SetToTime(v *timestamp.Timestamp) {
+	m.ToTime = v
 }
 
 func (m *ListClusterOperationsRequest) SetClusterId(v string) {
@@ -432,6 +460,38 @@ func (m *DeleteClusterShardMetadata) SetClusterId(v string) {
 
 func (m *DeleteClusterShardMetadata) SetShardName(v string) {
 	m.ShardName = v
+}
+
+func (m *ResetupHostsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *ResetupHostsRequest) SetHostNames(v []string) {
+	m.HostNames = v
+}
+
+func (m *ResetupHostsMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *ResetupHostsMetadata) SetHostNames(v []string) {
+	m.HostNames = v
+}
+
+func (m *RestartHostsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *RestartHostsRequest) SetHostNames(v []string) {
+	m.HostNames = v
+}
+
+func (m *RestartHostsMetadata) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *RestartHostsMetadata) SetHostNames(v []string) {
+	m.HostNames = v
 }
 
 func (m *HostSpec) SetZoneId(v string) {

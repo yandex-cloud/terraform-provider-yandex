@@ -351,7 +351,7 @@ func (m *CreateKeyResponse) GetPrivateKey() string {
 
 type UpdateKeyRequest struct {
 	// ID of the Key resource to update.
-	// To get key pair ID, use a [Service.List] request.
+	// To get key pair ID, use a [KeyService.List] request.
 	KeyId string `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
 	// Field mask that specifies which fields of the Key resource are going to be updated.
 	UpdateMask *field_mask.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`

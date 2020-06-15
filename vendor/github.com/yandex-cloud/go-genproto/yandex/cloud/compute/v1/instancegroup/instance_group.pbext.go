@@ -75,6 +75,10 @@ func (m *InstanceGroup) SetVariables(v []*Variable) {
 	m.Variables = v
 }
 
+func (m *InstanceGroup) SetDeletionProtection(v bool) {
+	m.DeletionProtection = v
+}
+
 func (m *Variable) SetKey(v string) {
 	m.Key = v
 }
@@ -163,6 +167,10 @@ func (m *ScalePolicy) SetAutoScale(v *ScalePolicy_AutoScale) {
 	m.ScaleType = &ScalePolicy_AutoScale_{
 		AutoScale: v,
 	}
+}
+
+func (m *ScalePolicy) SetTestAutoScale(v *ScalePolicy_AutoScale) {
+	m.TestAutoScale = v
 }
 
 func (m *ScalePolicy_AutoScale) SetMinZoneSize(v int64) {
@@ -331,6 +339,10 @@ func (m *AttachedDiskSpec) SetDeviceName(v string) {
 
 func (m *AttachedDiskSpec) SetDiskSpec(v *AttachedDiskSpec_DiskSpec) {
 	m.DiskSpec = v
+}
+
+func (m *AttachedDiskSpec) SetDiskId(v string) {
+	m.DiskId = v
 }
 
 type AttachedDiskSpec_DiskSpec_SourceOneof = isAttachedDiskSpec_DiskSpec_SourceOneof

@@ -94,6 +94,10 @@ func (m *UpdateSubclusterRequest) SetHostsCount(v int64) {
 	m.HostsCount = v
 }
 
+func (m *UpdateSubclusterRequest) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
+}
+
 func (m *UpdateSubclusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -108,6 +112,10 @@ func (m *DeleteSubclusterRequest) SetClusterId(v string) {
 
 func (m *DeleteSubclusterRequest) SetSubclusterId(v string) {
 	m.SubclusterId = v
+}
+
+func (m *DeleteSubclusterRequest) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
 }
 
 func (m *DeleteSubclusterMetadata) SetClusterId(v string) {

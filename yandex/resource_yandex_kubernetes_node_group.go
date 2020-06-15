@@ -72,6 +72,11 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"gpus": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  0,
+									},
 								},
 							},
 						},
@@ -718,6 +723,7 @@ func getNodeGroupResourceSpec(d *schema.ResourceData) *k8s.ResourcesSpec {
 		Memory:       toBytesFromFloat(h.Get("memory").(float64)),
 		Cores:        int64(h.GetInt("cores")),
 		CoreFraction: int64(h.GetInt("core_fraction")),
+		Gpus:         int64(h.GetInt("gpus")),
 	}
 	return spec
 }
@@ -819,6 +825,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.metadata":                        "node_template.metadata",
 	"instance_template.0.resources.0.memory":              "node_template.resources_spec.memory",
 	"instance_template.0.resources.0.cores":               "node_template.resources_spec.cores",
+	"instance_template.0.resources.0.gpus":                "node_template.resources_spec.gpus",
 	"instance_template.0.resources.0.core_fraction":       "node_template.resources_spec.core_fraction",
 	"instance_template.0.boot_disk.0.type":                "node_template.boot_disk_spec.disk_type_id",
 	"instance_template.0.boot_disk.0.size":                "node_template.boot_disk_spec.disk_size",
@@ -1067,6 +1074,7 @@ func flattenKubernetesNodeGroupTemplateResources(r *k8s.ResourcesSpec) []map[str
 			"memory":        toGigabytesInFloat(r.GetMemory()),
 			"cores":         int(r.GetCores()),
 			"core_fraction": int(r.GetCoreFraction()),
+			"gpus":          int(r.GetGpus()),
 		},
 	}
 }

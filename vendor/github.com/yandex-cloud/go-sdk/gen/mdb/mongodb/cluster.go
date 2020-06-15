@@ -551,6 +551,24 @@ func (c *ClusterServiceClient) Move(ctx context.Context, in *mongodb.MoveCluster
 	return mongodb.NewClusterServiceClient(conn).Move(ctx, in, opts...)
 }
 
+// ResetupHosts implements mongodb.ClusterServiceClient
+func (c *ClusterServiceClient) ResetupHosts(ctx context.Context, in *mongodb.ResetupHostsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mongodb.NewClusterServiceClient(conn).ResetupHosts(ctx, in, opts...)
+}
+
+// RestartHosts implements mongodb.ClusterServiceClient
+func (c *ClusterServiceClient) RestartHosts(ctx context.Context, in *mongodb.RestartHostsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mongodb.NewClusterServiceClient(conn).RestartHosts(ctx, in, opts...)
+}
+
 // Restore implements mongodb.ClusterServiceClient
 func (c *ClusterServiceClient) Restore(ctx context.Context, in *mongodb.RestoreClusterRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
 	conn, err := c.getConn(ctx)
@@ -576,6 +594,15 @@ func (c *ClusterServiceClient) Stop(ctx context.Context, in *mongodb.StopCluster
 		return nil, err
 	}
 	return mongodb.NewClusterServiceClient(conn).Stop(ctx, in, opts...)
+}
+
+// StreamLogs implements mongodb.ClusterServiceClient
+func (c *ClusterServiceClient) StreamLogs(ctx context.Context, in *mongodb.StreamClusterLogsRequest, opts ...grpc.CallOption) (mongodb.ClusterService_StreamLogsClient, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mongodb.NewClusterServiceClient(conn).StreamLogs(ctx, in, opts...)
 }
 
 // Update implements mongodb.ClusterServiceClient

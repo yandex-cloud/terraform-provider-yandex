@@ -30,6 +30,10 @@ func (m *Device) SetTopicAliases(v map[string]string) {
 	m.TopicAliases = v
 }
 
+func (m *Device) SetStatus(v Device_Status) {
+	m.Status = v
+}
+
 func (m *DeviceCertificate) SetDeviceId(v string) {
 	m.DeviceId = v
 }

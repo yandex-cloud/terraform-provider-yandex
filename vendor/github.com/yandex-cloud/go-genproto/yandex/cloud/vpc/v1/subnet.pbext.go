@@ -49,3 +49,19 @@ func (m *Subnet) SetV6CidrBlocks(v []string) {
 func (m *Subnet) SetRouteTableId(v string) {
 	m.RouteTableId = v
 }
+
+func (m *Subnet) SetDhcpOptions(v *DhcpOptions) {
+	m.DhcpOptions = v
+}
+
+func (m *DhcpOptions) SetDomainNameServers(v []string) {
+	m.DomainNameServers = v
+}
+
+func (m *DhcpOptions) SetDomainName(v string) {
+	m.DomainName = v
+}
+
+func (m *DhcpOptions) SetNtpServers(v []string) {
+	m.NtpServers = v
+}

@@ -35,6 +35,10 @@ func (m *Trigger) SetRule(v *Trigger_Rule) {
 	m.Rule = v
 }
 
+func (m *Trigger) SetStatus(v Trigger_Status) {
+	m.Status = v
+}
+
 type Trigger_Rule_Rule = isTrigger_Rule_Rule
 
 func (m *Trigger_Rule) SetRule(v Trigger_Rule_Rule) {

@@ -63,6 +63,10 @@ func (m *CreateInstanceGroupRequest) SetVariables(v []*Variable) {
 	m.Variables = v
 }
 
+func (m *CreateInstanceGroupRequest) SetDeletionProtection(v bool) {
+	m.DeletionProtection = v
+}
+
 func (m *CreateInstanceGroupFromYamlRequest) SetFolderId(v string) {
 	m.FolderId = v
 }
@@ -125,6 +129,10 @@ func (m *UpdateInstanceGroupRequest) SetLoadBalancerSpec(v *LoadBalancerSpec) {
 
 func (m *UpdateInstanceGroupRequest) SetVariables(v []*Variable) {
 	m.Variables = v
+}
+
+func (m *UpdateInstanceGroupRequest) SetDeletionProtection(v bool) {
+	m.DeletionProtection = v
 }
 
 func (m *UpdateInstanceGroupFromYamlRequest) SetInstanceGroupId(v string) {

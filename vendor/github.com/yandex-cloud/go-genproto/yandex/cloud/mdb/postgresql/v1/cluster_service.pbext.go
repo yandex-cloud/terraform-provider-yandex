@@ -275,6 +275,26 @@ func (m *ListClusterLogsResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 
+func (m *StreamClusterLogsRequest) SetClusterId(v string) {
+	m.ClusterId = v
+}
+
+func (m *StreamClusterLogsRequest) SetColumnFilter(v []string) {
+	m.ColumnFilter = v
+}
+
+func (m *StreamClusterLogsRequest) SetServiceType(v StreamClusterLogsRequest_ServiceType) {
+	m.ServiceType = v
+}
+
+func (m *StreamClusterLogsRequest) SetFromTime(v *timestamp.Timestamp) {
+	m.FromTime = v
+}
+
+func (m *StreamClusterLogsRequest) SetToTime(v *timestamp.Timestamp) {
+	m.ToTime = v
+}
+
 func (m *ListClusterOperationsRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

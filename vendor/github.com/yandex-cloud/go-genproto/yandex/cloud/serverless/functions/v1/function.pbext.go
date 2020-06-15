@@ -99,6 +99,10 @@ func (m *Version) SetEnvironment(v map[string]string) {
 	m.Environment = v
 }
 
+func (m *Version) SetConnectivity(v *Connectivity) {
+	m.Connectivity = v
+}
+
 func (m *Resources) SetMemory(v int64) {
 	m.Memory = v
 }
@@ -113,4 +117,12 @@ func (m *Package) SetObjectName(v string) {
 
 func (m *Package) SetSha256(v string) {
 	m.Sha256 = v
+}
+
+func (m *Connectivity) SetNetworkId(v string) {
+	m.NetworkId = v
+}
+
+func (m *Connectivity) SetSubnetId(v []string) {
+	m.SubnetId = v
 }

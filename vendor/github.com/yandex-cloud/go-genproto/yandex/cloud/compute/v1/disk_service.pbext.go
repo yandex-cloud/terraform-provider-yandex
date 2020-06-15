@@ -81,6 +81,10 @@ func (m *CreateDiskRequest) SetSnapshotId(v string) {
 	}
 }
 
+func (m *CreateDiskRequest) SetBlockSize(v int64) {
+	m.BlockSize = v
+}
+
 func (m *CreateDiskMetadata) SetDiskId(v string) {
 	m.DiskId = v
 }

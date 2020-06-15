@@ -109,3 +109,12 @@ func (it *JobIterator) Value() *dataproc.Job {
 func (it *JobIterator) Error() error {
 	return it.err
 }
+
+// ListLog implements dataproc.JobServiceClient
+func (c *JobServiceClient) ListLog(ctx context.Context, in *dataproc.ListJobLogRequest, opts ...grpc.CallOption) (*dataproc.ListJobLogResponse, error) {
+	conn, err := c.getConn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return dataproc.NewJobServiceClient(conn).ListLog(ctx, in, opts...)
+}
