@@ -303,6 +303,9 @@ The `scale_policy` block supports:
 
 ~> **NOTE:** Either `fixed_scale` or `auto_scale` must be specified.
 
+* `test_auto_scale` - (Optional) The test auto scaling policy of the instance group. Use it to test how the auto scale works. 
+The structure is documented below.
+
 ---
 
 The `fixed_scale` block supports:
@@ -312,6 +315,31 @@ The `fixed_scale` block supports:
 ---
 
 The `auto_scale` block supports:
+
+* `initial_size` - (Required) The initial number of instances in the instance group.
+
+* `measurement_duration` - (Required) The amount of time, in seconds, that metrics are averaged for.
+If the average value at the end of the interval is higher than the `cpu_utilization_target`,
+the instance group will increase the number of virtual machines in the group.
+
+* `cpu_utilization_target` - (Required) Target CPU load level.
+
+* `min_zone_size` - (Optional) The minimum number of virtual machines in a single availability zone.
+
+* `max_size` - (Optional) The maximum number of virtual machines in the group.
+
+* `warmup_duration` - (Optional) The warm-up time of the virtual machine, in seconds. During this time,
+traffic is fed to the virtual machine, but load metrics are not taken into account.
+
+* `stabilization_duration` - (Optional) The minimum time interval, in seconds, to monitor the load before
+an instance group can reduce the number of virtual machines in the group. During this time, the group
+will not decrease even if the average load falls below the value of `cpu_utilization_target`.
+
+* `custom_rule` - (Optional) A list of custom rules. The structure is documented below.
+
+---
+
+The `test_auto_scale` block supports:
 
 * `initial_size` - (Required) The initial number of instances in the instance group.
 

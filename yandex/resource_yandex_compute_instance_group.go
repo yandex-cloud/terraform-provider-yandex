@@ -415,6 +415,79 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+						"test_auto_scale": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"initial_size": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"measurement_duration": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"min_zone_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  0,
+									},
+									"max_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  0,
+									},
+									"warmup_duration": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"stabilization_duration": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"cpu_utilization_target": {
+										Type:     schema.TypeFloat,
+										Optional: true,
+									},
+									"custom_rule": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"rule_type": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringInSlice([]string{"UTILIZATION", "WORKLOAD"}, false),
+												},
+												"metric_type": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringInSlice([]string{"GAUGE", "COUNTER"}, false),
+												},
+												"metric_name": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"target": {
+													Type:     schema.TypeFloat,
+													Required: true,
+												},
+												"labels": {
+													Type:     schema.TypeMap,
+													Optional: true,
+													Elem:     &schema.Schema{Type: schema.TypeString},
+													Set:      schema.HashString,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},

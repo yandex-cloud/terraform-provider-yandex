@@ -290,6 +290,7 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 		},
 	})
 }
+
 func TestAccComputeInstanceGroup_autoscale(t *testing.T) {
 	t.Parallel()
 
@@ -308,6 +309,31 @@ func TestAccComputeInstanceGroup_autoscale(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupAutoScalePolicy(&ig),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_TestAutoScale(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigTestAutocsale(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupTestAutoScalePolicy(&ig),
 				),
 			},
 			computeInstanceGroupImportStep(),
@@ -947,7 +973,6 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
-
 }
 
 func testAccComputeInstanceGroupConfigAutocsale(igName string, saName string) string {
@@ -975,8 +1000,6 @@ resource "yandex_compute_instance_group" "group1" {
     }
 
     boot_disk {
-      mode = "READ_WRITE"
-
       initialize_params {
         image_id = "${data.yandex_compute_image.ubuntu.id}"
         size     = 4
@@ -1046,7 +1069,107 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
+}
 
+func testAccComputeInstanceGroupConfigTestAutocsale(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v1"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      mode = "READ_WRITE"
+
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+        type     = "network-hdd"
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    scheduling_policy {
+      preemptible = true
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+    test_auto_scale {
+      initial_size           = 1
+      max_size               = 2
+      min_zone_size          = 1
+      measurement_duration   = 120
+      cpu_utilization_target = 80
+      custom_rule {
+        rule_type   = "WORKLOAD"
+        metric_type = "GAUGE"
+        metric_name = "metric1"
+        target      = 50
+      }
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable  = 4
+    max_creating     = 3
+    max_expansion    = 2
+    max_deleting     = 1
+    startup_duration = 5
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
 }
 
 func testAccComputeInstanceGroupConfigGpus(igName string, saName string) string {
@@ -1613,6 +1736,29 @@ func testAccCheckComputeInstanceGroupAutoScalePolicy(ig *instancegroup.InstanceG
 		sp := ig.ScalePolicy.GetAutoScale()
 		if sp.InitialSize != 1 {
 			return fmt.Errorf("wrong initialsize on instance group %s", ig.Name)
+		}
+		if sp.MaxSize != 2 {
+			return fmt.Errorf("wrong max_size on instance group %s", ig.Name)
+		}
+		if sp.MeasurementDuration == nil || sp.MeasurementDuration.Seconds != 120 {
+			return fmt.Errorf("wrong measurement_duration on instance group %s", ig.Name)
+		}
+		if sp.CpuUtilizationRule == nil || sp.CpuUtilizationRule.UtilizationTarget != 80. {
+			return fmt.Errorf("wrong cpu_utilization_target on instance group %s", ig.Name)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupTestAutoScalePolicy(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.ScalePolicy.GetTestAutoScale() == nil {
+			return fmt.Errorf("no test auto scale policy on instance group %s", ig.Name)
+		}
+
+		sp := ig.ScalePolicy.GetTestAutoScale()
+		if sp.InitialSize != 1 {
+			return fmt.Errorf("wrong initial size on instance group %s", ig.Name)
 		}
 		if sp.MaxSize != 2 {
 			return fmt.Errorf("wrong max_size on instance group %s", ig.Name)

@@ -7,6 +7,7 @@ ENHANCEMENTS:
 * mdb: document mdb enumerables for Redis, MongoDB and ClickHouse
 * provider: support set 'service_account_key_file' as either the path to or the contents of a Service Account key file in JSON format 
 * managed-kubernetes: support `gpus` attribute for `yandex_kubernetes_node_group` 
+* compute: add `instance_template.scale_policy.test_auto_scale` attribute in `yandex_compute_instance_group` resource and data source
 
 BUG FIXES:
 * mdb: fix typo in using mdb api by `resource_yandex_mdb_postgresql_cluster`

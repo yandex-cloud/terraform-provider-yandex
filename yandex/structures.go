@@ -346,49 +346,57 @@ func flattenInstanceGroupScalePolicy(ig *instancegroup.InstanceGroup) ([]map[str
 
 	if sp := ig.GetScalePolicy().GetFixedScale(); sp != nil {
 		res["fixed_scale"] = []map[string]interface{}{{"size": int(sp.Size)}}
-		return []map[string]interface{}{res}, nil
 	}
 
 	if sp := ig.GetScalePolicy().GetAutoScale(); sp != nil {
-		subres := map[string]interface{}{}
-		res["auto_scale"] = []map[string]interface{}{subres}
-		subres["min_zone_size"] = int(sp.MinZoneSize)
-		subres["max_size"] = int(sp.MaxSize)
-		subres["initial_size"] = int(sp.InitialSize)
+		res["auto_scale"], _ = flattenInstanceGroupAutoScale(sp)
+	}
 
-		if sp.MeasurementDuration != nil {
-			subres["measurement_duration"] = int(sp.MeasurementDuration.Seconds)
-		}
+	if sp := ig.GetScalePolicy().GetTestAutoScale(); sp != nil {
+		res["test_auto_scale"], _ = flattenInstanceGroupAutoScale(sp)
+	}
 
-		if sp.WarmupDuration != nil {
-			subres["warmup_duration"] = int(sp.WarmupDuration.Seconds)
-		}
+	return []map[string]interface{}{res}, nil
+}
 
-		if sp.StabilizationDuration != nil {
-			subres["stabilization_duration"] = int(sp.StabilizationDuration.Seconds)
-		}
+func flattenInstanceGroupAutoScale(sp *instancegroup.ScalePolicy_AutoScale) ([]map[string]interface{}, error) {
+	subres := map[string]interface{}{}
+	subres["min_zone_size"] = int(sp.MinZoneSize)
+	subres["max_size"] = int(sp.MaxSize)
+	subres["initial_size"] = int(sp.InitialSize)
 
-		if sp.CpuUtilizationRule != nil {
-			subres["cpu_utilization_target"] = sp.CpuUtilizationRule.UtilizationTarget
-		}
+	if sp.MeasurementDuration != nil {
+		subres["measurement_duration"] = int(sp.MeasurementDuration.Seconds)
+	}
 
-		if len(sp.CustomRules) > 0 {
-			rules := make([]map[string]interface{}, len(sp.CustomRules))
-			subres["custom_rule"] = rules
+	if sp.WarmupDuration != nil {
+		subres["warmup_duration"] = int(sp.WarmupDuration.Seconds)
+	}
 
-			for i, rule := range sp.CustomRules {
-				rules[i] = map[string]interface{}{
-					"rule_type":   instancegroup.ScalePolicy_CustomRule_RuleType_name[int32(rule.RuleType)],
-					"metric_type": instancegroup.ScalePolicy_CustomRule_MetricType_name[int32(rule.MetricType)],
-					"metric_name": rule.MetricName,
-					"target":      rule.Target,
-					"labels":      rule.GetLabels(),
-				}
+	if sp.StabilizationDuration != nil {
+		subres["stabilization_duration"] = int(sp.StabilizationDuration.Seconds)
+	}
+
+	if sp.CpuUtilizationRule != nil {
+		subres["cpu_utilization_target"] = sp.CpuUtilizationRule.UtilizationTarget
+	}
+
+	if len(sp.CustomRules) > 0 {
+		rules := make([]map[string]interface{}, len(sp.CustomRules))
+		subres["custom_rule"] = rules
+
+		for i, rule := range sp.CustomRules {
+			rules[i] = map[string]interface{}{
+				"rule_type":   instancegroup.ScalePolicy_CustomRule_RuleType_name[int32(rule.RuleType)],
+				"metric_type": instancegroup.ScalePolicy_CustomRule_MetricType_name[int32(rule.MetricType)],
+				"metric_name": rule.MetricName,
+				"target":      rule.Target,
+				"labels":      rule.GetLabels(),
 			}
 		}
 	}
 
-	return []map[string]interface{}{res}, nil
+	return []map[string]interface{}{subres}, nil
 }
 
 func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
@@ -1135,59 +1143,75 @@ func parseInstanceGroupNetworkSettingsType(str string) (instancegroup.NetworkSet
 }
 
 func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.ScalePolicy, error) {
+	var policy = &instancegroup.ScalePolicy{}
+
 	if _, ok := d.GetOk("scale_policy.0.fixed_scale"); ok {
 		v := d.Get("scale_policy.0.fixed_scale.0.size").(int)
-		policy := &instancegroup.ScalePolicy{
-			ScaleType: &instancegroup.ScalePolicy_FixedScale_{
-				FixedScale: &instancegroup.ScalePolicy_FixedScale{Size: int64(v)},
-			}}
-		return policy, nil
+		policy.ScaleType = &instancegroup.ScalePolicy_FixedScale_{FixedScale: &instancegroup.ScalePolicy_FixedScale{Size: int64(v)}}
 	}
 
 	if _, ok := d.GetOk("scale_policy.0.auto_scale"); ok {
-		autoScale := &instancegroup.ScalePolicy_AutoScale{
-			MinZoneSize: int64(d.Get("scale_policy.0.auto_scale.0.min_zone_size").(int)),
-			MaxSize:     int64(d.Get("scale_policy.0.auto_scale.0.max_size").(int)),
-			InitialSize: int64(d.Get("scale_policy.0.auto_scale.0.initial_size").(int)),
+		autoScale, err := expandInstanceGroupAutoScale(d, "scale_policy.0.auto_scale.0")
+		if err != nil {
+			return nil, err
 		}
-
-		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.measurement_duration"); ok {
-			autoScale.MeasurementDuration = &duration.Duration{Seconds: int64(v.(int))}
-		}
-
-		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.warmup_duration"); ok {
-			autoScale.WarmupDuration = &duration.Duration{Seconds: int64(v.(int))}
-		}
-
-		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.cpu_utilization_target"); ok {
-			autoScale.CpuUtilizationRule = &instancegroup.ScalePolicy_CpuUtilizationRule{UtilizationTarget: v.(float64)}
-		}
-
-		if v, ok := d.GetOk("scale_policy.0.auto_scale.0.stabilization_duration"); ok {
-			autoScale.StabilizationDuration = &duration.Duration{Seconds: int64(v.(int))}
-		}
-
-		if customRulesCount := d.Get("scale_policy.0.auto_scale.0.custom_rule.#").(int); customRulesCount > 0 {
-			rules := make([]*instancegroup.ScalePolicy_CustomRule, customRulesCount)
-			for i := 0; i < customRulesCount; i++ {
-				key := fmt.Sprintf("scale_policy.0.auto_scale.0.custom_rule.%d", i)
-				if rule, err := expandCustomRule(d, key); err == nil {
-					rules[i] = rule
-				} else {
-					return nil, err
-				}
-			}
-			autoScale.CustomRules = rules
-		}
-
-		policy := &instancegroup.ScalePolicy{
-			ScaleType: &instancegroup.ScalePolicy_AutoScale_{
-				AutoScale: autoScale,
-			}}
+		policy.ScaleType = &instancegroup.ScalePolicy_AutoScale_{AutoScale: autoScale}
 		return policy, nil
 	}
 
-	return nil, fmt.Errorf("Only fixed_scale and auto_scale policy are supported")
+	if _, ok := d.GetOk("scale_policy.0.test_auto_scale"); ok {
+		testAutoScale, err := expandInstanceGroupAutoScale(d, "scale_policy.0.test_auto_scale.0")
+		if err != nil {
+			return nil, err
+		}
+		policy.TestAutoScale = testAutoScale
+		return policy, nil
+	}
+
+	if policy.ScaleType == nil {
+		return nil, fmt.Errorf("Only fixed_scale and auto_scale policy are supported")
+	}
+
+	return policy, nil
+}
+
+func expandInstanceGroupAutoScale(d *schema.ResourceData, prefix string) (*instancegroup.ScalePolicy_AutoScale, error) {
+	autoScale := &instancegroup.ScalePolicy_AutoScale{
+		MinZoneSize: int64(d.Get(prefix + ".min_zone_size").(int)),
+		MaxSize:     int64(d.Get(prefix + ".max_size").(int)),
+		InitialSize: int64(d.Get(prefix + ".initial_size").(int)),
+	}
+
+	if v, ok := d.GetOk(prefix + ".measurement_duration"); ok {
+		autoScale.MeasurementDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk(prefix + ".warmup_duration"); ok {
+		autoScale.WarmupDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk(prefix + ".cpu_utilization_target"); ok {
+		autoScale.CpuUtilizationRule = &instancegroup.ScalePolicy_CpuUtilizationRule{UtilizationTarget: v.(float64)}
+	}
+
+	if v, ok := d.GetOk(prefix + ".stabilization_duration"); ok {
+		autoScale.StabilizationDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	if customRulesCount := d.Get(prefix + ".custom_rule.#").(int); customRulesCount > 0 {
+		rules := make([]*instancegroup.ScalePolicy_CustomRule, customRulesCount)
+		for i := 0; i < customRulesCount; i++ {
+			key := fmt.Sprintf(prefix+".custom_rule.%d", i)
+			if rule, err := expandCustomRule(d, key); err == nil {
+				rules[i] = rule
+			} else {
+				return nil, err
+			}
+		}
+		autoScale.CustomRules = rules
+	}
+
+	return autoScale, nil
 }
 
 func expandCustomRule(d *schema.ResourceData, prefix string) (*instancegroup.ScalePolicy_CustomRule, error) {
