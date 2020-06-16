@@ -760,6 +760,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -838,6 +844,7 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 	d.Set("description", instanceGroup.GetDescription())
 	d.Set("service_account_id", instanceGroup.GetServiceAccountId())
 	d.Set("status", instanceGroup.GetStatus().String())
+	d.Set("deletion_protection", instanceGroup.GetDeletionProtection())
 
 	if err := d.Set("labels", instanceGroup.GetLabels()); err != nil {
 		return err
@@ -1001,19 +1008,22 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
 	}
 
+	deletionProtection := d.Get("deletion_protection")
+
 	req := &instancegroup.CreateInstanceGroupRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		InstanceTemplate: instanceTemplate,
-		ScalePolicy:      scalePolicy,
-		DeployPolicy:     deployPolicy,
-		AllocationPolicy: allocationPolicy,
-		LoadBalancerSpec: loadBalancerSpec,
-		HealthChecksSpec: healthChecksSpec,
-		ServiceAccountId: d.Get("service_account_id").(string),
-		Variables:        variables,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		InstanceTemplate:   instanceTemplate,
+		ScalePolicy:        scalePolicy,
+		DeployPolicy:       deployPolicy,
+		AllocationPolicy:   allocationPolicy,
+		LoadBalancerSpec:   loadBalancerSpec,
+		HealthChecksSpec:   healthChecksSpec,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		Variables:          variables,
+		DeletionProtection: deletionProtection.(bool),
 	}
 
 	return req, nil
@@ -1060,6 +1070,8 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
 	}
 
+	deletionProtection := d.Get("deletion_protection")
+
 	var updatePath = getStaticUpdatePath()
 
 	var instanceGroupTemplateFieldsMap = map[string]string{
@@ -1074,19 +1086,20 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 	}
 
 	req := &instancegroup.UpdateInstanceGroupRequest{
-		InstanceGroupId:  d.Id(),
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		InstanceTemplate: instanceTemplate,
-		ScalePolicy:      scalePolicy,
-		DeployPolicy:     deployPolicy,
-		AllocationPolicy: allocationPolicy,
-		LoadBalancerSpec: loadBalancerSpec,
-		HealthChecksSpec: healthChecksSpec,
-		ServiceAccountId: d.Get("service_account_id").(string),
-		UpdateMask:       &field_mask.FieldMask{Paths: updatePath},
-		Variables:        variables,
+		InstanceGroupId:    d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		InstanceTemplate:   instanceTemplate,
+		ScalePolicy:        scalePolicy,
+		DeployPolicy:       deployPolicy,
+		AllocationPolicy:   allocationPolicy,
+		LoadBalancerSpec:   loadBalancerSpec,
+		HealthChecksSpec:   healthChecksSpec,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		UpdateMask:         &field_mask.FieldMask{Paths: updatePath},
+		Variables:          variables,
+		DeletionProtection: deletionProtection.(bool),
 	}
 
 	return req, nil
@@ -1115,6 +1128,7 @@ func getStaticUpdatePath() []string {
 		"load_balancer_spec",
 		"health_checks_spec",
 		"service_account_id",
+		"deletion_protection",
 	}
 }
 

@@ -57,6 +57,8 @@ The following arguments are supported:
 
 * `status` - Status of the instance group.
 
+* `deletion_protection` - Flag that protects the instance group from accidental deletion.
+
 ---
 
 The `load_balancer_state` block supports:

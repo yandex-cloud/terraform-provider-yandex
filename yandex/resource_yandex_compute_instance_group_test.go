@@ -411,6 +411,38 @@ func TestAccComputeInstanceGroup_update2(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_DeletionProtection(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigDeletionProtection(name, saName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupDeletionProtection(&ig, true),
+				),
+			},
+			{
+				Config: testAccComputeInstanceGroupConfigDeletionProtection(name, saName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupDeletionProtection(&ig, false),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -517,6 +549,88 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   sleep_after = 30
 }
 `, getExampleFolderID(), igName, saName)
+}
+
+func testAccComputeInstanceGroupConfigDeletionProtection(igName string, saName string, deletionProtection bool) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on          = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name                = "%[2]s"
+  folder_id           = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id  = "${yandex_iam_service_account.test_account.id}"
+  deletion_protection = "%[4]t"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory        = 2
+      cores         = 2
+      core_fraction = 20
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 1
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName, deletionProtection)
 }
 
 func testAccComputeInstanceGroupConfigWithLabels(igName string, saName string) string {
@@ -1592,6 +1706,15 @@ func testAccCheckComputeInstanceGroupLabel(ig *instancegroup.InstanceGroup, key 
 			return fmt.Errorf("no label found with key %s on instance group %s", key, ig.Name)
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupDeletionProtection(ig *instancegroup.InstanceGroup, value bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.DeletionProtection != value {
+			return fmt.Errorf("expected value '%t' but found value '%t' for deletion_protection field on instance group %s", value, !value, ig.Name)
+		}
 		return nil
 	}
 }

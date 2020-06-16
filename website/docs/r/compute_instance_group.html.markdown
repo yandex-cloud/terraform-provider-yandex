@@ -15,9 +15,10 @@ An Instance group resource. For more information, see
 
 ```hcl
 resource "yandex_compute_instance_group" "group1" {
-  name               = "test-ig"
-  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
-  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  name                = "test-ig"
+  folder_id           = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id  = "${yandex_iam_service_account.test_account.id}"
+  deletion_protection = true
   instance_template {
     platform_id = "standard-v1"
     resources {
@@ -99,6 +100,8 @@ The following arguments are supported:
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance group.
 
 * `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
+
+* `deletion_protection` - (Optional) Flag that protects the instance group from accidental deletion.
 
 ---
 
