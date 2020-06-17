@@ -14,7 +14,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
 
-const yandexComputeDiskDefaultTimeout = 5 * time.Minute
+const yandexComputeDiskDefaultTimeout = 10 * time.Minute
 
 func resourceYandexComputeDisk() *schema.Resource {
 	return &schema.Resource{

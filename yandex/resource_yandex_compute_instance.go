@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	yandexComputeInstanceDefaultTimeout       = 5 * time.Minute
+	yandexComputeInstanceDefaultTimeout       = 10 * time.Minute
 	yandexComputeInstanceDiskOperationTimeout = 1 * time.Minute
 )
 
