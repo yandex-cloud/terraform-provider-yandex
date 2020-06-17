@@ -214,6 +214,7 @@ The `network_interface` block supports:
 * `subnet_ids` - The IDs of the subnets.
 * `ipv4` - Is IPv4 address assigned.
 * `nat` - A public address that can be used to access the internet over NAT.
+* `security_group_ids` - Security group ids for network interface.
 
 ---
 

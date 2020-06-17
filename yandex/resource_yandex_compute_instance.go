@@ -242,6 +242,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						"security_group_ids": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							ForceNew: true,
+						},
 					},
 				},
 			},
