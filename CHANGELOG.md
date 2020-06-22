@@ -2,11 +2,12 @@
 FEATURES:
 * **New Data Source:** `yandex_message_queue`
 * **New Resource:** `yandex_message_queue`
+* vpc: allow setting dhcp options for `yandex_vpc_subnet`
 
 ENHANCEMENTS:
 * mdb: document mdb enumerables for Redis, MongoDB and ClickHouse
-* provider: support set 'service_account_key_file' as either the path to or the contents of a Service Account key file in JSON format 
-* managed-kubernetes: support `gpus` attribute for `yandex_kubernetes_node_group` 
+* provider: support set 'service_account_key_file' as either the path to or the contents of a Service Account key file in JSON format
+* managed-kubernetes: support `gpus` attribute for `yandex_kubernetes_node_group`
 * compute: add `instance_template.scale_policy.test_auto_scale` attribute in `yandex_compute_instance_group` resource and data source
 * compute: add `deletion_protection` attribute in `yandex_compute_instance_group` resource and data source
 * compute: add `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance_group` resource and data source
@@ -14,6 +15,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * mdb: fix typo in using mdb api by `resource_yandex_mdb_postgresql_cluster`
+* vpc: fix removing `yandex_vpc_subnet` attribute `route_table_id`
 
 ## 0.40.0 (May 22, 2020)
 FEATURES:

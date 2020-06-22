@@ -218,8 +218,6 @@ func TestAccVPCSubnet_update(t *testing.T) {
 }
 
 func TestAccVPCSubnet_withRouteTable(t *testing.T) {
-	t.Parallel()
-
 	var network vpc.Network
 	var subnet vpc.Subnet
 
@@ -227,7 +225,7 @@ func TestAccVPCSubnet_withRouteTable(t *testing.T) {
 	subnet1Name := acctest.RandomWithPrefix("tf-subnet-a")
 	updatedSubnet1Name := subnet1Name + "-update"
 
-	resource.Test(t, resource.TestCase{
+	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVPCSubnetDestroy,
@@ -236,13 +234,12 @@ func TestAccVPCSubnet_withRouteTable(t *testing.T) {
 				Config: testAccVPCSubnet_withoutRouteTable(networkName, subnet1Name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCNetworkExists("yandex_vpc_network.foo", &network),
-
 					testAccCheckVPCSubnetExists("yandex_vpc_subnet.subnet-a", &subnet),
 					resource.TestCheckResourceAttrPtr("yandex_vpc_subnet.subnet-a", "network_id", &network.Id),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "name", subnet1Name),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "description", "description for subnet-a"),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "zone", "ru-central1-a"),
-					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "route_table_id", ""),
+					testAccCheckVPCSubnetRouteTableIdValue(&subnet, ""),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-a", "v4_cidr_blocks.0", "10.0.0.0/16"),
 					testAccCheckVPCSubnetContainsLabel(&subnet, "tf-label", "tf-label-value-a"),
 					testAccCheckVPCSubnetContainsLabel(&subnet, "empty-label", ""),
@@ -262,9 +259,63 @@ func TestAccVPCSubnet_withRouteTable(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccVPCSubnet_withoutRouteTable(networkName, updatedSubnet1Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists("yandex_vpc_subnet.subnet-a", &subnet),
+					testAccCheckVPCSubnetRouteTableIdValue(&subnet, ""),
+				),
+			},
+			{
 				ResourceName:      "yandex_vpc_subnet.subnet-a",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVPCSubnet_withDhcpOptions(t *testing.T) {
+	var (
+		subnet              vpc.Subnet
+		networkName         = acctest.RandomWithPrefix("tf-network")
+		subnetName          = acctest.RandomWithPrefix("tf-subnet-a")
+		domainName          = "example.com"
+		updatedDomainName   = "example.io"
+		subnetResourceName  = "yandex_vpc_subnet.foo"
+		dhcpOptionsFullPath string
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		CheckDestroy: testAccCheckVPCSubnetDestroy,
+		Providers:    testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCSubnet_withDhcpOptions(networkName, subnetName, domainName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists(subnetResourceName, &subnet),
+					testExistsElementWithAttrValue(subnetResourceName, "dhcp_options", "domain_name", domainName, &dhcpOptionsFullPath),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "domain_name_servers.0", "1.1.1.1"),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "domain_name_servers.1", "8.8.8.8"),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "ntp_servers.0", "193.67.79.202"),
+				),
+			},
+			{
+				Config: testAccVPCSubnet_withDhcpOptions(networkName, subnetName, updatedDomainName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists(subnetResourceName, &subnet),
+					testExistsElementWithAttrValue(subnetResourceName, "dhcp_options", "domain_name", updatedDomainName, &dhcpOptionsFullPath),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "domain_name_servers.0", "1.1.1.1"),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "domain_name_servers.1", "8.8.8.8"),
+					testCheckResourceSubAttr(subnetResourceName, &dhcpOptionsFullPath, "ntp_servers.0", "193.67.79.202"),
+				),
+			},
+			{
+				Config: testAccVPCSubnet_withoutDhcpOptions(networkName, subnetName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists(subnetResourceName, &subnet),
+					resource.TestCheckNoResourceAttr(subnetResourceName, "dhcp_options"),
+				),
 			},
 		},
 	})
@@ -327,6 +378,15 @@ func testAccCheckVPCSubnetContainsLabel(subnet *vpc.Subnet, key string, value st
 		}
 		if v != value {
 			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testAccCheckVPCSubnetRouteTableIdValue(subnet *vpc.Subnet, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if subnet.GetRouteTableId() != value {
+			return fmt.Errorf("Incorrect route_table_id value: expected '%s', but got '%s'", value, subnet.GetRouteTableId())
 		}
 		return nil
 	}
@@ -460,4 +520,40 @@ resource "yandex_vpc_route_table" "rt-a" {
   }
 }
 `, networkName, subnet1Name)
+}
+
+func testAccVPCSubnet_withDhcpOptions(networkName, subnetName, domainName string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name        = "%s"
+}
+
+resource "yandex_vpc_subnet" "foo" {
+  name           = "%s"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["172.16.1.0/24"]
+  zone           = "ru-central1-b"
+
+  dhcp_options {
+    domain_name 		= "%s"
+    domain_name_servers = ["1.1.1.1", "8.8.8.8"]
+    ntp_servers 		= ["193.67.79.202"]
+  }
+}
+	`, networkName, subnetName, domainName)
+}
+
+func testAccVPCSubnet_withoutDhcpOptions(networkName, subnetName string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name        = "%s"
+}
+
+resource "yandex_vpc_subnet" "foo" {
+  name           = "%s"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["172.16.1.0/24"]
+  zone           = "ru-central1-b"
+}
+	`, networkName, subnetName)
 }

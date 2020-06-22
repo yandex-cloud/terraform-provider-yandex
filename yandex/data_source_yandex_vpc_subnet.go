@@ -64,6 +64,29 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"dhcp_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"domain_name_servers": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Computed: true,
+						},
+						"ntp_servers": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Computed: true,
+						},
+					},
+				},
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -119,6 +142,9 @@ func dataSourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	if err := d.Set("v6_cidr_blocks", subnet.V6CidrBlocks); err != nil {
+		return err
+	}
+	if err := d.Set("dhcp_options", flattenDhcpOptions(subnet.DhcpOptions)); err != nil {
 		return err
 	}
 	d.SetId(subnet.Id)

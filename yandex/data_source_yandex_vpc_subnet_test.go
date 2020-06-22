@@ -104,6 +104,39 @@ func TestAccDataSourceVPCSubnet_withRouteTable(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceVPCSubnet_withDhcpOptions(t *testing.T) {
+	t.Parallel()
+
+	subnetName := acctest.RandomWithPrefix("tf-subnet")
+	subnetDesc := "Description for test subnet"
+
+	var subnet vpc.Subnet
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckVPCNetworkDestroy,
+			testAccCheckVPCRouteTableDestroy,
+			testAccCheckVPCSubnetDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVPCSubnetConfig_basicDhcpOptions(subnetName, subnetDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCSubnetExists("yandex_vpc_subnet.foo", &subnet),
+					testAccDataSourceVPCSubnetExists("data.yandex_vpc_subnet.bar"),
+					testAccCheckResourceIDField("data.yandex_vpc_subnet.bar", "subnet_id"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar", "dhcp_options.0.domain_name", "example.com"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar", "dhcp_options.0.domain_name_servers.0", "1.1.1.1"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar", "dhcp_options.0.domain_name_servers.1", "8.8.8.8"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar", "dhcp_options.0.ntp_servers.0", "193.67.79.202"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceVPCSubnetExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[n]
@@ -196,4 +229,31 @@ resource "yandex_vpc_route_table" "foo" {
   }
 }
 `, acctest.RandomWithPrefix("tf-network"), name1, desc1)
+}
+
+func testAccDataSourceVPCSubnetConfig_basicDhcpOptions(name, desc string) string {
+	return fmt.Sprintf(`
+data "yandex_vpc_subnet" "bar" {
+  subnet_id = "${yandex_vpc_subnet.foo.id}"
+}
+
+resource "yandex_vpc_network" "foo" {
+  name        = "%s"
+  description = "description for test"
+}
+
+resource "yandex_vpc_subnet" "foo" {
+  name           = "%s"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  description    = "%s"
+  v4_cidr_blocks = ["172.16.1.0/24"]
+  zone           = "ru-central1-b"
+
+  dhcp_options {
+    domain_name 		= "example.com"
+    domain_name_servers = ["1.1.1.1", "8.8.8.8"]
+    ntp_servers 		= ["193.67.79.202"]
+  }
+}
+`, acctest.RandomWithPrefix("tf-network"), name, desc)
 }

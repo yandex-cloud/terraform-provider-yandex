@@ -83,7 +83,6 @@ func resourceYandexVPCSubnet() *schema.Resource {
 
 			"route_table_id": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 			},
 
@@ -92,6 +91,30 @@ func resourceYandexVPCSubnet() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+				},
+			},
+
+			"dhcp_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"domain_name_servers": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Optional: true,
+						},
+						"ntp_servers": {
+							Type:     schema.TypeList,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Optional: true,
+						},
+					},
 				},
 			},
 
@@ -131,6 +154,11 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
+	dhcpOptions, err := expandDhcpOptions(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding dhcp options while creating subnet: %s", err)
+	}
+
 	req := vpc.CreateSubnetRequest{
 		FolderId:     folderID,
 		ZoneId:       zone,
@@ -140,6 +168,7 @@ func resourceYandexVPCSubnetCreate(d *schema.ResourceData, meta interface{}) err
 		NetworkId:    d.Get("network_id").(string),
 		RouteTableId: d.Get("route_table_id").(string),
 		V4CidrBlocks: rangesV4,
+		DhcpOptions:  dhcpOptions,
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -206,7 +235,11 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	return d.Set("v6_cidr_blocks", convertStringArrToInterface(subnet.V6CidrBlocks))
+	if err := d.Set("v6_cidr_blocks", convertStringArrToInterface(subnet.V6CidrBlocks)); err != nil {
+		return err
+	}
+
+	return d.Set("dhcp_options", flattenDhcpOptions(subnet.DhcpOptions))
 }
 
 func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -242,6 +275,15 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 	if d.HasChange("route_table_id") {
 		req.RouteTableId = d.Get("route_table_id").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "route_table_id")
+	}
+
+	if d.HasChange("dhcp_options") {
+		dhcpOptions, err := expandDhcpOptions(d)
+		if err != nil {
+			return err
+		}
+		req.DhcpOptions = dhcpOptions
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "dhcp_options")
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

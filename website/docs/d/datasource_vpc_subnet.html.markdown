@@ -24,7 +24,7 @@ This data source is used to define [VPC Subnets] that can be used by other resou
 The following arguments are supported:
 
 * `subnet_id` (Optional) - Subnet ID.
-* `name` - (Optional) - Name of the subnet. 
+* `name` - (Optional) - Name of the subnet.
 
 ~> **NOTE:** One of `subnet_id` or `name` should be specified.
 
@@ -41,8 +41,17 @@ The following attributes are exported:
 * `route_table_id` - ID of the route table to assign to this subnet.
 * `v4_cidr_blocks` - The blocks of internal IPv4 addresses owned by this subnet.
 * `v6_cidr_blocks` - The blocks of internal IPv6 addresses owned by this subnet.
+* `dhcp_options` - Options for DHCP client. The structure is documented below.
 * `created_at` - Creation timestamp of this subnet.
 
 ~> **Note:** `v6_cidr_blocks` attribute is currently not supported. It will be available in the future.
+
+---
+
+The `dhcp_options` block supports:
+
+* `domain_name` - Domain name.
+* `domain_name_servers` - Domain name server IP addresses.
+* `ntp_servers` - NTP server IP addresses.
 
 [VPC Subnets]: https://cloud.yandex.com/docs/vpc/concepts/network#subnet

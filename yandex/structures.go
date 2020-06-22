@@ -1047,6 +1047,74 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 	return &sr, nil
 }
 
+func flattenDhcpOptions(dhcpOptions *vpc.DhcpOptions) []interface{} {
+	m := make(map[string]interface{})
+
+	if dhcpOptions.DomainName != "" {
+		m["domain_name"] = dhcpOptions.DomainName
+	}
+
+	if len(dhcpOptions.DomainNameServers) > 0 {
+		m["domain_name_servers"] = dhcpOptions.DomainNameServers
+	}
+
+	if len(dhcpOptions.NtpServers) > 0 {
+		m["ntp_servers"] = dhcpOptions.NtpServers
+	}
+
+	if len(m) > 0 {
+		return []interface{}{m}
+	}
+
+	return nil
+}
+
+func expandDhcpOptions(d *schema.ResourceData) (*vpc.DhcpOptions, error) {
+	var (
+		v  interface{}
+		ok bool
+	)
+
+	if v, ok = d.GetOk("dhcp_options"); !ok {
+		return nil, nil
+	}
+
+	optsList := v.([]interface{})
+
+	if len(optsList) == 0 {
+		return nil, nil
+	}
+
+	optsDescriptor, ok := optsList[0].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", optsList[0])
+	}
+
+	var dhcpOptions vpc.DhcpOptions
+
+	if v, ok := optsDescriptor["domain_name"].(string); ok {
+		dhcpOptions.DomainName = v
+	}
+
+	if v, ok := optsDescriptor["domain_name_servers"].([]interface{}); ok {
+		vs := make([]string, 0, len(v))
+		for _, s := range v {
+			vs = append(vs, s.(string))
+		}
+		dhcpOptions.DomainNameServers = vs
+	}
+
+	if v, ok := optsDescriptor["ntp_servers"].([]interface{}); ok {
+		vs := make([]string, 0, len(v))
+		for _, s := range v {
+			vs = append(vs, s.(string))
+		}
+		dhcpOptions.NtpServers = vs
+	}
+
+	return &dhcpOptions, nil
+}
+
 // revive:disable:var-naming
 func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.InstanceTemplate, error) {
 	var platformId, description, serviceAccount, name, hostname string
