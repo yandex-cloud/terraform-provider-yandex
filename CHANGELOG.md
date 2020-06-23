@@ -22,6 +22,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * mdb: fix typo in using mdb api by `resource_yandex_mdb_postgresql_cluster`
 * vpc: fix removing `yandex_vpc_subnet` attribute `route_table_id`
+* compute: fix `secondary_disk` validation in `yandex_compute_instance_group` resource
 
 ## 0.40.0 (May 22, 2020)
 FEATURES:
