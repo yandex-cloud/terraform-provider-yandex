@@ -1,5 +1,8 @@
 ## 0.42.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `yandex_client_config`
+
 ENHANCEMENTS:
 * mdb: add `role` attribute to `host` entity in `yandex_mdb_postgresql_cluster` resource and data source
 

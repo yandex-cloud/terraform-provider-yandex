@@ -127,6 +127,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"yandex_client_config":            dataSourceYandexClientConfig(),
 			"yandex_container_registry":       dataSourceYandexContainerRegistry(),
 			"yandex_compute_disk":             dataSourceYandexComputeDisk(),
 			"yandex_compute_image":            dataSourceYandexComputeImage(),
