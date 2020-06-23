@@ -662,6 +662,12 @@ func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix stri
 		diskSpec.TypeId = v.(string)
 	}
 
+	if _, ok := d.GetOk(prefix + ".image_id"); ok {
+		if _, ok := d.GetOk(prefix + ".snapshot_id"); ok {
+			return diskSpec, fmt.Errorf("Use one of  'image_id', 'snapshot_id', not both.")
+		}
+	}
+
 	var minStorageSizeBytes int64
 	if v, ok := d.GetOk(prefix + ".image_id"); ok {
 		imageID := v.(string)
