@@ -8,23 +8,22 @@ description: |-
 
 # yandex\_message\_queue
 
-Use this data source to get the ARN and URL of Yandex Message Queue.
-By using this data source, you can reference message queues without having to hardcode
-the ARNs as input.
+Get information about a Yandex Message Queue. For more information about Yandex Message Queue, see
+[Yandex.Cloud Message Queue](https://cloud.yandex.com/docs/message-queue).
 
 ## Example Usage
 
 ```hcl
-data "yandex_message_queue" "example" {
-  name = "queue"
+data "yandex_message_queue" "example_queue" {
+  name = "ymq_terraform_example"
 }
 ```
 
 ## Argument Reference
 
-* `name` - (Required) The name of the queue to match.
+* `name` - (Required) Queue name.
 
 ## Attributes Reference
 
 * `arn` - ARN of the queue. It is used for setting up a [redrive policy](https://cloud.yandex.com/docs/message-queue/concepts/dlq). See [documentation](https://cloud.yandex.com/docs/message-queue/api-ref/queue/SetQueueAttributes).
-* `url` - The URL of the queue.
+* `url` - URL of the queue.
