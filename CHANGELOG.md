@@ -1,3 +1,4 @@
+## 0.42.0 (Unreleased)
 ## 0.41.0 (June 23, 2020)
 FEATURES:
 * **New Data Source:** `yandex_message_queue`
