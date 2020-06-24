@@ -1,4 +1,4 @@
-## 0.42.0 (Unreleased)
+## 0.41.1 (Unreleased)
 
 BUG FIXES:
 * vpc: fix panic on empty subnet dhcp options on `yandex_vpc_subnet` resource ([#82](https://github.com/terraform-providers/terraform-provider-yandex/issues/82))
