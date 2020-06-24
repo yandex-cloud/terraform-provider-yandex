@@ -66,6 +66,11 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"token": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
 			"master": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -252,6 +257,14 @@ func dataSourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("failed to fill Kubernetes cluster attributes: %v", err)
 	}
+
+	response, err := config.sdk.CreateIAMToken(ctx)
+	if err != nil {
+		return err
+	}
+
+	token := response.GetIamToken()
+	d.Set("token", token)
 
 	return nil
 }

@@ -63,6 +63,8 @@ to access Container Registry or to push node logs and metrics.
 
 * `kms_provider` - cluster KMS provider parameters.
 
+* `token` - Token used to authenticate to the cluster.
+
 ---
 
 The `master` block supports:

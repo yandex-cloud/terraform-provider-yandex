@@ -270,6 +270,11 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"token": {
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
+			},
 			"health": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -361,7 +366,19 @@ func resourceYandexKubernetesClusterRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("Kubernetes cluster with ID %q", clusterID))
 	}
 
-	return flattenKubernetesClusterAttributes(cluster, d, true)
+	if err := flattenKubernetesClusterAttributes(cluster, d, true); err != nil {
+		return err
+	}
+
+	response, err := config.sdk.CreateIAMToken(ctx)
+	if err != nil {
+		return err
+	}
+
+	token := response.GetIamToken()
+	d.Set("token", token)
+
+	return nil
 }
 
 var updateKubernetesClusterFieldsMap = map[string]string{

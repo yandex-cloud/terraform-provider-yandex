@@ -172,6 +172,8 @@ that will cause problems for cluster and related node group deletion.
 * `status` - (Computed)Status of the Kubernetes cluster.
 * `health` - (Computed) Health of the Kubernetes cluster.
 * `created_at` - (Computed) The Kubernetes cluster creation timestamp.
+* `token` - (Computed) Token used to authenticate to the cluster.
+
 
 ---
 

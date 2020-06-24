@@ -566,6 +566,7 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
+			resource.TestCheckResourceAttrSet(resourceFullName, "token"),
 		}
 
 		if info.policy != emptyMaintenancePolicy {
