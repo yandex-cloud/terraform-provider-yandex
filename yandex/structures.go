@@ -1048,6 +1048,10 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 }
 
 func flattenDhcpOptions(dhcpOptions *vpc.DhcpOptions) []interface{} {
+	if dhcpOptions == nil {
+		return nil
+	}
+
 	m := make(map[string]interface{})
 
 	if dhcpOptions.DomainName != "" {
