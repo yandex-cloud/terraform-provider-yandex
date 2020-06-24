@@ -1,3 +1,4 @@
+## 0.42.0 (Unreleased)
 ## 0.41.1 (June 24, 2020)
 
 BUG FIXES:
