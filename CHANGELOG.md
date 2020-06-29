@@ -1,4 +1,7 @@
 ## 0.42.0 (Unreleased)
+BUG FIXES:
+* compute: fix `secondary_disk` validation in `yandex_compute_instance_group` resource
+
 ## 0.41.1 (June 24, 2020)
 
 BUG FIXES:

@@ -244,15 +244,13 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 
 												"image_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"instance_template.secondary_disk.initialize_params.snapshot_id"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 
 												"snapshot_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"instance_template.secondary_disk.initialize_params.image_id"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
