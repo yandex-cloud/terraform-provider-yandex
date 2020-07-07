@@ -201,6 +201,7 @@ func flattenPGHosts(hs []*postgresql.Host) ([]map[string]interface{}, error) {
 		m["subnet_id"] = h.SubnetId
 		m["assign_public_ip"] = h.AssignPublicIp
 		m["fqdn"] = h.Name
+		m["role"] = h.Role.String()
 
 		out = append(out, m)
 	}
