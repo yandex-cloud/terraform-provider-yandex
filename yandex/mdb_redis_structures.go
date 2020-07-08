@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"fmt"
-
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -13,6 +12,7 @@ import (
 type redisConfig struct {
 	timeout         int64
 	maxmemoryPolicy string
+	version         string
 }
 
 // Sorts list of hosts in accordance with the order in config.
@@ -64,35 +64,90 @@ func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) (map
 }
 
 func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
-	rc := (cc.RedisConfig).(*redis.ClusterConfig_RedisConfig_5_0)
-	c := rc.RedisConfig_5_0.EffectiveConfig
+	res := redisConfig{
+		version: cc.Version,
+	}
+	switch rc := cc.RedisConfig.(type) {
+	case *redis.ClusterConfig_RedisConfig_5_0:
+		c := rc.RedisConfig_5_0.EffectiveConfig
+		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+		res.timeout = c.GetTimeout().GetValue()
+	case *redis.ClusterConfig_RedisConfig_6_0:
+		c := rc.RedisConfig_6_0.EffectiveConfig
+		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+		res.timeout = c.GetTimeout().GetValue()
+	}
 
-	res := redisConfig{}
-	res.timeout = c.GetTimeout().GetValue()
-	res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
 	return res
 }
 
-func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisConfig_5_0, error) {
-	cs := &redis.ConfigSpec_RedisConfig_5_0{}
-	c := &config.RedisConfig5_0{}
+func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, string, error) {
+	var cs redis.ConfigSpec_RedisSpec
 
+	var password string
 	if v, ok := d.GetOk("config.0.password"); ok {
-		c.Password = v.(string)
+		password = v.(string)
 	}
+
+	var timeout *wrappers.Int64Value
 	if v, ok := d.GetOk("config.0.timeout"); ok {
-		c.Timeout = &wrappers.Int64Value{Value: int64(v.(int))}
+		timeout = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
-		mp, err := parseRedisMaxmemoryPolicy(v.(string))
+
+	var version string
+	if v, ok := d.GetOk("config.0.version"); ok {
+		version = v.(string)
+	}
+	switch version {
+	case "5.0":
+		c := config.RedisConfig5_0{
+			Password: password,
+			Timeout:  timeout,
+		}
+		err := setMaxMemory5_0(&c, d)
 		if err != nil {
-			return nil, err
+			return nil, version, err
+		}
+		cs = &redis.ConfigSpec_RedisConfig_5_0{
+			RedisConfig_5_0: &c,
+		}
+	case "6.0":
+		c := config.RedisConfig6_0{
+			Password: password,
+			Timeout:  timeout,
+		}
+		err := setMaxMemory6_0(&c, d)
+		if err != nil {
+			return nil, version, err
+		}
+		cs = &redis.ConfigSpec_RedisConfig_6_0{
+			RedisConfig_6_0: &c,
+		}
+	}
+
+	return &cs, version, nil
+}
+
+func setMaxMemory5_0(c *config.RedisConfig5_0, d *schema.ResourceData) error {
+	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
+		mp, err := parseRedisMaxmemoryPolicy5_0(v.(string))
+		if err != nil {
+			return err
 		}
 		c.MaxmemoryPolicy = mp
 	}
-	cs.RedisConfig_5_0 = c
+	return nil
+}
 
-	return cs, nil
+func setMaxMemory6_0(c *config.RedisConfig6_0, d *schema.ResourceData) error {
+	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
+		mp, err := parseRedisMaxmemoryPolicy6_0(v.(string))
+		if err != nil {
+			return err
+		}
+		c.MaxmemoryPolicy = mp
+	}
+	return nil
 }
 
 func flattenRedisResources(r *redis.Resources) ([]map[string]interface{}, error) {
@@ -171,11 +226,20 @@ func parseRedisEnv(e string) (redis.Cluster_Environment, error) {
 	return redis.Cluster_Environment(v), nil
 }
 
-func parseRedisMaxmemoryPolicy(s string) (config.RedisConfig5_0_MaxmemoryPolicy, error) {
+func parseRedisMaxmemoryPolicy5_0(s string) (config.RedisConfig5_0_MaxmemoryPolicy, error) {
 	v, ok := config.RedisConfig5_0_MaxmemoryPolicy_value[s]
 	if !ok {
 		return 0, fmt.Errorf("value for 'maxmemory_policy' must be one of %s, not `%s`",
 			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig5_0_MaxmemoryPolicy_value)), s)
 	}
 	return config.RedisConfig5_0_MaxmemoryPolicy(v), nil
+}
+
+func parseRedisMaxmemoryPolicy6_0(s string) (config.RedisConfig6_0_MaxmemoryPolicy, error) {
+	v, ok := config.RedisConfig6_0_MaxmemoryPolicy_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'maxmemory_policy' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig6_0_MaxmemoryPolicy_value)), s)
+	}
+	return config.RedisConfig6_0_MaxmemoryPolicy(v), nil
 }

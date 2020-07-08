@@ -95,14 +95,14 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "5.0"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100),
+					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, "5.0"),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -111,14 +111,14 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2),
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, "5.0"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, "5.0"),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -127,7 +127,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2),
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, "5.0"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 2),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
@@ -135,7 +135,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, "5.0"),
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -162,7 +162,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc),
+				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, "5.0"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
@@ -176,7 +176,122 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 			mdbRedisClusterImportStep(redisResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc),
+				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, "5.0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckCreatedAtAttr(redisResourceSharded),
+				),
+			},
+			mdbRedisClusterImportStep(redisResourceSharded),
+		},
+	})
+}
+
+func TestAccMDBRedis6Cluster_full(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis")
+	redisDesc := "Redis 6 Cluster Terraform Test"
+	redisDesc2 := "Redis 6 Cluster Terraform Test Updated"
+	folderID := getExampleFolderID()
+	version := "6.0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create Redis Cluster
+			{
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, version),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckCreatedAtAttr(redisResource),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// Change some options
+			{
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+					testAccCheckCreatedAtAttr(redisResource),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// Add new host
+			{
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 2),
+					resource.TestCheckResourceAttr(redisResource, "name", redisName),
+					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+					testAccCheckCreatedAtAttr(redisResource),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+		},
+	})
+}
+
+// Test that a sharded Redis Cluster can be created, updated and destroyed
+func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
+	redisDesc := "Sharded Redis Cluster Terraform Test"
+	folderID := getExampleFolderID()
+	version := "6.0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create Redis Cluster
+			{
+				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckCreatedAtAttr(redisResourceSharded),
+				),
+			},
+			mdbRedisClusterImportStep(redisResourceSharded),
+			// Add new shard, delete old shard
+			{
+				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
@@ -284,7 +399,8 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 	}
 }
 
-func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64) resource.TestCheckFunc {
+func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64,
+	version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := extractRedisConfig(r.Config)
 		if c.maxmemoryPolicy != maxmemoryPolicy {
@@ -292,6 +408,9 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 		}
 		if c.timeout != timeout {
 			return fmt.Errorf("Expected config.timeout '%d', got '%d'", timeout, c.timeout)
+		}
+		if c.version != version {
+			return fmt.Errorf("Expected config.version '%s', got '%s'", version, c.version)
 		}
 		return nil
 	}
@@ -334,7 +453,7 @@ resource "yandex_vpc_subnet" "foo" {
 }
 `
 
-func testAccMDBRedisClusterConfigMain(name, desc string) string {
+func testAccMDBRedisClusterConfigMain(name, desc string, version string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -350,6 +469,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 100
     maxmemory_policy = "ALLKEYS_LRU"
+	version			 = "%s"
   }
 
   resources {
@@ -362,10 +482,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 }
-`, name, desc)
+`, name, desc, version)
 }
 
-func testAccMDBRedisClusterConfigUpdated(name, desc string) string {
+func testAccMDBRedisClusterConfigUpdated(name, desc string, version string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -381,6 +501,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 200
     maxmemory_policy = "VOLATILE_LFU"
+	version			 = "%s"
   }
 
   resources {
@@ -393,10 +514,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 }
-`, name, desc)
+`, name, desc, version)
 }
 
-func testAccMDBRedisClusterConfigAddedHost(name, desc string) string {
+func testAccMDBRedisClusterConfigAddedHost(name, desc string, version string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -412,6 +533,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 200
     maxmemory_policy = "VOLATILE_LFU"
+	version			 = "%s"
   }
 
   resources {
@@ -429,10 +551,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 }
-`, name, desc)
+`, name, desc, version)
 }
 
-func testAccMDBRedisShardedClusterConfig(name, desc string) string {
+func testAccMDBRedisShardedClusterConfig(name, desc string, version string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "bar" {
   name        = "%s"
@@ -443,6 +565,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   config {
     password = "passw0rd"
+	version  = "%s"
   }
 
   resources {
@@ -468,10 +591,10 @@ resource "yandex_mdb_redis_cluster" "bar" {
 	shard_name = "third"
   }
 }
-`, name, desc)
+`, name, desc, version)
 }
 
-func testAccMDBRedisShardedClusterConfigUpdated(name, desc string) string {
+func testAccMDBRedisShardedClusterConfigUpdated(name, desc string, version string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "bar" {
   name        = "%s"
@@ -482,6 +605,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   config {
     password = "passw0rd"
+	version	 = "%s"
   }
 
   resources {
@@ -507,5 +631,5 @@ resource "yandex_mdb_redis_cluster" "bar" {
 	shard_name = "new"
   }
 }
-`, name, desc)
+`, name, desc, version)
 }

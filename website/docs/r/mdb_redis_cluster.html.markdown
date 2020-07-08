@@ -141,6 +141,8 @@ The `config` block supports:
 * `maxmemory_policy` - (Optional) Redis key eviction policy for a dataset that reaches maximum memory.
   Can be any of the listed in [the official RedisDB documentation](https://docs.redislabs.com/latest/rs/administering/database-operations/eviction-policy/).
 
+* `version` - (Required) Version of Redis (either 5.0 or 6.0).
+
 The `resources` block supports:
 
 * `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). 

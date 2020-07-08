@@ -69,10 +69,13 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Computed: true,
 						},
 						"maxmemory_policy": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validateParsableValue(parseRedisMaxmemoryPolicy),
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"version": {
+							Type:     schema.TypeString,
+							Required: true,
 						},
 					},
 				},
@@ -222,7 +225,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		return nil, fmt.Errorf("Error resolving environment while creating Redis Cluster: %s", err)
 	}
 
-	conf, err := expandRedisConfig(d)
+	conf, version, err := expandRedisConfig(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding config while creating Redis Cluster: %s", err)
 	}
@@ -233,8 +236,9 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	}
 
 	configSpec := &redis.ConfigSpec{
-		RedisSpec: conf,
+		RedisSpec: *conf,
 		Resources: resources,
+		Version:   version,
 	}
 
 	req := redis.CreateClusterRequest{
@@ -299,6 +303,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		{
 			"timeout":          conf.timeout,
 			"maxmemory_policy": conf.maxmemoryPolicy,
+			"version":          conf.version,
 			"password":         password,
 		},
 	})
@@ -409,7 +414,10 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("config") {
-		conf, err := expandRedisConfig(d)
+		if d.HasChange("config.0.version") {
+			return fmt.Errorf("Version update for Redis is not supported")
+		}
+		conf, version, err := expandRedisConfig(d)
 		if err != nil {
 			return err
 		}
@@ -418,8 +426,13 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			req.ConfigSpec = &redis.ConfigSpec{}
 		}
 
-		req.ConfigSpec.RedisSpec = conf
-		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_5_0")
+		req.ConfigSpec.RedisSpec = *conf
+		switch version {
+		case "5.0":
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_5_0")
+		case "6.0":
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_6_0")
+		}
 
 		onDone = append(onDone, func() {
 			d.SetPartial("config")

@@ -55,6 +55,7 @@ The `config` block supports:
 
 * `timeout` - Close the connection after a client is idle for N seconds.
 * `maxmemory_policy` - Redis key eviction policy for a dataset that reaches maximum memory.
+* `version` - Version of Redis (either 5.0 or 6.0).
 
 The `resources` block supports:
 

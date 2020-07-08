@@ -21,7 +21,7 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, true),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "5.0", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc),
@@ -42,7 +42,49 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, false),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "5.0", false),
+				Check: testAccDataSourceMDBRedisClusterCheck(
+					"data.yandex_mdb_redis_cluster.bar",
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceMDBRedis6Cluster_byID(t *testing.T) {
+	t.Parallel()
+
+	redisName := acctest.RandomWithPrefix("ds-redis-by-id")
+	redisDesc := "Redis Cluster Terraform Datasource Test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "6.0", true),
+				Check: testAccDataSourceMDBRedisClusterCheck(
+					"data.yandex_mdb_redis_cluster.bar",
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceMDBRedis6Cluster_byName(t *testing.T) {
+	t.Parallel()
+
+	redisName := acctest.RandomWithPrefix("ds-redis-by-name")
+	redisDesc := "Redis Cluster Terraform Datasource Test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, "6.0", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc),
@@ -83,6 +125,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"sharded",
 			"config.0.timeout", // Cannot test full config, because API doesn't return password
 			"config.0.maxmemory_policy",
+			"config.0.version",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -131,10 +174,10 @@ data "yandex_mdb_redis_cluster" "bar" {
 }
 `
 
-func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, useDataID bool) string {
+func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, version string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBRedisClusterConfigMain(redisName, redisDesc) + mdbRedisClusterByIDConfig
+		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version) + mdbRedisClusterByIDConfig
 	}
 
-	return testAccMDBRedisClusterConfigMain(redisName, redisDesc) + mdbRedisClusterByNameConfig
+	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version) + mdbRedisClusterByNameConfig
 }

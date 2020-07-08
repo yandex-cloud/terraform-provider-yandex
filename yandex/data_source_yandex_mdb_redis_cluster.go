@@ -51,6 +51,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -190,6 +194,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 		{
 			"timeout":          conf.timeout,
 			"maxmemory_policy": conf.maxmemoryPolicy,
+			"version":          conf.version,
 		},
 	})
 	if err != nil {
