@@ -307,7 +307,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		Description:           "description",
 		Version:               "1.13",
 		Memory:                "2",
-		Cores:                 "1",
+		Cores:                 "2",
 		DiskSize:              "64",
 		Preemptible:           "true",
 		LabelKey:              "label_key",
