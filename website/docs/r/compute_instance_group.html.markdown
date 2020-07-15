@@ -23,7 +23,7 @@ resource "yandex_compute_instance_group" "group1" {
     platform_id = "standard-v1"
     resources {
       memory = 1
-      cores  = 1
+      cores  = 2
     }
     boot_disk {
       mode = "READ_WRITE"
