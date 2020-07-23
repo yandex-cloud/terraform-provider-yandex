@@ -765,6 +765,46 @@ func expandSecondaryDiskSpec(diskConfig map[string]interface{}) (*compute.Attach
 	return disk, nil
 }
 
+func expandPrimaryV4AddressSpec(config map[string]interface{}) (*compute.PrimaryAddressSpec, error) {
+	if v, ok := config["ipv4"]; ok {
+		if !v.(bool) {
+			return nil, nil
+		}
+
+		natSpec, _ := expandOneToOneNatSpec(config)
+		return &compute.PrimaryAddressSpec{
+			Address:         config["ip_address"].(string),
+			OneToOneNatSpec: natSpec,
+		}, nil
+	}
+	return nil, nil
+}
+
+func expandPrimaryV6AddressSpec(config map[string]interface{}) (*compute.PrimaryAddressSpec, error) {
+	if v, ok := config["ipv6"]; ok {
+		if !v.(bool) {
+			return nil, nil
+		}
+
+		return &compute.PrimaryAddressSpec{
+			Address: config["ipv6_address"].(string),
+		}, nil
+	}
+	return nil, nil
+}
+
+func expandSecurityGroupIds(v interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	var m []string
+	sgIdsSet := v.(*schema.Set)
+	for _, val := range sgIdsSet.List() {
+		m = append(m, val.(string))
+	}
+	return m
+}
+
 func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatSpec, error) {
 	if v, ok := config["nat"]; ok {
 		if !v.(bool) {
@@ -813,11 +853,7 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 		}
 
 		if sgids, ok := data["security_group_ids"]; ok {
-			arr := sgids.([]interface{})
-			nics[i].SecurityGroupIds = make([]string, len(arr))
-			for j, c := range arr {
-				nics[i].SecurityGroupIds[j] = c.(string)
-			}
+			nics[i].SecurityGroupIds = expandSecurityGroupIds(sgids)
 		}
 
 		ipV4Address := data["ip_address"].(string)
@@ -915,11 +951,7 @@ func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix str
 		}
 
 		if sgids, ok := data["security_group_ids"]; ok {
-			arr := sgids.([]interface{})
-			nics[i].SecurityGroupIds = make([]string, len(arr))
-			for i, c := range arr {
-				nics[i].SecurityGroupIds[i] = c.(string)
-			}
+			nics[i].SecurityGroupIds = expandSecurityGroupIds(sgids)
 		}
 	}
 

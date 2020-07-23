@@ -20,6 +20,7 @@ func init() {
 		Dependencies: []string{
 			"yandex_vpc_subnet",
 			"yandex_vpc_route_table",
+			"yandex_vpc_security_group",
 		},
 	})
 }

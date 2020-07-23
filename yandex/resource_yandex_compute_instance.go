@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 const (
 	yandexComputeInstanceDefaultTimeout       = 5 * time.Minute
 	yandexComputeInstanceDiskOperationTimeout = 1 * time.Minute
+	yandexComputeInstanceDeallocationTimeout  = 15 * time.Second
 )
 
 func resourceYandexComputeInstance() *schema.Resource {
@@ -187,7 +189,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"ipv4": {
@@ -200,7 +201,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 
 						"ipv6": {
@@ -213,7 +213,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 
 						"nat": {
@@ -244,10 +243,11 @@ func resourceYandexComputeInstance() *schema.Resource {
 						},
 
 						"security_group_ids": {
-							Type:     schema.TypeList,
-							Optional: true,
+							Type:     schema.TypeSet,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							ForceNew: true,
+							Set:      schema.HashString,
+							Optional: true,
 						},
 					},
 				},
@@ -647,9 +647,13 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial(serviceAccountPropName)
 	}
 
-	networkInterfacecPropName := "network_interface"
-	if d.HasChange(networkInterfacecPropName) {
-		o, n := d.GetChange(networkInterfacecPropName)
+	networkInterfacesPropName := "network_interface"
+	needUpdateInterfacesOnStoppedInstance := false
+	var addNatRequests []compute.AddInstanceOneToOneNatRequest
+	var removeNatRequests []compute.RemoveInstanceOneToOneNatRequest
+	var updateInterfaceRequests []compute.UpdateInstanceNetworkInterfaceRequest
+	if d.HasChange(networkInterfacesPropName) {
+		o, n := d.GetChange(networkInterfacesPropName)
 		oldList := o.([]interface{})
 		newList := n.([]interface{})
 
@@ -658,72 +662,134 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		for ifaceIndex := 0; ifaceIndex < len(oldList); ifaceIndex++ {
-			oldSpec, err := expandOneToOneNatSpec(oldList[ifaceIndex].(map[string]interface{}))
+			log.Printf("[DEBUG] Processing interface #%d", ifaceIndex)
+			oldIface := oldList[ifaceIndex].(map[string]interface{})
+			newIface := newList[ifaceIndex].(map[string]interface{})
+			req := &compute.UpdateInstanceNetworkInterfaceRequest{
+				InstanceId:            d.Id(),
+				NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{},
+				},
+			}
+
+			oldV4Spec, err := expandPrimaryV4AddressSpec(oldIface)
+			if err != nil {
+				return err
+			}
+			oldV6Spec, err := expandPrimaryV6AddressSpec(oldIface)
+			if err != nil {
+				return err
+			}
+			newV4Spec, err := expandPrimaryV4AddressSpec(newIface)
+			if err != nil {
+				return err
+			}
+			newV6Spec, err := expandPrimaryV6AddressSpec(newIface)
 			if err != nil {
 				return err
 			}
 
-			newSpec, err := expandOneToOneNatSpec(newList[ifaceIndex].(map[string]interface{}))
-			if err != nil {
-				return err
-			}
+			if oldIface["subnet_id"].(string) != newIface["subnet_id"].(string) {
+				// change subnet, update all the properties!
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "subnet_id", "primary_v4_address_spec", "primary_v6_address_spec")
+				// ...on stopped instance
+				needUpdateInterfacesOnStoppedInstance = true
 
-			if newSpec != oldSpec {
-				needRemoveOneToOneNat := false
-				needAddOneToOneNat := false
+				req.SubnetId = newIface["subnet_id"].(string)
+				req.PrimaryV4AddressSpec = newV4Spec
+				req.PrimaryV6AddressSpec = newV6Spec
+			} else {
+				if wantChangeAddressSpec(oldV4Spec, newV4Spec) {
+					// change primary v4 address
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec")
+					// ...on stopped instance
+					needUpdateInterfacesOnStoppedInstance = true
 
-				if newSpec == nil {
-					needRemoveOneToOneNat = true
-					needAddOneToOneNat = false
+					req.PrimaryV4AddressSpec = newV4Spec
 				} else {
-					if oldSpec == nil {
-						needAddOneToOneNat = true
-					}
-					if oldSpec != nil && newSpec.Address != oldSpec.Address && newSpec.Address != "" {
-						needRemoveOneToOneNat = true
-						needAddOneToOneNat = true
+					if oldV4Spec != nil && newV4Spec != nil && oldV4Spec.OneToOneNatSpec != newV4Spec.OneToOneNatSpec {
+						// changing nat address on maybe running instance, safer to use add/remove nat calls
+						if oldV4Spec.OneToOneNatSpec != nil {
+							removeNatRequests = append(removeNatRequests, compute.RemoveInstanceOneToOneNatRequest{
+								InstanceId:            d.Id(),
+								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+							})
+						}
+						if newV4Spec.OneToOneNatSpec != nil {
+							addNatRequests = append(addNatRequests, compute.AddInstanceOneToOneNatRequest{
+								InstanceId:            d.Id(),
+								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+								OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
+							})
+						}
 					}
 				}
 
-				if needRemoveOneToOneNat {
-					err := makeInstanceRemoveOneToOneNatRequest(&compute.RemoveInstanceOneToOneNatRequest{
-						InstanceId:            d.Id(),
-						NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-					}, d, meta)
-					if err != nil {
-						return err
-					}
-				}
+				if wantChangeAddressSpec(oldV6Spec, newV6Spec) {
+					// change primary v6 address
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec")
+					// ...on stopped instance
+					needUpdateInterfacesOnStoppedInstance = true
 
-				if needAddOneToOneNat {
-					err := makeInstanceAddOneToOneNatRequest(&compute.AddInstanceOneToOneNatRequest{
-						InstanceId:            d.Id(),
-						NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-						OneToOneNatSpec:       newSpec,
-					}, d, meta)
-					if err != nil {
-						return err
-					}
+					req.PrimaryV6AddressSpec = newV6Spec
 				}
+			}
+
+			oldSgs := expandSecurityGroupIds(oldIface["security_group_ids"])
+			newSgs := expandSecurityGroupIds(newIface["security_group_ids"])
+			if !reflect.DeepEqual(oldSgs, newSgs) {
+				log.Printf("[DEBUG]  changing sgs form %s to %s", oldSgs, newSgs)
+				// change security groups
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
+
+				req.SecurityGroupIds = newSgs
+			}
+
+			if len(req.UpdateMask.Paths) > 0 {
+				updateInterfaceRequests = append(updateInterfaceRequests, *req)
 			}
 		}
 
-		d.SetPartial(networkInterfacecPropName)
+		if !needUpdateInterfacesOnStoppedInstance && (len(removeNatRequests) > 0 || len(addNatRequests) > 0 || len(updateInterfaceRequests) > 0) {
+			for _, req := range removeNatRequests {
+				err := makeInstanceRemoveOneToOneNatRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+			for _, req := range addNatRequests {
+				err := makeInstanceAddOneToOneNatRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+			for _, req := range updateInterfaceRequests {
+				err := makeInstanceUpdateNetworkInterfaceRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+
+			d.SetPartial(networkInterfacesPropName)
+		}
 	}
 
 	resourcesPropName := "resources"
 	secDiskPropName := "secondary_disk"
 	platformIDPropName := "platform_id"
 	networkAccelerationTypePropName := "network_acceleration_type"
-	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) {
+	if d.HasChange(secDiskPropName) || d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) || needUpdateInterfacesOnStoppedInstance {
 		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id`, `network_acceleration_type` on an instance requires stopping it. " +
+			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id`, `network_acceleration_type` or `network_interfaces` on an instance requires stopping it. " +
 				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 		}
 
 		if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
 			return err
 		}
+
+		instanceStoppedAt := time.Now()
 
 		// update platform, resources and network_settings in one request
 		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) {
@@ -867,13 +933,44 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				}
 				log.Printf("[DEBUG] Successfully attached disk %s", diskSpec.GetDiskId())
 			}
+
+			d.SetPartial(secDiskPropName)
+		}
+
+		// update interfaces on stopped instance
+		if needUpdateInterfacesOnStoppedInstance {
+			// wait for resource deallocation
+			timeSinceInstanceStopped := time.Since(instanceStoppedAt)
+			if timeSinceInstanceStopped < yandexComputeInstanceDeallocationTimeout {
+				sleepTime := yandexComputeInstanceDeallocationTimeout - timeSinceInstanceStopped
+				log.Printf("[DEBUG] Sleeping %s, waiting for deallocation", sleepTime)
+				time.Sleep(sleepTime)
+			}
+			for _, req := range removeNatRequests {
+				err := makeInstanceRemoveOneToOneNatRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+			for _, req := range addNatRequests {
+				err := makeInstanceAddOneToOneNatRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+			for _, req := range updateInterfaceRequests {
+				err := makeInstanceUpdateNetworkInterfaceRequest(&req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+
+			d.SetPartial(networkInterfacesPropName)
 		}
 
 		if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {
 			return err
 		}
-
-		d.SetPartial(secDiskPropName)
 	}
 
 	d.Partial(false)
@@ -993,6 +1090,18 @@ func parseHostnameFromFQDN(fqdn string) (string, error) {
 	return p[0], nil
 }
 
+func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.PrimaryAddressSpec) bool {
+	if old == nil && new == nil {
+		return false
+	}
+
+	if (old != nil && new == nil) || (old == nil && new != nil) {
+		return true
+	}
+
+	return new.Address != "" && old.Address != new.Address
+}
+
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -1002,6 +1111,25 @@ func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.Res
 	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Update(ctx, req))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to update Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeInstanceUpdateNetworkInterfaceRequest(req *compute.UpdateInstanceNetworkInterfaceRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().UpdateNetworkInterface(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update network interface for Instance %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)

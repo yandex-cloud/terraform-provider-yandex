@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -11,6 +12,57 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_vpc_security_group", &resource.Sweeper{
+		Name: "yandex_vpc_security_group",
+		F:    testSweepVPCSecurityGroups,
+		Dependencies: []string{
+			"yandex_compute_instance",
+			"yandex_compute_instance_group",
+			"yandex_dataproc_cluster",
+			"yandex_kubernetes_node_group",
+			"yandex_kubernetes_cluster",
+			"yandex_mdb_clickhouse_cluster",
+			"yandex_mdb_mongodb_cluster",
+			"yandex_mdb_mysql_cluster",
+			"yandex_mdb_postgresql_cluster",
+			"yandex_mdb_redis_cluster",
+		},
+	})
+}
+
+func testSweepVPCSecurityGroups(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	it := conf.sdk.VPC().SecurityGroup().SecurityGroupIterator(conf.Context(), conf.FolderID)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepVPCSecurityGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep VPC security group %q", it.Value().GetId()))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepVPCSecurityGroup(conf *Config, id string) bool {
+	return sweepWithRetry(sweepVPCSecurityGroupOnce, conf, "VPC Security Group", id)
+}
+
+func sweepVPCSecurityGroupOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.VPC().SecurityGroup().Delete(ctx, &vpc.DeleteSecurityGroupRequest{
+		SecurityGroupId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func TestAccVPCSecurityGroup_basic(t *testing.T) {
 	t.Parallel()

@@ -544,6 +544,24 @@ func TestAccComputeInstance_update(t *testing.T) {
 					testAccCheckComputeInstanceHasServiceAccount(&instance),
 				),
 			},
+			{
+				Config: testAccComputeInstance_update_add_SecurityGroups(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNoNatAddress(&instance),
+					testAccCheckComputeInstanceHasSG(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_update_add_natIp_remove_SGs(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNatAddress(&instance),
+					testAccCheckComputeInstanceHasNoSG(&instance),
+				),
+			},
 		},
 	})
 }
@@ -1189,6 +1207,16 @@ func testAccCheckComputeInstanceHasSG(instance *compute.Instance) resource.TestC
 	}
 }
 
+func testAccCheckComputeInstanceHasNoSG(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ni := instance.GetNetworkInterfaces()[0]
+		if ni.SecurityGroupIds != nil || len(ni.SecurityGroupIds) != 0 {
+			return fmt.Errorf("invalid network_interface.security_group_ids value in instance group %s", instance.Name)
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceHasGpus(instance *compute.Instance, gpus int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		resources := instance.GetResources()
@@ -1240,6 +1268,18 @@ func testAccCheckComputeInstanceHasNatAddress(instance *compute.Instance) resour
 		for _, i := range instance.NetworkInterfaces {
 			if i.PrimaryV4Address.OneToOneNat == nil || i.PrimaryV4Address.OneToOneNat.Address == "" {
 				return fmt.Errorf("No NAT address assigned")
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasNoNatAddress(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			if i.PrimaryV4Address.OneToOneNat != nil {
+				return fmt.Errorf("NAT address assigned")
 			}
 		}
 
@@ -1752,6 +1792,8 @@ resource "yandex_compute_instance" "foobar" {
     memory = 2
   }
 
+  allow_stopping_for_update = true
+
   boot_disk {
     initialize_params {
       image_id = "${data.yandex_compute_image.ubuntu.id}"
@@ -1759,7 +1801,8 @@ resource "yandex_compute_instance" "foobar" {
   }
 
   network_interface {
-    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    subnet_id  = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    ip_address = "10.0.0.55"
   }
 
   metadata = {
@@ -1780,6 +1823,182 @@ resource "yandex_iam_service_account" "inst-test-sa" {
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+// Update network_interface
+func testAccComputeInstance_update_add_SecurityGroups(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_security_group" "sgr1" {
+  depends_on  = ["yandex_vpc_network.inst-test-network"]
+  name        = "tf-test-sg-2"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-test-network.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_update_add_natIp_remove_SGs(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    nat       = true
+    security_group_ids = []
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_security_group" "sgr1" {
+  depends_on  = ["yandex_vpc_network.inst-test-network"]
+  name        = "tf-test-sg-2"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-test-network.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"

@@ -7,9 +7,11 @@ FEATURES:
 
 ENHANCEMENTS:
 * mdb: add `role` attribute to `host` entity in `yandex_mdb_postgresql_cluster` resource and data source
+* compute: support update of `network_interface` attribute for `yandex_compute_instance` resource
 
 BUG FIXES:
 * compute: fix `secondary_disk` validation in `yandex_compute_instance_group` resource
+* compute: remove `secondary_disk.security_group_ids` attribute from `yandex_compute_instance` data source
 
 ## 0.41.1 (June 24, 2020)
 
