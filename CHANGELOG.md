@@ -1,4 +1,4 @@
-## 0.42.0 (Unreleased)
+## 0.42.0 (July 27, 2020)
 FEATURES:
 * mdb: support Redis 6.0 in `yandex_mdb_redis_cluster`
 
