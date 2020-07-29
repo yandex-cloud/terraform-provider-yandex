@@ -141,34 +141,6 @@ func pgUsersPasswords(users []*postgresql.UserSpec) map[string]string {
 	return out
 }
 
-func pgUserHash(u interface{}) int {
-	var buf bytes.Buffer
-
-	m := u.(map[string]interface{})
-
-	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["password"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["permission"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
-	}
-
-	if v, ok := m["login"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", v.(bool)))
-	}
-
-	if v, ok := m["grants"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", v))
-	}
-
-	return hashcode.String(buf.String())
-}
-
 func pgUserPermissionHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
@@ -224,34 +196,6 @@ func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {
 	}
 
 	return out
-}
-
-func pgDatabaseHash(d interface{}) int {
-	var buf bytes.Buffer
-
-	m := d.(map[string]interface{})
-
-	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["owner"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["lc_collate"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["lc_type"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if v, ok := m["extension"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", v.(*schema.Set).List()))
-	}
-
-	return hashcode.String(buf.String())
 }
 
 func flattenPGExtensions(es []*postgresql.Extension) *schema.Set {
