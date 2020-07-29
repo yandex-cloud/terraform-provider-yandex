@@ -98,8 +98,8 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	return []interface{}{out}, nil
 }
 
-func flattenPGUsers(us []*postgresql.User, passwords map[string]string) (*schema.Set, error) {
-	out := schema.NewSet(pgUserHash, nil)
+func flattenPGUsers(us []*postgresql.User, passwords map[string]string) ([]map[string]interface{}, error) {
+	out := make([]map[string]interface{}, 0)
 
 	for _, u := range us {
 		ou, err := flattenPGUser(u)
@@ -111,7 +111,7 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string) (*schema
 			ou["password"] = v
 		}
 
-		out.Add(ou)
+		out = append(out, ou)
 	}
 
 	return out, nil
@@ -209,8 +209,8 @@ func flattenPGHosts(hs []*postgresql.Host) ([]map[string]interface{}, error) {
 	return out, nil
 }
 
-func flattenPGDatabases(dbs []*postgresql.Database) *schema.Set {
-	out := schema.NewSet(pgDatabaseHash, nil)
+func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {
+	out := make([]map[string]interface{}, 0)
 
 	for _, d := range dbs {
 		m := make(map[string]interface{})
@@ -220,7 +220,7 @@ func flattenPGDatabases(dbs []*postgresql.Database) *schema.Set {
 		m["lc_type"] = d.LcCtype
 		m["extension"] = flattenPGExtensions(d.Extensions)
 
-		out.Add(m)
+		out = append(out, m)
 	}
 
 	return out
@@ -350,9 +350,9 @@ func expandPGResources(d *schema.ResourceData) (*postgresql.Resources, error) {
 
 func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
 	out := []*postgresql.UserSpec{}
-	users := d.Get("user").(*schema.Set)
+	users := d.Get("user").([]interface{})
 
-	for _, u := range users.List() {
+	for _, u := range users {
 		m := u.(map[string]interface{})
 
 		user, err := expandPGUser(m)
@@ -482,7 +482,7 @@ func sortPGHosts(hosts []*postgresql.Host, specs []*PostgreSQLHostSpec) {
 
 func expandPGDatabaseSpecs(d *schema.ResourceData) ([]*postgresql.DatabaseSpec, error) {
 	out := []*postgresql.DatabaseSpec{}
-	dbs := d.Get("database").(*schema.Set).List()
+	dbs := d.Get("database").([]interface{})
 
 	for _, d := range dbs {
 		m := d.(map[string]interface{})
@@ -599,12 +599,17 @@ func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpe
 	return toDel, toAdd
 }
 
-func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, withNewPermissions bool) ([]map[string]interface{}, error) {
-	out := make([]map[string]interface{}, 0)
+type IndexedUserSpec struct {
+	index int
+	user  *postgresql.UserSpec
+}
+
+func pgChangedUsers(oldSpecs []interface{}, newSpecs []interface{}, withNewPermissions bool) ([]IndexedUserSpec, error) {
+	out := make([]IndexedUserSpec, 0)
 
 	m := map[string]*postgresql.UserSpec{}
 	permissions := map[string]interface{}{}
-	for _, spec := range oldSpecs.List() {
+	for _, spec := range oldSpecs {
 		mapOldUser := spec.(map[string]interface{})
 		user, err := expandPGUser(mapOldUser)
 		if err != nil {
@@ -614,7 +619,7 @@ func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, withNewPermissio
 		permissions[user.Name] = mapOldUser["permission"]
 	}
 
-	for _, spec := range newSpecs.List() {
+	for i, spec := range newSpecs {
 		mapUser := spec.(map[string]interface{})
 		newUser, err := expandPGUser(mapUser)
 		if err != nil {
@@ -623,13 +628,12 @@ func pgChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, withNewPermissio
 		if oldUser, ok := m[newUser.Name]; ok {
 			if !withNewPermissions {
 				newUser.Permissions = oldUser.Permissions
-				mapUser["permission"] = permissions[newUser.Name]
 			}
 			if !reflect.DeepEqual(newUser, oldUser) {
-				out = append(out, mapUser)
+				out = append(out, IndexedUserSpec{i, newUser})
 			}
 		} else if withNewPermissions {
-			out = append(out, mapUser)
+			out = append(out, IndexedUserSpec{i, newUser})
 		}
 	}
 
@@ -660,11 +664,11 @@ func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.Dat
 	return toDel, toAdd
 }
 
-func pgChangedDatabases(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*postgresql.DatabaseSpec, error) {
+func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*postgresql.DatabaseSpec, error) {
 	out := []*postgresql.DatabaseSpec{}
 
 	m := map[string]*postgresql.DatabaseSpec{}
-	for _, spec := range oldSpecs.List() {
+	for _, spec := range oldSpecs {
 		db, err := expandPGDatabase(spec.(map[string]interface{}))
 		if err != nil {
 			return nil, err
@@ -672,7 +676,7 @@ func pgChangedDatabases(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*postgres
 		m[db.Name] = db
 	}
 
-	for _, spec := range newSpecs.List() {
+	for _, spec := range newSpecs {
 		db, err := expandPGDatabase(spec.(map[string]interface{}))
 		if err != nil {
 			return nil, err
