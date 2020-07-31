@@ -169,12 +169,12 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 									"min": {
 										Type:     schema.TypeInt,
 										Required: true,
-										ForceNew: true,
+										ForceNew: false,
 									},
 									"max": {
 										Type:     schema.TypeInt,
 										Required: true,
-										ForceNew: true,
+										ForceNew: false,
 									},
 									"initial": {
 										Type:     schema.TypeInt,
