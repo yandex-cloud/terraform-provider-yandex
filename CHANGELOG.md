@@ -1,4 +1,8 @@
 ## 0.43.0 (Unreleased)
+
+BUG FIXES:
+* compute: fix panic on parsing `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance_group` resource
+
 ## 0.42.0 (July 27, 2020)
 FEATURES:
 * mdb: support Redis 6.0 in `yandex_mdb_redis_cluster`

@@ -180,9 +180,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 
 									"security_group_ids": {
-										Type:     schema.TypeList,
-										Optional: true,
+										Type:     schema.TypeSet,
 										Elem:     &schema.Schema{Type: schema.TypeString},
+										Set:      schema.HashString,
+										Optional: true,
 									},
 								},
 							},
