@@ -1,4 +1,4 @@
-## 0.43.0 (Unreleased)
+## 0.42.1 (Unreleased)
 
 BUG FIXES:
 * compute: fix panic on parsing `instance_template.network_interface.security_group_ids` attribute in `yandex_compute_instance_group` resource
