@@ -19,6 +19,11 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
 
+const (
+	k8sTestVersion       = "1.17"
+	k8sTestUpdateVersion = "1.18"
+)
+
 func init() {
 	resource.AddTestSweepers("yandex_kubernetes_cluster", &resource.Sweeper{
 		Name: "yandex_kubernetes_cluster",
@@ -252,7 +257,7 @@ func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
-	clusterUpdatedResource.MasterVersion = "1.16"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
 
 	// update maintenance policy
 	clusterUpdatedResource.constructMaintenancePolicyField(false, dailyMaintenancePolicy)
@@ -365,7 +370,7 @@ func TestAccKubernetesClusterRegional_update(t *testing.T) {
 	clusterUpdatedResource.ServiceAccountResourceName = clusterResource.NodeServiceAccountResourceName
 	clusterUpdatedResource.NodeServiceAccountResourceName = clusterResource.ServiceAccountResourceName
 	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterRegionalConfig_update"
-	clusterUpdatedResource.MasterVersion = "1.16"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
 
 	var cluster k8s.Cluster
 
@@ -428,7 +433,7 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		FolderID:                       os.Getenv("YC_FOLDER_ID"),
 		Name:                           safeResourceName("clustername"),
 		Description:                    "description",
-		MasterVersion:                  "1.15",
+		MasterVersion:                  k8sTestVersion,
 		LabelKey:                       "label_key",
 		LabelValue:                     "label_value",
 		TestDescription:                testDesc,

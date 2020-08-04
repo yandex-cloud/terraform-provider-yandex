@@ -67,7 +67,6 @@ func k8sNodeGroupImportStep(nodeResourceFullName string, ignored ...string) reso
 func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
@@ -92,7 +91,6 @@ func TestAccKubernetesNodeGroup_basic(t *testing.T) {
 func TestAccKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesNodeGroupDailyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, true, dailyMaintenancePolicy)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
@@ -156,17 +154,16 @@ func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
 
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
-	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
-	clusterResource.MasterVersion = "1.15"
+	clusterResource.MasterVersion = k8sTestUpdateVersion
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
-	nodeResource.Version = "1.14"
+	nodeResource.Version = k8sTestVersion
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	nodeUpdatedResource := nodeResource
 
 	nodeUpdatedResource.Name = safeResourceName("clusternewname")
 	nodeUpdatedResource.Description = "new-description"
-	nodeUpdatedResource.Version = "1.15"
+	nodeUpdatedResource.Version = k8sTestUpdateVersion
 	nodeUpdatedResource.LabelKey = "new_label_key"
 	nodeUpdatedResource.LabelValue = "new_label_value"
 	nodeUpdatedResource.Memory = "4"
@@ -246,10 +243,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 
 func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
-	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
-	clusterResource.MasterVersion = "1.15"
 	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
@@ -305,7 +299,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		NodeGroupResourceName: randomResourceName("nodegroup"),
 		Name:                  safeResourceName("nodegroupname"),
 		Description:           "description",
-		Version:               "1.13",
+		Version:               k8sTestVersion,
 		Memory:                "2",
 		Cores:                 "2",
 		DiskSize:              "64",

@@ -12,7 +12,6 @@ import (
 func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, false, dailyMaintenancePolicy)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup
@@ -38,7 +37,6 @@ func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic(t *testing.T) {
 func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic", true)
 	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, false, true, weeklyMaintenancePolicy)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup
@@ -63,11 +61,8 @@ func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
 
 func TestAccDataSourceKubernetesNodeGroup_autoscaled(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroup_autoscaled", true)
-	clusterResource.ReleaseChannel = k8s.ReleaseChannel_REGULAR.String()
-	clusterResource.MasterVersion = "1.15"
 
 	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
-	nodeResource.Version = "1.15"
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup
