@@ -7,6 +7,8 @@ BUG FIXES:
 ## 0.42.0 (July 27, 2020)
 FEATURES:
 * mdb: support Redis 6.0 in `yandex_mdb_redis_cluster`
+* mdb: replace sets with lists for users and databases in `yandex_mdb_postgresql_cluster`.
+WARNING: there can appear changes in diff for users and databases, which will not change anything and will disappear after apply
 
 FEATURES:
 * **New Data Source:** `yandex_client_config`
