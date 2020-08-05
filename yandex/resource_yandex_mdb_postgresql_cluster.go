@@ -146,9 +146,8 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				},
 			},
 			"database": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
-				Set:      pgDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -190,9 +189,8 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				},
 			},
 			"user": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
-				Set:      pgUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -341,6 +339,8 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	if err != nil {
 		return err
 	}
+	sortPGUsers(users, userSpecs)
+
 	fUsers, err := flattenPGUsers(users, passwords)
 	if err != nil {
 		return err
@@ -375,7 +375,35 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	databaseSpecs, err := expandPGDatabaseSpecs(d)
+	if err != nil {
+		return err
+	}
+	sortPGDatabases(databases, databaseSpecs)
+
 	return d.Set("database", flattenPGDatabases(databases))
+}
+
+func sortPGUsers(users []*postgresql.User, specs []*postgresql.UserSpec) {
+	for i, spec := range specs {
+		for j := i + 1; j < len(users); j++ {
+			if spec.Name == users[j].Name {
+				users[i], users[j] = users[j], users[i]
+				break
+			}
+		}
+	}
+}
+
+func sortPGDatabases(databases []*postgresql.Database, specs []*postgresql.DatabaseSpec) {
+	for i, spec := range specs {
+		for j := i + 1; j < len(databases); j++ {
+			if spec.Name == databases[j].Name {
+				databases[i], databases[j] = databases[j], databases[i]
+				break
+			}
+		}
+	}
 }
 
 func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta interface{}) error {
@@ -625,7 +653,7 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 
 	oldSpecs, newSpecs := d.GetChange("database")
 
-	changedDatabases, err := pgChangedDatabases(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	changedDatabases, err := pgChangedDatabases(oldSpecs.([]interface{}), newSpecs.([]interface{}))
 	if err != nil {
 		return err
 	}
@@ -686,7 +714,7 @@ func updatePGClusterUsersWithoutPermissions(d *schema.ResourceData, meta interfa
 
 	oldSpecs, newSpecs := d.GetChange("user")
 
-	changedUsers, err := pgChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), false)
+	changedUsers, err := pgChangedUsers(oldSpecs.([]interface{}), newSpecs.([]interface{}), false)
 	if err != nil {
 		return err
 	}
@@ -709,12 +737,10 @@ func updatePGClusterUserPermissions(d *schema.ResourceData, meta interface{}) er
 	defer cancel()
 
 	oldSpecs, newSpecs := d.GetChange("user")
-
-	changedUsers, err := pgChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), true)
+	changedUsers, err := pgChangedUsers(oldSpecs.([]interface{}), newSpecs.([]interface{}), true)
 	if err != nil {
 		return err
 	}
-
 	for _, u := range changedUsers {
 		err := updatePGUser(ctx, config, d, u)
 		if err != nil {
@@ -833,8 +859,7 @@ func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	return nil
 }
 
-func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, mapUser map[string]interface{}) error {
-	user, _ := expandPGUser(mapUser)
+func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, user IndexedUserSpec) error {
 	mdbPGUserUpdateFieldsMap := map[string]string{
 		"user.%d.password":   "password",
 		"user.%d.permission": "permissions",
@@ -845,7 +870,7 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, m
 	onDone := []func(){}
 	updatePath := []string{}
 	for field, path := range mdbPGUserUpdateFieldsMap {
-		if d.HasChange(fmt.Sprintf(field, pgUserHash(mapUser))) {
+		if d.HasChange(fmt.Sprintf(field, user.index)) {
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
 				d.SetPartial(field)
@@ -860,12 +885,12 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, m
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().User().Update(ctx, &postgresql.UpdateUserRequest{
 			ClusterId:   d.Id(),
-			UserName:    user.Name,
-			Password:    user.Password,
-			Permissions: user.Permissions,
-			ConnLimit:   user.ConnLimit.GetValue(),
-			Login:       user.Login,
-			Grants:      user.Grants,
+			UserName:    user.user.Name,
+			Password:    user.user.Password,
+			Permissions: user.user.Permissions,
+			ConnLimit:   user.user.ConnLimit.GetValue(),
+			Login:       user.user.Login,
+			Grants:      user.user.Grants,
 			UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
 		}),
 	)

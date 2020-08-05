@@ -135,24 +135,24 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"database.#",
 			},
 			{
-				"database.3669116385.extension.#",
-				"database.3669116385.extension.#",
+				"database.0.extension.#",
+				"database.0.extension.#",
 			},
 			{
-				"database.3669116385.lc_collate",
-				"database.3669116385.lc_collate",
+				"database.0.lc_collate",
+				"database.0.lc_collate",
 			},
 			{
-				"database.3669116385.lc_type",
-				"database.3669116385.lc_type",
+				"database.0.lc_type",
+				"database.0.lc_type",
 			},
 			{
-				"database.3669116385.name",
-				"database.3669116385.name",
+				"database.0.name",
+				"database.0.name",
 			},
 			{
-				"database.3669116385.owner",
-				"database.3669116385.owner",
+				"database.0.owner",
+				"database.0.owner",
 			},
 			{
 				"description",
@@ -215,24 +215,24 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"user.#",
 			},
 			{
-				"user.1367992843.grants.#",
-				"user.983296974.grants.#",
+				"user.0.grants.#",
+				"user.0.grants.#",
 			},
 			{
-				"user.1367992843.login",
-				"user.983296974.login",
+				"user.0.login",
+				"user.0.login",
 			},
 			{
-				"user.1367992843.name",
-				"user.983296974.name",
+				"user.0.name",
+				"user.0.name",
 			},
 			{
-				"user.1367992843.permission.#",
-				"user.983296974.permission.#",
+				"user.0.permission.#",
+				"user.0.permission.#",
 			},
 			{
-				"user.1367992843.permission.4177295200.database_name",
-				"user.983296974.permission.4177295200.database_name",
+				"user.0.permission.4177295200.database_name",
+				"user.0.permission.4177295200.database_name",
 			},
 		}
 

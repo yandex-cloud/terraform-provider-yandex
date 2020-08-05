@@ -108,9 +108,8 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Computed: true,
 			},
 			"database": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
-				Set:      pgDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"extension": {
@@ -215,9 +214,8 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Computed: true,
 			},
 			"user": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
-				Set:      pgUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"grants": {
