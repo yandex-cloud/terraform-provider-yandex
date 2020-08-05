@@ -1,4 +1,8 @@
 ## 0.43.0 (Unreleased)
+
+FEATURES:
+* iam: support for resolving by name in `yandex_iam_service_account` data source
+
 ## 0.42.1 (August 04, 2020)
 
 BUG FIXES:
