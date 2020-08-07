@@ -89,7 +89,7 @@ func createVPCNetworkForSweeper(conf *Config) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("failed to get Network ID from create operation metadata")
 	}
-	debugLog("Network '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
+	debugLog("Network '%s' was created, waiting for complete operation '%s'", md.GetNetworkId(), op.Id())
 
 	err = op.Wait(ctx)
 	if err != nil {

@@ -91,7 +91,7 @@ func createVPCSubnetForSweeper(conf *Config, networkID string) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("failed to get Subnet ID from create operation metadata")
 	}
-	debugLog("Subnet '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
+	debugLog("Subnet '%s' was created, waiting for complete operation '%s'", md.GetSubnetId(), op.Id())
 
 	err = op.Wait(ctx)
 	if err != nil {

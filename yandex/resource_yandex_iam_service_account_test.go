@@ -96,18 +96,19 @@ func createIAMServiceAccountForSweeper(conf *Config) (string, error) {
 	return md.ServiceAccountId, nil
 }
 
-func assignEditorRoleToSweeperServiceAccount(conf *Config, id string) error {
+func assignEditorRoleToSweeperServiceAccount(conf *Config, saID string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDefaultTimeout)
 	defer cancel()
+	const role_EDITOR = "editor"
 	op, err := conf.sdk.WrapOperation(conf.sdk.ResourceManager().Folder().UpdateAccessBindings(ctx, &access.UpdateAccessBindingsRequest{
 		ResourceId: conf.FolderID,
 		AccessBindingDeltas: []*access.AccessBindingDelta{
 			{
 				Action: access.AccessBindingAction_ADD,
 				AccessBinding: &access.AccessBinding{
-					RoleId: "editor",
+					RoleId: role_EDITOR,
 					Subject: &access.Subject{
-						Id:   id,
+						Id:   saID,
 						Type: "serviceAccount",
 					},
 				},
@@ -115,14 +116,15 @@ func assignEditorRoleToSweeperServiceAccount(conf *Config, id string) error {
 		},
 	}))
 	if err != nil {
-		return fmt.Errorf("failed to assign editor role to the service account '%q': %v", id, err)
+		return fmt.Errorf("failed to assign '%s' role to the service account %q: %v", role_EDITOR, saID, err)
 	}
-	debugLog("Service account '%s' was created, waiting for create operation '%s'", op.Id(), op.Id())
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while waiting for update access bindings operation '%q': %v", op.Id(), err)
+		return fmt.Errorf("error while waiting for grant access bindings operation '%q': %v", op.Id(), err)
 	}
+
+	debugLog("Service account '%s' was granted role '%s' to folder ID '%s'", saID, role_EDITOR, conf.FolderID)
 
 	return nil
 }
