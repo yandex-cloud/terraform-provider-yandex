@@ -48,8 +48,8 @@ func sweepKubernetesNodeGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexKubernetesNodeGroupDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Kubernetes().Cluster().Delete(ctx, &k8s.DeleteClusterRequest{
-		ClusterId: id,
+	op, err := conf.sdk.Kubernetes().NodeGroup().Delete(ctx, &k8s.DeleteNodeGroupRequest{
+		NodeGroupId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
 }
