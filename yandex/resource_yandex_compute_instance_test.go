@@ -545,20 +545,29 @@ func TestAccComputeInstance_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_update_add_SecurityGroups(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasNoNatAddress(&instance),
-					testAccCheckComputeInstanceHasSG(&instance),
-				),
-			},
-			{
-				Config: testAccComputeInstance_update_add_natIp_remove_SGs(instanceName),
+				Config: testAccComputeInstance_update_add_natIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasNatAddress(&instance),
+					testAccCheckComputeInstanceHasNoSG(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_update_add_SecurityGroups(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNatAddress(&instance),
+					testAccCheckComputeInstanceHasSG(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_update_remove_natIp_remove_SGs(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNoNatAddress(&instance),
 					testAccCheckComputeInstanceHasNoSG(&instance),
 				),
 			},
@@ -1863,6 +1872,7 @@ resource "yandex_compute_instance" "foobar" {
 
   network_interface {
     subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    nat                = true
     security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
   }
 
@@ -1926,7 +1936,7 @@ resource "yandex_vpc_subnet" "inst-update-test-subnet" {
 `, instance)
 }
 
-func testAccComputeInstance_update_add_natIp_remove_SGs(instance string) string {
+func testAccComputeInstance_update_add_natIp(instance string) string {
 	// language=tf
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -1951,6 +1961,66 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
     nat       = true
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_update_remove_natIp_remove_SGs(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    nat                = false
     security_group_ids = []
   }
 

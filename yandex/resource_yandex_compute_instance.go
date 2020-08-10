@@ -708,7 +708,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 					req.PrimaryV4AddressSpec = newV4Spec
 				} else {
-					if oldV4Spec != nil && newV4Spec != nil && oldV4Spec.OneToOneNatSpec != newV4Spec.OneToOneNatSpec {
+					if wantChangeNatSpec(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
 						// changing nat address on maybe running instance, safer to use add/remove nat calls
 						if oldV4Spec.OneToOneNatSpec != nil {
 							removeNatRequests = append(removeNatRequests, compute.RemoveInstanceOneToOneNatRequest{
@@ -1091,6 +1091,18 @@ func parseHostnameFromFQDN(fqdn string) (string, error) {
 }
 
 func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.PrimaryAddressSpec) bool {
+	if old == nil && new == nil {
+		return false
+	}
+
+	if (old != nil && new == nil) || (old == nil && new != nil) {
+		return true
+	}
+
+	return new.Address != "" && old.Address != new.Address
+}
+
+func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpec) bool {
 	if old == nil && new == nil {
 		return false
 	}

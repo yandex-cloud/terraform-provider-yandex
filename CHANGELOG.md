@@ -4,6 +4,7 @@ FEATURES:
 * iam: support for resolving by name in `yandex_iam_service_account` data source
 
 BUG FIXES:
+* compute: fix `yandex_compute_instance` update trying to re-configure dymanic NAT
 * mdb: replace sets with lists for users and databases in `yandex_mdb_postgresql_cluster`.
 WARNING: there can appear changes in diff for users and databases, which will not change anything and will disappear after apply
 
