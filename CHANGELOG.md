@@ -1,4 +1,4 @@
-## 0.43.0 (Unreleased)
+## 0.43.0 (August 20, 2020)
 
 FEATURES:
 * iam: support for resolving by name in `yandex_iam_service_account` data source
