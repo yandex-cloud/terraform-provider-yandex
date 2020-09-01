@@ -105,6 +105,7 @@ func sweepComputeInstanceGroupOnce(conf *Config, id string) error {
 func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegroup.InstanceGroup_Status, instanceGroupID, serviceAccountID, networkID, subnetID string) bool {
 	debugLog("started updating instance group %q", instanceGroupID)
 	updateMaskPath := []string{
+		"deletion_protection",
 		"allocation_policy",
 		"service_account_id",
 		"instance_template.network_interface_specs",
@@ -116,8 +117,9 @@ func updateComputeInstanceGroupWithSweeperDeps(conf *Config, status instancegrou
 	client := conf.sdk.InstanceGroup().InstanceGroup()
 	for i := 1; i <= conf.MaxRetries; i++ {
 		req := &instancegroup.UpdateInstanceGroupRequest{
-			InstanceGroupId:  instanceGroupID,
-			ServiceAccountId: serviceAccountID,
+			InstanceGroupId:    instanceGroupID,
+			DeletionProtection: false,
+			ServiceAccountId:   serviceAccountID,
 			AllocationPolicy: &instancegroup.AllocationPolicy{
 				Zones: []*instancegroup.AllocationPolicy_Zone{
 					{ZoneId: conf.Zone},
