@@ -1,4 +1,8 @@
 ## 0.44.0 (Unreleased)
+
+FEATURES:
+* storage: `yandex_storage_bucket` resource can manage SSE
+
 ## 0.43.0 (August 20, 2020)
 
 FEATURES:
