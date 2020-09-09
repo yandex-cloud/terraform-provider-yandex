@@ -177,6 +177,44 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"server_side_encryption_configuration": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"rule": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Required: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"apply_server_side_encryption_by_default": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Required: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"kms_master_key_id": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"sse_algorithm": {
+													Type:     schema.TypeString,
+													Required: true,
+													ValidateFunc: validation.StringInSlice([]string{
+														s3.ServerSideEncryptionAwsKms,
+													}, false),
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -259,6 +297,12 @@ func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("grant") {
 		if err := resourceYandexStorageBucketGrantsUpdate(s3Client, d); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("server_side_encryption_configuration") {
+		if err := resourceAwsS3BucketServerSideEncryptionConfigurationUpdate(s3Client, d); err != nil {
 			return err
 		}
 	}
@@ -416,6 +460,25 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
 			}
 		}
+	}
+
+	// Read the bucket server side encryption configuration
+
+	encryptionResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketEncryption(&s3.GetBucketEncryptionInput{
+			Bucket: aws.String(d.Id()),
+		})
+	})
+	if err != nil && !isAWSErr(err, "ServerSideEncryptionConfigurationNotFoundError", "encryption configuration was not found") {
+		return fmt.Errorf("error getting S3 Bucket encryption: %s", err)
+	}
+
+	serverSideEncryptionConfiguration := make([]map[string]interface{}, 0)
+	if encryption, ok := encryptionResponse.(*s3.GetBucketEncryptionOutput); ok && encryption.ServerSideEncryptionConfiguration != nil {
+		serverSideEncryptionConfiguration = flattenS3ServerSideEncryptionConfiguration(encryption.ServerSideEncryptionConfiguration)
+	}
+	if err := d.Set("server_side_encryption_configuration", serverSideEncryptionConfiguration); err != nil {
+		return fmt.Errorf("error setting server_side_encryption_configuration: %s", err)
 	}
 
 	return nil
@@ -1010,6 +1073,63 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	return nil
 }
 
+func resourceAwsS3BucketServerSideEncryptionConfigurationUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	serverSideEncryptionConfiguration := d.Get("server_side_encryption_configuration").([]interface{})
+	if len(serverSideEncryptionConfiguration) == 0 {
+		log.Printf("[DEBUG] Delete server side encryption configuration: %#v", serverSideEncryptionConfiguration)
+		i := &s3.DeleteBucketEncryptionInput{
+			Bucket: aws.String(bucket),
+		}
+
+		_, err := s3conn.DeleteBucketEncryption(i)
+		if err != nil {
+			return fmt.Errorf("error removing S3 bucket server side encryption: %s", err)
+		}
+		return nil
+	}
+
+	c := serverSideEncryptionConfiguration[0].(map[string]interface{})
+
+	rc := &s3.ServerSideEncryptionConfiguration{}
+
+	rcRules := c["rule"].([]interface{})
+	var rules []*s3.ServerSideEncryptionRule
+	for _, v := range rcRules {
+		rr := v.(map[string]interface{})
+		rrDefault := rr["apply_server_side_encryption_by_default"].([]interface{})
+		sseAlgorithm := rrDefault[0].(map[string]interface{})["sse_algorithm"].(string)
+		kmsMasterKeyId := rrDefault[0].(map[string]interface{})["kms_master_key_id"].(string)
+		rcDefaultRule := &s3.ServerSideEncryptionByDefault{
+			SSEAlgorithm: aws.String(sseAlgorithm),
+		}
+		if kmsMasterKeyId != "" {
+			rcDefaultRule.KMSMasterKeyID = aws.String(kmsMasterKeyId)
+		}
+		rcRule := &s3.ServerSideEncryptionRule{
+			ApplyServerSideEncryptionByDefault: rcDefaultRule,
+		}
+
+		rules = append(rules, rcRule)
+	}
+
+	rc.Rules = rules
+	i := &s3.PutBucketEncryptionInput{
+		Bucket:                            aws.String(bucket),
+		ServerSideEncryptionConfiguration: rc,
+	}
+	log.Printf("[DEBUG] S3 put bucket replication configuration: %#v", i)
+
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.PutBucketEncryption(i)
+	})
+	if err != nil {
+		return fmt.Errorf("error putting S3 server side encryption configuration: %s", err)
+	}
+
+	return nil
+}
+
 func flattenGrants(ap *s3.GetBucketAclOutput) []interface{} {
 	//if ACL grants contains bucket owner FULL_CONTROL only - it is default "private" acl
 	if len(ap.Grants) == 1 && aws.StringValue(ap.Grants[0].Grantee.ID) == aws.StringValue(ap.Owner.ID) &&
@@ -1048,6 +1168,25 @@ func flattenGrants(ap *s3.GetBucketAclOutput) []interface{} {
 	}
 
 	return grants
+}
+
+func flattenS3ServerSideEncryptionConfiguration(c *s3.ServerSideEncryptionConfiguration) []map[string]interface{} {
+	var encryptionConfiguration []map[string]interface{}
+	rules := make([]interface{}, 0, len(c.Rules))
+	for _, v := range c.Rules {
+		if v.ApplyServerSideEncryptionByDefault != nil {
+			r := make(map[string]interface{})
+			d := make(map[string]interface{})
+			d["kms_master_key_id"] = aws.StringValue(v.ApplyServerSideEncryptionByDefault.KMSMasterKeyID)
+			d["sse_algorithm"] = aws.StringValue(v.ApplyServerSideEncryptionByDefault.SSEAlgorithm)
+			r["apply_server_side_encryption_by_default"] = []map[string]interface{}{d}
+			rules = append(rules, r)
+		}
+	}
+	encryptionConfiguration = append(encryptionConfiguration, map[string]interface{}{
+		"rule": rules,
+	})
+	return encryptionConfiguration
 }
 
 func validateBucketPermissions(permissions []interface{}) error {
