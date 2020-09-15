@@ -17,10 +17,10 @@ import (
 
 const lbDefaultNLBDescription = "nlb-descriprion"
 const lbDefaultListenerName = "nlb-listener"
-const lbDefaultListenerPort = 8080
+const lbDefaultListenerPort = int64(8080)
 const lbDefaultListenerProtocol = "tcp"
 const lbDefaultListenerIPVersion = "ipv4"
-const lbDefaultListenerTargetPort = 8080
+const lbDefaultListenerTargetPort = int64(8080)
 const lbDefaultHCHTTPName = "http"
 const lbDefaultHCHTTPInterval = 2
 const lbDefaultHCHTTPTimeout = 1

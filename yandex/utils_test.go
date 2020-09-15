@@ -81,6 +81,12 @@ func getFolderIamPolicyByFolderID(folderID string, config *Config) (*Policy, err
 	return f.GetResourceIamPolicy()
 }
 
+func checkWithState(fn func() resource.TestCheckFunc) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return fn()(s)
+	}
+}
+
 func testAccCheckFunctionIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
