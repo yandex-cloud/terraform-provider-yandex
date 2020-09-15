@@ -46,7 +46,7 @@ resource "yandex_vpc_security_group" "group1" {
   }
 
   egress {
-    protocol       = "27"
+    protocol       = "UDP"
     description    = "rule3 description"
     v4_cidr_blocks = ["10.0.1.0/24"]
     from_port      = 8090
@@ -81,10 +81,9 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `ingress` and `egress` block supports:
 
-* `protocol` (Required) - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number..
+* `protocol` (Required) - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
 * `description` (Optional) - Description of the rule.
 * `labels` (Optional) - Labels to assign to this rule.
-* `protocol_number` (Optional) - Number of the protocol defined by [IANA](https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml). Values are `0`,`6`,`17`.
 * `from_port` (Optional) - Minimum port number.
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
@@ -92,7 +91,6 @@ The `ingress` and `egress` block supports:
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 
 
-~> **NOTE:** Only one of `protocol_name` or `protocol_number` can be specified. If none of them is set, all protocols are allowed.
 ~> **NOTE:** Either one `port` argument or both `from_port` and `to_port` arguments can be specified.
 
 ## Attributes Reference

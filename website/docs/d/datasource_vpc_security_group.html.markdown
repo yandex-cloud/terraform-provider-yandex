@@ -49,7 +49,7 @@ The `ingress` and `egress` block supports:
 * `id` - Id of the rule.
 * `description` - Description of the rule.
 * `labels` - Labels to assign to this rule.
-* `protocol` - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP` or protocol number.
+* `protocol` - One of `ANY`, `TCP`, `UDP`, `ICMP`, `IPV6_ICMP`.
 * `from_port` - Minimum port number.
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).

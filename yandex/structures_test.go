@@ -1191,8 +1191,8 @@ func TestFlattenRules(t *testing.T) {
 						FromPort: 25,
 						ToPort:   25,
 					},
-					ProtocolName:   "",
-					ProtocolNumber: 0,
+					ProtocolName:   "ANY",
+					ProtocolNumber: -1,
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
 							V4CidrBlocks: []string{"10.0.3.0/24"},
@@ -1211,8 +1211,7 @@ func TestFlattenRules(t *testing.T) {
 						FromPort: 1,
 						ToPort:   65535,
 					},
-					ProtocolName:   "IGP",
-					ProtocolNumber: 9,
+					ProtocolName: "ICMP",
 					Target: &vpc.SecurityGroupRule_CidrBlocks{
 						CidrBlocks: &vpc.CidrBlocks{
 							V4CidrBlocks: []string{"10.0.0.0/24", "10.0.1.0/24"},
@@ -1242,7 +1241,7 @@ func TestFlattenRules(t *testing.T) {
 						"key2": "value2",
 					},
 					"v4_cidr_blocks": []interface{}{"10.0.0.0/24", "10.0.1.0/24"},
-					"protocol":       "9",
+					"protocol":       "ICMP",
 					"port":           int64(-1),
 					"from_port":      int64(1),
 					"to_port":        int64(65535),

@@ -1,4 +1,7 @@
 ## 0.44.0 (Unreleased)
+ENHANCEMENTS:
+* some changes in security group resource
+
 ## 0.43.0 (August 20, 2020)
 
 FEATURES:
