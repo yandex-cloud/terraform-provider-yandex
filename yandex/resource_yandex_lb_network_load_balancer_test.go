@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"net"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -55,6 +56,19 @@ func sweepLBNetworkLoadBalancerOnce(conf *Config, id string) error {
 		NetworkLoadBalancerId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
+}
+
+func resouceLBAddressHash(nlb *loadbalancer.NetworkLoadBalancer) int {
+	ipVersion := "ipv4"
+	if net.ParseIP(nlb.GetListeners()[0].GetAddress()).To4() == nil {
+		ipVersion = "ipv6"
+	}
+	return resourceLBNetworkLoadBalancerExternalAddressHash(
+		map[string]interface{}{
+			"address":    nlb.GetListeners()[0].GetAddress(),
+			"ip_version": ipVersion,
+		},
+	)
 }
 
 func networkLoadBalancerImportStep() resource.TestStep {
@@ -112,13 +126,19 @@ func TestAccLBNetworkLoadBalancer_full(t *testing.T) {
 					testExistsElementWithAttrValue(
 						nlbResource, "listener", "name", lbDefaultListenerName, &listenerPath,
 					),
-					testCheckResourceSubAttrFn(
-						nlbResource, &listenerPath, "external_address_spec.0.address", func(value string) error {
-							address := nlb.GetListeners()[0].GetAddress()
-							if value != address {
-								return fmt.Errorf("NetworkLoadBalancer's listener's address doesn't match. %s != %s", value, address)
-							}
-							return nil
+					checkWithState(
+						func() resource.TestCheckFunc {
+							return testCheckResourceSubAttrFn(
+								nlbResource, &listenerPath,
+								fmt.Sprintf("external_address_spec.%d.address", resouceLBAddressHash(&nlb)),
+								func(value string) error {
+									address := nlb.GetListeners()[0].GetAddress()
+									if value != address {
+										return fmt.Errorf("NetworkLoadBalancer's listener's address doesn't match. %s != %s", value, address)
+									}
+									return nil
+								},
+							)
 						},
 					),
 					testExistsElementWithAttrValue(
@@ -198,8 +218,8 @@ func TestAccLBNetworkLoadBalancer_update(t *testing.T) {
 		"NLBType":               lbDefaultNLBType,
 		"BaseTemplate":          nlbDefaults["BaseTemplate"],
 		"ListenerName":          fmt.Sprintf("%s-updated", lbDefaultListenerName),
-		"ListenerPort":          8090,
-		"ListenerTargetPort":    8090,
+		"ListenerPort":          int64(8090),
+		"ListenerTargetPort":    int64(8090),
 		"ListenerProtocol":      lbDefaultListenerProtocol,
 		"ListenerIPVersion":     lbDefaultListenerIPVersion,
 		"HTTPName":              fmt.Sprintf("%s-updated", lbDefaultHCHTTPName),
@@ -391,6 +411,87 @@ func TestAccLBNetworkLoadBalancer_update_healthcheck(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
 					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker, updatedATGChecker(nlbUpdatedNewHTTPTimeout)),
+				),
+			},
+			networkLoadBalancerImportStep(),
+		},
+	})
+}
+
+func TestAccLBNetworkLoadBalancer_update_listener(t *testing.T) {
+	var nlb loadbalancer.NetworkLoadBalancer
+	nlbDefaults := lbDefaultNLBValues()
+
+	newName := copyNlbSettings(nlbDefaults)
+	newName["ListenerName"] = newName["ListenerName"].(string) + "1"
+
+	newPort := copyNlbSettings(nlbDefaults)
+	newPort["ListenerPort"] = newPort["ListenerPort"].(int64) + 1
+
+	newTargetPort := copyNlbSettings(nlbDefaults)
+	newTargetPort["ListenerTargetPort"] = newPort["ListenerTargetPort"].(int64) + 1
+
+	updatedListenerChecker := func(settings map[string]interface{}) func(ls *loadbalancer.Listener) error {
+		return func(ls *loadbalancer.Listener) error {
+			return checkLBListener(
+				ls,
+				settings["ListenerName"].(string),
+				settings["ListenerPort"].(int64),
+				settings["ListenerTargetPort"].(int64),
+			)
+		}
+	}
+
+	updatedATGChecker := func(atg *loadbalancer.AttachedTargetGroup) error {
+		return nil
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBGeneralNLBTemplate(nlbDefaults, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(
+						&nlb, 1, 1,
+						func(ls *loadbalancer.Listener) error {
+							return checkLBListener(
+								ls, lbDefaultListenerName, lbDefaultListenerPort, lbDefaultListenerTargetPort,
+							)
+						},
+						func(atg *loadbalancer.AttachedTargetGroup) error {
+							return checkLBAttachedTargetGroup(
+								atg, lbDefaultHCHTTPName,
+								lbDefaultHCHTTPInterval, lbDefaultHCHTTPTimeout,
+								lbDefaultHCHTTPHealthyTreshold, lbDefaultHCHTTPUnhealthyTreshold,
+								lbDefaultHCHTTPPort, lbDefaultHCHTTPPath,
+							)
+						},
+					),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(newName, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker(newName), updatedATGChecker),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(newPort, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker(newPort), updatedATGChecker),
+				),
+			},
+			{
+				Config: testAccLBGeneralNLBTemplate(newTargetPort, false, true, true, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					testAccCheckLBNetworkLoadBalancerValues(&nlb, 1, 1, updatedListenerChecker(newTargetPort), updatedATGChecker),
 				),
 			},
 			networkLoadBalancerImportStep(),

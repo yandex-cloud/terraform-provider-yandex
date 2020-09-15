@@ -94,12 +94,13 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 						"protocol": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      "tcp",
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"tcp", "udp"}, false),
 						},
 						"external_address_spec": {
-							Type:          schema.TypeList,
+							Type:          schema.TypeSet,
 							Optional:      true,
+							Set:           resourceLBNetworkLoadBalancerExternalAddressHash,
 							ConflictsWith: []string{"listener.internal_address_spec"},
 							MaxItems:      1,
 							Elem: &schema.Resource{
@@ -119,8 +120,9 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							},
 						},
 						"internal_address_spec": {
-							Type:          schema.TypeList,
+							Type:          schema.TypeSet,
 							Optional:      true,
+							Set:           resourceLBNetworkLoadBalancerInternalAddressHash,
 							ConflictsWith: []string{"listener.external_address_spec"},
 							MaxItems:      1,
 							Elem: &schema.Resource{

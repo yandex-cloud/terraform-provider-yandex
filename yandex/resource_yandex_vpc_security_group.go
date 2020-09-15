@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"reflect"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -19,8 +17,6 @@ import (
 )
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
-
-var validProtocols = []string{"ANY", "TCP", "UDP", "ICMP", "IPV6_ICMP"}
 
 func resourceYandexVPCSecurityGroup() *schema.Resource {
 	return &schema.Resource{
@@ -103,9 +99,8 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"protocol": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: protocolMatch(),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -495,38 +490,4 @@ func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
 	}
 
 	return hashcode.String(buf.String())
-}
-
-func getProtocol(i interface{}) (string, int64, error) {
-	v, ok := i.(string)
-	if !ok {
-		return "", -1, fmt.Errorf("expected type to be string")
-	}
-
-	for _, s := range validProtocols {
-		if v == s {
-			if s == "ANY" {
-				return "", 0, nil
-			}
-			return s, -1, nil
-		}
-	}
-
-	if i, err := strconv.ParseInt(v, 10, 64); err == nil {
-		if i < 0 || i > 255 {
-			return "", -1, fmt.Errorf("invalid protocol number: %s", v)
-		}
-		return "", i, nil
-	}
-
-	return "", -1, fmt.Errorf("protocol must be one of %s or number", strings.Join(validProtocols, ","))
-}
-
-func protocolMatch() schema.SchemaValidateFunc {
-	return func(i interface{}, k string) ([]string, []error) {
-		if _, _, err := getProtocol(i); err != nil {
-			return nil, []error{err}
-		}
-		return nil, nil
-	}
 }

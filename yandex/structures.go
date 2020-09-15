@@ -1504,14 +1504,8 @@ func securityRuleDescriptionToRuleSpec(dir string, v interface{}) (*vpc.Security
 		sr.Description = v
 	}
 
-	if protoName, protoNum, err := getProtocol(res["protocol"]); err == nil {
-		if protoName != "" {
-			sr.SetProtocolName(protoName)
-		} else {
-			sr.SetProtocolNumber(protoNum)
-		}
-	} else {
-		return nil, err
+	if p, ok := res["protocol"].(string); ok {
+		sr.SetProtocolName(p)
 	}
 
 	if v, ok := res["labels"]; ok {
@@ -1867,26 +1861,11 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *s
 
 	for _, g := range sg {
 		r := make(map[string]interface{})
+
+		r["id"] = g.Id
 		r["description"] = g.GetDescription()
 		r["labels"] = g.GetLabels()
-
-		if g.GetProtocolNumber() == 0 {
-			r["protocol"] = "ANY"
-		} else {
-			found := false
-
-			for _, s := range validProtocols {
-				if g.GetProtocolName() == s {
-					r["protocol"] = s
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				r["protocol"] = fmt.Sprintf("%d", g.GetProtocolNumber())
-			}
-		}
+		r["protocol"] = g.GetProtocolName()
 
 		if g.GetPorts() != nil {
 			if g.GetPorts().FromPort == g.GetPorts().ToPort {
@@ -1907,8 +1886,6 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *s
 		if g.GetCidrBlocks() != nil && g.GetCidrBlocks().V6CidrBlocks != nil {
 			r["v6_cidr_blocks"] = convertStringArrToInterface(g.GetCidrBlocks().V6CidrBlocks)
 		}
-
-		r["id"] = g.Id
 
 		switch g.GetDirection().String() {
 		case "INGRESS":

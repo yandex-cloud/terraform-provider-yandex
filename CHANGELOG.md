@@ -3,6 +3,12 @@
 FEATURES:
 * storage: `yandex_storage_bucket` resource can manage SSE
 
+ENHANCEMENTS:
+* some changes in security group resource
+
+BUG FIXES:
+* lb: fix modifying listener settings 
+
 ## 0.43.0 (August 20, 2020)
 
 FEATURES:

@@ -32,10 +32,37 @@ func resourceLBNetworkLoadBalancerListenerHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 
-	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	for _, k := range []string{"name", "port"} {
+		fmt.Fprintf(&buf, "\"%v\":", m[k])
 	}
+	targetPort := m["target_port"].(int)
+	if targetPort == 0 {
+		targetPort = m["port"].(int)
+	}
+	buf.WriteString(fmt.Sprintf("\"%v\":", targetPort))
+	protocol := m["protocol"].(string)
+	if len(protocol) == 0 {
+		protocol = "tcp"
+	}
+	buf.WriteString(fmt.Sprintf("\"%v\":", protocol))
+	return hashcode.String(buf.String())
+}
 
+func resourceLBNetworkLoadBalancerExternalAddressHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	for _, k := range []string{"address", "ip_version"} {
+		fmt.Fprintf(&buf, "\"%v\":", m[k])
+	}
+	return hashcode.String(buf.String())
+}
+
+func resourceLBNetworkLoadBalancerInternalAddressHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	for _, k := range []string{"subnet_id", "address", "ip_version"} {
+		fmt.Fprintf(&buf, "\"%v\":", m[k])
+	}
 	return hashcode.String(buf.String())
 }
 
@@ -133,16 +160,16 @@ func expandLBListenerSpec(config map[string]interface{}) (*loadbalancer.Listener
 		ls.Protocol = p
 	}
 
-	if v, ok := getFirstElement(config, "external_address_spec"); ok {
-		eas, err := expandLBExternalAddressSpec(v)
+	if v, ok := config["external_address_spec"].(*schema.Set); ok && v.Len() > 0 {
+		eas, err := expandLBExternalAddressSpec(v.List()[0].(map[string]interface{}))
 		if err != nil {
 			return nil, err
 		}
 		ls.Address = eas
 	}
 
-	if v, ok := getFirstElement(config, "internal_address_spec"); ok {
-		ias, err := expandLBInternalAddressSpec(v)
+	if v, ok := config["internal_address_spec"].(*schema.Set); ok && v.Len() > 0 {
+		ias, err := expandLBInternalAddressSpec(v.List()[0].(map[string]interface{}))
 		if err != nil {
 			return nil, err
 		}
@@ -363,7 +390,7 @@ func flattenLBListenerSpecs(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set,
 	result := &schema.Set{F: resourceLBNetworkLoadBalancerListenerHash}
 	var (
 		addressSpecKey     string
-		flattenAddressSpec func(*loadbalancer.Listener) (map[string]interface{}, error)
+		flattenAddressSpec func(*loadbalancer.Listener) (*schema.Set, error)
 	)
 	switch nlb.Type {
 	case loadbalancer.NetworkLoadBalancer_EXTERNAL:
@@ -382,10 +409,10 @@ func flattenLBListenerSpecs(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set,
 		}
 		flListener := map[string]interface{}{
 			"name":         ls.Name,
-			"port":         ls.Port,
-			"target_port":  ls.TargetPort,
+			"port":         int(ls.Port),
+			"target_port":  int(ls.TargetPort),
 			"protocol":     strings.ToLower(ls.Protocol.String()),
-			addressSpecKey: []map[string]interface{}{as},
+			addressSpecKey: as,
 		}
 		result.Add(flListener)
 	}
@@ -393,7 +420,7 @@ func flattenLBListenerSpecs(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set,
 	return result, nil
 }
 
-func flattenLBExternalAddressSpec(ls *loadbalancer.Listener) (map[string]interface{}, error) {
+func flattenLBExternalAddressSpec(ls *loadbalancer.Listener) (*schema.Set, error) {
 	result := map[string]interface{}{
 		"address": ls.Address,
 	}
@@ -406,10 +433,10 @@ func flattenLBExternalAddressSpec(ls *loadbalancer.Listener) (map[string]interfa
 		result["ip_version"] = "ipv6"
 	}
 
-	return result, nil
+	return schema.NewSet(resourceLBNetworkLoadBalancerExternalAddressHash, []interface{}{result}), nil
 }
 
-func flattenLBInternalAddressSpec(ls *loadbalancer.Listener) (map[string]interface{}, error) {
+func flattenLBInternalAddressSpec(ls *loadbalancer.Listener) (*schema.Set, error) {
 	result := map[string]interface{}{
 		"address": ls.Address,
 	}
@@ -424,7 +451,7 @@ func flattenLBInternalAddressSpec(ls *loadbalancer.Listener) (map[string]interfa
 
 	result["subnet_id"] = ls.SubnetId
 
-	return result, nil
+	return schema.NewSet(resourceLBNetworkLoadBalancerExternalAddressHash, []interface{}{result}), nil
 }
 
 func flattenLBAttachedTargetGroups(nlb *loadbalancer.NetworkLoadBalancer) (*schema.Set, error) {

@@ -71,8 +71,9 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							Computed: true,
 						},
 						"external_address_spec": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Computed: true,
+							Set:      resourceLBNetworkLoadBalancerExternalAddressHash,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -88,8 +89,9 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							},
 						},
 						"internal_address_spec": {
-							Type:     schema.TypeList,
+							Type:     schema.TypeSet,
 							Computed: true,
+							Set:      resourceLBNetworkLoadBalancerInternalAddressHash,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

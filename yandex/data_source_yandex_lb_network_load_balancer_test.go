@@ -124,16 +124,28 @@ func TestAccDataSourceLBNetworkLoadBalancer_full(t *testing.T) {
 					testCheckResourceSubAttr(
 						nlbDataSourceResource, &listenerPath, "protocol", lbDefaultListenerProtocol,
 					),
-					testCheckResourceSubAttr(
-						nlbDataSourceResource, &listenerPath, "external_address_spec.0.ip_version", lbDefaultListenerIPVersion,
+					checkWithState(
+						func() resource.TestCheckFunc {
+							return testCheckResourceSubAttr(
+								nlbDataSourceResource, &listenerPath,
+								fmt.Sprintf("external_address_spec.%d.ip_version", resouceLBAddressHash(&nlb)),
+								lbDefaultListenerIPVersion,
+							)
+						},
 					),
-					testCheckResourceSubAttrFn(
-						nlbDataSourceResource, &listenerPath, "external_address_spec.0.address", func(value string) error {
-							address := nlb.GetListeners()[0].GetAddress()
-							if value != address {
-								return fmt.Errorf("NetworkLoadBalancer's listener's address doesn't match. %s != %s", value, address)
-							}
-							return nil
+					checkWithState(
+						func() resource.TestCheckFunc {
+							return testCheckResourceSubAttrFn(
+								nlbDataSourceResource, &listenerPath,
+								fmt.Sprintf("external_address_spec.%d.address", resouceLBAddressHash(&nlb)),
+								func(value string) error {
+									address := nlb.GetListeners()[0].GetAddress()
+									if value != address {
+										return fmt.Errorf("NetworkLoadBalancer's listener's address doesn't match. %s != %s", value, address)
+									}
+									return nil
+								},
+							)
 						},
 					),
 					testExistsElementWithAttrValue(
