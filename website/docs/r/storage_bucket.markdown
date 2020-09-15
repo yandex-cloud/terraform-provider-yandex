@@ -125,7 +125,7 @@ The `CORS` object supports the following:
 
 * `max_age_seconds` (Optional) Specifies time in seconds that browser can cache the response for a preflight request.
 
-* `server_side_encryption_configuration` (Optional) A configuration of server-side encryption configuration (documented below)
+* `server_side_encryption_configuration` (Optional) A configuration of server-side encryption for the bucket (documented below)
 
 The `server_side_encryption_configuration` object supports the following:
 
