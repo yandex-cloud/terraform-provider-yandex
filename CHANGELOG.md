@@ -1,4 +1,8 @@
 ## 0.44.0 (Unreleased)
+
+FEATURES:
+* storage: `yandex_storage_bucket` resource can manage SSE
+
 ENHANCEMENTS:
 * some changes in security group resource
 

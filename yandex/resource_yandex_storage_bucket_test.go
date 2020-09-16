@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 )
 
 func init() {
@@ -452,6 +453,43 @@ func TestAccStorageBucket_UpdateGrant(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_SSE(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	keyName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var symmetricKey kms.SymmetricKey
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketSSEDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketSSEDefault(keyName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKMSSymmetricKeyExists(
+						"yandex_kms_symmetric_key.key-a", &symmetricKey),
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketSSE(resourceName,
+						&s3.ServerSideEncryptionConfiguration{
+							Rules: []*s3.ServerSideEncryptionRule{
+								{
+									ApplyServerSideEncryptionByDefault: &s3.ServerSideEncryptionByDefault{
+										KMSMasterKeyID: &symmetricKey.Id,
+										SSEAlgorithm:   aws.String(s3.ServerSideEncryptionAwsKms),
+									},
+								},
+							},
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestStorageBucketName(t *testing.T) {
 	validNames := []string{
 		"foobar",
@@ -484,6 +522,14 @@ func TestStorageBucketName(t *testing.T) {
 
 func testAccCheckStorageBucketDestroy(s *terraform.State) error {
 	return testAccCheckStorageBucketDestroyWithProvider(s, testAccProvider)
+}
+
+func testAccCheckStorageBucketSSEDestroy(s *terraform.State) error {
+	err := testAccCheckStorageBucketDestroyWithProvider(s, testAccProvider)
+	if err != nil {
+		return err
+	}
+	return testAccCheckKMSSymmetricKeyDestroy(s)
 }
 
 func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *schema.Provider) error {
@@ -670,6 +716,30 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 
 		if !reflect.DeepEqual(out.CORSRules, corsRules) {
 			return fmt.Errorf("bad error cors rule, expected: %v, got %v", corsRules, out.CORSRules)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfiguration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+
+		out, err := conn.GetBucketEncryption(&s3.GetBucketEncryptionInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+		if err != nil && !isAWSErr(err, "NoSuchEncryptionConfiguration", "") {
+			return fmt.Errorf("func GetBucketCors error: %v", err)
+		}
+
+		if !reflect.DeepEqual(out.ServerSideEncryptionConfiguration, config) {
+			return fmt.Errorf("bad error cors rule, expected: %v, got %v", config, out.ServerSideEncryptionConfiguration)
 		}
 
 		return nil
@@ -881,6 +951,37 @@ resource "yandex_storage_bucket" "test" {
   }
 }
 `, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_kms_symmetric_key" "key-a" {
+  name              = "%s"
+  description       = "description for key-a"
+  default_algorithm = "AES_128"
+  rotation_period   = "24h"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+}
+
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+  server_side_encryption_configuration {
+    rule {
+  	  apply_server_side_encryption_by_default {
+	    kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+	    sse_algorithm     = "aws:kms"
+  	  }
+    }
+  }
+}
+`, keyName, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
 func testAccStorageBucketBasic(randInt int) string {

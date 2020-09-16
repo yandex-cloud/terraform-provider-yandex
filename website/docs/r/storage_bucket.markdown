@@ -57,6 +57,30 @@ resource "yandex_storage_bucket" "test" {
 }
 ```
 
+### Using SSE
+
+```hcl
+resource "yandex_kms_symmetric_key" "key-a" {
+  name              = "example-symetric-key"
+  description       = "description for key"
+  default_algorithm = "AES_128"
+  rotation_period   = "8760h" // equal to 1 year
+}
+
+resource "yandex_storage_bucket" "test" {
+  bucket = "mybucket"
+
+  server_side_encryption_configuration {
+    rule {
+  	  apply_server_side_encryption_by_default {
+	    kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+	    sse_algorithm     = "aws:kms"
+  	  }
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -100,6 +124,22 @@ The `CORS` object supports the following:
 * `expose_headers` (Optional) Specifies expose header in the response.
 
 * `max_age_seconds` (Optional) Specifies time in seconds that browser can cache the response for a preflight request.
+
+* `server_side_encryption_configuration` (Optional) A configuration of server-side encryption for the bucket (documented below)
+
+The `server_side_encryption_configuration` object supports the following:
+
+* `rule` (Required) A single object for server-side encryption by default configuration. (documented below)
+
+The `rule` object supports the following:
+
+* `apply_server_side_encryption_by_default` (Required) A single object for setting server-side encryption by default. (documented below)
+
+The `apply_server_side_encryption_by_default` object supports the following:
+
+* `sse_algorithm` (Required) The server-side encryption algorithm to use. Single valid value is `aws:kms`
+
+* `kms_master_key_id` (Optional) The KMS master key ID used for the SSE-KMS encryption.
 
 ## Attributes Reference
 
