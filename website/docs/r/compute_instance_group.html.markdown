@@ -200,7 +200,7 @@ It may also contain another placeholders, see metadata doc for full list.
 
 The `secondary_disk` block supports:
 
-* `mode` - (Required) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+* `mode` - (Optional) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
 * `initialize_params` - (Required) Parameters used for creating a disk alongside the instance. The structure is documented below.
 
@@ -256,7 +256,7 @@ The `resources` block supports:
 
 The `boot_disk` block supports:
 
-* `mode` - (Required) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+* `mode` - (Optional) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
 * `initialize_params` - (Required) Parameters for creating a disk alongside the instance. The structure is documented below.
 
