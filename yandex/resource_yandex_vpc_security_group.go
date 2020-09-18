@@ -140,6 +140,14 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"predefined_target": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -154,17 +162,17 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating security group: %s", err)
+		return fmt.Errorf("error expanding labels while creating security group: %s", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating security group: %s", err)
+		return fmt.Errorf("error getting folder ID while creating security group: %s", err)
 	}
 
 	rules, err := expandSecurityGroupRulesSpec(d)
 	if err != nil {
-		return fmt.Errorf("Error getting rules while creating security group: %s", err)
+		return fmt.Errorf("error getting rules while creating security group: %s", err)
 	}
 
 	req := vpc.CreateSecurityGroupRequest{
@@ -181,12 +189,12 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 
 	op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create security group: %s", err)
+		return fmt.Errorf("error while requesting API to create security group: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while get security group create operation metadata: %s", err)
+		return fmt.Errorf("error while get security group create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*vpc.CreateSecurityGroupMetadata)
@@ -198,11 +206,11 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting operation to create security group: %s", err)
+		return fmt.Errorf("error while waiting operation to create security group: %s", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Security group creation failed: %s", err)
+		return fmt.Errorf("security group creation failed: %s", err)
 	}
 
 	return resourceYandexVPCSecurityGroupRead(d, meta)
@@ -228,12 +236,24 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	d.Set("created_at", createdAt)
-	d.Set("name", securityGroup.GetName())
-	d.Set("folder_id", securityGroup.GetFolderId())
-	d.Set("network_id", securityGroup.GetNetworkId())
-	d.Set("description", securityGroup.GetDescription())
-	d.Set("status", securityGroup.GetStatus().String())
+	if err := d.Set("created_at", createdAt); err != nil {
+		return err
+	}
+	if err := d.Set("name", securityGroup.GetName()); err != nil {
+		return err
+	}
+	if err := d.Set("folder_id", securityGroup.GetFolderId()); err != nil {
+		return err
+	}
+	if err := d.Set("network_id", securityGroup.GetNetworkId()); err != nil {
+		return err
+	}
+	if err := d.Set("description", securityGroup.GetDescription()); err != nil {
+		return err
+	}
+	if err := d.Set("status", securityGroup.GetStatus().String()); err != nil {
+		return err
+	}
 
 	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
 
@@ -284,12 +304,12 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 	if len(req.UpdateMask.Paths) > 0 {
 		op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().Update(ctx, req))
 		if err != nil {
-			return fmt.Errorf("Error while requesting API to update Security group %q: %s", d.Id(), err)
+			return fmt.Errorf("error while requesting API to update Security group %q: %s", d.Id(), err)
 		}
 
 		err = op.Wait(ctx)
 		if err != nil {
-			return fmt.Errorf("Error updating Security group %q: %s", d.Id(), err)
+			return fmt.Errorf("error updating Security group %q: %s", d.Id(), err)
 		}
 
 		for _, v := range req.UpdateMask.Paths {
@@ -392,11 +412,11 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 	}
 	op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().UpdateRules(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update Security group rules %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to update Security group rules %q: %s", d.Id(), err)
 	}
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error updating Security group rules %q: %s", d.Id(), err)
+		return fmt.Errorf("error updating Security group rules %q: %s", d.Id(), err)
 	}
 
 	return nil
@@ -404,34 +424,42 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 
 func ruleChanged(r1 *vpc.SecurityGroupRule, r2 *vpc.SecurityGroupRuleSpec) bool {
 	if r1.GetDescription() != r2.GetDescription() {
-		return false
+		return true
 	}
 
 	if !reflect.DeepEqual(r1.GetLabels(), r2.GetLabels()) {
-		return false
+		return true
 	}
 
 	if r1.GetDirection() != r2.GetDirection() {
-		return false
+		return true
 	}
 
 	if !reflect.DeepEqual(r1.GetPorts(), r2.GetPorts()) {
-		return false
+		return true
 	}
 
 	if !reflect.DeepEqual(r1.GetCidrBlocks(), r2.GetCidrBlocks()) {
-		return false
+		return true
 	}
 
 	if r1.GetProtocolName() != r2.GetProtocolName() {
-		return false
+		return true
 	}
 
 	if r1.GetProtocolNumber() != r2.GetProtocolNumber() {
-		return false
+		return true
 	}
 
-	return true
+	if r1.GetSecurityGroupId() != r2.GetSecurityGroupId() {
+		return true
+	}
+
+	if r1.GetPredefinedTarget() != r2.GetPredefinedTarget() {
+		return true
+	}
+
+	return false
 }
 
 func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
@@ -467,6 +495,16 @@ func getSdk(config *Config) *ycsdk.SDK {
 	return config.sdk
 }
 
+var hashableRuleNames = []string{
+	"direction",
+	"protocol",
+	"port",
+	"from_port",
+	"to_port",
+	"security_group_id",
+	"predefined_target",
+}
+
 func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
 	var buf bytes.Buffer
 	m, ok := v.(map[string]interface{})
@@ -474,7 +512,7 @@ func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
 		return 0
 	}
 
-	for _, name := range []string{"direction", "protocol", "port", "from_port", "to_port"} {
+	for _, name := range hashableRuleNames {
 		if v, ok := m[name]; ok {
 			buf.WriteString(fmt.Sprintf("%v-", v))
 		}

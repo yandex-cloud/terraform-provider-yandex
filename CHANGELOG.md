@@ -1,6 +1,7 @@
 ## 0.44.0 (Unreleased)
 
 FEATURES:
+* vpc: security group rule targets `security_group_id` and `predefined_target` are supported
 * storage: `yandex_storage_bucket` resource can manage SSE
 
 ENHANCEMENTS:

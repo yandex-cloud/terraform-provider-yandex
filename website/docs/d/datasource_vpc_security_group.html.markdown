@@ -53,5 +53,7 @@ The `ingress` and `egress` block supports:
 * `from_port` - Minimum port number.
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).
+* `security_group_id` - Target security group ID for this rule.
+* `predefined_target` - Specially target for this rule. See docs for choices.
 * `v4_cidr_blocks` - The blocks of  IPv4 addresses for this rule.
 * `v6_cidr_blocks` - The blocks of  IPv6 addresses for this rule.

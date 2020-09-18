@@ -47,14 +47,14 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 			"ingress": {
 				Type:     schema.TypeSet,
 				Computed: true,
-				Elem:     aaa(),
+				Elem:     dataSourceYandexSecurityGroupRule(),
 				Set:      resourceYandexVPCSecurityGroupRuleHash,
 			},
 
 			"egress": {
 				Type:     schema.TypeSet,
 				Computed: true,
-				Elem:     aaa(),
+				Elem:     dataSourceYandexSecurityGroupRule(),
 				Set:      resourceYandexVPCSecurityGroupRuleHash,
 			},
 
@@ -71,7 +71,7 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 	}
 }
 
-func aaa() *schema.Resource {
+func dataSourceYandexSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"direction": {
@@ -117,6 +117,15 @@ func aaa() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"predefined_target": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -144,12 +153,24 @@ func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface
 		return err
 	}
 
-	d.Set("created_at", createdAt)
-	d.Set("name", securityGroup.GetName())
-	d.Set("folder_id", securityGroup.GetFolderId())
-	d.Set("network_id", securityGroup.GetNetworkId())
-	d.Set("description", securityGroup.GetDescription())
-	d.Set("status", securityGroup.GetStatus())
+	if err := d.Set("created_at", createdAt); err != nil {
+		return err
+	}
+	if err := d.Set("name", securityGroup.GetName()); err != nil {
+		return err
+	}
+	if err := d.Set("folder_id", securityGroup.GetFolderId()); err != nil {
+		return err
+	}
+	if err := d.Set("network_id", securityGroup.GetNetworkId()); err != nil {
+		return err
+	}
+	if err := d.Set("description", securityGroup.GetDescription()); err != nil {
+		return err
+	}
+	if err := d.Set("status", securityGroup.GetStatus()); err != nil {
+		return err
+	}
 
 	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
 

@@ -80,17 +80,15 @@ func TestAccVPCSecurityGroup_basic(t *testing.T) {
 			{
 				Config: testAccVPCSecurityGroupBasic(networkName, sg1Name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCSecurityGroupExists(
-						"yandex_vpc_security_group.sgr1", &securityGroup),
-
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sgr1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.#", "1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.from_port", "8090"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -107,6 +105,7 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 	t.Parallel()
 
 	var securityGroup vpc.SecurityGroup
+	var securityGroup2 vpc.SecurityGroup
 
 	networkName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
 	sg1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
@@ -119,33 +118,39 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 			{
 				Config: testAccVPCSecurityGroupBasic(networkName, sg1Name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCSecurityGroupExists(
-						"yandex_vpc_security_group.sgr1", &securityGroup),
-
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sgr1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.#", "1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.from_port", "8090"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.2870201880.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "egress.740716492.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
+
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sgr2", &securityGroup2),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr2", "ingress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr2", "egress.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr2", "egress.669457800.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr2", "egress.669457800.port", "9000"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr2", "egress.669457800.predefined_target", "self_security_group"),
+					// It's hard for test rule with security_group_id because of not stable hash of rule with ID.
+					// predefined_target has the same logic. Assume that test covers this situation.
+					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr2"),
 				),
 			},
 			{
 				Config: testAccVPCSecurityGroupBasic2(networkName, sg1Name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVPCSecurityGroupExists(
-						"yandex_vpc_security_group.sgr1", &securityGroup),
-
+					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sgr1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.521713847.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.from_port", "8091"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3356759868.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.3168776168.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.583108381.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.583108381.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.583108381.from_port", "8091"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sgr1", "ingress.583108381.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sgr1"),
 				),
 			},
@@ -162,11 +167,11 @@ func testAccCheckVPCSecurityGroupExists(name string, securityGroup *vpc.Security
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
-			return fmt.Errorf("Not found: %s", name)
+			return fmt.Errorf("not found: %s", name)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ID is set")
+			return fmt.Errorf("no ID is set")
 		}
 
 		sdk := testAccProvider.Meta().(*Config).sdk
@@ -178,7 +183,7 @@ func testAccCheckVPCSecurityGroupExists(name string, securityGroup *vpc.Security
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Security group not found")
+			return fmt.Errorf("security group not found")
 		}
 
 		*securityGroup = *found
@@ -220,7 +225,26 @@ resource "yandex_vpc_security_group" "sgr1" {
   }
 }
 
-`, networkName, sgr1Name, getExampleFolderID())
+resource "yandex_vpc_security_group" "sgr2" {
+  network_id  = "${yandex_vpc_network.foo.id}"
+  folder_id   = "%s"
+
+  egress {
+    description       = "rule3 description"
+    protocol          = "ANY"
+    predefined_target = "self_security_group"
+    port              = 9000
+  }
+
+  ingress {
+    description       = "rule4 description"
+    protocol          = "TCP"
+    security_group_id = "${yandex_vpc_security_group.sgr1.id}"
+    port              = 9010
+  }
+}
+
+`, networkName, sgr1Name, getExampleFolderID(), getExampleFolderID())
 }
 
 func testAccVPCSecurityGroupBasic2(networkName, sgr1Name string) string {
