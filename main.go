@@ -3,8 +3,7 @@ package main
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/plugin"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
-	"github.com/terraform-providers/terraform-provider-yandex/yandex"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 )
 
 func main() {
