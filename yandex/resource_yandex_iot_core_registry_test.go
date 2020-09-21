@@ -186,7 +186,7 @@ func testYandexIoTCoreRegistryExists(name string, registry *iot.Registry) resour
 			return fmt.Errorf("IoT Registry not found")
 		}
 
-		*registry = *found
+		registry = found
 		return nil
 	}
 }

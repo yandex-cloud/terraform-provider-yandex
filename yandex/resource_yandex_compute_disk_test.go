@@ -244,7 +244,7 @@ func testAccCheckComputeDiskExists(n string, disk *compute.Disk) resource.TestCh
 			return fmt.Errorf("Disk not found")
 		}
 
-		*disk = *found
+		disk = found
 
 		return nil
 	}

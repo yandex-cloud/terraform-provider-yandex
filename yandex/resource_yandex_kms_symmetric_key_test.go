@@ -210,7 +210,7 @@ func testAccCheckKMSSymmetricKeyExists(name string, symmetricKey *kms.SymmetricK
 			return fmt.Errorf("KMS Symmetric Key not found")
 		}
 
-		*symmetricKey = *found
+		symmetricKey = found
 
 		return nil
 	}

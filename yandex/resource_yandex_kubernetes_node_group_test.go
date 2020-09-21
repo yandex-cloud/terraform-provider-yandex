@@ -680,7 +680,7 @@ func testAccCheckKubernetesNodeGroupExists(n string, ng *k8s.NodeGroup) resource
 			return fmt.Errorf("Kubernetes node group not found")
 		}
 
-		*ng = *found
+		ng = found
 		return nil
 	}
 }

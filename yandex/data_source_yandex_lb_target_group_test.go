@@ -147,7 +147,7 @@ func testAccDataSourceLBTargetGroupExists(n string, tg *loadbalancer.TargetGroup
 			return fmt.Errorf("TargetGroup not found")
 		}
 
-		*tg = *found
+		tg = found
 
 		return nil
 	}

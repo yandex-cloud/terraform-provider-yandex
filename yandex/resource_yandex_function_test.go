@@ -223,7 +223,7 @@ func testYandexFunctionExists(name string, function *functions.Function) resourc
 			return fmt.Errorf("Function not found")
 		}
 
-		*function = *found
+		function = found
 		return nil
 	}
 }

@@ -229,7 +229,7 @@ func testAccCheckMDBMySQLClusterExists(resource string, cluster *mysql.Cluster) 
 			return fmt.Errorf("MySQL Cluster not found")
 		}
 
-		*cluster = *found
+		cluster = found
 
 		return nil
 	}

@@ -55,7 +55,7 @@ func testAccDataSourceIAMRoleExists(n string, role *iam.Role) resource.TestCheck
 			return fmt.Errorf("Role not found")
 		}
 
-		*role = *found
+		role = found
 
 		return nil
 	}

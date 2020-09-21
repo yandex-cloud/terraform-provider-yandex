@@ -550,7 +550,7 @@ func testAccCheckLBNetworkLoadBalancerExists(n string, nlb *loadbalancer.Network
 			return fmt.Errorf("NetworkLoadBalancer not found")
 		}
 
-		*nlb = *found
+		nlb = found
 
 		return nil
 	}

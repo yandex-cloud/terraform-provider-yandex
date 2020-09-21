@@ -226,7 +226,7 @@ func testAccDataSourceLBNetworkLoadBalancerExists(n string, nlb *loadbalancer.Ne
 			return fmt.Errorf("NetworkLoadBalancer not found")
 		}
 
-		*nlb = *found
+		nlb = found
 
 		return nil
 	}

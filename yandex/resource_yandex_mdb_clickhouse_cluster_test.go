@@ -249,7 +249,7 @@ func testAccCheckMDBClickHouseClusterExists(n string, r *clickhouse.Cluster, hos
 			return fmt.Errorf("ClickHouse Cluster not found")
 		}
 
-		*r = *found
+		r = found
 
 		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListHosts(context.Background(), &clickhouse.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,

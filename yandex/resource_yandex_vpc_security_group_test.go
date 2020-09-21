@@ -186,7 +186,7 @@ func testAccCheckVPCSecurityGroupExists(name string, securityGroup *vpc.Security
 			return fmt.Errorf("security group not found")
 		}
 
-		*securityGroup = *found
+		securityGroup = found
 
 		return nil
 	}

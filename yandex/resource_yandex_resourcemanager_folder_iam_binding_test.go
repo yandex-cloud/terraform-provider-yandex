@@ -334,7 +334,7 @@ func testAccCheckYandexResourceManagerFolderExists(n string, folder *resourceman
 			return fmt.Errorf("Folder not found")
 		}
 
-		*folder = *found
+		folder = found
 
 		return nil
 	}

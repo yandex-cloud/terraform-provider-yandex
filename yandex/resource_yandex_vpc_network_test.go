@@ -270,7 +270,7 @@ func testAccCheckVPCNetworkExists(n string, network *vpc.Network) resource.TestC
 			return fmt.Errorf("Network not found")
 		}
 
-		*network = *found
+		network = found
 
 		return nil
 	}
