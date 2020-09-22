@@ -649,9 +649,9 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 	networkInterfacesPropName := "network_interface"
 	needUpdateInterfacesOnStoppedInstance := false
-	var addNatRequests []compute.AddInstanceOneToOneNatRequest
-	var removeNatRequests []compute.RemoveInstanceOneToOneNatRequest
-	var updateInterfaceRequests []compute.UpdateInstanceNetworkInterfaceRequest
+	var addNatRequests []*compute.AddInstanceOneToOneNatRequest
+	var removeNatRequests []*compute.RemoveInstanceOneToOneNatRequest
+	var updateInterfaceRequests []*compute.UpdateInstanceNetworkInterfaceRequest
 	if d.HasChange(networkInterfacesPropName) {
 		o, n := d.GetChange(networkInterfacesPropName)
 		oldList := o.([]interface{})
@@ -711,13 +711,13 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 					if wantChangeNatSpec(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
 						// changing nat address on maybe running instance, safer to use add/remove nat calls
 						if oldV4Spec.OneToOneNatSpec != nil {
-							removeNatRequests = append(removeNatRequests, compute.RemoveInstanceOneToOneNatRequest{
+							removeNatRequests = append(removeNatRequests, &compute.RemoveInstanceOneToOneNatRequest{
 								InstanceId:            d.Id(),
 								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
 							})
 						}
 						if newV4Spec.OneToOneNatSpec != nil {
-							addNatRequests = append(addNatRequests, compute.AddInstanceOneToOneNatRequest{
+							addNatRequests = append(addNatRequests, &compute.AddInstanceOneToOneNatRequest{
 								InstanceId:            d.Id(),
 								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
 								OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
@@ -747,25 +747,25 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			}
 
 			if len(req.UpdateMask.Paths) > 0 {
-				updateInterfaceRequests = append(updateInterfaceRequests, *req)
+				updateInterfaceRequests = append(updateInterfaceRequests, req)
 			}
 		}
 
 		if !needUpdateInterfacesOnStoppedInstance && (len(removeNatRequests) > 0 || len(addNatRequests) > 0 || len(updateInterfaceRequests) > 0) {
 			for _, req := range removeNatRequests {
-				err := makeInstanceRemoveOneToOneNatRequest(&req, d, meta)
+				err := makeInstanceRemoveOneToOneNatRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
 			}
 			for _, req := range addNatRequests {
-				err := makeInstanceAddOneToOneNatRequest(&req, d, meta)
+				err := makeInstanceAddOneToOneNatRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
 			}
 			for _, req := range updateInterfaceRequests {
-				err := makeInstanceUpdateNetworkInterfaceRequest(&req, d, meta)
+				err := makeInstanceUpdateNetworkInterfaceRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
@@ -869,7 +869,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				if err != nil {
 					return err
 				}
-				hash, err := hashstructure.Hash(*diskSpec, nil)
+				hash, err := hashstructure.Hash(diskSpec, nil)
 				if err != nil {
 					return err
 				}
@@ -890,7 +890,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				if err != nil {
 					return err
 				}
-				hash, err := hashstructure.Hash(*diskSpec, nil)
+				hash, err := hashstructure.Hash(diskSpec, nil)
 				if err != nil {
 					return err
 				}
@@ -947,19 +947,19 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				time.Sleep(sleepTime)
 			}
 			for _, req := range removeNatRequests {
-				err := makeInstanceRemoveOneToOneNatRequest(&req, d, meta)
+				err := makeInstanceRemoveOneToOneNatRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
 			}
 			for _, req := range addNatRequests {
-				err := makeInstanceAddOneToOneNatRequest(&req, d, meta)
+				err := makeInstanceAddOneToOneNatRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
 			}
 			for _, req := range updateInterfaceRequests {
-				err := makeInstanceUpdateNetworkInterfaceRequest(&req, d, meta)
+				err := makeInstanceUpdateNetworkInterfaceRequest(req, d, meta)
 				if err != nil {
 					return err
 				}

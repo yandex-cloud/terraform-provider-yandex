@@ -202,7 +202,7 @@ func testAccCheckVPCRouteTableExists(name string, routeTable *vpc.RouteTable) re
 			return fmt.Errorf("Route table not found")
 		}
 
-		*routeTable = *found
+		routeTable = found
 
 		return nil
 	}

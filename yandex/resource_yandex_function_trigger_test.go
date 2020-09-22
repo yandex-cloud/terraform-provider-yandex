@@ -268,7 +268,7 @@ func testYandexFunctionTriggerExists(name string, trigger *triggers.Trigger) res
 			return fmt.Errorf("Trigger not found")
 		}
 
-		*trigger = *found
+		trigger = found
 		return nil
 	}
 }

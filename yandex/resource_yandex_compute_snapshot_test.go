@@ -160,7 +160,7 @@ func testAccCheckComputeSnapshotExists(n string, snapshot *compute.Snapshot) res
 				n, attrMap, found.Labels)
 		}
 
-		*snapshot = *found
+		snapshot = found
 
 		return nil
 	}

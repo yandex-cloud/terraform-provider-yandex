@@ -351,7 +351,7 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int) re
 			return fmt.Errorf("Redis Cluster not found")
 		}
 
-		*r = *found
+		r = found
 
 		resp, err := config.sdk.MDB().Redis().Cluster().ListHosts(context.Background(), &redis.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,
