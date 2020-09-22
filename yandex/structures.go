@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -1042,21 +1043,20 @@ func flattenStaticRoutes(routeTable *vpc.RouteTable) *schema.Set {
 	return staticRoutes
 }
 
-func expandStaticRoutes(d *schema.ResourceData) ([]*vpc.StaticRoute, error) {
+func expandStaticRoutes(v interface{}) ([]*vpc.StaticRoute, error) {
 	staticRoutes := []*vpc.StaticRoute{}
 
-	if v, ok := d.GetOk("static_route"); ok {
-		routeList := v.(*schema.Set).List()
-		for _, v := range routeList {
-			sr, err := routeDescriptionToStaticRoute(v)
-			if err != nil {
-				return nil, fmt.Errorf("fail convert static route: %s", err)
-			}
-			staticRoutes = append(staticRoutes, sr)
+	if v == nil {
+		return staticRoutes, nil
+	}
+
+	routeList := v.(*schema.Set).List()
+	for _, v := range routeList {
+		sr, err := routeDescriptionToStaticRoute(v)
+		if err != nil {
+			return nil, fmt.Errorf("fail convert static route: %s", err)
 		}
-	} else {
-		// should not occur: validation must be done at Schema level
-		return nil, fmt.Errorf("You should define 'static_route' section for route table")
+		staticRoutes = append(staticRoutes, sr)
 	}
 
 	return staticRoutes, nil
@@ -1074,12 +1074,16 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 		sr.Destination = &vpc.StaticRoute_DestinationPrefix{
 			DestinationPrefix: v,
 		}
+	} else {
+		return nil, errors.New("'static_route' should have a 'destination_prefix' field")
 	}
 
 	if v, ok := res["next_hop_address"].(string); ok {
 		sr.NextHop = &vpc.StaticRoute_NextHopAddress{
 			NextHopAddress: v,
 		}
+	} else {
+		return nil, errors.New("'static_route' should have a 'next_hop_address' field")
 	}
 
 	return &sr, nil

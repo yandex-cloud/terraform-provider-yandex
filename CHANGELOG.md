@@ -8,7 +8,8 @@ ENHANCEMENTS:
 * some changes in security group resource
 
 BUG FIXES:
-* lb: fix modifying listener settings 
+* lb: fix modifying listener settings
+* vpc: `static_route` in `yandex_vpc_route_table` is optional now
 
 ## 0.43.0 (August 20, 2020)
 
