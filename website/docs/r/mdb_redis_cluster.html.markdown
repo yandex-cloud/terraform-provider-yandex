@@ -23,6 +23,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   config {
     password = "your_password"
+    version  = "6.0"
   }
 
   resources {
@@ -55,6 +56,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   sharded     = true
 
   config {
+    version  = "6.0"
     password = "your_password"
   }
 
