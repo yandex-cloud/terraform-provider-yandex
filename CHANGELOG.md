@@ -1,4 +1,4 @@
-## 0.44.0 (Unreleased)
+## 0.44.0 (September 22, 2020)
 
 FEATURES:
 * vpc: security group rule targets `security_group_id` and `predefined_target` are supported
