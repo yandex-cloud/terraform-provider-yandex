@@ -25,3 +25,6 @@ linters:
 linters-settings:
   errcheck:
     ignore: github.com/hashicorp/terraform-plugin-sdk/helper/schema:ForceNew|Set,fmt:.*,io:Close,github.com/terraform-providers/terraform-provider-yandex/yandex:Set
+  govet:
+    disable:
+      - copylocks

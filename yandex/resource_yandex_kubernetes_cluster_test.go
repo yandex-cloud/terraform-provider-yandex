@@ -1162,7 +1162,7 @@ func testAccCheckKubernetesClusterExists(n string, cluster *k8s.Cluster) resourc
 			return fmt.Errorf("Kubernetes cluster not found")
 		}
 
-		cluster = found
+		*cluster = *found
 		return nil
 	}
 }

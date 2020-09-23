@@ -185,7 +185,7 @@ func testAccCheckMDBMongoDBClusterExists(n string, r *mongodb.Cluster, hosts int
 			return fmt.Errorf("MongoDB Cluster not found")
 		}
 
-		r = found
+		*r = *found
 
 		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,

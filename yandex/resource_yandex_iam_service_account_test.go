@@ -241,7 +241,7 @@ func testAccCheckYandexIAMServiceAccountExistsWithID(n string, sa *iam.ServiceAc
 			return fmt.Errorf("Service account not found")
 		}
 
-		sa = found
+		*sa = *found
 
 		return nil
 	}

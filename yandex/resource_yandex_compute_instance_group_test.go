@@ -1679,7 +1679,7 @@ func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.In
 			return fmt.Errorf("instancegroup is not found")
 		}
 
-		instance = found
+		*instance = *found
 
 		return nil
 	}

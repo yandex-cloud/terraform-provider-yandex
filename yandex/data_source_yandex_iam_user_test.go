@@ -113,7 +113,7 @@ func testAccDataSourceYandexLoginExists(n string, user *iam.UserAccount) resourc
 			return fmt.Errorf("User not found")
 		}
 
-		user = found
+		*user = *found
 
 		return nil
 	}

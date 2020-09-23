@@ -254,7 +254,7 @@ func testAccCheckContainerRegistryExists(n string, registry *containerregistry.R
 			return fmt.Errorf("Registry %s not found", n)
 		}
 
-		registry = found
+		*registry = *found
 		return nil
 	}
 }

@@ -1000,7 +1000,7 @@ func testAccCheckComputeInstanceExists(n string, instance *compute.Instance) res
 			return fmt.Errorf("Instance not found")
 		}
 
-		instance = found
+		*instance = *found
 
 		return nil
 	}

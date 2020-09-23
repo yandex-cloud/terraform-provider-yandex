@@ -633,7 +633,7 @@ func testAccCheckDataprocClusterExists(resourceName string, cluster *dataproc.Cl
 			return err
 		}
 
-		cluster = found
+		*cluster = *found
 		return nil
 	}
 }

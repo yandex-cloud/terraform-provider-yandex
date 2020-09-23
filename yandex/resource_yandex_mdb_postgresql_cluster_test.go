@@ -207,7 +207,7 @@ func testAccCheckMDBPGClusterExists(n string, r *postgresql.Cluster, hosts int) 
 			return fmt.Errorf("PostgreSQL Cluster not found")
 		}
 
-		r = found
+		*r = *found
 
 		resp, err := config.sdk.MDB().PostgreSQL().Cluster().ListHosts(context.Background(), &postgresql.ListClusterHostsRequest{
 			ClusterId: rs.Primary.ID,

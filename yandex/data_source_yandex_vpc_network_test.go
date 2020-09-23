@@ -132,7 +132,7 @@ func testAccDataSourceVPCNetworkExists(n string, network *vpc.Network) resource.
 			return fmt.Errorf("Network not found")
 		}
 
-		network = found
+		*network = *found
 
 		return nil
 	}

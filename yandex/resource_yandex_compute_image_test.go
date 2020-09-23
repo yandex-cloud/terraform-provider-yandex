@@ -184,7 +184,7 @@ func testAccCheckComputeImageExists(n string, image *compute.Image) resource.Tes
 			return fmt.Errorf("Image not found")
 		}
 
-		image = found
+		*image = *found
 
 		return nil
 	}

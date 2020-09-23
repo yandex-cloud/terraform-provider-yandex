@@ -365,7 +365,7 @@ func testAccCheckVPCSubnetExists(name string, subnet *vpc.Subnet) resource.TestC
 			return fmt.Errorf("Subnet not found")
 		}
 
-		subnet = found
+		*subnet = *found
 
 		return nil
 	}

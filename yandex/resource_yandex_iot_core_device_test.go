@@ -218,7 +218,7 @@ func testYandexIoTCoreDeviceExists(registryName string, deviceName string, regis
 			return fmt.Errorf("IoT Device not found")
 		}
 
-		device = found
+		*device = *found
 		return nil
 	}
 }
