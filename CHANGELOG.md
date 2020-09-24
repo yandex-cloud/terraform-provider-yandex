@@ -1,4 +1,4 @@
-## UNRELEASED
+## 0.44.1 (September 24, 2020)
 
 BUG FIXES:
 * vpc: fix "security_group" data source
