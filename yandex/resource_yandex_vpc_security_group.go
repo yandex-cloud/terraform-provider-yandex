@@ -13,7 +13,6 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
-	ycsdk "github.com/yandex-cloud/go-sdk"
 )
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
@@ -158,7 +157,6 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 
 func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSdk(config)
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -187,7 +185,7 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().Create(ctx, &req))
+	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Create(ctx, &req))
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create security group: %s", err)
 	}
@@ -217,14 +215,17 @@ func resourceYandexVPCSecurityGroupCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
+	return yandexVPCSecurityGroupRead(d, meta, d.Id())
+}
+
+func yandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*Config)
-	sdk := getSdk(config)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	securityGroup, err := sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
-		SecurityGroupId: d.Id(),
+	securityGroup, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+		SecurityGroupId: id,
 	})
 
 	if err != nil {
@@ -269,7 +270,6 @@ func resourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}
 
 func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSdk(config)
 
 	d.Partial(true)
 
@@ -302,7 +302,7 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 	defer cancel()
 
 	if len(req.UpdateMask.Paths) > 0 {
-		op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().Update(ctx, req))
+		op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Update(ctx, req))
 		if err != nil {
 			return fmt.Errorf("error while requesting API to update Security group %q: %s", d.Id(), err)
 		}
@@ -331,9 +331,7 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.ResourceData, config *Config) error {
-	sdk := getSdk(config)
-
-	sg, err := sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+	sg, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
 		SecurityGroupId: d.Id(),
 	})
 
@@ -410,7 +408,7 @@ func resourceYandexVPCSecurityGroupUpdateRules(ctx context.Context, d *schema.Re
 		AdditionRuleSpecs: newRules,
 		DeletionRuleIds:   delRules,
 	}
-	op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().UpdateRules(ctx, req))
+	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().UpdateRules(ctx, req))
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Security group rules %q: %s", d.Id(), err)
 	}
@@ -464,7 +462,6 @@ func ruleChanged(r1 *vpc.SecurityGroupRule, r2 *vpc.SecurityGroupRuleSpec) bool 
 
 func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSdk(config)
 
 	req := &vpc.DeleteSecurityGroupRequest{
 		SecurityGroupId: d.Id(),
@@ -473,7 +470,7 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := sdk.WrapOperation(sdk.VPC().SecurityGroup().Delete(ctx, req))
+	op, err := config.sdk.WrapOperation(config.sdk.VPC().SecurityGroup().Delete(ctx, req))
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Security group %q", d.Id()))
 	}
@@ -489,10 +486,6 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 	}
 
 	return nil
-}
-
-func getSdk(config *Config) *ycsdk.SDK {
-	return config.sdk
 }
 
 var hashableRuleNames = []string{

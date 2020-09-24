@@ -3,9 +3,9 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceYandexVPCSecurityGroup() *schema.Resource {
@@ -14,7 +14,8 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"security_group_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
 			"network_id": {
@@ -24,11 +25,13 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 
 			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
@@ -74,10 +77,6 @@ func dataSourceYandexVPCSecurityGroup() *schema.Resource {
 func dataSourceYandexSecurityGroupRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"direction": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -88,11 +87,11 @@ func dataSourceYandexSecurityGroupRule() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"protocol_name": {
+			"protocol": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"protocol_number": {
+			"port": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -104,18 +103,15 @@ func dataSourceYandexSecurityGroupRule() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-
 			"v4_cidr_blocks": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 			"v6_cidr_blocks": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -137,49 +133,26 @@ func dataSourceYandexSecurityGroupRule() *schema.Resource {
 func dataSourceYandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
-	defer cancel()
-
-	securityGroup, err := config.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
-		SecurityGroupId: d.Get("security_group_id").(string),
-	})
-
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Security group %q", d.Get("name").(string)))
-	}
-
-	createdAt, err := getTimestamp(securityGroup.GetCreatedAt())
+	err := checkOneOf(d, "security_group_id", "name")
 	if err != nil {
 		return err
 	}
 
-	if err := d.Set("created_at", createdAt); err != nil {
-		return err
+	sgID := d.Get("security_group_id").(string)
+	_, nameOk := d.GetOk("name")
+
+	if nameOk {
+		sgID, err = resolveObjectID(config.Context(), config, d, sdkresolvers.SecurityGroupResolver)
+		if err != nil {
+			return fmt.Errorf("VPC security group: failed to resolve data source security group by name: %v", err)
+		}
 	}
-	if err := d.Set("name", securityGroup.GetName()); err != nil {
-		return err
-	}
-	if err := d.Set("folder_id", securityGroup.GetFolderId()); err != nil {
-		return err
-	}
-	if err := d.Set("network_id", securityGroup.GetNetworkId()); err != nil {
-		return err
-	}
-	if err := d.Set("description", securityGroup.GetDescription()); err != nil {
-		return err
-	}
-	if err := d.Set("status", securityGroup.GetStatus()); err != nil {
+
+	if err := yandexVPCSecurityGroupRead(d, meta, sgID); err != nil {
 		return err
 	}
 
-	ingress, egress := flattenSecurityGroupRulesSpec(securityGroup.Rules)
+	d.SetId(sgID)
 
-	if err := d.Set("ingress", ingress); err != nil {
-		return err
-	}
-	if err := d.Set("egress", egress); err != nil {
-		return err
-	}
-
-	return d.Set("labels", securityGroup.GetLabels())
+	return d.Set("security_group_id", sgID)
 }

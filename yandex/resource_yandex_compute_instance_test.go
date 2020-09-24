@@ -1701,13 +1701,13 @@ resource "yandex_compute_instance" "foobar" {
 
   network_interface {
     subnet_id          = "${yandex_vpc_subnet.inst-test-subnet.id}"
-    security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
   }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
-resource "yandex_vpc_security_group" "sgr1" {
+resource "yandex_vpc_security_group" "sg1" {
   depends_on  = ["yandex_vpc_network.inst-test-network"]
   name        = "tf-test-sg-1"
   description = "description"
@@ -1873,7 +1873,7 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
     nat                = true
-    security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
   }
 
   metadata = {
@@ -1895,7 +1895,7 @@ resource "yandex_iam_service_account" "inst-test-sa" {
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
-resource "yandex_vpc_security_group" "sgr1" {
+resource "yandex_vpc_security_group" "sg1" {
   depends_on  = ["yandex_vpc_network.inst-test-network"]
   name        = "tf-test-sg-2"
   description = "description"
@@ -2043,7 +2043,7 @@ resource "yandex_iam_service_account" "inst-test-sa" {
 
 resource "yandex_vpc_network" "inst-test-network" {}
 
-resource "yandex_vpc_security_group" "sgr1" {
+resource "yandex_vpc_security_group" "sg1" {
   depends_on  = ["yandex_vpc_network.inst-test-network"]
   name        = "tf-test-sg-2"
   description = "description"

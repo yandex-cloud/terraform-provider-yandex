@@ -1040,7 +1040,7 @@ resource "yandex_compute_instance_group" "group1" {
     network_interface {
       network_id         = "${yandex_vpc_network.inst-group-test-network.id}"
       subnet_ids         = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
-      security_group_ids = ["${yandex_vpc_security_group.sgr1.id}"]
+      security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
     }
 
     scheduling_policy {
@@ -1071,7 +1071,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
   description = "tf-test"
 }
 
-resource "yandex_vpc_security_group" "sgr1" {
+resource "yandex_vpc_security_group" "sg1" {
   depends_on  = ["yandex_vpc_network.inst-group-test-network"]
   name        = "tf-test-sg-1"
   description = "description"

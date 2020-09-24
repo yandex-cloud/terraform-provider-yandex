@@ -11,9 +11,6 @@ description: |-
 Manages a Security Group within the Yandex.Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/vpc/concepts).
 
-Security groups is in private preview phase and not available right now. Please wait for public preview announcement.
-
-
 ## Example Usage
 
 ```hcl
