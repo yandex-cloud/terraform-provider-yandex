@@ -13,7 +13,7 @@ Allows management of [Yandex Cloud Functions Trigger](https://cloud.yandex.com/d
 ## Example Usage
 
 ```hcl
-resource "yandex-function_trigger" "my_trigger" {
+resource "yandex_function_trigger" "my_trigger" {
   name        = "some_name"
   description = "any description"
   timer {
