@@ -231,6 +231,39 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 		ver := r.Config.Version
 		res := r.Config.Mongodb
 		switch ver {
+		case "4.4":
+			{
+				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
+				d := mongo.Mongod
+				if d != nil {
+					rs := d.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				s := mongo.Mongos
+				if s != nil {
+					rs := s.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				cfg := mongo.Mongocfg
+				if cfg != nil {
+					rs := cfg.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+			}
 		case "4.2":
 			{
 				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
