@@ -3,6 +3,9 @@
 BUG FIXES:
 * vpc: fix "security_group" data source
 
+FEATURES:
+* mdb: support MongoDB 4.4 in `yandex_mdb_mongodb_cluster`
+
 ## 0.44.0 (September 22, 2020)
 
 FEATURES:
