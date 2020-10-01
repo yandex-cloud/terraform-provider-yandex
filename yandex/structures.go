@@ -1922,3 +1922,89 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *s
 	}
 	return ingress, egress
 }
+
+func flattenExternalIpV4AddressSpec(address *vpc.ExternalIpv4Address) []interface{} {
+	if address == nil {
+		return nil
+	}
+
+	m := make(map[string]interface{})
+
+	if address.Address != "" {
+		m["address"] = address.GetAddress()
+	}
+	if address.ZoneId != "" {
+		m["zone_id"] = address.GetZoneId()
+	}
+
+	if r := address.GetRequirements(); r != nil {
+		if r.DdosProtectionProvider != "" {
+			m["ddos_protection_provider"] = r.DdosProtectionProvider
+		}
+		if r.OutgoingSmtpCapability != "" {
+			m["outgoing_smtp_capability"] = r.OutgoingSmtpCapability
+		}
+	}
+
+	if len(m) > 0 {
+		return []interface{}{m}
+	}
+	return nil
+}
+
+func expandAddressRequirements(addrDesc map[string]interface{}) (*vpc.AddressRequirements, bool) {
+	var (
+		set          bool
+		requirements vpc.AddressRequirements
+	)
+
+	if v, ok := addrDesc["ddos_protection_provider"].(string); ok {
+		set = true
+		requirements.SetDdosProtectionProvider(v)
+	}
+
+	if v, ok := addrDesc["outgoing_smtp_capability"].(string); ok {
+		set = true
+		requirements.SetOutgoingSmtpCapability(v)
+	}
+
+	return &requirements, set
+}
+
+func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4AddressSpec, error) {
+	var (
+		v  interface{}
+		ok bool
+	)
+
+	if v, ok = d.GetOk("external_ipv4_address"); !ok {
+		return nil, nil
+	}
+
+	addresses := v.([]interface{})
+
+	if len(addresses) == 0 {
+		return nil, nil
+	}
+
+	addrDesc, ok := addresses[0].(map[string]interface{})
+	if !ok {
+		return nil, addressError("fail to cast %#v to map[string]interface{}", addresses[0])
+	}
+
+	var addrSpec vpc.ExternalIpv4AddressSpec
+
+	if v, ok := addrDesc["address"].(string); ok {
+		addrSpec.SetAddress(v)
+	}
+
+	if v, ok := addrDesc["zone_id"].(string); ok {
+		addrSpec.SetZoneId(v)
+	}
+
+	if requirements, ok := expandAddressRequirements(addrDesc); ok {
+		addrSpec.SetRequirements(requirements)
+	}
+
+	return &addrSpec, nil
+}
