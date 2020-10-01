@@ -1,7 +1,7 @@
 Terraform Provider
 ==================
 
-- Documentation: https://www.terraform.io/docs/providers/yandex/index.html
+- Documentation: https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs
 
 Requirements
 ------------
@@ -12,23 +12,23 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-yandex`
+Clone repository to: `$GOPATH/src/github.com/yandex-cloud/terraform-provider-yandex`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-yandex
+$ mkdir -p $GOPATH/src/github.com/yandex-cloud; cd $GOPATH/src/github.com/yandex-cloud
+$ git clone git@github.com:yandex-cloud/terraform-provider-yandex
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-yandex
+$ cd $GOPATH/src/github.com/yandex-cloud/terraform-provider-yandex
 $ make build
 ```
 
 Using the provider
 ----------------------
-If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-plugins) After placing it into your plugins directory,  run `terraform init` to initialize it. Documentation about the provider specific configuration options can be found on the [provider's website](https://www.terraform.io/docs/providers/yandex/index.html).
+If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-plugins) After placing it into your plugins directory,  run `terraform init` to initialize it. Documentation about the provider specific configuration options can be found on the [provider's website](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs).
 
 Developing the Provider
 ---------------------------
