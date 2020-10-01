@@ -19,9 +19,6 @@ jobs:
     - name: "Code UnitTest"
       script:
         - make test
-    - name: "Website"
-      script:
-        - make website-test
 
 branches:
   only:
