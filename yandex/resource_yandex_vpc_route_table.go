@@ -106,7 +106,7 @@ func resourceYandexVPCRouteTableCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error expanding labels while creating route table: %s", err)
 	}
 
-	staticRoutes, err := expandStaticRoutes(d)
+	staticRoutes, err := expandStaticRoutes(d.Get("static_route"))
 	if err != nil {
 		return fmt.Errorf("Error expanding static routes while creating route table: %s", err)
 	}

@@ -186,6 +186,64 @@ func TestExpandInstanceGroupVariables(t *testing.T) {
 	}
 }
 
+func TestExpandStaticRoutes(t *testing.T) {
+	cases := []struct {
+		name       string
+		v          interface{}
+		expected   []*vpc.StaticRoute
+		shouldFail bool
+	}{
+		{
+			name: "two routes",
+			v: schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{
+				map[string]interface{}{
+					"destination_prefix": "192.0.2.0/24",
+					"next_hop_address":   "192.0.2.1",
+				},
+				map[string]interface{}{
+					"destination_prefix": "198.51.100.0/24",
+					"next_hop_address":   "198.51.100.1",
+				},
+			},
+			),
+			expected: []*vpc.StaticRoute{
+				{
+					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "192.0.2.0/24"},
+					NextHop:     &vpc.StaticRoute_NextHopAddress{NextHopAddress: "192.0.2.1"},
+				},
+				{
+					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "198.51.100.0/24"},
+					NextHop:     &vpc.StaticRoute_NextHopAddress{NextHopAddress: "198.51.100.1"},
+				},
+			},
+			shouldFail: false,
+		},
+		{
+			name:       "missing",
+			v:          nil,
+			expected:   []*vpc.StaticRoute{},
+			shouldFail: false,
+		},
+		{
+			name:       "empty set element",
+			v:          schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{map[string]interface{}{}}),
+			shouldFail: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := expandStaticRoutes(tc.v)
+			if err != nil && !tc.shouldFail {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
 func TestExpandNetworkSettings(t *testing.T) {
 	cases := []struct {
 		name     string
