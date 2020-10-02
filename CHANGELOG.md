@@ -3,6 +3,9 @@ FEATURES:
 * mdb: support MongoDB 4.4 in `yandex_mdb_mongodb_cluster`
 * vpc: address resource & data source
 
+BUG FIXES:
+* vpc: `static_route` in `yandex_vpc_route_table` is optional now
+
 ## 0.44.1 (September 24, 2020)
 
 BUG FIXES:
@@ -19,7 +22,6 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * lb: fix modifying listener settings
-* vpc: `static_route` in `yandex_vpc_route_table` is optional now
 
 ## 0.43.0 (August 20, 2020)
 
