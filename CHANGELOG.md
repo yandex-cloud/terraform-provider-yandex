@@ -1,4 +1,4 @@
-## 0.45.0 (Unreleased)
+## 0.45.0 (October 05, 2020)
 FEATURES:
 * mdb: support MongoDB 4.4 in `yandex_mdb_mongodb_cluster`
 * vpc: address resource & data source
