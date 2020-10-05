@@ -29,8 +29,25 @@ func testSweepLBTargetGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), conf.FolderID)
+	nlbIt := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), conf.FolderID)
 	result := &multierror.Error{}
+	for nlbIt.Next() {
+		nlbId := nlbIt.Value().GetId()
+		for _, tg := range nlbIt.Value().GetAttachedTargetGroups() {
+			tgId := tg.TargetGroupId
+			if !sweepLBNetworkLoadBalancerAttachments(conf, nlbId, tgId) {
+				result = multierror.Append(
+					result, fmt.Errorf("failed to sweep Attached Target Group %q for Network Load Balancer %q", nlbId, tgId),
+				)
+			}
+		}
+	}
+
+	if err := result.ErrorOrNil(); err != nil {
+		return err
+	}
+
+	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), conf.FolderID)
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepLBTargetGroup(conf, id) {
@@ -39,6 +56,29 @@ func testSweepLBTargetGroups(_ string) error {
 	}
 
 	return result.ErrorOrNil()
+}
+
+func sweepLBNetworkLoadBalancerAttachments(conf *Config, nlbId, tgId string) bool {
+	return sweepWithRetryByFunc(
+		conf, fmt.Sprintf("Attached Target Group %q for Network Load Balancer %q", nlbId, tgId),
+		func(conf *Config) error {
+			return sweepLBNetworkLoadBalancerAttachmentsOnce(conf, nlbId, tgId)
+		},
+	)
+}
+
+func sweepLBNetworkLoadBalancerAttachmentsOnce(conf *Config, nlbId, tgId string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexLBNetworkLoadBalancerDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.LoadBalancer().NetworkLoadBalancer().DetachTargetGroup(
+		ctx,
+		&loadbalancer.DetachNetworkLoadBalancerTargetGroupRequest{
+			NetworkLoadBalancerId: nlbId,
+			TargetGroupId:         tgId,
+		},
+	)
+	return handleSweepOperation(ctx, conf, op, err)
 }
 
 func sweepLBTargetGroup(conf *Config, id string) bool {

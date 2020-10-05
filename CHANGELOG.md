@@ -3,6 +3,9 @@ FEATURES:
 * mdb: support MongoDB 4.4 in `yandex_mdb_mongodb_cluster`
 * vpc: address resource & data source
 
+ENHANCEMENTS:
+* lb: improve NLB sweeper and tests
+
 BUG FIXES:
 * vpc: `static_route` in `yandex_vpc_route_table` is optional now
 

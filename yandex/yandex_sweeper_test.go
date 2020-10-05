@@ -66,18 +66,24 @@ func configForSweepers() (*Config, error) {
 }
 
 func sweepWithRetry(sf sweeperFunc, conf *Config, resource, id string) bool {
-	debugLog("started sweeping %s '%s'", resource, id)
+	return sweepWithRetryByFunc(conf, fmt.Sprintf("%s '%s'", resource, id), func(conf *Config) error {
+		return sf(conf, id)
+	})
+}
+
+func sweepWithRetryByFunc(conf *Config, message string, sf func(conf *Config) error) bool {
+	debugLog("started sweeping %s", message)
 	for i := 1; i <= conf.MaxRetries; i++ {
-		err := sf(conf, id)
+		err := sf(conf)
 		if err != nil {
-			debugLog("[%s '%s'] delete try #%d: %v", resource, id, i, err)
+			debugLog("[%s] delete try #%d: %v", message, i, err)
 		} else {
-			debugLog("[%s '%s'] delete try #%d: deleted", resource, id, i)
+			debugLog("[%s] delete try #%d: deleted", message, i)
 			return true
 		}
 	}
 
-	debugLog("failed to sweep %s '%s'", resource, id)
+	debugLog("failed to sweep %s", message)
 	return false
 }
 
