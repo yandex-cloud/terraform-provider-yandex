@@ -1289,12 +1289,8 @@ func TestFlattenRules(t *testing.T) {
 					},
 				},
 				{
-					Id:        "25",
-					Direction: 2,
-					Ports: &vpc.PortRange{
-						FromPort: 80,
-						ToPort:   80,
-					},
+					Id:           "25",
+					Direction:    2,
 					ProtocolName: "TCP",
 					Target: &vpc.SecurityGroupRule_SecurityGroupId{
 						SecurityGroupId: "some_sg_id",
@@ -1348,7 +1344,7 @@ func TestFlattenRules(t *testing.T) {
 					"description":       "",
 					"labels":            map[string]string{},
 					"protocol":          "TCP",
-					"port":              int64(80),
+					"port":              int64(-1),
 					"from_port":         int64(-1),
 					"to_port":           int64(-1),
 					"security_group_id": "some_sg_id",

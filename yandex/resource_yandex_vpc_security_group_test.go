@@ -145,12 +145,14 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3168776168.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3168776168.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.583108381.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.583108381.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.583108381.from_port", "8091"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.583108381.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3321606256.protocol", "ICMP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3321606256.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3321606256.to_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.3321606256.from_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1137209832.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1137209832.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1137209832.to_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1137209832.from_port", "-1"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sg1"),
 				),
 			},
@@ -266,17 +268,14 @@ resource "yandex_vpc_security_group" "sg1" {
 
   ingress {
     description    = "rule1 description"
-    protocol       = "TCP"
+    protocol       = "ICMP"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    port           = 8080
   }
 
   ingress {
     description    = "rule2 description2"
     protocol       = "ANY"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
-    from_port      = 8091
-    to_port        = 8099
   }
 }
 

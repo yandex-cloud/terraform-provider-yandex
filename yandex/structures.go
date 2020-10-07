@@ -1516,14 +1516,19 @@ func securityRuleCidrs(res map[string]interface{}) (*vpc.CidrBlocks, bool) {
 	return cidr, ok
 }
 
+// return nil on ANY-typed port range
 func securityRulePorts(res map[string]interface{}) (*vpc.PortRange, error) {
 	port := int64(res["port"].(int))
 	frPort := int64(res["from_port"].(int))
 	toPort := int64(res["to_port"].(int))
 
+	if port == -1 && frPort == -1 && toPort == -1 {
+		return nil, nil
+	}
+
 	if port != -1 {
 		if frPort != -1 || toPort != -1 {
-			return nil, fmt.Errorf("port or from_port + to_port must be defined %v", res)
+			return nil, fmt.Errorf("cannot set from_port/to_port with port")
 		}
 		frPort = port
 		toPort = port
@@ -1881,6 +1886,23 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	return []map[string]interface{}{res}
 }
 
+func flattenSecurityGroupRulesProto(g *vpc.SecurityGroupRule) (port, fromPort, toPort int64) {
+	port = -1
+	fromPort = -1
+	toPort = -1
+
+	if ports := g.GetPorts(); ports != nil {
+		if ports.FromPort == ports.ToPort {
+			port = ports.FromPort
+		} else {
+			fromPort = ports.FromPort
+			toPort = ports.ToPort
+		}
+	}
+
+	return
+}
+
 func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *schema.Set) {
 	ingress := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
 	egress := schema.NewSet(resourceYandexVPCSecurityGroupRuleHash, nil)
@@ -1895,17 +1917,7 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *s
 		r["security_group_id"] = g.GetSecurityGroupId()
 		r["predefined_target"] = g.GetPredefinedTarget()
 
-		if ports := g.GetPorts(); ports != nil {
-			if ports.FromPort == ports.ToPort {
-				r["port"] = ports.FromPort
-				r["from_port"] = -1
-				r["to_port"] = -1
-			} else {
-				r["port"] = -1
-				r["from_port"] = ports.FromPort
-				r["to_port"] = ports.ToPort
-			}
-		}
+		r["port"], r["from_port"], r["to_port"] = flattenSecurityGroupRulesProto(g)
 
 		if cidr := g.GetCidrBlocks(); cidr != nil {
 			if cidr.V4CidrBlocks != nil {
