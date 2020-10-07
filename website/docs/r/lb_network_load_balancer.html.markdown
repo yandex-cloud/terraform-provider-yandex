@@ -135,8 +135,6 @@ The `internal_address_spec` block supports:
 
 * `subnet_id` - (Required) ID of the subnet to which the internal IP address belongs.
 
-* `address` - (Optional) Internal IP address for a listener. IP address will be allocated if it wasn't been set.
-
 * `ip_version` - (Optional) IP version of the internal addresses that the load balancer works with. Must be one of ipv4 or ipv6. The default is ipv4.
 
 ## Attributes Reference

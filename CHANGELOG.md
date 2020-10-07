@@ -1,6 +1,7 @@
 ## 0.46.0 (Unreleased)
 BUG FIXES:
 * vpc: Security group rule port bugfix: can create rules without specifying a port
+* vpc: Fix internal_address_spec block in network load balancer resource doc
 
 ## 0.45.1 (October 06, 2020)
 
