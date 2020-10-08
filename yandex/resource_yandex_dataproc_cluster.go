@@ -174,6 +174,11 @@ func resourceYandexDataprocCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
+			"ui_proxy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -268,6 +273,7 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 	d.Set("zone_id", cluster.ZoneId)
 	d.Set("service_account_id", cluster.ServiceAccountId)
 	d.Set("bucket", cluster.Bucket)
+	d.Set("ui_proxy", cluster.UiProxy)
 
 	err = d.Set("labels", cluster.Labels)
 	if err != nil {
@@ -360,6 +366,7 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		ZoneId:           zoneID,
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Bucket:           d.Get("bucket").(string),
+		UiProxy:          d.Get("ui_proxy").(bool),
 	}
 
 	return &req, nil
@@ -480,10 +487,11 @@ func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateCl
 		Name:             d.Get("name").(string),
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Bucket:           d.Get("bucket").(string),
+		UiProxy:          d.Get("ui_proxy").(bool),
 	}
 
 	var updatePaths []string
-	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket"}
+	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy"}
 	for _, fieldName := range fieldNames {
 		if d.HasChange(fieldName) {
 			updatePaths = append(updatePaths, fieldName)

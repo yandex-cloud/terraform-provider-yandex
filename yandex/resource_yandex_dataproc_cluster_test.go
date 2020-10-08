@@ -123,6 +123,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 		"zone_id":            "ru-central1-b",
 		"service_account_id": "sa-777",
 		"bucket":             "bucket-777",
+		"ui_proxy":           "true",
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexDataprocCluster().Schema, raw)
 
@@ -172,6 +173,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 		ZoneId:           "ru-central1-b",
 		ServiceAccountId: "sa-777",
 		Bucket:           "bucket-777",
+		UiProxy:          true,
 	}
 
 	assert.Equal(t, expected, req)
