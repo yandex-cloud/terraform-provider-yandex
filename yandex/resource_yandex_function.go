@@ -411,7 +411,7 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 			return nil, fmt.Errorf("Cannot define content for Yandex Cloud Function: %s", err)
 		}
 		if size := len(content); size > versionCreateSourceContentMaxBytes {
-			return nil, fmt.Errorf("Zip archive content size %v exceeds the maximum size %v", size, versionCreateSourceContentMaxBytes)
+			return nil, fmt.Errorf("Zip archive content size %v exceeds the maximum size %v, use object storage to upload the content", size, versionCreateSourceContentMaxBytes)
 		}
 		versionReq.PackageSource = &functions.CreateFunctionVersionRequest_Content{Content: content}
 	} else {

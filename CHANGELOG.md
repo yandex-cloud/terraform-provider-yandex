@@ -4,6 +4,9 @@ BUG FIXES:
 * vpc: Fix internal_address_spec block in network load balancer resource doc
 * dataproc: support for UI Proxy
 
+ENHANCEMENTS:
+* serverless: improved zip archive content size limit excession error message
+
 ## 0.45.1 (October 06, 2020)
 
 BUG FIXES:
