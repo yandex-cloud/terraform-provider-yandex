@@ -3,6 +3,7 @@
 BUG FIXES:
 * vpc: Security group rule port bugfix: can create rules without specifying a port
 * vpc: Fix internal_address_spec block in network load balancer resource doc
+* vpc: Security group ANY port bug fix
 * dataproc: support for UI Proxy
 
 ENHANCEMENTS:

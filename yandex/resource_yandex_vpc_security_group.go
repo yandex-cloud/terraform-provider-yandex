@@ -114,19 +114,19 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 			"port": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 65535),
+				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"from_port": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 65535),
+				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"to_port": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validation.IntBetween(0, 65535),
+				ValidateFunc: validation.IntBetween(-1, 65535),
 				Default:      -1,
 			},
 			"v4_cidr_blocks": {
