@@ -58,6 +58,17 @@ func sweepVPCSecurityGroupOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
 	defer cancel()
 
+	sg, err := conf.sdk.VPC().SecurityGroup().Get(ctx, &vpc.GetSecurityGroupRequest{
+		SecurityGroupId: id,
+	})
+	if err != nil {
+		return err
+	}
+
+	if sg.DefaultForNetwork {
+		return nil
+	}
+
 	op, err := conf.sdk.VPC().SecurityGroup().Delete(ctx, &vpc.DeleteSecurityGroupRequest{
 		SecurityGroupId: id,
 	})
