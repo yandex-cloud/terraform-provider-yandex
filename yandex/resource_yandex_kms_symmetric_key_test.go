@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -152,6 +153,7 @@ func TestAccKMSSymmetricKey_update(t *testing.T) {
 				ResourceName:      "yandex_kms_symmetric_key.key-a",
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateCheck:  checkImportFolderID(getExampleFolderID()),
 			},
 			{
 				ResourceName:      "yandex_kms_symmetric_key.key-b",
@@ -165,6 +167,25 @@ func TestAccKMSSymmetricKey_update(t *testing.T) {
 			},
 		},
 	})
+}
+
+func checkImportFolderID(folderID string) resource.ImportStateCheckFunc {
+	return func(s []*terraform.InstanceState) error {
+		if len(s) == 0 {
+			return errors.New("No InstanceState found")
+		}
+
+		if len(s) != 1 {
+			return fmt.Errorf("Expected one InstanceState, found: %d", len(s))
+		}
+
+		fID := s[0].Attributes["folder_id"]
+		if fID != folderID {
+			return fmt.Errorf("Expected folder_id %q, got %q", folderID, fID)
+		}
+
+		return nil
+	}
 }
 
 func testAccCheckKMSSymmetricKeyDestroy(s *terraform.State) error {

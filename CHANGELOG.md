@@ -1,4 +1,7 @@
 ## 0.47.0 (Unreleased)
+BUG FIXES:
+* kms: fix import operation
+
 ## 0.46.0 (October 19, 2020)
 BUG FIXES:
 * vpc: Security group rule port bugfix: can create rules without specifying a port

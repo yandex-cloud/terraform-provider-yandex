@@ -179,6 +179,7 @@ func resourceYandexKMSSymmetricKeyRead(d *schema.ResourceData, meta interface{})
 
 	d.Set("created_at", createdAt)
 	d.Set("rotated_at", rotatedAt)
+	d.Set("folder_id", key.FolderId)
 	d.Set("name", key.Name)
 	d.Set("description", key.Description)
 	d.Set("default_algorithm", kms.SymmetricAlgorithm_name[int32(key.DefaultAlgorithm)])
