@@ -43,6 +43,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the key.
 
+* `default_security_group_id` - ID of default Security Group of this network.
+
 ## Import
 
 A network can be imported using the `id` of the resource, e.g.

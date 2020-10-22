@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -45,6 +44,10 @@ func dataSourceYandexVPCNetwork() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"default_security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -72,45 +75,11 @@ func dataSourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
-		NetworkId: networkID,
-	})
+	d.SetId(networkID)
 
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("network with ID %q", networkID))
-	}
-
-	subnets, err := config.sdk.VPC().Network().ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
-		NetworkId: networkID,
-	})
-
-	if err != nil {
+	if err := d.Set("network_id", networkID); err != nil {
 		return err
 	}
 
-	subnetIds := make([]string, len(subnets.Subnets))
-	for i, subnet := range subnets.Subnets {
-		subnetIds[i] = subnet.Id
-	}
-
-	createdAt, err := getTimestamp(network.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("network_id", network.Id)
-	d.Set("name", network.Name)
-	d.Set("description", network.Description)
-	d.Set("created_at", createdAt)
-	d.Set("folder_id", network.FolderId)
-	if err := d.Set("labels", network.Labels); err != nil {
-		return err
-	}
-	if err := d.Set("subnet_ids", subnetIds); err != nil {
-		return err
-	}
-
-	d.SetId(network.Id)
-
-	return nil
+	return yandexVPCNetworkRead(d, meta, networkID)
 }

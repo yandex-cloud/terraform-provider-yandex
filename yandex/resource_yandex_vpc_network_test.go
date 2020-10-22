@@ -119,6 +119,7 @@ func TestAccVPCNetwork_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_vpc_network.foo", "description", networkDesc),
 					resource.TestCheckResourceAttr("yandex_vpc_network.foo", "subnet_ids.#", "0"),
 					resource.TestCheckResourceAttrSet("yandex_vpc_network.foo", "folder_id"),
+					resource.TestCheckResourceAttrSet("yandex_vpc_network.foo", "default_security_group_id"),
 					testAccCheckVPCNetworkContainsLabel(&network, "tf-label", "tf-label-value"),
 					testAccCheckVPCNetworkContainsLabel(&network, "empty-label", ""),
 					testAccCheckCreatedAtAttr("yandex_vpc_network.foo"),

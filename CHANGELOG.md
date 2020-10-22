@@ -2,6 +2,9 @@
 BUG FIXES:
 * kms: fix import operation
 
+ENHANCEMENTS:
+* vpc: default_security_group_id field was added to network resource and data source
+
 ## 0.46.0 (October 19, 2020)
 BUG FIXES:
 * vpc: Security group rule port bugfix: can create rules without specifying a port

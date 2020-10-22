@@ -66,6 +66,11 @@ func resourceYandexVPCNetwork() *schema.Resource {
 				},
 			},
 
+			"default_security_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -128,13 +133,17 @@ func resourceYandexVPCNetworkCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) error {
+	return yandexVPCNetworkRead(d, meta, d.Id())
+}
+
+func yandexVPCNetworkRead(d *schema.ResourceData, meta interface{}, id string) error {
 	config := meta.(*Config)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	network, err := config.sdk.VPC().Network().Get(ctx, &vpc.GetNetworkRequest{
-		NetworkId: d.Id(),
+		NetworkId: id,
 	})
 
 	if err != nil {
@@ -142,7 +151,7 @@ func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	subnets, err := config.sdk.VPC().Network().ListSubnets(ctx, &vpc.ListNetworkSubnetsRequest{
-		NetworkId: d.Id(),
+		NetworkId: id,
 	})
 
 	if err != nil {
@@ -163,6 +172,7 @@ func resourceYandexVPCNetworkRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	d.Set("description", network.Description)
+	d.Set("default_security_group_id", network.DefaultSecurityGroupId)
 	if err := d.Set("subnet_ids", subnetIds); err != nil {
 		return err
 	}
