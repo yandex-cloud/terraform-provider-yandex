@@ -158,6 +158,9 @@ func (c *Config) credentials() (ycsdk.Credentials, error) {
 	}
 
 	if c.Token != "" {
+		if strings.HasPrefix(c.Token, "t1.") && strings.Count(c.Token, ".") == 2 {
+			return ycsdk.NewIAMTokenCredentials(c.Token), nil
+		}
 		return ycsdk.OAuthToken(c.Token), nil
 	}
 

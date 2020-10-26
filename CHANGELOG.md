@@ -4,6 +4,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * vpc: default_security_group_id field was added to network resource and data source
+* provider: support authentication via IAM token
 
 ## 0.46.0 (October 19, 2020)
 BUG FIXES:

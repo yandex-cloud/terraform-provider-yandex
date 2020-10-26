@@ -37,8 +37,9 @@ resource "yandex_compute_instance" "default" {
 
 The following keys can be used to configure the provider.
 
-* `token` - (Optional) Security token used for authentication in Yandex.Cloud.
+* `token` - (Optional) Security token or IAM token used for authentication in Yandex.Cloud.
 
+  Check [documentation][yandex-iam-create-token] about how to create IAM token.
   This can also be specified using environment variable `YC_TOKEN`.
 
 * `service_account_key_file` - (Optional) Path to file that contains service account key data.
@@ -88,3 +89,4 @@ The following keys can be used to configure the provider.
 [yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope
 [yandex-service-account-key]: https://cloud.yandex.com/docs/iam/operations/iam-token/create-for-sa#keys-create
 [instance-service-account]: https://cloud.yandex.com/docs/compute/operations/vm-connect/auth-inside-vm
+[yandex-iam-create-token]: https://cloud.yandex.ru/docs/iam/operations/iam-token/create
