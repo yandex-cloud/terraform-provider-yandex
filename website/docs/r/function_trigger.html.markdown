@@ -42,7 +42,7 @@ The following arguments are supported:
 * `function.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Function for Yandex Cloud Functions Trigger
 
 * `dlq` - Dead Letter Queue settings definition for Yandex Cloud Functions Trigger
-* `dlq.0.queue_id` - Queue ID for Dead Letter Queue for Yandex Cloud Functions Trigger
+* `dlq.0.queue_id` - ID of Dead Letter Queue for Trigger (Queue ARN)
 * `dlq.0.service_account_id` - Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger
 
 * `iot` - [IoT](https://cloud.yandex.com/docs/functions/concepts/trigger/iot-core-trigger) settings definition for Yandex Cloud Functions Trigger, if present. Only one section `iot` or `message_queue` or `object_storage` or `timer` can be defined.

@@ -380,6 +380,13 @@ resource "yandex_function" "tf-test" {
   depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
 }
 
+resource "yandex_message_queue" "queue" {
+  name = "%s-tfotherqueuq"
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
 resource "yandex_function_trigger" "test-trigger" {
   name = "%s"
   iot {
@@ -391,8 +398,12 @@ resource "yandex_function_trigger" "test-trigger" {
     id                 = yandex_function.tf-test.id
     service_account_id = yandex_iam_service_account.test-account.id
   }
+  dlq {
+    queue_id           = yandex_message_queue.queue.arn
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
 }
-	`, name, getExampleFolderID(), regName, devName, name, name)
+	`, name, getExampleFolderID(), regName, devName, name, name, name) + testAccCommonIamDependenciesEditorConfig(acctest.RandInt())
 }
 
 //nolint:unused

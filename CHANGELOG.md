@@ -1,6 +1,8 @@
 ## 0.47.0 (Unreleased)
 BUG FIXES:
 * kms: fix import operation
+* serverless: folder_id can be using from yandex_function, yandex_function_trigger, yandex_iot_core_registry
+* serverless: crash fix for dlq option in yandex_function_trigger
 
 ENHANCEMENTS:
 * vpc: default_security_group_id field was added to network resource and data source

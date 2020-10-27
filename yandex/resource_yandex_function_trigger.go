@@ -269,8 +269,13 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Functions Trigger: %s", err)
 	}
 
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Functions Trigger: %s", err)
+	}
+
 	req := triggers.CreateTriggerRequest{
-		FolderId:    config.FolderID,
+		FolderId:    folderID,
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Labels:      labels,
@@ -763,8 +768,8 @@ func expandDLQSettings(d *schema.ResourceData) (*triggers.PutQueueMessage, error
 	}
 
 	settings := &triggers.PutQueueMessage{
-		QueueId:          d.Get("queue_id").(string),
-		ServiceAccountId: d.Get("service_account_id").(string),
+		QueueId:          d.Get("dlq.0.queue_id").(string),
+		ServiceAccountId: d.Get("dlq.0.service_account_id").(string),
 	}
 
 	return settings, nil

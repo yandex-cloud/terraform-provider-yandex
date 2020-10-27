@@ -96,8 +96,13 @@ func resourceYandexIoTCoreRegistryCreate(d *schema.ResourceData, meta interface{
 		certs = append(certs, &iot.CreateRegistryRequest_Certificate{CertificateData: cert})
 	}
 
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating IoT Registry: %s", err)
+	}
+
 	req := iot.CreateRegistryRequest{
-		FolderId:     config.FolderID,
+		FolderId:     folderID,
 		Name:         d.Get("name").(string),
 		Description:  d.Get("description").(string),
 		Labels:       labels,

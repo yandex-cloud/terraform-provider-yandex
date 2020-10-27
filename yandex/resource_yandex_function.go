@@ -185,8 +185,13 @@ func resourceYandexFunctionCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Function: %s", err)
+	}
+
 	req := functions.CreateFunctionRequest{
-		FolderId:    config.FolderID,
+		FolderId:    folderID,
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Labels:      labels,
