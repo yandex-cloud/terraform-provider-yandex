@@ -93,6 +93,12 @@ The `host` block supports:
 * `shard_name` - The name of the shard to which the host belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation.
 
+The `shard_group` block supports:
+
+* `name` - The name of the shard group, used as cluster name in Distributed tables.
+* `description` - Description of the shard group.
+* `shard_names` - List of shards names that belong to the shard group.
+
 The `backup_window_start` block supports:
 
 * `hours` - The hour at which backup will be started.

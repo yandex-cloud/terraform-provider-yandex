@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 	"testing"
 
@@ -154,8 +155,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 
 // Test that a sharded ClickHouse Cluster can be created, updated and destroyed
 func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
-	t.Skip("CLOUD-38473")
-
 	t.Parallel()
 
 	var r clickhouse.Cluster
@@ -177,6 +176,10 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard2"}),
+					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
+						"test_group":   {"shard1", "shard2"},
+						"test_group_2": {"shard1"},
+					}),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
 					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
@@ -194,6 +197,10 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 					resource.TestCheckResourceAttr(chResourceSharded, "description", chDesc),
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard3"}),
+					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
+						"test_group":   {"shard1", "shard3"},
+						"test_group_3": {"shard1"},
+					}),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
 					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
@@ -283,7 +290,6 @@ func testAccCheckMDBClickHouseClusterHasResources(r *clickhouse.Cluster, resourc
 	}
 }
 
-//nolint:unused
 func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
@@ -308,6 +314,39 @@ func testAccCheckMDBClickHouseClusterHasShards(r *clickhouse.Cluster, shards []s
 			}
 			if !found {
 				return fmt.Errorf("Shard '%s' not found", s)
+			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseClusterHasShardGroups(r *clickhouse.Cluster, shardGroups map[string][]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShardGroups(context.Background(), &clickhouse.ListClusterShardGroupsRequest{
+			ClusterId: r.Id,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.ShardGroups) != len(shardGroups) {
+			return fmt.Errorf("Expected %d shard groups, got %d", len(shardGroups), len(resp.ShardGroups))
+		}
+		for name, shards := range shardGroups {
+			found := false
+			for _, rs := range resp.ShardGroups {
+				if name == rs.Name {
+					found = true
+					if !reflect.DeepEqual(shards, rs.ShardNames) {
+						return fmt.Errorf("Shards in group %s not match, expexted %s, got %s", name, fmt.Sprint(shards), fmt.Sprint(rs.ShardNames))
+					}
+				}
+			}
+			if !found {
+				return fmt.Errorf("Shard group '%s' not found", s)
 			}
 		}
 		return nil
@@ -637,7 +676,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc)
 }
 
-//nolint:unused
 func testAccMDBClickHouseClusterConfigSharded(name, desc string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
@@ -670,20 +708,37 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     type       = "CLICKHOUSE"
     zone       = "ru-central1-a"
     subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-	shard_name = "shard1"
+    shard_name = "shard1"
   }
 
   host {
     type      = "CLICKHOUSE"
     zone      = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
-	shard_name = "shard2"
+    shard_name = "shard2"
   }
+
+  shard_group {
+    name        = "test_group"
+    description = "test shard group"
+    shard_names = [
+      "shard1",
+      "shard2",
+    ]
+  }
+
+  shard_group {
+    name        = "test_group_2"
+    description = "shard group to delete"
+    shard_names = [
+      "shard1",
+    ]
+  }
+
 }
 `, name, desc)
 }
 
-//nolint:unused
 func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
@@ -716,15 +771,33 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     type       = "CLICKHOUSE"
     zone       = "ru-central1-a"
     subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-	shard_name = "shard1"
+    shard_name = "shard1"
   }
 
   host {
     type       = "CLICKHOUSE"
     zone       = "ru-central1-c"
     subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
-	shard_name = "shard3"
+    shard_name = "shard3"
   }
+
+  shard_group {
+    name        = "test_group"
+    description = "updated shard group"
+    shard_names = [
+      "shard1",
+      "shard3",
+    ]
+  }
+
+  shard_group {
+    name        = "test_group_3"
+    description = "new shard group"
+    shard_names = [
+      "shard1",
+    ]
+  }
+
 }
 `, name, desc)
 }

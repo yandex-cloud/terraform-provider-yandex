@@ -166,6 +166,31 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"shard_group": {
+				Type:     schema.TypeList,
+				MinItems: 0,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"shard_names": {
+							Type:     schema.TypeList,
+							MinItems: 1,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -336,6 +361,18 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		}
 	}
 
+	shardGroups, err := expandClickHouseShardGroups(d)
+	if err != nil {
+		return err
+	}
+
+	for _, group := range shardGroups {
+		err = createClickHouseShardGroup(ctx, config, d, group)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceYandexMDBClickHouseClusterRead(d, meta)
 }
 
@@ -476,6 +513,20 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	groups, err := listClickHouseShardGroups(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	sg, err := flattenClickHouseShardGroups(groups)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("shard_group", sg); err != nil {
+		return err
+	}
+
 	databases, err := listClickHouseDatabases(ctx, config, d.Id())
 	if err != nil {
 		return err
@@ -540,6 +591,12 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("host") {
 		if err := updateClickHouseClusterHosts(d, meta); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("shard_group") {
+		if err := updateClickHouseClusterShardGroups(d, meta); err != nil {
 			return err
 		}
 	}
@@ -835,6 +892,47 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
+func updateClickHouseClusterShardGroups(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+	currGroups, err := listClickHouseShardGroups(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	targetGroups, err := expandClickHouseShardGroups(d)
+	if err != nil {
+		return err
+	}
+
+	toDelete, toAdd := clickHouseShardGroupDiff(currGroups, targetGroups)
+	for _, g := range toDelete {
+		err := deleteClickHouseShardGroup(ctx, config, d, g)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, g := range toAdd {
+		err := createClickHouseShardGroup(ctx, config, d, g)
+		if err != nil {
+			return err
+		}
+	}
+
+	oldSpecs, newSpecs := d.GetChange("shard_group")
+	changedShardGroups := clickHouseChangedShardGroups(oldSpecs.([]interface{}), newSpecs.([]interface{}))
+	for _, g := range changedShardGroups {
+		err := updateClickHouseShardGroup(ctx, config, d, g)
+		if err != nil {
+			return err
+		}
+	}
+
+	d.SetPartial("shard_group")
+	return nil
+}
+
 func createClickHouseDatabase(ctx context.Context, config *Config, d *schema.ResourceData, dbName string) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Database().Create(ctx, &clickhouse.CreateDatabaseRequest{
@@ -998,6 +1096,62 @@ func deleteClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 	return nil
 }
 
+func createClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().CreateShardGroup(ctx, &clickhouse.CreateClusterShardGroupRequest{
+			ClusterId:      d.Id(),
+			ShardGroupName: group.Name,
+			Description:    group.Description,
+			ShardNames:     group.ShardNames,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to add shard group to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while adding shard group to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, group *clickhouse.ShardGroup) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().UpdateShardGroup(ctx, &clickhouse.UpdateClusterShardGroupRequest{
+			ClusterId:      d.Id(),
+			ShardGroupName: group.Name,
+			Description:    group.Description,
+			ShardNames:     group.ShardNames,
+			UpdateMask:     &field_mask.FieldMask{Paths: []string{"description", "shard_names"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update shard group to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating shard group to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().DeleteShardGroup(ctx, &clickhouse.DeleteClusterShardGroupRequest{
+			ClusterId:      d.Id(),
+			ShardGroupName: name,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete shard group from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting shard group from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
 func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.ResourceData, resources *clickhouse.Resources, specs []*clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
@@ -1129,4 +1283,26 @@ func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Finished deleting ClickHouse Cluster %q", d.Id())
 	return nil
+}
+
+func listClickHouseShardGroups(ctx context.Context, config *Config, id string) ([]*clickhouse.ShardGroup, error) {
+	var groups []*clickhouse.ShardGroup
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Clickhouse().Cluster().ListShardGroups(ctx, &clickhouse.ListClusterShardGroupsRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of shard groups for '%s': %s", id, err)
+		}
+
+		groups = append(groups, resp.ShardGroups...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return groups, nil
 }

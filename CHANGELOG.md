@@ -8,6 +8,9 @@ ENHANCEMENTS:
 * vpc: default_security_group_id field was added to network resource and data source
 * provider: support authentication via IAM token
 
+FEATURES:
+* mdb: support ClickHouse shard groups in `yandex_mdb_clickhouse_cluster`
+
 ## 0.46.0 (October 19, 2020)
 BUG FIXES:
 * vpc: Security group rule port bugfix: can create rules without specifying a port

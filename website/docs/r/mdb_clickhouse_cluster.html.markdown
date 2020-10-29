@@ -208,6 +208,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     subnet_id  = "${yandex_vpc_subnet.baz.id}"
     shard_name = "shard2"
   }
+
+  shard_group {
+    name        = "single_shard_group"
+    description = "Cluster configuration that contain only shard1"
+    shard_names = [
+      "shard1",
+    ]
+  }
+
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -326,6 +335,14 @@ The `host` block supports:
 * `shard_name` (Optional) - The name of the shard to which the host belongs.
 
 * `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+
+The `shard_group` block supports:
+
+* `name` (Required) - The name of the shard group, used as cluster name in Distributed tables.
+
+* `description` (Optional) - Description of the shard group.
+
+* `shard_names` (Required) -  List of shards names that belong to the shard group.
 
 The `backup_window_start` block supports:
 

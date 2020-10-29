@@ -3,10 +3,11 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 )
@@ -203,6 +204,53 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 	}
 
 	return toDelete, toAdd
+}
+
+// Takes the current list of shard groups and the desirable list of shard groups.
+// Returns the list of shard group names to delete and to add
+func clickHouseShardGroupDiff(currGroups []*clickhouse.ShardGroup, targetGroups []*clickhouse.ShardGroup) ([]string, []*clickhouse.ShardGroup) {
+	m := map[string]*clickhouse.ShardGroup{}
+
+	for _, g := range targetGroups {
+		m[g.Name] = g
+	}
+
+	var toDelete []string
+	var toAdd []*clickhouse.ShardGroup
+
+	for _, g := range currGroups {
+		if _, ok := m[g.Name]; ok {
+			delete(m, g.Name)
+		} else {
+			toDelete = append(toDelete, g.Name)
+		}
+	}
+
+	for _, sg := range m {
+		toAdd = append(toAdd, sg)
+	}
+
+	return toDelete, toAdd
+}
+
+// Takes the old set of shard group specs and the new set of shard group specs.
+// Returns the slice of shard group specs which have changed.
+func clickHouseChangedShardGroups(oldSpecs []interface{}, newSpecs []interface{}) []*clickhouse.ShardGroup {
+	result := []*clickhouse.ShardGroup{}
+	m := map[string]*clickhouse.ShardGroup{}
+	for _, spec := range oldSpecs {
+		group := expandClickHouseShardGroup(spec.(map[string]interface{}))
+		m[group.Name] = group
+	}
+	for _, spec := range newSpecs {
+		group := expandClickHouseShardGroup(spec.(map[string]interface{}))
+		if g, ok := m[group.Name]; ok {
+			if group.Description != g.Description || !reflect.DeepEqual(group.ShardNames, g.ShardNames) {
+				result = append(result, group)
+			}
+		}
+	}
+	return result
 }
 
 func parseClickHouseEnv(e string) (clickhouse.Cluster_Environment, error) {
@@ -474,6 +522,50 @@ func flattenClickHouseHosts(hs []*clickhouse.Host) ([]map[string]interface{}, er
 		m["shard_name"] = h.ShardName
 		m["assign_public_ip"] = h.AssignPublicIp
 		m["fqdn"] = h.Name
+		res = append(res, m)
+	}
+
+	return res, nil
+}
+
+func expandClickHouseShardGroups(d *schema.ResourceData) ([]*clickhouse.ShardGroup, error) {
+	var result []*clickhouse.ShardGroup
+	groups := d.Get("shard_group").([]interface{})
+
+	for _, g := range groups {
+		result = append(result, expandClickHouseShardGroup(g.(map[string]interface{})))
+	}
+	return result, nil
+}
+
+func expandClickHouseShardGroup(g map[string]interface{}) *clickhouse.ShardGroup {
+	group := &clickhouse.ShardGroup{}
+
+	if v, ok := g["name"]; ok {
+		group.Name = v.(string)
+	}
+
+	if v, ok := g["description"]; ok {
+		group.Description = v.(string)
+	}
+
+	if v, ok := g["shard_names"]; ok {
+		for _, shard := range v.([]interface{}) {
+			group.ShardNames = append(group.ShardNames, shard.(string))
+		}
+	}
+
+	return group
+}
+
+func flattenClickHouseShardGroups(sg []*clickhouse.ShardGroup) ([]map[string]interface{}, error) {
+	var res []map[string]interface{}
+
+	for _, g := range sg {
+		m := map[string]interface{}{}
+		m["name"] = g.Name
+		m["description"] = g.Description
+		m["shard_names"] = g.ShardNames
 		res = append(res, m)
 	}
 

@@ -139,6 +139,31 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"shard_group": {
+				Type:     schema.TypeList,
+				MinItems: 0,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"shard_names": {
+							Type:     schema.TypeList,
+							MinItems: 1,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -306,6 +331,18 @@ func dataSourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	if err := d.Set("host", hs); err != nil {
+		return err
+	}
+
+	groups, err := listClickHouseShardGroups(ctx, config, clusterID)
+	if err != nil {
+		return err
+	}
+	sg, err := flattenClickHouseShardGroups(groups)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("shard_group", sg); err != nil {
 		return err
 	}
 
