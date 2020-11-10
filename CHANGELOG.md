@@ -1,4 +1,6 @@
-## 0.47.0 (Unreleased)
+## 0.48.0 (Unreleased)
+
+## 0.47.0 (November 10, 2020)
 BUG FIXES:
 * kms: fix import operation
 * serverless: folder_id can be using from yandex_function, yandex_function_trigger, yandex_iot_core_registry
