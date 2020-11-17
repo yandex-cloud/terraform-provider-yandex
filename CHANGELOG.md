@@ -1,5 +1,9 @@
 ## 0.48.0 (Unreleased)
 
+BUG FIXES:
+* mdb: fix setting of folder_id field for MongoDB cluster
+
+
 ## 0.47.0 (November 10, 2020)
 BUG FIXES:
 * kms: fix import operation

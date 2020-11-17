@@ -243,6 +243,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
 			},
 			"sharded": {
 				Type:     schema.TypeBool,
