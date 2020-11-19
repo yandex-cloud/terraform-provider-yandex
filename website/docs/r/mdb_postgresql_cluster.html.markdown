@@ -38,6 +38,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   user {
     name     = "user_name"
     password = "your_password"
+    conn_limit = 50
     permission {
       database_name = "db_name"
     }
@@ -193,6 +194,8 @@ The `user` block supports:
 * `login` - (Optional) User's ability to login.
 
 * `permission` - (Optional) Set of permissions granted to the user. The structure is documented below.
+
+* `conn_limit` - (Optional) The maximum number of connections per user. (Default 50)
 
 The `permission` block supports:
 

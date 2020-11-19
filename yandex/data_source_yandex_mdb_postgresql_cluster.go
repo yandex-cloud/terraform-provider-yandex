@@ -250,6 +250,10 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"conn_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			},

@@ -3,6 +3,8 @@
 BUG FIXES:
 * mdb: fix setting of folder_id field for MongoDB cluster
 
+ENHANCEMENTS:
+* mdb: add `conn_limit` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
 
 ## 0.47.0 (November 10, 2020)
 BUG FIXES:
