@@ -44,6 +44,7 @@ In addition to the arguments listed above, the following computed attributes are
 * `id` - Id of the Data Proc cluster.
 * `labels` - A set of key/value label pairs assigned to the Data Proc cluster.
 * `service_account_id` - Service account used by the Data Proc agent to access resources of Yandex.Cloud.
+* `ui_proxy` - Whether UI proxy feature is enabled.
 * `zone_id` - ID of the availability zone where the cluster resides.
 
 ---
