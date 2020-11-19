@@ -134,7 +134,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
-					testAccCheckUnmodifiedUserSettings(pgResource),
+					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
@@ -315,7 +315,7 @@ var testAccMDBPGClusterConfigUpdatedCheckConnLimitMap = map[string]int64{
 	"alice": 42,
 }
 
-func testAccCheckUnmodifiedUserSettings(r string) resource.TestCheckFunc {
+func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -594,10 +594,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   user {
-    name     = "alice"
-    password = "mysecurepassword"
-
-	conn_limit = 42
+    name       = "alice"
+    password   = "mysecurepassword"
+    conn_limit = 42
 
     permission {
       database_name = "testdb"
