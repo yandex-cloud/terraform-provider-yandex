@@ -598,6 +598,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     password   = "mysecurepassword"
     conn_limit = 42
 
+	conn_limit = 42
+
     permission {
       database_name = "testdb"
     }
