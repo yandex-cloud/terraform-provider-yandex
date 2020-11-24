@@ -3,6 +3,7 @@
 BUG FIXES:
 * mdb: fix setting of folder_id field for MongoDB cluster
 * dataproc: add documentation for the `ui_proxy` attribute
+* vpc: fix panic on reading `yandex_vpc_address` resource
 
 
 ## 0.47.0 (November 10, 2020)

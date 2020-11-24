@@ -16,8 +16,8 @@ func addressError(format string, a ...interface{}) error {
 	return fmt.Errorf("VPC address: "+format, a...)
 }
 
-func handleAddressNotFoundError(err error, d *schema.ResourceData) error {
-	return handleNotFoundError(err, d, fmt.Sprintf("VPC address %q", d.Get("id").(string)))
+func handleAddressNotFoundError(err error, d *schema.ResourceData, id string) error {
+	return handleNotFoundError(err, d, fmt.Sprintf("VPC address %q", id))
 }
 
 func resourceYandexVPCAddress() *schema.Resource {
@@ -119,7 +119,7 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 	address, err := config.sdk.VPC().Address().Get(ctx, req)
 
 	if err != nil {
-		return handleAddressNotFoundError(err, d)
+		return handleAddressNotFoundError(err, d, id)
 	}
 
 	createdAt, err := getTimestamp(address.GetCreatedAt())
@@ -286,7 +286,7 @@ func resourceYandexVPCAddressDelete(d *schema.ResourceData, meta interface{}) er
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Address().Delete(ctx, req))
 	if err != nil {
-		return handleAddressNotFoundError(err, d)
+		return handleAddressNotFoundError(err, d, d.Id())
 	}
 
 	err = op.Wait(ctx)
