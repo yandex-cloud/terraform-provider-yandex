@@ -489,7 +489,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -651,7 +651,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -735,7 +735,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -820,7 +820,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -908,7 +908,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -998,7 +998,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
     name        = "my-instance-{instance.index}"
     hostname    = "my-hostname-{instance.index}"
@@ -1137,7 +1137,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -1233,7 +1233,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -1334,7 +1334,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "gpu-standard-v1"
+    platform_id = "gpu-standard-v2"
     description = "template_description"
 
     resources {
@@ -1415,7 +1415,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -1499,7 +1499,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -1584,7 +1584,7 @@ resource "yandex_compute_instance_group" "group1" {
   folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
   service_account_id = "${yandex_iam_service_account.test_account.id}"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     description = "template_description"
 
     resources {
@@ -1793,7 +1793,7 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		if ig.GetInstanceTemplate() == nil {
 			return fmt.Errorf("no InstanceTemplate in instance group %s", ig.Name)
 		}
-		if ig.GetInstanceTemplate().PlatformId != "standard-v1" {
+		if ig.GetInstanceTemplate().PlatformId != "standard-v2" {
 			return fmt.Errorf("invalid PlatformId value in instance group %s", ig.Name)
 		}
 		if ig.GetInstanceTemplate().Description != "template_description" {

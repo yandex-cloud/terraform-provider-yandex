@@ -366,6 +366,7 @@ resource "yandex_compute_disk" "foo" {
 
 resource "yandex_compute_instance" "bar" {
   name = "%s"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2

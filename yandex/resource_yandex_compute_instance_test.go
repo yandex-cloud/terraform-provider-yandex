@@ -602,7 +602,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 4, 100, 4),
 				),
 			},
@@ -639,7 +639,7 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v1"),
+					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 				),
 			},
@@ -1376,6 +1376,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic"
+  platform_id = "standard-v2"
   zone        = "ru-central1-a"
 
   resources {
@@ -1474,6 +1475,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   hostname    = "%s"
+  platform_id = "standard-v2"
   description = "testAccComputeInstance_basic2"
   zone        = "ru-central1-a"
 
@@ -1517,6 +1519,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic3"
+  platform_id = "standard-v2"
   zone        = "ru-central1-a"
 
   resources {
@@ -1559,6 +1562,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic4"
+  platform_id = "standard-v2"
   zone        = "ru-central1-a"
 
   resources {
@@ -1601,6 +1605,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic5"
+  platform_id = "standard-v2"
   zone        = "ru-central1-a"
 
   resources {
@@ -1753,6 +1758,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -1795,6 +1801,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%[1]s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -1858,6 +1865,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%[1]s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -1946,6 +1954,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%[1]s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2006,6 +2015,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%[1]s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2093,6 +2103,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-c"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2141,6 +2152,7 @@ resource "yandex_compute_disk" "foobar" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2190,6 +2202,7 @@ resource "yandex_compute_disk" "foobar" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2238,6 +2251,7 @@ resource "yandex_compute_disk" "foobar" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2295,6 +2309,7 @@ resource "yandex_compute_disk" "foobar2" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2355,6 +2370,7 @@ resource "yandex_compute_disk" "foobar2" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2404,6 +2420,7 @@ resource "yandex_compute_disk" "foobar" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2438,6 +2455,7 @@ data "yandex_compute_image" "centos7" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2474,6 +2492,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2516,6 +2535,7 @@ resource "yandex_vpc_network" "inst-test-network" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   boot_disk {
     initialize_params {
@@ -2550,6 +2570,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2589,6 +2610,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2628,6 +2650,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2658,6 +2681,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2709,6 +2733,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-b"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2747,7 +2772,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   zone        = "ru-central1-b"
-  platform_id = "standard-v1"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2828,6 +2853,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
   zone = "ru-central1-b"
+  platform_id = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -2908,6 +2934,7 @@ resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic"
   zone        = "ru-central1-a"
+  platform_id = "standard-v2"
 
   resources {
     cores  = 2
@@ -2950,6 +2977,7 @@ resource "yandex_compute_instance" "foobar" {
   name               = "%s"
   description        = "testAccComputeInstance_basic"
   zone               = "ru-central1-a"
+  platform_id        = "standard-v2"
   service_account_id = "${yandex_iam_service_account.sa-test.id}"
 
   resources {
@@ -2998,6 +3026,7 @@ resource "yandex_compute_instance" "foobar" {
   name               = "%s"
   description        = "testAccComputeInstance_basic"
   zone               = "ru-central1-a"
+  platform_id        = "standard-v2"
 
   allow_stopping_for_update = true
 
@@ -3043,6 +3072,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name               = "%s"
   description        = "testAccComputeInstance_basic"
+  platform_id        = "standard-v2"
   zone               = "ru-central1-a"
 
   allow_stopping_for_update = true
@@ -3096,6 +3126,7 @@ resource "yandex_compute_instance" "foobar" {
   name               = "%s"
   description        = "testAccComputeInstance_basic"
   zone               = "ru-central1-c"
+  platform_id        = "standard-v2"
 
   resources {
     cores  = 2

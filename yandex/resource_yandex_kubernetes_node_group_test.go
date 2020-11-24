@@ -449,7 +449,7 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   }
 
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     nat = "true"
 
     resources {
@@ -535,7 +535,7 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.boot_disk.0.size", info.DiskSize),
 
-			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", "standard-v1"),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", "standard-v2"),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", tpl.GetPlatformId()),
 
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.nat", "true"),
