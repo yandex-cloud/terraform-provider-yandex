@@ -16,6 +16,8 @@ Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs
 
 ```hcl
 resource "yandex_storage_bucket" "test" {
+  access_key ="access_key_here"
+  secret_key ="secret_key_here"
   bucket = "tf-test-bucket"
 }
 ```
