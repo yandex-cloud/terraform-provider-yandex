@@ -134,7 +134,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
-					testAccCheckUnmodifiedUserSettings(pgResource),
+					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
@@ -311,8 +311,11 @@ func testAccCheckMDBPGClusterHasUsers(r string, perms map[string][]string) resou
 var defaultUserSettings = map[string]interface{}{
 	"conn_limit": int64(50),
 }
+var testAccMDBPGClusterConfigUpdatedCheckConnLimitMap = map[string]int64{
+	"alice": 42,
+}
 
-func testAccCheckUnmodifiedUserSettings(r string) resource.TestCheckFunc {
+func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -332,9 +335,16 @@ func testAccCheckUnmodifiedUserSettings(r string) resource.TestCheckFunc {
 		if err != nil {
 			return err
 		}
+
+		defaultConnLimit := defaultUserSettings["conn_limit"].(int64)
 		for _, user := range resp.Users {
-			defaultConnLimit := defaultUserSettings["conn_limit"].(int64)
-			if user.ConnLimit != defaultConnLimit {
+			v, ok := testAccMDBPGClusterConfigUpdatedCheckConnLimitMap[user.Name]
+			if ok {
+				if user.ConnLimit != v {
+					return fmt.Errorf("Field 'conn_limit' wasn`t changed for user %s with value %d ",
+						user.Name, user.ConnLimit)
+				}
+			} else if user.ConnLimit != defaultConnLimit {
 				return fmt.Errorf("Unmodified field 'conn_limit' was changed for user %s with value %d ",
 					user.Name, user.ConnLimit)
 			}
@@ -584,8 +594,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   user {
-    name     = "alice"
-    password = "mysecurepassword"
+    name       = "alice"
+    password   = "mysecurepassword"
+    conn_limit = 42
 
     permission {
       database_name = "testdb"

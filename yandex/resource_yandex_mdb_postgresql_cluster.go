@@ -226,6 +226,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"conn_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -865,6 +870,10 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 		"user.%d.permission": "permissions",
 		"user.%d.login":      "login",
 		"user.%d.grants":     "grants",
+	}
+
+	if user.user.ConnLimit != nil {
+		mdbPGUserUpdateFieldsMap["user.%d.conn_limit"] = "conn_limit"
 	}
 
 	onDone := []func(){}

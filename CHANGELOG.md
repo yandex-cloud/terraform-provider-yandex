@@ -5,6 +5,8 @@ BUG FIXES:
 * dataproc: add documentation for the `ui_proxy` attribute
 * vpc: fix panic on reading `yandex_vpc_address` resource
 
+ENHANCEMENTS:
+* mdb: add `conn_limit` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
 
 ## 0.47.0 (November 10, 2020)
 BUG FIXES:

@@ -130,6 +130,8 @@ func flattenPGUser(u *postgresql.User) (map[string]interface{}, error) {
 
 	m["grants"] = u.Grants
 
+	m["conn_limit"] = u.ConnLimit
+
 	return m, nil
 }
 
@@ -323,6 +325,13 @@ func expandPGUser(m map[string]interface{}) (*postgresql.UserSpec, error) {
 
 	if v, ok := m["login"]; ok {
 		user.Login = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := m["conn_limit"]; ok {
+		var connLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+		if connLimit.GetValue() > 0 {
+			user.ConnLimit = connLimit
+		}
 	}
 
 	if v, ok := m["permission"]; ok {
