@@ -122,6 +122,26 @@ func (m *NodeTemplate) SetSchedulingPolicy(v *SchedulingPolicy) {
 	m.SchedulingPolicy = v
 }
 
+func (m *NodeTemplate) SetNetworkInterfaceSpecs(v []*NetworkInterfaceSpec) {
+	m.NetworkInterfaceSpecs = v
+}
+
+func (m *NetworkInterfaceSpec) SetSubnetIds(v []string) {
+	m.SubnetIds = v
+}
+
+func (m *NetworkInterfaceSpec) SetPrimaryV4AddressSpec(v *NodeAddressSpec) {
+	m.PrimaryV4AddressSpec = v
+}
+
+func (m *NetworkInterfaceSpec) SetPrimaryV6AddressSpec(v *NodeAddressSpec) {
+	m.PrimaryV6AddressSpec = v
+}
+
+func (m *NetworkInterfaceSpec) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
 func (m *NodeAddressSpec) SetOneToOneNatSpec(v *OneToOneNatSpec) {
 	m.OneToOneNatSpec = v
 }

@@ -120,6 +120,10 @@ func (m *Master) SetMaintenancePolicy(v *MasterMaintenancePolicy) {
 	m.MaintenancePolicy = v
 }
 
+func (m *Master) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
 func (m *MasterAuth) SetClusterCaCertificate(v string) {
 	m.ClusterCaCertificate = v
 }
@@ -166,6 +170,14 @@ func (m *IPAllocationPolicy) SetNodeIpv4CidrMaskSize(v int64) {
 
 func (m *IPAllocationPolicy) SetServiceIpv4CidrBlock(v string) {
 	m.ServiceIpv4CidrBlock = v
+}
+
+func (m *IPAllocationPolicy) SetClusterIpv6CidrBlock(v string) {
+	m.ClusterIpv6CidrBlock = v
+}
+
+func (m *IPAllocationPolicy) SetServiceIpv6CidrBlock(v string) {
+	m.ServiceIpv6CidrBlock = v
 }
 
 func (m *MasterMaintenancePolicy) SetAutoUpgrade(v bool) {

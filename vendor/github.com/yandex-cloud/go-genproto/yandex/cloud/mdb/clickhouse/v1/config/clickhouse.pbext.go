@@ -30,6 +30,14 @@ func (m *ClickhouseConfig) SetKafka(v *ClickhouseConfig_Kafka) {
 	m.Kafka = v
 }
 
+func (m *ClickhouseConfig) SetKafkaTopics(v []*ClickhouseConfig_KafkaTopic) {
+	m.KafkaTopics = v
+}
+
+func (m *ClickhouseConfig) SetRabbitmq(v *ClickhouseConfig_Rabbitmq) {
+	m.Rabbitmq = v
+}
+
 func (m *ClickhouseConfig) SetMaxConnections(v *wrappers.Int64Value) {
 	m.MaxConnections = v
 }
@@ -188,6 +196,22 @@ func (m *ClickhouseConfig_Kafka) SetSaslUsername(v string) {
 
 func (m *ClickhouseConfig_Kafka) SetSaslPassword(v string) {
 	m.SaslPassword = v
+}
+
+func (m *ClickhouseConfig_KafkaTopic) SetName(v string) {
+	m.Name = v
+}
+
+func (m *ClickhouseConfig_KafkaTopic) SetSettings(v *ClickhouseConfig_Kafka) {
+	m.Settings = v
+}
+
+func (m *ClickhouseConfig_Rabbitmq) SetUsername(v string) {
+	m.Username = v
+}
+
+func (m *ClickhouseConfig_Rabbitmq) SetPassword(v string) {
+	m.Password = v
 }
 
 func (m *ClickhouseConfig_Compression) SetMethod(v ClickhouseConfig_Compression_Method) {

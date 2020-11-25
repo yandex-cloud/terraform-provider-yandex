@@ -115,6 +115,10 @@ func (m *MasterUpdateSpec) SetMaintenancePolicy(v *MasterMaintenancePolicy) {
 	m.MaintenancePolicy = v
 }
 
+func (m *MasterUpdateSpec) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
+}
+
 func (m *UpdateClusterMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -279,6 +283,10 @@ func (m *MasterSpec) SetVersion(v string) {
 
 func (m *MasterSpec) SetMaintenancePolicy(v *MasterMaintenancePolicy) {
 	m.MaintenancePolicy = v
+}
+
+func (m *MasterSpec) SetSecurityGroupIds(v []string) {
+	m.SecurityGroupIds = v
 }
 
 func (m *ZonalMasterSpec) SetZoneId(v string) {

@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	mysql "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -126,6 +127,30 @@ func (r *mySQLClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...
 	}
 
 	resp, err := sdk.MDB().MySQL().Cluster().List(ctx, &mysql.ListClustersRequest{
+		FolderId: r.FolderID(),
+		Filter:   CreateResolverFilter("name", r.Name),
+		PageSize: DefaultResolverPageSize,
+	})
+	return r.findName(resp.GetClusters(), err)
+}
+
+func KafkaClusterResolver(name string, opts ...ResolveOption) ycsdk.Resolver {
+	return &kafkaClusterResolver{
+		BaseNameResolver: NewBaseNameResolver(name, "cluster", opts...),
+	}
+}
+
+type kafkaClusterResolver struct {
+	BaseNameResolver
+}
+
+func (r *kafkaClusterResolver) Run(ctx context.Context, sdk *ycsdk.SDK, opts ...grpc.CallOption) error {
+	err := r.ensureFolderID()
+	if err != nil {
+		return err
+	}
+
+	resp, err := sdk.MDB().Kafka().Cluster().List(ctx, &kafka.ListClustersRequest{
 		FolderId: r.FolderID(),
 		Filter:   CreateResolverFilter("name", r.Name),
 		PageSize: DefaultResolverPageSize,

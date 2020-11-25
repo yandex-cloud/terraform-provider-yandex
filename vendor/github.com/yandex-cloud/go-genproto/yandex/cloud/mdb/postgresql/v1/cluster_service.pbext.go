@@ -331,6 +331,10 @@ func (m *StreamClusterLogsRequest) SetRecordToken(v string) {
 	m.RecordToken = v
 }
 
+func (m *StreamClusterLogsRequest) SetFilter(v string) {
+	m.Filter = v
+}
+
 func (m *ListClusterOperationsRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -513,9 +517,21 @@ func (m *ConfigSpec) SetPostgresqlConfig_11(v *config.PostgresqlConfig11) {
 	}
 }
 
+func (m *ConfigSpec) SetPostgresqlConfig_11_1C(v *config.PostgresqlConfig11_1C) {
+	m.PostgresqlConfig = &ConfigSpec_PostgresqlConfig_11_1C{
+		PostgresqlConfig_11_1C: v,
+	}
+}
+
 func (m *ConfigSpec) SetPostgresqlConfig_12(v *config.PostgresqlConfig12) {
 	m.PostgresqlConfig = &ConfigSpec_PostgresqlConfig_12{
 		PostgresqlConfig_12: v,
+	}
+}
+
+func (m *ConfigSpec) SetPostgresqlConfig_12_1C(v *config.PostgresqlConfig12_1C) {
+	m.PostgresqlConfig = &ConfigSpec_PostgresqlConfig_12_1C{
+		PostgresqlConfig_12_1C: v,
 	}
 }
 
@@ -537,6 +553,10 @@ func (m *ConfigSpec) SetBackupWindowStart(v *timeofday.TimeOfDay) {
 
 func (m *ConfigSpec) SetAccess(v *Access) {
 	m.Access = v
+}
+
+func (m *ConfigSpec) SetPerformanceDiagnostics(v *PerformanceDiagnostics) {
+	m.PerformanceDiagnostics = v
 }
 
 type ConfigHostSpec_PostgresqlConfig = isConfigHostSpec_PostgresqlConfig
@@ -569,8 +589,20 @@ func (m *ConfigHostSpec) SetPostgresqlConfig_11(v *config.PostgresqlHostConfig11
 	}
 }
 
+func (m *ConfigHostSpec) SetPostgresqlConfig_11_1C(v *config.PostgresqlHostConfig11_1C) {
+	m.PostgresqlConfig = &ConfigHostSpec_PostgresqlConfig_11_1C{
+		PostgresqlConfig_11_1C: v,
+	}
+}
+
 func (m *ConfigHostSpec) SetPostgresqlConfig_12(v *config.PostgresqlHostConfig12) {
 	m.PostgresqlConfig = &ConfigHostSpec_PostgresqlConfig_12{
 		PostgresqlConfig_12: v,
+	}
+}
+
+func (m *ConfigHostSpec) SetPostgresqlConfig_12_1C(v *config.PostgresqlHostConfig12_1C) {
+	m.PostgresqlConfig = &ConfigHostSpec_PostgresqlConfig_12_1C{
+		PostgresqlConfig_12_1C: v,
 	}
 }

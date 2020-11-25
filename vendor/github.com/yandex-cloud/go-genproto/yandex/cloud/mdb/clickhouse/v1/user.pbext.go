@@ -378,6 +378,18 @@ func (m *UserSettings) SetEmptyResultForAggregationByEmptySet(v *wrappers.BoolVa
 	m.EmptyResultForAggregationByEmptySet = v
 }
 
+func (m *UserSettings) SetJoinedSubqueryRequiresAlias(v *wrappers.BoolValue) {
+	m.JoinedSubqueryRequiresAlias = v
+}
+
+func (m *UserSettings) SetJoinUseNulls(v *wrappers.BoolValue) {
+	m.JoinUseNulls = v
+}
+
+func (m *UserSettings) SetTransformNullIn(v *wrappers.BoolValue) {
+	m.TransformNullIn = v
+}
+
 func (m *UserSettings) SetHttpConnectionTimeout(v *wrappers.Int64Value) {
 	m.HttpConnectionTimeout = v
 }

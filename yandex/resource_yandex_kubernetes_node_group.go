@@ -959,7 +959,7 @@ func resourceYandexKubernetesNodeGroupDelete(d *schema.ResourceData, meta interf
 func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]interface{} {
 	tpl := map[string]interface{}{
 		"platform_id":       ngTpl.GetPlatformId(),
-		"nat":               ngTpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4,
+		"nat":               ngTpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4, //nolint
 		"resources":         flattenKubernetesNodeGroupTemplateResources(ngTpl.GetResourcesSpec()),
 		"boot_disk":         flattenKubernetesNodeGroupTemplateBootDisk(ngTpl.GetBootDiskSpec()),
 		"metadata":          ngTpl.GetMetadata(),

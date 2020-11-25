@@ -310,6 +310,10 @@ func (m *StreamClusterLogsRequest) SetRecordToken(v string) {
 	m.RecordToken = v
 }
 
+func (m *StreamClusterLogsRequest) SetFilter(v string) {
+	m.Filter = v
+}
+
 func (m *ListClusterOperationsRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

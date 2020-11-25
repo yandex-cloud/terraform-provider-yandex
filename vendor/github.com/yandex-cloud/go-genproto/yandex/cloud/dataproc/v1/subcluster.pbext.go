@@ -31,6 +31,10 @@ func (m *AutoscalingConfig) SetCpuUtilizationTarget(v float64) {
 	m.CpuUtilizationTarget = v
 }
 
+func (m *AutoscalingConfig) SetDecommissionTimeout(v int64) {
+	m.DecommissionTimeout = v
+}
+
 func (m *Subcluster) SetId(v string) {
 	m.Id = v
 }

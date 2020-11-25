@@ -37,3 +37,8 @@ func (c *ContainerRegistry) Image() *ImageServiceClient {
 func (c *ContainerRegistry) LifecyclePolicy() *LifecyclePolicyServiceClient {
 	return &LifecyclePolicyServiceClient{getConn: c.getConn}
 }
+
+// Scanner gets ScannerService client
+func (c *ContainerRegistry) Scanner() *ScannerServiceClient {
+	return &ScannerServiceClient{getConn: c.getConn}
+}

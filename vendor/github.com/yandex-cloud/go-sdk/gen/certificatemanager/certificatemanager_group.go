@@ -22,8 +22,3 @@ func NewCertificateManager(g func(ctx context.Context) (*grpc.ClientConn, error)
 func (c *CertificateManager) Certificate() *CertificateServiceClient {
 	return &CertificateServiceClient{getConn: c.getConn}
 }
-
-// CertificateContent gets CertificateContentService client
-func (c *CertificateManager) CertificateContent() *CertificateContentServiceClient {
-	return &CertificateContentServiceClient{getConn: c.getConn}
-}

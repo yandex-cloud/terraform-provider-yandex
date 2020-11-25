@@ -5,6 +5,7 @@ package ycsdk
 
 import (
 	"github.com/yandex-cloud/go-sdk/gen/mdb/clickhouse"
+	"github.com/yandex-cloud/go-sdk/gen/mdb/kafka"
 	"github.com/yandex-cloud/go-sdk/gen/mdb/mongodb"
 	"github.com/yandex-cloud/go-sdk/gen/mdb/mysql"
 	"github.com/yandex-cloud/go-sdk/gen/mdb/postgresql"
@@ -17,6 +18,7 @@ const (
 	MDBPostgreSQLServiceID Endpoint = "managed-postgresql"
 	MDBRedisServiceID      Endpoint = "managed-redis"
 	MDBMySQLServiceID      Endpoint = "managed-mysql"
+	MDBKafkaServiceID      Endpoint = "managed-kafka"
 )
 
 type MDB struct {
@@ -37,6 +39,10 @@ func (m *MDB) Clickhouse() *clickhouse.Clickhouse {
 
 func (m *MDB) Redis() *redis.Redis {
 	return redis.NewRedis(m.sdk.getConn(MDBRedisServiceID))
+}
+
+func (m *MDB) Kafka() *kafka.Kafka {
+	return kafka.NewKafka(m.sdk.getConn(MDBKafkaServiceID))
 }
 
 func (m *MDB) MySQL() *mysql.MySQL {

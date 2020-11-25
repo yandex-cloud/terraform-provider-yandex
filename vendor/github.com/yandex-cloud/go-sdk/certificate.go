@@ -2,12 +2,18 @@ package ycsdk
 
 import (
 	"github.com/yandex-cloud/go-sdk/gen/certificatemanager"
+	certificatemanagerdata "github.com/yandex-cloud/go-sdk/gen/certificatemanagerdata"
 )
 
 const (
-	CertificateServiceID = "certificate-manager"
+	CertificateManagerID     = "certificate-manager"
+	CertificateManagerDataID = "certificate-manager-data"
 )
 
 func (sdk *SDK) Certificates() *certificatemanager.CertificateManager {
-	return certificatemanager.NewCertificateManager(sdk.getConn(CertificateServiceID))
+	return certificatemanager.NewCertificateManager(sdk.getConn(CertificateManagerID))
+}
+
+func (sdk *SDK) CertificatesData() *certificatemanagerdata.CertificateManagerData {
+	return certificatemanagerdata.NewCertificateManagerData(sdk.getConn(CertificateManagerDataID))
 }

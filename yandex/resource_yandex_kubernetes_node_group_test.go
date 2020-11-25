@@ -540,7 +540,7 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.nat", "true"),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.nat",
-				strconv.FormatBool(tpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4)),
+				strconv.FormatBool(tpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4)), //nolint
 
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible", info.Preemptible),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible",
