@@ -90,6 +90,7 @@ The `user` block supports:
 * `login` - User's ability to login.
 * `grants` - List of the user's grants.
 * `conn_limit` - The maximum number of connections per user.
+* `settings` - Map of user settings.
 
 The `permission` block supports:
 
