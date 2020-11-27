@@ -136,6 +136,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
+					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
 			},
@@ -347,6 +348,45 @@ func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 			} else if user.ConnLimit != defaultConnLimit {
 				return fmt.Errorf("Unmodified field 'conn_limit' was changed for user %s with value %d ",
 					user.Name, user.ConnLimit)
+			}
+		}
+		return nil
+	}
+}
+
+var testAccMDBPGClusterConfigUpdatedCheckSettingsDefTranIsolLevelMap = map[string]int32{
+	"alice": 1,
+	"bob":   1,
+}
+
+func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		for _, user := range resp.Users {
+			v, ok := testAccMDBPGClusterConfigUpdatedCheckSettingsDefTranIsolLevelMap[user.Name]
+			if ok {
+				if int32(user.Settings.DefaultTransactionIsolation) != v {
+					return fmt.Errorf("Field 'settings.default_transaction_isolation' wasn`t changed for user %s with value %d ",
+						user.Name, user.ConnLimit)
+				}
 			}
 		}
 		return nil
@@ -604,7 +644,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     permission {
       database_name = "newdb"
-    }
+	}
+
+	settings = {
+		default_transaction_isolation = "read uncommitted"
+	}
   }
 
   user {
@@ -617,7 +661,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     permission {
       database_name = "fornewuserdb"
-    }
+	}
+	
+	settings = {
+		default_transaction_isolation = "read committed"
+	}
   }
 
   host {

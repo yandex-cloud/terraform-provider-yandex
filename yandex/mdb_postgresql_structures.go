@@ -98,11 +98,13 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	return []interface{}{out}, nil
 }
 
-func flattenPGUsers(us []*postgresql.User, passwords map[string]string) ([]map[string]interface{}, error) {
+func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
+	fai *objectFieldsAdditionalInfo) ([]map[string]interface{}, error) {
+
 	out := make([]map[string]interface{}, 0)
 
 	for _, u := range us {
-		ou, err := flattenPGUser(u)
+		ou, err := flattenPGUser(u, fai)
 		if err != nil {
 			return nil, err
 		}
@@ -117,7 +119,9 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string) ([]map[s
 	return out, nil
 }
 
-func flattenPGUser(u *postgresql.User) (map[string]interface{}, error) {
+func flattenPGUser(u *postgresql.User,
+	fai *objectFieldsAdditionalInfo) (map[string]interface{}, error) {
+
 	m := map[string]interface{}{}
 	m["name"] = u.Name
 	m["login"] = u.GetLogin().GetValue()
@@ -131,6 +135,12 @@ func flattenPGUser(u *postgresql.User) (map[string]interface{}, error) {
 	m["grants"] = u.Grants
 
 	m["conn_limit"] = u.ConnLimit
+
+	settings, err := flattenResourceGenerateMapS(u.Settings, false, fai, false, true)
+	if err != nil {
+		return nil, err
+	}
+	m["settings"] = settings
 
 	return m, nil
 }
@@ -296,12 +306,10 @@ func expandPGResources(d *schema.ResourceData) (*postgresql.Resources, error) {
 
 func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
 	out := []*postgresql.UserSpec{}
-	users := d.Get("user").([]interface{})
 
-	for _, u := range users {
-		m := u.(map[string]interface{})
-
-		user, err := expandPGUser(m)
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		user, err := expandPGUserRD(d, fmt.Sprintf("user.%v.", i))
 		if err != nil {
 			return nil, err
 		}
@@ -312,29 +320,71 @@ func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
 	return out, nil
 }
 
-func expandPGUser(m map[string]interface{}) (*postgresql.UserSpec, error) {
-	user := &postgresql.UserSpec{}
-
-	if v, ok := m["name"]; ok {
-		user.Name = v.(string)
+// pgUserNew get users for create
+func pgUserNew(d *schema.ResourceData, currUsers []*postgresql.User) (create []*postgresql.UserSpec, err error) {
+	cUser := make(map[string]struct{})
+	for _, v := range currUsers {
+		cUser[v.Name] = struct{}{}
 	}
+	create = make([]*postgresql.UserSpec, 0)
 
-	if v, ok := m["password"]; ok {
-		user.Password = v.(string)
-	}
-
-	if v, ok := m["login"]; ok {
-		user.Login = &wrappers.BoolValue{Value: v.(bool)}
-	}
-
-	if v, ok := m["conn_limit"]; ok {
-		var connLimit = &wrappers.Int64Value{Value: int64(v.(int))}
-		if connLimit.GetValue() > 0 {
-			user.ConnLimit = connLimit
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		_, ok := cUser[d.Get(fmt.Sprintf("user.%v.name", i)).(string)]
+		if !ok {
+			user, err := expandPGUserRD(d, fmt.Sprintf("user.%v.", i))
+			if err != nil {
+				return nil, err
+			}
+			user.Grants = make([]string, 0)
+			user.Permissions = make([]*postgresql.Permission, 0)
+			create = append(create, user)
 		}
 	}
 
-	if v, ok := m["permission"]; ok {
+	return create, nil
+}
+
+// expandPGUserRD expand to new object from schema.ResourceData
+// path like "user.3."
+func expandPGUserRD(d *schema.ResourceData, path string) (*postgresql.UserSpec, error) {
+	return expandPGUserORD(d, &postgresql.UserSpec{}, path)
+}
+
+// expandPGUserURD expand from postgresql.User from schema.ResourceData
+// path like "user.3."
+func expandPGUserURD(d *schema.ResourceData, user *postgresql.User, path string) (*postgresql.UserSpec, error) {
+	return expandPGUserORD(d, &postgresql.UserSpec{
+		Name:        user.Name,
+		Permissions: user.Permissions,
+		ConnLimit:   &wrappers.Int64Value{Value: user.ConnLimit},
+		Settings:    user.Settings,
+		Login:       user.Login,
+		Grants:      user.Grants,
+	}, path)
+}
+
+// expandPGUserORD expand to exists object from schema.ResourceData
+// path like "user.3."
+func expandPGUserORD(d *schema.ResourceData, user *postgresql.UserSpec, path string) (*postgresql.UserSpec, error) {
+
+	if v, ok := d.GetOkExists(path + "name"); ok {
+		user.Name = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "password"); ok {
+		user.Password = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "login"); ok {
+		user.Login = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := d.GetOkExists(path + "conn_limit"); ok {
+		user.ConnLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOkExists(path + "permission"); ok {
 		permissions, err := expandPGUserPermissions(v.(*schema.Set))
 		if err != nil {
 			return nil, err
@@ -342,12 +392,24 @@ func expandPGUser(m map[string]interface{}) (*postgresql.UserSpec, error) {
 		user.Permissions = permissions
 	}
 
-	if v, ok := m["grants"]; ok {
+	if v, ok := d.GetOkExists(path + "grants"); ok {
 		gs, err := expandPGUserGrants(v.([]interface{}))
 		if err != nil {
 			return nil, err
 		}
 		user.Grants = gs
+	}
+
+	if _, ok := d.GetOkExists(path + "settings"); ok {
+		if user.Settings == nil {
+			user.Settings = &postgresql.UserSettings{}
+		}
+
+		err := expandResourceGenerateD(d, user.Settings, path+"settings.", mdbPGUserSettingsFieldsInfo, true)
+		if err != nil {
+			return nil, err
+		}
+
 	}
 
 	return user, nil
@@ -552,47 +614,6 @@ func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpe
 	return toDel, toAdd
 }
 
-type IndexedUserSpec struct {
-	index int
-	user  *postgresql.UserSpec
-}
-
-func pgChangedUsers(oldSpecs []interface{}, newSpecs []interface{}, withNewPermissions bool) ([]IndexedUserSpec, error) {
-	out := make([]IndexedUserSpec, 0)
-
-	m := map[string]*postgresql.UserSpec{}
-	permissions := map[string]interface{}{}
-	for _, spec := range oldSpecs {
-		mapOldUser := spec.(map[string]interface{})
-		user, err := expandPGUser(mapOldUser)
-		if err != nil {
-			return nil, err
-		}
-		m[user.Name] = user
-		permissions[user.Name] = mapOldUser["permission"]
-	}
-
-	for i, spec := range newSpecs {
-		mapUser := spec.(map[string]interface{})
-		newUser, err := expandPGUser(mapUser)
-		if err != nil {
-			return nil, err
-		}
-		if oldUser, ok := m[newUser.Name]; ok {
-			if !withNewPermissions {
-				newUser.Permissions = oldUser.Permissions
-			}
-			if !reflect.DeepEqual(newUser, oldUser) {
-				out = append(out, IndexedUserSpec{i, newUser})
-			}
-		} else if withNewPermissions {
-			out = append(out, IndexedUserSpec{i, newUser})
-		}
-	}
-
-	return out, nil
-}
-
 func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.DatabaseSpec) ([]string, []*postgresql.DatabaseSpec) {
 	m := map[string]bool{}
 	toAdd := []*postgresql.DatabaseSpec{}
@@ -686,3 +707,36 @@ func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_Poo
 
 	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
 }
+
+var mdbPGUserSettingsTransactionIsolationName = map[int]string{
+	0: "unspecified",
+	1: "read uncommitted",
+	2: "read committed",
+	3: "repeatable read",
+	4: "serializable",
+}
+var mdbPGUserSettingsSynchronousCommitName = map[int]string{
+	0: "unspecified",
+	1: "on",
+	2: "off",
+	3: "local",
+	4: "remote write",
+	5: "remote apply",
+}
+var mdbPGUserSettingsLogStatementName = map[int]string{
+	0: "unspecified",
+	1: "none",
+	2: "ddl",
+	3: "mod",
+	4: "all",
+}
+
+var mdbPGUserSettingsFieldsInfo = makeObjectFieldsAdditionalInfo().
+	updFromType(postgresql.UserSettings{}).
+	addIDefault("log_min_duration_statement", -1).
+	addEnum2("default_transaction_isolation", mdbPGUserSettingsTransactionIsolationName,
+		postgresql.UserSettings_TransactionIsolation_name).
+	addEnum2("synchronous_commit", mdbPGUserSettingsSynchronousCommitName,
+		postgresql.UserSettings_SynchronousCommit_name).
+	addEnum2("log_statement", mdbPGUserSettingsLogStatementName,
+		postgresql.UserSettings_LogStatement_name)
