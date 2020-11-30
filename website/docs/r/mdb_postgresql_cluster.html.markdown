@@ -42,6 +42,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     permission {
       database_name = "db_name"
     }
+    settings = {
+      default_transaction_isolation = "read committed"
+      log_min_duration_statement = 45      
+    }
   }
 
   host {
@@ -197,9 +201,42 @@ The `user` block supports:
 
 * `conn_limit` - (Optional) The maximum number of connections per user. (Default 50)
 
+* `settings` - (Optional) Map of user settings. List of settings is documented below.
+
 The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
+
+The `settings` block supports:
+Full description https://cloud.yandex.com/docs/managed-postgresql/grpc/user_service#UserSettings  
+
+* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. 
+* * 0: "unspecified"
+* * 1: "read uncommitted"
+* * 2: "read committed"
+* * 3: "repeatable read"
+* * 4: "serializable"
+
+* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)
+
+* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)
+
+* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way.
+* * 0: "unspecified"
+* * 1: "on"
+* * 2: "off"
+* * 3: "local"
+* * 4: "remote write"
+* * 5: "remote apply"
+
+* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
+
+* `log_statement` - This setting specifies which SQL statements should be logged (on the user level).
+* * 0: "unspecified"
+* * 1: "none"
+* * 2: "ddl"
+* * 3: "mod"
+* * 4: "all"
 
 The `database` block supports:
 
