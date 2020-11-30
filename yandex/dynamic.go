@@ -32,46 +32,6 @@ func FindTag(f reflect.StructField, tagName, name string) (string, bool) {
 	return "", false
 }
 
-func setValueIntByProtoName(rv reflect.Value, name string, v *int) error {
-
-	if rv.Kind() == reflect.Struct {
-		for i := 0; i < rv.NumField(); i++ {
-			tg, okTg := FindTag(rv.Type().Field(i), "protobuf", "name")
-
-			if okTg && tg == name {
-
-				switch rv.Type().Field(i).Type.Kind() {
-				case reflect.Int32, reflect.Int64, reflect.Int, reflect.Int8, reflect.Int16:
-					rv.Field(i).SetInt(int64(*v))
-					return nil
-				case reflect.Ptr:
-					if rv.Field(i).Type() == wrapperspbInt64Value() {
-						if v == nil {
-							var w *wrappers.Int64Value
-							rv.Field(i).Set(reflect.ValueOf(w))
-							return nil
-						}
-
-						w := wrappers.Int64Value{
-							Value: int64(*v),
-						}
-						rv.Field(i).Set(reflect.ValueOf(&w))
-						return nil
-
-					}
-					return fmt.Errorf("setValueInt type ptr not implement")
-				default:
-					return fmt.Errorf("setValueInt type not implement")
-				}
-			}
-		}
-	} else if rv.Kind() == reflect.Ptr {
-		return setValueIntByProtoName(rv.Elem(), name, v)
-	}
-
-	return fmt.Errorf("setValueInt field not found: " + name)
-}
-
 func setValueToReflect(rv reflect.Value, name string, v *int) error {
 
 	f := rv.FieldByName(name)
@@ -124,65 +84,6 @@ func getValueFromReflect(rv reflect.Value, name string) (interface{}, error) {
 		return nil, fmt.Errorf("getValueFromReflect: type ptr not implement")
 	default:
 		return nil, fmt.Errorf("getValueFromReflect type not implement")
-	}
-}
-
-func fieldResourceGenerate(v interface{}, fai *objectFieldsAdditionalInfo) map[string]*schema.Schema {
-	return fieldResourceGenerateReflect(reflect.TypeOf(v), fai)
-}
-
-func fieldResourceGenerateReflect(t reflect.Type, fai *objectFieldsAdditionalInfo) map[string]*schema.Schema {
-	res := make(map[string]*schema.Schema)
-
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-
-		tg, okTg := FindTag(f, "protobuf", "name")
-
-		if okTg {
-			if !fai.skip(tg) {
-				if f.Type.Kind() == reflect.Int32 || f.Type == wrapperspbInt64Value() {
-					if fai.isIStringable(tg) {
-						res[tg] = &schema.Schema{
-							Type:             schema.TypeString,
-							Optional:         true,
-							Computed:         true,
-							DiffSuppressFunc: generateISchemaDiffSuppressFunc(fai, tg),
-						}
-					} else {
-						res[tg] = &schema.Schema{
-							Type:             schema.TypeInt,
-							Optional:         true,
-							Computed:         true,
-							DiffSuppressFunc: generateISchemaDiffSuppressFunc(fai, tg),
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return res
-}
-
-func generateISchemaDiffSuppressFunc(fai *objectFieldsAdditionalInfo, field string) func(k, old, new string, d *schema.ResourceData) bool {
-	return func(k, old, new string, d *schema.ResourceData) bool {
-		vOld, err := fai.iToInt(field, old)
-		if err != nil {
-			return false
-		}
-		vNew, err := fai.iToInt(field, new)
-		if err != nil {
-			return false
-		}
-		if vOld == nil && vNew == nil {
-			return true
-		}
-		if vNew == nil {
-			return true
-		}
-
-		return vOld != nil && vNew != nil && *vOld == *vNew
 	}
 }
 
@@ -256,36 +157,6 @@ func wrapperspbInt64Value() reflect.Type {
 	return reflect.TypeOf(&wrappers.Int64Value{})
 }
 
-func flattenResourceGenerateSet(v interface{}, includeNil bool,
-	fai *objectFieldsAdditionalInfo, useDefault bool, collapseDefault bool) (*schema.Set, error) {
-
-	m, err := flattenResourceGenerate(v, includeNil, fai, useDefault, collapseDefault)
-	if err != nil {
-		return nil, err
-	}
-
-	out := schema.NewSet(func(v interface{}) int { return 1 }, nil)
-	if m != nil {
-		out.Add(m)
-	}
-	return out, nil
-}
-
-func flattenResourceGenerateList(v interface{}, includeNil bool,
-	fai *objectFieldsAdditionalInfo, useDefault bool, collapseDefault bool) ([]map[string]interface{}, error) {
-
-	m, err := flattenResourceGenerate(v, includeNil, fai, useDefault, collapseDefault)
-	if err != nil {
-		return nil, err
-	}
-
-	if m != nil && len(m) > 0 {
-		out := make([]map[string]interface{}, 0, 1)
-		out = append(out, m)
-		return out, nil
-	}
-	return nil, nil
-}
 func flattenResourceGenerateMapS(v interface{}, includeNil bool,
 	fai *objectFieldsAdditionalInfo, useDefault bool, collapseDefault bool) (map[string]string, error) {
 
@@ -294,7 +165,7 @@ func flattenResourceGenerateMapS(v interface{}, includeNil bool,
 		return nil, err
 	}
 
-	if m != nil && len(m) > 0 {
+	if len(m) > 0 {
 		out := make(map[string]string)
 
 		for k, v := range m {
@@ -373,71 +244,6 @@ func flattenResourceGenerateReflect(rv reflect.Value, includeNil bool,
 	}
 
 	return res, nil
-}
-
-func expandResourceGenerate(v interface{}, src map[string]interface{}) error {
-	rv := reflect.ValueOf(v)
-
-	return expandResourceGenerateReflect(rv, src)
-}
-
-func expandResourceGenerateReflect(rv reflect.Value, src map[string]interface{}) error {
-
-	if rv.Kind() == reflect.Ptr {
-		return expandResourceGenerateReflect(rv.Elem(), src)
-	}
-	t := rv.Type()
-
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-
-		tg, okTg := FindTag(f, "protobuf", "name")
-
-		if okTg {
-			if f.Type == wrapperspbInt64Value() {
-				vSrc, ok := src[tg]
-				if ok {
-					vSrcInt, ok := vSrc.(int)
-					if ok {
-						err := setValueToReflect(rv, f.Name, &vSrcInt)
-						if err != nil {
-							return err
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-func expandResourceGenerateSrcListInt(v interface{}, src interface{}) error {
-
-	if src == nil {
-		return nil
-	}
-	if v == nil {
-		return nil
-	}
-
-	srcL, ok := src.([]interface{})
-	if !ok {
-		return fmt.Errorf("expandResourceGenerateSrcListInt: type is not []interface{} %v", reflect.TypeOf(src))
-	}
-
-	if len(srcL) == 0 {
-		return nil
-	}
-
-	srcM, ok := srcL[0].(map[string]interface{})
-
-	if !ok {
-		return fmt.Errorf("expandResourceGenerateSrcListInt: type is not map[string]interface{}")
-	}
-
-	return expandResourceGenerate(v, srcM)
-
 }
 
 func expandResourceGenerateDReflect(rv reflect.Value, d *schema.ResourceData, path string, fai *objectFieldsAdditionalInfo, skipNil bool) error {

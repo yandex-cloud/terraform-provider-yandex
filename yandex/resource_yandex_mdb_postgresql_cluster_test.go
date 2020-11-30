@@ -136,7 +136,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
-					testAccCheckConnLimitUpdateUserSettings(pgResource),
+					testAccCheckSettingsUpdateUserSettings(pgResource),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
 			},
@@ -356,7 +356,7 @@ func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 
 var testAccMDBPGClusterConfigUpdatedCheckSettingsDefTranIsolLevelMap = map[string]int32{
 	"alice": 1,
-	"bob":   1,
+	"bob":   2,
 }
 
 func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
@@ -385,7 +385,7 @@ func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
 			if ok {
 				if int32(user.Settings.DefaultTransactionIsolation) != v {
 					return fmt.Errorf("Field 'settings.default_transaction_isolation' wasn`t changed for user %s with value %d ",
-						user.Name, user.ConnLimit)
+						user.Name, user.Settings.DefaultTransactionIsolation)
 				}
 			}
 		}

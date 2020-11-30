@@ -212,37 +212,9 @@ func (of *objectFieldsAdditionalInfo) updFromType(v interface{}) *objectFieldsAd
 	return of
 }
 
-func (of *objectFieldsAdditionalInfo) addField(field string, fai fieldAdditionalInfo) *objectFieldsAdditionalInfo {
-
-	of.fields[field] = fai
-
-	return of
-}
-
-func (of *objectFieldsAdditionalInfo) addSkip(field string) *objectFieldsAdditionalInfo {
-
-	of.fields[field] = fieldAdditionalInfo{skip: true}
-
-	return of
-}
 func (of *objectFieldsAdditionalInfo) addIDefault(field string, def int) *objectFieldsAdditionalInfo {
 
 	of.fields[field] = fieldAdditionalInfo{iDefaultValue: &def}
-
-	return of
-}
-
-// default value is 0
-func (of *objectFieldsAdditionalInfo) addEnum(field string, values map[int]string) *objectFieldsAdditionalInfo {
-
-	def := 0
-	of.fields[field] = fieldAdditionalInfo{
-		iDefaultValue: &def,
-		iToString:     makeIToString(values, def),
-		iToInt:        makeIToInt(values, &def),
-		isIStringable: true,
-		isNotNullable: true,
-	}
 
 	return of
 }
@@ -281,28 +253,7 @@ func makeIToString(values map[int]string, defV int) func(*int) (string, error) {
 		return out, nil
 	}
 }
-func makeIToInt(values map[int]string, defV *int) func(string) (*int, error) {
 
-	valuesBack := make(map[string]int)
-	for k, v := range values {
-		valuesBack[v] = k
-	}
-
-	return func(s string) (*int, error) {
-		if s == "" {
-			return defV, nil
-		}
-		out, ok := valuesBack[s]
-		if !ok {
-			i, err := strconv.Atoi(s)
-			if err == nil {
-				return &i, nil
-			}
-			return nil, fmt.Errorf("Value %v is not in enum", s)
-		}
-		return &out, nil
-	}
-}
 func makeIToInt2(values map[int]string, values2 map[int]string, defV *int) func(string) (*int, error) {
 
 	valuesBack := make(map[string]int)

@@ -589,31 +589,6 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 	return out
 }
 
-func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpec) ([]string, []*postgresql.UserSpec) {
-	m := map[string]bool{}
-	toDelete := map[string]bool{}
-	toAdd := []*postgresql.UserSpec{}
-
-	for _, u := range currUsers {
-		toDelete[u.Name] = true
-		m[u.Name] = true
-	}
-
-	for _, u := range targetUsers {
-		delete(toDelete, u.Name)
-		if _, ok := m[u.Name]; !ok {
-			toAdd = append(toAdd, u)
-		}
-	}
-
-	toDel := []string{}
-	for u := range toDelete {
-		toDel = append(toDel, u)
-	}
-
-	return toDel, toAdd
-}
-
 func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.DatabaseSpec) ([]string, []*postgresql.DatabaseSpec) {
 	m := map[string]bool{}
 	toAdd := []*postgresql.DatabaseSpec{}
