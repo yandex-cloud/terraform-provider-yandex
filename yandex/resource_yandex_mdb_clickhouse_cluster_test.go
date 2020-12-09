@@ -73,10 +73,13 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"user",      // passwords are not returned
-			"host",      // zookeeper hosts are not imported by default
-			"zookeeper", // zookeeper spec is not imported by default
-			"health",    // volatile value
+			"user",                              // passwords are not returned
+			"host",                              // zookeeper hosts are not imported by default
+			"zookeeper",                         // zookeeper spec is not imported by default
+			"health",                            // volatile value
+			"clickhouse.0.config.0.kafka",       // passwords are not returned
+			"clickhouse.0.config.0.kafka_topic", // passwords are not returned
+			"clickhouse.0.config.0.rabbitmq",    // passwords are not returned
 		},
 	}
 }
@@ -104,6 +107,11 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "TRACE"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
@@ -121,6 +129,11 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "DEBUG"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "12000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "2"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
@@ -509,6 +522,88 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
+
+    config {
+      log_level = "TRACE"
+      max_connections = 1000
+      max_concurrent_queries = 100
+      keep_alive_timeout = 1233000
+      uncompressed_cache_size = 8096
+      mark_cache_size = 8096
+      max_table_size_to_drop = 1024
+      max_partition_size_to_drop = 10324
+      timezone = "UTC"
+      geobase_uri = ""
+      query_log_retention_size = 1024
+      query_log_retention_time = 123000
+      query_thread_log_enabled = true
+      query_thread_log_retention_size = 1024
+      query_thread_log_retention_time = 123000
+      part_log_retention_size = 1024
+      part_log_retention_time = 1223000
+      metric_log_enabled = true
+      metric_log_retention_size = 1024
+      metric_log_retention_time = 123000
+      trace_log_enabled = true
+      trace_log_retention_size = 1024
+      trace_log_retention_time = 123000
+      text_log_enabled = true
+      text_log_retention_size = 1024
+      text_log_retention_time = 123000
+      text_log_level = "TRACE"
+      background_pool_size = 32
+      background_schedule_pool_size = 32
+
+      merge_tree {
+        replicated_deduplication_window = 1000
+        replicated_deduplication_window_seconds = 1000
+        parts_to_delay_insert = 110001
+        parts_to_throw_insert = 11000
+        max_replicated_merges_in_queue = 11000
+        number_of_free_entries_in_pool_to_lower_max_size_of_merge = 15
+        max_bytes_to_merge_at_min_space_in_pool = 11000
+      }
+
+      kafka {
+        security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
+        sasl_mechanism = "SASL_MECHANISM_GSSAPI"
+        sasl_username = "user1"
+        sasl_password = "pass1"
+      }
+
+      kafka_topic {
+        name = "topic1"
+        settings {
+          security_protocol = "SECURITY_PROTOCOL_SSL"
+          sasl_mechanism = "SASL_MECHANISM_SCRAM_SHA_256"
+          sasl_username = "user2"
+          sasl_password = "pass22"
+        }
+      }
+
+      rabbitmq {
+        username = "rabbit_user"
+        password = "rabbit_pass"
+      }
+
+      compression {
+        method = "LZ4"
+        min_part_size = 1024
+        min_part_size_ratio = 0.5
+      }
+
+      graphite_rollup {
+        name = "rollup1"
+        pattern {
+          regexp = "abc"
+          function = "func1"
+          retention {
+            age = 1000
+            precision = 3
+          }
+        }
+      }
+    }
   }
 
   database {
@@ -549,6 +644,113 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
       disk_size          = 18
+    }
+
+    config {
+      log_level = "DEBUG"
+      max_connections = 2048
+      max_concurrent_queries = 400
+      keep_alive_timeout = 10
+      uncompressed_cache_size = 8589934592
+      mark_cache_size = 5368709120
+      max_table_size_to_drop = 5368709120
+      max_partition_size_to_drop = 5368709120
+      timezone = "UTC"
+      geobase_uri = ""
+      query_log_retention_size = 1073741824
+      query_log_retention_time = 2592000000
+      query_thread_log_enabled = true
+      query_thread_log_retention_size = 536870912
+      query_thread_log_retention_time = 2592000000
+      part_log_retention_size = 536870912
+      part_log_retention_time = 2592000000
+      metric_log_enabled = true
+      metric_log_retention_size = 536870912
+      metric_log_retention_time = 2592000000
+      trace_log_enabled = true
+      trace_log_retention_size = 536870912
+      trace_log_retention_time = 2592000000
+      text_log_enabled = true
+      text_log_retention_size = 536870912
+      text_log_retention_time = 2592000000
+      text_log_level = "ERROR"
+      background_pool_size = 64
+      background_schedule_pool_size = 64
+
+      merge_tree {
+        replicated_deduplication_window = 100
+        replicated_deduplication_window_seconds = 604800
+        parts_to_delay_insert = 150
+        parts_to_throw_insert = 300
+        max_replicated_merges_in_queue = 16
+        number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
+        max_bytes_to_merge_at_min_space_in_pool = 1048576
+      }
+
+      kafka {
+        security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
+        sasl_mechanism = "SASL_MECHANISM_GSSAPI"
+        sasl_username = "user1"
+        sasl_password = "pass2"
+      }
+
+      kafka_topic {
+        name = "topic1"
+        settings {
+          security_protocol = "SECURITY_PROTOCOL_SSL"
+          sasl_mechanism = "SASL_MECHANISM_SCRAM_SHA_256"
+          sasl_username = "user3"
+          sasl_password = "pass3"
+        }
+      }
+
+      kafka_topic {
+        name = "topic2"
+        settings {
+          security_protocol = "SECURITY_PROTOCOL_SASL_PLAINTEXT"
+          sasl_mechanism = "SASL_MECHANISM_PLAIN"
+        }
+      }
+
+      rabbitmq {
+        username = "rabbit_user"
+        password = "rabbit_pass2"
+      }
+
+      compression {
+        method = "LZ4"
+        min_part_size = 2024
+        min_part_size_ratio = 0.3
+      }
+
+      compression {
+        method = "ZSTD"
+        min_part_size = 4048
+        min_part_size_ratio = 0.77
+      }
+
+      graphite_rollup {
+        name = "rollup1"
+        pattern {
+          regexp = "abcd"
+          function = "func2"
+          retention {
+            age = 2000
+            precision = 5
+          }
+        }
+      }
+
+      graphite_rollup {
+        name = "rollup2"
+        pattern {
+          function = "func3"
+          retention {
+            age = 3000
+            precision = 7
+          }
+        }
+      }
     }
   }
 

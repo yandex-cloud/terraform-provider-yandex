@@ -7,6 +7,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * mdb: add `conn_limit` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
+* mdb: add `config` section in `yandex_mdb_clickhouse_cluster` resource and data source
 
 ## 0.47.0 (November 10, 2020)
 BUG FIXES:

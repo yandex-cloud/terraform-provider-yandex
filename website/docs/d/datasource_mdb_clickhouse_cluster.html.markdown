@@ -51,6 +51,7 @@ exported:
 * `user` - A user of the ClickHouse cluster. The structure is documented below.
 * `database` - A database of the ClickHouse cluster. The structure is documented below.
 * `host` - A host of the ClickHouse cluster. The structure is documented below.
+* `shard_group` - A group of clickhouse shards. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the ClickHouse cluster. The structure is documented below.
 * `zookeeper` - Configuration of the ZooKeeper subcluster. The structure is documented below.
@@ -58,6 +59,8 @@ exported:
 The `clickhouse` block supports:
 
 * `resources` - Resources allocated to hosts of the ClickHouse subcluster. The structure is documented below.
+
+* `config` - Main ClickHouse cluster configuration. The structure is documented below.
 
 The `zookeeper` block supports:
 
@@ -110,3 +113,64 @@ The `access` block supports:
 * `data_lens` - Allow access for Web SQL.
 * `metrika` - Allow access for Yandex.Metrika.
 * `serverless` - Allow access for Serverless.
+
+The `config` block supports:
+
+* `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`,
+`max_table_size_to_drop`, `max_partition_size_to_drop`, `timezone`, `geobase_uri`, `query_log_retention_size`,
+`query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`,
+`part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
+`trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
+`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size` - ClickHouse server parameters. For more information, see
+[the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/operations/update#change-clickhouse-config)
+and [the ClickHouse documentation](https://clickhouse.tech/docs/en/operations/server-configuration-parameters/settings/).
+
+* `merge_tree` - MergeTree engine configuration. The structure is documented below.
+* `kafka` - Kafka connection configuration. The structure is documented below.
+* `kafka_topic` - Kafka topic connection configuration. The structure is documented below.
+* `compression` - Data compression configuration. The structure is documented below.
+* `rabbitmq` - RabbitMQ connection configuration. The structure is documented below.
+* `graphite_rollup` - Graphite rollup configuration. The structure is documented below.
+
+The `merge_tree` block supports:
+
+* `replicated_deduplication_window` - Replicated deduplication window: Number of recent hash blocks that ZooKeeper will store (the old ones will be deleted).
+* `replicated_deduplication_window_seconds` - Replicated deduplication window seconds: Time during which ZooKeeper stores the hash blocks (the old ones wil be deleted).
+* `parts_to_delay_insert` - Parts to delay insert: Number of active data parts in a table, on exceeding which ClickHouse starts artificially reduce the rate of inserting data into the table.
+* `parts_to_throw_insert` - Parts to throw insert: Threshold value of active data parts in a table, on exceeding which ClickHouse throws the 'Too many parts ...' exception.
+* `max_replicated_merges_in_queue` - Max replicated merges in queue: Maximum number of merge tasks that can be in the ReplicatedMergeTree queue at the same time.
+* `number_of_free_entries_in_pool_to_lower_max_size_of_merge` - Number of free entries in pool to lower max size of merge: Threshold value of free entries in the pool. If the number of entries in the pool falls below this value, ClickHouse reduces the maximum size of a data part to merge. This helps handle small merges faster, rather than filling the pool with lengthy merges.
+* `max_bytes_to_merge_at_min_space_in_pool` - Max bytes to merge at min space in pool: Maximum total size of a data part to merge when the number of free threads in the background pool is minimum.
+
+The `kafka` block supports:
+
+* `security_protocol` - Security protocol used to connect to kafka server.
+* `sasl_mechanism` - SASL mechanism used in kafka authentication.
+* `sasl_username` - Username on kafka server.
+* `sasl_password` - User password on kafka server.
+
+The `kafka_topic` block supports:
+
+* `name` - Kafka topic name.
+* `settings` - Kafka connection settngs sanem as `kafka` block.
+
+The `compression` block supports:
+
+* `method` - Method: Compression method. Two methods are available: LZ4 and zstd.
+* `min_part_size` - Min part size: Minimum size (in bytes) of a data part in a table. ClickHouse only applies the rule to tables with data parts greater than or equal to the Min part size value.
+* `min_part_size_ratio` - Min part size ratio: Minimum table part size to total table size ratio. ClickHouse only applies the rule to tables in which this ratio is greater than or equal to the Min part size ratio value.
+
+The `rabbitmq` block supports:
+
+* `username` - RabbitMQ username.
+* `password` - RabbitMQ user password.
+
+The `graphite_rollup` block supports:
+
+* `name` - Graphite rollup configuration name.
+* `pattern` - Set of thinning rules.
+  * `function` - Aggregation function name.
+  * `regexp` - Regular expression that the metric name must match.
+  * `retention` - Retain parameters.
+    * `age` - Minimum data age in seconds.
+    * `precision` - Accuracy of determining the age of the data in seconds.

@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
 // Sorts list of hosts in accordance with the order in config.
@@ -340,6 +342,185 @@ func flattenClickHouseResources(r *clickhouse.Resources) ([]map[string]interface
 	return []map[string]interface{}{res}, nil
 }
 
+func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_MergeTree) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["replicated_deduplication_window"] = c.ReplicatedDeduplicationWindow.Value
+	res["replicated_deduplication_window_seconds"] = c.ReplicatedDeduplicationWindowSeconds.Value
+	res["parts_to_delay_insert"] = c.PartsToDelayInsert.Value
+	res["parts_to_throw_insert"] = c.PartsToThrowInsert.Value
+	res["max_replicated_merges_in_queue"] = c.MaxReplicatedMergesInQueue.Value
+	res["number_of_free_entries_in_pool_to_lower_max_size_of_merge"] = c.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.Value
+	res["max_bytes_to_merge_at_min_space_in_pool"] = c.MaxBytesToMergeAtMinSpaceInPool.Value
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *clickhouseConfig.ClickhouseConfig_Kafka) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["security_protocol"] = c.SecurityProtocol.String()
+	res["sasl_mechanism"] = c.SaslMechanism.String()
+	res["sasl_username"] = c.SaslUsername
+	if v, ok := d.GetOk(keyPath + ".sasl_password"); ok {
+		res["sasl_password"] = v.(string)
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenClickhouseKafkaTopicsSettings(d *schema.ResourceData, c []*clickhouseConfig.ClickhouseConfig_KafkaTopic) ([]interface{}, error) {
+	var result []interface{}
+
+	for i, t := range c {
+		settings, err := flattenClickhouseKafkaSettings(d, fmt.Sprintf("clickhouse.0.config.0.kafka_topic.%d.settings.0", i), t.Settings)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, map[string]interface{}{
+			"name":     t.Name,
+			"settings": settings,
+		})
+	}
+
+	return result, nil
+}
+
+func flattenClickhouseRabbitmqSettings(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfig_Rabbitmq) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["username"] = c.Username
+	if v, ok := d.GetOk("clickhouse.0.config.0.rabbitmq.0.password"); ok {
+		res["password"] = v.(string)
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenClickhouseCompressionSettings(c []*clickhouseConfig.ClickhouseConfig_Compression) ([]interface{}, error) {
+	var result []interface{}
+
+	for _, r := range c {
+		result = append(result, map[string]interface{}{
+			"method":              r.Method.String(),
+			"min_part_size":       r.MinPartSize,
+			"min_part_size_ratio": r.MinPartSizeRatio,
+		})
+	}
+
+	return result, nil
+}
+
+func flattenClickhouseGraphiteRollupSettings(c []*clickhouseConfig.ClickhouseConfig_GraphiteRollup) ([]interface{}, error) {
+	var result []interface{}
+
+	for _, r := range c {
+		rollup := map[string]interface{}{
+			"name":    r.Name,
+			"pattern": []interface{}{},
+		}
+		for _, p := range r.Patterns {
+			pattern := map[string]interface{}{
+				"function":  p.Function,
+				"regexp":    p.Regexp,
+				"retention": []interface{}{},
+			}
+
+			for _, r := range p.Retention {
+				pattern["retention"] = append(pattern["retention"].([]interface{}), map[string]interface{}{
+					"age":       r.Age,
+					"precision": r.Precision,
+				})
+			}
+
+			rollup["pattern"] = append(rollup["pattern"].([]interface{}), pattern)
+		}
+
+		result = append(result, rollup)
+	}
+
+	return result, nil
+}
+
+func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfigSet) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["log_level"] = c.EffectiveConfig.LogLevel.String()
+	res["max_connections"] = c.EffectiveConfig.MaxConnections.Value
+	res["max_concurrent_queries"] = c.EffectiveConfig.MaxConcurrentQueries.Value
+	res["keep_alive_timeout"] = c.EffectiveConfig.KeepAliveTimeout.Value
+	res["uncompressed_cache_size"] = c.EffectiveConfig.UncompressedCacheSize.Value
+	res["mark_cache_size"] = c.EffectiveConfig.MarkCacheSize.Value
+	res["max_table_size_to_drop"] = c.EffectiveConfig.MaxTableSizeToDrop.Value
+	res["max_partition_size_to_drop"] = c.EffectiveConfig.MaxPartitionSizeToDrop.Value
+	res["timezone"] = c.EffectiveConfig.Timezone
+	res["geobase_uri"] = c.EffectiveConfig.GeobaseUri
+	res["query_log_retention_size"] = c.EffectiveConfig.QueryLogRetentionSize.Value
+	res["query_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
+	res["query_thread_log_enabled"] = c.EffectiveConfig.QueryThreadLogEnabled.Value
+	res["query_thread_log_retention_size"] = c.EffectiveConfig.QueryThreadLogRetentionSize.Value
+	res["query_thread_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
+	res["part_log_retention_size"] = c.EffectiveConfig.PartLogRetentionSize.Value
+	res["part_log_retention_time"] = c.EffectiveConfig.PartLogRetentionTime.Value
+	res["metric_log_enabled"] = c.EffectiveConfig.MetricLogEnabled.Value
+	res["metric_log_retention_size"] = c.EffectiveConfig.MetricLogRetentionSize.Value
+	res["metric_log_retention_time"] = c.EffectiveConfig.MetricLogRetentionTime.Value
+	res["trace_log_enabled"] = c.EffectiveConfig.TraceLogEnabled.Value
+	res["trace_log_retention_size"] = c.EffectiveConfig.TraceLogRetentionSize.Value
+	res["trace_log_retention_time"] = c.EffectiveConfig.TraceLogRetentionTime.Value
+	res["text_log_enabled"] = c.EffectiveConfig.TextLogEnabled.Value
+	res["text_log_retention_size"] = c.EffectiveConfig.TextLogRetentionSize.Value
+	res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
+	res["text_log_level"] = c.EffectiveConfig.TextLogLevel.String()
+
+	if c.EffectiveConfig.BackgroundSchedulePoolSize != nil {
+		res["background_pool_size"] = c.EffectiveConfig.BackgroundSchedulePoolSize.Value
+	}
+
+	if c.EffectiveConfig.BackgroundSchedulePoolSize != nil {
+		res["background_schedule_pool_size"] = c.EffectiveConfig.BackgroundSchedulePoolSize.Value
+	}
+
+	mergeTreeSettings, err := flattenClickhouseMergeTreeConfig(c.EffectiveConfig.MergeTree)
+	if err != nil {
+		return nil, err
+	}
+	res["merge_tree"] = mergeTreeSettings
+
+	kafkaConfig, err := flattenClickhouseKafkaSettings(d, "clickhouse.0.config.0.kafka.0", c.EffectiveConfig.Kafka)
+	if err != nil {
+		return nil, err
+	}
+	res["kafka"] = kafkaConfig
+
+	kafkaTopicsConfig, err := flattenClickhouseKafkaTopicsSettings(d, c.EffectiveConfig.KafkaTopics)
+	if err != nil {
+		return nil, err
+	}
+	res["kafka_topic"] = kafkaTopicsConfig
+
+	rabbitmqSettings, err := flattenClickhouseRabbitmqSettings(d, c.EffectiveConfig.Rabbitmq)
+	if err != nil {
+		return nil, err
+	}
+	res["rabbitmq"] = rabbitmqSettings
+
+	compressions, err := flattenClickhouseCompressionSettings(c.EffectiveConfig.Compression)
+	if err != nil {
+		return nil, err
+	}
+	res["compression"] = compressions
+
+	graphiteRollups, err := flattenClickhouseGraphiteRollupSettings(c.EffectiveConfig.GraphiteRollup)
+	if err != nil {
+		return nil, err
+	}
+	res["graphite_rollup"] = graphiteRollups
+
+	return []map[string]interface{}{res}, nil
+}
+
 func expandClickHouseResources(d *schema.ResourceData, rootKey string) *clickhouse.Resources {
 	resources := &clickhouse.Resources{}
 
@@ -355,17 +536,317 @@ func expandClickHouseResources(d *schema.ResourceData, rootKey string) *clickhou
 	return resources
 }
 
+func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_MergeTree, error) {
+	config := &clickhouseConfig.ClickhouseConfig_MergeTree{}
+	if v, ok := d.GetOk(rootKey + ".replicated_deduplication_window"); ok {
+		config.ReplicatedDeduplicationWindow = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".replicated_deduplication_window_seconds"); ok {
+		config.ReplicatedDeduplicationWindowSeconds = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".parts_to_delay_insert"); ok {
+		config.PartsToDelayInsert = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".parts_to_throw_insert"); ok {
+		config.PartsToThrowInsert = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_replicated_merges_in_queue"); ok {
+		config.MaxReplicatedMergesInQueue = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".number_of_free_entries_in_pool_to_lower_max_size_of_merge"); ok {
+		config.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_bytes_to_merge_at_min_space_in_pool"); ok {
+		config.MaxBytesToMergeAtMinSpaceInPool = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return config, nil
+}
+
+func expandEnum(keyName string, value string, enumValues map[string]int32) (*int32, error) {
+	if val, ok := enumValues[value]; ok {
+		return &val, nil
+	} else {
+		return nil, fmt.Errorf("value for '%s' must be one of %s, not `%s`",
+			keyName, getJoinedKeys(getEnumValueMapKeys(enumValues)), value)
+	}
+}
+
+func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_Kafka, error) {
+	config := &clickhouseConfig.ClickhouseConfig_Kafka{}
+
+	if v, ok := d.GetOk(rootKey + ".security_protocol"); ok {
+		if val, err := expandEnum("security_protocol", v.(string), clickhouseConfig.ClickhouseConfig_Kafka_SecurityProtocol_value); val != nil && err == nil {
+			config.SecurityProtocol = clickhouseConfig.ClickhouseConfig_Kafka_SecurityProtocol(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".sasl_mechanism"); ok {
+		if val, err := expandEnum("sasl_mechanism", v.(string), clickhouseConfig.ClickhouseConfig_Kafka_SaslMechanism_value); val != nil && err == nil {
+			config.SaslMechanism = clickhouseConfig.ClickhouseConfig_Kafka_SaslMechanism(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".sasl_username"); ok {
+		config.SaslUsername = v.(string)
+	}
+	if v, ok := d.GetOk(rootKey + ".sasl_password"); ok {
+		config.SaslPassword = v.(string)
+	}
+
+	return config, nil
+}
+
+func expandClickhouseKafkaTopicsSettings(d *schema.ResourceData, rootKey string) ([]*clickhouseConfig.ClickhouseConfig_KafkaTopic, error) {
+	var result []*clickhouseConfig.ClickhouseConfig_KafkaTopic
+	topics := d.Get(rootKey).([]interface{})
+
+	for i := range topics {
+		settings, err := expandClickhouseKafkaSettings(d, rootKey+fmt.Sprintf(".%d.settings.0", i))
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, &clickhouseConfig.ClickhouseConfig_KafkaTopic{
+			Name:     d.Get(rootKey + fmt.Sprintf(".%d.name", i)).(string),
+			Settings: settings,
+		})
+	}
+	return result, nil
+}
+
+func expandClickhouseRabbitmqSettings(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_Rabbitmq, error) {
+	config := &clickhouseConfig.ClickhouseConfig_Rabbitmq{}
+
+	if v, ok := d.GetOk(rootKey + ".username"); ok {
+		config.Username = v.(string)
+	}
+	if v, ok := d.GetOk(rootKey + ".password"); ok {
+		config.Password = v.(string)
+	}
+
+	return config, nil
+}
+
+func expandClickhouseCompressionSettings(d *schema.ResourceData, rootKey string) ([]*clickhouseConfig.ClickhouseConfig_Compression, error) {
+	var result []*clickhouseConfig.ClickhouseConfig_Compression
+	compressions := d.Get(rootKey).([]interface{})
+
+	for i := range compressions {
+		keyPrefix := rootKey + fmt.Sprintf(".%d", i)
+		compression := &clickhouseConfig.ClickhouseConfig_Compression{}
+
+		if v, ok := d.GetOk(keyPrefix + ".method"); ok {
+			if val, err := expandEnum("method", v.(string), clickhouseConfig.ClickhouseConfig_Compression_Method_value); val != nil && err == nil {
+				compression.Method = clickhouseConfig.ClickhouseConfig_Compression_Method(*val)
+			} else {
+				return nil, err
+			}
+		}
+		if v, ok := d.GetOk(keyPrefix + ".min_part_size"); ok {
+			compression.MinPartSize = int64(v.(int))
+		}
+		if v, ok := d.GetOk(keyPrefix + ".min_part_size_ratio"); ok {
+			compression.MinPartSizeRatio = v.(float64)
+		}
+
+		result = append(result, compression)
+	}
+	return result, nil
+}
+
+func expandClickhouseGraphiteRollupSettings(d *schema.ResourceData, rootKey string) ([]*clickhouseConfig.ClickhouseConfig_GraphiteRollup, error) {
+	var result []*clickhouseConfig.ClickhouseConfig_GraphiteRollup
+
+	for r := range d.Get(rootKey).([]interface{}) {
+		rollupKey := rootKey + fmt.Sprintf(".%d", r)
+		rollup := &clickhouseConfig.ClickhouseConfig_GraphiteRollup{Name: d.Get(rollupKey + ".name").(string)}
+
+		for p := range d.Get(rollupKey + ".pattern").([]interface{}) {
+			patternKey := rollupKey + fmt.Sprintf(".pattern.%d", p)
+
+			pattern := &clickhouseConfig.ClickhouseConfig_GraphiteRollup_Pattern{
+				Function: d.Get(patternKey + ".function").(string),
+			}
+
+			if v, ok := d.GetOk(patternKey + ".regexp"); ok {
+				pattern.Regexp = v.(string)
+			}
+
+			for r := range d.Get(patternKey + ".retention").([]interface{}) {
+				retentionKey := patternKey + fmt.Sprintf(".retention.%d", r)
+				retention := &clickhouseConfig.ClickhouseConfig_GraphiteRollup_Pattern_Retention{
+					Age:       int64(d.Get(retentionKey + ".age").(int)),
+					Precision: int64(d.Get(retentionKey + ".precision").(int)),
+				}
+				pattern.Retention = append(pattern.Retention, retention)
+			}
+
+			rollup.Patterns = append(rollup.Patterns, pattern)
+		}
+
+		result = append(result, rollup)
+	}
+	return result, nil
+}
+
+func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig, error) {
+	config := &clickhouseConfig.ClickhouseConfig{}
+
+	if v, ok := d.GetOk(rootKey + ".log_level"); ok {
+		if val, err := expandEnum("log_level", v.(string), clickhouseConfig.ClickhouseConfig_LogLevel_value); val != nil && err == nil {
+			config.LogLevel = clickhouseConfig.ClickhouseConfig_LogLevel(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_connections"); ok {
+		config.MaxConnections = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_concurrent_queries"); ok {
+		config.MaxConcurrentQueries = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".keep_alive_timeout"); ok {
+		config.KeepAliveTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".uncompressed_cache_size"); ok {
+		config.UncompressedCacheSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".mark_cache_size"); ok {
+		config.MarkCacheSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_table_size_to_drop"); ok {
+		config.MaxTableSizeToDrop = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".max_partition_size_to_drop"); ok {
+		config.MaxPartitionSizeToDrop = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".timezone"); ok {
+		config.Timezone = v.(string)
+	}
+	if v, ok := d.GetOk(rootKey + ".geobase_uri"); ok {
+		config.GeobaseUri = v.(string)
+	}
+	if v, ok := d.GetOk(rootKey + ".query_log_retention_size"); ok {
+		config.QueryLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".query_log_retention_time"); ok {
+		config.QueryLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".query_thread_log_enabled"); ok {
+		config.QueryThreadLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".query_thread_log_retention_size"); ok {
+		config.QueryThreadLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".query_thread_log_retention_time"); ok {
+		config.QueryThreadLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".part_log_retention_size"); ok {
+		config.PartLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".part_log_retention_time"); ok {
+		config.PartLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".metric_log_enabled"); ok {
+		config.MetricLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".metric_log_retention_size"); ok {
+		config.MetricLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".metric_log_retention_time"); ok {
+		config.MetricLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".trace_log_enabled"); ok {
+		config.TraceLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".trace_log_retention_size"); ok {
+		config.TraceLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".trace_log_retention_time"); ok {
+		config.TraceLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".text_log_enabled"); ok {
+		config.TextLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".text_log_retention_size"); ok {
+		config.TextLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".text_log_retention_time"); ok {
+		config.TextLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".text_log_level"); ok {
+		if val, err := expandEnum("text_log_level", v.(string), clickhouseConfig.ClickhouseConfig_LogLevel_value); val != nil && err == nil {
+			config.TextLogLevel = clickhouseConfig.ClickhouseConfig_LogLevel(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_pool_size"); ok {
+		config.BackgroundPoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_schedule_pool_size"); ok {
+		config.BackgroundSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	mergeTreeSettings, err := expandClickhouseMergeTreeConfig(d, rootKey+".merge_tree.0")
+	if err != nil {
+		return nil, err
+	}
+	config.MergeTree = mergeTreeSettings
+
+	kafkaConfig, err := expandClickhouseKafkaSettings(d, rootKey+".kafka.0")
+	if err != nil {
+		return nil, err
+	}
+	config.Kafka = kafkaConfig
+
+	kafkaTopicsConfig, err := expandClickhouseKafkaTopicsSettings(d, rootKey+".kafka_topic")
+	if err != nil {
+		return nil, err
+	}
+	config.KafkaTopics = kafkaTopicsConfig
+
+	rabbitmqSettings, err := expandClickhouseRabbitmqSettings(d, rootKey+".rabbitmq.0")
+	if err != nil {
+		return nil, err
+	}
+	config.Rabbitmq = rabbitmqSettings
+
+	compressions, err := expandClickhouseCompressionSettings(d, rootKey+".compression")
+	if err != nil {
+		return nil, err
+	}
+	config.Compression = compressions
+
+	graphiteRollups, err := expandClickhouseGraphiteRollupSettings(d, rootKey+".graphite_rollup")
+	if err != nil {
+		return nil, err
+	}
+	config.GraphiteRollup = graphiteRollups
+
+	return config, nil
+}
+
 func expandClickHouseZookeeperSpec(d *schema.ResourceData) *clickhouse.ConfigSpec_Zookeeper {
 	result := &clickhouse.ConfigSpec_Zookeeper{}
 	result.Resources = expandClickHouseResources(d, "zookeeper.0.resources.0")
 	return result
 }
 
-func expandClickHouseSpec(d *schema.ResourceData) *clickhouse.ConfigSpec_Clickhouse {
+func expandClickHouseSpec(d *schema.ResourceData) (*clickhouse.ConfigSpec_Clickhouse, error) {
 	result := &clickhouse.ConfigSpec_Clickhouse{}
 	result.Resources = expandClickHouseResources(d, "clickhouse.0.resources.0")
+	config, err := expandClickHouseConfig(d, "clickhouse.0.config.0")
+	if err != nil {
+		return nil, err
+	}
 
-	return result
+	result.Config = config
+
+	return result, nil
 }
 
 func flattenClickHouseBackupWindowStart(t *timeofday.TimeOfDay) []map[string]interface{} {
