@@ -681,7 +681,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
         replicated_deduplication_window = 100
         replicated_deduplication_window_seconds = 604800
         parts_to_delay_insert = 150
-        parts_to_throw_insert = 300
+        parts_to_throw_insert = 12000
         max_replicated_merges_in_queue = 16
         number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
         max_bytes_to_merge_at_min_space_in_pool = 1048576
