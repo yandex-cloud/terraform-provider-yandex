@@ -57,6 +57,64 @@ resource "yandex_storage_bucket" "test" {
 }
 ```
 
+### Using object lifecycle
+
+```hcl
+resource "yandex_storage_bucket" "bucket" {
+  bucket = "my-bucket"
+  acl    = "private"
+
+  lifecycle_rule {
+    id      = "log"
+    enabled = true
+
+    prefix = "log/"
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    expiration {
+      days = 90
+    }
+  }
+
+  lifecycle_rule {
+    id      = "tmp"
+    prefix  = "tmp/"
+    enabled = true
+
+    expiration {
+      date = "2020-12-21"
+    }
+  }
+}
+
+resource "yandex_storage_bucket" "versioning_bucket" {
+  bucket = "my-versioning-bucket"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    prefix  = "config/"
+    enabled = true
+
+    noncurrent_version_transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    noncurrent_version_expiration {
+      days = 90
+    }
+  }
+}
+```
+
 ### Using SSE
 
 ```hcl
@@ -107,6 +165,8 @@ The following arguments are supported:
 
 * `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/cors/) (documented below).
 
+* `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://cloud.yandex.com/docs/storage/concepts/lifecycles) (documented below).
+
 The `website` object supports the following:
 
 * `index_document` - (Required) Storage returns this index document when requests are made to the root domain or any of the subfolders.
@@ -126,6 +186,24 @@ The `CORS` object supports the following:
 * `max_age_seconds` (Optional) Specifies time in seconds that browser can cache the response for a preflight request.
 
 * `server_side_encryption_configuration` (Optional) A configuration of server-side encryption for the bucket (documented below)
+
+The `lifecycle_rule` object supports the following:
+
+* `id` - (Optional) Unique identifier for the rule. Must be less than or equal to 255 characters in length.
+
+* `prefix` - (Optional) Object key prefix identifying one or more objects to which the rule applies.
+
+* `enabled` - (Required) Specifies lifecycle rule status.
+
+* `abort_incomplete_multipart_upload_days` (Optional) Specifies the number of days after initiating a multipart upload when the multipart upload must be completed.
+
+* `expiration` - (Optional) Specifies a period in the object's expire (documented below).
+
+* `transition` - (Optional) Specifies a period in the object's transitions (documented below).
+
+* `noncurrent_version_expiration` - (Optional) Specifies when noncurrent object versions expire (documented below).
+
+* `noncurrent_version_transition` - (Optional) Specifies when noncurrent object versions transitions (documented below).
 
 The `server_side_encryption_configuration` object supports the following:
 

@@ -953,6 +953,131 @@ resource "yandex_storage_bucket" "test" {
 `, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
+func testAccStorageBucketConfigWithLifecycle(bucketName string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "bucket" {
+  bucket = %[1]q
+  acl    = "private"
+
+  lifecycle_rule {
+    id      = "id1"
+    prefix  = "path1/"
+    enabled = true
+
+    expiration {
+      days = 365
+    }
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+  }
+
+  lifecycle_rule {
+    id      = "id2"
+    prefix  = "path2/"
+    enabled = true
+
+    expiration {
+      date = "2016-01-12"
+    }
+  }
+
+  lifecycle_rule {
+    id      = "id3"
+    prefix  = "path3/"
+    enabled = true
+
+    transition {
+      days          = 0
+      storage_class = "STANDARD_IA"
+    }
+  }
+
+}
+`, bucketName)
+}
+
+func testAccStorageBucketConfigWithVersioningLifecycle(bucketName string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "bucket" {
+  bucket = %[1]q
+  acl    = "private"
+
+  versioning {
+    enabled = false
+  }
+
+  lifecycle_rule {
+    id      = "id1"
+    prefix  = "path1/"
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+
+    noncurrent_version_transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+  }
+
+  lifecycle_rule {
+    id      = "id2"
+    prefix  = "path2/"
+    enabled = false
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+  }
+
+  lifecycle_rule {
+    id      = "id3"
+    prefix  = "path3/"
+    enabled = true
+
+    noncurrent_version_transition {
+      days          = 0
+      storage_class = "GLACIER"
+    }
+  }
+}
+`, bucketName)
+}
+
+func testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(rName string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "bucket" {
+  bucket = %[1]q
+
+  lifecycle_rule {
+    enabled = true
+    id      = "id1"
+
+    expiration {}
+  }
+}
+`, rName)
+}
+
+func testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rName string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "bucket" {
+  bucket = %[1]q
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 7
+    enabled                                = true
+    id                                     = "id1"
+  }
+}
+`, rName)
+}
+
 func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_kms_symmetric_key" "key-a" {
@@ -1056,6 +1181,118 @@ func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) f
 		}
 		return nil
 	}
+}
+
+func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+	bucketName := acctest.RandomWithPrefix("tf-test-bucket")
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithLifecycle(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.transition.0.date", ""),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.transition.0.days", "30"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.transition.0.storage_class", "STANDARD_IA"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.prefix", "path2/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.expiration.0.date", "2016-01-12"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.expiration.0.days", "0"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.expiration.0.expired_object_delete_marker", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.id", "id3"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.prefix", "path3/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.transition.0.days", "0"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy", "acl"},
+			},
+			{
+				Config: testAccStorageBucketConfigWithVersioningLifecycle(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_transition.0.days", "30"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_transition.0.storage_class", "STANDARD_IA"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.prefix", "path2/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.noncurrent_version_expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.id", "id3"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.prefix", "path3/"),
+				),
+			},
+			{
+				Config: testAccStorageBucketConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
+}
+
+// Reference: https://github.com/hashicorp/terraform-provider-aws/issues/11420
+func TestAccStorageBucket_LifecycleRule_Expiration_EmptyConfigurationBlock(t *testing.T) {
+	rName := acctest.RandomWithPrefix("tf-acc-test")
+	resourceName := "yandex_storage_bucket.bucket"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
+}
+
+// Reference: https://github.com/hashicorp/terraform-provider-aws/issues/15138
+func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExpiration(t *testing.T) {
+	rName := acctest.RandomWithPrefix("tf-acc-test")
+	resourceName := "yandex_storage_bucket.bucket"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"force_destroy", "acl"},
+			},
+		},
+	})
 }
 
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
