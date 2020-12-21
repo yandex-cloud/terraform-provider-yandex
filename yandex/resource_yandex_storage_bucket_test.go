@@ -1042,7 +1042,7 @@ resource "yandex_storage_bucket" "bucket" {
 
     noncurrent_version_transition {
       days          = 0
-      storage_class = "GLACIER"
+      storage_class = "STANDARD_IA"
     }
   }
 }
