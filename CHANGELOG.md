@@ -1,4 +1,5 @@
-## 0.48.0 (Unreleased)
+## 0.49.0 (Unreleased)
+## 0.48.0 (December 22, 2020)
 
 BUG FIXES:
 * mdb: fix setting of folder_id field for MongoDB cluster
