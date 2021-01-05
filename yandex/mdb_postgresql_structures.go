@@ -35,6 +35,11 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 		return nil, err
 	}
 
+	performanceDiagnostics, err := flattenPGPerformanceDiagnostics(c.PerformanceDiagnostics)
+	if err != nil {
+		return nil, err
+	}
+
 	access, err := flattenPGAccess(c.Access)
 	if err != nil {
 		return nil, err
@@ -46,6 +51,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	out["pooler_config"] = poolerConf
 	out["resources"] = resources
 	out["backup_window_start"] = backupWindowStart
+	out["performance_diagnostics"] = performanceDiagnostics
 	out["access"] = access
 
 	return []interface{}{out}, nil
@@ -86,6 +92,20 @@ func flattenPGBackupWindowStart(t *timeofday.TimeOfDay) ([]interface{}, error) {
 	return []interface{}{out}, nil
 }
 
+func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]interface{}, error) {
+	if p == nil {
+		return nil, nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["enabled"] = p.Enabled
+	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
+	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
+
+	return []interface{}{out}, nil
+}
+
 func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	if a == nil {
 		return nil, nil
@@ -94,6 +114,7 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	out := map[string]interface{}{}
 
 	out["data_lens"] = a.DataLens
+	out["web_sql"] = a.WebSql
 
 	return []interface{}{out}, nil
 }
@@ -253,6 +274,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, error) 
 
 	cs.BackupWindowStart = expandPGBackupWindowStart(d)
 	cs.Access = expandPGAccess(d)
+	cs.PerformanceDiagnostics = expandPGPerformanceDiagnostics(d)
 
 	return cs, nil
 }
@@ -517,11 +539,38 @@ func expandPGBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
 	return out
 }
 
+func expandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.PerformanceDiagnostics {
+
+	if _, ok := d.GetOkExists("config.0.performance_diagnostics"); !ok {
+		return nil
+	}
+
+	out := &postgresql.PerformanceDiagnostics{}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.enabled"); ok {
+		out.Enabled = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.sessions_sampling_interval"); ok {
+		out.SessionsSamplingInterval = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.performance_diagnostics.0.statements_sampling_interval"); ok {
+		out.StatementsSamplingInterval = int64(v.(int))
+	}
+
+	return out
+}
+
 func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 	out := &postgresql.Access{}
 
 	if v, ok := d.GetOk("config.0.access.0.data_lens"); ok {
 		out.DataLens = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.web_sql"); ok {
+		out.WebSql = v.(bool)
 	}
 
 	return out

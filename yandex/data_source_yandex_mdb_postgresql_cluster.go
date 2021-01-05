@@ -34,6 +34,10 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 										Type:     schema.TypeBool,
 										Computed: true,
 									},
+									"web_sql": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -52,6 +56,27 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 										Computed: true,
 									},
 									"minutes": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"performance_diagnostics": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"sessions_sampling_interval": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"statements_sampling_interval": {
 										Type:     schema.TypeInt,
 										Computed: true,
 									},

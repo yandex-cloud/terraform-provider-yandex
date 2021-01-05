@@ -60,6 +60,7 @@ The `config` block supports:
 * `pooler_config` - Configuration of the connection pooler. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the PostgreSQL cluster. The structure is documented below.
+* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-postgresql/grpc/cluster_service#PerformanceDiagnostics)
 
 The `resources` block supports:
 
@@ -81,6 +82,13 @@ The `backup_window_start` block supports:
 The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query)
+
+
+The `performance_diagnostics` block supports:
+* `enabled` - Flag, when true, performance diagnostics is enabled
+* `sessions_sampling_interval` - Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+* `statements_sampling_interval` - Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
 
 The `user` block supports:
 

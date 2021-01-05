@@ -127,6 +127,29 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"performance_diagnostics": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"sessions_sampling_interval": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"statements_sampling_interval": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+								},
+							},
+						},
 						"access": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
@@ -138,6 +161,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
+									},
+									"web_sql": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
 									},
 								},
 							},
@@ -323,6 +351,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	d.Set("description", cluster.GetDescription())
 	d.Set("environment", cluster.GetEnvironment().String())
 	d.Set("network_id", cluster.GetNetworkId())
+
 	if err := d.Set("labels", cluster.GetLabels()); err != nil {
 		return err
 	}
@@ -509,6 +538,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 }
 
 func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+
 	d.Partial(true)
 
 	if err := updatePGClusterParams(d, meta); err != nil {
@@ -540,6 +570,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	d.Partial(false)
+
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
 }
 
@@ -550,15 +581,16 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	mdbPGUpdateFieldsMap := map[string]string{
-		"name":                         "name",
-		"description":                  "description",
-		"labels":                       "labels",
-		"config.0.version":             "config_spec.version",
-		"config.0.autofailover":        "config_spec.autofailover",
-		"config.0.pooler_config":       "config_spec.pooler_config",
-		"config.0.access":              "config_spec.access",
-		"config.0.backup_window_start": "config_spec.backup_window_start",
-		"config.0.resources":           "config_spec.resources",
+		"name":                             "name",
+		"description":                      "description",
+		"labels":                           "labels",
+		"config.0.version":                 "config_spec.version",
+		"config.0.autofailover":            "config_spec.autofailover",
+		"config.0.pooler_config":           "config_spec.pooler_config",
+		"config.0.access":                  "config_spec.access",
+		"config.0.performance_diagnostics": "config_spec.performance_diagnostics",
+		"config.0.backup_window_start":     "config_spec.backup_window_start",
+		"config.0.resources":               "config_spec.resources",
 	}
 
 	onDone := []func(){}

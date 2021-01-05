@@ -134,6 +134,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
+					testAccCheckClusterSettingsAccessWebSQL(pgResource),
+					testAccCheckClusterSettingsPerformanceDiagnostics(pgResource),
 					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
@@ -302,6 +304,69 @@ func testAccCheckMDBPGClusterHasUsers(r string, perms map[string][]string) resou
 			if fmt.Sprintf("%v", ps) != fmt.Sprintf("%v", ups) {
 				return fmt.Errorf("User %s has wrong permissions, %v. Expected %v", u.Name, ups, ps)
 			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckClusterSettingsAccessWebSQL(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if !found.Config.Access.WebSql {
+			return fmt.Errorf("Cluster Config.Access.WebSql must be enabled, current %v",
+				found.Config.Access.WebSql)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckClusterSettingsPerformanceDiagnostics(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Config.PerformanceDiagnostics.SessionsSamplingInterval != 9 {
+			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.SessionsSamplingInterval must be 9, current %v",
+				found.Config.PerformanceDiagnostics.SessionsSamplingInterval)
+		}
+
+		if found.Config.PerformanceDiagnostics.StatementsSamplingInterval != 8 {
+			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.SessionsSamplingInterval must be 8, current %v",
+				found.Config.PerformanceDiagnostics.StatementsSamplingInterval)
 		}
 
 		return nil
@@ -585,6 +650,13 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       resource_preset_id = "s2.micro"
       disk_size          = 18
       disk_type_id       = "network-ssd"
+    }
+    access {
+      web_sql = true
+    }
+    performance_diagnostics {
+      sessions_sampling_interval   = 9
+      statements_sampling_interval = 8
     }
 
     pooler_config {
