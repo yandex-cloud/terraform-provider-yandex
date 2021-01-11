@@ -40,7 +40,7 @@ fmtcheck:
 
 lint:
 	@echo "==> Checking source code against linters..."
-	@golangci-lint run ./$(PKG_NAME)
+	@golangci-lint run --modules-download-mode mod ./$(PKG_NAME)
 
 tools:
 	@echo "==> installing required tooling..."
