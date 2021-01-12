@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -170,6 +171,16 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"postgresql_config": {
+							Type:             schema.TypeMap,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
+							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -258,6 +269,16 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
+						},
+						"settings": {
+							Type:             schema.TypeMap,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
+							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
 					},
 				},
@@ -356,10 +377,11 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	pgClusterConf, err := flattenPGClusterConfig(cluster.Config)
+	pgClusterConf, err := flattenPGClusterConfig(cluster.Config, d)
 	if err != nil {
 		return err
 	}
+
 	if err := d.Set("config", pgClusterConf); err != nil {
 		return err
 	}
@@ -375,7 +397,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	}
 	sortPGUsers(users, userSpecs)
 
-	fUsers, err := flattenPGUsers(users, passwords)
+	fUsers, err := flattenPGUsers(users, passwords, mdbPGUserSettingsFieldsInfo)
 	if err != nil {
 		return err
 	}
@@ -503,7 +525,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error resolving environment while creating PostgreSQL Cluster: %s", err)
 	}
 
-	confSpec, err := expandPGConfigSpec(d)
+	confSpec, _, err := expandPGConfigSpec(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding cluster config on PostgreSQL Cluster create: %s", err)
 	}
@@ -546,7 +568,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("user") {
-		if err := updatePGClusterUsersWithoutPermissions(d, meta); err != nil {
+		if err := updatePGClusterUsersAdd(d, meta); err != nil {
 			return err
 		}
 	}
@@ -558,7 +580,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("user") {
-		if err := updatePGClusterUserPermissions(d, meta); err != nil {
+		if err := updatePGClusterUsersUpdateAndDrop(d, meta); err != nil {
 			return err
 		}
 	}
@@ -575,7 +597,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 }
 
 func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
-	req, err := getPGClusterUpdateRequest(d)
+	req, updateFieldConfigName, err := getPGClusterUpdateRequest(d)
 	if err != nil {
 		return err
 	}
@@ -591,6 +613,10 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		"config.0.performance_diagnostics": "config_spec.performance_diagnostics",
 		"config.0.backup_window_start":     "config_spec.backup_window_start",
 		"config.0.resources":               "config_spec.resources",
+	}
+
+	if updateFieldConfigName != "" {
+		mdbPGUpdateFieldsMap["config.0.postgresql_config"] = "config_spec." + updateFieldConfigName
 	}
 
 	onDone := []func(){}
@@ -631,15 +657,15 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func getPGClusterUpdateRequest(d *schema.ResourceData) (*postgresql.UpdateClusterRequest, error) {
+func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateClusterRequest, updateFieldConfigName string, err error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("error expanding labels while updating PostgreSQL Cluster: %s", err)
+		return nil, updateFieldConfigName, fmt.Errorf("error expanding labels while updating PostgreSQL Cluster: %s", err)
 	}
 
-	configSpec, err := expandPGConfigSpec(d)
+	configSpec, updateFieldConfigName, err := expandPGConfigSpec(d)
 	if err != nil {
-		return nil, fmt.Errorf("error expanding config while updating PostgreSQL Cluster: %s", err)
+		return nil, updateFieldConfigName, fmt.Errorf("error expanding config while updating PostgreSQL Cluster: %s", err)
 	}
 
 	req := &postgresql.UpdateClusterRequest{
@@ -650,7 +676,7 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (*postgresql.UpdateCluste
 		ConfigSpec:  configSpec,
 	}
 
-	return req, nil
+	return req, updateFieldConfigName, nil
 }
 
 func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
@@ -718,7 +744,7 @@ func validateNoUpdatingCollation(currentDatabases []*postgresql.Database, target
 	return nil
 }
 
-func updatePGClusterUsersWithoutPermissions(d *schema.ResourceData, meta interface{}) error {
+func updatePGClusterUsersAdd(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -729,63 +755,60 @@ func updatePGClusterUsersWithoutPermissions(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	targetUsers, err := expandPGUserSpecs(d)
+	usersForCreate, err := pgUserForCreate(d, currUsers)
 	if err != nil {
 		return err
 	}
-
-	toDelete, toAdd := pgUsersDiff(currUsers, targetUsers)
-	for _, u := range toDelete {
-		err := deletePGUser(ctx, config, d, u)
-		if err != nil {
-			return err
-		}
-	}
-	for _, u := range toAdd {
-		u.Permissions = make([]*postgresql.Permission, 0)
+	for _, u := range usersForCreate {
 		err := createPGUser(ctx, config, d, u)
 		if err != nil {
 			return err
 		}
 	}
 
-	oldSpecs, newSpecs := d.GetChange("user")
-
-	changedUsers, err := pgChangedUsers(oldSpecs.([]interface{}), newSpecs.([]interface{}), false)
-	if err != nil {
-		return err
-	}
-	for _, user := range changedUsers {
-		err := updatePGUser(ctx, config, d, user)
-		if err != nil {
-			return err
-		}
-	}
-
-	d.SetPartial("user")
-
 	return nil
 }
 
-func updatePGClusterUserPermissions(d *schema.ResourceData, meta interface{}) error {
+func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers, err := pgChangedUsers(oldSpecs.([]interface{}), newSpecs.([]interface{}), true)
+	currUsers, err := listPGUsers(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
-	for _, u := range changedUsers {
-		err := updatePGUser(ctx, config, d, u)
+
+	dUser := make(map[string]string)
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		dUser[d.Get(fmt.Sprintf("user.%v.name", i)).(string)] = fmt.Sprintf("user.%v.", i)
+	}
+
+	deleteNames := make([]string, 0)
+
+	for _, v := range currUsers {
+		path, ok := dUser[v.Name]
+		if !ok {
+			deleteNames = append(deleteNames, v.Name)
+		} else {
+			err := updatePGUser(ctx, config, d, v, path)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, u := range deleteNames {
+		err := deletePGUser(ctx, config, d, u)
 		if err != nil {
 			return err
 		}
 	}
 
 	d.SetPartial("user")
+
 	return nil
 }
 
@@ -896,25 +919,37 @@ func createPGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	return nil
 }
 
-func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, user IndexedUserSpec) error {
-	mdbPGUserUpdateFieldsMap := map[string]string{
-		"user.%d.password":   "password",
-		"user.%d.permission": "permissions",
-		"user.%d.login":      "login",
-		"user.%d.grants":     "grants",
+func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, user *postgresql.User, path string) (err error) {
+
+	us, err := expandPGUser(d, &postgresql.UserSpec{
+		Name:        user.Name,
+		Permissions: user.Permissions,
+		ConnLimit:   &wrappers.Int64Value{Value: user.ConnLimit},
+		Settings:    user.Settings,
+		Login:       user.Login,
+		Grants:      user.Grants,
+	}, path)
+	if err != nil {
+		return err
 	}
 
-	if user.user.ConnLimit != nil {
-		mdbPGUserUpdateFieldsMap["user.%d.conn_limit"] = "conn_limit"
+	changeMask := map[string]string{
+		"password":   "password",
+		"permission": "permissions",
+		"login":      "login",
+		"grants":     "grants",
+		"conn_limit": "conn_limit",
+		"settings":   "settings",
 	}
 
-	onDone := []func(){}
 	updatePath := []string{}
-	for field, path := range mdbPGUserUpdateFieldsMap {
-		if d.HasChange(fmt.Sprintf(field, user.index)) {
-			updatePath = append(updatePath, path)
+	onDone := make([]func(), 0)
+
+	for field, mask := range changeMask {
+		if d.HasChange(path + field) {
+			updatePath = append(updatePath, mask)
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+				d.SetPartial(path + field)
 			})
 		}
 	}
@@ -926,12 +961,13 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().User().Update(ctx, &postgresql.UpdateUserRequest{
 			ClusterId:   d.Id(),
-			UserName:    user.user.Name,
-			Password:    user.user.Password,
-			Permissions: user.user.Permissions,
-			ConnLimit:   user.user.ConnLimit.GetValue(),
-			Login:       user.user.Login,
-			Grants:      user.user.Grants,
+			UserName:    us.Name,
+			Password:    us.Password,
+			Permissions: us.Permissions,
+			ConnLimit:   us.ConnLimit.GetValue(),
+			Login:       us.Login,
+			Grants:      us.Grants,
+			Settings:    us.Settings,
 			UpdateMask:  &field_mask.FieldMask{Paths: updatePath},
 		}),
 	)
@@ -951,7 +987,6 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", d.Id(), err)
 	}
-
 	return nil
 }
 

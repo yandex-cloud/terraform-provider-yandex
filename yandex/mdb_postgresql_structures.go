@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
@@ -11,6 +12,7 @@ import (
 	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
 )
 
 type PostgreSQLHostSpec struct {
@@ -19,7 +21,7 @@ type PostgreSQLHostSpec struct {
 	HasComputedFqdn bool
 }
 
-func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
+func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData) ([]interface{}, error) {
 	poolerConf, err := flattenPGPoolerConfig(c.PoolerConfig)
 	if err != nil {
 		return nil, err
@@ -45,6 +47,11 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 		return nil, err
 	}
 
+	settings, err := flattenPGSettings(c, d)
+	if err != nil {
+		return nil, err
+	}
+
 	out := map[string]interface{}{}
 	out["autofailover"] = c.GetAutofailover().GetValue()
 	out["version"] = c.Version
@@ -53,6 +60,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	out["backup_window_start"] = backupWindowStart
 	out["performance_diagnostics"] = performanceDiagnostics
 	out["access"] = access
+	out["postgresql_config"] = settings
 
 	return []interface{}{out}, nil
 }
@@ -106,6 +114,81 @@ func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]in
 	return []interface{}{out}, nil
 }
 
+func flattenPGSettingsSPL(settings map[string]string, d *schema.ResourceData) map[string]string {
+	spl, ok := d.GetOkExists("config.0.postgresql_config.shared_preload_libraries")
+	if ok {
+		if settings == nil {
+			settings = make(map[string]string)
+		}
+		if _, exists := settings["shared_preload_libraries"]; !exists {
+			settings["shared_preload_libraries"] = spl.(string)
+		}
+	}
+
+	return settings
+}
+
+func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map[string]string, error) {
+
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
+
+	return nil, nil
+}
+
 func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	if a == nil {
 		return nil, nil
@@ -119,11 +202,13 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	return []interface{}{out}, nil
 }
 
-func flattenPGUsers(us []*postgresql.User, passwords map[string]string) ([]map[string]interface{}, error) {
+func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
+	fieldsInfo *objectFieldsInfo) ([]map[string]interface{}, error) {
+
 	out := make([]map[string]interface{}, 0)
 
 	for _, u := range us {
-		ou, err := flattenPGUser(u)
+		ou, err := flattenPGUser(u, fieldsInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -138,7 +223,9 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string) ([]map[s
 	return out, nil
 }
 
-func flattenPGUser(u *postgresql.User) (map[string]interface{}, error) {
+func flattenPGUser(u *postgresql.User,
+	fieldsInfo *objectFieldsInfo) (map[string]interface{}, error) {
+
 	m := map[string]interface{}{}
 	m["name"] = u.Name
 	m["login"] = u.GetLogin().GetValue()
@@ -152,6 +239,12 @@ func flattenPGUser(u *postgresql.User) (map[string]interface{}, error) {
 	m["grants"] = u.Grants
 
 	m["conn_limit"] = u.ConnLimit
+
+	settings, err := flattenResourceGenerateMapS(u.Settings, false, fieldsInfo, false, true)
+	if err != nil {
+		return nil, err
+	}
+	m["settings"] = settings
 
 	return m, nil
 }
@@ -249,8 +342,8 @@ func pgExtensionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, error) {
-	cs := &postgresql.ConfigSpec{}
+func expandPGConfigSpec(d *schema.ResourceData) (cs *postgresql.ConfigSpec, updateFieldConfigName string, err error) {
+	cs = &postgresql.ConfigSpec{}
 
 	if v, ok := d.GetOk("config.0.version"); ok {
 		cs.Version = v.(string)
@@ -262,13 +355,13 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, error) 
 
 	poolerConfig, err := expandPGPoolerConfig(d)
 	if err != nil {
-		return nil, err
+		return nil, updateFieldConfigName, err
 	}
 	cs.PoolerConfig = poolerConfig
 
 	resources, err := expandPGResources(d)
 	if err != nil {
-		return nil, err
+		return nil, updateFieldConfigName, err
 	}
 	cs.Resources = resources
 
@@ -276,7 +369,12 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, error) 
 	cs.Access = expandPGAccess(d)
 	cs.PerformanceDiagnostics = expandPGPerformanceDiagnostics(d)
 
-	return cs, nil
+	updateFieldConfigName, err = expandPGConfigSpecSettings(d, cs)
+	if err != nil {
+		return nil, updateFieldConfigName, err
+	}
+
+	return cs, updateFieldConfigName, nil
 }
 
 func expandPGPoolerConfig(d *schema.ResourceData) (*postgresql.ConnectionPoolerConfig, error) {
@@ -318,12 +416,10 @@ func expandPGResources(d *schema.ResourceData) (*postgresql.Resources, error) {
 
 func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
 	out := []*postgresql.UserSpec{}
-	users := d.Get("user").([]interface{})
 
-	for _, u := range users {
-		m := u.(map[string]interface{})
-
-		user, err := expandPGUser(m)
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		user, err := expandPGUserNew(d, fmt.Sprintf("user.%v.", i))
 		if err != nil {
 			return nil, err
 		}
@@ -334,29 +430,58 @@ func expandPGUserSpecs(d *schema.ResourceData) ([]*postgresql.UserSpec, error) {
 	return out, nil
 }
 
-func expandPGUser(m map[string]interface{}) (*postgresql.UserSpec, error) {
-	user := &postgresql.UserSpec{}
-
-	if v, ok := m["name"]; ok {
-		user.Name = v.(string)
+// pgUserForCreate get users for create
+func pgUserForCreate(d *schema.ResourceData, currUsers []*postgresql.User) (usersForCreate []*postgresql.UserSpec, err error) {
+	currentUser := make(map[string]struct{})
+	for _, v := range currUsers {
+		currentUser[v.Name] = struct{}{}
 	}
+	usersForCreate = make([]*postgresql.UserSpec, 0)
 
-	if v, ok := m["password"]; ok {
-		user.Password = v.(string)
-	}
-
-	if v, ok := m["login"]; ok {
-		user.Login = &wrappers.BoolValue{Value: v.(bool)}
-	}
-
-	if v, ok := m["conn_limit"]; ok {
-		var connLimit = &wrappers.Int64Value{Value: int64(v.(int))}
-		if connLimit.GetValue() > 0 {
-			user.ConnLimit = connLimit
+	cnt := d.Get("user.#").(int)
+	for i := 0; i < cnt; i++ {
+		_, ok := currentUser[d.Get(fmt.Sprintf("user.%v.name", i)).(string)]
+		if !ok {
+			user, err := expandPGUserNew(d, fmt.Sprintf("user.%v.", i))
+			if err != nil {
+				return nil, err
+			}
+			user.Grants = make([]string, 0)
+			user.Permissions = make([]*postgresql.Permission, 0)
+			usersForCreate = append(usersForCreate, user)
 		}
 	}
 
-	if v, ok := m["permission"]; ok {
+	return usersForCreate, nil
+}
+
+// expandPGUserNew expand to new object from schema.ResourceData
+// path like "user.3."
+func expandPGUserNew(d *schema.ResourceData, path string) (*postgresql.UserSpec, error) {
+	return expandPGUser(d, &postgresql.UserSpec{}, path)
+}
+
+// expandPGUser expand to exists object from schema.ResourceData
+// path like "user.3."
+func expandPGUser(d *schema.ResourceData, user *postgresql.UserSpec, path string) (*postgresql.UserSpec, error) {
+
+	if v, ok := d.GetOkExists(path + "name"); ok {
+		user.Name = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "password"); ok {
+		user.Password = v.(string)
+	}
+
+	if v, ok := d.GetOkExists(path + "login"); ok {
+		user.Login = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := d.GetOkExists(path + "conn_limit"); ok {
+		user.ConnLimit = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOkExists(path + "permission"); ok {
 		permissions, err := expandPGUserPermissions(v.(*schema.Set))
 		if err != nil {
 			return nil, err
@@ -364,12 +489,24 @@ func expandPGUser(m map[string]interface{}) (*postgresql.UserSpec, error) {
 		user.Permissions = permissions
 	}
 
-	if v, ok := m["grants"]; ok {
+	if v, ok := d.GetOkExists(path + "grants"); ok {
 		gs, err := expandPGUserGrants(v.([]interface{}))
 		if err != nil {
 			return nil, err
 		}
 		user.Grants = gs
+	}
+
+	if _, ok := d.GetOkExists(path + "settings"); ok {
+		if user.Settings == nil {
+			user.Settings = &postgresql.UserSettings{}
+		}
+
+		err := expandResourceGenerate(mdbPGUserSettingsFieldsInfo, d, user.Settings, path+"settings.", true)
+		if err != nil {
+			return nil, err
+		}
+
 	}
 
 	return user, nil
@@ -576,70 +713,116 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 	return out
 }
 
-func pgUsersDiff(currUsers []*postgresql.User, targetUsers []*postgresql.UserSpec) ([]string, []*postgresql.UserSpec) {
-	m := map[string]bool{}
-	toDelete := map[string]bool{}
-	toAdd := []*postgresql.UserSpec{}
+func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.ConfigSpec) (updateFieldConfigName string, err error) {
 
-	for _, u := range currUsers {
-		toDelete[u.Name] = true
-		m[u.Name] = true
-	}
+	version := configSpec.Version
 
-	for _, u := range targetUsers {
-		delete(toDelete, u.Name)
-		if _, ok := m[u.Name]; !ok {
-			toAdd = append(toAdd, u)
-		}
-	}
+	path := "config.0.postgresql_config"
 
-	toDel := []string{}
-	for u := range toDelete {
-		toDel = append(toDel, u)
-	}
+	if _, ok := d.GetOkExists(path); ok {
 
-	return toDel, toAdd
-}
+		var sharedPreloadLibraries []int32
+		sharedPreloadLibValue, ok := d.GetOkExists(path + ".shared_preload_libraries")
+		if ok {
+			splValue := sharedPreloadLibValue.(string)
 
-type IndexedUserSpec struct {
-	index int
-	user  *postgresql.UserSpec
-}
+			for _, sv := range strings.Split(splValue, ",") {
 
-func pgChangedUsers(oldSpecs []interface{}, newSpecs []interface{}, withNewPermissions bool) ([]IndexedUserSpec, error) {
-	out := make([]IndexedUserSpec, 0)
-
-	m := map[string]*postgresql.UserSpec{}
-	permissions := map[string]interface{}{}
-	for _, spec := range oldSpecs {
-		mapOldUser := spec.(map[string]interface{})
-		user, err := expandPGUser(mapOldUser)
-		if err != nil {
-			return nil, err
-		}
-		m[user.Name] = user
-		permissions[user.Name] = mapOldUser["permission"]
-	}
-
-	for i, spec := range newSpecs {
-		mapUser := spec.(map[string]interface{})
-		newUser, err := expandPGUser(mapUser)
-		if err != nil {
-			return nil, err
-		}
-		if oldUser, ok := m[newUser.Name]; ok {
-			if !withNewPermissions {
-				newUser.Permissions = oldUser.Permissions
+				i, err := mdbPGSettingsFieldsInfo.stringToInt("shared_preload_libraries", sv)
+				if err != nil {
+					return updateFieldConfigName, err
+				}
+				if i != nil {
+					sharedPreloadLibraries = append(sharedPreloadLibraries, int32(*i))
+				}
 			}
-			if !reflect.DeepEqual(newUser, oldUser) {
-				out = append(out, IndexedUserSpec{i, newUser})
-			}
-		} else if withNewPermissions {
-			out = append(out, IndexedUserSpec{i, newUser})
 		}
+
+		var pgConfig interface{}
+		if version == "10" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_10{
+				PostgresqlConfig_10: &config.PostgresqlConfig10{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_10.SharedPreloadLibraries = append(cfg.PostgresqlConfig_10.SharedPreloadLibraries, config.PostgresqlConfig10_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_10
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_10"
+		} else if version == "10-1c" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_10_1C{
+				PostgresqlConfig_10_1C: &config.PostgresqlConfig10_1C{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_10_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_10_1C.SharedPreloadLibraries, config.PostgresqlConfig10_1C_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_10_1C
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_10_1c"
+		} else if version == "11" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_11{
+				PostgresqlConfig_11: &config.PostgresqlConfig11{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_11.SharedPreloadLibraries = append(cfg.PostgresqlConfig_11.SharedPreloadLibraries, config.PostgresqlConfig11_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_11
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_11"
+		} else if version == "11-1c" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_11_1C{
+				PostgresqlConfig_11_1C: &config.PostgresqlConfig11_1C{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_11_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_11_1C.SharedPreloadLibraries, config.PostgresqlConfig11_1C_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_11_1C
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_11_1c"
+		} else if version == "12-1c" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_12_1C{
+				PostgresqlConfig_12_1C: &config.PostgresqlConfig12_1C{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_12_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_12_1C.SharedPreloadLibraries, config.PostgresqlConfig12_1C_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_12_1C
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_12_1c"
+		} else {
+			// 12
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_12{
+				PostgresqlConfig_12: &config.PostgresqlConfig12{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_12.SharedPreloadLibraries = append(cfg.PostgresqlConfig_12.SharedPreloadLibraries, config.PostgresqlConfig12_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_12
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_12"
+		}
+
+		err := expandResourceGenerate(mdbPGSettingsFieldsInfo, d, pgConfig, path+".", true)
+
+		if err != nil {
+			return updateFieldConfigName, err
+		}
+
 	}
 
-	return out, nil
+	return updateFieldConfigName, nil
 }
 
 func pgDatabasesDiff(currDBs []*postgresql.Database, targetDBs []*postgresql.DatabaseSpec) ([]string, []*postgresql.DatabaseSpec) {
@@ -735,3 +918,89 @@ func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_Poo
 
 	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
 }
+
+func mdbPGSharedPreloadLibrariesCheck(fieldsInfo *objectFieldsInfo, v interface{}) error {
+
+	s, ok := v.(string)
+	if ok {
+		if s == "" {
+			return nil
+		}
+
+		for _, sv := range strings.Split(s, ",") {
+
+			i, err := fieldsInfo.stringToInt("shared_preload_libraries", sv)
+			if err != nil {
+				return err
+			}
+			err = fieldsInfo.intCheckSetValue("shared_preload_libraries", i)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return fmt.Errorf("mdbPGSharedPreloadLibrariesCheck: Unsupported type for value %v", v)
+}
+func mdbPGSharedPreloadLibrariesCompare(fieldsInfo *objectFieldsInfo, old, new string) bool {
+	return old == new
+}
+
+var mdbPGUserSettingsTransactionIsolationName = map[int]string{
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_UNSPECIFIED):      "unspecified",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED): "read uncommitted",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED):   "read committed",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_REPEATABLE_READ):  "repeatable read",
+	int(postgresql.UserSettings_TRANSACTION_ISOLATION_SERIALIZABLE):     "serializable",
+}
+var mdbPGUserSettingsSynchronousCommitName = map[int]string{
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_UNSPECIFIED):  "unspecified",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_ON):           "on",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_OFF):          "off",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_LOCAL):        "local",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_REMOTE_WRITE): "remote write",
+	int(postgresql.UserSettings_SYNCHRONOUS_COMMIT_REMOTE_APPLY): "remote apply",
+}
+var mdbPGUserSettingsLogStatementName = map[int]string{
+	int(postgresql.UserSettings_LOG_STATEMENT_UNSPECIFIED): "unspecified",
+	int(postgresql.UserSettings_LOG_STATEMENT_NONE):        "none",
+	int(postgresql.UserSettings_LOG_STATEMENT_DDL):         "ddl",
+	int(postgresql.UserSettings_LOG_STATEMENT_MOD):         "mod",
+	int(postgresql.UserSettings_LOG_STATEMENT_ALL):         "all",
+}
+
+var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
+	addType(postgresql.UserSettings{}).
+	addIDefault("log_min_duration_statement", -1).
+	addEnumHumanNames("default_transaction_isolation", mdbPGUserSettingsTransactionIsolationName,
+		postgresql.UserSettings_TransactionIsolation_name).
+	addEnumHumanNames("synchronous_commit", mdbPGUserSettingsSynchronousCommitName,
+		postgresql.UserSettings_SynchronousCommit_name).
+	addEnumHumanNames("log_statement", mdbPGUserSettingsLogStatementName,
+		postgresql.UserSettings_LogStatement_name)
+
+var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
+	addType(config.PostgresqlConfig12{}).
+	addType(config.PostgresqlConfig12_1C{}).
+	addType(config.PostgresqlConfig11{}).
+	addType(config.PostgresqlConfig11_1C{}).
+	addType(config.PostgresqlConfig10{}).
+	addType(config.PostgresqlConfig10_1C{}).
+	addEnumGeneratedNames("wal_level", config.PostgresqlConfig12_WalLevel_name).
+	addEnumGeneratedNames("synchronous_commit", config.PostgresqlConfig12_SynchronousCommit_name).
+	addEnumGeneratedNames("constraint_exclusion", config.PostgresqlConfig12_ConstraintExclusion_name).
+	addEnumGeneratedNames("force_parallel_mode", config.PostgresqlConfig12_ForceParallelMode_name).
+	addEnumGeneratedNames("client_min_messages", config.PostgresqlConfig12_LogLevel_name).
+	addEnumGeneratedNames("log_min_messages", config.PostgresqlConfig12_LogLevel_name).
+	addEnumGeneratedNames("log_min_error_statement", config.PostgresqlConfig12_LogLevel_name).
+	addEnumGeneratedNames("log_error_verbosity", config.PostgresqlConfig12_LogErrorVerbosity_name).
+	addEnumGeneratedNames("log_statement", config.PostgresqlConfig12_LogStatement_name).
+	addEnumGeneratedNames("default_transaction_isolation", config.PostgresqlConfig12_TransactionIsolation_name).
+	addEnumGeneratedNames("bytea_output", config.PostgresqlConfig12_ByteaOutput_name).
+	addEnumGeneratedNames("xmlbinary", config.PostgresqlConfig12_XmlBinary_name).
+	addEnumGeneratedNames("xmloption", config.PostgresqlConfig12_XmlOption_name).
+	addEnumGeneratedNames("backslash_quote", config.PostgresqlConfig12_BackslashQuote_name).
+	addEnumGeneratedNames("plan_cache_mode", config.PostgresqlConfig12_PlanCacheMode_name).
+	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig12_SharedPreloadLibraries_name, mdbPGSharedPreloadLibrariesCheck, mdbPGSharedPreloadLibrariesCompare).
+	addEnumGeneratedNames("pg_hint_plan_debug_print", config.PostgresqlConfig12_PgHintPlanDebugPrint_name).
+	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig12_LogLevel_name)

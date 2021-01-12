@@ -61,6 +61,7 @@ The `config` block supports:
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the PostgreSQL cluster. The structure is documented below.
 * `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-postgresql/grpc/cluster_service#PerformanceDiagnostics)
+* `postgresql_config` - PostgreSQL cluster config.
 
 The `resources` block supports:
 
@@ -98,6 +99,7 @@ The `user` block supports:
 * `login` - User's ability to login.
 * `grants` - List of the user's grants.
 * `conn_limit` - The maximum number of connections per user.
+* `settings` - Map of user settings.
 
 The `permission` block supports:
 

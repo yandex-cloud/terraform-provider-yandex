@@ -138,6 +138,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckClusterSettingsPerformanceDiagnostics(pgResource),
 					testAccCheckConnLimitUpdateUserSettings(pgResource),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
+					testAccCheckSettingsUpdateUserSettings(pgResource),
+					testAccCheckPostgresqlConfigUpdate(pgResource),
 					testAccCheckCreatedAtAttr(pgResource),
 				),
 			},
@@ -418,6 +420,93 @@ func testAccCheckConnLimitUpdateUserSettings(r string) resource.TestCheckFunc {
 	}
 }
 
+var defaultTransactionIsolationPerUser = map[string]postgresql.UserSettings_TransactionIsolation{
+	"alice": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED,
+	"bob":   postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED,
+}
+
+func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().PostgreSQL().User().List(context.Background(), &postgresql.ListUsersRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		for _, user := range resp.Users {
+			v, ok := defaultTransactionIsolationPerUser[user.Name]
+			if ok {
+				if user.Settings.DefaultTransactionIsolation != v {
+					return fmt.Errorf("Field 'settings.default_transaction_isolation' wasn`t changed for user %s with value %d ",
+						user.Name, user.Settings.DefaultTransactionIsolation)
+				}
+				if user.Settings.LogMinDurationStatement.GetValue() != 5000 {
+					return fmt.Errorf("Field 'settings.log_min_duration_statement' wasn`t changed for user %s with value %d ",
+						user.Name, user.Settings.LogMinDurationStatement.GetValue())
+				}
+			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckPostgresqlConfigUpdate(r string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(context.Background(), &postgresql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if cluster.Config.GetPostgresqlConfig_12().UserConfig.MaxConnections.GetValue() != 395 {
+			return fmt.Errorf("Field 'config.postgresql_config.max_connections' wasn`t changed for with value 395. Current value is %v",
+				cluster.Config.GetPostgresqlConfig_12().UserConfig.MaxConnections.GetValue())
+		}
+
+		if !cluster.Config.GetPostgresqlConfig_12().UserConfig.EnableParallelHash.GetValue() {
+			return fmt.Errorf("Field 'config.postgresql_config.enable_parallel_hash' wasn`t changed for with value true. Current value is %v",
+				cluster.Config.GetPostgresqlConfig_12().UserConfig.EnableParallelHash.GetValue())
+		}
+
+		if cluster.Config.GetPostgresqlConfig_12().UserConfig.VacuumCleanupIndexScaleFactor.GetValue() != 0.2 {
+			return fmt.Errorf("Field 'config.postgresql_config.vacuum_cleanup_index_scale_factor' wasn`t changed for with value 0.2. Current value is %v",
+				cluster.Config.GetPostgresqlConfig_12().UserConfig.VacuumCleanupIndexScaleFactor.GetValue())
+		}
+
+		if cluster.Config.GetPostgresqlConfig_12().UserConfig.DefaultTransactionIsolation != 1 {
+			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v",
+				cluster.Config.GetPostgresqlConfig_12().UserConfig.DefaultTransactionIsolation)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckMDBPGClusterHasDatabases(r string, databases []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
@@ -632,6 +721,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 }
 
 func testAccMDBPGClusterConfigUpdated(name, desc string) string {
+
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "%s"
@@ -663,6 +753,14 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       pooling_mode = "TRANSACTION"
       pool_discard = false
     }
+
+    postgresql_config = {
+      max_connections                   = 395
+      enable_parallel_hash              = true
+      vacuum_cleanup_index_scale_factor = 0.2
+      autovacuum_vacuum_scale_factor    = 0.34
+      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+    }
   }
 
   user {
@@ -677,6 +775,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     permission {
       database_name = "newdb"
     }
+
+    settings = {
+      default_transaction_isolation = "read uncommitted"
+      log_min_duration_statement    = 5000
+    }
   }
 
   user {
@@ -689,6 +792,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
     permission {
       database_name = "fornewuserdb"
+    }
+
+    settings = {
+	  default_transaction_isolation = "read committed"
+	  log_min_duration_statement    = 5000
     }
   }
 

@@ -125,6 +125,16 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"postgresql_config": {
+							Type:             schema.TypeMap,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
+							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -279,6 +289,16 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
+						"settings": {
+							Type:             schema.TypeMap,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
+							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -312,7 +332,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", clusterID))
 	}
 
-	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config)
+	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config, d)
 	if err != nil {
 		return err
 	}
@@ -345,7 +365,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	us, err := flattenPGUsers(users, nil)
+	us, err := flattenPGUsers(users, nil, mdbPGUserSettingsFieldsInfo)
 	if err != nil {
 		return err
 	}

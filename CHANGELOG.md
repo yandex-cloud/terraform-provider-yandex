@@ -4,6 +4,8 @@ ENHANCEMENTS:
 
 * mdb: add `web_sql` attribute to `config.access` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `performance_diagnostics` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
+* mdb: add `settings` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
+* mdb: add `postgresql_config` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data 
 
 ## 0.48.0 (December 22, 2020)
 
