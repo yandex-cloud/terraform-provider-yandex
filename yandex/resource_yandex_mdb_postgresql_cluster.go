@@ -342,6 +342,12 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -436,6 +442,10 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 	sortPGDatabases(databases, databaseSpecs)
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
 
 	return d.Set("database", flattenPGDatabases(databases))
 }
@@ -543,17 +553,21 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	for _, host := range hostsFromScheme {
 		hostSpecs = append(hostSpecs, host.HostSpec)
 	}
+
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := &postgresql.CreateClusterRequest{
-		FolderId:      folderID,
-		Name:          d.Get("name").(string),
-		Description:   d.Get("description").(string),
-		NetworkId:     d.Get("network_id").(string),
-		Labels:        labels,
-		Environment:   env,
-		ConfigSpec:    confSpec,
-		UserSpecs:     userSpecs,
-		DatabaseSpecs: databaseSpecs,
-		HostSpecs:     hostSpecs,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Labels:           labels,
+		Environment:      env,
+		ConfigSpec:       confSpec,
+		UserSpecs:        userSpecs,
+		DatabaseSpecs:    databaseSpecs,
+		HostSpecs:        hostSpecs,
+		SecurityGroupIds: securityGroupIds,
 	}
 
 	return req, nil
@@ -613,6 +627,7 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		"config.0.performance_diagnostics": "config_spec.performance_diagnostics",
 		"config.0.backup_window_start":     "config_spec.backup_window_start",
 		"config.0.resources":               "config_spec.resources",
+		"security_group_ids":               "security_group_ids",
 	}
 
 	if updateFieldConfigName != "" {
@@ -668,12 +683,15 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 		return nil, updateFieldConfigName, fmt.Errorf("error expanding config while updating PostgreSQL Cluster: %s", err)
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := &postgresql.UpdateClusterRequest{
-		ClusterId:   d.Id(),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		ConfigSpec:  configSpec,
+		ClusterId:        d.Id(),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Labels:           labels,
+		ConfigSpec:       configSpec,
+		SecurityGroupIds: securityGroupIds,
 	}
 
 	return req, updateFieldConfigName, nil

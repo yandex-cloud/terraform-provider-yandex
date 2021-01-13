@@ -182,6 +182,12 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -294,6 +300,10 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 
 	createdAt, err := getTimestamp(cluster.CreatedAt)
 	if err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 

@@ -109,6 +109,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb"}}),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
+					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -141,6 +142,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckSettingsUpdateUserSettings(pgResource),
 					testAccCheckPostgresqlConfigUpdate(pgResource),
 					testAccCheckCreatedAtAttr(pgResource),
+					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "2"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -160,6 +162,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
+					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -579,6 +582,43 @@ resource "yandex_vpc_subnet" "mdb-pg-test-subnet-c" {
   network_id     = "${yandex_vpc_network.mdb-pg-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "mdb-pg-test-sg-x" {
+  network_id     = "${yandex_vpc_network.mdb-pg-test-net.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "mdb-pg-test-sg-y" {
+  network_id     = "${yandex_vpc_network.mdb-pg-test-net.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
 `
 
 func testAccMDBPGClusterConfigMain(name, desc string) string {
@@ -623,6 +663,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     lc_collate = "en_US.UTF-8"
     lc_type    = "en_US.UTF-8"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
 }
 `, name, desc)
 }
@@ -670,6 +712,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     lc_collate = "en_US.UTF-8"
     lc_type    = "en_US.UTF-8"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
 }
 `, name, desc)
 }
@@ -716,6 +760,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     lc_collate = "C"
     lc_type    = "en_US.UTF-8"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
 }
 `, name, desc)
 }
@@ -821,6 +867,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     owner = "bob"
     name  = "fornewuserdb"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}", "${yandex_vpc_security_group.mdb-pg-test-sg-y.id}"]
 }
 `, name, desc)
 }
@@ -903,6 +951,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     owner = "bob"
     name  = "fornewuserdb"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-y.id}"]
 }
 `, name, desc)
 }

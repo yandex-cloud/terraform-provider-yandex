@@ -206,6 +206,12 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -291,17 +297,21 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 	for _, host := range hostsFromScheme {
 		hostSpecs = append(hostSpecs, host.HostSpec)
 	}
+
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := mysql.CreateClusterRequest{
-		FolderId:      folderID,
-		Name:          d.Get("name").(string),
-		Description:   d.Get("description").(string),
-		NetworkId:     d.Get("network_id").(string),
-		Environment:   env,
-		ConfigSpec:    configSpec,
-		DatabaseSpecs: dbSpecs,
-		UserSpecs:     users,
-		HostSpecs:     hostSpecs,
-		Labels:        labels,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Environment:      env,
+		ConfigSpec:       configSpec,
+		DatabaseSpecs:    dbSpecs,
+		UserSpecs:        users,
+		HostSpecs:        hostSpecs,
+		Labels:           labels,
+		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, nil
 }
@@ -404,6 +414,10 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
 	return d.Set("created_at", createdAt)
 }
 
@@ -442,6 +456,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"labels":              "labels",
 	"backup_window_start": "config_spec.backup_window_start",
 	"resources":           "config_spec.resources",
+	"security_group_ids":  "security_group_ids",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -500,11 +515,14 @@ func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterR
 		return nil, fmt.Errorf("error expanding labels while updating MySQL cluster: %s", err)
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := &mysql.UpdateClusterRequest{
-		ClusterId:   d.Id(),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
+		ClusterId:        d.Id(),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Labels:           labels,
+		SecurityGroupIds: securityGroupIds,
 	}
 
 	return req, nil

@@ -234,6 +234,10 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"user.0.permission.4177295200.database_name",
 				"user.0.permission.4177295200.database_name",
 			},
+			{
+				"security_group_ids.#",
+				"security_group_ids.#",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -276,6 +280,7 @@ func testAccDataSourceMDBPGClusterCheck(datasourceName string, resourceName stri
 		resource.TestCheckResourceAttr(datasourceName, "config.0.access.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "config.0.backup_window_start.#", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
+		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }

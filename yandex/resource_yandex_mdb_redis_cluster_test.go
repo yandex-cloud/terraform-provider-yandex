@@ -106,6 +106,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
+					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -122,6 +123,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
+					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -139,6 +141,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
+					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -451,6 +454,43 @@ resource "yandex_vpc_subnet" "foo" {
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "sg-x" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "sg-y" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
 `
 
 func testAccMDBRedisClusterConfigMain(name, desc string, version string) string {
@@ -481,6 +521,8 @@ resource "yandex_mdb_redis_cluster" "foo" {
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
 }
 `, name, desc, version)
 }
@@ -513,6 +555,8 @@ resource "yandex_mdb_redis_cluster" "foo" {
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
 }
 `, name, desc, version)
 }
@@ -550,6 +594,8 @@ resource "yandex_mdb_redis_cluster" "foo" {
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
 }
 `, name, desc, version)
 }

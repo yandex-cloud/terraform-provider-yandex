@@ -64,6 +64,7 @@ func testAccDataSourceMDBMongoDBClusterAttributesCheck(datasourceName string, re
 			"host",
 			"sharded",
 			"cluster_config.0.version",
+			"security_group_ids",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -95,6 +96,7 @@ func testAccDataSourceMDBMongoDBClusterCheck(datasourceName string, resourceName
 		resource.TestCheckResourceAttr(datasourceName, "sharded", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "2"),
 		testAccCheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 	)
 }
 

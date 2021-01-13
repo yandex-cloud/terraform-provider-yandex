@@ -157,6 +157,12 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -241,16 +247,19 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		Version:   version,
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := redis.CreateClusterRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		NetworkId:   d.Get("network_id").(string),
-		Environment: env,
-		ConfigSpec:  configSpec,
-		HostSpecs:   hosts,
-		Labels:      labels,
-		Sharded:     d.Get("sharded").(bool),
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Environment:      env,
+		ConfigSpec:       configSpec,
+		HostSpecs:        hosts,
+		Labels:           labels,
+		Sharded:          d.Get("sharded").(bool),
+		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, nil
 }
@@ -332,13 +341,17 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
 	return d.Set("labels", cluster.Labels)
 }
 
 func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
 
-	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") {
+	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") || d.HasChange("security_group_ids") {
 		if err := updateRedisClusterParams(d, meta); err != nil {
 			return err
 		}
@@ -436,6 +449,17 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 		onDone = append(onDone, func() {
 			d.SetPartial("config")
+		})
+	}
+
+	if d.HasChange("security_group_ids") {
+		securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
+		req.SecurityGroupIds = securityGroupIds
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
+
+		onDone = append(onDone, func() {
+			d.SetPartial("security_group_ids")
 		})
 	}
 

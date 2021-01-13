@@ -126,6 +126,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.0.timeout", // Cannot test full config, because API doesn't return password
 			"config.0.maxmemory_policy",
 			"config.0.version",
+			"security_group_ids",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -159,6 +160,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 	)
 }
 

@@ -261,6 +261,12 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -386,17 +392,20 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		return nil, fmt.Errorf("error while expanding user specs on MongoDB Cluster create: %s", err)
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := mongodb.CreateClusterRequest{
-		FolderId:      folderID,
-		Name:          d.Get("name").(string),
-		Description:   d.Get("description").(string),
-		NetworkId:     d.Get("network_id").(string),
-		Environment:   env,
-		ConfigSpec:    configSpec,
-		HostSpecs:     hosts,
-		UserSpecs:     users,
-		DatabaseSpecs: dbSpecs,
-		Labels:        labels,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Environment:      env,
+		ConfigSpec:       configSpec,
+		HostSpecs:        hosts,
+		UserSpecs:        users,
+		DatabaseSpecs:    dbSpecs,
+		Labels:           labels,
+		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, nil
 }
@@ -569,6 +578,10 @@ func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("host", hs); err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
@@ -779,6 +792,8 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		return nil, fmt.Errorf("error expanding labels while updating MongoDB cluster: %s", err)
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	switch d.Get("cluster_config.0.version").(string) {
 	case "4.4":
 		{
@@ -792,6 +807,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 					BackupWindowStart: expandMongoDBBackupWindowStart(d),
 					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
 				},
+				SecurityGroupIds: securityGroupIds,
 			}
 			return req, nil
 		}
@@ -807,6 +823,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 					BackupWindowStart: expandMongoDBBackupWindowStart(d),
 					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
 				},
+				SecurityGroupIds: securityGroupIds,
 			}
 			return req, nil
 		}
@@ -822,6 +839,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 					BackupWindowStart: expandMongoDBBackupWindowStart(d),
 					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
 				},
+				SecurityGroupIds: securityGroupIds,
 			}
 			return req, nil
 		}
@@ -837,6 +855,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 					BackupWindowStart: expandMongoDBBackupWindowStart(d),
 					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
 				},
+				SecurityGroupIds: securityGroupIds,
 			}
 			return req, nil
 		}
@@ -853,6 +872,7 @@ var mdbMongodbUpdateFieldsMap = map[string]string{
 	"cluster_config.0.version":             "config_spec.version",
 	"cluster_config.0.access":              "config_spec.access",
 	"cluster_config.0.backup_window_start": "config_spec.backup_window_start",
+	"security_group_ids":                   "security_group_ids",
 }
 
 func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {

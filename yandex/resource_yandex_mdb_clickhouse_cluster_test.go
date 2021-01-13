@@ -112,6 +112,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
@@ -134,6 +135,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
@@ -151,6 +153,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(chResource, "host.1.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
@@ -502,6 +505,43 @@ resource "yandex_vpc_subnet" "mdb-ch-test-subnet-c" {
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "mdb-ch-test-sg-x" {
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "mdb-ch-test-sg-y" {
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
 `
 
 func testAccMDBClickHouseClusterConfigMain(name, desc string) string {
@@ -623,6 +663,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc)
 }
@@ -786,6 +828,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}", "${yandex_vpc_security_group.mdb-ch-test-sg-y.id}"]
 }
 `, name, desc)
 }
@@ -874,6 +918,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc)
 }

@@ -125,6 +125,12 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -220,6 +226,10 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("labels", cluster.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 

@@ -6,6 +6,7 @@ ENHANCEMENTS:
 * mdb: add `performance_diagnostics` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `settings` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `postgresql_config` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data 
+* mdb: support `security_group_ids` in all database cluster resources and data sources 
 
 ## 0.48.0 (December 22, 2020)
 

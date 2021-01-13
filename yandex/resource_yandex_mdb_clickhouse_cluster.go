@@ -462,6 +462,12 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -584,18 +590,21 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		Access:            expandClickHouseAccess(d),
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := clickhouse.CreateClusterRequest{
-		FolderId:      folderID,
-		Name:          d.Get("name").(string),
-		Description:   d.Get("description").(string),
-		NetworkId:     d.Get("network_id").(string),
-		Environment:   env,
-		DatabaseSpecs: dbSpecs,
-		ConfigSpec:    configSpec,
-		HostSpecs:     firstHosts,
-		UserSpecs:     users,
-		Labels:        labels,
-		ShardName:     firstShard,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Environment:      env,
+		DatabaseSpecs:    dbSpecs,
+		ConfigSpec:       configSpec,
+		HostSpecs:        firstHosts,
+		UserSpecs:        users,
+		Labels:           labels,
+		ShardName:        firstShard,
+		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, toAdd, nil
 }
@@ -718,6 +727,10 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
 	d.Set("created_at", createdAt)
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)
@@ -777,6 +790,7 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"access":              "config_spec.access",
 	"backup_window_start": "config_spec.backup_window_start",
 	"clickhouse":          "config_spec.clickhouse",
+	"security_group_ids":  "security_group_ids",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -865,6 +879,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 			BackupWindowStart: expandClickHouseBackupWindowStart(d),
 			Access:            expandClickHouseAccess(d),
 		},
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
 	return req, nil
 }

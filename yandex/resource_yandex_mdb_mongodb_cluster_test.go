@@ -105,6 +105,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -118,6 +119,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "2"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -134,6 +136,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}, "mary": {"newdb", "admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -488,6 +491,43 @@ resource "yandex_vpc_subnet" "baz" {
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "sg-x" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "sg-y" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
 `
 
 func testAccMDBMongoDBClusterConfigMain(name string) string {
@@ -537,6 +577,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     zone_id   = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.bar.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
 }
 `, name)
 }
@@ -589,6 +631,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     zone_id   = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.bar.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
 }
 `, name)
 }
@@ -658,6 +702,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     zone_id   = "ru-central1-b"
     subnet_id = "${yandex_vpc_subnet.bar.id}"
   }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
 }
 `, name, desc)
 }
