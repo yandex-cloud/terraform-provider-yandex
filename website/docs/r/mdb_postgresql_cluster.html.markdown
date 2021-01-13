@@ -149,8 +149,7 @@ The following arguments are supported:
 
 * `description` - (Optional) Description of the PostgreSQL cluster.
 
-* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it
-    is not provided, the default provider folder is used.
+* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is unset, the default provider `folder_id` is used for create.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the PostgreSQL cluster.
 

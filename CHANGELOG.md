@@ -2,6 +2,7 @@
 
 ENHANCEMENTS:
 
+* mdb: changing `folder_id` attribute in `yandex_mdb_postgresql_cluster` moves PostgreSQL cluster to new folder
 * mdb: add `web_sql` attribute to `config.access` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `performance_diagnostics` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `settings` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source

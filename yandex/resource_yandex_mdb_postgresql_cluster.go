@@ -318,7 +318,6 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -576,6 +575,10 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
+
+	if err := setPGFolderID(d, meta); err != nil {
+		return err
+	}
 
 	if err := updatePGClusterParams(d, meta); err != nil {
 		return err
@@ -1226,4 +1229,51 @@ func listPGHosts(ctx context.Context, config *Config, id string) ([]*postgresql.
 	}
 
 	return hosts, nil
+}
+
+func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	cluster, err := config.sdk.MDB().PostgreSQL().Cluster().Get(ctx, &postgresql.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+
+		op, err := config.sdk.WrapOperation(
+			config.sdk.MDB().PostgreSQL().Cluster().Move(ctx, &postgresql.MoveClusterRequest{
+				ClusterId:           d.Id(),
+				DestinationFolderId: folderID.(string),
+			}),
+		)
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move PostgreSQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving PostgreSQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving PostgreSQL Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
+	}
+
+	return nil
 }
