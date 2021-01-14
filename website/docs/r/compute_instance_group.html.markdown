@@ -298,6 +298,10 @@ during the update process.
 Instance will be considered up and running (and start receiving traffic) only after the startup_duration
 has elapsed and all health checks are passed.
 
+* `strategy` - (Optional) Affects the lifecycle of the instance during deployment. If set to `proactive` (default), Instance Groups
+  can forcefully stop a running instance. If `opportunistic`, Instance Groups does not stop a running instance. Instead,
+  it will wait until the instance stops itself or becomes unhealthy.
+  
 ---
 
 The `scale_policy` block supports:

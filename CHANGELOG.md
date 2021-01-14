@@ -8,6 +8,7 @@ ENHANCEMENTS:
 * mdb: add `settings` attribute to `user` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `postgresql_config` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data 
 * mdb: support `security_group_ids` in all database cluster resources and data sources 
+* compute: `strategy` attribute to `deploy_policy` entity in `yandex_compute_instance_group` resource and data source
 
 ## 0.48.0 (December 22, 2020)
 

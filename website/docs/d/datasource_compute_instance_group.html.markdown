@@ -263,6 +263,9 @@ during the update process.
 * `max_deleting` - The maximum number of instances that can be deleted at the same time.
 * `max_creating` - The maximum number of instances that can be created at the same time.
 * `startup_duration` - The amount of time in seconds to allow for an instance to start.
+* `strategy` - Affects the lifecycle of the instance during deployment. If set to `proactive` (default), Instance Groups
+  can forcefully stop a running instance. If `opportunistic`, Instance Groups does not stop a running instance. Instead,
+  it will wait until the instance stops itself or becomes unhealthy.
 
 Instance will be considered up and running (and start receiving traffic) only after the startup_duration
 has elapsed and all health checks are passed.

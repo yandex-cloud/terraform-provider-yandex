@@ -343,6 +343,31 @@ func TestAccComputeInstanceGroup_TestAutoScale(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_DeployPolicyStrategy(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigStrategy(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupStrategy(&ig),
+				),
+			},
+			computeInstanceGroupImportStep(),
+		},
+	})
+}
+
 func TestAccComputeInstanceGroup_update(t *testing.T) {
 	t.Parallel()
 
@@ -1654,6 +1679,87 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
+func testAccComputeInstanceGroupConfigStrategy(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+	strategy        = "opportunistic"
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
+}
+
 func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1929,6 +2035,20 @@ func testAccCheckComputeInstanceGroupTestAutoScalePolicy(ig *instancegroup.Insta
 		if sp.CpuUtilizationRule == nil || sp.CpuUtilizationRule.UtilizationTarget != 80. {
 			return fmt.Errorf("wrong cpu_utilization_target on instance group %s", ig.Name)
 		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGroupStrategy(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ig.DeployPolicy == nil {
+			return fmt.Errorf("no deploy policy on instance group %s", ig.Name)
+		}
+
+		if ig.DeployPolicy.Strategy.String() != "OPPORTUNISTIC" {
+			return fmt.Errorf("wrong deploy_policy.strategy on instance group %s", ig.Name)
+		}
+
 		return nil
 	}
 }

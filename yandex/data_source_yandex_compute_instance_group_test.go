@@ -125,6 +125,7 @@ var baseAttrsToTest = []string{
 	"service_account_id",
 	"deploy_policy.#",
 	"deploy_policy.0.startup_duration",
+	"deploy_policy.0.strategy",
 	"scale_policy.#",
 	"allocation_policy.#",
 	"allocation_policy.0.zones.#",

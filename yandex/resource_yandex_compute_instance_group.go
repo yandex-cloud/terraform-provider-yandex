@@ -526,6 +526,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Optional: true,
 							Default:  0,
 						},
+						"strategy": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"proactive", "opportunistic"}, false),
+						},
 					},
 				},
 			},

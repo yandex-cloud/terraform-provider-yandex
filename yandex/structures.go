@@ -345,6 +345,7 @@ func flattenInstanceGroupDeployPolicy(ig *instancegroup.InstanceGroup) ([]map[st
 		if ig.DeployPolicy.StartupDuration != nil {
 			res["startup_duration"] = ig.DeployPolicy.StartupDuration.Seconds
 		}
+		res["strategy"] = strings.ToLower(ig.DeployPolicy.Strategy.String())
 	}
 
 	return []map[string]interface{}{res}, nil
@@ -1388,6 +1389,15 @@ func expandInstanceGroupDeployPolicy(d *schema.ResourceData) (*instancegroup.Dep
 	if v, ok := d.GetOk("deploy_policy.0.startup_duration"); ok {
 		policy.StartupDuration = &duration.Duration{Seconds: int64(v.(int))}
 	}
+
+	if v, ok := d.GetOk("deploy_policy.0.strategy"); ok {
+		typeVal, ok := instancegroup.DeployPolicy_Strategy_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'strategy' should be 'proactive' or 'opportunistic', not '%s'", v)
+		}
+		policy.Strategy = instancegroup.DeployPolicy_Strategy(typeVal)
+	}
+
 	return policy, nil
 }
 

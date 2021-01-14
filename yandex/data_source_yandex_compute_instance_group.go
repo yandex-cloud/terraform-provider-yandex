@@ -467,6 +467,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"strategy": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
