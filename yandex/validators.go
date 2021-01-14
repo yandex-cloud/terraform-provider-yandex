@@ -104,3 +104,8 @@ func FloatAtLeast(min float64) schema.SchemaValidateFunc {
 		return nil, errors
 	}
 }
+
+func validateS3BucketLifecycleTimestamp(v interface{}, k string) (ws []string, errors []error) {
+	// TBD: Strict timestamp validation to be added in subsequent change
+	return
+}

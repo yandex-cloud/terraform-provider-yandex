@@ -953,6 +953,98 @@ resource "yandex_storage_bucket" "test" {
 `, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
+func testAccStorageBucketConfigWithLifecycle(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+  acl    = "private"
+
+  lifecycle_rule {
+    id      = "id1"
+    prefix  = "path1/"
+    enabled = true
+
+    expiration {
+      days = 365
+    }
+  }
+
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketConfigWithVersioningLifecycle(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+  acl    = "private"
+
+  lifecycle_rule {
+    id      = "id1"
+    prefix  = "path1/"
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+
+  }
+
+  lifecycle_rule {
+    id      = "id2"
+    prefix  = "path2/"
+    enabled = false
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+  }
+
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+
+  lifecycle_rule {
+    enabled = true
+    id      = "id1"
+
+    expiration {}
+  }
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 7
+    enabled                                = true
+    id                                     = "id1"
+  }
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
 func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_kms_symmetric_key" "key-a" {
@@ -1056,6 +1148,101 @@ func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) f
 		}
 		return nil
 	}
+}
+
+func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithLifecycle(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_LifecycleVersioning(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithVersioningLifecycle(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.prefix", "path2/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.noncurrent_version_expiration.0.days", "365"),
+				),
+			},
+		},
+	})
+}
+
+// Reference: https://github.com/hashicorp/terraform-provider-aws/issues/11420
+func TestAccStorageBucket_LifecycleRule_Expiration_EmptyConfigurationBlock(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
+}
+
+// Reference: https://github.com/hashicorp/terraform-provider-aws/issues/15138
+func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExpiration(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
 }
 
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {

@@ -1,5 +1,8 @@
 ## 0.49.0 (Unreleased)
 
+FEATURES:
+* storage: `yandex_storage_bucket` resource supports lifecycle configuration
+
 ENHANCEMENTS:
 
 * mdb: changing `folder_id` attribute in `yandex_mdb_postgresql_cluster` moves PostgreSQL cluster to new folder
@@ -11,7 +14,6 @@ ENHANCEMENTS:
 * compute: `strategy` attribute to `deploy_policy` entity in `yandex_compute_instance_group` resource and data source
 
 ## 0.48.0 (December 22, 2020)
-
 BUG FIXES:
 * mdb: fix setting of folder_id field for MongoDB cluster
 * dataproc: add documentation for the `ui_proxy` attribute
