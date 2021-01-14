@@ -1339,7 +1339,7 @@ resource "yandex_compute_instance_group" "group1" {
 
     resources {
       cores  = 8
-      memory = 96
+      memory = 48
       gpus   = 1
     }
 
