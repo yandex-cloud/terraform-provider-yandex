@@ -98,11 +98,10 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							ValidateFunc: validation.StringInSlice([]string{"tcp", "udp"}, false),
 						},
 						"external_address_spec": {
-							Type:          schema.TypeSet,
-							Optional:      true,
-							Set:           resourceLBNetworkLoadBalancerExternalAddressHash,
-							ConflictsWith: []string{"listener.internal_address_spec"},
-							MaxItems:      1,
+							Type:     schema.TypeSet,
+							Optional: true,
+							Set:      resourceLBNetworkLoadBalancerExternalAddressHash,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": {
@@ -120,11 +119,10 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							},
 						},
 						"internal_address_spec": {
-							Type:          schema.TypeSet,
-							Optional:      true,
-							Set:           resourceLBNetworkLoadBalancerInternalAddressHash,
-							ConflictsWith: []string{"listener.external_address_spec"},
-							MaxItems:      1,
+							Type:     schema.TypeSet,
+							Optional: true,
+							Set:      resourceLBNetworkLoadBalancerInternalAddressHash,
+							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"subnet_id": {

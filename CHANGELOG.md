@@ -1,10 +1,8 @@
 ## 0.49.0 (Unreleased)
-
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports lifecycle configuration
 
 ENHANCEMENTS:
-
 * mdb: changing `folder_id` attribute in `yandex_mdb_postgresql_cluster` moves PostgreSQL cluster to new folder
 * mdb: add `web_sql` attribute to `config.access` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `performance_diagnostics` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
@@ -12,6 +10,7 @@ ENHANCEMENTS:
 * mdb: add `postgresql_config` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data 
 * mdb: support `security_group_ids` in all database cluster resources and data sources 
 * compute: `strategy` attribute to `deploy_policy` entity in `yandex_compute_instance_group` resource and data source
+* vpc: extend validation for listener spec in `yandex_lb_network_load_balancer` resource
 
 ## 0.48.0 (December 22, 2020)
 BUG FIXES:

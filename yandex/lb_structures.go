@@ -169,6 +169,9 @@ func expandLBListenerSpec(config map[string]interface{}) (*loadbalancer.Listener
 	}
 
 	if v, ok := config["internal_address_spec"].(*schema.Set); ok && v.Len() > 0 {
+		if ls.Address != nil {
+			return nil, fmt.Errorf("use one of 'external_address_spec' or 'internal_address_spec', not both")
+		}
 		ias, err := expandLBInternalAddressSpec(v.List()[0].(map[string]interface{}))
 		if err != nil {
 			return nil, err
