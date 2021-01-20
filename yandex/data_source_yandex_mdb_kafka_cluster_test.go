@@ -83,6 +83,7 @@ func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, reso
 			"config.0.assign_public_ip",
 			"topics",
 			"users",
+			"security_group_ids",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -118,6 +119,7 @@ func testAccDataSourceMDBKafkaClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "zookeeper.#", "0"),
 		resource.TestCheckResourceAttr(datasourceName, "topic.#", "2"),
 		resource.TestCheckResourceAttr(datasourceName, "user.#", "2"),
+		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }

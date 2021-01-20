@@ -40,6 +40,43 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-c" {
   network_id     = yandex_vpc_network.mdb-kafka-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "mdb-kafka-test-sg-x" {
+  network_id     = "${yandex_vpc_network.mdb-kafka-test-net.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "mdb-kafka-test-sg-y" {
+  network_id     = "${yandex_vpc_network.mdb-kafka-test-net.id}"
+
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
 `
 
 func init() {
@@ -148,7 +185,8 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 				},
 			},
 		},
-		"subnet_ids": []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
+		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
+		"security_group_ids": []interface{}{"security-group-x", "security-group-y"},
 		"topic": []interface{}{
 			map[string]interface{}{
 				"name":               "raw_events",
@@ -281,6 +319,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 				},
 			},
 		},
+		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
 	}
 
 	assert.Equal(t, expected, req)
@@ -309,6 +348,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
+					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "1"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -330,6 +370,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "2"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.medium", "network-hdd", 17*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
@@ -369,6 +410,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
+					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "1"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					testAccCheckMDBKafkaConfigZookeeperHasResources(&r, "s2.micro", "network-ssd", 17179869184),
@@ -392,6 +434,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "2"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 19327352832),
 					testAccCheckMDBKafkaConfigZookeeperHasResources(&r, "s2.medium", "network-ssd", 19327352832),
@@ -472,6 +515,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  test_key = "test_value"
 	}
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id]
 
 	config {
 	  version          = "2.6"
@@ -551,6 +595,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		new_key = "new_value"
 	}
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id, yandex_vpc_security_group.mdb-kafka-test-sg-y.id]
 
 	config {
 		version = "2.6"
@@ -876,6 +921,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
 	]
+	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id]
 
 	config {
 	  version          = "2.6"
@@ -961,6 +1007,10 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
+	]
+	security_group_ids = [
+	  yandex_vpc_security_group.mdb-kafka-test-sg-x.id,
+	  yandex_vpc_security_group.mdb-kafka-test-sg-y.id
 	]
 
 	config {

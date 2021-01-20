@@ -81,6 +81,12 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      kafkaUserHash,
 				Elem:     resourceYandexMDBKafkaUser(),
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -151,6 +157,10 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("user", flattenKafkaUsers(users, nil)); err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 

@@ -50,6 +50,7 @@ exported:
 * `config` - Configuration of the Kafka cluster. The structure is documented below.
 * `user` - A user of the Kafka cluster. The structure is documented below.
 * `topic` - A topic of the Kafka cluster. The structure is documented below.
+* `security_group_ids` - A list of security groups IDs of the Kafka cluster.
 
 The `config` block supports:
 

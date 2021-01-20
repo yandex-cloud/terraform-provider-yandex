@@ -1,4 +1,6 @@
 ## 0.50.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: support `security_group_ids` for managed service for kafka
 
 ## 0.49.0 (January 15, 2021)
 FEATURES:

@@ -92,6 +92,12 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -451,17 +457,20 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 		return nil, fmt.Errorf("error while expanding users on Kafka Cluster create: %s", err)
 	}
 
+	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+
 	req := kafka.CreateClusterRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		NetworkId:   d.Get("network_id").(string),
-		Environment: env,
-		ConfigSpec:  configSpec,
-		Labels:      labels,
-		SubnetId:    subnets,
-		TopicSpecs:  topicSpecs,
-		UserSpecs:   userSpecs,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		NetworkId:        d.Get("network_id").(string),
+		Environment:      env,
+		ConfigSpec:       configSpec,
+		Labels:           labels,
+		SubnetId:         subnets,
+		TopicSpecs:       topicSpecs,
+		UserSpecs:        userSpecs,
+		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, nil
 }
@@ -527,6 +536,10 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 	if err := d.Set("user", flattenKafkaUsers(users, passwords)); err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
@@ -637,6 +650,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"name":                   "name",
 	"description":            "description",
 	"labels":                 "labels",
+	"security_group_ids":     "security_group_ids",
 	"config.0.zones":         "config_spec.zone_id",
 	"config.0.brokers_count": "config_spec.brokers_count",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
@@ -669,11 +683,12 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 	}
 
 	req := &kafka.UpdateClusterRequest{
-		ClusterId:   d.Id(),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		ConfigSpec:  configSpec,
+		ClusterId:        d.Id(),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		Labels:           labels,
+		ConfigSpec:       configSpec,
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
 	return req, nil
 }

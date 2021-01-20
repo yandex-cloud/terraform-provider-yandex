@@ -258,6 +258,8 @@ The following arguments are supported:
 
 * `topic` - (Optional) A topic of the Kafka cluster. The structure is documented below.
 
+* `security_group_ids` - (Optional) Security group ids, to which the Kafka cluster belongs.
+
 - - -
 
 The `config` block supports:
