@@ -153,6 +153,18 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+
+  format_schema {
+    name = "test_schema"
+    type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
+    uri  = "https://storage.yandexcloud.net/ch-data/schema.proto"
+  }
+
+  ml_model {
+    name = "test_model"
+    type = "ML_MODEL_TYPE_CATBOOST"
+    uri  = "https://storage.yandexcloud.net/ch-data/train.csv"
+  }
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -367,6 +379,10 @@ The following arguments are supported:
 
 * `shard_group` - (Optional) A group of clickhouse shards. The structure is documented below.
 
+* `format_schema` - (Optional) A set of protobuf or capnproto format schemas. The structure is documented below.
+
+* `ml_model` - (Optional) A group of machine learning models. The structure is documented below
+
 - - -
 
 * `version` - (Optional) Version of the ClickHouse server software.
@@ -454,6 +470,23 @@ The `shard_group` block supports:
 * `description` (Optional) - Description of the shard group.
 
 * `shard_names` (Required) -  List of shards names that belong to the shard group.
+
+The `format_schema` block supports:
+
+* `name` - (Required) The name of the format schema.
+
+* `type` - (Required) Type of the format schema.
+
+* `uri` - (Required) Format schema file URL. You can only use format schemas stored in Yandex Object Storage.
+
+The `ml_model` block supports:
+
+* `name` - (Required) The name of the ml model.
+
+* `type` - (Required) Type of the model.
+
+* `uri` - (Required) Model file URL. You can only use models stored in Yandex Object Storage.
+
 
 The `backup_window_start` block supports:
 

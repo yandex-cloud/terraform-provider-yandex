@@ -14,6 +14,8 @@ func TestAccDataSourceMDBClickHouseCluster_byID(t *testing.T) {
 
 	chName := acctest.RandomWithPrefix("ds-ch-by-id")
 	chDesc := "ClickHouseCluster Terraform Datasource Test"
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,7 +23,7 @@ func TestAccDataSourceMDBClickHouseCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, true),
+				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucketName, true, rInt),
 				Check: testAccDataSourceMDBClickHouseClusterCheck(
 					"data.yandex_mdb_clickhouse_cluster.bar",
 					"yandex_mdb_clickhouse_cluster.foo", chName, chDesc),
@@ -35,6 +37,8 @@ func TestAccDataSourceMDBClickHouseCluster_byName(t *testing.T) {
 
 	chName := acctest.RandomWithPrefix("ds-ch-by-name")
 	chDesc := "ClickHouseCluster Terraform Datasource Test"
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -42,7 +46,7 @@ func TestAccDataSourceMDBClickHouseCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, false),
+				Config: testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucketName, false, rInt),
 				Check: testAccDataSourceMDBClickHouseClusterCheck(
 					"data.yandex_mdb_clickhouse_cluster.bar",
 					"yandex_mdb_clickhouse_cluster.foo", chName, chDesc),
@@ -141,10 +145,10 @@ data "yandex_mdb_clickhouse_cluster" "bar" {
 }
 `
 
-func testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc string, useDataID bool) string {
+func testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucket string, useDataID bool, randInt int) string {
 	if useDataID {
-		return testAccMDBClickHouseClusterConfigMain(chName, chDesc) + mdbClickHouseClusterByIDConfig
+		return testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucket, randInt) + mdbClickHouseClusterByIDConfig
 	}
 
-	return testAccMDBClickHouseClusterConfigMain(chName, chDesc) + mdbClickHouseClusterByNameConfig
+	return testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucket, randInt) + mdbClickHouseClusterByNameConfig
 }

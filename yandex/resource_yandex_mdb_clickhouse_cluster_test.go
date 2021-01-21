@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 )
 
@@ -93,6 +92,8 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 	chDesc := "ClickHouse Cluster Terraform Test"
 	chDesc2 := "ClickHouse Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -101,7 +102,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -118,13 +119,15 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb"}),
+					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
+					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
 					testAccCheckCreatedAtAttr(chResource),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Change some options
 			{
-				Config: testAccMDBClickHouseClusterConfigUpdated(chName, chDesc2),
+				Config: testAccMDBClickHouseClusterConfigUpdated(chName, chDesc2, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -141,13 +144,25 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb", "newdb"}),
+					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
+						"test_schema": {
+							"type": "FORMAT_SCHEMA_TYPE_CAPNPROTO",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test.capnp", bucketName),
+						},
+					}),
+					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
+						"test_model": {
+							"type": "ML_MODEL_TYPE_CATBOOST",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+						},
+					}),
 					testAccCheckCreatedAtAttr(chResource),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Add host, creates implicit ZooKeeper subcluster
 			{
-				Config: testAccMDBClickHouseClusterConfigHA(chName, chDesc2),
+				Config: testAccMDBClickHouseClusterConfigHA(chName, chDesc2, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -162,6 +177,26 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(chResource),
+					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
+						"test_schema": {
+							"type": "FORMAT_SCHEMA_TYPE_CAPNPROTO",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test2.capnp", bucketName),
+						},
+						"test_schema2": {
+							"type": "FORMAT_SCHEMA_TYPE_PROTOBUF",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test.proto", bucketName),
+						},
+					}),
+					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
+						"test_model": {
+							"type": "ML_MODEL_TYPE_CATBOOST",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+						},
+						"test_model2": {
+							"type": "ML_MODEL_TYPE_CATBOOST",
+							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+						},
+					}),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -177,6 +212,8 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	chName := acctest.RandomWithPrefix("tf-clickhouse-sharded")
 	chDesc := "ClickHouse Sharded Cluster Terraform Test"
 	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -185,7 +222,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterConfigSharded(chName, chDesc),
+				Config: testAccMDBClickHouseClusterConfigSharded(chName, chDesc, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
@@ -205,7 +242,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBClickHouseClusterConfigShardedUpdated(chName, chDesc),
+				Config: testAccMDBClickHouseClusterConfigShardedUpdated(chName, chDesc, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
@@ -485,6 +522,96 @@ func testAccCheckMDBClickHouseClusterContainsLabel(r *clickhouse.Cluster, key st
 	}
 }
 
+func testAccCheckMDBClickHouseClusterHasFormatSchemas(r string, targetSchemas map[string]map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().Clickhouse().FormatSchema().List(context.Background(), &clickhouse.ListFormatSchemasRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		formatSchemas := resp.FormatSchemas
+
+		if len(formatSchemas) != len(targetSchemas) {
+			return fmt.Errorf("expected %d format schemas, found %d", len(formatSchemas), len(targetSchemas))
+		}
+
+		for _, s := range formatSchemas {
+			ts, ok := targetSchemas[s.Name]
+			if !ok {
+				return fmt.Errorf("unexpected format schema: %s", s.Name)
+			}
+
+			if s.Type.String() != ts["type"] {
+				return fmt.Errorf("format schema %s has wrong type, %v. expected %v", s.Name, s.Type.String(), ts["type"])
+			}
+
+			if s.Uri != ts["uri"] {
+				return fmt.Errorf("format schema %s has wrong uri, %v. expected %v", s.Name, s.Uri, ts["uri"])
+			}
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBClickHouseClusterHasMlModels(r string, targetModels map[string]map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().Clickhouse().MlModel().List(context.Background(), &clickhouse.ListMlModelsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		mlModels := resp.MlModels
+
+		if len(mlModels) != len(targetModels) {
+			return fmt.Errorf("expected %d ml models, found %d", len(mlModels), len(targetModels))
+		}
+
+		for _, m := range mlModels {
+			tm, ok := targetModels[m.Name]
+			if !ok {
+				return fmt.Errorf("unexpected ml model: %s", m.Name)
+			}
+
+			if m.Type.String() != tm["type"] {
+				return fmt.Errorf("ml model %s has wrong type, %v. expected %v", m.Name, m.Type.String(), tm["type"])
+			}
+
+			if m.Uri != tm["uri"] {
+				return fmt.Errorf("ml model %s has wrong uri, %v. expected %v", m.Name, m.Uri, tm["uri"])
+			}
+		}
+
+		return nil
+	}
+}
+
 const clickHouseVPCDependencies = `
 resource "yandex_vpc_network" "mdb-ch-test-net" {}
 
@@ -544,9 +671,69 @@ resource "yandex_vpc_security_group" "mdb-ch-test-sg-y" {
 }
 `
 
-func testAccMDBClickHouseClusterConfigMain(name, desc string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+`
+func clickhouseObjectStorageDependencies(bucket string, randInt int) string {
+	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf(`
+resource "yandex_storage_bucket" "tmp_bucket" {
+  bucket = "%s"
+  acl    = "public-read"
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
+resource "yandex_storage_object" "test_capnp" {
+  bucket = yandex_storage_bucket.tmp_bucket.bucket
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  key     = "test.capnp"
+  content = "# This is a comment."
+
+  depends_on = [
+    yandex_storage_bucket.tmp_bucket
+  ]
+}
+
+resource "yandex_storage_object" "test_capnp2" {
+  bucket = yandex_storage_bucket.tmp_bucket.bucket
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  key     = "test2.capnp"
+  content = "# This is a comment."
+}
+
+resource "yandex_storage_object" "test_proto" {
+  bucket = yandex_storage_bucket.tmp_bucket.bucket
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  key     = "test.proto"
+  content = "# This is a comment."
+}
+
+resource "yandex_storage_object" "test_ml_model" {
+  bucket = yandex_storage_bucket.tmp_bucket.bucket
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  key     = "train.csv"
+  content = "a,b,c"
+}
+`, bucket)
+}
+
+func testAccMDBClickHouseClusterConfigMain(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
   name        = "%s"
   description = "%s"
   environment = "PRESTABLE"
@@ -669,8 +856,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterConfigUpdated(name, desc string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+`
+func testAccMDBClickHouseClusterConfigUpdated(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name        = "%s"
   description = "%s"
@@ -689,60 +876,60 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
 
     config {
-      log_level = "DEBUG"
-      max_connections = 2048
-      max_concurrent_queries = 400
-      keep_alive_timeout = 10
-      uncompressed_cache_size = 8589934592
-      mark_cache_size = 5368709120
-      max_table_size_to_drop = 5368709120
-      max_partition_size_to_drop = 5368709120
-      timezone = "UTC"
-      geobase_uri = ""
-      query_log_retention_size = 1073741824
-      query_log_retention_time = 2592000000
-      query_thread_log_enabled = true
+      log_level                       = "DEBUG"
+      max_connections                 = 2048
+      max_concurrent_queries          = 400
+      keep_alive_timeout              = 10
+      uncompressed_cache_size         = 8589934592
+      mark_cache_size                 = 5368709120
+      max_table_size_to_drop          = 5368709120
+      max_partition_size_to_drop      = 5368709120
+      timezone                        = "UTC"
+      geobase_uri                     = ""
+      query_log_retention_size        = 1073741824
+      query_log_retention_time        = 2592000000
+      query_thread_log_enabled        = true
       query_thread_log_retention_size = 536870912
       query_thread_log_retention_time = 2592000000
-      part_log_retention_size = 536870912
-      part_log_retention_time = 2592000000
-      metric_log_enabled = true
-      metric_log_retention_size = 536870912
-      metric_log_retention_time = 2592000000
-      trace_log_enabled = true
-      trace_log_retention_size = 536870912
-      trace_log_retention_time = 2592000000
-      text_log_enabled = true
-      text_log_retention_size = 536870912
-      text_log_retention_time = 2592000000
-      text_log_level = "ERROR"
-      background_pool_size = 64
-      background_schedule_pool_size = 64
+      part_log_retention_size         = 536870912
+      part_log_retention_time         = 2592000000
+      metric_log_enabled              = true
+      metric_log_retention_size       = 536870912
+      metric_log_retention_time       = 2592000000
+      trace_log_enabled               = true
+      trace_log_retention_size        = 536870912
+      trace_log_retention_time        = 2592000000
+      text_log_enabled                = true
+      text_log_retention_size         = 536870912
+      text_log_retention_time         = 2592000000
+      text_log_level                  = "ERROR"
+      background_pool_size            = 64
+      background_schedule_pool_size   = 64
 
       merge_tree {
-        replicated_deduplication_window = 100
-        replicated_deduplication_window_seconds = 604800
-        parts_to_delay_insert = 150
-        parts_to_throw_insert = 12000
-        max_replicated_merges_in_queue = 16
+        replicated_deduplication_window                           = 100
+        replicated_deduplication_window_seconds                   = 604800
+        parts_to_delay_insert                                     = 150
+        parts_to_throw_insert                                     = 12000
+        max_replicated_merges_in_queue                            = 16
         number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
-        max_bytes_to_merge_at_min_space_in_pool = 1048576
+        max_bytes_to_merge_at_min_space_in_pool                   = 1048576
       }
 
       kafka {
         security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-        sasl_mechanism = "SASL_MECHANISM_GSSAPI"
-        sasl_username = "user1"
-        sasl_password = "pass2"
+        sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
+        sasl_username     = "user1"
+        sasl_password     = "pass2"
       }
 
       kafka_topic {
         name = "topic1"
         settings {
           security_protocol = "SECURITY_PROTOCOL_SSL"
-          sasl_mechanism = "SASL_MECHANISM_SCRAM_SHA_256"
-          sasl_username = "user3"
-          sasl_password = "pass3"
+          sasl_mechanism    = "SASL_MECHANISM_SCRAM_SHA_256"
+          sasl_username     = "user3"
+          sasl_password     = "pass3"
         }
       }
 
@@ -750,7 +937,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
         name = "topic2"
         settings {
           security_protocol = "SECURITY_PROTOCOL_SASL_PLAINTEXT"
-          sasl_mechanism = "SASL_MECHANISM_PLAIN"
+          sasl_mechanism    = "SASL_MECHANISM_PLAIN"
         }
       }
 
@@ -760,24 +947,24 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       }
 
       compression {
-        method = "LZ4"
-        min_part_size = 2024
+        method              = "LZ4"
+        min_part_size       = 2024
         min_part_size_ratio = 0.3
       }
 
       compression {
-        method = "ZSTD"
-        min_part_size = 4048
+        method              = "ZSTD"
+        min_part_size       = 4048
         min_part_size_ratio = 0.77
       }
 
       graphite_rollup {
         name = "rollup1"
         pattern {
-          regexp = "abcd"
+          regexp   = "abcd"
           function = "func2"
           retention {
-            age = 2000
+            age       = 2000
             precision = 5
           }
         }
@@ -788,7 +975,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
         pattern {
           function = "func3"
           retention {
-            age = 3000
+            age       = 3000
             precision = 7
           }
         }
@@ -830,12 +1017,24 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}", "${yandex_vpc_security_group.mdb-ch-test-sg-y.id}"]
+
+  format_schema {
+    name = "test_schema"
+    type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test.capnp"
+  }
+
+  ml_model {
+    name = "test_model"
+    type = "ML_MODEL_TYPE_CATBOOST"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+  }
 }
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterConfigHA(name, desc string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+`
+func testAccMDBClickHouseClusterConfigHA(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name        = "%s"
   description = "%s"
@@ -920,12 +1119,36 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+
+  format_schema {
+    name = "test_schema"
+    type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test2.capnp"
+  }
+
+  format_schema {
+    name = "test_schema2"
+    type = "FORMAT_SCHEMA_TYPE_PROTOBUF"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test.proto"
+  }
+
+  ml_model {
+    name = "test_model"
+    type = "ML_MODEL_TYPE_CATBOOST"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+  }
+
+  ml_model {
+    name = "test_model2"
+    type = "ML_MODEL_TYPE_CATBOOST"
+    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+  }
 }
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterConfigSharded(name, desc string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+`
+func testAccMDBClickHouseClusterConfigSharded(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name        = "%s"
   description = "%s"
@@ -987,8 +1210,8 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+`
+func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name        = "%s"
   description = "%s"

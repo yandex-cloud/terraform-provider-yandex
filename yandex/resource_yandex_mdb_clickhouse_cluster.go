@@ -341,6 +341,46 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"format_schema": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"ml_model": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -481,7 +521,7 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Create(ctx, req))
@@ -524,6 +564,30 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 
 	for _, group := range shardGroups {
 		err = createClickHouseShardGroup(ctx, config, d, group)
+		if err != nil {
+			return err
+		}
+	}
+
+	formatSchemas, err := expandClickHouseFormatSchemas(d)
+	if err != nil {
+		return err
+	}
+
+	for _, formatSchema := range formatSchemas {
+		err = createClickHouseFormatSchema(ctx, config, d, formatSchema)
+		if err != nil {
+			return err
+		}
+	}
+
+	mlModels, err := expandClickHouseMlModels(d)
+	if err != nil {
+		return err
+	}
+
+	for _, mlModel := range mlModels {
+		err = createClickHouseMlModel(ctx, config, d, mlModel)
 		if err != nil {
 			return err
 		}
@@ -612,7 +676,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
 	cluster, err := config.sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
@@ -698,6 +762,30 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	formatSchemas, err := listClickHouseFormatSchemas(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	fs, err := flattenClickHouseFormatSchemas(formatSchemas)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("format_schema", fs); err != nil {
+		return err
+	}
+
+	mlModels, err := listClickHouseMlModels(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	ml, err := flattenClickHouseMlModels(mlModels)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("ml_model", ml); err != nil {
+		return err
+	}
+
 	databases, err := listClickHouseDatabases(ctx, config, d.Id())
 	if err != nil {
 		return err
@@ -776,6 +864,18 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 		}
 	}
 
+	if d.HasChange("format_schema") {
+		if err := updateClickHouseFormatSchemas(d, meta); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("ml_model") {
+		if err := updateClickHouseMlModels(d, meta); err != nil {
+			return err
+		}
+	}
+
 	d.Partial(false)
 
 	log.Printf("[DEBUG] Finished updating ClickHouse Cluster %q", d.Id())
@@ -813,7 +913,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 
 	// We only can apply this if ZK subcluster already exists
 	if d.HasChange("zookeeper") {
-		ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+		ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 		defer cancel()
 
 		currHosts, err := listClickHouseHosts(ctx, config, d.Id())
@@ -886,7 +986,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 
 func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currDBs, err := listClickHouseDatabases(ctx, config, d.Id())
@@ -920,7 +1020,7 @@ func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) 
 
 func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 	currUsers, err := listClickHouseUsers(ctx, config, d.Id())
 	if err != nil {
@@ -960,7 +1060,7 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 
 func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currHosts, err := listClickHouseHosts(ctx, config, d.Id())
@@ -1076,7 +1176,7 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 
 func updateClickHouseClusterShardGroups(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 	currGroups, err := listClickHouseShardGroups(ctx, config, d.Id())
 	if err != nil {
@@ -1087,24 +1187,22 @@ func updateClickHouseClusterShardGroups(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	toDelete, toAdd := clickHouseShardGroupDiff(currGroups, targetGroups)
-	for _, g := range toDelete {
+	shardGroupDiff := clickHouseShardGroupDiff(currGroups, targetGroups)
+	for _, g := range shardGroupDiff.toDelete {
 		err := deleteClickHouseShardGroup(ctx, config, d, g)
 		if err != nil {
 			return err
 		}
 	}
 
-	for _, g := range toAdd {
+	for _, g := range shardGroupDiff.toAdd {
 		err := createClickHouseShardGroup(ctx, config, d, g)
 		if err != nil {
 			return err
 		}
 	}
 
-	oldSpecs, newSpecs := d.GetChange("shard_group")
-	changedShardGroups := clickHouseChangedShardGroups(oldSpecs.([]interface{}), newSpecs.([]interface{}))
-	for _, g := range changedShardGroups {
+	for _, g := range shardGroupDiff.toUpdate {
 		err := updateClickHouseShardGroup(ctx, config, d, g)
 		if err != nil {
 			return err
@@ -1112,6 +1210,84 @@ func updateClickHouseClusterShardGroups(d *schema.ResourceData, meta interface{}
 	}
 
 	d.SetPartial("shard_group")
+	return nil
+}
+
+func updateClickHouseFormatSchemas(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+	currSchemas, err := listClickHouseFormatSchemas(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	targetSchemas, err := expandClickHouseFormatSchemas(d)
+	if err != nil {
+		return err
+	}
+
+	formatSchemaDiff := clickHouseFormatSchemaDiff(currSchemas, targetSchemas)
+	for _, fs := range formatSchemaDiff.toDelete {
+		err := deleteClickHouseFormatSchema(ctx, config, d, fs)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, fs := range formatSchemaDiff.toAdd {
+		err := createClickHouseFormatSchema(ctx, config, d, fs)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, fs := range formatSchemaDiff.toUpdate {
+		err := updateClickHouseFormatSchema(ctx, config, d, fs)
+		if err != nil {
+			return err
+		}
+	}
+
+	d.SetPartial("format_schema")
+	return nil
+}
+
+func updateClickHouseMlModels(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+	currModels, err := listClickHouseMlModels(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	targetModels, err := expandClickHouseMlModels(d)
+	if err != nil {
+		return err
+	}
+
+	mlModelDiff := clickHouseMlModelDiff(currModels, targetModels)
+	for _, ml := range mlModelDiff.toDelete {
+		err := deleteClickHouseMlModel(ctx, config, d, ml)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, ml := range mlModelDiff.toAdd {
+		err := createClickHouseMlModel(ctx, config, d, ml)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, ml := range mlModelDiff.toUpdate {
+		err := updateClickHouseMlModel(ctx, config, d, ml)
+		if err != nil {
+			return err
+		}
+	}
+
+	d.SetPartial("ml_model")
 	return nil
 }
 
@@ -1334,6 +1510,116 @@ func deleteClickHouseShardGroup(ctx context.Context, config *Config, d *schema.R
 	return nil
 }
 
+func createClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, schema *clickhouse.FormatSchema) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().FormatSchema().Create(ctx, &clickhouse.CreateFormatSchemaRequest{
+			ClusterId:        d.Id(),
+			FormatSchemaName: schema.Name,
+			Type:             schema.Type,
+			Uri:              schema.Uri,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create format schema in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while creating format schema in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, schema *clickhouse.FormatSchema) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().FormatSchema().Update(ctx, &clickhouse.UpdateFormatSchemaRequest{
+			ClusterId:        d.Id(),
+			FormatSchemaName: schema.Name,
+			Uri:              schema.Uri,
+			UpdateMask:       &field_mask.FieldMask{Paths: []string{"uri"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update format schema in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating format schema in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteClickHouseFormatSchema(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().FormatSchema().Delete(ctx, &clickhouse.DeleteFormatSchemaRequest{
+			ClusterId:        d.Id(),
+			FormatSchemaName: name,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete format schema from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting format schema from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func createClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, model *clickhouse.MlModel) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().MlModel().Create(ctx, &clickhouse.CreateMlModelRequest{
+			ClusterId:   d.Id(),
+			MlModelName: model.Name,
+			Type:        model.Type,
+			Uri:         model.Uri,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to add ml model to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while adding ml model to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, model *clickhouse.MlModel) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().MlModel().Update(ctx, &clickhouse.UpdateMlModelRequest{
+			ClusterId:   d.Id(),
+			MlModelName: model.Name,
+			Uri:         model.Uri,
+			UpdateMask:  &field_mask.FieldMask{Paths: []string{"uri"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update ml model in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating ml model in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteClickHouseMlModel(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().MlModel().Delete(ctx, &clickhouse.DeleteMlModelRequest{
+			ClusterId:   d.Id(),
+			MlModelName: name,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete shard group from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting ml model from ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
 func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.ResourceData, resources *clickhouse.Resources, specs []*clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddZookeeper(ctx, &clickhouse.AddClusterZookeeperRequest{
@@ -1445,7 +1731,7 @@ func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta inter
 		ClusterId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Delete(ctx, req))
@@ -1481,6 +1767,50 @@ func listClickHouseShardGroups(ctx context.Context, config *Config, id string) (
 		}
 
 		groups = append(groups, resp.ShardGroups...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return groups, nil
+}
+
+func listClickHouseFormatSchemas(ctx context.Context, config *Config, id string) ([]*clickhouse.FormatSchema, error) {
+	var formatSchema []*clickhouse.FormatSchema
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Clickhouse().FormatSchema().List(ctx, &clickhouse.ListFormatSchemasRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of format schemas for '%s': %s", id, err)
+		}
+
+		formatSchema = append(formatSchema, resp.FormatSchemas...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return formatSchema, nil
+}
+
+func listClickHouseMlModels(ctx context.Context, config *Config, id string) ([]*clickhouse.MlModel, error) {
+	var groups []*clickhouse.MlModel
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Clickhouse().MlModel().List(ctx, &clickhouse.ListMlModelsRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of ml models for '%s': %s", id, err)
+		}
+
+		groups = append(groups, resp.MlModels...)
 		if resp.NextPageToken == "" {
 			break
 		}

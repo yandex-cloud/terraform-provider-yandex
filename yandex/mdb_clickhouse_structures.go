@@ -208,9 +208,15 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 	return toDelete, toAdd
 }
 
+type shardGroupDiffInfo struct {
+	toDelete []string
+	toUpdate []*clickhouse.ShardGroup
+	toAdd    []*clickhouse.ShardGroup
+}
+
 // Takes the current list of shard groups and the desirable list of shard groups.
-// Returns the list of shard group names to delete and to add
-func clickHouseShardGroupDiff(currGroups []*clickhouse.ShardGroup, targetGroups []*clickhouse.ShardGroup) ([]string, []*clickhouse.ShardGroup) {
+// Returns the list of shard group names to delete, to update and to add
+func clickHouseShardGroupDiff(currGroups []*clickhouse.ShardGroup, targetGroups []*clickhouse.ShardGroup) shardGroupDiffInfo {
 	m := map[string]*clickhouse.ShardGroup{}
 
 	for _, g := range targetGroups {
@@ -219,12 +225,17 @@ func clickHouseShardGroupDiff(currGroups []*clickhouse.ShardGroup, targetGroups 
 
 	var toDelete []string
 	var toAdd []*clickhouse.ShardGroup
+	var toUpdate []*clickhouse.ShardGroup
 
-	for _, g := range currGroups {
-		if _, ok := m[g.Name]; ok {
-			delete(m, g.Name)
+	for _, currentGroup := range currGroups {
+		if targetGroup, ok := m[currentGroup.Name]; ok {
+			if currentGroup.Description != targetGroup.Description || !reflect.DeepEqual(currentGroup.ShardNames, targetGroup.ShardNames) {
+				toUpdate = append(toUpdate, targetGroup)
+			}
+
+			delete(m, currentGroup.Name)
 		} else {
-			toDelete = append(toDelete, g.Name)
+			toDelete = append(toDelete, currentGroup.Name)
 		}
 	}
 
@@ -232,27 +243,91 @@ func clickHouseShardGroupDiff(currGroups []*clickhouse.ShardGroup, targetGroups 
 		toAdd = append(toAdd, sg)
 	}
 
-	return toDelete, toAdd
+	return shardGroupDiffInfo{toDelete, toUpdate, toAdd}
 }
 
-// Takes the old set of shard group specs and the new set of shard group specs.
-// Returns the slice of shard group specs which have changed.
-func clickHouseChangedShardGroups(oldSpecs []interface{}, newSpecs []interface{}) []*clickhouse.ShardGroup {
-	result := []*clickhouse.ShardGroup{}
-	m := map[string]*clickhouse.ShardGroup{}
-	for _, spec := range oldSpecs {
-		group := expandClickHouseShardGroup(spec.(map[string]interface{}))
-		m[group.Name] = group
+type formatSchemaDiffInfo struct {
+	toDelete []string
+	toUpdate []*clickhouse.FormatSchema
+	toAdd    []*clickhouse.FormatSchema
+}
+
+// Takes the current list of format schemas and the desirable list of format schemas.
+// Returns the list of format schemas names to delete, to update and to add
+func clickHouseFormatSchemaDiff(currSchemas []*clickhouse.FormatSchema, targetSchemas []*clickhouse.FormatSchema) formatSchemaDiffInfo {
+	m := map[string]*clickhouse.FormatSchema{}
+
+	for _, s := range targetSchemas {
+		m[s.Name] = s
 	}
-	for _, spec := range newSpecs {
-		group := expandClickHouseShardGroup(spec.(map[string]interface{}))
-		if g, ok := m[group.Name]; ok {
-			if group.Description != g.Description || !reflect.DeepEqual(group.ShardNames, g.ShardNames) {
-				result = append(result, group)
+
+	var toDelete []string
+	var toAdd []*clickhouse.FormatSchema
+	var toUpdate []*clickhouse.FormatSchema
+
+	for _, currentSchema := range currSchemas {
+		if targetSchema, ok := m[currentSchema.Name]; ok {
+			if currentSchema.Type != targetSchema.Type {
+				toDelete = append(toDelete, currentSchema.Name)
+			} else {
+				if currentSchema.Uri != targetSchema.Uri {
+					toUpdate = append(toUpdate, targetSchema)
+				}
+
+				delete(m, currentSchema.Name)
 			}
+		} else {
+			toDelete = append(toDelete, currentSchema.Name)
 		}
 	}
-	return result
+
+	for _, fs := range m {
+		toAdd = append(toAdd, fs)
+	}
+
+	return formatSchemaDiffInfo{toDelete, toUpdate, toAdd}
+}
+
+type mlModelDiffInfo struct {
+	toDelete []string
+	toUpdate []*clickhouse.MlModel
+	toAdd    []*clickhouse.MlModel
+}
+
+// Takes the current list of ml models and the desirable list of ml models.
+// Returns the list of ml model names to delete, to update and to add
+func clickHouseMlModelDiff(currModels []*clickhouse.MlModel, targetModels []*clickhouse.MlModel) mlModelDiffInfo {
+	m := map[string]*clickhouse.MlModel{}
+
+	for _, s := range targetModels {
+		m[s.Name] = s
+	}
+
+	var toDelete []string
+	var toAdd []*clickhouse.MlModel
+	var toUpdate []*clickhouse.MlModel
+
+	for _, currentModel := range currModels {
+		if targetModel, ok := m[currentModel.Name]; ok {
+			if currentModel.Type != targetModel.Type {
+				toDelete = append(toDelete, currentModel.Name)
+			} else {
+				if currentModel.Uri != targetModel.Uri {
+					toUpdate = append(toUpdate, targetModel)
+				}
+
+				delete(m, currentModel.Name)
+			}
+		} else {
+			toDelete = append(toDelete, currentModel.Name)
+		}
+	}
+
+	for _, model := range m {
+		toAdd = append(toAdd, model)
+	}
+
+	return mlModelDiffInfo{toDelete, toUpdate, toAdd}
 }
 
 func parseClickHouseEnv(e string) (clickhouse.Cluster_Environment, error) {
@@ -1047,6 +1122,102 @@ func flattenClickHouseShardGroups(sg []*clickhouse.ShardGroup) ([]map[string]int
 		m["name"] = g.Name
 		m["description"] = g.Description
 		m["shard_names"] = g.ShardNames
+		res = append(res, m)
+	}
+
+	return res, nil
+}
+
+func expandClickHouseFormatSchemas(d *schema.ResourceData) ([]*clickhouse.FormatSchema, error) {
+	var result []*clickhouse.FormatSchema
+	schemas := d.Get("format_schema").(*schema.Set).List()
+
+	for _, g := range schemas {
+		formatSchema, err := expandClickHouseFormatSchema(g.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, formatSchema)
+	}
+	return result, nil
+}
+
+func expandClickHouseFormatSchema(g map[string]interface{}) (*clickhouse.FormatSchema, error) {
+	formatSchema := &clickhouse.FormatSchema{}
+
+	if v, ok := g["name"]; ok {
+		formatSchema.Name = v.(string)
+	}
+	if v, ok := g["type"]; ok {
+		if val, err := expandEnum("type", v.(string), clickhouse.FormatSchemaType_value); val != nil && err == nil {
+			formatSchema.Type = clickhouse.FormatSchemaType(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := g["uri"]; ok {
+		formatSchema.Uri = v.(string)
+	}
+
+	return formatSchema, nil
+}
+
+func flattenClickHouseFormatSchemas(schemas []*clickhouse.FormatSchema) ([]map[string]interface{}, error) {
+	var res []map[string]interface{}
+
+	for _, s := range schemas {
+		m := map[string]interface{}{}
+		m["name"] = s.Name
+		m["type"] = s.Type.String()
+		m["uri"] = s.Uri
+		res = append(res, m)
+	}
+
+	return res, nil
+}
+
+func expandClickHouseMlModels(d *schema.ResourceData) ([]*clickhouse.MlModel, error) {
+	var result []*clickhouse.MlModel
+	schemas := d.Get("ml_model").(*schema.Set).List()
+
+	for _, g := range schemas {
+		mlModel, err := expandClickHouseMlModel(g.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mlModel)
+	}
+	return result, nil
+}
+
+func expandClickHouseMlModel(g map[string]interface{}) (*clickhouse.MlModel, error) {
+	mlModel := &clickhouse.MlModel{}
+
+	if v, ok := g["name"]; ok {
+		mlModel.Name = v.(string)
+	}
+	if v, ok := g["type"]; ok {
+		if val, err := expandEnum("type", v.(string), clickhouse.MlModelType_value); val != nil && err == nil {
+			mlModel.Type = clickhouse.MlModelType(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := g["uri"]; ok {
+		mlModel.Uri = v.(string)
+	}
+
+	return mlModel, nil
+}
+
+func flattenClickHouseMlModels(schemas []*clickhouse.MlModel) ([]map[string]interface{}, error) {
+	var res []map[string]interface{}
+
+	for _, s := range schemas {
+		m := map[string]interface{}{}
+		m["name"] = s.Name
+		m["type"] = s.Type.String()
+		m["uri"] = s.Uri
 		res = append(res, m)
 	}
 

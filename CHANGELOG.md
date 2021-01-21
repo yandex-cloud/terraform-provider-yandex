@@ -2,6 +2,10 @@
 ENHANCEMENTS:
 * mdb: support `security_group_ids` for managed service for kafka
 
+ENHANCEMENTS:
+* mdb: add `format_schema` section in `yandex_mdb_clickhouse_cluster` resource and data source
+* mdb: add `ml_model` section in `yandex_mdb_clickhouse_cluster` resource and data source
+
 ## 0.49.0 (January 15, 2021)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports lifecycle configuration

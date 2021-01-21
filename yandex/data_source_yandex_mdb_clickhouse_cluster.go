@@ -313,6 +313,48 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"format_schema": {
+				Type:     schema.TypeList,
+				MinItems: 0,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"ml_model": {
+				Type:     schema.TypeList,
+				MinItems: 0,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -505,6 +547,30 @@ func dataSourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 	if err := d.Set("shard_group", sg); err != nil {
+		return err
+	}
+
+	formatSchemas, err := listClickHouseFormatSchemas(ctx, config, clusterID)
+	if err != nil {
+		return err
+	}
+	fs, err := flattenClickHouseFormatSchemas(formatSchemas)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("format_schema", fs); err != nil {
+		return err
+	}
+
+	mlModels, err := listClickHouseMlModels(ctx, config, clusterID)
+	if err != nil {
+		return err
+	}
+	ml, err := flattenClickHouseMlModels(mlModels)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("ml_model", ml); err != nil {
 		return err
 	}
 

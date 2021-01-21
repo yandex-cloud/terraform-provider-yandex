@@ -52,6 +52,8 @@ exported:
 * `database` - A database of the ClickHouse cluster. The structure is documented below.
 * `host` - A host of the ClickHouse cluster. The structure is documented below.
 * `shard_group` - A group of clickhouse shards. The structure is documented below.
+* `format_schema` - A set of protobuf or cap'n proto format schemas. The structure is documented below.
+* `ml_model` - A group of machine learning models. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the ClickHouse cluster. The structure is documented below.
 * `zookeeper` - Configuration of the ZooKeeper subcluster. The structure is documented below.
@@ -101,6 +103,18 @@ The `shard_group` block supports:
 * `name` - The name of the shard group, used as cluster name in Distributed tables.
 * `description` - Description of the shard group.
 * `shard_names` - List of shards names that belong to the shard group.
+
+The `format_schema` block supports:
+
+* `name` - The name of the format schema.
+* `type` - Type of the format schema.
+* `uri` - Format schema file URL. You can only use format schemas stored in Yandex Object Storage.
+
+The `ml_model` block supports:
+
+* `name` - The name of the ml model.
+* `type` - Type of the model.
+* `uri` - Model file URL. You can only use models stored in Yandex Object Storage.
 
 The `backup_window_start` block supports:
 
