@@ -261,6 +261,54 @@ func TestAccStorageBucket_shouldFailNotFound(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_VersioningNone(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketBasic(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketVersioning(resourceName, ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_VersioningEnabled(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: "",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithVersioning(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketVersioning(resourceName, s3.BucketVersioningStatusEnabled),
+				),
+			},
+			{
+				Config: testAccStorageBucketConfigWithDisableVersioning(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketVersioning(resourceName, s3.BucketVersioningStatusSuspended),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_cors_update(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
@@ -698,6 +746,36 @@ func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string
 	}
 }
 
+func testAccCheckStorageBucketVersioning(n string, versioningStatus string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+		out, err := conn.GetBucketVersioning(&s3.GetBucketVersioningInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+
+		if err != nil {
+			return fmt.Errorf("GetBucketVersioning error: %v", err)
+		}
+
+		if v := out.Status; v == nil {
+			if versioningStatus != "" {
+				return fmt.Errorf("bad error versioning status, found nil, expected: %s", versioningStatus)
+			}
+		} else {
+			if *v != versioningStatus {
+				return fmt.Errorf("bad error versioning status, expected: %s, got %s", versioningStatus, *v)
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
@@ -716,6 +794,53 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 
 		if !reflect.DeepEqual(out.CORSRules, corsRules) {
 			return fmt.Errorf("bad error cors rule, expected: %v, got %v", corsRules, out.CORSRules)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+
+		out, err := conn.GetBucketLogging(&s3.GetBucketLoggingInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+
+		if err != nil {
+			return fmt.Errorf("GetBucketLogging error: %v", err)
+		}
+
+		if out.LoggingEnabled == nil {
+			return fmt.Errorf("logging not enabled for bucket: %s", rs.Primary.ID)
+		}
+
+		tb := s.RootModule().Resources[b]
+
+		if v := out.LoggingEnabled.TargetBucket; v == nil {
+			if tb.Primary.ID != "" {
+				return fmt.Errorf("bad target bucket, found nil, expected: %s", tb.Primary.ID)
+			}
+		} else {
+			if *v != tb.Primary.ID {
+				return fmt.Errorf("bad target bucket, expected: %s, got %s", tb.Primary.ID, *v)
+			}
+		}
+
+		if v := out.LoggingEnabled.TargetPrefix; v == nil {
+			if p != "" {
+				return fmt.Errorf("bad target prefix, found nil, expected: %s", p)
+			}
+		} else {
+			if *v != p {
+				return fmt.Errorf("bad target prefix, expected: %s, got %s", p, *v)
+			}
 		}
 
 		return nil
@@ -839,6 +964,37 @@ resource "yandex_storage_bucket" "test" {
 `, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
+func testAccStorageBucketConfigWithVersioning(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-test-bucket-%[1]d"
+
+        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+
+  	versioning {
+    		enabled = true
+  	}
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketConfigWithDisableVersioning(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  	bucket = "tf-test-bucket-%[1]d"
+
+        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  	versioning {
+   	 	enabled = false
+  	}
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
 func testAccStorageBucketConfigWithCORS(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_storage_bucket" "test" {
@@ -953,6 +1109,31 @@ resource "yandex_storage_bucket" "test" {
 `, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
 
+func testAccStorageBucketConfigWithLogging(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "log_bucket" {
+  	bucket = "tf-test-bucket-%[1]d-log"
+
+        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-test-bucket-%[1]d"
+  	
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  	acl    = "private"
+
+	logging {
+    		target_bucket = yandex_storage_bucket.log_bucket.id
+		target_prefix = "log/"
+  	}
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
 func testAccStorageBucketConfigWithLifecycle(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_storage_bucket" "test" {
@@ -1005,7 +1186,6 @@ resource "yandex_storage_bucket" "test" {
       days = 365
     }
   }
-
 }
 `, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }
@@ -1148,6 +1328,27 @@ func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) f
 		}
 		return nil
 	}
+}
+
+func TestAccStorageBucket_Logging(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithLogging(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketLogging(resourceName, "yandex_storage_bucket.log_bucket", "log/"),
+				),
+			},
+		},
+	})
 }
 
 func TestAccStorageBucket_LifecycleBasic(t *testing.T) {

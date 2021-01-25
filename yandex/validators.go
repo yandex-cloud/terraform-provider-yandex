@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -106,6 +107,12 @@ func FloatAtLeast(min float64) schema.SchemaValidateFunc {
 }
 
 func validateS3BucketLifecycleTimestamp(v interface{}, k string) (ws []string, errors []error) {
-	// TBD: Strict timestamp validation to be added in subsequent change
+	value := v.(string)
+	_, err := time.Parse(time.RFC3339, fmt.Sprintf("%sT00:00:00Z", value))
+	if err != nil {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be parsed as RFC3339 Timestamp Format", value))
+	}
+
 	return
 }

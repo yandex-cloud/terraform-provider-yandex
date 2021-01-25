@@ -172,6 +172,46 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Computed: true,
 			},
 
+			"versioning": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
+
+			"logging": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target_bucket": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"target_prefix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+				Set: func(v interface{}) int {
+					var buf bytes.Buffer
+					m := v.(map[string]interface{})
+					buf.WriteString(fmt.Sprintf("%s-", m["target_bucket"]))
+					buf.WriteString(fmt.Sprintf("%s-", m["target_prefix"]))
+					return hashcode.String(buf.String())
+				},
+			},
+
 			"lifecycle_rule": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -400,6 +440,12 @@ func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
+	if d.HasChange("versioning") {
+		if err := resourceYandexStorageBucketVersioningUpdate(s3Client, d); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("acl") && !d.IsNewResource() {
 		if err := resourceYandexStorageBucketACLUpdate(s3Client, d); err != nil {
 			return err
@@ -408,6 +454,12 @@ func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("grant") {
 		if err := resourceYandexStorageBucketGrantsUpdate(s3Client, d); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("logging") {
+		if err := resourceYandexStorageBucketLoggingUpdate(s3Client, d); err != nil {
 			return err
 		}
 	}
@@ -577,6 +629,59 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
 			}
 		}
+	}
+
+	// Read the versioning configuration
+
+	versioningResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketVersioning(&s3.GetBucketVersioningInput{
+			Bucket: aws.String(d.Id()),
+		})
+	})
+	if err != nil {
+		return err
+	}
+
+	vcl := make([]map[string]interface{}, 0, 1)
+	if versioning, ok := versioningResponse.(*s3.GetBucketVersioningOutput); ok {
+		vc := make(map[string]interface{})
+		if versioning.Status != nil && aws.StringValue(versioning.Status) == s3.BucketVersioningStatusEnabled {
+			vc["enabled"] = true
+		} else {
+			vc["enabled"] = false
+		}
+
+		vcl = append(vcl, vc)
+	}
+	if err := d.Set("versioning", vcl); err != nil {
+		return fmt.Errorf("error setting versioning: %s", err)
+	}
+
+	// Read the logging configuration
+	loggingResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketLogging(&s3.GetBucketLoggingInput{
+			Bucket: aws.String(d.Id()),
+		})
+	})
+
+	if err != nil {
+		return fmt.Errorf("error getting S3 Bucket logging: %s", err)
+	}
+
+	lcl := make([]map[string]interface{}, 0, 1)
+	if logging, ok := loggingResponse.(*s3.GetBucketLoggingOutput); ok && logging.LoggingEnabled != nil {
+		v := logging.LoggingEnabled
+		lc := make(map[string]interface{})
+		if aws.StringValue(v.TargetBucket) != "" {
+			lc["target_bucket"] = aws.StringValue(v.TargetBucket)
+		}
+		if aws.StringValue(v.TargetPrefix) != "" {
+			lc["target_prefix"] = aws.StringValue(v.TargetPrefix)
+		}
+		lcl = append(lcl, lc)
+	}
+	if err := d.Set("logging", lcl); err != nil {
+		return fmt.Errorf("error setting logging: %s", err)
 	}
 
 	// Read the lifecycle configuration
@@ -1005,6 +1110,75 @@ func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceDat
 	})
 	if err != nil {
 		return fmt.Errorf("error putting Storage Bucket ACL: %s", err)
+	}
+
+	return nil
+}
+
+func resourceYandexStorageBucketVersioningUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	v := d.Get("versioning").([]interface{})
+	bucket := d.Get("bucket").(string)
+	vc := &s3.VersioningConfiguration{}
+
+	if len(v) > 0 {
+		c := v[0].(map[string]interface{})
+
+		if c["enabled"].(bool) {
+			vc.Status = aws.String(s3.BucketVersioningStatusEnabled)
+		} else {
+			vc.Status = aws.String(s3.BucketVersioningStatusSuspended)
+		}
+
+	} else {
+		vc.Status = aws.String(s3.BucketVersioningStatusSuspended)
+	}
+
+	i := &s3.PutBucketVersioningInput{
+		Bucket:                  aws.String(bucket),
+		VersioningConfiguration: vc,
+	}
+	log.Printf("[DEBUG] S3 put bucket versioning: %#v", i)
+
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.PutBucketVersioning(i)
+	})
+	if err != nil {
+		return fmt.Errorf("Error putting S3 versioning: %s", err)
+	}
+
+	return nil
+}
+
+func resourceYandexStorageBucketLoggingUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	logging := d.Get("logging").(*schema.Set).List()
+	bucket := d.Get("bucket").(string)
+	loggingStatus := &s3.BucketLoggingStatus{}
+
+	if len(logging) > 0 {
+		c := logging[0].(map[string]interface{})
+
+		loggingEnabled := &s3.LoggingEnabled{}
+		if val, ok := c["target_bucket"]; ok {
+			loggingEnabled.TargetBucket = aws.String(val.(string))
+		}
+		if val, ok := c["target_prefix"]; ok {
+			loggingEnabled.TargetPrefix = aws.String(val.(string))
+		}
+
+		loggingStatus.LoggingEnabled = loggingEnabled
+	}
+
+	i := &s3.PutBucketLoggingInput{
+		Bucket:              aws.String(bucket),
+		BucketLoggingStatus: loggingStatus,
+	}
+	log.Printf("[DEBUG] S3 put bucket logging: %#v", i)
+
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.PutBucketLogging(i)
+	})
+	if err != nil {
+		return fmt.Errorf("Error putting S3 logging: %s", err)
 	}
 
 	return nil

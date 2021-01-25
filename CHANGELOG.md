@@ -1,4 +1,8 @@
 ## 0.50.0 (Unreleased)
+FEATURES:
+* storage: `yandex_storage_bucket` resource supports versioning configuration
+* storage: `yandex_storage_bucket` resource supports logging configuration
+
 ENHANCEMENTS:
 * mdb: support `security_group_ids` for managed service for kafka
 

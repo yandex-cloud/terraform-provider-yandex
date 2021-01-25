@@ -57,6 +57,54 @@ resource "yandex_storage_bucket" "test" {
 }
 ```
 
+### Using CORS
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "s3-website-test.hashicorp.com"
+  acl    = "public-read"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST"]
+    allowed_origins = ["https://s3-website-test.hashicorp.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+```
+
+### Using versioning
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+}
+```
+
+### Enable Logging
+
+```hcl
+resource "yandex_storage_bucket" "log_bucket" {
+  bucket = "my-tf-log-bucket"
+}
+
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
+
+  logging {
+    target_bucket = yandex_storage_bucket.log_bucket.id
+    target_prefix = "log/"
+  }
+}
+```
+
 ### Using object lifecycle
 
 ```hcl
@@ -161,9 +209,13 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 
-* `website` - (Optional) A website object (documented below).
+* `website` - (Optional) A [website object](https://cloud.yandex.ru/docs/storage/concepts/hosting) (documented below).
 
 * `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/cors/) (documented below).
+
+* `versioning` - (Optional) A state of [versioning](https://cloud.yandex.ru/docs/storage/concepts/versioning) (documented below)
+
+* `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.ru/docs/storage/concepts/server-logs) (documented below).
 
 * `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://cloud.yandex.com/docs/storage/concepts/lifecycles) (documented below).
 
@@ -186,6 +238,16 @@ The `CORS` object supports the following:
 * `max_age_seconds` - (Optional) Specifies time in seconds that browser can cache the response for a preflight request.
 
 * `server_side_encryption_configuration` - (Optional) A configuration of server-side encryption for the bucket (documented below)
+
+The `versioning` object supports the following:
+
+* `enabled` - (Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket.
+
+The `logging` object supports the following:
+
+* `target_bucket` - (Required) The name of the bucket that will receive the log objects.
+
+* `target_prefix` - (Optional) To specify a key prefix for log objects.
 
 The `lifecycle_rule` object supports the following:
 
