@@ -5,6 +5,7 @@ FEATURES:
 * storage: `yandex_storage_bucket` resource supports logging configuration
 
 ENHANCEMENTS:
+* storage: add bucket configuration example
 * mdb: support `security_group_ids` for managed service for kafka
 * mdb: add `format_schema` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `ml_model` section in `yandex_mdb_clickhouse_cluster` resource and data source

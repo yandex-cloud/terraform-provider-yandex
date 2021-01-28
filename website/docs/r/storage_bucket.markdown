@@ -27,13 +27,11 @@ resource "yandex_storage_bucket" "test" {
   bucket = "storage-website-test.hashicorp.com"
   acl    = "public-read"
 
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST"]
-    allowed_origins = ["https://storage-website-test.hashicorp.com"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
   }
+
 }
 ```
 
@@ -120,7 +118,7 @@ resource "yandex_storage_bucket" "bucket" {
 
     transition {
       days          = 30
-      storage_class = "STANDARD_IA"
+      storage_class = "COLD"
     }
 
     expiration {
@@ -153,7 +151,7 @@ resource "yandex_storage_bucket" "versioning_bucket" {
 
     noncurrent_version_transition {
       days          = 30
-      storage_class = "STANDARD_IA"
+      storage_class = "COLD"
     }
 
     noncurrent_version_expiration {
@@ -178,11 +176,129 @@ resource "yandex_storage_bucket" "test" {
 
   server_side_encryption_configuration {
     rule {
-  	  apply_server_side_encryption_by_default {
-	    kms_master_key_id = yandex_kms_symmetric_key.key-a.id
-	    sse_algorithm     = "aws:kms"
-  	  }
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+        sse_algorithm     = "aws:kms"
+      }
     }
+  }
+}
+```
+
+### All settings example
+
+```hcl
+provider "yandex" {
+  token = "<iam-token>"
+  folder_id = "<folder-id>"
+  storage_access_key = "<storage-access-key>"
+  storage_secret_key = "<storage-secret-key>"
+}
+
+resource "yandex_storage_bucket" "log_bucket" {
+  bucket = "my-tf-log-bucket"
+
+  lifecycle_rule {
+    id      = "cleanupoldlogs"
+    enabled = true
+    expiration {
+      days = 365
+    }
+  }
+}
+
+resource "yandex_kms_symmetric_key" "key-a" {
+  name              = "example-symetric-key"
+  description       = "description for key"
+  default_algorithm = "AES_128"
+  rotation_period   = "8760h" // equal to 1 year
+}
+
+resource "yandex_storage_bucket" "all_settings" {
+  bucket = "example-tf-settings-bucket"
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+  }
+
+  lifecycle_rule {
+    id = "test"
+    enabled = true
+    prefix = "prefix/"
+    expiration {
+      days = 30
+    }
+  }
+  lifecycle_rule {
+    id      = "log"
+    enabled = true
+
+    prefix = "log/"
+
+    transition {
+      days          = 30
+      storage_class = "COLD"
+    }
+
+    expiration {
+      days = 90
+    }
+  }
+
+  lifecycle_rule {
+    id      = "everything180"
+    prefix  = ""
+    enabled = true
+
+    expiration {
+      days = 180
+    }
+  }
+  lifecycle_rule {
+    id      = "cleanupoldversions"
+    prefix  = "config/"
+    enabled = true
+
+    noncurrent_version_transition {
+      days          = 30
+      storage_class = "COLD"
+    }
+
+    noncurrent_version_expiration {
+      days = 90
+    }
+  }
+  lifecycle_rule {
+    id      = "abortmultiparts"
+    prefix  = ""
+    enabled = true
+    abort_incomplete_multipart_upload_days = 7
+  }
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT"]
+    allowed_origins = ["https://storage-cloud.example.com"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  logging {
+    target_bucket = yandex_storage_bucket.log_bucket.id
+    target_prefix = "tf-logs/"
   }
 }
 ```
@@ -283,7 +399,7 @@ The `transition` object supports the following
 
 * `days` - (Optional) Specifies the number of days after object creation when the specific rule action takes effect.
 
-* `storage_class` - (Required) Specifies the storage class to which you want the object to transition. Can only be `STANDARD_IA`.
+* `storage_class` - (Required) Specifies the storage class to which you want the object to transition. Can only be `COLD` or `STANDARD_IA`.
 
 The `noncurrent_version_expiration` object supports the following
 
@@ -293,7 +409,7 @@ The `noncurrent_version_transition` object supports the following
 
 * `days` - (Required) Specifies the number of days noncurrent object versions transition.
 
-* `storage_class` - (Required) Specifies the storage class to which you want the noncurrent object versions to transition. Can only be `STANDARD_IA`.
+* `storage_class` - (Required) Specifies the storage class to which you want the noncurrent object versions to transition. Can only be `COLD` or `STANDARD_IA`.
 
 The `server_side_encryption_configuration` object supports the following:
 

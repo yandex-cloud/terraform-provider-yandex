@@ -293,6 +293,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 										Required: true,
 										ValidateFunc: validation.StringInSlice([]string{
 											s3.StorageClassStandardIa,
+											"COLD",
 										}, false),
 									},
 								},
@@ -314,6 +315,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 										Required: true,
 										ValidateFunc: validation.StringInSlice([]string{
 											s3.StorageClassStandardIa,
+											"COLD",
 										}, false),
 									},
 								},
