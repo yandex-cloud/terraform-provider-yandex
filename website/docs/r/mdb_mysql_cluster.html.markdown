@@ -144,6 +144,8 @@ The following arguments are supported:
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC. The structure is documented below.
 
+* `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
 - - -
 
 The `resources` block supports:

@@ -59,6 +59,7 @@ exported:
 * `zookeeper` - Configuration of the ZooKeeper subcluster. The structure is documented below.
 * `sql_user_management` - Enables `admin` user with user management permission.
 * `sql_database_management` - Grants `admin` user database management permission.
+* `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `clickhouse` block supports:
 

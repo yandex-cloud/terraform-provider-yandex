@@ -406,6 +406,8 @@ The following arguments are supported:
 
 * `sql_database_management` - (Optional, ForceNew) Grants `admin` user database management permission.
 
+* `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
 - - -
 
 The `clickhouse` block supports:

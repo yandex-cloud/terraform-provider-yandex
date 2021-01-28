@@ -52,6 +52,7 @@ exported:
 * `user` - A user of the MySQL cluster. The structure is documented below.
 * `database` - A database of the MySQL cluster. The structure is documented below.
 * `host` - A host of the MySQL cluster. The structure is documented below.
+* `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `resources` block supports:
 

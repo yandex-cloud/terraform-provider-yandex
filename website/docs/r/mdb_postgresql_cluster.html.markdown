@@ -153,6 +153,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the PostgreSQL cluster.
 
+* `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
 - - -
 
 The `config` block supports:

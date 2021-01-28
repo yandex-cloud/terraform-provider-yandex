@@ -52,6 +52,7 @@ exported:
 * `cluster_config` - Configuration of the MongoDB cluster. The structure is documented below.
 * `user` - A user of the MongoDB cluster. The structure is documented below.
 * `database` - A database of the MongoDB cluster. The structure is documented below.
+* `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `resources` block supports:
 

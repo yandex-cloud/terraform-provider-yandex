@@ -132,6 +132,8 @@ The following arguments are supported:
 
 * `sharded` - (Optional) Redis Cluster mode enabled/disabled.
 
+* `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
 - - -
 
 The `config` block supports:

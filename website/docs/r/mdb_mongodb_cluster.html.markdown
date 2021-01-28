@@ -95,6 +95,8 @@ The following arguments are supported:
 
 * `access` - (Optional) Access policy to the MongoDB cluster. The structure is documented below.
 
+* `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
 - - -
 
 The `cluster_config` block supports:
