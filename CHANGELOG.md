@@ -1,5 +1,6 @@
 ## 0.50.0 (Unreleased)
 FEATURES:
+* mdb: version 13 is available in `yandex_mdb_postgresql_cluster`
 * storage: `yandex_storage_bucket` resource supports versioning configuration
 * storage: `yandex_storage_bucket` resource supports logging configuration
 
