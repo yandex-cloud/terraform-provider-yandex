@@ -92,6 +92,8 @@ func testAccDataSourceMDBClickHouseClusterAttributesCheck(datasourceName string,
 			"access",
 			"backup_window_start",
 			"security_group_ids",
+			"sql_user_management",
+			"sql_database_management",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -128,6 +130,8 @@ func testAccDataSourceMDBClickHouseClusterCheck(datasourceName string, resourceN
 		resource.TestCheckResourceAttr(datasourceName, "access.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "backup_window_start.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "sql_user_management", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "sql_database_management", "false"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)

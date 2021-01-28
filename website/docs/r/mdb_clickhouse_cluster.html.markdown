@@ -377,12 +377,6 @@ The following arguments are supported:
 
 * `host` - (Required) A host of the ClickHouse cluster. The structure is documented below.
 
-* `shard_group` - (Optional) A group of clickhouse shards. The structure is documented below.
-
-* `format_schema` - (Optional) A set of protobuf or capnproto format schemas. The structure is documented below.
-
-* `ml_model` - (Optional) A group of machine learning models. The structure is documented below
-
 - - -
 
 * `version` - (Optional) Version of the ClickHouse server software.
@@ -399,6 +393,18 @@ The following arguments are supported:
 * `access` - (Optional) Access policy to the ClickHouse cluster. The structure is documented below.
 
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
+
+* `shard_group` - (Optional) A group of clickhouse shards. The structure is documented below.
+
+* `format_schema` - (Optional) A set of protobuf or capnproto format schemas. The structure is documented below.
+
+* `ml_model` - (Optional) A group of machine learning models. The structure is documented below
+
+* `admin_password` - (Optional) A password used to authorize as user `admin` when `sql_user_management` enabled.
+
+* `sql_user_management` - (Optional, ForceNew) Enables `admin` user with user management permission.
+
+* `sql_database_management` - (Optional, ForceNew) Grants `admin` user database management permission.
 
 - - -
 

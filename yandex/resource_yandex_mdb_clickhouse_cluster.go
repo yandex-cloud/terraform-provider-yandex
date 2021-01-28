@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -235,7 +236,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"user": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Set:      clickHouseUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -267,7 +268,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"database": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Set:      clickHouseDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -508,6 +509,23 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"admin_password": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+			},
+			"sql_user_management": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Optional: true,
+				Computed: true,
+			},
+			"sql_database_management": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -652,6 +670,18 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		Zookeeper:         expandClickHouseZookeeperSpec(d),
 		BackupWindowStart: expandClickHouseBackupWindowStart(d),
 		Access:            expandClickHouseAccess(d),
+	}
+
+	if val, ok := d.GetOk("admin_password"); ok {
+		configSpec.SetAdminPassword(val.(string))
+	}
+
+	if val, ok := d.GetOk("sql_user_management"); ok {
+		configSpec.SetSqlUserManagement(&wrappers.BoolValue{Value: val.(bool)})
+	}
+
+	if val, ok := d.GetOk("sql_database_management"); ok {
+		configSpec.SetSqlDatabaseManagement(&wrappers.BoolValue{Value: val.(bool)})
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -827,6 +857,9 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	d.Set("health", cluster.GetHealth().String())
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
+	d.Set("version", cluster.Config.Version)
+	d.Set("sql_user_management", cluster.Config.SqlUserManagement)
+	d.Set("sql_database_management", cluster.Config.SqlDatabaseManagement)
 
 	return d.Set("labels", cluster.Labels)
 }
@@ -883,14 +916,17 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 }
 
 var mdbClickHouseUpdateFieldsMap = map[string]string{
-	"name":                "name",
-	"description":         "description",
-	"labels":              "labels",
-	"version":             "config_spec.version",
-	"access":              "config_spec.access",
-	"backup_window_start": "config_spec.backup_window_start",
-	"clickhouse":          "config_spec.clickhouse",
-	"security_group_ids":  "security_group_ids",
+	"name":                    "name",
+	"description":             "description",
+	"labels":                  "labels",
+	"version":                 "config_spec.version",
+	"access":                  "config_spec.access",
+	"backup_window_start":     "config_spec.backup_window_start",
+	"clickhouse":              "config_spec.clickhouse",
+	"admin_password":          "config_spec.admin_password",
+	"sql_user_management":     "config_spec.sql_user_management",
+	"sql_database_management": "config_spec.sql_database_management",
+	"security_group_ids":      "security_group_ids",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -973,14 +1009,21 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 		Description: d.Get("description").(string),
 		Labels:      labels,
 		ConfigSpec: &clickhouse.ConfigSpec{
-			Version:           d.Get("version").(string),
-			Clickhouse:        clickhouseConfigSpec,
-			Zookeeper:         expandClickHouseZookeeperSpec(d),
-			BackupWindowStart: expandClickHouseBackupWindowStart(d),
-			Access:            expandClickHouseAccess(d),
+			Version:               d.Get("version").(string),
+			Clickhouse:            clickhouseConfigSpec,
+			Zookeeper:             expandClickHouseZookeeperSpec(d),
+			BackupWindowStart:     expandClickHouseBackupWindowStart(d),
+			Access:                expandClickHouseAccess(d),
+			SqlUserManagement:     &wrappers.BoolValue{Value: d.Get("sql_user_management").(bool)},
+			SqlDatabaseManagement: &wrappers.BoolValue{Value: d.Get("sql_database_management").(bool)},
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
+
+	if pass, ok := d.GetOk("admin_password"); ok {
+		req.ConfigSpec.SetAdminPassword(pass.(string))
+	}
+
 	return req, nil
 }
 

@@ -57,6 +57,8 @@ exported:
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the ClickHouse cluster. The structure is documented below.
 * `zookeeper` - Configuration of the ZooKeeper subcluster. The structure is documented below.
+* `sql_user_management` - Enables `admin` user with user management permission.
+* `sql_database_management` - Grants `admin` user database management permission.
 
 The `clickhouse` block supports:
 

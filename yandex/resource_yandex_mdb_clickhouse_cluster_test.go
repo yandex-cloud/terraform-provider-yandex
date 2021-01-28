@@ -200,6 +200,23 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
+			// Enable sql_user_management and sql_database_management - requires replacement
+			{
+				Config: testAccMDBClickHouseClusterConfigSqlManaged(chName, chDesc2, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
+					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{}),
+					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{}),
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
 		},
 	})
 }
@@ -738,6 +755,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
 
   labels = {
     test_key = "test_value"
@@ -863,6 +881,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
 
   labels = {
     new_key = "new_value"
@@ -1040,6 +1059,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
 
   labels = {
     new_key = "new_value"
@@ -1154,6 +1174,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
 
   clickhouse {
     resources {
@@ -1217,6 +1238,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
 
   clickhouse {
     resources {
@@ -1269,6 +1291,40 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     ]
   }
 
+}
+`, name, desc)
+}
+
+func testAccMDBClickHouseClusterConfigSqlManaged(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+  sql_user_management = true
+  sql_database_management = true
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc)
 }

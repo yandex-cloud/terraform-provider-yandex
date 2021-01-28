@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -459,6 +458,14 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"sql_user_management": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"sql_database_management": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -480,141 +487,10 @@ func dataSourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta inter
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source ClickHouse Cluster by name: %v", err)
 		}
+
+		d.Set("cluster_id", clusterID)
 	}
 
-	cluster, err := config.sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
-		ClusterId: clusterID,
-	})
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
-	}
-
-	chResources, err := flattenClickHouseResources(cluster.Config.Clickhouse.Resources)
-	if err != nil {
-		return err
-	}
-
-	chConfig, err := flattenClickHouseConfig(d, cluster.Config.Clickhouse.Config)
-	if err != nil {
-		return err
-	}
-
-	d.Set("clickhouse", []map[string]interface{}{
-		{
-			"resources": chResources,
-			"config":    chConfig,
-		},
-	})
-
-	zkResources, err := flattenClickHouseResources(cluster.Config.Zookeeper.Resources)
-	if err != nil {
-		return err
-	}
-	d.Set("zookeeper", []map[string]interface{}{
-		{
-			"resources": zkResources,
-		},
-	})
-
-	bws := flattenClickHouseBackupWindowStart(cluster.Config.BackupWindowStart)
-	if err := d.Set("backup_window_start", bws); err != nil {
-		return err
-	}
-
-	ac := flattenClickHouseAccess(cluster.Config.Access)
-	if err := d.Set("access", ac); err != nil {
-		return err
-	}
-
-	hosts, err := listClickHouseHosts(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	hs, err := flattenClickHouseHosts(hosts)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("host", hs); err != nil {
-		return err
-	}
-
-	groups, err := listClickHouseShardGroups(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	sg, err := flattenClickHouseShardGroups(groups)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("shard_group", sg); err != nil {
-		return err
-	}
-
-	formatSchemas, err := listClickHouseFormatSchemas(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	fs, err := flattenClickHouseFormatSchemas(formatSchemas)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("format_schema", fs); err != nil {
-		return err
-	}
-
-	mlModels, err := listClickHouseMlModels(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	ml, err := flattenClickHouseMlModels(mlModels)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("ml_model", ml); err != nil {
-		return err
-	}
-
-	databases, err := listClickHouseDatabases(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	dbs := flattenClickHouseDatabases(databases)
-	if err := d.Set("database", dbs); err != nil {
-		return err
-	}
-
-	users, err := listClickHouseUsers(ctx, config, clusterID)
-	if err != nil {
-		return err
-	}
-	us := flattenClickHouseUsers(users, nil)
-	if err := d.Set("user", us); err != nil {
-		return err
-	}
-
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("labels", cluster.Labels); err != nil {
-		return err
-	}
-
-	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
-	d.Set("cluster_id", cluster.Id)
-	d.Set("name", cluster.Name)
-	d.Set("folder_id", cluster.FolderId)
-	d.Set("network_id", cluster.NetworkId)
-	d.Set("environment", cluster.GetEnvironment().String())
-	d.Set("health", cluster.GetHealth().String())
-	d.Set("status", cluster.GetStatus().String())
-	d.Set("description", cluster.Description)
-
-	d.SetId(cluster.Id)
-	return nil
+	d.SetId(clusterID)
+	return resourceYandexMDBClickHouseClusterRead(d, meta)
 }
