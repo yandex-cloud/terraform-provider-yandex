@@ -28,6 +28,18 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
+  mysql_config = {
+    sql_mode                      = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    max_connections               = 100
+    default_authentication_plugin = "MYSQL_NATIVE_PASSWORD"
+    innodb_print_all_deadlocks    = true
+
+  }
+
+  access {
+    web_sql = true
+  }
+
   database {
     name = "db_name"
   }
@@ -133,6 +145,10 @@ The following arguments are supported:
 
 * `host` - (Required) A host of the MySQL cluster. The structure is documented below.
 
+* `access` - (Optional) Access policy to the MySQL cluster. The structure is documented below.
+
+* `mysql_config` - (Optional) MySQL cluster config. Detail info in "MySQL config" section (documented below).
+
 - - -
 
 * `description` - (Optional) Description of the MySQL cluster.
@@ -193,6 +209,13 @@ The `host` block supports:
 
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
 
+The `access` block supports:
+If not specified then does not make any changes.  
+
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+
+* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.ru/docs/managed-mysql/operations/web-sql-query).
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -210,3 +233,259 @@ A cluster can be imported using the `id` of the resource, e.g.
 ```
 $ terraform import yandex_mdb_mysql_cluster.foo cluster_id
 ```
+
+## MySQL config
+If not specified `mysql_config` then does not make any changes.  
+
+* `sql_mode` default value: `ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION`  
+
+some of:  
+	-	1: "ALLOW_INVALID_DATES"
+	-	2: "ANSI_QUOTES"
+	-	3: "ERROR_FOR_DIVISION_BY_ZERO"
+	-	4: "HIGH_NOT_PRECEDENCE"
+	-	5: "IGNORE_SPACE"
+	-	6: "NO_AUTO_VALUE_ON_ZERO"
+	-	7: "NO_BACKSLASH_ESCAPES"
+	-	8: "NO_ENGINE_SUBSTITUTION"
+	-	9: "NO_UNSIGNED_SUBTRACTION"
+	-	10: "NO_ZERO_DATE"
+	-	11: "NO_ZERO_IN_DATE"
+	-	15: "ONLY_FULL_GROUP_BY"
+	-	16: "PAD_CHAR_TO_FULL_LENGTH"
+	-	17: "PIPES_AS_CONCAT"
+	-	18: "REAL_AS_FLOAT"
+	-	19: "STRICT_ALL_TABLES"
+	-	20: "STRICT_TRANS_TABLES"
+	-	21: "TIME_TRUNCATE_FRACTIONAL"
+	-	22: "ANSI"
+	-	23: "TRADITIONAL"
+	-	24: "NO_DIR_IN_CREATE"
+or:  
+  - 0: "SQLMODE_UNSPECIFIED"
+
+### MysqlConfig 8.0
+* `audit_log` boolean
+
+* `auto_increment_increment` integer
+
+* `auto_increment_offset` integer
+
+* `binlog_cache_size` integer
+
+* `binlog_group_commit_sync_delay` integer
+
+* `binlog_row_image` one of:
+  - 0: "BINLOG_ROW_IMAGE_UNSPECIFIED"
+  - 1: "FULL"
+  - 2: "MINIMAL"
+  - 3: "NOBLOB"
+
+* `binlog_rows_query_log_events` boolean
+
+* `character_set_server` text
+
+* `collation_server` text
+
+* `default_authentication_plugin` one of:
+  - 0: "AUTH_PLUGIN_UNSPECIFIED"
+  - 1: "MYSQL_NATIVE_PASSWORD"
+  - 2: "CACHING_SHA2_PASSWORD"
+  - 3: "SHA256_PASSWORD"
+
+* `default_time_zone` text
+
+* `explicit_defaults_for_timestamp` boolean
+
+* `general_log` boolean
+
+* `group_concat_max_len` integer
+
+* `innodb_adaptive_hash_index` boolean
+
+* `innodb_buffer_pool_size` integer
+
+* `innodb_flush_log_at_trx_commit` integer
+
+* `innodb_io_capacity` integer
+
+* `innodb_io_capacity_max` integer
+
+* `innodb_lock_wait_timeout` integer
+
+* `innodb_log_buffer_size` integer
+
+* `innodb_log_file_size` integer
+
+* `innodb_numa_interleave` boolean
+
+* `innodb_print_all_deadlocks` boolean
+
+* `innodb_purge_threads` integer
+
+* `innodb_read_io_threads` integer
+
+* `innodb_temp_data_file_max_size` integer
+
+* `innodb_thread_concurrency` integer
+
+* `innodb_write_io_threads` integer
+
+* `join_buffer_size` integer
+
+* `long_query_time` float
+
+* `max_allowed_packet` integer
+
+* `max_connections` integer
+
+* `max_heap_table_size` integer
+
+* `net_read_timeout` integer
+
+* `net_write_timeout` integer
+
+* `regexp_time_limit` integer
+
+* `rpl_semi_sync_master_wait_for_slave_count` integer
+
+* `slave_parallel_type` one of:
+  - 0: "SLAVE_PARALLEL_TYPE_UNSPECIFIED"
+  - 1: "DATABASE"
+  - 2: "LOGICAL_CLOCK"
+
+* `slave_parallel_workers` integer
+
+* `sort_buffer_size` integer
+
+* `sync_binlog` integer
+
+* `table_definition_cache` integer
+
+* `table_open_cache` integer
+
+* `table_open_cache_instances` integer
+
+* `thread_cache_size` integer
+
+* `thread_stack` integer
+
+* `tmp_table_size` integer
+
+* `transaction_isolation` one of:
+  - 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
+  - 1: "READ_COMMITTED"
+  - 2: "REPEATABLE_READ"
+  - 3: "SERIALIZABLE"
+
+### MysqlConfig 5.7
+* `audit_log` boolean
+
+* `auto_increment_increment` integer
+
+* `auto_increment_offset` integer
+
+* `binlog_cache_size` integer
+
+* `binlog_group_commit_sync_delay` integer
+
+* `binlog_row_image` one of:
+  - 0: "BINLOG_ROW_IMAGE_UNSPECIFIED"
+  - 1: "FULL"
+  - 2: "MINIMAL"
+  - 3: "NOBLOB"
+
+* `binlog_rows_query_log_events` boolean
+
+* `character_set_server` text
+
+* `collation_server` text
+
+* `default_authentication_plugin` one of:
+  - 0: "AUTH_PLUGIN_UNSPECIFIED"
+  - 1: "MYSQL_NATIVE_PASSWORD"
+  - 2: "CACHING_SHA2_PASSWORD"
+  - 3: "SHA256_PASSWORD"
+
+* `default_time_zone` text
+
+* `explicit_defaults_for_timestamp` boolean
+
+* `general_log` boolean
+
+* `group_concat_max_len` integer
+
+* `innodb_adaptive_hash_index` boolean
+
+* `innodb_buffer_pool_size` integer
+
+* `innodb_flush_log_at_trx_commit` integer
+
+* `innodb_io_capacity` integer
+
+* `innodb_io_capacity_max` integer
+
+* `innodb_lock_wait_timeout` integer
+
+* `innodb_log_buffer_size` integer
+
+* `innodb_log_file_size` integer
+
+* `innodb_numa_interleave` boolean
+
+* `innodb_print_all_deadlocks` boolean
+
+* `innodb_purge_threads` integer
+
+* `innodb_read_io_threads` integer
+
+* `innodb_temp_data_file_max_size` integer
+
+* `innodb_thread_concurrency` integer
+
+* `innodb_write_io_threads` integer
+
+* `join_buffer_size` integer
+
+* `long_query_time` float
+
+* `max_allowed_packet` integer
+
+* `max_connections` integer
+
+* `max_heap_table_size` integer
+
+* `net_read_timeout` integer
+
+* `net_write_timeout` integer
+
+* `rpl_semi_sync_master_wait_for_slave_count` integer
+
+* `slave_parallel_type` one of:
+  - 0: "SLAVE_PARALLEL_TYPE_UNSPECIFIED"
+  - 1: "DATABASE"
+  - 2: "LOGICAL_CLOCK"
+
+* `slave_parallel_workers` integer
+
+* `sort_buffer_size` integer
+
+* `sync_binlog` integer
+
+* `table_definition_cache` integer
+
+* `table_open_cache` integer
+
+* `table_open_cache_instances` integer
+
+* `thread_cache_size` integer
+
+* `thread_stack` integer
+
+* `tmp_table_size` integer
+
+* `transaction_isolation` one of:
+  - 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
+  - 1: "READ_COMMITTED"
+  - 2: "REPEATABLE_READ"
+  - 3: "SERIALIZABLE"

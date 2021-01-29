@@ -145,6 +145,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "2"),
+					resource.TestCheckResourceAttr(mysqlResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -584,7 +589,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
   description = "%s"
   environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
+  network_id  = yandex_vpc_network.foo.id
   version     = "5.7"
 
   labels = {
@@ -595,6 +600,17 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 24
+  }
+
+  mysql_config = {
+    sql_mode                      = "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"
+    max_connections               = 10
+    default_authentication_plugin = "MYSQL_NATIVE_PASSWORD"
+    innodb_print_all_deadlocks    = true
+  }
+
+  access {
+    web_sql = true
   }
 
   backup_window_start {
@@ -636,10 +652,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo_c.id}"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
+  security_group_ids = [yandex_vpc_security_group.sg-x.id, yandex_vpc_security_group.sg-y.id]
 }
 `, name, desc)
 }

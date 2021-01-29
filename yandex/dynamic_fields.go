@@ -4,20 +4,24 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 type fieldManualInfo struct {
-	defaultValue  *int
-	isDefaultSet  bool
-	intToString   func(*int) (string, error)
-	stringToInt   func(string) (*int, error)
-	minVal        *int
-	maxVal        *int
-	isNotNullable bool
-	skip          bool
-	isStringable  bool
+	defaultIntValue    *int
+	defaultStringValue string
+	isDefaultSet       bool
+	intToString        func(*int) (string, error)
+	stringToInt        func(string) (*int, error)
+	minIntVal          *int
+	maxMaxVal          *int
+	isNotNullable      bool
+	skip               bool
+	isStringable       bool
+
+	emptySliceValue string
 
 	checkValueFunc   func(fieldsInfo *objectFieldsInfo, v interface{}) error
 	compareValueFunc func(fieldsInfo *objectFieldsInfo, old, new string) bool
@@ -71,7 +75,7 @@ func (fieldsInfo *objectFieldsInfo) getDefault(field string) *int {
 	}
 
 	if fieldInfo, ok := fieldsInfo.fieldsManual[field]; ok && fieldInfo.isDefaultSet {
-		return fieldInfo.defaultValue
+		return fieldInfo.defaultIntValue
 	}
 	return nil
 }
@@ -105,11 +109,11 @@ func (fieldsInfo *objectFieldsInfo) intCheckSetValue(field string, v *int) error
 	}
 
 	if fieldInfo, ok := fieldsInfo.fieldsManual[field]; ok {
-		if fieldInfo.minVal != nil && *fieldInfo.minVal > *v {
-			return fmt.Errorf("intCheckSetValue: min value for %s is %v value is %v", field, fieldInfo.minVal, v)
+		if fieldInfo.minIntVal != nil && *fieldInfo.minIntVal > *v {
+			return fmt.Errorf("intCheckSetValue: min value for %s is %v value is %v", field, fieldInfo.minIntVal, v)
 		}
-		if fieldInfo.maxVal != nil && *fieldInfo.maxVal < *v {
-			return fmt.Errorf("intCheckSetValue: max value for %s is %v value is %v", field, fieldInfo.maxVal, v)
+		if fieldInfo.maxMaxVal != nil && *fieldInfo.maxMaxVal < *v {
+			return fmt.Errorf("intCheckSetValue: max value for %s is %v value is %v", field, fieldInfo.maxMaxVal, v)
 		}
 	}
 
@@ -343,7 +347,7 @@ func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, valu
 
 	def := 0
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		defaultValue:     &def,
+		defaultIntValue:  &def,
 		isDefaultSet:     true,
 		intToString:      makeIntToString(convIValuesToI32(values), def),
 		stringToInt:      makeStringToInt(convIValuesToI32(values), &def),
@@ -357,9 +361,27 @@ func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, valu
 	return fieldsInfo
 }
 
+func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNamesList(field string, values map[int32]string, defaultStringValue string, emptySliceValue string) *objectFieldsInfo {
+	def := 0
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{
+		defaultStringValue: defaultStringValue,
+		emptySliceValue:    emptySliceValue,
+		isDefaultSet:       true,
+		intToString:        makeIntToString(convIValuesToI32(values), def),
+		stringToInt:        makeStringToInt(convIValuesToI32(values), &def),
+		isStringable:       true,
+		isNotNullable:      true,
+		skip:               true,
+		checkValueFunc:     defaultSliceCheckValueFunc(field),
+		compareValueFunc:   defultSliceCompareValueFunc(field),
+	}
+
+	return fieldsInfo
+}
+
 func (fieldsInfo *objectFieldsInfo) addIDefault(field string, def int) *objectFieldsInfo {
 
-	fieldsInfo.fieldsManual[field] = fieldManualInfo{defaultValue: &def, isDefaultSet: true}
+	fieldsInfo.fieldsManual[field] = fieldManualInfo{defaultIntValue: &def, isDefaultSet: true}
 
 	return fieldsInfo
 }
@@ -369,12 +391,12 @@ func (fieldsInfo *objectFieldsInfo) addEnumGeneratedNames(field string, values m
 
 	def := 0
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		defaultValue:  &def,
-		isDefaultSet:  true,
-		intToString:   makeIntToString(convIValuesToI32(values), def),
-		stringToInt:   makeStringToInt(convIValuesToI32(values), &def),
-		isStringable:  true,
-		isNotNullable: true,
+		defaultIntValue: &def,
+		isDefaultSet:    true,
+		intToString:     makeIntToString(convIValuesToI32(values), def),
+		stringToInt:     makeStringToInt(convIValuesToI32(values), &def),
+		isStringable:    true,
+		isNotNullable:   true,
 	}
 
 	return fieldsInfo
@@ -385,12 +407,12 @@ func (fieldsInfo *objectFieldsInfo) addEnumHumanNames(field string, values map[i
 
 	def := 0
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		defaultValue:  &def,
-		isDefaultSet:  true,
-		intToString:   makeIntToString(values, def),
-		stringToInt:   makeStringToInt2(values, convIValuesToI32(values2), &def),
-		isStringable:  true,
-		isNotNullable: true,
+		defaultIntValue: &def,
+		isDefaultSet:    true,
+		intToString:     makeIntToString(values, def),
+		stringToInt:     makeStringToInt2(values, convIValuesToI32(values2), &def),
+		isStringable:    true,
+		isNotNullable:   true,
 	}
 
 	return fieldsInfo
@@ -467,5 +489,101 @@ func makeStringToInt2(values map[int]string, values2 map[int]string, defV *int) 
 			return &out, nil
 		}
 		return &out, nil
+	}
+}
+
+func (fieldsInfo *objectFieldsInfo) stringToIntSlice(field string, value string) (result []int32, err error) {
+
+	fieldInfo, ok := fieldsInfo.fieldsManual[field]
+
+	if !ok {
+		return nil, fmt.Errorf("Field should be define")
+	}
+
+	result = make([]int32, 0)
+
+	if value == "" && fieldInfo.isDefaultSet {
+		value = fieldInfo.defaultStringValue
+	}
+
+	if value == fieldInfo.emptySliceValue {
+		return result, nil
+	}
+
+	separator := ","
+	for _, val := range strings.Split(value, separator) {
+		v, err := fieldsInfo.stringToInt(field, val)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, int32(*v))
+	}
+
+	return result, nil
+}
+
+func (fieldsInfo *objectFieldsInfo) intSliceToString(field string, values []int32) (result string, err error) {
+
+	fieldInfo, ok := fieldsInfo.fieldsManual[field]
+
+	if !ok {
+		return "", fmt.Errorf("Field should be define")
+	}
+
+	if len(values) == 0 {
+		return fieldInfo.emptySliceValue, nil
+	}
+
+	separator := ","
+	for i, value := range values {
+		if i > 0 {
+			result += separator
+		}
+		v := int(value)
+		val, err := fieldsInfo.intToString(field, &v)
+		if err != nil {
+			return "", err
+		}
+		result += val
+	}
+
+	return result, nil
+}
+
+func defaultSliceCheckValueFunc(field string) func(fieldsInfo *objectFieldsInfo, v interface{}) error {
+	return func(fieldsInfo *objectFieldsInfo, v interface{}) error {
+		_, err := fieldsInfo.stringToIntSlice(field, v.(string))
+		return err
+	}
+}
+
+func defultSliceCompareValueFunc(field string) func(fieldsInfo *objectFieldsInfo, old, new string) bool {
+	return func(fieldsInfo *objectFieldsInfo, old, new string) bool {
+		oldList, err := fieldsInfo.stringToIntSlice(field, old)
+		if err != nil {
+			return false
+		}
+		newList, err := fieldsInfo.stringToIntSlice(field, new)
+		if err != nil {
+			return false
+		}
+
+		oldMap := make(map[int32]struct{})
+
+		for _, value := range oldList {
+			if _, ok := oldMap[value]; !ok {
+				oldMap[value] = struct{}{}
+			}
+		}
+
+		newMap := make(map[int32]struct{})
+
+		for _, value := range newList {
+			if _, ok := newMap[value]; !ok {
+				newMap[value] = struct{}{}
+			}
+		}
+
+		return reflect.DeepEqual(oldMap, newMap)
 	}
 }

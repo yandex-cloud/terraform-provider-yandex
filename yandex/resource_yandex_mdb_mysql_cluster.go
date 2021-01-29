@@ -212,6 +212,36 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"mysql_config": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbMySQLSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"access": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -291,6 +321,12 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		Version:           version,
 		Resources:         resources,
 		BackupWindowStart: backupWindowStart,
+		Access:            expandMySQLAccess(d),
+	}
+
+	_, err = expandMySQLConfigSpecSettings(d, configSpec)
+	if err != nil {
+		return nil, err
 	}
 
 	hostSpecs := make([]*mysql.HostSpec, 0)
@@ -418,6 +454,24 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	clusterConfig, err := flattenMySQLSettings(cluster.Config)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("mysql_config", clusterConfig); err != nil {
+		return err
+	}
+
+	access, err := flattenMySQLAccess(cluster.Config.Access)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("access", access); err != nil {
+		return err
+	}
+
 	return d.Set("created_at", createdAt)
 }
 
@@ -454,6 +508,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"name":                "name",
 	"description":         "description",
 	"labels":              "labels",
+	"access":              "config_spec.access",
 	"backup_window_start": "config_spec.backup_window_start",
 	"resources":           "config_spec.resources",
 	"security_group_ids":  "security_group_ids",
@@ -472,6 +527,12 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 		Resources:         resources,
 		Version:           d.Get("version").(string),
 		BackupWindowStart: backupWindowStart,
+		Access:            expandMySQLAccess(d),
+	}
+
+	updateFieldConfigName, err := expandMySQLConfigSpecSettings(d, req.ConfigSpec)
+	if err != nil {
+		return err
 	}
 
 	onDone := []func(){}
@@ -485,11 +546,19 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	if d.HasChange("mysql_config") {
+		updatePath = append(updatePath, "config_spec."+updateFieldConfigName)
+		onDone = append(onDone, func() {
+			d.SetPartial("mysql_config")
+		})
+	}
+
 	if len(updatePath) == 0 {
 		return nil
 	}
 
 	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 

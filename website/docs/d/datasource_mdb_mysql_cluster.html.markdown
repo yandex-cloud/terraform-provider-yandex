@@ -52,6 +52,8 @@ exported:
 * `user` - A user of the MySQL cluster. The structure is documented below.
 * `database` - A database of the MySQL cluster. The structure is documented below.
 * `host` - A host of the MySQL cluster. The structure is documented below.
+* `access` - Access policy to the MySQL cluster. The structure is documented below.
+* `mysql_config` - MySQL cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `resources` block supports:
@@ -93,3 +95,8 @@ The `host` block supports:
 * `zone` - The availability zone where the MySQL host will be created.
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
+
+The `access` block supports:
+
+* `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.ru/docs/managed-mysql/operations/web-sql-query).

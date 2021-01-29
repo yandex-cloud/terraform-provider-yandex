@@ -7,6 +7,8 @@ FEATURES:
 ENHANCEMENTS:
 * storage: add bucket configuration example
 * mdb: support `security_group_ids` for managed service for kafka
+* mdb: add `web_sql` and `data_lens` attribute to `access` entity in `yandex_mdb_mysql_cluster` resource and data source
+* mdb: add `mysql_config` attribute in `yandex_mdb_mysql_cluster` resource and data source
 * mdb: add `format_schema` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `ml_model` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `replication_source_name`, `priority` attributes to `host`entity and `host_master_name` attribute in `yandex_mdb_postgresql_cluster` resource and data source

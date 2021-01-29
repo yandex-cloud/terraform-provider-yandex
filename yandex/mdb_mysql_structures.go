@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 )
 
 type MySQLHostSpec struct {
@@ -491,3 +492,175 @@ func unbindDatabaseRoles(permissions []mysql.Permission_Privilege) []string {
 
 	return roles
 }
+
+func flattenMySQLAccess(a *mysql.Access) ([]interface{}, error) {
+	if a == nil {
+		return nil, nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["data_lens"] = a.DataLens
+	out["web_sql"] = a.WebSql
+
+	return []interface{}{out}, nil
+}
+
+func expandMySQLAccess(d *schema.ResourceData) *mysql.Access {
+	if _, ok := d.GetOkExists("access"); !ok {
+		return nil
+	}
+
+	out := &mysql.Access{}
+
+	if v, ok := d.GetOk("access.0.data_lens"); ok {
+		out.DataLens = v.(bool)
+	}
+
+	if v, ok := d.GetOk("access.0.web_sql"); ok {
+		out.WebSql = v.(bool)
+	}
+
+	return out
+}
+
+func flattenMySQLSettingsSQLMode57(settings map[string]string, mySQLConfig *config.MysqlConfig5_7) (map[string]string, error) {
+	modes := make([]int32, 0)
+	for _, v := range mySQLConfig.SqlMode {
+		modes = append(modes, int32(v))
+	}
+
+	return flattenMySQLSettingsSQLMode(settings, modes)
+}
+
+func flattenMySQLSettingsSQLMode80(settings map[string]string, mySQLConfig *config.MysqlConfig8_0) (map[string]string, error) {
+
+	modes := make([]int32, 0)
+	for _, v := range mySQLConfig.SqlMode {
+		modes = append(modes, int32(v))
+	}
+
+	return flattenMySQLSettingsSQLMode(settings, modes)
+}
+
+func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map[string]string, error) {
+
+	sdlMode, err := mdbMySQLSettingsFieldsInfo.intSliceToString("sql_mode", modes)
+	if err != nil {
+		return nil, err
+	}
+
+	if sdlMode == "" {
+		return settings, nil
+	}
+
+	if settings == nil {
+		settings = make(map[string]string)
+	}
+
+	settings["sql_mode"] = sdlMode
+
+	return settings, nil
+}
+
+func flattenMySQLSettings(c *mysql.ClusterConfig) (map[string]string, error) {
+
+	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_0); ok {
+
+		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_8_0.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings, err = flattenMySQLSettingsSQLMode80(settings, cf.MysqlConfig_8_0.EffectiveConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		return settings, err
+	}
+	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_5_7); ok {
+		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_5_7.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true)
+		if err != nil {
+			return nil, err
+		}
+
+		settings, err = flattenMySQLSettingsSQLMode57(settings, cf.MysqlConfig_5_7.EffectiveConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		return settings, err
+	}
+
+	return nil, nil
+}
+
+func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.ConfigSpec) (updateFieldConfigName string, err error) {
+
+	version := configSpec.Version
+
+	path := "mysql_config"
+
+	if _, ok := d.GetOkExists(path); !ok {
+		return "", nil
+	}
+
+	var sdlModes []int32
+	sqlMode, ok := d.GetOkExists(path + ".sql_mode")
+	if ok {
+		sdlModes, err = mdbMySQLSettingsFieldsInfo.stringToIntSlice("sql_mode", sqlMode.(string))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	var mySQLConfig interface{}
+	if version == "5.7" {
+		cfg := &mysql.ConfigSpec_MysqlConfig_5_7{
+			MysqlConfig_5_7: &config.MysqlConfig5_7{},
+		}
+		if len(sdlModes) > 0 {
+			for _, v := range sdlModes {
+				cfg.MysqlConfig_5_7.SqlMode = append(cfg.MysqlConfig_5_7.SqlMode, config.MysqlConfig5_7_SQLMode(v))
+			}
+		}
+		mySQLConfig = cfg.MysqlConfig_5_7
+		configSpec.MysqlConfig = cfg
+		updateFieldConfigName = "mysql_config_5_7"
+	} else if version == "8.0" {
+		cfg := &mysql.ConfigSpec_MysqlConfig_8_0{
+			MysqlConfig_8_0: &config.MysqlConfig8_0{},
+		}
+		if len(sdlModes) > 0 {
+			for _, v := range sdlModes {
+				cfg.MysqlConfig_8_0.SqlMode = append(cfg.MysqlConfig_8_0.SqlMode, config.MysqlConfig8_0_SQLMode(v))
+			}
+		}
+		mySQLConfig = cfg.MysqlConfig_8_0
+		configSpec.MysqlConfig = cfg
+		updateFieldConfigName = "mysql_config_8_0"
+
+	} else {
+		return "", nil
+	}
+
+	err = expandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, mySQLConfig, path+".", true)
+
+	if err != nil {
+		return "", err
+	}
+
+	return updateFieldConfigName, nil
+}
+
+const defaultSQLModes = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+
+var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().
+	addType(config.MysqlConfig8_0{}).
+	addType(config.MysqlConfig5_7{}).
+	addEnumGeneratedNames("default_authentication_plugin", config.MysqlConfig8_0_AuthPlugin_name).
+	addEnumGeneratedNames("transaction_isolation", config.MysqlConfig8_0_TransactionIsolation_name).
+	addEnumGeneratedNames("binlog_row_image", config.MysqlConfig8_0_BinlogRowImage_name).
+	addEnumGeneratedNames("slave_parallel_type", config.MysqlConfig8_0_SlaveParallelType_name).
+	addSkipEnumGeneratedNamesList("sql_mode", config.MysqlConfig8_0_SQLMode_name, defaultSQLModes, "SQLMODE_UNSPECIFIED")

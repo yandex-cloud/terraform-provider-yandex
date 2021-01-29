@@ -188,6 +188,34 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"mysql_config": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbMySQLSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"access": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -304,6 +332,24 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	clusterConfig, err := flattenMySQLSettings(cluster.Config)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("mysql_config", clusterConfig); err != nil {
+		return err
+	}
+
+	access, err := flattenMySQLAccess(cluster.Config.Access)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("access", access); err != nil {
 		return err
 	}
 
