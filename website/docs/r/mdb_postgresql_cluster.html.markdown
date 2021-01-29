@@ -127,6 +127,86 @@ resource "yandex_vpc_subnet" "bar" {
 }
 ```
 
+
+Example of creating a High-Availability (HA) PostgreSQL Cluster with priority and set master.
+
+```hcl
+
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "test_ha"
+  description = "test High-Availability (HA) PostgreSQL Cluster with priority and set master"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  host_master_name = "host_name_c_2"
+
+  config {
+    version = "12"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+
+  }
+  user {
+    name     = "alice"
+    password = "mysecurepassword"
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "host_name_a"
+    priority  = 2
+    subnet_id = yandex_vpc_subnet.a.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "host_name_b"
+    replication_source_name = "host_name_c"
+    subnet_id               = yandex_vpc_subnet.b.id
+  }
+  host {
+    zone      = "ru-central1-c"
+    name      = "host_name_c"
+    subnet_id = yandex_vpc_subnet.c.id
+  }
+  host {
+    zone      = "ru-central1-c"
+    name      = "host_name_c_2"
+    subnet_id = yandex_vpc_subnet.c.id
+  }
+
+  database {
+    owner = "alice"
+    name  = "testdb"
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "b" {
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "c" {
+  zone           = "ru-central1-c"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -152,6 +232,8 @@ The following arguments are supported:
 * `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it is unset, the default provider `folder_id` is used for create.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the PostgreSQL cluster.
+
+* `host_master_name` - (Optional) It sets name of master host. It works only when `host.name` is set.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
@@ -283,11 +365,21 @@ The `host` block supports:
 
 * `zone` - (Required) The availability zone where the PostgreSQL host will be created.
 
-* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
+* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.
 
 * `subnet_id` - (Optional) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
 * `fqdn` - (Computed) The fully qualified domain name of the host.
+
+* `name` - (Optional) Host state name. Is should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
+Also, this field is used to select which host will be selected as a master host. Please see `host_master_name` parameter.
+
+* `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
+
+* `priority` - Host priority in HA group. It works only when `name` is set.
+
+* `replication_source_name` - Host replication source name, case when not set then host shuld be in HA group. It works only when `name` is set.
+
 
 ## Attributes Reference
 

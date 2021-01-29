@@ -191,6 +191,14 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"host.0.role",
 			},
 			{
+				"host.0.replication_source",
+				"host.0.replication_source",
+			},
+			{
+				"host.0.priority",
+				"host.0.priority",
+			},
+			{
 				"labels.%",
 				"labels.%",
 			},

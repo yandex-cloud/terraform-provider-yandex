@@ -311,6 +311,22 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"replication_source": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"replication_source_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -346,6 +362,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Optional: true,
+			},
+			"host_master_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -415,19 +436,15 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	hostSpecs, err := expandPGHosts(d)
-	if err != nil {
-		return err
-	}
-
-	sortPGHosts(hosts, hostSpecs)
-
-	fHosts, err := flattenPGHosts(hosts)
+	fHosts, hostMasterName, err := flattenPGHosts(d, hosts, false)
 	if err != nil {
 		return err
 	}
 
 	if err := d.Set("host", fHosts); err != nil {
+		return err
+	}
+	if err := d.Set("host_master_name", hostMasterName); err != nil {
 		return err
 	}
 
@@ -509,6 +526,14 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("PostgreSQL Cluster creation failed: %s", err)
 	}
 
+	if err := createPGClusterHosts(ctx, config, d); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
+	}
+
+	if err := updateMasterPGClusterHosts(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
+	}
+
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
 }
 
@@ -550,7 +575,9 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	}
 	hostSpecs := make([]*postgresql.HostSpec, 0)
 	for _, host := range hostsFromScheme {
-		hostSpecs = append(hostSpecs, host.HostSpec)
+		if host.HostSpec.ReplicationSource == "" {
+			hostSpecs = append(hostSpecs, host.HostSpec)
+		}
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -604,6 +631,13 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("host") {
 		if err := updatePGClusterHosts(d, meta); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("host_master_name") {
+
+		if err := updateMasterPGClusterHosts(d, meta); err != nil {
 			return err
 		}
 	}
@@ -866,22 +900,124 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	toDelete, toAdd := pgHostsDiff(currHosts, targetHosts)
+	err = createPGClusterHosts(ctx, config, d)
+	if err != nil {
+		return err
+	}
 
-	for _, h := range toAdd {
-		err := addPGHost(ctx, config, d, h)
-		if err != nil {
-			return err
+	currHosts, err = listPGHosts(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	compareHostsInfo, err := comparePGHostsInfo(d, currHosts, true)
+	if err != nil {
+		return err
+	}
+
+	hostsToDelete := []string{}
+
+	for _, hostInfo := range compareHostsInfo.hostsInfo {
+		if !hostInfo.isNew {
+			hostsToDelete = append(hostsToDelete, hostInfo.fqdn)
+		} else if compareHostsInfo.haveHostWithName && (hostInfo.oldPriority != hostInfo.newPriority || hostInfo.oldReplicationSource != hostInfo.newReplicationSource) {
+
+			if err := updatePGHost(ctx, config, d, &postgresql.UpdateHostSpec{
+				HostName:          hostInfo.fqdn,
+				ReplicationSource: hostInfo.newReplicationSource,
+				Priority:          &wrappers.Int64Value{Value: int64(hostInfo.newPriority)},
+			}); err != nil {
+				return err
+			}
 		}
 	}
 
-	if len(toDelete) != 0 {
-		if err := deletePGHosts(ctx, config, d, toDelete); err != nil {
-			return err
-		}
+	if err := deletePGHosts(ctx, config, d, hostsToDelete); err != nil {
+		return err
 	}
 
 	d.SetPartial("host")
+	return nil
+}
+
+func createPGClusterHosts(ctx context.Context, config *Config, d *schema.ResourceData) error {
+
+	currHosts, err := listPGHosts(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	compareHostsInfo, err := comparePGHostsInfo(d, currHosts, true)
+
+	if err != nil {
+		return err
+	}
+
+	if compareHostsInfo.hierarhyExists && len(compareHostsInfo.createHostsInfo) == 0 {
+		return fmt.Errorf("Create cluster hosts error. Exists host with replication source, which can't be created. Possibly there is a loop")
+	}
+
+	if compareHostsInfo.haveHostWithName {
+		for _, newHostInfo := range compareHostsInfo.createHostsInfo {
+			err := addPGHost(ctx, config, d, &postgresql.HostSpec{
+				ZoneId:            newHostInfo.zone,
+				SubnetId:          newHostInfo.subnetID,
+				AssignPublicIp:    newHostInfo.assignPublicIP,
+				ReplicationSource: newHostInfo.newReplicationSource,
+				Priority:          &wrappers.Int64Value{Value: int64(newHostInfo.newPriority)},
+			})
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		for _, newHostInfo := range compareHostsInfo.createHostsInfo {
+			err := addPGHost(ctx, config, d, &postgresql.HostSpec{
+				ZoneId:         newHostInfo.zone,
+				SubnetId:       newHostInfo.subnetID,
+				AssignPublicIp: newHostInfo.assignPublicIP,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if compareHostsInfo.hierarhyExists {
+		return createPGClusterHosts(ctx, config, d)
+	}
+
+	return nil
+}
+
+func updateMasterPGClusterHosts(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	currHosts, err := listPGHosts(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	compareHostsInfo, err := comparePGHostsInfo(d, currHosts, true)
+	if err != nil {
+		return err
+	}
+
+	if !compareHostsInfo.haveHostWithName {
+		return nil
+	}
+
+	for _, hostInfo := range compareHostsInfo.hostsInfo {
+		if compareHostsInfo.hostMasterName == hostInfo.name && hostInfo.role != postgresql.Host_MASTER {
+			err = startPGFailover(ctx, config, d, hostInfo.fqdn)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
+
 	return nil
 }
 
@@ -1183,11 +1319,23 @@ func addPGHost(ctx context.Context, config *Config, d *schema.ResourceData, host
 	return nil
 }
 
-func deletePGHosts(ctx context.Context, config *Config, d *schema.ResourceData, names []string) error {
+func deletePGHosts(ctx context.Context, config *Config, d *schema.ResourceData, hostNamesToDelete []string) error {
+	if len(hostNamesToDelete) == 0 {
+		return nil
+	}
+	for _, hostToDelete := range hostNamesToDelete {
+		if err := deletePGHost(ctx, config, d, hostToDelete); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+func deletePGHost(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, &postgresql.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
-			HostNames: names,
+			HostNames: []string{name},
 		}),
 	)
 	if err != nil {
@@ -1201,6 +1349,52 @@ func deletePGHosts(ctx context.Context, config *Config, d *schema.ResourceData, 
 
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("deleting host from PostgreSQL Cluster %q failed: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func startPGFailover(ctx context.Context, config *Config, d *schema.ResourceData, hostName string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().PostgreSQL().Cluster().StartFailover(ctx, &postgresql.StartClusterFailoverRequest{
+			ClusterId: d.Id(),
+			HostName:  hostName,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to start failover host in PostgreSQL Cluster %q - host %v: %s", d.Id(), hostName, err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while start failover host in PostgreSQL Cluster %q - host %v: %s", d.Id(), hostName, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("start failover host in PostgreSQL Cluster %q - host %v failed: %s", d.Id(), hostName, err)
+	}
+
+	return nil
+}
+
+func updatePGHost(ctx context.Context, config *Config, d *schema.ResourceData, host *postgresql.UpdateHostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, &postgresql.UpdateClusterHostsRequest{
+			ClusterId:       d.Id(),
+			UpdateHostSpecs: []*postgresql.UpdateHostSpec{host},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update host for PostgreSQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating host for PostgreSQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("updating host for PostgreSQL Cluster %q - host %v failed: %s", d.Id(), host.HostName, err)
 	}
 
 	return nil

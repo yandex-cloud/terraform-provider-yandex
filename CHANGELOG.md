@@ -9,6 +9,7 @@ ENHANCEMENTS:
 * mdb: support `security_group_ids` for managed service for kafka
 * mdb: add `format_schema` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `ml_model` section in `yandex_mdb_clickhouse_cluster` resource and data source
+* mdb: add `replication_source_name`, `priority` attributes to `host`entity and `host_master_name` attribute in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `sql_user_management` and `sql_database_management` attributes in `yandex_mdb_clickhouse_cluster` resource and data_source
 * mdb: add `admin_password` attribute in `yandex_mdb_clickhouse_cluster` resource
 

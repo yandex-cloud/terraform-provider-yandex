@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
@@ -290,21 +291,482 @@ func flattenPGUserPermissions(ps []*postgresql.Permission) (*schema.Set, error) 
 	return out, nil
 }
 
-func flattenPGHosts(hs []*postgresql.Host) ([]map[string]interface{}, error) {
-	out := []map[string]interface{}{}
+type pgHostInfo struct {
+	name string
+	fqdn string
 
-	for _, h := range hs {
-		m := map[string]interface{}{}
-		m["zone"] = h.ZoneId
-		m["subnet_id"] = h.SubnetId
-		m["assign_public_ip"] = h.AssignPublicIp
-		m["fqdn"] = h.Name
-		m["role"] = h.Role.String()
+	zone     string
+	subnetID string
 
-		out = append(out, m)
+	role           postgresql.Host_Role
+	assignPublicIP bool
+
+	oldPriority              int
+	oldReplicationSource     string
+	oldReplicationSourceName string
+
+	newPriority              int
+	newReplicationSource     string
+	newReplicationSourceName string
+
+	exists bool
+	isNew  bool
+
+	rowNumber int
+}
+
+func interfaceToString(i interface{}) string {
+	s, ok := i.(string)
+	if ok {
+		return s
+	}
+	return ""
+}
+func interfaceToBool(i interface{}) bool {
+	b, ok := i.(bool)
+	if ok {
+		return b
+	}
+	return false
+}
+func interfaceToInt(i interface{}) int {
+	v, ok := i.(int)
+	if ok {
+		return v
+	}
+	return 0
+}
+
+func sortPGHostsInfo(hostsInfo map[string]*pgHostInfo) []*pgHostInfo {
+	orderedHostsInfo := make([]*pgHostInfo, 0, len(hostsInfo))
+
+	for _, hostInfo := range hostsInfo {
+		orderedHostsInfo = append(orderedHostsInfo, hostInfo)
 	}
 
-	return out, nil
+	sort.Slice(orderedHostsInfo, func(i, j int) bool {
+		if orderedHostsInfo[i].isNew == orderedHostsInfo[j].isNew {
+			return orderedHostsInfo[i].rowNumber < orderedHostsInfo[j].rowNumber
+		}
+
+		if orderedHostsInfo[i].isNew {
+			return true
+		}
+
+		return false
+	})
+
+	return orderedHostsInfo
+}
+
+func loadNewHosltsInfo(d *schema.ResourceData, newHosts []interface{}, isUpdate bool) (hostsInfo []*pgHostInfo, haveHostWithName bool, err error) {
+	hostsInfo = make([]*pgHostInfo, 0)
+	uniqueNames := make(map[string]struct{})
+
+	haveHostWithoutName := false
+
+	for i, hostNewInfo := range newHosts {
+		hni := hostNewInfo.(map[string]interface{})
+		name := interfaceToString(hni["name"])
+
+		if name == "" {
+			haveHostWithoutName = true
+		} else {
+			haveHostWithName = true
+			if _, ok := uniqueNames[name]; ok && isUpdate {
+				return nil, haveHostWithName, fmt.Errorf("PG.host: name is duplicate %v", name)
+			}
+			uniqueNames[name] = struct{}{}
+		}
+
+		hostsInfo = append(hostsInfo, &pgHostInfo{
+			name:                     name,
+			zone:                     interfaceToString(hni["zone"]),
+			subnetID:                 interfaceToString(hni["subnet_id"]),
+			assignPublicIP:           interfaceToBool(hni["assign_public_ip"]),
+			rowNumber:                i,
+			newReplicationSourceName: interfaceToString(hni["replication_source_name"]),
+			newPriority:              interfaceToInt(hni["priority"]),
+		})
+
+	}
+
+	if haveHostWithName && haveHostWithoutName && isUpdate {
+		return nil, haveHostWithName, fmt.Errorf("Names should be set for all hosts or not set in any host")
+	}
+
+	return hostsInfo, haveHostWithName, nil
+}
+
+func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo, currentNameToHost map[string]string, hostMasterName string) int {
+	if existsHostInfo.name == newHostInfo.name {
+		return 10
+	}
+	if existsHostInfo.name != "" {
+		return 0
+	}
+
+	if existsHostInfo.zone != newHostInfo.zone || existsHostInfo.subnetID != newHostInfo.subnetID {
+		return 0
+	}
+
+	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
+		return 0
+	}
+
+	compareWeight := 1
+
+	if hostMasterName != "" &&
+		(existsHostInfo.role == postgresql.Host_MASTER && hostMasterName == newHostInfo.name ||
+			existsHostInfo.role != postgresql.Host_MASTER && hostMasterName != newHostInfo.name) {
+		compareWeight += 2
+	}
+
+	if newHostInfo.newReplicationSourceName != "" {
+		if fqdn, ok := currentNameToHost[newHostInfo.newReplicationSourceName]; ok && existsHostInfo.oldReplicationSource == fqdn {
+			compareWeight += 4
+		}
+	}
+
+	if existsHostInfo.oldPriority == newHostInfo.newPriority {
+		compareWeight++
+	}
+
+	return compareWeight
+}
+
+func comparePGNoNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo, currentNameHost map[string]struct{}) int {
+
+	if existsHostInfo.zone != newHostInfo.zone || existsHostInfo.subnetID != newHostInfo.subnetID {
+		return 0
+	}
+
+	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
+		return 0
+	}
+
+	if _, ok := currentNameHost[existsHostInfo.fqdn]; ok {
+		return 0
+	}
+
+	return 1
+}
+
+func copyMapStringString(source map[string]string) map[string]string {
+	res := make(map[string]string)
+	for k, v := range source {
+		res[k] = v
+	}
+	return res
+}
+
+func copyMapIntString(source map[int]string) map[int]string {
+	res := make(map[int]string)
+	for k, v := range source {
+		res[k] = v
+	}
+	return res
+}
+
+func comparePGNamedHostsInfoWeight(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, compareResult pgCompareHostNameResult, hostMasterName string) int {
+	weight := 0
+
+	for i, fqdn := range compareResult.compareMap {
+		weightStep := comparePGNamedHostInfo(existsHostsInfo[fqdn], newHostsInfo[i], compareResult.nameToHost, hostMasterName)
+		if weightStep == 0 {
+			return 0
+		}
+
+		weight += weightStep
+	}
+
+	return weight
+}
+
+type pgCompareHostNameResult struct {
+	nameToHost map[string]string
+	compareMap map[int]string
+	hostToName map[string]string
+}
+
+func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, nameToHost map[string]string, hostToName map[string]string, compareMap map[int]string, itm int, hostMasterName string) (compareResults []pgCompareHostNameResult) {
+	compareResults = make([]pgCompareHostNameResult, 0)
+
+	if len(newHostsInfo) <= itm {
+		compareResults = append(compareResults, pgCompareHostNameResult{
+			nameToHost: nameToHost,
+			compareMap: compareMap,
+			hostToName: hostToName,
+		})
+		return compareResults
+	}
+
+	newHostInfo := newHostsInfo[itm]
+
+	if fqdn, ok := nameToHost[newHostInfo.name]; ok {
+		compareMap[itm] = fqdn
+		hostToName[fqdn] = newHostInfo.name
+		return generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, hostToName, compareMap, itm+1, hostMasterName)
+	}
+
+	compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, copyMapStringString(nameToHost), copyMapStringString(hostToName), copyMapIntString(compareMap), itm+1, hostMasterName)...)
+
+	for fqdn, existHostInfo := range existsHostsInfo {
+
+		if _, ok := hostToName[fqdn]; ok {
+			continue
+		}
+
+		weight := comparePGNamedHostInfo(existHostInfo, newHostInfo, nameToHost, hostMasterName)
+		if weight == 0 {
+			continue
+		}
+
+		stepNameToHost := copyMapStringString(nameToHost)
+		stepHostToName := copyMapStringString(hostToName)
+		stepCompareMap := copyMapIntString(compareMap)
+
+		stepNameToHost[newHostInfo.name] = fqdn
+		stepHostToName[fqdn] = newHostInfo.name
+		stepCompareMap[itm] = fqdn
+
+		compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, stepNameToHost, stepHostToName, stepCompareMap, itm+1, hostMasterName)...)
+	}
+
+	return compareResults
+}
+
+func comparePGNamedHostsInfo(existsHostsInfo map[string]*pgHostInfo, nameToHost map[string]string, newHostsInfo []*pgHostInfo, hostMasterName string) (compareMap map[int]string, hostToName map[string]string) {
+	compareMap = make(map[int]string)
+	hostToName = make(map[string]string)
+
+	weight := 0
+
+	compareResults := generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, make(map[string]string), make(map[int]string), 0, hostMasterName)
+
+	for _, compareResult := range compareResults {
+		stepWeight := comparePGNamedHostsInfoWeight(existsHostsInfo, newHostsInfo, compareResult, hostMasterName)
+
+		if stepWeight > weight {
+			weight = stepWeight
+			compareMap = compareResult.compareMap
+			hostToName = compareResult.hostToName
+		}
+	}
+
+	return compareMap, hostToName
+}
+
+func comparePGNoNamedHostsInfo(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo) map[int]string {
+	compareMap := make(map[int]string)
+	hostNames := make(map[string]struct{})
+
+	for i, newHostInfo := range newHostsInfo {
+		for _, existHostInfo := range existsHostsInfo {
+			weight := comparePGNoNamedHostInfo(existHostInfo, newHostInfo, hostNames)
+			if weight > 0 {
+				hostNames[existHostInfo.fqdn] = struct{}{}
+				compareMap[i] = existHostInfo.fqdn
+				break
+			}
+		}
+	}
+
+	return compareMap
+}
+
+func loadExistsPGHosltsInfo(currentHosts []*postgresql.Host, oldHosts []interface{}) (hostsInfo map[string]*pgHostInfo, nameToHost map[string]string) {
+	hostsInfo = make(map[string]*pgHostInfo)
+	nameToHost = make(map[string]string)
+
+	for i, h := range currentHosts {
+
+		hostsInfo[h.Name] = &pgHostInfo{
+			fqdn:                 h.Name,
+			zone:                 h.ZoneId,
+			subnetID:             h.SubnetId,
+			role:                 h.Role,
+			assignPublicIP:       h.AssignPublicIp,
+			oldPriority:          int(h.Priority.GetValue()),
+			oldReplicationSource: h.ReplicationSource,
+
+			exists: true,
+
+			rowNumber: i,
+		}
+	}
+
+	for _, hostOldInfo := range oldHosts {
+		hoi := hostOldInfo.(map[string]interface{})
+		fqdn, okFqdn := hoi["fqdn"]
+		if !okFqdn {
+			continue
+		}
+
+		hi, ok := hostsInfo[interfaceToString(fqdn)]
+		if !ok {
+			continue
+		}
+		name, okName := hoi["name"]
+
+		if okName && interfaceToString(name) != "" {
+			hi.name = interfaceToString(name)
+			nameToHost[hi.name] = hi.fqdn
+		}
+
+	}
+
+	return hostsInfo, nameToHost
+}
+
+type comparePGHostsInfoResult struct {
+	hostsInfo        map[string]*pgHostInfo
+	createHostsInfo  []*pgHostInfo
+	haveHostWithName bool
+	hierarhyExists   bool
+	hostMasterName   string
+}
+
+func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host, isUpdate bool) (comparePGHostsInfoResult, error) {
+
+	result := comparePGHostsInfoResult{}
+
+	oldHosts, newHosts := d.GetChange("host")
+
+	result.hostMasterName = interfaceToString(d.Get("host_master_name"))
+
+	existHostsInfo, nameToHost := loadExistsPGHosltsInfo(currentHosts, oldHosts.([]interface{}))
+
+	newHostsInfo, haveHostWithName, err := loadNewHosltsInfo(d, newHosts.([]interface{}), isUpdate)
+
+	if err != nil {
+		return result, err
+	}
+
+	result.haveHostWithName = haveHostWithName
+
+	if haveHostWithName {
+		compareMap, hostToName := comparePGNamedHostsInfo(existHostsInfo, nameToHost, newHostsInfo, result.hostMasterName)
+
+		createHostsInfoPrepare := make([]*pgHostInfo, 0)
+
+		for i, newHostInfo := range newHostsInfo {
+			if existHostFqdn, ok := compareMap[i]; ok {
+				existHostInfo := existHostsInfo[existHostFqdn]
+
+				existHostInfo.name = newHostsInfo[i].name
+				existHostInfo.rowNumber = newHostsInfo[i].rowNumber
+				existHostInfo.newReplicationSourceName = newHostsInfo[i].newReplicationSourceName
+				existHostInfo.newPriority = newHostsInfo[i].newPriority
+
+				existHostInfo.isNew = true
+
+				nameToHost[existHostInfo.name] = existHostInfo.fqdn
+			} else {
+				createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+			}
+		}
+
+		for _, existHostInfo := range existHostsInfo {
+			if existHostInfo.newReplicationSourceName == "" {
+				existHostInfo.newReplicationSource = ""
+			} else if fqdn, ok := nameToHost[existHostInfo.newReplicationSourceName]; ok {
+				existHostInfo.newReplicationSource = fqdn
+			} else {
+				existHostInfo.newReplicationSource = existHostInfo.oldReplicationSource
+			}
+
+			if existHostInfo.oldReplicationSource == "" {
+				existHostInfo.oldReplicationSourceName = ""
+			} else if name, ok := hostToName[existHostInfo.oldReplicationSource]; ok {
+				existHostInfo.oldReplicationSourceName = name
+			}
+
+		}
+
+		result.createHostsInfo = make([]*pgHostInfo, 0)
+
+		for _, newHostInfo := range createHostsInfoPrepare {
+			if newHostInfo.newReplicationSourceName == "" {
+				result.createHostsInfo = append(result.createHostsInfo, newHostInfo)
+			} else if fqdn, ok := nameToHost[newHostInfo.newReplicationSourceName]; ok {
+				newHostInfo.newReplicationSource = fqdn
+				result.createHostsInfo = append(result.createHostsInfo, newHostInfo)
+			} else {
+				result.hierarhyExists = true
+			}
+		}
+
+		result.hostsInfo = existHostsInfo
+
+		return result, nil
+
+	}
+
+	createHostsInfoPrepare := make([]*pgHostInfo, 0)
+	compareMap := comparePGNoNamedHostsInfo(existHostsInfo, newHostsInfo)
+	for i, newHostInfo := range newHostsInfo {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existHostsInfo[existHostFqdn]
+
+			existHostInfo.rowNumber = newHostsInfo[i].rowNumber
+
+			existHostInfo.isNew = true
+		} else {
+			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+		}
+	}
+
+	result.hostsInfo = existHostsInfo
+	result.createHostsInfo = createHostsInfoPrepare
+	return result, nil
+}
+
+func flattenPGHosts(d *schema.ResourceData, hs []*postgresql.Host, isDataSource bool) ([]map[string]interface{}, string, error) {
+
+	compareHostsInfo, err := comparePGHostsInfo(d, hs, false)
+	if err != nil {
+		return nil, "", err
+	}
+
+	hosts, hostMasterName := flattenPGHostsFromHostInfo(compareHostsInfo.hostsInfo, isDataSource)
+
+	return hosts, hostMasterName, nil
+}
+
+func flattenPGHostsFromHostInfo(hostsInfo map[string]*pgHostInfo, isDataSource bool) ([]map[string]interface{}, string) {
+
+	orderedHostsInfo := sortPGHostsInfo(hostsInfo)
+
+	var hostMasterName string
+	hosts := []map[string]interface{}{}
+
+	for _, hostInfo := range orderedHostsInfo {
+		m := map[string]interface{}{}
+
+		m["zone"] = hostInfo.zone
+		m["subnet_id"] = hostInfo.subnetID
+		m["assign_public_ip"] = hostInfo.assignPublicIP
+		m["fqdn"] = hostInfo.fqdn
+		m["role"] = hostInfo.role.String()
+
+		if !isDataSource {
+			m["name"] = hostInfo.name
+			if hostInfo.name != "" && hostInfo.role == postgresql.Host_MASTER {
+				hostMasterName = hostInfo.name
+			}
+		}
+
+		m["priority"] = hostInfo.oldPriority
+		m["replication_source"] = hostInfo.oldReplicationSource
+		if !isDataSource {
+			m["replication_source_name"] = hostInfo.oldReplicationSourceName
+		}
+
+		hosts = append(hosts, m)
+	}
+
+	return hosts, hostMasterName
 }
 
 func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {
@@ -588,18 +1050,14 @@ func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 		host.Fqdn = v.(string)
 	}
 
-	return host, nil
-}
-
-func sortPGHosts(hosts []*postgresql.Host, specs []*PostgreSQLHostSpec) {
-	for i, h := range specs {
-		for j := i + 1; j < len(hosts); j++ {
-			if h.HostSpec.ZoneId == hosts[j].ZoneId {
-				hosts[i], hosts[j] = hosts[j], hosts[i]
-				break
-			}
-		}
+	if v, ok := m["replication_source_name"]; ok {
+		host.HostSpec.ReplicationSource = v.(string)
 	}
+	if v, ok := m["priority"]; ok {
+		host.HostSpec.Priority = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return host, nil
 }
 
 func expandPGDatabaseSpecs(d *schema.ResourceData) ([]*postgresql.DatabaseSpec, error) {
@@ -897,29 +1355,6 @@ func pgChangedDatabases(oldSpecs []interface{}, newSpecs []interface{}) ([]*post
 	}
 
 	return out, nil
-}
-
-func pgHostsDiff(currHosts []*postgresql.Host, targetHosts []*PostgreSQLHostSpec) ([]string, []*postgresql.HostSpec) {
-	m := map[string]*PostgreSQLHostSpec{}
-
-	toAdd := []*postgresql.HostSpec{}
-	for _, h := range targetHosts {
-		if !h.HasComputedFqdn {
-			toAdd = append(toAdd, h.HostSpec)
-		} else {
-			m[h.Fqdn] = h
-		}
-	}
-
-	toDelete := []string{}
-	for _, h := range currHosts {
-		_, ok := m[h.Name]
-		if !ok {
-			toDelete = append(toDelete, h.Name)
-		}
-	}
-
-	return toDelete, toAdd
 }
 
 func parsePostgreSQLEnv(e string) (postgresql.Cluster_Environment, error) {

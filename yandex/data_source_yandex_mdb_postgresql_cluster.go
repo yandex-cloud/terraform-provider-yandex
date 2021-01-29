@@ -226,6 +226,14 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"replication_source": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -350,7 +358,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	hs, err := flattenPGHosts(hosts)
+	hs, _, err := flattenPGHosts(d, hosts, true)
 	if err != nil {
 		return err
 	}
