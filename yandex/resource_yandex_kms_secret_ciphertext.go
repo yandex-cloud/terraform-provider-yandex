@@ -47,6 +47,7 @@ func resourceYandexKMSSecretCiphertext() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(0, 32768),
 				Required:     true,
 				ForceNew:     true,
+				Sensitive:    true,
 			},
 
 			"ciphertext": {
