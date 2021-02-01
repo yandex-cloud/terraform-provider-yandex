@@ -165,6 +165,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"yandex_container_registry":                    resourceYandexContainerRegistry(),
+			"yandex_container_registry_iam_binding":        resourceYandexContainerRegistryIAMBinding(),
 			"yandex_compute_disk":                          resourceYandexComputeDisk(),
 			"yandex_compute_image":                         resourceYandexComputeImage(),
 			"yandex_compute_instance":                      resourceYandexComputeInstance(),
