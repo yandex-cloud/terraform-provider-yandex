@@ -17,12 +17,27 @@ Manages a address within the Yandex.Cloud. For more information, see
 
 ## Example Usage
 
+### External ipv4 address
+
 ```hcl
 resource "yandex_vpc_address" "addr" {
   name = "exampleAddress"
 
   external_ipv4_address {
     zone_id = "ru-central1-a"
+  }
+}
+```
+
+### Address with DDoS protection
+
+```hcl
+resource "yandex_vpc_address" "vpnaddr" {
+  name = "vpnaddr"
+
+  external_ipv4_address {
+    zone_id                  = "ru-central1-a"
+    ddos_protection_provider = "qrator"
   }
 }
 ```
@@ -47,7 +62,7 @@ The `external_ipv4_address` block supports:
 
 * `address` - (Optional) - Desired IP.
 * `zone_id` - (Optional)  - Zone for allocating address.
-* `ddos_protection_provider` - (Optional) Enable DDOS protection.
+* `ddos_protection_provider` - (Optional) Enable DDOS protection. Possible values are: "qrator"
 * `outgoing_smtp_capability` - (Optional) Wanted outgoing smtp capability.
 
 ~> **NOTE:** Either one `address` or `zone_id` arguments can be specified.
