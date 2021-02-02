@@ -535,7 +535,7 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	res["query_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
 	res["query_thread_log_enabled"] = c.EffectiveConfig.QueryThreadLogEnabled.Value
 	res["query_thread_log_retention_size"] = c.EffectiveConfig.QueryThreadLogRetentionSize.Value
-	res["query_thread_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
+	res["query_thread_log_retention_time"] = c.EffectiveConfig.QueryThreadLogRetentionTime.Value
 	res["part_log_retention_size"] = c.EffectiveConfig.PartLogRetentionSize.Value
 	res["part_log_retention_time"] = c.EffectiveConfig.PartLogRetentionTime.Value
 	res["metric_log_enabled"] = c.EffectiveConfig.MetricLogEnabled.Value
@@ -613,25 +613,25 @@ func expandClickHouseResources(d *schema.ResourceData, rootKey string) *clickhou
 
 func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_MergeTree, error) {
 	config := &clickhouseConfig.ClickhouseConfig_MergeTree{}
-	if v, ok := d.GetOk(rootKey + ".replicated_deduplication_window"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".replicated_deduplication_window"); ok {
 		config.ReplicatedDeduplicationWindow = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".replicated_deduplication_window_seconds"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".replicated_deduplication_window_seconds"); ok {
 		config.ReplicatedDeduplicationWindowSeconds = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".parts_to_delay_insert"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".parts_to_delay_insert"); ok {
 		config.PartsToDelayInsert = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".parts_to_throw_insert"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".parts_to_throw_insert"); ok {
 		config.PartsToThrowInsert = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_replicated_merges_in_queue"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_replicated_merges_in_queue"); ok {
 		config.MaxReplicatedMergesInQueue = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".number_of_free_entries_in_pool_to_lower_max_size_of_merge"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".number_of_free_entries_in_pool_to_lower_max_size_of_merge"); ok {
 		config.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_bytes_to_merge_at_min_space_in_pool"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_bytes_to_merge_at_min_space_in_pool"); ok {
 		config.MaxBytesToMergeAtMinSpaceInPool = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
@@ -664,10 +664,10 @@ func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*cli
 			return nil, err
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".sasl_username"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".sasl_username"); ok {
 		config.SaslUsername = v.(string)
 	}
-	if v, ok := d.GetOk(rootKey + ".sasl_password"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".sasl_password"); ok {
 		config.SaslPassword = v.(string)
 	}
 
@@ -695,10 +695,10 @@ func expandClickhouseKafkaTopicsSettings(d *schema.ResourceData, rootKey string)
 func expandClickhouseRabbitmqSettings(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_Rabbitmq, error) {
 	config := &clickhouseConfig.ClickhouseConfig_Rabbitmq{}
 
-	if v, ok := d.GetOk(rootKey + ".username"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".username"); ok {
 		config.Username = v.(string)
 	}
-	if v, ok := d.GetOk(rootKey + ".password"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".password"); ok {
 		config.Password = v.(string)
 	}
 
@@ -720,10 +720,10 @@ func expandClickhouseCompressionSettings(d *schema.ResourceData, rootKey string)
 				return nil, err
 			}
 		}
-		if v, ok := d.GetOk(keyPrefix + ".min_part_size"); ok {
+		if v, ok := d.GetOkExists(keyPrefix + ".min_part_size"); ok {
 			compression.MinPartSize = int64(v.(int))
 		}
-		if v, ok := d.GetOk(keyPrefix + ".min_part_size_ratio"); ok {
+		if v, ok := d.GetOkExists(keyPrefix + ".min_part_size_ratio"); ok {
 			compression.MinPartSizeRatio = v.(float64)
 		}
 
@@ -746,7 +746,7 @@ func expandClickhouseGraphiteRollupSettings(d *schema.ResourceData, rootKey stri
 				Function: d.Get(patternKey + ".function").(string),
 			}
 
-			if v, ok := d.GetOk(patternKey + ".regexp"); ok {
+			if v, ok := d.GetOkExists(patternKey + ".regexp"); ok {
 				pattern.Regexp = v.(string)
 			}
 
@@ -777,79 +777,79 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 			return nil, err
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_connections"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_connections"); ok {
 		config.MaxConnections = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_concurrent_queries"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_concurrent_queries"); ok {
 		config.MaxConcurrentQueries = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".keep_alive_timeout"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".keep_alive_timeout"); ok {
 		config.KeepAliveTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".uncompressed_cache_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".uncompressed_cache_size"); ok {
 		config.UncompressedCacheSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".mark_cache_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".mark_cache_size"); ok {
 		config.MarkCacheSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_table_size_to_drop"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_table_size_to_drop"); ok {
 		config.MaxTableSizeToDrop = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_partition_size_to_drop"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".max_partition_size_to_drop"); ok {
 		config.MaxPartitionSizeToDrop = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".timezone"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".timezone"); ok {
 		config.Timezone = v.(string)
 	}
-	if v, ok := d.GetOk(rootKey + ".geobase_uri"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".geobase_uri"); ok {
 		config.GeobaseUri = v.(string)
 	}
-	if v, ok := d.GetOk(rootKey + ".query_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".query_log_retention_size"); ok {
 		config.QueryLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".query_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".query_log_retention_time"); ok {
 		config.QueryLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".query_thread_log_enabled"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".query_thread_log_enabled"); ok {
 		config.QueryThreadLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
 	}
-	if v, ok := d.GetOk(rootKey + ".query_thread_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".query_thread_log_retention_size"); ok {
 		config.QueryThreadLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".query_thread_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".query_thread_log_retention_time"); ok {
 		config.QueryThreadLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".part_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".part_log_retention_size"); ok {
 		config.PartLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".part_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".part_log_retention_time"); ok {
 		config.PartLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".metric_log_enabled"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".metric_log_enabled"); ok {
 		config.MetricLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
 	}
-	if v, ok := d.GetOk(rootKey + ".metric_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".metric_log_retention_size"); ok {
 		config.MetricLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".metric_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".metric_log_retention_time"); ok {
 		config.MetricLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".trace_log_enabled"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".trace_log_enabled"); ok {
 		config.TraceLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
 	}
-	if v, ok := d.GetOk(rootKey + ".trace_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".trace_log_retention_size"); ok {
 		config.TraceLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".trace_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".trace_log_retention_time"); ok {
 		config.TraceLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".text_log_enabled"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".text_log_enabled"); ok {
 		config.TextLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
 	}
-	if v, ok := d.GetOk(rootKey + ".text_log_retention_size"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".text_log_retention_size"); ok {
 		config.TextLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".text_log_retention_time"); ok {
+	if v, ok := d.GetOkExists(rootKey + ".text_log_retention_time"); ok {
 		config.TextLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".text_log_level"); ok {

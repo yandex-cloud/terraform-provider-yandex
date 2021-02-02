@@ -408,6 +408,8 @@ The following arguments are supported:
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
+* `copy_schema_on_new_hosts` - (Optional) Whether to copy schema on new ClickHouse hosts.
+
 - - -
 
 The `clickhouse` block supports:

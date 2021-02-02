@@ -76,6 +76,8 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"host",                              // zookeeper hosts are not imported by default
 			"zookeeper",                         // zookeeper spec is not imported by default
 			"health",                            // volatile value
+			"copy_schema_on_new_hosts",          // special parameter
+			"admin_password",                    // passwords are not returned
 			"clickhouse.0.config.0.kafka",       // passwords are not returned
 			"clickhouse.0.config.0.kafka_topic", // passwords are not returned
 			"clickhouse.0.config.0.rabbitmq",    // passwords are not returned
@@ -207,7 +209,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
@@ -1055,11 +1057,11 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 func testAccMDBClickHouseClusterConfigHA(name, desc, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
-  admin_password = "strong_password"
+  name                     = "%s"
+  description              = "%s"
+  environment              = "PRESTABLE"
+  network_id               = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  copy_schema_on_new_hosts = true
 
   labels = {
     new_key = "new_value"
@@ -1309,6 +1311,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   admin_password = "strong_password"
   sql_user_management = true
   sql_database_management = true
+
+  labels = {
+    test_key = "test_value"
+   }
 
   clickhouse {
     resources {

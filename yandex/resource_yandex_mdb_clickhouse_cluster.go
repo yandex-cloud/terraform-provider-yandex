@@ -279,6 +279,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"copy_schema_on_new_hosts": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"host": {
 				Type:     schema.TypeList,
 				MinItems: 1,
@@ -451,10 +456,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				},
 			},
 			"zookeeper": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				MaxItems:         1,
+				DiffSuppressFunc: suppressZooKeeperResourcesDIff,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resources": {
@@ -858,8 +864,16 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
 	d.Set("version", cluster.Config.Version)
-	d.Set("sql_user_management", cluster.Config.SqlUserManagement)
-	d.Set("sql_database_management", cluster.Config.SqlDatabaseManagement)
+	if cluster.Config.SqlUserManagement != nil {
+		d.Set("sql_user_management", cluster.Config.SqlUserManagement.Value)
+	} else {
+		d.Set("sql_user_management", false)
+	}
+	if cluster.Config.SqlDatabaseManagement != nil {
+		d.Set("sql_database_management", cluster.Config.SqlDatabaseManagement.Value)
+	} else {
+		d.Set("sql_database_management", false)
+	}
 
 	return d.Set("labels", cluster.Labels)
 }
@@ -1431,8 +1445,9 @@ func updateClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 func createClickHouseHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddHosts(ctx, &clickhouse.AddClusterHostsRequest{
-			ClusterId: d.Id(),
-			HostSpecs: []*clickhouse.HostSpec{spec},
+			ClusterId:  d.Id(),
+			HostSpecs:  []*clickhouse.HostSpec{spec},
+			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
 		}),
 	)
 	if err != nil {
@@ -1465,9 +1480,10 @@ func deleteClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
-			ClusterId: d.Id(),
-			ShardName: name,
-			HostSpecs: specs,
+			ClusterId:  d.Id(),
+			ShardName:  name,
+			HostSpecs:  specs,
+			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
 		}),
 	)
 	if err != nil {
@@ -1860,4 +1876,14 @@ func listClickHouseMlModels(ctx context.Context, config *Config, id string) ([]*
 		pageToken = resp.NextPageToken
 	}
 	return groups, nil
+}
+
+func suppressZooKeeperResourcesDIff(k, old, new string, d *schema.ResourceData) bool {
+	for _, host := range d.Get("host").([]interface{}) {
+		if hostType, ok := host.(map[string]interface{})["type"]; ok && hostType == "ZOOKEEPER" {
+			return false
+		}
+	}
+
+	return true
 }
