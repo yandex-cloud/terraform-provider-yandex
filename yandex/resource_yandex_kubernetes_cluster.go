@@ -175,6 +175,12 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"security_group_ids": {
+							Type:     schema.TypeSet,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							Optional: true,
+						},
 						"internal_v4_address": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -372,6 +378,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"node_service_account_id":     "node_service_account_id",
 	"master.0.version":            "master_spec.version.version",
 	"master.0.maintenance_policy": "master_spec.maintenance_policy",
+	"master.0.security_group_ids": "master_spec.security_group_ids",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -436,6 +443,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 					Version: d.Get("master.0.version").(string),
 				},
 			},
+			SecurityGroupIds:  expandSecurityGroupIds(d.Get("master.0.security_group_ids")),
 			MaintenancePolicy: mp,
 		},
 	}
@@ -591,8 +599,9 @@ func getKubernetesClusterKMSProvider(d *schema.ResourceData) *k8s.KMSProvider {
 
 func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.MasterSpec, error) {
 	spec := &k8s.MasterSpec{
-		Version:    d.Get("master.0.version").(string),
-		MasterType: nil,
+		Version:          d.Get("master.0.version").(string),
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("master.0.security_group_ids")),
+		MasterType:       nil,
 	}
 
 	var err error
@@ -856,6 +865,7 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 
 	h.master["version"] = clusterMaster.GetVersion()
 	h.master["public_ip"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint() != ""
+	h.master["security_group_ids"] = clusterMaster.GetSecurityGroupIds()
 	h.master["internal_v4_endpoint"] = clusterMaster.GetEndpoints().GetInternalV4Endpoint()
 	h.master["external_v4_endpoint"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint()
 	h.master["cluster_ca_certificate"] = clusterMaster.GetMasterAuth().GetClusterCaCertificate()

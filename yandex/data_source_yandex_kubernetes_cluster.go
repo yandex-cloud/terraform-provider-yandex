@@ -140,6 +140,12 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"security_group_ids": {
+							Type:     schema.TypeSet,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							Computed: true,
+						},
 						"internal_v4_address": {
 							Type:     schema.TypeString,
 							Computed: true,

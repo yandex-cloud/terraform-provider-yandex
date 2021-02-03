@@ -29,6 +29,8 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
 
     public_ip = true
 
+    security_group_ids = ["${yandex_vpc_security_group.security_group_name.id}"]
+
     maintenance_policy {
       auto_upgrade = true
 
@@ -179,6 +181,7 @@ The `master` block supports:
 
 * `version` - (Optional) (Computed) Version of Kubernetes that will be used for master.
 * `public_ip` - (Optional) (Computed) Boolean flag. When `true`, Kubernetes master will have visible ipv4 address.
+* `security_group_ids` - (Optional) List of security group IDs to which the Kubernetes cluster belongs.
 
 * `maintenance_policy` - (Optional) (Computed) Maintenance policy for Kubernetes master.
 If policy is omitted, automatic revision upgrades of the kubernetes master are enabled and could happen at any time.

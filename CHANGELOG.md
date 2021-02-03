@@ -17,6 +17,7 @@ ENHANCEMENTS:
 * mdb: add `sql_user_management` and `sql_database_management` attributes in `yandex_mdb_clickhouse_cluster` resource and data_source
 * mdb: add `admin_password` attribute in `yandex_mdb_clickhouse_cluster` resource
 * kms: add sensitive flag for `plaintext` attribute in `yandex_kms_secret_ciphertext` resource
+* managed-kubernetes: support `security_group_ids` for `yandex_kubernetes_cluster` resource and data source
 
 ## 0.49.0 (January 15, 2021)
 FEATURES:

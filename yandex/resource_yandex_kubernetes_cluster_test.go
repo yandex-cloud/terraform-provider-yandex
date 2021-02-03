@@ -171,6 +171,43 @@ func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonalSecurityGroups_basic(t *testing.T) {
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesClusterZonalSecurityGroups_basic", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	clusterUpdatedResource := clusterResource
+	clusterUpdatedResource.SecurityGroups = ""
+	clusterUpdatedResource.TestDescription = "testAccKubernetesClusterZonalConfig_update"
+	clusterUpdatedResource.MasterVersion = k8sTestUpdateVersion
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			{
+				Config: testAccKubernetesClusterZonalConfig_update(clusterResource, clusterUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterUpdatedResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+
+}
+
 func TestAccKubernetesClusterZonalDailyMaintenance_basic(t *testing.T) {
 	clusterResource := clusterInfoWithMaintenance("TestAccKubernetesClusterZonalDailyMaintenance_basic",
 		true, true, dailyMaintenancePolicy)
@@ -442,6 +479,7 @@ func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, p
 		SubnetResourceNameA:            randomResourceName("subnet"),
 		SubnetResourceNameB:            randomResourceName("subnet"),
 		SubnetResourceNameC:            randomResourceName("subnet"),
+		SecurityGroupName:              randomResourceName("sg"),
 		ServiceAccountResourceName:     safeResourceName("serviceaccount"),
 		NodeServiceAccountResourceName: safeResourceName("nodeserviceaccount"),
 		ReleaseChannel:                 k8s.ReleaseChannel_RAPID.String(),
@@ -459,9 +497,17 @@ func clusterInfoWithNetworkPolicy(testDesc string, zonal bool) resourceClusterIn
 	return res
 }
 
-func clusterInfoWithNetworkAndMaintenancePolicies(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
+func clusterInfoWithSecurityGroups(testDesc string, zonal bool) resourceClusterInfo {
+	res := clusterInfo(testDesc, zonal)
+	res.constructSecurityGroupsField()
+	return res
+}
+
+func clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
 	res := clusterInfoWithMaintenance(testDesc, zonal, autoUpgrade, policyType)
 	res.constructNetworkPolicyField(k8s.NetworkPolicy_CALICO)
+	res.constructSecurityGroupsField()
+
 	return res
 }
 
@@ -470,6 +516,7 @@ type clusterResourceIDs struct {
 	subnetAResourceID            string
 	subnetBResourceID            string
 	subnetCResourceID            string
+	securityGroupID              string
 	serviceAccountResourceID     string
 	nodeServiceAccountResourceID string
 	kmsKeyResourceID             string
@@ -492,6 +539,11 @@ func getClusterResourcesIds(s *terraform.State, info *resourceClusterInfo) (ids 
 	}
 
 	ids.subnetCResourceID, err = getResourceID(info.subnetCResourceName(), s)
+	if err != nil {
+		return
+	}
+
+	ids.securityGroupID, err = getResourceID(info.securityGroupName(), s)
 	if err != nil {
 		return
 	}
@@ -572,6 +624,12 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
+		}
+
+		if info.SecurityGroups != "" {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.0", ids.securityGroupID)
+		} else {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.#", "0")
 		}
 
 		if info.policy != emptyMaintenancePolicy {
@@ -783,6 +841,9 @@ type resourceClusterInfo struct {
 	policy      maintenancePolicyType
 
 	KMSKeyResourceName string
+
+	SecurityGroups    string
+	SecurityGroupName string
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -814,6 +875,10 @@ func (i *resourceClusterInfo) constructNetworkPolicyField(npp k8s.NetworkPolicy_
 	}
 }
 
+func (i *resourceClusterInfo) constructSecurityGroupsField() {
+	i.SecurityGroups = fmt.Sprintf("security_group_ids = [\"${yandex_vpc_security_group.%s.id}\"]", i.SecurityGroupName)
+}
+
 func (i *resourceClusterInfo) ResourceFullName(resource bool) string {
 	if resource {
 		return "yandex_kubernetes_cluster." + i.ClusterResourceName
@@ -840,6 +905,10 @@ func (i *resourceClusterInfo) subnetBResourceName() string {
 
 func (i *resourceClusterInfo) subnetCResourceName() string {
 	return "yandex_vpc_subnet." + i.SubnetResourceNameC
+}
+
+func (i *resourceClusterInfo) securityGroupName() string {
+	return "yandex_vpc_security_group." + i.SecurityGroupName
 }
 
 func (i *resourceClusterInfo) serviceAccountResourceName() string {
@@ -931,6 +1000,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     public_ip = true
     
     {{.MaintenancePolicy}}
+
+    {{.SecurityGroups}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
@@ -943,7 +1014,6 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   release_channel = "{{.ReleaseChannel}}"
 
   {{.NetworkPolicy}}
-
 
   kms_provider {
     key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
@@ -982,6 +1052,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     }
   
     public_ip = true
+
+    {{.SecurityGroups}}
 
     {{.MaintenancePolicy}}
   }
@@ -1027,6 +1099,21 @@ resource "yandex_vpc_subnet" "{{.SubnetResourceNameC}}" {
   zone = "ru-central1-c"
   network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
   v4_cidr_blocks = ["192.168.2.0/24"]
+}
+
+resource "yandex_vpc_security_group" "{{.SecurityGroupName}}" {
+  description = "{{.TestDescription}}"
+  network_id  = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+
+  ingress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "yandex_iam_service_account" "{{.ServiceAccountResourceName}}" {

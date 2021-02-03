@@ -76,6 +76,7 @@ The `master` block supports:
 
 * `regional` - Information about cluster regional master. The structure is documented below.
 
+* `security_group_ids` - A list of security groups IDs of the Kubernetes cluster.
 * `internal_v4_address` - An IPv4 internal network address that is assigned to the master.
 * `external_v4_address` - An IPv4 external network address that is assigned to the master.
 * `internal_v4_endpoint` - Internal endpoint that can be used to connect to the master from cloud networks. 
