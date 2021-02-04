@@ -366,6 +366,21 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Optional: true,
 			},
 
+			"placement_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"placement_group_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"fqdn": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -459,6 +474,11 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	placementPolicy, err := flattenInstancePlacementPolicy(instance)
+	if err != nil {
+		return err
+	}
+
 	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
@@ -506,6 +526,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("scheduling_policy", schedulingPolicy); err != nil {
+		return err
+	}
+
+	if err := d.Set("placement_policy", placementPolicy); err != nil {
 		return err
 	}
 
@@ -645,6 +669,38 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 
 		d.SetPartial(serviceAccountPropName)
+	}
+
+	placementPolicyPropName := "placement_policy"
+	if d.HasChange(placementPolicyPropName) {
+		if !d.Get("allow_stopping_for_update").(bool) {
+			return fmt.Errorf("Changing the `placement_policy` on an instance requires stopping it. " +
+				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
+		}
+		if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
+			return err
+		}
+
+		req := &compute.UpdateInstanceRequest{
+			InstanceId: d.Id(),
+			PlacementPolicy: &compute.PlacementPolicy{
+				PlacementGroupId: d.Get("placement_policy.0.placement_group_id").(string),
+			},
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{"placement_policy.placement_group_id"},
+			},
+		}
+
+		err := makeInstanceUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+
+		if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {
+			return err
+		}
+
+		d.SetPartial(placementPolicyPropName)
 	}
 
 	networkInterfacesPropName := "network_interface"
@@ -1060,6 +1116,11 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'scheduling_policy' object of api request: %s", err)
 	}
 
+	placementPolicy, err := expandInstancePlacementPolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'placement_policy' object of api request: %s", err)
+	}
+
 	req := &compute.CreateInstanceRequest{
 		FolderId:              folderID,
 		Hostname:              d.Get("hostname").(string),
@@ -1076,6 +1137,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		NetworkSettings:       networkSettingsSpecs,
 		NetworkInterfaceSpecs: nicSpecs,
 		SchedulingPolicy:      schedulingPolicy,
+		PlacementPolicy:       placementPolicy,
 	}
 
 	return req, nil

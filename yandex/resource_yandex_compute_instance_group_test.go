@@ -470,6 +470,123 @@ func TestAccComputeInstanceGroup_DeletionProtection(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceGroup_createPlacementGroup(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+	var name = acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+	pgName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckNonEmptyPlacementGroupIG(&ig),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_createAndErasePlacementGroup(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+	var name = acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+	pgName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName),
+			},
+			{
+				Config: testAccComputeInstanceGroupNoPlacementGroup(name, saName, pgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckEmptyPlacementGroupIG(&ig),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_createAndChangePlacementGroup(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+	var name = acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+	pgName1 := acctest.RandomWithPrefix("tf-test")
+	pgName2 := acctest.RandomWithPrefix("tf-test")
+
+	var pg1, pg2 string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccGetPlacementGroupIG(&ig, &pg1),
+				),
+			},
+			{
+				Config: testAccComputeInstanceGroupChangePlacementGroup(name, saName, pgName1, pgName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccGetPlacementGroupIG(&ig, &pg2),
+					testAccNotEqualStrings(&pg1, &pg2),
+				),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_createEmptyPlacementGroupAndAssignLater(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+	var name = acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+	pgName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupNoPlacementGroup(name, saName, pgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckEmptyPlacementGroupIG(&ig),
+				),
+			},
+			{
+				Config: testAccComputeInstanceGroupPlacementGroup(name, saName, pgName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckNonEmptyPlacementGroupIG(&ig),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceGroupDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1760,6 +1877,297 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
+func testAccComputeInstanceGroupPlacementGroup(igName, saName, pgName string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    placement_policy {
+      placement_group_id = yandex_compute_placement_group.pg.id
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource yandex_compute_placement_group pg {
+  name        = "%[4]s"
+  description = "my description"
+  labels = {
+    first  = "xxx"
+    second = "yyy"
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName, pgName)
+}
+
+func testAccComputeInstanceGroupNoPlacementGroup(igName, saName, pgName string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    placement_policy {
+      placement_group_id = ""
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource yandex_compute_placement_group pg {
+  name        = "%[4]s"
+  description = "my description"
+  labels = {
+    first  = "xxx"
+    second = "yyy"
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName, pgName)
+}
+
+func testAccComputeInstanceGroupChangePlacementGroup(igName, saName, pgName1, pgName2 string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
+    }
+
+    placement_policy {
+      placement_group_id = yandex_compute_placement_group.pg2.id
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 2
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 3
+    max_creating    = 3
+    max_expansion   = 3
+    max_deleting    = 3
+  }
+}
+
+resource yandex_compute_placement_group pg {
+  name        = "%[4]s"
+  description = "my description"
+  labels = {
+    first  = "xxx"
+    second = "yyy"
+  }
+}
+
+resource yandex_compute_placement_group pg2 {
+  name        = "%[5]s"
+  description = "my description"
+  labels = {
+    first  = "xxx"
+    second = "yyy"
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "inst-group-test-subnet" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName, pgName1, pgName2)
+}
+
 func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -2073,4 +2481,32 @@ func checkDisk(name string, a *instancegroup.AttachedDiskSpec, d *Disk) error {
 		return fmt.Errorf("invalid Image value in %s", name)
 	}
 	return nil
+}
+
+func testAccCheckNonEmptyPlacementGroupIG(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ig.InstanceTemplate.PlacementPolicy != nil && ig.InstanceTemplate.PlacementPolicy.PlacementGroupId != "" {
+			return nil
+		}
+		return fmt.Errorf("instance placement_group_id is invalid")
+	}
+}
+
+func testAccCheckEmptyPlacementGroupIG(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ig.InstanceTemplate.PlacementPolicy == nil || ig.InstanceTemplate.PlacementPolicy.PlacementGroupId == "" {
+			return nil
+		}
+		return fmt.Errorf("instance placement_group_id is invalid")
+	}
+}
+
+func testAccGetPlacementGroupIG(ig *instancegroup.InstanceGroup, pg *string) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ig.InstanceTemplate.PlacementPolicy != nil {
+			*pg = ig.InstanceTemplate.PlacementPolicy.PlacementGroupId
+			return nil
+		}
+		return fmt.Errorf("instance placement_group_id is invalid")
+	}
 }

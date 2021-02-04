@@ -5,6 +5,8 @@ FEATURES:
 * storage: `yandex_storage_bucket` resource supports versioning configuration
 * storage: `yandex_storage_bucket` resource supports logging configuration
 * vpc: add example for ddos protected address documentation
+* compute: support yandex_placement_group resource and data source.
+* compute: integrate yandex_placement_group with compute instance and instance group resources and data source.
 
 ENHANCEMENTS:
 * storage: add bucket configuration example

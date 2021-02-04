@@ -245,6 +245,21 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"placement_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"placement_group_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -307,6 +322,11 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	placementPolicy, err := flattenInstancePlacementPolicy(instance)
+	if err != nil {
+		return err
+	}
+
 	createdAt, err := getTimestamp(instance.CreatedAt)
 	if err != nil {
 		return err
@@ -352,6 +372,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("scheduling_policy", schedulingPolicy); err != nil {
+		return err
+	}
+
+	if err := d.Set("placement_policy", placementPolicy); err != nil {
 		return err
 	}
 

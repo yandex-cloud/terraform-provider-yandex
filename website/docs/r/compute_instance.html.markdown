@@ -88,6 +88,8 @@ The following arguments are supported:
 
 * `scheduling_policy` - (Optional) Scheduling policy configuration. The structure is documented below.
 
+* `placement_policy` - (Optional) The placement policy configuration. The structure is documented below.
+
 * `service_account_id` - (Optional) ID of the service account authorized for this instance.
 
 * `allow_stopping_for_update` - (Optional) If true, allows Terraform to stop the instance in order to update its properties.
@@ -175,6 +177,11 @@ The `secondary_disk` block supports:
 The `scheduling_policy` block supports:
 
 * `preemptible` - (Optional) Specifies if the instance is preemptible. Defaults to false.
+
+The `placement_policy` block supports:
+
+* `placement_group_id` - (Optional) Specifies the id of the Placement Group to assign to the instance.
+
 
 
 ## Attributes Reference

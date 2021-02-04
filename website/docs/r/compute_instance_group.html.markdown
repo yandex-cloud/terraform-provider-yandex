@@ -161,6 +161,8 @@ The `instance_template` block supports:
 
 * `scheduling_policy` - (Optional) The scheduling policy configuration. The structure is documented below.
 
+* `placement_policy` - (Optional) The placement policy configuration. The structure is documented below.
+
 * `description` - (Optional) A description of the instance.
 
 * `metadata` - (Optional) A set of metadata key/value pairs to make available from within the instance.
@@ -228,6 +230,12 @@ The `initialize_params` block supports:
 The `scheduling_policy` block supports:
 
 * `preemptible` - (Optional) Specifies if the instance is preemptible. Defaults to false.
+
+---
+
+The `placement_policy` block supports:
+
+* `placement_group_id` - (Optional) Specifies the id of the Placement Group to assign to the instances.
 
 ---
 
@@ -429,4 +437,3 @@ The `network_interface` block supports:
 * `nat` - The instance's public address for accessing the internet over NAT.
 * `nat_ip_address` - The public IP address of the instance.
 * `nat_ip_version` - The IP version for the public address.
-
