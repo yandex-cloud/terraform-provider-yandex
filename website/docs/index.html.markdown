@@ -42,7 +42,7 @@ The following keys can be used to configure the provider.
   Check [documentation][yandex-iam-create-token] about how to create IAM token.
   This can also be specified using environment variable `YC_TOKEN`.
 
-* `service_account_key_file` - (Optional) Path to file that contains service account key data.
+* `service_account_key_file` - (Optional) Contains either a path to or the contents of the Service Account file in JSON format.
 
   This can also be specified using environment variable `YC_SERVICE_ACCOUNT_KEY_FILE`.
   You can read how to create service account key file [here][yandex-service-account-key].
