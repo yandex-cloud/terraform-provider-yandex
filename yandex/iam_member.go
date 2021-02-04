@@ -50,14 +50,22 @@ func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
 		s := strings.Fields(d.Id())
 		if len(s) != 3 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role username'", s)
+			return nil, fmt.Errorf("Wrong number of parts to Member id %s; expected 'resource_name role member'", s)
 		}
 		id, role, member := s[0], s[1], s[2]
+
+		// |member| part must be in TYPE:ID format.
+		chunks := strings.SplitN(member, ":", 2)
+		if len(chunks) != 2 {
+			d.SetId("")
+			return nil, errors.New("Invalid member spec, must be in TYPE:ID format")
+		}
 
 		// Set the ID only to the first part so all IAM types can share the same resourceIDParserFunc.
 		d.SetId(id)
 		d.Set("role", role)
 		d.Set("member", member)
+
 		err := resourceIDParser(d, config)
 		if err != nil {
 			return nil, err
