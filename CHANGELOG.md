@@ -1,4 +1,6 @@
-## 0.50.0 (Unreleased)
+## 0.51.0 (Unreleased)
+
+## 0.50.0 (February 5, 2021)
 FEATURES:
 * **New Resource:** `yandex_container_registry_iam_binding`
 * mdb: version 13 is available in `yandex_mdb_postgresql_cluster`
