@@ -98,6 +98,12 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"host": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Set:      kafkaHostHash,
+				Elem:     resourceYandexMDBKafkaHost(),
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -376,6 +382,37 @@ func resourceYandexMDBKafkaClusterZookeeperConfig() *schema.Resource {
 	}
 }
 
+func resourceYandexMDBKafkaHost() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"zone_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"role": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"health": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"assign_public_ip": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+		},
+	}
+}
+
 func resourceYandexMDBKafkaClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -542,6 +579,14 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	hosts, err := listKafkaHosts(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+	if err := d.Set("host", flattenKafkaHosts(hosts)); err != nil {
+		return err
+	}
+
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
@@ -641,6 +686,27 @@ func listKafkaUsers(ctx context.Context, config *Config, id string) ([]*kafka.Us
 			return nil, fmt.Errorf("error while getting list of users for '%s': %s", id, err)
 		}
 		ret = append(ret, resp.Users...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return ret, nil
+}
+
+func listKafkaHosts(ctx context.Context, config *Config, id string) ([]*kafka.Host, error) {
+	ret := []*kafka.Host{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().Kafka().Cluster().ListHosts(ctx, &kafka.ListClusterHostsRequest{
+			ClusterId: id,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of hosts for '%s': %s", id, err)
+		}
+		ret = append(ret, resp.Hosts...)
 		if resp.NextPageToken == "" {
 			break
 		}

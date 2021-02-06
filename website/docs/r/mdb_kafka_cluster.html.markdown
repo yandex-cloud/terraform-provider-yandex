@@ -358,6 +358,17 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.
   For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-kafka/api-ref/Cluster/).
 
+* `host` - A host of the Kafka cluster. The structure is documented below.
+
+The `host` block supports:
+
+* `name` - The fully qualified domain name of the host.
+* `zone_id` - The availability zone where the Kafka host was created.
+* `role` - Role of the host in the cluster.
+* `health` - Health of the host.
+* `subnet_id` - The ID of the subnet, to which the host belongs.
+* `assign_public_ip` - The flag that defines whether a public IP address is assigned to the node.
+
 ## Import
 
 A cluster can be imported using the `id` of the resource, e.g.

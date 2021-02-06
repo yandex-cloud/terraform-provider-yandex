@@ -515,6 +515,15 @@ func kafkaUserPermissionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func kafkaHostHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	if n, ok := m["name"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", n.(string)))
+	}
+	return hashcode.String(buf.String())
+}
+
 func flattenKafkaTopics(topics []*kafka.Topic) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0)
 
@@ -649,6 +658,23 @@ func flattenKafkaUsers(users []*kafka.User, passwords map[string]string) *schema
 			u["password"] = p
 		}
 		result.Add(u)
+	}
+	return result
+}
+
+func flattenKafkaHosts(hosts []*kafka.Host) *schema.Set {
+	result := schema.NewSet(kafkaHostHash, nil)
+
+	for _, host := range hosts {
+		h := map[string]interface{}{}
+		h["name"] = host.Name
+		h["zone_id"] = host.ZoneId
+		h["role"] = host.Role.String()
+		h["health"] = host.Health.String()
+		h["subnet_id"] = host.SubnetId
+		h["assign_public_ip"] = host.AssignPublicIp
+
+		result.Add(h)
 	}
 	return result
 }
