@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -212,6 +213,27 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"restore": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: stringToTimeValidateFunc,
+						},
+					},
+				},
+			},
 			"mysql_config": {
 				Type:             schema.TypeMap,
 				Optional:         true,
@@ -253,6 +275,10 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
+		return resourceYandexMDBMySQLClusterRestore(d, meta, req, backupID.(string))
+	}
+
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Create(ctx, req))
@@ -275,6 +301,64 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 	}
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("MySQL Cluster creation failed: %s", err)
+	}
+	return resourceYandexMDBMySQLClusterRead(d, meta)
+}
+
+func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *mysql.CreateClusterRequest, backupID string) error {
+	config := meta.(*Config)
+	req, err := prepareCreateMySQLRequest(d, config)
+	if err != nil {
+		return err
+	}
+
+	timeBackup := time.Now()
+
+	if backupTime, ok := d.GetOk("restore.0.time"); ok {
+		var err error
+		timeBackup, err = parseStringToTime(backupTime.(string))
+		if err != nil {
+			return fmt.Errorf("Error while parsing restore.0.time to create MySQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Restore(ctx, &mysql.RestoreClusterRequest{
+		BackupId: backupID,
+		Time: &timestamp.Timestamp{
+			Seconds: timeBackup.Unix(),
+		},
+		Name:             req.Name,
+		Description:      req.Description,
+		Labels:           req.Labels,
+		Environment:      req.Environment,
+		ConfigSpec:       req.ConfigSpec,
+		HostSpecs:        req.HostSpecs,
+		NetworkId:        req.NetworkId,
+		FolderId:         req.FolderId,
+		SecurityGroupIds: req.SecurityGroupIds,
+	}))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create MySQL Cluster from backup %v: %s", backupID, err)
+	}
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while getting MySQL create operation metadata from backup %v: %s", backupID, err)
+	}
+	md, ok := protoMetadata.(*mysql.RestoreClusterMetadata)
+	if !ok {
+		return fmt.Errorf("Could not get MySQL Cluster ID from create from backup %v operation metadata", backupID)
+	}
+	d.SetId(md.ClusterId)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting for operation to create MySQL Cluster from backup %v: %s", backupID, err)
+	}
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("MySQL Cluster creation from backup %v failed: %s", backupID, err)
 	}
 	return resourceYandexMDBMySQLClusterRead(d, meta)
 }

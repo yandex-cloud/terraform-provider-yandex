@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -491,6 +493,36 @@ func unbindDatabaseRoles(permissions []mysql.Permission_Privilege) []string {
 	}
 
 	return roles
+}
+
+// parseStringToTime parse string to time, when s is 0 or is "" then now time format (unix second or "2006-01-02T15:04:05" )
+func parseStringToTime(s string) (t time.Time, err error) {
+	if s == "" {
+		return time.Now(), nil
+	}
+	if s == "0" {
+		return time.Now(), nil
+	}
+
+	if timeInt, err := strconv.Atoi(s); err == nil {
+		return time.Unix(int64(timeInt), 0), nil
+	}
+
+	return time.Parse("2006-01-02T15:04:05", s)
+
+}
+
+func stringToTimeValidateFunc(value interface{}, key string) (fields []string, errors []error) {
+	if strTime, ok := value.(string); ok {
+		_, err := parseStringToTime(strTime)
+		if err != nil {
+			errors = append(errors, err)
+		}
+	} else {
+		errors = append(errors, fmt.Errorf("value %v is not string", value))
+	}
+
+	return fields, errors
 }
 
 func flattenMySQLAccess(a *mysql.Access) ([]interface{}, error) {

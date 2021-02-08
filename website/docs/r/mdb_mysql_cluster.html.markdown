@@ -122,7 +122,53 @@ resource "yandex_vpc_subnet" "bar" {
 }
 ```
 
+Example of restoring MySQL cluster.
 
+```hcl
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  restore {
+    backup_id   = "c9qj2tns23432471d9qha:stream_20210122T141717Z"
+    time = "2021-01-23T15:04:05"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "db_name"
+  }
+
+  user {
+    name     = "user_name"
+    password = "your_password"
+    permission {
+      database_name = "db_name"
+      roles         = ["ALL"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
 
 
 ## Argument Reference
@@ -148,6 +194,8 @@ The following arguments are supported:
 * `access` - (Optional) Access policy to the MySQL cluster. The structure is documented below.
 
 * `mysql_config` - (Optional) MySQL cluster config. Detail info in "MySQL config" section (documented below).
+
+* `restore` - (Optional, ForceNew) The cluster will be created from the specified backup. The structure is documented below.
 
 - - -
 
@@ -215,6 +263,13 @@ If not specified then does not make any changes.
 * `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 
 * `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.ru/docs/managed-mysql/operations/web-sql-query).
+
+The `restore` block supports:
+
+* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of MySQL backups](https://cloud.yandex.com/docs/managed-mysql/operations/cluster-backups). 
+
+* `time` - (Optional, ForceNew) Timestamp of the moment to which the MySQL cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
+
 
 ## Attributes Reference
 
