@@ -83,7 +83,7 @@ func TestAccDataSourceYandexResourceManagerFolder_wrongCloudID(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckYandexResourceManagerFolder_wrongCloudID(folderName, wrongCloudID),
-				ExpectError: regexp.MustCompile("rpc error: code = PermissionDenied desc = You are not authorized for this operation."),
+				ExpectError: regexp.MustCompile("NotFound"),
 			},
 		},
 	})
@@ -98,7 +98,7 @@ func TestAccDataSourceYandexResourceManagerFolder_byIDNotFound(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckYandexResourceManagerFolder_byIDNotFound(name),
-				ExpectError: regexp.MustCompile("rpc error: code = PermissionDenied desc = You are not authorized for this operation."),
+				ExpectError: regexp.MustCompile("NotFound"),
 			},
 		},
 	})

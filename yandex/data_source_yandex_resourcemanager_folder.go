@@ -84,7 +84,7 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 	})
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("folder with ID %q", folderID))
+		return fmt.Errorf("failed to resolve data source folder by ID: %v", err)
 	}
 
 	createdAt, err := getTimestamp(folder.CreatedAt)
