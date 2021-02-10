@@ -77,6 +77,17 @@ The `user` block supports:
 * `name` - The name of the user.
 * `password` - The password of the user.
 * `permission` - Set of permissions granted to the user. The structure is documented below.
+* `global_permissions` - List user's global permissions. Allowed values: `REPLICATION_CLIENT`, `REPLICATION_SLAVE`, `PROCESS` or empty list.
+* `connection_limits` - User's connection limits. The structure is documented below.
+* `authentication_plugin` - Authentication plugin. Allowed values: `MYSQL_NATIVE_PASSWORD`, `CACHING_SHA2_PASSWORD`, `SHA256_PASSWORD`
+
+The `connection_limits` block supports:   
+When these parameters are set to -1, backend default values will be actually used.   
+
+* `max_questions_per_hour` - Max questions per hour.
+* `max_updates_per_hour` - Max updates per hour.
+* `max_connections_per_hour` - Max connections per hour.
+* `max_user_connections` - Max user connections.
 
 The `permission` block supports:
 

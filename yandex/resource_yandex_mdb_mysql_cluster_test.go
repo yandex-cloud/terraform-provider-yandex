@@ -145,6 +145,11 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "2"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "user.0.connection_limits.0.max_questions_per_hour", "10"),
+					resource.TestCheckResourceAttr(mysqlResource, "user.0.global_permissions.#", "2"),
+					resource.TestCheckResourceAttr(mysqlResource, "user.0.authentication_plugin", "SHA256_PASSWORD"),
+
 					resource.TestCheckResourceAttr(mysqlResource, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
@@ -633,6 +638,14 @@ resource "yandex_mdb_mysql_cluster" "foo" {
       database_name = "testdb"
       roles         = ["ALL", "DROP", "DELETE"]
     }
+
+    connection_limits {
+      max_questions_per_hour = 10
+    }
+
+    global_permissions = ["REPLICATION_SLAVE", "PROCESS"]
+
+    authentication_plugin = "SHA256_PASSWORD"
   }
 
   user {

@@ -92,9 +92,8 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"user": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Required: true,
-				Set:      mysqlUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -126,6 +125,49 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 									},
 								},
 							},
+						},
+						"global_permissions": {
+							Type: schema.TypeList,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Optional: true,
+							Computed: true,
+						},
+						"connection_limits": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_questions_per_hour": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  -1,
+									},
+									"max_updates_per_hour": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  -1,
+									},
+									"max_connections_per_hour": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  -1,
+									},
+									"max_user_connections": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Default:  -1,
+									},
+								},
+							},
+						},
+						"authentication_plugin": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -395,7 +437,7 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("error while expanding hostsFromScheme on MySQL Cluster create: %s", err)
 	}
 
-	users, err := expandMysqlUserSpecs(d)
+	users, err := expandMySQLUsers(nil, d)
 	if err != nil {
 		return nil, fmt.Errorf("error while expanding user specs on MySQL Cluster create: %s", err)
 	}
@@ -484,19 +526,22 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	userSpecs, err := expandMysqlUserSpecs(d)
-	if err != nil {
-		return err
-	}
-	passwords := mysqlUsersPasswords(userSpecs)
 	users, err := listMysqlUsers(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
+	userSpecs, err := expandMySQLUsers(nil, d)
+	if err != nil {
+		return err
+	}
+	passwords := mysqlUsersPasswords(userSpecs)
+
 	fUsers, err := flattenMysqlUsers(users, passwords)
 	if err != nil {
 		return err
 	}
+
+	sortInterfaceListByResourceData(fUsers, d, "user", "name")
 
 	if err := d.Set("user", fUsers); err != nil {
 		return err
@@ -787,12 +832,13 @@ func updateMysqlClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	targetUsers, err := expandMysqlUserSpecs(d)
+	targetUsers, err := expandMySQLUsers(currUsers, d)
 	if err != nil {
 		return err
 	}
 
 	toDelete, toAdd := mysqlUsersDiff(currUsers, targetUsers)
+
 	for _, u := range toDelete {
 		err := deleteMysqlUser(ctx, config, d, u)
 		if err != nil {
@@ -806,11 +852,16 @@ func updateMysqlClusterUsers(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers, err := mysqlChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	currUsers, err = listMysqlUsers(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
+
+	changedUsers, err := mysqlChangedUsers(currUsers, d)
+	if err != nil {
+		return err
+	}
+
 	for _, u := range changedUsers {
 		err := updateMysqlUser(ctx, config, d, u)
 		if err != nil {
@@ -887,37 +938,48 @@ func createMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 
 // Takes the old set of user specs and the new set of user specs.
 // Returns the slice of user specs which have changed.
-func mysqlChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) ([]*mysql.UserSpec, error) {
+func mysqlChangedUsers(users []*mysql.User, d *schema.ResourceData) ([]*mysql.UserSpec, error) {
+
+	oldSpecs, newSpecs := d.GetChange("user")
 	result := []*mysql.UserSpec{}
-	m := map[string]*mysql.UserSpec{}
-	for _, spec := range oldSpecs.List() {
-		user, err := expandMysqlUser(spec.(map[string]interface{}))
+	oldPwd := make(map[string]string)
+
+	for _, spec := range oldSpecs.([]interface{}) {
+		m := spec.(map[string]interface{})
+		oldPwd[m["name"].(string)] = m["password"].(string)
+	}
+
+	usersMap := make(map[string]*mysql.User)
+
+	for _, u := range users {
+		usersMap[u.Name] = u
+	}
+
+	for _, u := range newSpecs.([]interface{}) {
+		m := u.(map[string]interface{})
+		user, isDiff, err := expandMysqlUser(m, usersMap[(m["name"]).(string)])
 		if err != nil {
 			return nil, err
 		}
-		m[user.Name] = user
-	}
-	for _, spec := range newSpecs.List() {
-		user, err := expandMysqlUser(spec.(map[string]interface{}))
-		if err != nil {
-			return nil, err
-		}
-		if u, ok := m[user.Name]; ok {
-			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
-				result = append(result, user)
-			}
+		if isDiff || oldPwd[user.Name] != user.Password {
+			result = append(result, user)
 		}
 	}
+
 	return result, nil
 }
 
 func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mysql.UserSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().MySQL().User().Update(ctx, &mysql.UpdateUserRequest{
-			ClusterId:   d.Id(),
-			UserName:    user.Name,
-			Password:    user.Password,
-			Permissions: user.Permissions,
+			ClusterId:            d.Id(),
+			UserName:             user.Name,
+			Password:             user.Password,
+			Permissions:          user.Permissions,
+			AuthenticationPlugin: user.AuthenticationPlugin,
+			ConnectionLimits:     user.ConnectionLimits,
+			GlobalPermissions:    user.GlobalPermissions,
+			UpdateMask:           &field_mask.FieldMask{Paths: []string{"authentication_plugin", "password", "permissions", "connection_limits", "global_permissions"}},
 		}),
 	)
 	if err != nil {

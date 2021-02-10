@@ -1,5 +1,12 @@
 ## 0.51.0 (Unreleased)
 
+ENHANCEMENTS:
+* mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource
+* mdb: add `connection_limits`, `global_permissions` and `authentication_plugin` attributes to `user` entity in `yandex_mdb_mysql_cluster` resource and data source
+
+WARNING: 
+* mdb: replace sets with lists for users in `yandex_mdb_mysql_cluster`. There can appear changes in diff for users, which will not change anything and will disappear after apply
+
 ## 0.50.0 (February 5, 2021)
 FEATURES:
 * **New Resource:** `yandex_container_registry_iam_binding`
@@ -17,7 +24,6 @@ ENHANCEMENTS:
 * mdb: add `mysql_config` attribute in `yandex_mdb_mysql_cluster` resource and data source
 * mdb: add `format_schema` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `ml_model` section in `yandex_mdb_clickhouse_cluster` resource and data source
-* mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource
 * mdb: add `replication_source_name`, `priority` attributes to `host`entity and `host_master_name` attribute in `yandex_mdb_postgresql_cluster` resource and data source
 * mdb: add `sql_user_management` and `sql_database_management` attributes in `yandex_mdb_clickhouse_cluster` resource and data_source
 * mdb: add `admin_password` attribute in `yandex_mdb_clickhouse_cluster` resource

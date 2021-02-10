@@ -100,9 +100,8 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"user": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Computed: true,
-				Set:      mysqlUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -134,6 +133,42 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 									},
 								},
 							},
+						},
+						"global_permissions": {
+							Type: schema.TypeList,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+							Computed: true,
+						},
+						"connection_limits": {
+							Type:     schema.TypeList,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"max_questions_per_hour": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"max_updates_per_hour": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"max_connections_per_hour": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"max_user_connections": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"authentication_plugin": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -281,7 +316,7 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	userSpecs, err := expandMysqlUserSpecs(d)
+	userSpecs, err := expandMySQLUsers(nil, d)
 	if err != nil {
 		return err
 	}
