@@ -102,6 +102,21 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Computed: true,
 			},
 
+			"disk_placement_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_placement_group_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"product_ids": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -115,6 +130,26 @@ func resourceYandexComputeDisk() *schema.Resource {
 		},
 	}
 
+}
+
+func expandDiskPlacementPolicy(d *schema.ResourceData) (*compute.DiskPlacementPolicy, error) {
+	sp := d.Get("disk_placement_policy").([]interface{})
+	var placementPolicy *compute.DiskPlacementPolicy
+	if len(sp) != 0 {
+		placementPolicy = &compute.DiskPlacementPolicy{
+			PlacementGroupId: d.Get("disk_placement_policy.0.disk_placement_group_id").(string),
+		}
+	}
+	return placementPolicy, nil
+}
+
+func flattenDiskPlacementPolicy(disk *compute.Disk) ([]map[string]interface{}, error) {
+	diskPlacementPolicy := make([]map[string]interface{}, 0, 1)
+	diskPlacementMap := map[string]interface{}{
+		"disk_placement_group_id": disk.DiskPlacementPolicy.PlacementGroupId,
+	}
+	diskPlacementPolicy = append(diskPlacementPolicy, diskPlacementMap)
+	return diskPlacementPolicy, nil
 }
 
 func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) error {
@@ -135,14 +170,20 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error expanding labels while creating disk: %s", err)
 	}
 
+	diskPlacementPolicy, err := expandDiskPlacementPolicy(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding disk placement policy while creating disk: %s", err)
+	}
+
 	req := compute.CreateDiskRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		TypeId:      d.Get("type").(string),
-		ZoneId:      zone,
-		Size:        toBytes(d.Get("size").(int)),
+		FolderId:            folderID,
+		Name:                d.Get("name").(string),
+		Description:         d.Get("description").(string),
+		Labels:              labels,
+		TypeId:              d.Get("type").(string),
+		ZoneId:              zone,
+		Size:                toBytes(d.Get("size").(int)),
+		DiskPlacementPolicy: diskPlacementPolicy,
 	}
 
 	if v, ok := d.GetOk("image_id"); ok {
@@ -203,6 +244,11 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	diskPlacementPolicy, err := flattenDiskPlacementPolicy(disk)
+	if err != nil {
+		return err
+	}
+
 	d.Set("created_at", createdAt)
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
@@ -213,6 +259,7 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("size", toGigabytes(disk.Size))
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())
+	d.Set("disk_placement_policy", diskPlacementPolicy)
 
 	if err := d.Set("product_ids", disk.ProductIds); err != nil {
 		return err
@@ -281,6 +328,26 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 
 		d.SetPartial(descPropName)
+	}
+
+	placementPolicyPropName := "disk_placement_policy"
+	if d.HasChange(placementPolicyPropName) {
+		req := &compute.UpdateDiskRequest{
+			DiskId: d.Id(),
+			DiskPlacementPolicy: &compute.DiskPlacementPolicy{
+				PlacementGroupId: d.Get("disk_placement_policy.0.disk_placement_group_id").(string),
+			},
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{"disk_placement_policy.placement_group_id"},
+			},
+		}
+
+		err := makeDiskUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial(placementPolicyPropName)
 	}
 
 	sizePropName := "size"

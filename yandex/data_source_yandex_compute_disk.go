@@ -72,6 +72,21 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
+
+			"disk_placement_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_placement_group_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -112,6 +127,11 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
+	diskPlacementPolicy, err := flattenDiskPlacementPolicy(disk)
+	if err != nil {
+		return err
+	}
+
 	d.Set("disk_id", disk.Id)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("created_at", createdAt)
@@ -123,6 +143,7 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())
+	d.Set("disk_placement_policy", diskPlacementPolicy)
 
 	if err := d.Set("instance_ids", disk.InstanceIds); err != nil {
 		return err

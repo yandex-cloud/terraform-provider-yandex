@@ -1,4 +1,7 @@
 ## 0.51.0 (Unreleased)
+FEATURES:
+* compute: support yandex_disk_placement_group resource and data source.
+* compute: integrate yandex_disk_placement_group with compute disk resource and data source.
 
 ENHANCEMENTS:
 * mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource

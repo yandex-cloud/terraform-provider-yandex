@@ -17,7 +17,7 @@ A Placement group resource. For more information, see
 resource "yandex_compute_placement_group" "group1" {
   name        = "test-pg"
   folder_id   = "abc*********123"
-  description = "my desciption"
+  description = "my description"
 }
 ```
 
