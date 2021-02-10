@@ -19,7 +19,7 @@ func TestAccDataSourceYandexResourceManagerCloud_byIDNotFound(t *testing.T) {
 			{
 				Config: testAccCheckResourceManagerCloud_byID(notExistCloudID),
 				// "PermissionDenied" returned for non existed cloud id
-				ExpectError: regexp.MustCompile("PermissionDenied"),
+				ExpectError: regexp.MustCompile("NotFound"),
 			},
 		},
 	})

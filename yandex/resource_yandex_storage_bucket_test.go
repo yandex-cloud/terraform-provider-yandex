@@ -23,9 +23,11 @@ import (
 
 func init() {
 	resource.AddTestSweepers("yandex_storage_bucket", &resource.Sweeper{
-		Name:         "yandex_storage_bucket",
-		F:            testSweepStorageBucket,
-		Dependencies: []string{},
+		Name: "yandex_storage_bucket",
+		F:    testSweepStorageBucket,
+		Dependencies: []string{
+			"yandex_storage_object",
+		},
 	})
 }
 
@@ -86,10 +88,6 @@ func testSweepStorageBucket(_ string) error {
 		})
 
 		if err != nil {
-			// ignore this error until we have sweeper for storage objects
-			if err, ok := err.(awserr.Error); ok && err.Code() == "BucketNotEmpty" {
-				continue
-			}
 			result = multierror.Append(result, fmt.Errorf("failed to delete bucket: %s, error: %s", *b.Name, err))
 		}
 	}
