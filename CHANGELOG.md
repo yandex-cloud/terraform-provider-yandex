@@ -7,6 +7,9 @@ ENHANCEMENTS:
 * mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource
 * mdb: add `connection_limits`, `global_permissions` and `authentication_plugin` attributes to `user` entity in `yandex_mdb_mysql_cluster` resource and data source
 
+BUG FIXES:
+* mdb: fix updating user permissions for Kafka cluster
+
 WARNING: 
 * mdb: replace sets with lists for users in `yandex_mdb_mysql_cluster`. There can appear changes in diff for users, which will not change anything and will disappear after apply
 

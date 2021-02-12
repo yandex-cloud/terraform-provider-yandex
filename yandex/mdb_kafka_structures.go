@@ -329,28 +329,36 @@ func expandKafkaTopics(d *schema.ResourceData) ([]*kafka.TopicSpec, error) {
 }
 
 func expandKafkaUsers(d *schema.ResourceData) ([]*kafka.UserSpec, error) {
-	var result []*kafka.UserSpec
-	users := d.Get("user").(*schema.Set).List()
+	users := d.Get("user").(*schema.Set)
+	result := make([]*kafka.UserSpec, 0, users.Len())
 
-	for _, u := range users {
-		m := u.(map[string]interface{})
-		user := &kafka.UserSpec{}
-		if v, ok := m["name"]; ok {
-			user.Name = v.(string)
-		}
-		if v, ok := m["password"]; ok {
-			user.Password = v.(string)
-		}
-		if v, ok := m["permission"]; ok {
-			permissions, err := expandKafkaPermissions(v.(*schema.Set))
-			if err != nil {
-				return nil, err
-			}
-			user.Permissions = permissions
+	for _, u := range users.List() {
+		user, err := expandKafkaUser(u)
+		if err != nil {
+			return nil, err
 		}
 		result = append(result, user)
 	}
 	return result, nil
+}
+
+func expandKafkaUser(u interface{}) (*kafka.UserSpec, error) {
+	m := u.(map[string]interface{})
+	user := &kafka.UserSpec{}
+	if v, ok := m["name"]; ok {
+		user.Name = v.(string)
+	}
+	if v, ok := m["password"]; ok {
+		user.Password = v.(string)
+	}
+	if v, ok := m["permission"]; ok {
+		permissions, err := expandKafkaPermissions(v.(*schema.Set))
+		if err != nil {
+			return nil, err
+		}
+		user.Permissions = permissions
+	}
+	return user, nil
 }
 
 func expandKafkaPermissions(ps *schema.Set) ([]*kafka.Permission, error) {
@@ -701,58 +709,6 @@ func kafkaUsersDiff(currUsers []*kafka.User, targetUsers []*kafka.UserSpec) ([]s
 	}
 
 	return toDel, toAdd
-}
-
-func expandKafkaUser(u map[string]interface{}) *kafka.UserSpec {
-	user := &kafka.UserSpec{}
-
-	if v, ok := u["name"]; ok {
-		user.Name = v.(string)
-	}
-
-	if v, ok := u["password"]; ok {
-		user.Password = v.(string)
-	}
-
-	if v, ok := u["permission"]; ok {
-		user.Permissions = expandKafkaUserPermissions(v.(*schema.Set))
-	}
-
-	return user
-}
-
-func expandKafkaUserPermissions(ps *schema.Set) []*kafka.Permission {
-	result := []*kafka.Permission{}
-
-	for _, p := range ps.List() {
-		m := p.(map[string]interface{})
-		permission := &kafka.Permission{}
-		if v, ok := m["topic_name"]; ok {
-			permission.TopicName = v.(string)
-		}
-		result = append(result, permission)
-	}
-	return result
-}
-
-// Takes the old set of user specs and the new set of user specs.
-// Returns the slice of user specs which have changed.
-func kafkaChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*kafka.UserSpec {
-	result := []*kafka.UserSpec{}
-	m := map[string]*kafka.UserSpec{}
-	for _, spec := range oldSpecs.List() {
-		user := expandKafkaUser(spec.(map[string]interface{}))
-		m[user.Name] = user
-	}
-	for _, spec := range newSpecs.List() {
-		user := expandKafkaUser(spec.(map[string]interface{}))
-		if u, ok := m[user.Name]; ok {
-			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
-				result = append(result, user)
-			}
-		}
-	}
-	return result
 }
 
 func expandKafkaTopic(d *schema.ResourceData, idx int, version string) (*kafka.TopicSpec, error) {

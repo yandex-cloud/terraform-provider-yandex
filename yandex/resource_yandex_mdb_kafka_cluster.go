@@ -388,6 +388,8 @@ func resourceYandexMDBKafkaClusterCreate(d *schema.ResourceData, meta interface{
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
+	log.Printf("[DEBUG] Creating Kafka cluster: %+v", req)
+
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Kafka().Cluster().Create(ctx, req))
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create Kafka Cluster: %s", err)
@@ -413,6 +415,7 @@ func resourceYandexMDBKafkaClusterCreate(d *schema.ResourceData, meta interface{
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("kafka cluster creation failed: %s", err)
 	}
+	log.Printf("[DEBUG] Finished creating Kafka cluster %q", md.ClusterId)
 
 	return resourceYandexMDBKafkaClusterRead(d, meta)
 }
@@ -862,12 +865,9 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers := kafkaChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
-	for _, u := range changedUsers {
-		err := updateKafkaUser(ctx, config, d, u)
-		if err != nil {
-			return err
-		}
+	err = updateKafkaUsers(ctx, config, d, oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
+	if err != nil {
+		return err
 	}
 
 	d.SetPartial("user")
@@ -875,6 +875,7 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deleteKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
+	log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, d.Id())
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Kafka().User().Delete(ctx, &kafka.DeleteUserRequest{
 			ClusterId: d.Id(),
@@ -889,15 +890,19 @@ func deleteKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 	if err != nil {
 		return fmt.Errorf("error while deleting user from Kafka Cluster %q: %s", d.Id(), err)
 	}
+	log.Printf("[DEBUG] Finished deleting Kafka user %q", userName)
 	return nil
 }
 
 func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, userSpec *kafka.UserSpec) error {
+	req := &kafka.CreateUserRequest{
+		ClusterId: d.Id(),
+		UserSpec:  userSpec,
+	}
+	log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, req)
+
 	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().User().Create(ctx, &kafka.CreateUserRequest{
-			ClusterId: d.Id(),
-			UserSpec:  userSpec,
-		}),
+		config.sdk.MDB().Kafka().User().Create(ctx, req),
 	)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user in Kafka Cluster %q: %s", d.Id(), err)
@@ -907,17 +912,57 @@ func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 	if err != nil {
 		return fmt.Errorf("error while adding user to Kafka Cluster %q: %s", d.Id(), err)
 	}
+	log.Printf("[DEBUG] Finished creating Kafka user %q", userSpec.Name)
 	return nil
 }
 
-func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, user *kafka.UserSpec) error {
+func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceData, oldSpecs *schema.Set, newSpecs *schema.Set) error {
+	m := map[string]*kafka.UserSpec{}
+	for _, spec := range oldSpecs.List() {
+		user, err := expandKafkaUser(spec.(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		m[user.Name] = user
+	}
+	for _, spec := range newSpecs.List() {
+		user, err := expandKafkaUser(spec.(map[string]interface{}))
+		if err != nil {
+			return err
+		}
+		if u, ok := m[user.Name]; ok {
+			updatePaths := make([]string, 0, 2)
+
+			if user.Password != u.Password {
+				updatePaths = append(updatePaths, "password")
+			}
+
+			if fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
+				updatePaths = append(updatePaths, "permissions")
+			}
+
+			if len(updatePaths) > 0 {
+				req := &kafka.UpdateUserRequest{
+					ClusterId:   d.Id(),
+					UserName:    user.Name,
+					Password:    user.Password,
+					Permissions: user.Permissions,
+					UpdateMask:  &field_mask.FieldMask{Paths: updatePaths},
+				}
+				err = updateKafkaUser(ctx, config, d, req)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, req *kafka.UpdateUserRequest) error {
+	log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
 	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().User().Update(ctx, &kafka.UpdateUserRequest{
-			ClusterId:   d.Id(),
-			UserName:    user.Name,
-			Password:    user.Password,
-			Permissions: user.Permissions,
-		}),
+		config.sdk.MDB().Kafka().User().Update(ctx, req),
 	)
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in Kafka Cluster %q: %s", d.Id(), err)
@@ -927,6 +972,7 @@ func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 	if err != nil {
 		return fmt.Errorf("error while updating user in Kafka Cluster %q: %s", d.Id(), err)
 	}
+	log.Printf("[DEBUG] Finished updating Kafka user %q", req.UserName)
 	return nil
 }
 

@@ -374,7 +374,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.medium", "network-hdd", 17*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
-					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
+					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
@@ -641,6 +641,10 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		permission {
 			topic_name = "raw_events"
 			role = "ACCESS_ROLE_PRODUCER"
+		}
+		permission {
+			topic_name = "raw_events"
+			role = "ACCESS_ROLE_CONSUMER"
 		}
 	}
 
