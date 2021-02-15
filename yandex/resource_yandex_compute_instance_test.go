@@ -34,7 +34,8 @@ func testSweepComputeInstances(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Compute().Instance().InstanceIterator(conf.Context(), conf.FolderID)
+	req := &compute.ListInstancesRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Compute().Instance().InstanceIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

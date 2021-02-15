@@ -32,7 +32,8 @@ func testSweepFunction(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Serverless().Functions().Function().FunctionIterator(conf.Context(), conf.FolderID)
+	req := &functions.ListFunctionsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Serverless().Functions().Function().FunctionIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

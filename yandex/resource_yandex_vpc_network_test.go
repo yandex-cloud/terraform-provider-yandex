@@ -31,7 +31,8 @@ func testSweepVPCNetworks(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.VPC().Network().NetworkIterator(conf.Context(), conf.FolderID)
+	req := &vpc.ListNetworksRequest{FolderId: conf.FolderID}
+	it := conf.sdk.VPC().Network().NetworkIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
@@ -51,7 +52,8 @@ func sweepVPCNetworkOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexVPCNetworkDefaultTimeout)
 	defer cancel()
 
-	subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), id)
+	req := &vpc.ListNetworkSubnetsRequest{NetworkId: id}
+	subIt := conf.sdk.VPC().Network().NetworkSubnetsIterator(conf.Context(), req)
 	for subIt.Next() {
 		subID := subIt.Value().GetId()
 		err := sweepVPCSubnetOnce(conf, subID)

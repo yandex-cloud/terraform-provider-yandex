@@ -40,7 +40,8 @@ func testSweepVPCSubnets(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.VPC().Subnet().SubnetIterator(conf.Context(), conf.FolderID)
+	req := &vpc.ListSubnetsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.VPC().Subnet().SubnetIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

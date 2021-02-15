@@ -32,7 +32,8 @@ func testSweepLBNetworkLoadBalancers(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), conf.FolderID)
+	req := &loadbalancer.ListNetworkLoadBalancersRequest{FolderId: conf.FolderID}
+	it := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

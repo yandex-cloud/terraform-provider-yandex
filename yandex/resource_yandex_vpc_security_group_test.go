@@ -3,8 +3,9 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-multierror"
 	"testing"
+
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -38,7 +39,8 @@ func testSweepVPCSecurityGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.VPC().SecurityGroup().SecurityGroupIterator(conf.Context(), conf.FolderID)
+	req := &vpc.ListSecurityGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.VPC().SecurityGroup().SecurityGroupIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

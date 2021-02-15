@@ -29,7 +29,8 @@ func testSweepLBTargetGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	nlbIt := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), conf.FolderID)
+	req := &loadbalancer.ListNetworkLoadBalancersRequest{FolderId: conf.FolderID}
+	nlbIt := conf.sdk.LoadBalancer().NetworkLoadBalancer().NetworkLoadBalancerIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for nlbIt.Next() {
 		nlbId := nlbIt.Value().GetId()
@@ -47,7 +48,8 @@ func testSweepLBTargetGroups(_ string) error {
 		return err
 	}
 
-	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), conf.FolderID)
+	reqTg := &loadbalancer.ListTargetGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.LoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), reqTg)
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepLBTargetGroup(conf, id) {

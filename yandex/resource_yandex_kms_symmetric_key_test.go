@@ -335,7 +335,8 @@ func testSweepKMSSymmetricKey(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.KMS().SymmetricKey().SymmetricKeyIterator(conf.Context(), conf.FolderID)
+	req := &kms.ListSymmetricKeysRequest{FolderId: conf.FolderID}
+	it := conf.sdk.KMS().SymmetricKey().SymmetricKeyIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

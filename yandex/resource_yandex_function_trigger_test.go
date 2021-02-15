@@ -3,8 +3,9 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-multierror"
 	"testing"
+
+	"github.com/hashicorp/go-multierror"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -29,7 +30,8 @@ func testSweepFunctionTrigger(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Serverless().Triggers().Trigger().TriggerIterator(conf.Context(), conf.FolderID)
+	req := &triggers.ListTriggersRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Serverless().Triggers().Trigger().TriggerIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

@@ -32,7 +32,8 @@ func testSweepIAMServiceAccounts(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.IAM().ServiceAccount().ServiceAccountIterator(conf.Context(), conf.FolderID)
+	req := &iam.ListServiceAccountsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.IAM().ServiceAccount().ServiceAccountIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

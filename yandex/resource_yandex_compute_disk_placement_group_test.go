@@ -37,7 +37,8 @@ func testSweepComputeDiskPlacementGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Compute().DiskPlacementGroup().DiskPlacementGroupIterator(conf.Context(), conf.FolderID)
+	req := &compute.ListDiskPlacementGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Compute().DiskPlacementGroup().DiskPlacementGroupIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

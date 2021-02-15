@@ -38,7 +38,8 @@ func testSweepComputePlacementGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Compute().PlacementGroup().PlacementGroupIterator(conf.Context(), conf.FolderID)
+	req := &compute.ListPlacementGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Compute().PlacementGroup().PlacementGroupIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

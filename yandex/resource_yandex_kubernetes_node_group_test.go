@@ -28,7 +28,8 @@ func testSweepKubernetesNodeGroups(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.Kubernetes().NodeGroup().NodeGroupIterator(conf.Context(), conf.FolderID)
+	req := &k8s.ListNodeGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Kubernetes().NodeGroup().NodeGroupIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

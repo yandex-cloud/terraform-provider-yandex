@@ -32,7 +32,8 @@ func testSweepIoTCoreRegistry(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.IoT().Devices().Registry().RegistryIterator(conf.Context(), conf.FolderID)
+	req := &iot.ListRegistriesRequest{FolderId: conf.FolderID}
+	it := conf.sdk.IoT().Devices().Registry().RegistryIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()

@@ -44,7 +44,8 @@ func testSweepKubernetesClusters(_ string) error {
 	var serviceAccountID string
 	var depsCreated bool
 
-	it := conf.sdk.Kubernetes().Cluster().ClusterIterator(conf.Context(), conf.FolderID)
+	req := &k8s.ListClustersRequest{FolderId: conf.FolderID}
+	it := conf.sdk.Kubernetes().Cluster().ClusterIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		if !depsCreated {

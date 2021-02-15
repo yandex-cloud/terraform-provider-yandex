@@ -33,7 +33,8 @@ func testSweepComputeInstanceGroups(_ string) error {
 	var serviceAccountID, networkID, subnetID string
 	var depsCreated bool
 
-	it := conf.sdk.InstanceGroup().InstanceGroup().InstanceGroupIterator(conf.Context(), conf.FolderID)
+	req := &instancegroup.ListInstanceGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.InstanceGroup().InstanceGroup().InstanceGroupIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		if !depsCreated {

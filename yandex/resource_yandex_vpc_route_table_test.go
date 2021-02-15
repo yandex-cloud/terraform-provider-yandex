@@ -26,7 +26,8 @@ func testSweepVPCRouteTables(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
-	it := conf.sdk.VPC().RouteTable().RouteTableIterator(conf.Context(), conf.FolderID)
+	req := &vpc.ListRouteTablesRequest{FolderId: conf.FolderID}
+	it := conf.sdk.VPC().RouteTable().RouteTableIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
 		id := it.Value().GetId()
