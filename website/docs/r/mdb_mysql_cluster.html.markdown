@@ -232,7 +232,7 @@ The following arguments are supported:
 
 * `environment` - (Required) Deployment environment of the MySQL cluster.
 
-* `version` - (Required) Version of the MySQL cluster.
+* `version` - (Required) Version of the MySQL cluster. (allowed versions are: 5.7, 8.0)
 
 * `resources` - (Required) Resources allocated to hosts of the MySQL cluster. The structure is documented below.
 

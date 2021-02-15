@@ -638,9 +638,10 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"description":         "description",
 	"labels":              "labels",
 	"access":              "config_spec.access",
+	"security_group_ids":  "security_group_ids",
 	"backup_window_start": "config_spec.backup_window_start",
 	"resources":           "config_spec.resources",
-	"security_group_ids":  "security_group_ids",
+	"version":             "config_spec.version",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {

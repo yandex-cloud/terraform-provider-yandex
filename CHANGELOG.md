@@ -2,6 +2,7 @@
 FEATURES:
 * compute: support yandex_disk_placement_group resource and data source.
 * compute: integrate yandex_disk_placement_group with compute disk resource and data source.
+* mdb: added the ability to upgrade the Mysql version using the `version` attribute in `yandex_mdb_mysql_cluster`
 
 ENHANCEMENTS:
 * mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource

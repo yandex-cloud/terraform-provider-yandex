@@ -131,6 +131,18 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			},
 			// Change some options
 			{
+				Config: testAccMDBMySQLClusterVersionUpdate(mysqlName, mysqlDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
+					resource.TestCheckResourceAttr(mysqlResource, "version", "8.0"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// Change some options
+			{
 				Config: testAccMDBMySQLClusterConfigUpdated(mysqlName, mysqlDesc2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
@@ -591,6 +603,52 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 `, name, desc)
 }
 
+func testAccMDBMySQLClusterVersionUpdate(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  version     = "8.0"
+  labels = {
+    test_key = "test_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  backup_window_start {
+    hours   = 3
+    minutes = 22
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = "${yandex_vpc_subnet.foo_c.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+}
+`, name, desc)
+}
+
 func testAccMDBMySQLClusterConfigUpdated(name, desc string) string {
 	return fmt.Sprintf(mysqlVPCDependencies+`
 resource "yandex_mdb_mysql_cluster" "foo" {
@@ -598,7 +656,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
-  version     = "5.7"
+  version     = "8.0"
 
   labels = {
     new_key = "new_value"
@@ -683,7 +741,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
-  version     = "5.7"
+  version     = "8.0"
 
   labels = {
     new_key = "new_value"
