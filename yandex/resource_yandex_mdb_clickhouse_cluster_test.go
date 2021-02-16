@@ -122,7 +122,14 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
-					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}},
+						map[string]map[string]interface{}{
+							"john": {
+								"add_http_cors_header":          true,
+								"connect_timeout":               42000,
+								"count_distinct_implementation": "uniq_combined_64"}},
+						map[string][]map[string]interface{}{},
+					),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb"}),
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
@@ -147,7 +154,19 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
-					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}},
+						map[string]map[string]interface{}{
+							"john": {
+								"add_http_cors_header":          true,
+								"connect_timeout":               44000,
+								"count_distinct_implementation": "uniq_combined_64"}},
+						map[string][]map[string]interface{}{
+							"mary": {
+								{"interval_duration": 3600000, "queries": 1000},
+								{"interval_duration": 79800000, "queries": 5000},
+							},
+						},
+					),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb", "newdb"}),
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
 						"test_schema": {
@@ -179,7 +198,20 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
-					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}},
+						map[string]map[string]interface{}{
+							"john": {
+								"add_http_cors_header":          true,
+								"connect_timeout":               44000,
+								"count_distinct_implementation": "uniq_hll_12"}},
+						map[string][]map[string]interface{}{
+							"mary": {
+								{"interval_duration": 3600000, "queries": 2000},
+								{"interval_duration": 7200000, "queries": 3000},
+								{"interval_duration": 79800000, "queries": 5000},
+							},
+						},
+					),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(chResource),
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
@@ -217,7 +249,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
-					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{}),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -256,7 +288,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 						"test_group_2": {"shard1"},
 					}),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
-					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(chResourceSharded),
 				),
@@ -277,7 +309,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 						"test_group_3": {"shard1"},
 					}),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
-					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(chResourceSharded),
 				),
@@ -444,7 +476,8 @@ func testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(r *clickhouse.Clus
 	}
 }
 
-func testAccCheckMDBClickHouseClusterHasUsers(r string, perms map[string][]string) resource.TestCheckFunc {
+func testAccCheckMDBClickHouseClusterHasUsers(r string, perms map[string][]string, settings map[string]map[string]interface{},
+	quotas map[string][]map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -485,6 +518,68 @@ func testAccCheckMDBClickHouseClusterHasUsers(r string, perms map[string][]strin
 			sort.Strings(ups)
 			if fmt.Sprintf("%v", ps) != fmt.Sprintf("%v", ups) {
 				return fmt.Errorf("User %s has wrong permissions, %v. Expected %v", u.Name, ups, ps)
+			}
+
+			ss, ok := settings[u.Name]
+			if !ok {
+				ss = map[string]interface{}{}
+			}
+
+			flatSettings := flattenClickHouseUserSettings(u.Settings)
+			for key, setting := range flatSettings {
+				s, ok := ss[key]
+				if !ok {
+					switch setting.(type) {
+					case int:
+						s = 0
+					case bool:
+						s = false
+					case string:
+						s = "unspecified"
+					default:
+						return fmt.Errorf("User %s has unexpected setting '%s'='%v'", u.Name, key, setting)
+					}
+				}
+				if fmt.Sprintf("%v", s) != fmt.Sprintf("%v", setting) {
+					return fmt.Errorf("User %s has incorrect setting '%s'='%v', expected '%v'", u.Name, key, setting, s)
+				}
+				delete(ss, key)
+			}
+
+			if len(ss) != 0 {
+				return fmt.Errorf("User %s has not expected settings %v", u.Name, ss)
+			}
+
+			qs, ok := quotas[u.Name]
+			if !ok {
+				qs = []map[string]interface{}{}
+			}
+
+			qsm := map[int]map[string]interface{}{}
+
+			for _, q := range qs {
+				duration, ok := q["interval_duration"].(int)
+				if !ok {
+					return fmt.Errorf("Wrong test: user %s has wrong quota test data %v", u.Name, q)
+				}
+				qsm[duration] = q
+			}
+
+			for _, quota := range u.Quotas {
+				flatQuota := flattenClickHouseUserQuota(quota)
+				duration := int(quota.IntervalDuration.Value)
+				q, ok := qsm[duration]
+				if !ok {
+					return fmt.Errorf("User %s has unexpected quota %v", u.Name, quota)
+				}
+				if fmt.Sprintf("%v", q) != fmt.Sprintf("%v", flatQuota) {
+					return fmt.Errorf("User %s has wrong quota %v, expected %v", u.Name, flatQuota, q)
+				}
+				delete(qsm, duration)
+			}
+
+			if len(qsm) != 0 {
+				return fmt.Errorf("User %s has not expected quotas %v", u.Name, qsm)
 			}
 		}
 
@@ -756,10 +851,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     yandex_storage_object.test_ml_model
   ]
 
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
   labels = {
@@ -774,60 +869,60 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
 
     config {
-      log_level = "TRACE"
-      max_connections = 1000
-      max_concurrent_queries = 100
-      keep_alive_timeout = 1233000
-      uncompressed_cache_size = 8096
-      mark_cache_size = 8096
-      max_table_size_to_drop = 1024
-      max_partition_size_to_drop = 10324
-      timezone = "UTC"
-      geobase_uri = ""
-      query_log_retention_size = 1024
-      query_log_retention_time = 123000
-      query_thread_log_enabled = true
+      log_level                       = "TRACE"
+      max_connections                 = 1000
+      max_concurrent_queries          = 100
+      keep_alive_timeout              = 1233000
+      uncompressed_cache_size         = 8096
+      mark_cache_size                 = 8096
+      max_table_size_to_drop          = 1024
+      max_partition_size_to_drop      = 10324
+      timezone                        = "UTC"
+      geobase_uri                     = ""
+      query_log_retention_size        = 1024
+      query_log_retention_time        = 123000
+      query_thread_log_enabled        = true
       query_thread_log_retention_size = 1024
       query_thread_log_retention_time = 123000
-      part_log_retention_size = 1024
-      part_log_retention_time = 1223000
-      metric_log_enabled = true
-      metric_log_retention_size = 1024
-      metric_log_retention_time = 123000
-      trace_log_enabled = true
-      trace_log_retention_size = 1024
-      trace_log_retention_time = 123000
-      text_log_enabled = true
-      text_log_retention_size = 1024
-      text_log_retention_time = 123000
-      text_log_level = "TRACE"
-      background_pool_size = 32
-      background_schedule_pool_size = 32
+      part_log_retention_size         = 1024
+      part_log_retention_time         = 1223000
+      metric_log_enabled              = true
+      metric_log_retention_size       = 1024
+      metric_log_retention_time       = 123000
+      trace_log_enabled               = true
+      trace_log_retention_size        = 1024
+      trace_log_retention_time        = 123000
+      text_log_enabled                = true
+      text_log_retention_size         = 1024
+      text_log_retention_time         = 123000
+      text_log_level                  = "TRACE"
+      background_pool_size            = 32
+      background_schedule_pool_size   = 32
 
       merge_tree {
-        replicated_deduplication_window = 1000
-        replicated_deduplication_window_seconds = 1000
-        parts_to_delay_insert = 110001
-        parts_to_throw_insert = 11000
-        max_replicated_merges_in_queue = 11000
+        replicated_deduplication_window                           = 1000
+        replicated_deduplication_window_seconds                   = 1000
+        parts_to_delay_insert                                     = 110001
+        parts_to_throw_insert                                     = 11000
+        max_replicated_merges_in_queue                            = 11000
         number_of_free_entries_in_pool_to_lower_max_size_of_merge = 15
-        max_bytes_to_merge_at_min_space_in_pool = 11000
+        max_bytes_to_merge_at_min_space_in_pool                   = 11000
       }
 
       kafka {
         security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-        sasl_mechanism = "SASL_MECHANISM_GSSAPI"
-        sasl_username = "user1"
-        sasl_password = "pass1"
+        sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
+        sasl_username     = "user1"
+        sasl_password     = "pass1"
       }
 
       kafka_topic {
         name = "topic1"
         settings {
           security_protocol = "SECURITY_PROTOCOL_SSL"
-          sasl_mechanism = "SASL_MECHANISM_SCRAM_SHA_256"
-          sasl_username = "user2"
-          sasl_password = "pass22"
+          sasl_mechanism    = "SASL_MECHANISM_SCRAM_SHA_256"
+          sasl_username     = "user2"
+          sasl_password     = "pass22"
         }
       }
 
@@ -837,18 +932,18 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       }
 
       compression {
-        method = "LZ4"
-        min_part_size = 1024
+        method              = "LZ4"
+        min_part_size       = 1024
         min_part_size_ratio = 0.5
       }
 
       graphite_rollup {
         name = "rollup1"
         pattern {
-          regexp = "abc"
+          regexp   = "abc"
           function = "func1"
           retention {
-            age = 1000
+            age       = 1000
             precision = 3
           }
         }
@@ -866,6 +961,101 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     permission {
       database_name = "testdb"
     }
+    settings {
+      add_http_cors_header                               = true
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 42000
+      count_distinct_implementation                      = "uniq_combined_64"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
   }
 
   host {
@@ -882,10 +1072,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 func testAccMDBClickHouseClusterConfigUpdated(name, desc, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
   labels = {
@@ -1021,6 +1211,101 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     permission {
       database_name = "testdb"
     }
+    settings {
+      add_http_cors_header                               = true
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 44000
+      count_distinct_implementation                      = "uniq_combined_64"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
   }
 
   user {
@@ -1031,6 +1316,109 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
     permission {
       database_name = "testdb"
+    }
+    settings {
+      add_http_cors_header                               = false
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 0
+      count_distinct_implementation                      = "unspecified"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
+    quota {
+      interval_duration = 3600000
+      queries           = 1000
+    }
+    quota {
+      interval_duration = 79800000
+      queries           = 5000
     }
   }
 
@@ -1100,6 +1488,101 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     permission {
       database_name = "testdb"
     }
+    settings {
+      add_http_cors_header                               = true
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 44000
+      count_distinct_implementation                      = "uniq_hll_12"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
   }
 
   user {
@@ -1110,6 +1593,113 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
     permission {
       database_name = "testdb"
+    }
+    settings {
+      add_http_cors_header                               = false
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 0
+      count_distinct_implementation                      = "unspecified"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
+    quota {
+      interval_duration = 3600000
+      queries           = 2000
+    }
+    quota {
+      interval_duration = 7200000
+      queries           = 3000
+    }
+    quota {
+      interval_duration = 79800000
+      queries           = 5000
     }
   }
 
@@ -1175,10 +1765,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 func testAccMDBClickHouseClusterConfigSharded(name, desc, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
   clickhouse {
@@ -1198,6 +1788,101 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     password = "password"
     permission {
       database_name = "testdb"
+    }
+    settings {
+      add_http_cors_header                               = false
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 0
+      count_distinct_implementation                      = "unspecified"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
     }
   }
 
@@ -1239,10 +1924,10 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
   clickhouse {
@@ -1262,6 +1947,101 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     password = "password"
     permission {
       database_name = "testdb"
+    }
+    settings {
+      add_http_cors_header                               = false
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 0
+      count_distinct_implementation                      = "unspecified"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
     }
   }
 
@@ -1307,12 +2087,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     yandex_storage_object.test_ml_model
   ]
 
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
-  admin_password = "strong_password"
-  sql_user_management = true
+  name                    = "%s"
+  description             = "%s"
+  environment             = "PRESTABLE"
+  network_id              = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password          = "strong_password"
+  sql_user_management     = true
   sql_database_management = true
 
   labels = {

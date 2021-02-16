@@ -58,6 +58,21 @@ func clickHouseUserPermissionHash(v interface{}) int {
 	return 0
 }
 
+func clickHouseUserQuotaHash(v interface{}) int {
+	var buf bytes.Buffer
+
+	if v != nil {
+		m := v.(map[string]interface{})
+		if n, ok := m["interval_duration"]; ok {
+			buf.WriteString(fmt.Sprintf("%v", n))
+		} else {
+			buf.WriteString("")
+		}
+	}
+
+	return hashcode.String(buf.String())
+}
+
 func clickHouseUserHash(v interface{}) int {
 	var buf bytes.Buffer
 
@@ -70,6 +85,12 @@ func clickHouseUserHash(v interface{}) int {
 	}
 	if ps, ok := m["permission"]; ok {
 		buf.WriteString(fmt.Sprintf("%v-", ps.(*schema.Set).List()))
+	}
+	if s, ok := m["settings"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", s))
+	}
+	if q, ok := m["quota"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", q.(*schema.Set).List()))
 	}
 
 	return hashcode.String(buf.String())
@@ -139,18 +160,20 @@ func clickHouseUsersDiff(currUsers []*clickhouse.User, targetUsers []*clickhouse
 
 // Takes the old set of user specs and the new set of user specs.
 // Returns the slice of user specs which have changed.
-func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*clickhouse.UserSpec {
+func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schema.ResourceData) []*clickhouse.UserSpec {
 	result := []*clickhouse.UserSpec{}
 	m := map[string]*clickhouse.UserSpec{}
 	for _, spec := range oldSpecs.List() {
-		user := expandClickHouseUser(spec.(map[string]interface{}))
+		user := expandClickHouseUser(spec.(map[string]interface{}), nil, 0)
 		m[user.Name] = user
 	}
 	for _, spec := range newSpecs.List() {
-		user := expandClickHouseUser(spec.(map[string]interface{}))
+		user := expandClickHouseUser(spec.(map[string]interface{}), nil, 0)
 		if u, ok := m[user.Name]; ok {
-			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
-				result = append(result, user)
+			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) || fmt.Sprintf("%v", user.Settings) != fmt.Sprintf("%v", u.Settings) || fmt.Sprintf("%v", user.Quotas) != fmt.Sprintf("%v", u.Quotas) {
+				hash := clickHouseUserHash(spec)
+				userWithExistsFields := expandClickHouseUser(spec.(map[string]interface{}), d, hash)
+				result = append(result, userWithExistsFields)
 			}
 		}
 	}
@@ -608,6 +631,7 @@ func expandClickHouseResources(d *schema.ResourceData, rootKey string) *clickhou
 	if v, ok := d.GetOk(rootKey + ".disk_type_id"); ok {
 		resources.DiskTypeId = v.(string)
 	}
+
 	return resources
 }
 
@@ -988,6 +1012,779 @@ func expandClickHouseUserPermissions(ps *schema.Set) []*clickhouse.Permission {
 	return result
 }
 
+func makeReversedMap(m map[int32]string, addMap map[string]int32) map[string]int32 {
+	r := addMap
+	for k, v := range m {
+		r[v] = k
+	}
+	return r
+}
+
+var (
+	UserSettings_OverflowMode_name = map[int32]string{
+		0: "unspecified",
+		1: "throw",
+		2: "break",
+	}
+	UserSettings_OverflowMode_value       = makeReversedMap(UserSettings_OverflowMode_name, clickhouse.UserSettings_OverflowMode_value)
+	UserSettings_GroupByOverflowMode_name = map[int32]string{
+		0: "unspecified",
+		1: "throw",
+		2: "break",
+		3: "any",
+	}
+	UserSettings_GroupByOverflowMode_value   = makeReversedMap(UserSettings_GroupByOverflowMode_name, clickhouse.UserSettings_GroupByOverflowMode_value)
+	UserSettings_DistributedProductMode_name = map[int32]string{
+		0: "unspecified",
+		1: "deny",
+		2: "local",
+		3: "global",
+		4: "allow",
+	}
+	UserSettings_DistributedProductMode_value     = makeReversedMap(UserSettings_DistributedProductMode_name, clickhouse.UserSettings_DistributedProductMode_value)
+	UserSettings_CountDistinctImplementation_name = map[int32]string{
+		0: "unspecified",
+		1: "uniq",
+		2: "uniq_combined",
+		3: "uniq_combined_64",
+		4: "uniq_hll_12",
+		5: "uniq_exact",
+	}
+	UserSettings_CountDistinctImplementation_value = makeReversedMap(UserSettings_CountDistinctImplementation_name, clickhouse.UserSettings_CountDistinctImplementation_value)
+	UserSettings_QuotaMode_name                    = map[int32]string{
+		0: "unspecified",
+		1: "default",
+		2: "keyed",
+		3: "keyed_by_ip",
+	}
+	UserSettings_QuotaMode_value = makeReversedMap(UserSettings_QuotaMode_name, clickhouse.UserSettings_QuotaMode_value)
+)
+
+func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
+	if name, ok := UserSettings_OverflowMode_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_OverflowMode_name[0]
+}
+
+func getOverflowModeValue(name string) clickhouse.UserSettings_OverflowMode {
+	if value, ok := UserSettings_OverflowMode_value[name]; ok {
+		return clickhouse.UserSettings_OverflowMode(value)
+	}
+	return 0
+}
+
+func getGroupByOverflowModeName(value clickhouse.UserSettings_GroupByOverflowMode) string {
+	if name, ok := UserSettings_GroupByOverflowMode_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_GroupByOverflowMode_name[0]
+}
+
+func getGroupByOverflowModeValue(name string) clickhouse.UserSettings_GroupByOverflowMode {
+	if value, ok := UserSettings_GroupByOverflowMode_value[name]; ok {
+		return clickhouse.UserSettings_GroupByOverflowMode(value)
+	}
+	return 0
+}
+
+func getDistributedProductModeName(value clickhouse.UserSettings_DistributedProductMode) string {
+	if name, ok := UserSettings_DistributedProductMode_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_DistributedProductMode_name[0]
+}
+
+func getDistributedProductModeValue(name string) clickhouse.UserSettings_DistributedProductMode {
+	if value, ok := UserSettings_DistributedProductMode_value[name]; ok {
+		return clickhouse.UserSettings_DistributedProductMode(value)
+	}
+	return 0
+}
+
+func getCountDistinctImplementationName(value clickhouse.UserSettings_CountDistinctImplementation) string {
+	if name, ok := UserSettings_CountDistinctImplementation_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_CountDistinctImplementation_name[0]
+}
+
+func getCountDistinctImplementationValue(name string) clickhouse.UserSettings_CountDistinctImplementation {
+	if value, ok := UserSettings_CountDistinctImplementation_value[name]; ok {
+		return clickhouse.UserSettings_CountDistinctImplementation(value)
+	}
+	return 0
+}
+
+func getQuotaModeName(value clickhouse.UserSettings_QuotaMode) string {
+	if name, ok := UserSettings_QuotaMode_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_QuotaMode_name[0]
+}
+
+func getQuotaModeValue(name string) clickhouse.UserSettings_QuotaMode {
+	if value, ok := UserSettings_QuotaMode_value[name]; ok {
+		return clickhouse.UserSettings_QuotaMode(value)
+	}
+	return 0
+}
+
+func setSettingFromMapInt64(us map[string]interface{}, key string, setting **wrappers.Int64Value) {
+	if v, ok := us[key]; ok {
+		if v.(int) > 0 {
+			*setting = &wrappers.Int64Value{Value: int64(v.(int))}
+		}
+	}
+}
+
+func setSettingFromDataInt64(d *schema.ResourceData, fullKey string, setting **wrappers.Int64Value) {
+	if v, ok := d.GetOk(fullKey); ok {
+		if v.(int) > 0 {
+			*setting = &wrappers.Int64Value{Value: int64(v.(int))}
+		}
+	}
+}
+
+func setSettingFromMapBool(us map[string]interface{}, key string, setting **wrappers.BoolValue) {
+	if v, ok := us[key]; ok {
+		*setting = &wrappers.BoolValue{Value: v.(bool)}
+	}
+}
+
+func setSettingFromDataBool(d *schema.ResourceData, fullKey string, setting **wrappers.BoolValue) {
+	if v, ok := d.GetOk(fullKey); ok {
+		*setting = &wrappers.BoolValue{Value: v.(bool)}
+	}
+}
+
+func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSettings {
+	result := &clickhouse.UserSettings{}
+
+	setSettingFromMapInt64(us, "readonly", &result.Readonly)
+	setSettingFromMapBool(us, "allow_ddl", &result.AllowDdl)
+	setSettingFromMapInt64(us, "insert_quorum", &result.InsertQuorum)
+	setSettingFromMapInt64(us, "connect_timeout", &result.ConnectTimeout)
+	setSettingFromMapInt64(us, "receive_timeout", &result.ReceiveTimeout)
+	setSettingFromMapInt64(us, "send_timeout", &result.SendTimeout)
+	setSettingFromMapInt64(us, "insert_quorum_timeout", &result.InsertQuorumTimeout)
+	setSettingFromMapBool(us, "select_sequential_consistency", &result.SelectSequentialConsistency)
+	setSettingFromMapInt64(us, "max_replica_delay_for_distributed_queries", &result.MaxReplicaDelayForDistributedQueries)
+	setSettingFromMapBool(us, "fallback_to_stale_replicas_for_distributed_queries", &result.FallbackToStaleReplicasForDistributedQueries)
+	setSettingFromMapInt64(us, "replication_alter_partitions_sync", &result.ReplicationAlterPartitionsSync)
+
+	if v, ok := us["distributed_product_mode"]; ok {
+		result.DistributedProductMode = getDistributedProductModeValue(v.(string))
+	}
+
+	setSettingFromMapBool(us, "distributed_aggregation_memory_efficient", &result.DistributedAggregationMemoryEfficient)
+	setSettingFromMapInt64(us, "distributed_ddl_task_timeout", &result.DistributedDdlTaskTimeout)
+	setSettingFromMapBool(us, "skip_unavailable_shards", &result.SkipUnavailableShards)
+	setSettingFromMapBool(us, "compile", &result.Compile)
+	setSettingFromMapInt64(us, "min_count_to_compile", &result.MinCountToCompile)
+	setSettingFromMapBool(us, "compile_expressions", &result.CompileExpressions)
+	setSettingFromMapInt64(us, "min_count_to_compile_expression", &result.MinCountToCompileExpression)
+	setSettingFromMapInt64(us, "max_block_size", &result.MaxBlockSize)
+	setSettingFromMapInt64(us, "min_insert_block_size_rows", &result.MinInsertBlockSizeRows)
+	setSettingFromMapInt64(us, "min_insert_block_size_bytes", &result.MinInsertBlockSizeBytes)
+	setSettingFromMapInt64(us, "max_insert_block_size", &result.MaxInsertBlockSize)
+	setSettingFromMapInt64(us, "min_bytes_to_use_direct_io", &result.MinBytesToUseDirectIo)
+	setSettingFromMapBool(us, "use_uncompressed_cache", &result.UseUncompressedCache)
+	setSettingFromMapInt64(us, "merge_tree_max_rows_to_use_cache", &result.MergeTreeMaxRowsToUseCache)
+	setSettingFromMapInt64(us, "merge_tree_max_bytes_to_use_cache", &result.MergeTreeMaxBytesToUseCache)
+	setSettingFromMapInt64(us, "merge_tree_min_rows_for_concurrent_read", &result.MergeTreeMinRowsForConcurrentRead)
+	setSettingFromMapInt64(us, "merge_tree_min_bytes_for_concurrent_read", &result.MergeTreeMinBytesForConcurrentRead)
+	setSettingFromMapInt64(us, "max_bytes_before_external_group_by", &result.MaxBytesBeforeExternalGroupBy)
+	setSettingFromMapInt64(us, "max_bytes_before_external_sort", &result.MaxBytesBeforeExternalSort)
+	setSettingFromMapInt64(us, "group_by_two_level_threshold", &result.GroupByTwoLevelThreshold)
+	setSettingFromMapInt64(us, "group_by_two_level_threshold_bytes", &result.GroupByTwoLevelThresholdBytes)
+	setSettingFromMapInt64(us, "priority", &result.Priority)
+	setSettingFromMapInt64(us, "max_threads", &result.MaxThreads)
+	setSettingFromMapInt64(us, "max_memory_usage", &result.MaxMemoryUsage)
+	setSettingFromMapInt64(us, "max_memory_usage_for_user", &result.MaxMemoryUsageForUser)
+	setSettingFromMapInt64(us, "max_network_bandwidth", &result.MaxNetworkBandwidth)
+	setSettingFromMapInt64(us, "max_network_bandwidth_for_user", &result.MaxNetworkBandwidthForUser)
+	setSettingFromMapBool(us, "force_index_by_date", &result.ForceIndexByDate)
+	setSettingFromMapBool(us, "force_primary_key", &result.ForcePrimaryKey)
+	setSettingFromMapInt64(us, "max_rows_to_read", &result.MaxRowsToRead)
+	setSettingFromMapInt64(us, "max_bytes_to_read", &result.MaxBytesToRead)
+
+	if v, ok := us["read_overflow_mode"]; ok {
+		result.ReadOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_to_group_by", &result.MaxRowsToGroupBy)
+
+	if v, ok := us["group_by_overflow_mode"]; ok {
+		result.GroupByOverflowMode = getGroupByOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_to_sort", &result.MaxRowsToSort)
+	setSettingFromMapInt64(us, "max_bytes_to_sort", &result.MaxBytesToSort)
+
+	if v, ok := us["sort_overflow_mode"]; ok {
+		result.SortOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_result_rows", &result.MaxResultRows)
+	setSettingFromMapInt64(us, "max_result_bytes", &result.MaxResultBytes)
+
+	if v, ok := us["result_overflow_mode"]; ok {
+		result.ResultOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_in_distinct", &result.MaxRowsInDistinct)
+	setSettingFromMapInt64(us, "max_bytes_in_distinct", &result.MaxBytesInDistinct)
+
+	if v, ok := us["distinct_overflow_mode"]; ok {
+		result.DistinctOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_to_transfer", &result.MaxRowsToTransfer)
+	setSettingFromMapInt64(us, "max_bytes_to_transfer", &result.MaxBytesToTransfer)
+
+	if v, ok := us["transfer_overflow_mode"]; ok {
+		result.TransferOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_execution_time", &result.MaxExecutionTime)
+
+	if v, ok := us["timeout_overflow_mode"]; ok {
+		result.TimeoutOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_in_set", &result.MaxRowsInSet)
+	setSettingFromMapInt64(us, "max_bytes_in_set", &result.MaxBytesInSet)
+
+	if v, ok := us["set_overflow_mode"]; ok {
+		result.SetOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_rows_in_join", &result.MaxRowsInJoin)
+	setSettingFromMapInt64(us, "max_bytes_in_join", &result.MaxBytesInJoin)
+
+	if v, ok := us["join_overflow_mode"]; ok {
+		result.JoinOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromMapInt64(us, "max_columns_to_read", &result.MaxColumnsToRead)
+	setSettingFromMapInt64(us, "max_temporary_columns", &result.MaxTemporaryColumns)
+	setSettingFromMapInt64(us, "max_temporary_non_const_columns", &result.MaxTemporaryNonConstColumns)
+	setSettingFromMapInt64(us, "max_query_size", &result.MaxQuerySize)
+	setSettingFromMapInt64(us, "max_ast_depth", &result.MaxAstDepth)
+	setSettingFromMapInt64(us, "max_ast_elements", &result.MaxAstElements)
+	setSettingFromMapInt64(us, "max_expanded_ast_elements", &result.MaxExpandedAstElements)
+	setSettingFromMapInt64(us, "min_execution_speed", &result.MinExecutionSpeed)
+	setSettingFromMapInt64(us, "min_execution_speed_bytes", &result.MinExecutionSpeedBytes)
+
+	if v, ok := us["count_distinct_implementation"]; ok {
+		result.CountDistinctImplementation = getCountDistinctImplementationValue(v.(string))
+	}
+
+	setSettingFromMapBool(us, "input_format_values_interpret_expressions", &result.InputFormatValuesInterpretExpressions)
+	setSettingFromMapBool(us, "input_format_defaults_for_omitted_fields", &result.InputFormatDefaultsForOmittedFields)
+	setSettingFromMapBool(us, "output_format_json_quote_64bit_integers", &result.OutputFormatJsonQuote_64BitIntegers)
+	setSettingFromMapBool(us, "output_format_json_quote_denormals", &result.OutputFormatJsonQuoteDenormals)
+	setSettingFromMapBool(us, "low_cardinality_allow_in_native_format", &result.LowCardinalityAllowInNativeFormat)
+	setSettingFromMapBool(us, "empty_result_for_aggregation_by_empty_set", &result.EmptyResultForAggregationByEmptySet)
+	setSettingFromMapBool(us, "joined_subquery_requires_alias", &result.JoinedSubqueryRequiresAlias)
+	setSettingFromMapBool(us, "join_use_nulls", &result.JoinUseNulls)
+	setSettingFromMapBool(us, "transform_null_in", &result.TransformNullIn)
+
+	setSettingFromMapInt64(us, "http_connection_timeout", &result.HttpConnectionTimeout)
+	setSettingFromMapInt64(us, "http_receive_timeout", &result.HttpReceiveTimeout)
+	setSettingFromMapInt64(us, "http_send_timeout", &result.HttpSendTimeout)
+	setSettingFromMapBool(us, "enable_http_compression", &result.EnableHttpCompression)
+	setSettingFromMapBool(us, "send_progress_in_http_headers", &result.SendProgressInHttpHeaders)
+	setSettingFromMapInt64(us, "http_headers_progress_interval", &result.HttpHeadersProgressInterval)
+	setSettingFromMapBool(us, "add_http_cors_header", &result.AddHttpCorsHeader)
+
+	if v, ok := us["quota_mode"]; ok {
+		result.QuotaMode = getQuotaModeValue(v.(string))
+	}
+
+	return result
+}
+
+func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *clickhouse.UserSettings {
+	result := &clickhouse.UserSettings{}
+
+	rootKey := fmt.Sprintf("user.%d.settings.0", hash)
+
+	setSettingFromDataInt64(d, rootKey+".readonly", &result.Readonly)
+	setSettingFromDataBool(d, rootKey+".allow_ddl", &result.AllowDdl)
+	setSettingFromDataInt64(d, rootKey+".insert_quorum", &result.InsertQuorum)
+	setSettingFromDataInt64(d, rootKey+".connect_timeout", &result.ConnectTimeout)
+	setSettingFromDataInt64(d, rootKey+".receive_timeout", &result.ReceiveTimeout)
+	setSettingFromDataInt64(d, rootKey+".send_timeout", &result.SendTimeout)
+	setSettingFromDataInt64(d, rootKey+".insert_quorum_timeout", &result.InsertQuorumTimeout)
+	setSettingFromDataBool(d, rootKey+".select_sequential_consistency", &result.SelectSequentialConsistency)
+	setSettingFromDataInt64(d, rootKey+".max_replica_delay_for_distributed_queries", &result.MaxReplicaDelayForDistributedQueries)
+	setSettingFromDataBool(d, rootKey+".fallback_to_stale_replicas_for_distributed_queries", &result.FallbackToStaleReplicasForDistributedQueries)
+	setSettingFromDataInt64(d, rootKey+".replication_alter_partitions_sync", &result.ReplicationAlterPartitionsSync)
+
+	if v, ok := d.GetOk(rootKey + ".distributed_product_mode"); ok {
+		result.DistributedProductMode = getDistributedProductModeValue(v.(string))
+	}
+
+	setSettingFromDataBool(d, rootKey+".distributed_aggregation_memory_efficient", &result.DistributedAggregationMemoryEfficient)
+	setSettingFromDataInt64(d, rootKey+".distributed_ddl_task_timeout", &result.DistributedDdlTaskTimeout)
+	setSettingFromDataBool(d, rootKey+".skip_unavailable_shards", &result.SkipUnavailableShards)
+	setSettingFromDataBool(d, rootKey+".compile", &result.Compile)
+	setSettingFromDataInt64(d, rootKey+".min_count_to_compile", &result.MinCountToCompile)
+	setSettingFromDataBool(d, rootKey+".compile_expressions", &result.CompileExpressions)
+	setSettingFromDataInt64(d, rootKey+".min_count_to_compile_expression", &result.MinCountToCompileExpression)
+	setSettingFromDataInt64(d, rootKey+".max_block_size", &result.MaxBlockSize)
+	setSettingFromDataInt64(d, rootKey+".min_insert_block_size_rows", &result.MinInsertBlockSizeRows)
+	setSettingFromDataInt64(d, rootKey+".min_insert_block_size_bytes", &result.MinInsertBlockSizeBytes)
+	setSettingFromDataInt64(d, rootKey+".max_insert_block_size", &result.MaxInsertBlockSize)
+	setSettingFromDataInt64(d, rootKey+".min_bytes_to_use_direct_io", &result.MinBytesToUseDirectIo)
+	setSettingFromDataBool(d, rootKey+".use_uncompressed_cache", &result.UseUncompressedCache)
+	setSettingFromDataInt64(d, rootKey+".merge_tree_max_rows_to_use_cache", &result.MergeTreeMaxRowsToUseCache)
+	setSettingFromDataInt64(d, rootKey+".merge_tree_max_bytes_to_use_cache", &result.MergeTreeMaxBytesToUseCache)
+	setSettingFromDataInt64(d, rootKey+".merge_tree_min_rows_for_concurrent_read", &result.MergeTreeMinRowsForConcurrentRead)
+	setSettingFromDataInt64(d, rootKey+".merge_tree_min_bytes_for_concurrent_read", &result.MergeTreeMinBytesForConcurrentRead)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_before_external_group_by", &result.MaxBytesBeforeExternalGroupBy)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_before_external_sort", &result.MaxBytesBeforeExternalSort)
+	setSettingFromDataInt64(d, rootKey+".group_by_two_level_threshold", &result.GroupByTwoLevelThreshold)
+	setSettingFromDataInt64(d, rootKey+".group_by_two_level_threshold_bytes", &result.GroupByTwoLevelThresholdBytes)
+	setSettingFromDataInt64(d, rootKey+".priority", &result.Priority)
+	setSettingFromDataInt64(d, rootKey+".max_threads", &result.MaxThreads)
+	setSettingFromDataInt64(d, rootKey+".max_memory_usage", &result.MaxMemoryUsage)
+	setSettingFromDataInt64(d, rootKey+".max_memory_usage_for_user", &result.MaxMemoryUsageForUser)
+	setSettingFromDataInt64(d, rootKey+".max_network_bandwidth", &result.MaxNetworkBandwidth)
+	setSettingFromDataInt64(d, rootKey+".max_network_bandwidth_for_user", &result.MaxNetworkBandwidthForUser)
+	setSettingFromDataBool(d, rootKey+".force_index_by_date", &result.ForceIndexByDate)
+	setSettingFromDataBool(d, rootKey+".force_primary_key", &result.ForcePrimaryKey)
+	setSettingFromDataInt64(d, rootKey+".max_rows_to_read", &result.MaxRowsToRead)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_to_read", &result.MaxBytesToRead)
+
+	if v, ok := d.GetOk(rootKey + ".read_overflow_mode"); ok {
+		result.ReadOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_to_group_by", &result.MaxRowsToGroupBy)
+
+	if v, ok := d.GetOk(rootKey + ".group_by_overflow_mode"); ok {
+		result.GroupByOverflowMode = getGroupByOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_to_sort", &result.MaxRowsToSort)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_to_sort", &result.MaxBytesToSort)
+
+	if v, ok := d.GetOk(rootKey + ".sort_overflow_mode"); ok {
+		result.SortOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_result_rows", &result.MaxResultRows)
+	setSettingFromDataInt64(d, rootKey+".max_result_bytes", &result.MaxResultBytes)
+
+	if v, ok := d.GetOk(rootKey + ".result_overflow_mode"); ok {
+		result.ResultOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_in_distinct", &result.MaxRowsInDistinct)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_in_distinct", &result.MaxBytesInDistinct)
+
+	if v, ok := d.GetOk(rootKey + ".distinct_overflow_mode"); ok {
+		result.DistinctOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_to_transfer", &result.MaxRowsToTransfer)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_to_transfer", &result.MaxBytesToTransfer)
+
+	if v, ok := d.GetOk(rootKey + ".transfer_overflow_mode"); ok {
+		result.TransferOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_execution_time", &result.MaxExecutionTime)
+
+	if v, ok := d.GetOk(rootKey + ".timeout_overflow_mode"); ok {
+		result.TimeoutOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_in_set", &result.MaxRowsInSet)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_in_set", &result.MaxBytesInSet)
+
+	if v, ok := d.GetOk(rootKey + ".set_overflow_mode"); ok {
+		result.SetOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_rows_in_join", &result.MaxRowsInJoin)
+	setSettingFromDataInt64(d, rootKey+".max_bytes_in_join", &result.MaxBytesInJoin)
+
+	if v, ok := d.GetOk(rootKey + ".join_overflow_mode"); ok {
+		result.JoinOverflowMode = getOverflowModeValue(v.(string))
+	}
+
+	setSettingFromDataInt64(d, rootKey+".max_columns_to_read", &result.MaxColumnsToRead)
+	setSettingFromDataInt64(d, rootKey+".max_temporary_columns", &result.MaxTemporaryColumns)
+	setSettingFromDataInt64(d, rootKey+".max_temporary_non_const_columns", &result.MaxTemporaryNonConstColumns)
+	setSettingFromDataInt64(d, rootKey+".max_query_size", &result.MaxQuerySize)
+	setSettingFromDataInt64(d, rootKey+".max_ast_depth", &result.MaxAstDepth)
+	setSettingFromDataInt64(d, rootKey+".max_ast_elements", &result.MaxAstElements)
+	setSettingFromDataInt64(d, rootKey+".max_expanded_ast_elements", &result.MaxExpandedAstElements)
+	setSettingFromDataInt64(d, rootKey+".min_execution_speed", &result.MinExecutionSpeed)
+	setSettingFromDataInt64(d, rootKey+".min_execution_speed_bytes", &result.MinExecutionSpeedBytes)
+
+	if v, ok := d.GetOk(rootKey + ".count_distinct_implementation"); ok {
+		result.CountDistinctImplementation = getCountDistinctImplementationValue(v.(string))
+	}
+
+	setSettingFromDataBool(d, rootKey+".input_format_values_interpret_expressions", &result.InputFormatValuesInterpretExpressions)
+	setSettingFromDataBool(d, rootKey+".input_format_defaults_for_omitted_fields", &result.InputFormatDefaultsForOmittedFields)
+	setSettingFromDataBool(d, rootKey+".output_format_json_quote_64bit_integers", &result.OutputFormatJsonQuote_64BitIntegers)
+	setSettingFromDataBool(d, rootKey+".output_format_json_quote_denormals", &result.OutputFormatJsonQuoteDenormals)
+	setSettingFromDataBool(d, rootKey+".low_cardinality_allow_in_native_format", &result.LowCardinalityAllowInNativeFormat)
+	setSettingFromDataBool(d, rootKey+".empty_result_for_aggregation_by_empty_set", &result.EmptyResultForAggregationByEmptySet)
+	setSettingFromDataBool(d, rootKey+".joined_subquery_requires_alias", &result.JoinedSubqueryRequiresAlias)
+	setSettingFromDataBool(d, rootKey+".join_use_nulls", &result.JoinUseNulls)
+	setSettingFromDataBool(d, rootKey+".transform_null_in", &result.TransformNullIn)
+
+	setSettingFromDataInt64(d, rootKey+".http_connection_timeout", &result.HttpConnectionTimeout)
+	setSettingFromDataInt64(d, rootKey+".http_receive_timeout", &result.HttpReceiveTimeout)
+	setSettingFromDataInt64(d, rootKey+".http_send_timeout", &result.HttpSendTimeout)
+	setSettingFromDataBool(d, rootKey+".enable_http_compression", &result.EnableHttpCompression)
+	setSettingFromDataBool(d, rootKey+".send_progress_in_http_headers", &result.SendProgressInHttpHeaders)
+	setSettingFromDataInt64(d, rootKey+".http_headers_progress_interval", &result.HttpHeadersProgressInterval)
+	setSettingFromDataBool(d, rootKey+".add_http_cors_header", &result.AddHttpCorsHeader)
+
+	if v, ok := d.GetOk(rootKey + ".quota_mode"); ok {
+		result.QuotaMode = getQuotaModeValue(v.(string))
+	}
+
+	return result
+}
+
+func flattenClickHouseUserQuota(quota *clickhouse.UserQuota) map[string]interface{} {
+	p := map[string]interface{}{}
+	if quota.IntervalDuration != nil {
+		p["interval_duration"] = quota.IntervalDuration.Value
+	}
+	if quota.Queries != nil {
+		p["queries"] = quota.Queries.Value
+	}
+	if quota.Errors != nil {
+		p["errors"] = quota.Errors.Value
+	}
+	if quota.ResultRows != nil {
+		p["result_rows"] = quota.ResultRows.Value
+	}
+	if quota.ReadRows != nil {
+		p["read_rows"] = quota.ReadRows.Value
+	}
+	if quota.ExecutionTime != nil {
+		p["execution_time"] = quota.ExecutionTime.Value
+	}
+	return p
+}
+
+func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if settings.Readonly != nil {
+		result["readonly"] = settings.Readonly.Value
+	}
+	if settings.AllowDdl != nil {
+		result["allow_ddl"] = settings.AllowDdl.Value
+	}
+	if settings.InsertQuorum != nil {
+		result["insert_quorum"] = settings.InsertQuorum.Value
+	}
+	if settings.ConnectTimeout != nil {
+		result["connect_timeout"] = settings.ConnectTimeout.Value
+	}
+	if settings.ReceiveTimeout != nil {
+		result["receive_timeout"] = settings.ReceiveTimeout.Value
+	}
+	if settings.SendTimeout != nil {
+		result["send_timeout"] = settings.SendTimeout.Value
+	}
+	if settings.InsertQuorumTimeout != nil {
+		result["insert_quorum_timeout"] = settings.InsertQuorumTimeout.Value
+	}
+	if settings.SelectSequentialConsistency != nil {
+		result["select_sequential_consistency"] = settings.SelectSequentialConsistency.Value
+	}
+	if settings.MaxReplicaDelayForDistributedQueries != nil {
+		result["max_replica_delay_for_distributed_queries"] = settings.MaxReplicaDelayForDistributedQueries.Value
+	}
+	if settings.FallbackToStaleReplicasForDistributedQueries != nil {
+		result["fallback_to_stale_replicas_for_distributed_queries"] = settings.FallbackToStaleReplicasForDistributedQueries.Value
+	}
+	if settings.ReplicationAlterPartitionsSync != nil {
+		result["replication_alter_partitions_sync"] = settings.ReplicationAlterPartitionsSync.Value
+	}
+	result["distributed_product_mode"] = getDistributedProductModeName(settings.DistributedProductMode)
+	if settings.DistributedAggregationMemoryEfficient != nil {
+		result["distributed_aggregation_memory_efficient"] = settings.DistributedAggregationMemoryEfficient.Value
+	}
+	if settings.DistributedDdlTaskTimeout != nil {
+		result["distributed_ddl_task_timeout"] = settings.DistributedDdlTaskTimeout.Value
+	}
+	if settings.SkipUnavailableShards != nil {
+		result["skip_unavailable_shards"] = settings.SkipUnavailableShards.Value
+	}
+	if settings.Compile != nil {
+		result["compile"] = settings.Compile.Value
+	}
+	if settings.MinCountToCompile != nil {
+		result["min_count_to_compile"] = settings.MinCountToCompile.Value
+	}
+	if settings.CompileExpressions != nil {
+		result["compile_expressions"] = settings.CompileExpressions.Value
+	}
+	if settings.MinCountToCompileExpression != nil {
+		result["min_count_to_compile_expression"] = settings.MinCountToCompileExpression.Value
+	}
+	if settings.MaxBlockSize != nil {
+		result["max_block_size"] = settings.MaxBlockSize.Value
+	}
+	if settings.MinInsertBlockSizeRows != nil {
+		result["min_insert_block_size_rows"] = settings.MinInsertBlockSizeRows.Value
+	}
+	if settings.MinInsertBlockSizeBytes != nil {
+		result["min_insert_block_size_bytes"] = settings.MinInsertBlockSizeBytes.Value
+	}
+	if settings.MaxInsertBlockSize != nil {
+		result["max_insert_block_size"] = settings.MaxInsertBlockSize.Value
+	}
+	if settings.MinBytesToUseDirectIo != nil {
+		result["min_bytes_to_use_direct_io"] = settings.MinBytesToUseDirectIo.Value
+	}
+	if settings.UseUncompressedCache != nil {
+		result["use_uncompressed_cache"] = settings.UseUncompressedCache.Value
+	}
+	if settings.MergeTreeMaxRowsToUseCache != nil {
+		result["merge_tree_max_rows_to_use_cache"] = settings.MergeTreeMaxRowsToUseCache.Value
+	}
+	if settings.MergeTreeMaxBytesToUseCache != nil {
+		result["merge_tree_max_bytes_to_use_cache"] = settings.MergeTreeMaxBytesToUseCache.Value
+	}
+	if settings.MergeTreeMinRowsForConcurrentRead != nil {
+		result["merge_tree_min_rows_for_concurrent_read"] = settings.MergeTreeMinRowsForConcurrentRead.Value
+	}
+	if settings.MergeTreeMinBytesForConcurrentRead != nil {
+		result["merge_tree_min_bytes_for_concurrent_read"] = settings.MergeTreeMinBytesForConcurrentRead.Value
+	}
+	if settings.MaxBytesBeforeExternalGroupBy != nil {
+		result["max_bytes_before_external_group_by"] = settings.MaxBytesBeforeExternalGroupBy.Value
+	}
+	if settings.MaxBytesBeforeExternalSort != nil {
+		result["max_bytes_before_external_sort"] = settings.MaxBytesBeforeExternalSort.Value
+	}
+	if settings.GroupByTwoLevelThreshold != nil {
+		result["group_by_two_level_threshold"] = settings.GroupByTwoLevelThreshold.Value
+	}
+	if settings.GroupByTwoLevelThresholdBytes != nil {
+		result["group_by_two_level_threshold_bytes"] = settings.GroupByTwoLevelThresholdBytes.Value
+	}
+	if settings.Priority != nil {
+		result["priority"] = settings.Priority.Value
+	}
+	if settings.MaxThreads != nil {
+		result["max_threads"] = settings.MaxThreads.Value
+	}
+	if settings.MaxMemoryUsage != nil {
+		result["max_memory_usage"] = settings.MaxMemoryUsage.Value
+	}
+	if settings.MaxMemoryUsageForUser != nil {
+		result["max_memory_usage_for_user"] = settings.MaxMemoryUsageForUser.Value
+	}
+	if settings.MaxNetworkBandwidth != nil {
+		result["max_network_bandwidth"] = settings.MaxNetworkBandwidth.Value
+	}
+	if settings.MaxNetworkBandwidthForUser != nil {
+		result["max_network_bandwidth_for_user"] = settings.MaxNetworkBandwidthForUser.Value
+	}
+	if settings.ForceIndexByDate != nil {
+		result["force_index_by_date"] = settings.ForceIndexByDate.Value
+	}
+	if settings.ForcePrimaryKey != nil {
+		result["force_primary_key"] = settings.ForcePrimaryKey.Value
+	}
+	if settings.MaxRowsToRead != nil {
+		result["max_rows_to_read"] = settings.MaxRowsToRead.Value
+	}
+	if settings.MaxBytesToRead != nil {
+		result["max_bytes_to_read"] = settings.MaxBytesToRead.Value
+	}
+	result["read_overflow_mode"] = getOverflowModeName(settings.ReadOverflowMode)
+	if settings.MaxRowsToGroupBy != nil {
+		result["max_rows_to_group_by"] = settings.MaxRowsToGroupBy.Value
+	}
+	result["group_by_overflow_mode"] = getGroupByOverflowModeName(settings.GroupByOverflowMode)
+	if settings.MaxRowsToSort != nil {
+		result["max_rows_to_sort"] = settings.MaxRowsToSort.Value
+	}
+	if settings.MaxBytesToSort != nil {
+		result["max_bytes_to_sort"] = settings.MaxBytesToSort.Value
+	}
+	result["sort_overflow_mode"] = getOverflowModeName(settings.SortOverflowMode)
+	if settings.MaxResultRows != nil {
+		result["max_result_rows"] = settings.MaxResultRows.Value
+	}
+	if settings.MaxResultBytes != nil {
+		result["max_result_bytes"] = settings.MaxResultBytes.Value
+	}
+	result["result_overflow_mode"] = getOverflowModeName(settings.ResultOverflowMode)
+	if settings.MaxRowsInDistinct != nil {
+		result["max_rows_in_distinct"] = settings.MaxRowsInDistinct.Value
+	}
+	if settings.MaxBytesInDistinct != nil {
+		result["max_bytes_in_distinct"] = settings.MaxBytesInDistinct.Value
+	}
+	result["distinct_overflow_mode"] = getOverflowModeName(settings.DistinctOverflowMode)
+	if settings.MaxRowsToTransfer != nil {
+		result["max_rows_to_transfer"] = settings.MaxRowsToTransfer.Value
+	}
+	if settings.MaxBytesToTransfer != nil {
+		result["max_bytes_to_transfer"] = settings.MaxBytesToTransfer.Value
+	}
+	result["transfer_overflow_mode"] = getOverflowModeName(settings.TransferOverflowMode)
+	if settings.MaxExecutionTime != nil {
+		result["max_execution_time"] = settings.MaxExecutionTime.Value
+	}
+	result["timeout_overflow_mode"] = getOverflowModeName(settings.TimeoutOverflowMode)
+	if settings.MaxRowsInSet != nil {
+		result["max_rows_in_set"] = settings.MaxRowsInSet.Value
+	}
+	if settings.MaxBytesInSet != nil {
+		result["max_bytes_in_set"] = settings.MaxBytesInSet.Value
+	}
+	result["set_overflow_mode"] = getOverflowModeName(settings.SetOverflowMode)
+	if settings.MaxRowsInJoin != nil {
+		result["max_rows_in_join"] = settings.MaxRowsInJoin.Value
+	}
+	if settings.MaxBytesInJoin != nil {
+		result["max_bytes_in_join"] = settings.MaxBytesInJoin.Value
+	}
+	result["join_overflow_mode"] = getOverflowModeName(settings.JoinOverflowMode)
+	if settings.MaxColumnsToRead != nil {
+		result["max_columns_to_read"] = settings.MaxColumnsToRead.Value
+	}
+	if settings.MaxTemporaryColumns != nil {
+		result["max_temporary_columns"] = settings.MaxTemporaryColumns.Value
+	}
+	if settings.MaxTemporaryNonConstColumns != nil {
+		result["max_temporary_non_const_columns"] = settings.MaxTemporaryNonConstColumns.Value
+	}
+	if settings.MaxQuerySize != nil {
+		result["max_query_size"] = settings.MaxQuerySize.Value
+	}
+	if settings.MaxAstDepth != nil {
+		result["max_ast_depth"] = settings.MaxAstDepth.Value
+	}
+	if settings.MaxAstElements != nil {
+		result["max_ast_elements"] = settings.MaxAstElements.Value
+	}
+	if settings.MaxExpandedAstElements != nil {
+		result["max_expanded_ast_elements"] = settings.MaxExpandedAstElements.Value
+	}
+	if settings.MinExecutionSpeed != nil {
+		result["min_execution_speed"] = settings.MinExecutionSpeed.Value
+	}
+	if settings.MinExecutionSpeedBytes != nil {
+		result["min_execution_speed_bytes"] = settings.MinExecutionSpeedBytes.Value
+	}
+	result["count_distinct_implementation"] = getCountDistinctImplementationName(settings.CountDistinctImplementation)
+	if settings.InputFormatValuesInterpretExpressions != nil {
+		result["input_format_values_interpret_expressions"] = settings.InputFormatValuesInterpretExpressions.Value
+	}
+	if settings.InputFormatDefaultsForOmittedFields != nil {
+		result["input_format_defaults_for_omitted_fields"] = settings.InputFormatDefaultsForOmittedFields.Value
+	}
+	if settings.OutputFormatJsonQuote_64BitIntegers != nil {
+		result["output_format_json_quote_64bit_integers"] = settings.OutputFormatJsonQuote_64BitIntegers.Value
+	}
+	if settings.OutputFormatJsonQuoteDenormals != nil {
+		result["output_format_json_quote_denormals"] = settings.OutputFormatJsonQuoteDenormals.Value
+	}
+	if settings.LowCardinalityAllowInNativeFormat != nil {
+		result["low_cardinality_allow_in_native_format"] = settings.LowCardinalityAllowInNativeFormat.Value
+	}
+	if settings.EmptyResultForAggregationByEmptySet != nil {
+		result["empty_result_for_aggregation_by_empty_set"] = settings.EmptyResultForAggregationByEmptySet.Value
+	}
+	if settings.JoinedSubqueryRequiresAlias != nil {
+		result["joined_subquery_requires_alias"] = settings.JoinedSubqueryRequiresAlias.Value
+	}
+	if settings.JoinUseNulls != nil {
+		result["join_use_nulls"] = settings.JoinUseNulls.Value
+	}
+	if settings.TransformNullIn != nil {
+		result["transform_null_in"] = settings.TransformNullIn.Value
+	}
+	if settings.HttpConnectionTimeout != nil {
+		result["http_connection_timeout"] = settings.HttpConnectionTimeout.Value
+	}
+	if settings.HttpReceiveTimeout != nil {
+		result["http_receive_timeout"] = settings.HttpReceiveTimeout.Value
+	}
+	if settings.HttpSendTimeout != nil {
+		result["http_send_timeout"] = settings.HttpSendTimeout.Value
+	}
+	if settings.EnableHttpCompression != nil {
+		result["enable_http_compression"] = settings.EnableHttpCompression.Value
+	}
+	if settings.SendProgressInHttpHeaders != nil {
+		result["send_progress_in_http_headers"] = settings.SendProgressInHttpHeaders.Value
+	}
+	if settings.HttpHeadersProgressInterval != nil {
+		result["http_headers_progress_interval"] = settings.HttpHeadersProgressInterval.Value
+	}
+	if settings.AddHttpCorsHeader != nil {
+		result["add_http_cors_header"] = settings.AddHttpCorsHeader.Value
+	}
+	result["quota_mode"] = getQuotaModeName(settings.QuotaMode)
+
+	return result
+}
+
+func expandClickHouseUserQuotas(ps *schema.Set) []*clickhouse.UserQuota {
+	result := []*clickhouse.UserQuota{}
+
+	for _, p := range ps.List() {
+		m := p.(map[string]interface{})
+		quota := &clickhouse.UserQuota{}
+
+		setSettingFromMapInt64(m, "interval_duration", &quota.IntervalDuration)
+		setSettingFromMapInt64(m, "queries", &quota.Queries)
+		setSettingFromMapInt64(m, "errors", &quota.Errors)
+		setSettingFromMapInt64(m, "result_rows", &quota.ResultRows)
+		setSettingFromMapInt64(m, "ead_rows", &quota.ReadRows)
+		setSettingFromMapInt64(m, "execution_time", &quota.ExecutionTime)
+
+		result = append(result, quota)
+	}
+	return result
+}
+
+func expandClickHouseUserQuotasExists(d *schema.ResourceData, hash int) []*clickhouse.UserQuota {
+	result := []*clickhouse.UserQuota{}
+
+	rootKey := fmt.Sprintf("user.%d.quota", hash)
+
+	quotas := d.Get(rootKey).(*schema.Set)
+
+	for _, q := range quotas.List() {
+		quotaHash := clickHouseUserQuotaHash(q)
+		quota := &clickhouse.UserQuota{}
+		quotaKey := fmt.Sprintf("user.%d.quota.%d", hash, quotaHash)
+
+		setSettingFromDataInt64(d, quotaKey+".interval_duration", &quota.IntervalDuration)
+		setSettingFromDataInt64(d, quotaKey+".queries", &quota.Queries)
+		setSettingFromDataInt64(d, quotaKey+".errors", &quota.Errors)
+		setSettingFromDataInt64(d, quotaKey+".result_rows", &quota.ResultRows)
+		setSettingFromDataInt64(d, quotaKey+".read_rows", &quota.ReadRows)
+		setSettingFromDataInt64(d, quotaKey+".execution_time", &quota.ExecutionTime)
+
+		result = append(result, quota)
+	}
+
+	return result
+}
+
 func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]string) *schema.Set {
 	result := schema.NewSet(clickHouseUserHash, nil)
 
@@ -1006,12 +1803,24 @@ func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]strin
 		if p, ok := passwords[user.Name]; ok {
 			u["password"] = p
 		}
+
+		u["settings"] = []map[string]interface{}{flattenClickHouseUserSettings(user.Settings)}
+
+		if len(user.Quotas) > 0 {
+			quotas := schema.NewSet(clickHouseUserQuotaHash, nil)
+			for _, quota := range user.Quotas {
+				p := flattenClickHouseUserQuota(quota)
+				quotas.Add(p)
+			}
+			u["quota"] = quotas
+		}
+
 		result.Add(u)
 	}
 	return result
 }
 
-func expandClickHouseUser(u map[string]interface{}) *clickhouse.UserSpec {
+func expandClickHouseUser(u map[string]interface{}, d *schema.ResourceData, hash int) *clickhouse.UserSpec {
 	user := &clickhouse.UserSpec{}
 
 	if v, ok := u["name"]; ok {
@@ -1026,6 +1835,25 @@ func expandClickHouseUser(u map[string]interface{}) *clickhouse.UserSpec {
 		user.Permissions = expandClickHouseUserPermissions(v.(*schema.Set))
 	}
 
+	if v, ok := u["settings"]; ok {
+		if d != nil {
+			user.Settings = expandClickHouseUserSettingsExists(d, hash)
+		} else {
+			// for compare, when we have old Set without ResourceData
+			for _, settings := range v.([]interface{}) {
+				user.Settings = expandClickHouseUserSettings(settings.(map[string]interface{}))
+			}
+		}
+	}
+
+	if v, ok := u["quota"]; ok {
+		if d != nil {
+			user.Quotas = expandClickHouseUserQuotasExists(d, hash)
+		} else {
+			user.Quotas = expandClickHouseUserQuotas(v.(*schema.Set))
+		}
+	}
+
 	return user
 }
 
@@ -1035,8 +1863,8 @@ func expandClickHouseUserSpecs(d *schema.ResourceData) ([]*clickhouse.UserSpec, 
 
 	for _, u := range users.List() {
 		m := u.(map[string]interface{})
-
-		result = append(result, expandClickHouseUser(m))
+		hash := clickHouseUserHash(u)
+		result = append(result, expandClickHouseUser(m, d, hash))
 	}
 
 	return result, nil

@@ -146,6 +146,21 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     permission {
       database_name = "db_name"
     }
+    settings {
+      max_memory_usage_for_user               = 1000000000
+      read_overflow_mode                      = "throw"
+      output_format_json_quote_64bit_integers = true
+    }
+    quota {
+      interval_duration = 3600000
+      queries           = 10000
+      errors            = 1000
+    }
+    quota {
+      interval_duration = 79800000
+      queries           = 50000
+      error             = 5000
+    }
   }
 
   host {
@@ -209,6 +224,21 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     password = "password"
     permission {
       database_name = "db_name"
+    }
+    settings {
+      max_memory_usage_for_user               = 1000000000
+      read_overflow_mode                      = "throw"
+      output_format_json_quote_64bit_integers = true
+    }
+    quota {
+      interval_duration = 3600000
+      queries           = 10000
+      errors            = 1000
+    }
+    quota {
+      interval_duration = 79800000
+      queries           = 50000
+      error             = 5000
     }
   }
 
@@ -297,6 +327,21 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     password = "password"
     permission {
       database_name = "db_name"
+    }
+    settings {
+      max_memory_usage_for_user               = 1000000000
+      read_overflow_mode                      = "throw"
+      output_format_json_quote_64bit_integers = true
+    }
+    quota {
+      interval_duration = 3600000
+      queries           = 10000
+      errors            = 1000
+    }
+    quota {
+      interval_duration = 79800000
+      queries           = 50000
+      error             = 5000
     }
   }
 
@@ -450,9 +495,234 @@ The `user` block supports:
 
 * `permission` - (Optional) Set of permissions granted to the user. The structure is documented below.
 
+* `settings` - (Optional) Custom settings for user. The list is documented below.
+
+* `quota` - (Optional) Set of user quotas. The structure is documented below.
+
 The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.
+
+The `settings` block supports:
+
+* `readonly` - (Optional) Restricts permissions for reading data, write data and change settings queries.
+
+* `allow_ddl` - (Optional) Allows or denies DDL queries.
+
+* `insert_quorum` - (Optional) Enables the quorum writes.
+
+* `connect_timeout` - (Optional) Connect timeout in milliseconds on the socket used for communicating with the client.
+
+* `receive_timeout` - (Optional) Receive timeout in milliseconds on the socket used for communicating with the client.
+
+* `send_timeout` - (Optional) Send timeout in milliseconds on the socket used for communicating with the client.
+
+* `insert_quorum_timeout` - (Optional) Write to a quorum timeout in milliseconds.
+
+* `select_sequential_consistency` - (Optional) Enables or disables sequential consistency for SELECT queries.
+
+* `max_replica_delay_for_distributed_queries` - (Optional) Disables lagging replicas for distributed queries.
+
+* `fallback_to_stale_replicas_for_distributed_queries` - (Optional) Forces a query to an out-of-date replica if updated data is not available.
+
+* `replication_alter_partitions_sync` - (Optional) For ALTER ... ATTACH|DETACH|DROP queries, you can use the replication_alter_partitions_sync setting to set up waiting.
+
+* `distributed_product_mode` - (Optional) Changes the behaviour of distributed subqueries.
+
+* `distributed_aggregation_memory_efficient` - (Optional) Determine the behavior of distributed subqueries.
+
+* `distributed_ddl_task_timeout` - (Optional) Timeout for DDL queries, in milliseconds.
+
+* `skip_unavailable_shards` - (Optional) Enables or disables silently skipping of unavailable shards.
+
+* `compile` - (Optional) Enable compilation of queries.
+
+* `min_count_to_compile` - (Optional) How many times to potentially use a compiled chunk of code before running compilation.
+
+* `compile_expressions` - (Optional) Turn on expression compilation.
+
+* `min_count_to_compile_expression` - (Optional) A query waits for expression compilation process to complete prior to continuing execution.
+
+* `max_block_size` - (Optional) A recommendation for what size of the block (in a count of rows) to load from tables.
+
+* `min_insert_block_size_rows` - (Optional) Sets the minimum number of rows in the block which can be inserted into a table by an INSERT query.
+
+* `min_insert_block_size_bytes` - (Optional) Sets the minimum number of bytes in the block which can be inserted into a table by an INSERT query.
+
+* `max_insert_block_size` - (Optional) The size of blocks (in a count of rows) to form for insertion into a table.
+
+* `min_bytes_to_use_direct_io` - (Optional) The minimum data volume required for using direct I/O access to the storage disk.
+
+* `use_uncompressed_cache` - (Optional) Whether to use a cache of uncompressed blocks.
+
+* `merge_tree_max_rows_to_use_cache` - (Optional) If ClickHouse should read more than merge_tree_max_rows_to_use_cache rows in one query, it doesn’t use the cache of uncompressed blocks.
+
+* `merge_tree_max_bytes_to_use_cache` - (Optional) If ClickHouse should read more than merge_tree_max_bytes_to_use_cache bytes in one query, it doesn’t use the cache of uncompressed blocks.
+
+* `merge_tree_min_rows_for_concurrent_read` - (Optional) If the number of rows to be read from a file of a MergeTree table exceeds merge_tree_min_rows_for_concurrent_read then ClickHouse tries to perform a concurrent reading from this file on several threads.
+
+* `merge_tree_min_bytes_for_concurrent_read` - (Optional) If the number of bytes to read from one file of a MergeTree-engine table exceeds merge_tree_min_bytes_for_concurrent_read, then ClickHouse tries to concurrently read from this file in several threads.
+
+* `max_bytes_before_external_group_by` - (Optional) Limit in bytes for using memoru for GROUP BY before using swap on disk.
+
+* `max_bytes_before_external_sort` - (Optional) This setting is equivalent of the max_bytes_before_external_group_by setting, except for it is for sort operation (ORDER BY), not aggregation.
+
+* `group_by_two_level_threshold` - (Optional) Sets the threshold of the number of keys, after that the two-level aggregation should be used.
+
+* `group_by_two_level_threshold_bytes` - (Optional) Sets the threshold of the number of bytes, after that the two-level aggregation should be used.
+
+* `priority` - (Optional) Query priority.
+
+* `max_threads` - (Optional) The maximum number of query processing threads, excluding threads for retrieving data from remote servers.
+
+* `max_memory_usage` - (Optional) Limits the maximum memory usage (in bytes) for processing queries on a single server.
+
+* `max_memory_usage_for_user` - (Optional) Limits the maximum memory usage (in bytes) for processing of user's queries on a single server.
+
+* `max_network_bandwidth` - (Optional) Limits the speed of the data exchange over the network in bytes per second.
+
+* `max_network_bandwidth_for_user` - (Optional) Limits the speed of the data exchange over the network in bytes per second.
+
+* `force_index_by_date` - (Optional) Disables query execution if the index can’t be used by date.
+
+* `force_primary_key` - (Optional) Disables query execution if indexing by the primary key is not possible.
+
+* `max_rows_to_read` - (Optional) Limits the maximum number of rows that can be read from a table when running a query.
+
+* `max_bytes_to_read` - (Optional) Limits the maximum number of bytes (uncompressed data) that can be read from a table when running a query.
+
+* `read_overflow_mode` - (Optional) Sets behaviour on overflow while read. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_rows_to_group_by` - (Optional) Limits the maximum number of unique keys received from aggregation function.
+
+* `group_by_overflow_mode` - (Optional) Sets behaviour on overflow while GROUP BY operation. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+  * `any` - perform approximate GROUP BY operation by continuing aggregation for the keys that got into the set, but don’t add new keys to the set.
+
+* `max_rows_to_sort` - (Optional) Limits the maximum number of rows that can be read from a table for sorting.
+
+* `max_bytes_to_sort` - (Optional) Limits the maximum number of bytes (uncompressed data) that can be read from a table for sorting.
+
+* `sort_overflow_mode` - (Optional) Sets behaviour on overflow while sort. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_result_rows` - (Optional) Limits the number of rows in the result.
+
+* `max_result_bytes` - (Optional) Limits the number of bytes in the result.
+
+* `result_overflow_mode` - (Optional) Sets behaviour on overflow in result. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_rows_in_distinct` - (Optional) Limits the maximum number of different rows when using DISTINCT.
+
+* `max_bytes_in_distinct` - (Optional) Limits the maximum size of a hash table in bytes (uncompressed data) when using DISTINCT.
+
+* `distinct_overflow_mode` - (Optional) Sets behaviour on overflow when using DISTINCT. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_rows_to_transfer` - (Optional) Limits the maximum number of rows that can be passed to a remote server or saved in a temporary table when using GLOBAL IN.
+
+* `max_bytes_to_transfer` - (Optional) Limits the maximum number of bytes (uncompressed data) that can be passed to a remote server or saved in a temporary table when using GLOBAL IN.
+
+* `transfer_overflow_mode` - (Optional) Sets behaviour on overflow. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_execution_time` - (Optional) Limits the maximum query execution time in milliseconds.
+
+* `timeout_overflow_mode` - (Optional) Sets behaviour on overflow. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_rows_in_set` - (Optional) Limit on the number of rows in the set resulting from the execution of the IN section.
+
+* `max_bytes_in_set` - (Optional) Limit on the number of bytes in the set resulting from the execution of the IN section.
+
+* `set_overflow_mode` - (Optional) Sets behaviour on overflow in the set resulting. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_rows_in_join` - (Optional) Limit on maximum size of the hash table for JOIN, in rows.
+
+* `max_bytes_in_join` - (Optional) Limit on maximum size of the hash table for JOIN, in bytes.
+
+* `join_overflow_mode` - (Optional) Sets behaviour on overflow in JOIN. Possible values:
+  * `throw` - abort query execution, return an error.
+  * `break` - stop query execution, return partial result.
+
+* `max_columns_to_read` - (Optional) Limits the maximum number of columns that can be read from a table in a single query.
+
+* `max_temporary_columns` - (Optional) Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, including constant columns.
+
+* `max_temporary_non_const_columns` - (Optional) Limits the maximum number of temporary columns that must be kept in RAM at the same time when running a query, excluding constant columns.
+
+* `max_query_size` - (Optional) The maximum part of a query that can be taken to RAM for parsing with the SQL parser.
+
+* `max_ast_depth` - (Optional) Maximum abstract syntax tree depth.
+
+* `max_ast_elements` - (Optional) Maximum abstract syntax tree elements.
+
+* `max_expanded_ast_elements` - (Optional) Maximum abstract syntax tree depth after after expansion of aliases.
+
+* `min_execution_speed` - (Optional) Minimal execution speed in rows per second.
+
+* `min_execution_speed_bytes` - (Optional) Minimal execution speed in bytes per second.
+
+* `count_distinct_implementation` - (Optional) Specifies which of the uniq* functions should be used to perform the COUNT(DISTINCT …) construction.
+
+* `input_format_values_interpret_expressions` - (Optional) Enables or disables the full SQL parser if the fast stream parser can’t parse the data.
+
+* `input_format_defaults_for_omitted_fields` - (Optional) When performing INSERT queries, replace omitted input column values with default values of the respective columns.
+
+* `output_format_json_quote_64bit_integers` - (Optional) If the value is true, integers appear in quotes when using JSON* Int64 and UInt64 formats (for compatibility with most JavaScript implementations); otherwise, integers are output without the quotes.
+
+* `output_format_json_quote_denormals` - (Optional) Enables +nan, -nan, +inf, -inf outputs in JSON output format.
+
+* `low_cardinality_allow_in_native_format` - (Optional) Allows or restricts using the LowCardinality data type with the Native format.
+
+* `empty_result_for_aggregation_by_empty_set` - (Optional) Allows to retunr empty result.
+
+* `joined_subquery_requires_alias` - (Optional) Require aliases for subselects and table functions in FROM that more than one table is present.
+
+* `join_use_nulls` - (Optional) Sets the type of JOIN behaviour. When merging tables, empty cells may appear. ClickHouse fills them differently based on this setting.
+
+* `transform_null_in` - (Optional) Enables equality of NULL values for IN operator.
+
+* `http_connection_timeout` - (Optional) Timeout for HTTP connection in milliseconds.
+
+* `http_receive_timeout` - (Optional) Timeout for HTTP connection in milliseconds.
+
+* `http_send_timeout` - (Optional) Timeout for HTTP connection in milliseconds.
+
+* `enable_http_compression` - (Optional) Enables or disables data compression in the response to an HTTP request.
+
+* `send_progress_in_http_headers` - (Optional) Enables or disables X-ClickHouse-Progress HTTP response headers in clickhouse-server responses.
+
+* `http_headers_progress_interval` - (Optional) Sets minimal interval between notifications about request process in HTTP header X-ClickHouse-Progress.
+
+* `add_http_cors_header` - (Optional) Include CORS headers in HTTP responces.
+
+* `quota_mode` - (Optional) Quota accounting mode.
+
+The `quota` block supports:
+
+* `interval_duration` - (Required) Duration of interval for quota in milliseconds.
+
+* `queries` - (Optional) The total number of queries.
+
+* `errors` - (Optional) The number of queries that threw exception.
+
+* `result_rows` - (Optional) The total number of rows given as the result.
+
+* `read_rows` - (Optional) The total number of source rows read from tables for running the query, on all remote servers.
+
+* `execution_time` - (Optional) The total query execution time, in milliseconds (wall time).
 
 The `database` block supports:
 
