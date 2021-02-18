@@ -7,6 +7,7 @@ FEATURES:
 ENHANCEMENTS:
 * mdb: add `restore` entity in `yandex_mdb_mysql_cluster` resource
 * mdb: add `connection_limits`, `global_permissions` and `authentication_plugin` attributes to `user` entity in `yandex_mdb_mysql_cluster` resource and data source
+* mdb: add `restore` entity in `yandex_mdb_postgresql_cluster` resource
 * mdb: add `settings` and `quota` sections to `user` entity in `yandex_mdb_clickhouse_cluster` resource and data source.
 
 BUG FIXES:

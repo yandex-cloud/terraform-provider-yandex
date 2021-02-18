@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -368,6 +369,32 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"restore": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"time_inclusive": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+						"time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: stringToTimeValidateFunc,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -497,6 +524,10 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return err
 	}
 
+	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
+		return resourceYandexMDBPostgreSQLClusterRestore(d, meta, req, backupID.(string))
+	}
+
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
@@ -528,6 +559,79 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 
 	if err := createPGClusterHosts(ctx, config, d); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
+	}
+
+	if err := updateMasterPGClusterHosts(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
+	}
+
+	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
+}
+
+func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *postgresql.CreateClusterRequest, backupID string) error {
+	config := meta.(*Config)
+
+	timeBackup := time.Now()
+	timeInclusive := false
+
+	if backupTime, ok := d.GetOk("restore.0.time"); ok {
+		var err error
+		timeBackup, err = parseStringToTime(backupTime.(string))
+		if err != nil {
+			return fmt.Errorf("Error while parsing restore.0.time to create PostgreSQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+	}
+
+	if timeInclusiveData, ok := d.GetOk("restore.0.time_inclusive"); ok {
+		timeInclusive = timeInclusiveData.(bool)
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Restore(ctx, &postgresql.RestoreClusterRequest{
+		BackupId: backupID,
+		Time: &timestamp.Timestamp{
+			Seconds: timeBackup.Unix(),
+		},
+		TimeInclusive:    timeInclusive,
+		Name:             createClusterRequest.Name,
+		Description:      createClusterRequest.Description,
+		Labels:           createClusterRequest.Labels,
+		Environment:      createClusterRequest.Environment,
+		ConfigSpec:       createClusterRequest.ConfigSpec,
+		HostSpecs:        createClusterRequest.HostSpecs,
+		NetworkId:        createClusterRequest.NetworkId,
+		FolderId:         createClusterRequest.FolderId,
+		SecurityGroupIds: createClusterRequest.SecurityGroupIds,
+	}))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster from backup %v: %s", backupID, err)
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get PostgreSQL Cluster create from backup %v operation metadata: %s", backupID, err)
+	}
+
+	md, ok := protoMetadata.(*postgresql.RestoreClusterMetadata)
+	if !ok {
+		return fmt.Errorf("Could not get PostgreSQL Cluster ID from create from backup %v operation metadata", backupID)
+	}
+
+	d.SetId(md.ClusterId)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting for operation to create PostgreSQL Cluster from backup %v: %s", backupID, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster creation from backup %v failed: %s", backupID, err)
+	}
+
+	if err := createPGClusterHosts(ctx, config, d); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
 	}
 
 	if err := updateMasterPGClusterHosts(d, meta); err != nil {

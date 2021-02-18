@@ -207,6 +207,70 @@ resource "yandex_vpc_subnet" "c" {
 }
 ```
 
+
+Example of creating a Single Node PostgreSQL from backup.
+
+```hcl
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+
+  restore {
+    backup_id = "c9q99999999999999994cm:base_000000010000005F000000B4"
+    time      = "2021-02-11T15:04:05"
+  }
+
+  config {
+    version = 12
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+    postgresql_config = {
+      max_connections                   = 395
+      enable_parallel_hash              = true
+      vacuum_cleanup_index_scale_factor = 0.2
+      autovacuum_vacuum_scale_factor    = 0.34
+      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_COMMITTED"
+      shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+  }
+
+  database {
+    name  = "db_name"
+    owner = "user_name"
+  }
+
+  user {
+    name       = "user_name"
+    password   = "your_password"
+    conn_limit = 50
+    permission {
+      database_name = "db_name"
+    }
+    settings = {
+      default_transaction_isolation = "read committed"
+      log_min_duration_statement    = 5000
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -238,6 +302,11 @@ The following arguments are supported:
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 - - -
+
+* `restore` - (Optional, ForceNew) The cluster will be created from the specified backup. The structure is documented below.
+
+- - -
+
 
 The `config` block supports:
 
@@ -379,6 +448,17 @@ Also, this field is used to select which host will be selected as a master host.
 * `priority` - Host priority in HA group. It works only when `name` is set.
 
 * `replication_source_name` - Host replication source name, case when not set then host shuld be in HA group. It works only when `name` is set.
+
+The `restore` block supports:
+
+* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-backups). 
+
+* `time` - (Optional, ForceNew) Timestamp of the moment to which the PostgreSQL cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
+
+* `time_inclusive` - (Optional, ForceNew) Flag that indicates whether a database should be restored to the first backup point available just after the timestamp specified in the [time] field instead of just before.  
+Possible values:
+  - false (default) — the restore point refers to the first backup moment before [time].
+  - true — the restore point refers to the first backup point after [time].
 
 
 ## Attributes Reference
