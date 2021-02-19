@@ -15,6 +15,9 @@ an existing Yandex Resource Manager folder.
    `yandex_resourcemanager_folder_iam_policy` or they will conflict over what your policy
    should be.
 
+~> **Note:** When you delete `yandex_resourcemanager_folder_iam_binding` resource,
+   the roles can be deleted from other users within the folder as well. Be careful!
+
 ## Example Usage
 
 ```hcl

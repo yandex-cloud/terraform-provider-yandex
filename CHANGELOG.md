@@ -9,11 +9,13 @@ ENHANCEMENTS:
 * mdb: add `connection_limits`, `global_permissions` and `authentication_plugin` attributes to `user` entity in `yandex_mdb_mysql_cluster` resource and data source
 * mdb: add `restore` entity in `yandex_mdb_postgresql_cluster` resource
 * mdb: add `settings` and `quota` sections to `user` entity in `yandex_mdb_clickhouse_cluster` resource and data source.
+* iam: corrected documentation for `yandex_resourcemanager_cloud_iam_binding` resource.
+* iam: corrected documentation for `yandex_resourcemanager_folder_iam_binding` resource.
 
 BUG FIXES:
 * mdb: fix updating user permissions for Kafka cluster
 
-WARNING: 
+WARNING:
 * mdb: replace sets with lists for users in `yandex_mdb_mysql_cluster`. There can appear changes in diff for users, which will not change anything and will disappear after apply
 
 ## 0.50.0 (February 5, 2021)
