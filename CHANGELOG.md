@@ -1,4 +1,6 @@
-## 0.51.0 (Unreleased)
+## 0.52.0 (Unreleased)
+
+## 0.51.0 (February 19, 2021)
 FEATURES:
 * compute: support yandex_disk_placement_group resource and data source.
 * compute: integrate yandex_disk_placement_group with compute disk resource and data source.
