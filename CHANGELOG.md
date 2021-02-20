@@ -1,4 +1,6 @@
-## 0.52.0 (Unreleased)
+## 0.51.1 (Unreleased)
+ENHANCEMENTS:
+* compute: add documentation and example for non-replicated disk
 
 ## 0.51.0 (February 19, 2021)
 FEATURES:

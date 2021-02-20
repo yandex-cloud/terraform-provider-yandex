@@ -24,7 +24,7 @@ For more information about disks in Yandex.Cloud, see:
 
 ```hcl
 resource "yandex_compute_disk" "default" {
-  name     = "disk"
+  name     = "disk-name"
   type     = "network-ssd"
   zone     = "ru-central1-a"
   image_id = "ubuntu-16.04-v20180727"
@@ -32,6 +32,28 @@ resource "yandex_compute_disk" "default" {
   labels = {
     environment = "test"
   }
+}
+```
+
+## Example Usage - Non-replicated disk
+
+**Note**: Non-replicated disks are at the [Preview](https://cloud.yandex.com/docs/overview/concepts/launch-stages) 
+          stage.
+
+```hcl
+resource "yandex_compute_disk" "nr" {
+  name = "non-replicated-disk-name"
+  size = 93 // NB size must be divisible by 93  
+  type = "network-ssd-nonreplicated"
+  zone = "ru-central1-b"
+
+  disk_placement_policy {
+    disk_placement_group_id = yandex_compute_disk_placement_group.this.id
+  }
+}
+
+resource "yandex_compute_disk_placement_group" "this" {
+  zone = "ru-central1-b"
 }
 ```
 
@@ -72,10 +94,16 @@ The following arguments are supported:
 
 * `type` - (Optional) Type of disk to create. Provide this when creating a disk. 
   One of `network-hdd` (default) or `network-ssd`.
+  
+* `disk_placement_policy` - (Optional) Disk placement policy configuration. The structure is documented below.
 
 * `image_id` -  (Optional) The source image to use for disk creation.
 
 * `snapshot_id` - (Optional) The source snapshot to use for disk creation.
+
+The `disk_placement_policy` block supports:
+
+* `disk_placement_group_id` - (Required) Specifies Disk Placement Group id.
 
 ~> **NOTE:** Only one of `image_id` or `snapshot_id` can be specified.
 
