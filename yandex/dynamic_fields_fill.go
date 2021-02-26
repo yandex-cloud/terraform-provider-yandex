@@ -337,6 +337,43 @@ func flattenResourceGenerateMapS(v interface{}, includeNil bool,
 
 // expandResourceGenerate fill v from resource data
 // v must be ptr
+func expandResourceGenerateNonSkippedFields(fieldsInfo *objectFieldsInfo, d *schema.ResourceData, v interface{}, path string, skipNil bool) ([]string, error) {
+
+	fieldsOut := []string{}
+
+	if v == nil {
+		return fieldsOut, nil
+	}
+
+	t, err := getStructType(v)
+	if err != nil {
+		return nil, err
+	}
+	if t == nil {
+		return fieldsOut, nil
+	}
+
+	fields := fieldsInfo.getFields(t)
+
+	for field, fieldInfo := range fields {
+		if !fieldsInfo.skip(field) {
+			ph := path + field
+			value, ok := d.GetOkExists(ph)
+			if ok {
+				err = expandResourceGenerateOneField(fieldsInfo, fieldInfo, field, v, value, skipNil, ph)
+				if err != nil {
+					return nil, err
+				}
+				fieldsOut = append(fieldsOut, field)
+			}
+		}
+	}
+
+	return fieldsOut, nil
+}
+
+// expandResourceGenerate fill v from resource data
+// v must be ptr
 func expandResourceGenerate(fieldsInfo *objectFieldsInfo, d *schema.ResourceData, v interface{}, path string, skipNil bool) error {
 
 	if v == nil {

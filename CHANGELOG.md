@@ -1,4 +1,7 @@
 ## 0.52.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_mdb_sqlserver_cluster`
+
 ENHANCEMENTS:
 * mdb: add `cloud_storage` section in `yandex_mdb_clickhouse_cluster` resource and data source
 
