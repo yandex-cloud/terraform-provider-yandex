@@ -107,10 +107,35 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Computed: true,
 						},
 						"nat": {
-							Type:     schema.TypeBool,
+							Type:       schema.TypeBool,
+							Optional:   true,
+							Computed:   true,
+							ForceNew:   true,
+							Deprecated: fieldDeprecatedForAnother("nat", "nat under network_interface"),
+						},
+						"network_interface": {
+							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnet_ids": {
+										Type:     schema.TypeSet,
+										Required: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"nat": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"security_group_ids": {
+										Type:     schema.TypeSet,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Set:      schema.HashString,
+										Optional: true,
+									},
+								},
+							},
 						},
 						"metadata": {
 							Type:     schema.TypeMap,
@@ -231,10 +256,11 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										ForceNew: true,
 									},
 									"subnet_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-										ForceNew: true,
+										Type:       schema.TypeString,
+										Optional:   true,
+										Computed:   true,
+										ForceNew:   true,
+										Deprecated: fieldDeprecatedForAnother("subnet_id", "subnet_ids under network_interface"),
 									},
 								},
 							},
@@ -674,12 +700,13 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 	}
 
 	tpl := &k8s.NodeTemplate{
-		PlatformId:       h.GetString("platform_id"),
-		ResourcesSpec:    getNodeGroupResourceSpec(d),
-		BootDiskSpec:     getNodeGroupBootDiskSpec(d),
-		Metadata:         metadata,
-		V4AddressSpec:    getNodeGroupAddressSpec(d),
-		SchedulingPolicy: getNodeGroupTemplateSchedulingPolicy(d),
+		PlatformId:            h.GetString("platform_id"),
+		ResourcesSpec:         getNodeGroupResourceSpec(d),
+		BootDiskSpec:          getNodeGroupBootDiskSpec(d),
+		Metadata:              metadata,
+		V4AddressSpec:         getNodeGroupAddressSpec(d),
+		SchedulingPolicy:      getNodeGroupTemplateSchedulingPolicy(d),
+		NetworkInterfaceSpecs: getNodeGroupNetworkInterfaceSpecs(d),
 	}
 
 	return tpl, nil
@@ -695,6 +722,35 @@ func getNodeGroupTemplateSchedulingPolicy(d *schema.ResourceData) *k8s.Schedulin
 	return nil
 }
 
+func getNodeGroupNetworkInterfaceSpecs(d *schema.ResourceData) []*k8s.NetworkInterfaceSpec {
+	var nifs []*k8s.NetworkInterfaceSpec
+	h := schemaHelper(d, "instance_template.0.network_interface.")
+	nifCount := h.GetInt("#")
+	for i := 0; i < nifCount; i++ {
+		nif := h.Get(fmt.Sprintf("%d", i)).(map[string]interface{})
+		nifSpec := &k8s.NetworkInterfaceSpec{}
+
+		if securityGroups, ok := nif["security_group_ids"]; ok {
+			nifSpec.SecurityGroupIds = expandSecurityGroupIds(securityGroups)
+		}
+
+		if nat, ok := nif["nat"]; ok && nat.(bool) {
+			nifSpec.PrimaryV4AddressSpec = &k8s.NodeAddressSpec{
+				OneToOneNatSpec: &k8s.OneToOneNatSpec{
+					IpVersion: k8s.IpVersion_IPV4,
+				},
+			}
+		}
+
+		if subnets, ok := nif["subnet_ids"]; ok {
+			nifSpec.SubnetIds = expandSubnetIds(subnets)
+		}
+
+		nifs = append(nifs, nifSpec)
+	}
+	return nifs
+}
+
 func getNodeGroupAddressSpec(d *schema.ResourceData) *k8s.NodeAddressSpec {
 	if nat, ok := d.GetOk("instance_template.0.nat"); ok && nat.(bool) {
 		return &k8s.NodeAddressSpec{
@@ -702,7 +758,6 @@ func getNodeGroupAddressSpec(d *schema.ResourceData) *k8s.NodeAddressSpec {
 				IpVersion: k8s.IpVersion_IPV4,
 			},
 		}
-
 	}
 
 	return nil
@@ -830,6 +885,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.boot_disk.0.type":                "node_template.boot_disk_spec.disk_type_id",
 	"instance_template.0.boot_disk.0.size":                "node_template.boot_disk_spec.disk_size",
 	"instance_template.0.scheduling_policy.0.preemptible": "node_template.scheduling_policy.preemptible",
+	"instance_template.0.network_interface":               "node_template.network_interface_specs",
 	"scale_policy.0.fixed_scale.0.size":                   "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                     "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                     "scale_policy.auto_scale.max_size",
@@ -964,9 +1020,31 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"boot_disk":         flattenKubernetesNodeGroupTemplateBootDisk(ngTpl.GetBootDiskSpec()),
 		"metadata":          ngTpl.GetMetadata(),
 		"scheduling_policy": flattenKubernetesNodeGroupTemplateSchedulingPolicy(ngTpl.GetSchedulingPolicy()),
+		"network_interface": flattenKubernetesNodeGroupNetworkInterfaces(ngTpl.GetNetworkInterfaceSpecs()),
 	}
 
 	return []map[string]interface{}{tpl}
+}
+
+func flattenKubernetesNodeGroupNetworkInterfaces(ifs []*k8s.NetworkInterfaceSpec) []map[string]interface{} {
+	nifs := []map[string]interface{}{}
+	for _, i := range ifs {
+		nifs = append(nifs, flattenKubernetesNodeGroupNetworkInterface(i))
+	}
+
+	return nifs
+}
+
+func flattenKubernetesNodeGroupNetworkInterface(nif *k8s.NetworkInterfaceSpec) map[string]interface{} {
+	return map[string]interface{}{
+		"subnet_ids":         nif.SubnetIds,
+		"security_group_ids": nif.SecurityGroupIds,
+		"nat":                flattenKubernetesNodeGroupNat(nif),
+	}
+}
+
+func flattenKubernetesNodeGroupNat(nif *k8s.NetworkInterfaceSpec) bool {
+	return nif.GetPrimaryV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4
 }
 
 func flattenKubernetesNodeGroupLocation(l *k8s.NodeGroupLocation) map[string]interface{} {

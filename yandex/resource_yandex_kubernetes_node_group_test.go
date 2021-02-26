@@ -153,6 +153,31 @@ func TestAccKubernetesNodeGroup_zero_memory(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesNodeGroupNetworkInterfaces_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	clusterResource.MasterVersion = k8sTestUpdateVersion
@@ -242,6 +267,50 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroupNetworkInterfaces_update(t *testing.T) {
+	clusterResource := clusterInfoWithSecurityGroups("TestAccKubernetesNodeGroupNetworkInterfaces_update", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	nodeUpdatedResource := nodeResource
+	nodeUpdatedResource.NetworkInterfaces = enableNAT
+
+	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, "")
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeUpdatedResource2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeUpdatedResource2, true, false),
+				),
+			},
+		},
+	})
+}
+
 func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	nodeResource := nodeGroupInfoAutoscaled(clusterResource.ClusterResourceName)
@@ -285,9 +354,13 @@ type resourceNodeGroupInfo struct {
 
 	MaintenancePolicy string
 
-	autoUpgrade bool
-	autoRepair  bool
-	policy      maintenancePolicyType
+	NetworkInterfaces string
+
+	autoUpgrade       bool
+	autoRepair        bool
+	policy            maintenancePolicyType
+	SecurityGroupName string
+	SubnetName        string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -308,6 +381,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		LabelKey:              "label_key",
 		LabelValue:            "label_value",
 		ScalePolicy:           fixedScalePolicy,
+		NetworkInterfaces:     enableNAT,
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
@@ -354,6 +428,30 @@ func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, aut
 	case weeklyMaintenancePolicySecond:
 		i.MaintenancePolicy = templateConfig(ngWeeklyMaintenancePolicyTemplateSecond, m)
 	}
+}
+
+func (i *resourceNodeGroupInfo) constructNetworkInterfaces(subnetName, securityGroupName string) {
+	i.SubnetName = subnetName
+	i.SecurityGroupName = securityGroupName
+
+	subnetNameGetter := fmt.Sprintf("\"${yandex_vpc_subnet.%s.id}\"", i.SubnetName)
+	securityGroupIDGetter := ""
+	if securityGroupName != "" {
+		securityGroupIDGetter = fmt.Sprintf("\"${yandex_vpc_security_group.%s.id}\"", i.SecurityGroupName)
+	}
+
+	i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplate,
+		subnetNameGetter,
+		securityGroupIDGetter,
+	)
+}
+
+func (i *resourceNodeGroupInfo) securityGroupName() string {
+	return "yandex_vpc_security_group." + i.SecurityGroupName
+}
+
+func (i *resourceNodeGroupInfo) subnetName() string {
+	return "yandex_vpc_subnet." + i.SubnetName
 }
 
 const ngAnyMaintenancePolicyTemplate = `
@@ -451,7 +549,8 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
 
   instance_template {
     platform_id = "standard-v2"
-    nat = "true"
+
+    {{.NetworkInterfaces}}
 
     resources {
       memory = {{.Memory}}
@@ -491,6 +590,16 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     "net.core.somaxconn",
   ]
 }
+`
+
+const enableNAT = "nat = true"
+
+var networkInterfacesTemplate = `
+  network_interface {
+	nat = true
+    subnet_ids = [%s]
+	security_group_ids = [%s]
+  }
 `
 
 func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
@@ -572,6 +681,31 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_unavailable", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxUnavailable()))),
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_expansion", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxExpansion()))),
+		}
+
+		if info.NetworkInterfaces != enableNAT {
+			subnetID, err := getResourceID(info.subnetName(), s)
+			if err != nil {
+				return err
+			}
+
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.#", "1")
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids", "1")
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids.0", subnetID)
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0])
+
+			if info.SecurityGroupName != "" {
+				securityGroupID, err := getResourceID(info.securityGroupName(), s)
+				if err != nil {
+					return err
+				}
+
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids", "1")
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids.0", securityGroupID)
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0])
+			}
+		} else {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.#", "0")
 		}
 
 		if info.policy != emptyMaintenancePolicy {

@@ -826,6 +826,18 @@ func expandSecurityGroupIds(v interface{}) []string {
 	return m
 }
 
+func expandSubnetIds(v interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	var m []string
+	subnetIdsSet := v.(*schema.Set)
+	for _, val := range subnetIdsSet.List() {
+		m = append(m, val.(string))
+	}
+	return m
+}
+
 func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatSpec, error) {
 	if v, ok := config["nat"]; ok {
 		if !v.(bool) {

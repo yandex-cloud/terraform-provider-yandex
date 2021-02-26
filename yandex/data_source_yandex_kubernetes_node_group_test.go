@@ -59,6 +59,30 @@ func TestAccDataSourceKubernetesNodeGroupWeeklyMaintenance_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
+	clusterResource := clusterInfoWithSecurityGroups("TestAccDataSourceKubernetesNodeGroupNetworkInterfaces_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceKubernetesNodeGroup_autoscaled(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroup_autoscaled", true)
 

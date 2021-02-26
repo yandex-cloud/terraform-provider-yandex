@@ -26,7 +26,12 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
 
   instance_template {
     platform_id = "standard-v2"
-    nat         = true
+
+    network_interface {
+      nat                = true
+      subnet_ids         = ["${yandex_vpc_subnet.my_subnet.id}"]
+      security_group_ids = ["${yandex_vpc_security_group.my_sg.id}""]
+    }
 
     resources {
       memory = 2
@@ -122,6 +127,7 @@ The `instance_template` block supports:
 
 * `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
 
+* `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
 
 ---
 
@@ -135,6 +141,14 @@ The `boot_disk` block supports:
 The `scheduling_policy` block supports:
 
 * `preemptible` - Specifies if the instance is preemptible. Defaults to false.
+
+---
+
+The `network_interface` block supports:
+
+* `subnet_ids` - The IDs of the subnets.
+* `nat` - A public address that can be used to access the internet over NAT.
+* `security_group_ids` - Security group ids for network interface.
 
 ---
 

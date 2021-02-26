@@ -703,3 +703,7 @@ func lessInterfaceList(list []interface{}, name string, i int, j int, sortRule m
 func getField(value interface{}, field string) string {
 	return (value.(map[string]interface{}))[field].(string)
 }
+
+func fieldDeprecatedForAnother(deprecatedFieldName string, newFieldName string) string {
+	return fmt.Sprintf("The '%s' field has been deprecated. Please use '%s' instead.", deprecatedFieldName, newFieldName)
+}

@@ -76,9 +76,19 @@ The `instance_template` block supports:
 * `resources.0.core_fraction` - Baseline core performance as a percent.
 * `resources.0.gpus` - Number of GPU cores allocated to the instance.
 
+* `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
+
 * `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 
 * `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
+
+---
+
+The `network_interface` block supports:
+
+* `subnet_ids` - The IDs of the subnets.
+* `nat` - A public address that can be used to access the internet over NAT.
+* `security_group_ids` - Security group ids for network interface.
 
 ---
 

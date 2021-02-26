@@ -107,6 +107,29 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"network_interface": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"subnet_ids": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"nat": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"security_group_ids": {
+										Type:     schema.TypeSet,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Set:      schema.HashString,
+										Computed: true,
+									},
+								},
+							},
+						},
 						"metadata": {
 							Type:     schema.TypeMap,
 							Computed: true,
