@@ -651,6 +651,19 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"cloud_storage": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -795,6 +808,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		Zookeeper:         expandClickHouseZookeeperSpec(d),
 		BackupWindowStart: expandClickHouseBackupWindowStart(d),
 		Access:            expandClickHouseAccess(d),
+		CloudStorage:      expandClickHouseCloudStorage(d),
 	}
 
 	if val, ok := d.GetOk("admin_password"); ok {
@@ -992,6 +1006,11 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		d.Set("sql_database_management", cluster.Config.SqlDatabaseManagement.Value)
 	} else {
 		d.Set("sql_database_management", false)
+	}
+
+	cs := flattenClickHouseCloudStorage(cluster.Config.CloudStorage)
+	if err := d.Set("cloud_storage", cs); err != nil {
+		return err
 	}
 
 	return d.Set("labels", cluster.Labels)

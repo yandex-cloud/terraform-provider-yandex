@@ -17,6 +17,7 @@ import (
 
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
+const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
@@ -315,6 +316,37 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResourceSharded),
+		},
+	})
+}
+
+// Test that a sharded ClickHouse Cluster can be created, updated and destroyed
+func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-cloud-storage")
+	chDesc := "ClickHouse Cloud Storage Cluster Terraform Test"
+	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		Steps: []resource.TestStep{
+			// Create sharded ClickHouse Cluster
+			{
+				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceCloudStorage, &r, 1),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "name", chName),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "description", chDesc),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.0.enabled", "true"),
+					testAccCheckCreatedAtAttr(chResourceCloudStorage)),
+			},
 		},
 	})
 }
@@ -2114,6 +2146,154 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+}
+`, name, desc)
+}
+
+func testAccMDBClickHouseClusterConfigCloudStorage(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "cloud" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
+  name                    = "%s"
+  description             = "%s"
+  environment             = "PRESTABLE"
+  network_id              = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password          = "strong_password"
+  version                 = "21.1"
+
+  labels = {
+    test_key = "test_value"
+   }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+  
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+    settings {
+      add_http_cors_header                               = true
+      allow_ddl                                          = false
+      compile                                            = false
+      compile_expressions                                = false
+      connect_timeout                                    = 44000
+      count_distinct_implementation                      = "uniq_hll_12"
+      distinct_overflow_mode                             = "unspecified"
+      distributed_aggregation_memory_efficient           = false
+      distributed_ddl_task_timeout                       = 0
+      distributed_product_mode                           = "unspecified"
+      empty_result_for_aggregation_by_empty_set          = false
+      enable_http_compression                            = false
+      fallback_to_stale_replicas_for_distributed_queries = false
+      force_index_by_date                                = false
+      force_primary_key                                  = false
+      group_by_overflow_mode                             = "unspecified"
+      group_by_two_level_threshold                       = 0
+      group_by_two_level_threshold_bytes                 = 0
+      http_connection_timeout                            = 0
+      http_headers_progress_interval                     = 0
+      http_receive_timeout                               = 0
+      http_send_timeout                                  = 0
+      input_format_defaults_for_omitted_fields           = false
+      input_format_values_interpret_expressions          = false
+      insert_quorum                                      = 0
+      insert_quorum_timeout                              = 0
+      join_overflow_mode                                 = "unspecified"
+      join_use_nulls                                     = false
+      joined_subquery_requires_alias                     = false
+      low_cardinality_allow_in_native_format             = false
+      max_ast_depth                                      = 0
+      max_ast_elements                                   = 0
+      max_block_size                                     = 0
+      max_bytes_before_external_group_by                 = 0
+      max_bytes_before_external_sort                     = 0
+      max_bytes_in_distinct                              = 0
+      max_bytes_in_join                                  = 0
+      max_bytes_in_set                                   = 0
+      max_bytes_to_read                                  = 0
+      max_bytes_to_sort                                  = 0
+      max_bytes_to_transfer                              = 0
+      max_columns_to_read                                = 0
+      max_execution_time                                 = 0
+      max_expanded_ast_elements                          = 0
+      max_insert_block_size                              = 0
+      max_memory_usage                                   = 0
+      max_memory_usage_for_user                          = 0
+      max_network_bandwidth                              = 0
+      max_network_bandwidth_for_user                     = 0
+      max_query_size                                     = 0
+      max_replica_delay_for_distributed_queries          = 0
+      max_result_bytes                                   = 0
+      max_result_rows                                    = 0
+      max_rows_in_distinct                               = 0
+      max_rows_in_join                                   = 0
+      max_rows_in_set                                    = 0
+      max_rows_to_group_by                               = 0
+      max_rows_to_read                                   = 0
+      max_rows_to_sort                                   = 0
+      max_rows_to_transfer                               = 0
+      max_temporary_columns                              = 0
+      max_temporary_non_const_columns                    = 0
+      max_threads                                        = 0
+      merge_tree_max_bytes_to_use_cache                  = 0
+      merge_tree_max_rows_to_use_cache                   = 0
+      merge_tree_min_bytes_for_concurrent_read           = 0
+      merge_tree_min_rows_for_concurrent_read            = 0
+      min_bytes_to_use_direct_io                         = 0
+      min_count_to_compile                               = 0
+      min_count_to_compile_expression                    = 0
+      min_execution_speed                                = 0
+      min_execution_speed_bytes                          = 0
+      min_insert_block_size_bytes                        = 0
+      min_insert_block_size_rows                         = 0
+      output_format_json_quote_64bit_integers            = false
+      output_format_json_quote_denormals                 = false
+      priority                                           = 0
+      quota_mode                                         = "unspecified"
+      read_overflow_mode                                 = "unspecified"
+      readonly                                           = 0
+      receive_timeout                                    = 0
+      replication_alter_partitions_sync                  = 0
+      result_overflow_mode                               = "unspecified"
+      select_sequential_consistency                      = false
+      send_progress_in_http_headers                      = false
+      send_timeout                                       = 0
+      set_overflow_mode                                  = "unspecified"
+      skip_unavailable_shards                            = false
+      sort_overflow_mode                                 = "unspecified"
+      timeout_overflow_mode                              = "unspecified"
+      transfer_overflow_mode                             = "unspecified"
+      transform_null_in                                  = false
+      use_uncompressed_cache                             = false
+    }
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+
+  cloud_storage {
+    enabled = true
+  }
 }
 `, name, desc)
 }

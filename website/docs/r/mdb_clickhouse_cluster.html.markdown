@@ -180,6 +180,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type = "ML_MODEL_TYPE_CATBOOST"
     uri  = "https://storage.yandexcloud.net/ch-data/train.csv"
   }
+  
+  cloud_storage {
+    enabled = false
+  }
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -270,6 +274,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type      = "ZOOKEEPER"
     zone      = "ru-central1-c"
     subnet_id = "${yandex_vpc_subnet.baz.id}"
+  }
+   
+  cloud_storage {
+    enabled = false
   }
 }
 
@@ -380,7 +388,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       "shard1",
     ]
   }
-
+  
+  cloud_storage {
+    enabled = false
+  }
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -844,6 +855,10 @@ The `graphite_rollup` block supports:
   * `retention` - Retain parameters.
     * `age` - (Required) Minimum data age in seconds.
     * `precision` - (Required) Accuracy of determining the age of the data in seconds.
+
+The `cloud_storage` block supports:
+
+* `enabled` - (Required) Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
 
 ## Attributes Reference
 

@@ -1,4 +1,6 @@
 ## 0.52.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: add `cloud_storage` section in `yandex_mdb_clickhouse_cluster` resource and data source
 
 ## 0.51.1 (February 20, 2021)
 ENHANCEMENTS:

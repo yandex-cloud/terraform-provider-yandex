@@ -3,12 +3,11 @@ package yandex
 import (
 	"bytes"
 	"fmt"
-	"reflect"
-
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"reflect"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -1893,6 +1892,32 @@ func expandClickHouseDatabases(d *schema.ResourceData) ([]*clickhouse.DatabaseSp
 		result = append(result, db)
 	}
 	return result, nil
+}
+
+func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStorage {
+	result := &clickhouse.CloudStorage{}
+	cloudStorage := d.Get("cloud_storage").([]interface{})
+
+	for _, g := range cloudStorage {
+		cloudStorageSpec := g.(map[string]interface{})
+		if val, ok := cloudStorageSpec["enabled"]; ok {
+			result.SetEnabled(val.(bool))
+		}
+	}
+
+	return result
+}
+
+func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]interface{} {
+	result := []map[string]interface{}{}
+
+	if cs != nil && cs.GetEnabled() {
+		m := map[string]interface{}{}
+		m["enabled"] = true
+		result = append(result, m)
+	}
+
+	return result
 }
 
 func flattenClickHouseHosts(hs []*clickhouse.Host) ([]map[string]interface{}, error) {
