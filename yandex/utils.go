@@ -707,3 +707,7 @@ func getField(value interface{}, field string) string {
 func fieldDeprecatedForAnother(deprecatedFieldName string, newFieldName string) string {
 	return fmt.Sprintf("The '%s' field has been deprecated. Please use '%s' instead.", deprecatedFieldName, newFieldName)
 }
+
+func getSDK(config *Config) *ycsdk.SDK {
+	return config.sdk
+}

@@ -2,6 +2,9 @@
 FEATURES:
 * **New Resource:** `yandex_mdb_sqlserver_cluster`
 * managed-kubernetes: support `security_group_ids` for `yandex_kubernetes_node_group` resource and data source
+* **New Resource:** `yandex_dns_zone`
+* **New Resource:** `yandex_dns_recordset`
+* **New Data Source:** `yandex_dns_zone`
 
 ENHANCEMENTS:
 * mdb: add `cloud_storage` section in `yandex_mdb_clickhouse_cluster` resource and data source
