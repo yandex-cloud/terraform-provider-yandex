@@ -7,6 +7,7 @@ FEATURES:
 * **New Data Source:** `yandex_dns_zone`
 
 ENHANCEMENTS:
+* mdb: add `service_account_id` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `cloud_storage` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * managed-kubernetes: added `network_interface` section for `yandex_kubernetes_node_group`
 

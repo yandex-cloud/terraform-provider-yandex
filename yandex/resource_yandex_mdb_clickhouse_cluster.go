@@ -651,6 +651,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"service_account_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"cloud_storage": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -838,6 +843,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		Labels:           labels,
 		ShardName:        firstShard,
 		SecurityGroupIds: securityGroupIds,
+		ServiceAccountId: d.Get("service_account_id").(string),
 	}
 	return &req, toAdd, nil
 }
@@ -1007,6 +1013,7 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	} else {
 		d.Set("sql_database_management", false)
 	}
+	d.Set("service_account_id", cluster.ServiceAccountId)
 
 	cs := flattenClickHouseCloudStorage(cluster.Config.CloudStorage)
 	if err := d.Set("cloud_storage", cs); err != nil {
@@ -1079,6 +1086,7 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"sql_user_management":     "config_spec.sql_user_management",
 	"sql_database_management": "config_spec.sql_database_management",
 	"security_group_ids":      "security_group_ids",
+	"service_account_id":      "service_account_id",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1170,6 +1178,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 			SqlDatabaseManagement: &wrappers.BoolValue{Value: d.Get("sql_database_management").(bool)},
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		ServiceAccountId: d.Get("service_account_id").(string),
 	}
 
 	if pass, ok := d.GetOk("admin_password"); ok {

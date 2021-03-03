@@ -120,6 +120,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(chResource, "service_account_id"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
@@ -1097,6 +1098,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
 }
 `, name, desc)
 }
@@ -1473,6 +1475,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type = "ML_MODEL_TYPE_CATBOOST"
     uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
   }
+
 }
 `, name, desc)
 }

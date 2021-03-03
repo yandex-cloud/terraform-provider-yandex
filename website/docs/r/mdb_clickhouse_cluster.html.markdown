@@ -181,6 +181,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     uri  = "https://storage.yandexcloud.net/ch-data/train.csv"
   }
   
+  service_account_id = "your_service_account_id"
+  
   cloud_storage {
     enabled = false
   }
@@ -465,6 +467,8 @@ The following arguments are supported:
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 * `copy_schema_on_new_hosts` - (Optional) Whether to copy schema on new ClickHouse hosts.
+
+* `service_account_id` - (Optional) ID of the service account used for access to Yandex Object Storage.
 
 - - -
 
