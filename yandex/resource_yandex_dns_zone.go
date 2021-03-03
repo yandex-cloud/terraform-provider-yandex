@@ -9,6 +9,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	"github.com/yandex-cloud/go-sdk/operation"
+	"google.golang.org/grpc/status"
 )
 
 const yandexDnsDefaultTimeout = 5 * time.Minute
@@ -91,7 +93,6 @@ func resourceYandexDnsZone() *schema.Resource {
 
 func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	sdk := getSDK(config)
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
@@ -103,7 +104,7 @@ func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("Error expanding labels while creating DnsZone: %s", err)
 	}
 
-	req := dns.CreateDnsZoneRequest{
+	req := &dns.CreateDnsZoneRequest{
 		FolderId:          folderID,
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
@@ -120,32 +121,7 @@ func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 		req.PrivateVisibility.NetworkIds = convertStringSet(n.(*schema.Set))
 	}
 
-	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
-	defer cancel()
-
-	op, err := sdk.WrapOperation(sdk.DNS().DnsZone().Create(ctx, &req))
-	if err != nil {
-		return fmt.Errorf("Error while requesting API to create DnsZone: %s", err)
-	}
-
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return fmt.Errorf("Error while get DnsZone create operation metadata: %s", err)
-	}
-
-	md, ok := protoMetadata.(*dns.CreateDnsZoneMetadata)
-	if !ok {
-		return fmt.Errorf("could not get DnsZone ID from create operation metadata")
-	}
-
-	d.SetId(md.DnsZoneId)
-
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("Error while waiting operation to create DnsZone: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
+	if err := makeDnsZoneCreateRequest(req, d, meta); err != nil {
 		return fmt.Errorf("DnsZone creation failed: %s", err)
 	}
 
@@ -256,6 +232,47 @@ func prepareDnsZoneUpdateRequest(d *schema.ResourceData) (*dns.UpdateDnsZoneRequ
 	return req, nil
 }
 
+func makeDnsZoneCreateRequest(req *dns.CreateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	sdk := getSDK(config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	timeouts := []time.Duration{time.Millisecond * 500, time.Second * 2, time.Second * 10}
+
+	op, err := retrySpecificError(timeouts, func() (*operation.Operation, error) {
+		return sdk.WrapOperation(sdk.DNS().DnsZone().Create(ctx, req))
+	}, isErrNetworkNotFound)
+
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to create DnsZone: %s", err)
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return fmt.Errorf("Error while get DnsZone create operation metadata: %s", err)
+	}
+
+	md, ok := protoMetadata.(*dns.CreateDnsZoneMetadata)
+	if !ok {
+		return fmt.Errorf("could not get DnsZone ID from create operation metadata")
+	}
+
+	d.SetId(md.DnsZoneId)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while waiting operation to create DnsZone: %s", err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("DnsZone creation failed: %s", err)
+	}
+
+	return nil
+}
+
 func makeDnsZoneUpdateRequest(req *dns.UpdateDnsZoneRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	sdk := getSDK(config)
@@ -291,4 +308,31 @@ func validateZoneName() schema.SchemaValidateFunc {
 		}
 		return
 	}
+}
+
+func retrySpecificError(timeouts []time.Duration, fn func() (*operation.Operation, error), qualifier func(err error) bool) (*operation.Operation, error) {
+	var op *operation.Operation
+	var err error
+
+	for i := 0; i < len(timeouts); i++ {
+		op, err = fn()
+		if err == nil {
+			return op, nil
+		}
+		if !qualifier(err) {
+			return op, err
+		}
+
+		log.Printf("[DEBUG] retry #%d, timeout %s\n", i, timeouts[i])
+		time.Sleep(timeouts[i])
+	}
+
+	return fn()
+}
+
+func isErrNetworkNotFound(err error) bool {
+	if grpcStatus, ok := status.FromError(err); ok {
+		return strings.HasPrefix(grpcStatus.Message(), "Network not found:")
+	}
+	return false
 }
