@@ -46,7 +46,7 @@ func testSweepMDBClickHouseCluster(_ string) error {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep ClickHouse cluster %q", c.Id))
 		} else {
 			// Allow all async events to be processed.
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Minute)
 			if !sweepVPCNetwork(conf, c.NetworkId) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
 			}
