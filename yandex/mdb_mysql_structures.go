@@ -19,12 +19,6 @@ import (
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 )
 
-type MySQLHostSpec struct {
-	HostSpec        *mysql.HostSpec
-	Fqdn            string
-	HasComputedFqdn bool
-}
-
 func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
 	v, ok := mysql.Cluster_Environment_value[e]
 	if !ok {
@@ -199,8 +193,8 @@ func expandMysqlUserPermissions(ps *schema.Set) ([]*mysql.Permission, error) {
 	return result, nil
 }
 
-func expandMysqlHosts(d *schema.ResourceData) ([]*MySQLHostSpec, error) {
-	var result []*MySQLHostSpec
+func expandMysqlHosts(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
+	var result []*mysql.HostSpec
 	hosts := d.Get("host").([]interface{})
 
 	for _, v := range hosts {
@@ -215,27 +209,21 @@ func expandMysqlHosts(d *schema.ResourceData) ([]*MySQLHostSpec, error) {
 	return result, nil
 }
 
-func expandMysqlHost(config map[string]interface{}) (*MySQLHostSpec, error) {
+func expandMysqlHost(config map[string]interface{}) (*mysql.HostSpec, error) {
 	hostSpec := &mysql.HostSpec{}
-	host := &MySQLHostSpec{HostSpec: hostSpec, HasComputedFqdn: false}
 	if v, ok := config["zone"]; ok {
-		host.HostSpec.ZoneId = v.(string)
+		hostSpec.ZoneId = v.(string)
 	}
 
 	if v, ok := config["subnet_id"]; ok {
-		host.HostSpec.SubnetId = v.(string)
+		hostSpec.SubnetId = v.(string)
 	}
 
 	if v, ok := config["assign_public_ip"]; ok {
-		host.HostSpec.AssignPublicIp = v.(bool)
+		hostSpec.AssignPublicIp = v.(bool)
 	}
 
-	if v, ok := config["fqdn"]; ok && v.(string) != "" {
-		host.HasComputedFqdn = true
-		host.Fqdn = v.(string)
-	}
-
-	return host, nil
+	return hostSpec, nil
 }
 
 func expandMysqlResources(d *schema.ResourceData) *mysql.Resources {
@@ -336,10 +324,10 @@ func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Ho
 	return hosts, nil
 }
 
-func sortMysqlHosts(hosts []*mysql.Host, specs []*MySQLHostSpec) {
-	for i, h := range specs {
+func sortMysqlHosts(hosts []*mysql.Host, hostSpecs []*mysql.HostSpec) {
+	for i, h := range hostSpecs {
 		for j := i + 1; j < len(hosts); j++ {
-			if h.HostSpec.ZoneId == hosts[j].ZoneId {
+			if h.ZoneId == hosts[j].ZoneId {
 				hosts[i], hosts[j] = hosts[j], hosts[i]
 				break
 			}

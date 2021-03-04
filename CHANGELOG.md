@@ -13,6 +13,11 @@ ENHANCEMENTS:
 
 WARNING:
 * managed-kubernetes: `nat` entitiy and `subnet_id` entity in `allocation_policy` section for `yandex_kubernetes_node_group` is now deprecated
+* mdb: when changing the `assign_public_ip` attribute to `host` entity in  `yandex_mdb_mysql_cluster`, the old host is deleted and a new host is created
+* mdb: add `allow_regeneration_host` attribute in `yandex_mdb_mysql_cluster` resource
+
+BUG FIXES:
+* mdb: fix host delete in `yandex_mdb_mysql_cluster`
 
 ## 0.51.1 (February 20, 2021)
 ENHANCEMENTS:

@@ -263,6 +263,10 @@ The following arguments are supported:
 
 - - -
 
+* `allow_regeneration_host` - (Optional) Allow drop and create host when `host.assign_public_ip` changed. The new host will be created (recreated) with a different FQDN.
+
+- - - 
+
 The `resources` block supports:
 
 * `resources_preset_id` - (Required) The ID of the preset for computational resources available to a MySQL host (CPU, memory etc.). 
@@ -327,7 +331,7 @@ The `host` block supports:
 
 * `subnet_id` - (Optional) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
-* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
+* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. When changing the `assign_public_ip` attribute and `allow_regeneration_host` is true, the old host is deleted and a new host is created. Changing this parameter for an existing host is not supported at the moment.
 
 The `access` block supports:
 If not specified then does not make any changes.  
