@@ -154,6 +154,8 @@ The `resources` block supports:
 
 * `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
 
+* `disk_type_id` - (Optional) Type of the storage of Redis hosts - environment default is used if missing.
+
 The `host` block supports:
 
 * `fqdn` (Computed) - The fully qualified domain name of the host.

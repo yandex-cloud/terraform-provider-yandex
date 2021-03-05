@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -90,6 +91,12 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 	redisDesc := "Redis Cluster Terraform Test"
 	redisDesc2 := "Redis Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
+	version := "5.0"
+	baseDiskSize := 16
+	updatedDiskSize := 24
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm1.nano"
+	updatedFlavor := "hm1.micro"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -98,15 +105,15 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "5.0"),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, baseFlavor, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, "5.0"),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, version),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
@@ -115,15 +122,16 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, "5.0"),
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version, updatedFlavor,
+					updatedDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, "5.0"),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
@@ -132,7 +140,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, "5.0"),
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version, updatedFlavor,
+					updatedDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 2),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
@@ -140,8 +149,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, "5.0"),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
@@ -160,6 +169,9 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
 	redisDesc := "Sharded Redis Cluster Terraform Test"
 	folderID := getExampleFolderID()
+	version := "5.0"
+	baseDiskSize := 100
+	diskTypeId := "local-ssd"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -168,28 +180,31 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, "5.0"),
+				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version, baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						diskTypeId),
 					testAccCheckCreatedAtAttr(redisResourceSharded),
 				),
 			},
 			mdbRedisClusterImportStep(redisResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, "5.0"),
+				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize,
+					diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						diskTypeId),
 					testAccCheckCreatedAtAttr(redisResourceSharded),
 				),
 			},
@@ -207,6 +222,9 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 	redisDesc2 := "Redis 6 Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
 	version := "6.0"
+	baseDiskSize := 100
+	diskTypeId := "local-ssd"
+	baseFlavor := "hm1.nano"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -215,15 +233,16 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, baseFlavor, baseDiskSize,
+					diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, version),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 				),
@@ -231,15 +250,16 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version),
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version, baseFlavor, baseDiskSize,
+					diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 				),
@@ -247,16 +267,17 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version),
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version, baseFlavor, baseDiskSize,
+					diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 2),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
 					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.micro", 25769803776),
+					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 				),
@@ -275,6 +296,8 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 	redisDesc := "Sharded Redis Cluster Terraform Test"
 	folderID := getExampleFolderID()
 	version := "6.0"
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -283,28 +306,30 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version),
+				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version, baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						diskTypeId),
 					testAccCheckCreatedAtAttr(redisResourceSharded),
 				),
 			},
 			mdbRedisClusterImportStep(redisResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version),
+				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", 17179869184),
+					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						diskTypeId),
 					testAccCheckCreatedAtAttr(redisResourceSharded),
 				),
 			},
@@ -422,7 +447,9 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 	}
 }
 
-func testAccCheckMDBRedisClusterHasResources(r *redis.Cluster, resourcePresetID string, diskSize int64) resource.TestCheckFunc {
+func testAccCheckMDBRedisClusterHasResources(r *redis.Cluster, resourcePresetID string, diskSizeGb int,
+	diskTypeId string) resource.TestCheckFunc {
+	diskSize := int64(diskSizeGb * int(math.Pow(2, 30)))
 	return func(s *terraform.State) error {
 		rs := r.Config.Resources
 		if rs.ResourcePresetId != resourcePresetID {
@@ -430,6 +457,9 @@ func testAccCheckMDBRedisClusterHasResources(r *redis.Cluster, resourcePresetID 
 		}
 		if rs.DiskSize != diskSize {
 			return fmt.Errorf("Expected label with key '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		if rs.DiskTypeId != diskTypeId {
+			return fmt.Errorf("Expected label with key '%s', got '%s'", diskTypeId, rs.DiskTypeId)
 		}
 		return nil
 	}
@@ -496,7 +526,112 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
-func testAccMDBRedisClusterConfigMain(name, desc string, version string) string {
+func getSentinelHosts(diskTypeId string) string {
+	res := ""
+	if diskTypeId == "local-ssd" {
+		res = `
+  host {
+  	zone      = "ru-central1-c"
+	subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+
+  host {
+  	zone      = "ru-central1-c"
+	subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+
+  host {
+  	zone      = "ru-central1-c"
+	subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+`
+	} else {
+		res = `
+  host {
+  	zone      = "ru-central1-c"
+	subnet_id = "${yandex_vpc_subnet.foo.id}"
+  }
+`
+	}
+	return res
+}
+
+func getShardedHosts(diskTypeId string, thirdShard string) string {
+	res := ""
+	if diskTypeId == "local-ssd" {
+		res = fmt.Sprintf(`
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "first"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "second"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "%s"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "first"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "second"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "%s"
+  }
+`, thirdShard, thirdShard)
+	} else {
+		res = fmt.Sprintf(`
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "first"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "second"
+  }
+
+  host {
+    zone       = "ru-central1-c"
+    subnet_id  = "${yandex_vpc_subnet.foo.id}"
+	shard_name = "%s"
+  }
+`, thirdShard)
+	}
+	return res
+}
+
+func getDiskTypeStr(diskTypeId string) string {
+	diskTypeStr := ""
+	if diskTypeId != "" {
+		diskTypeStr = fmt.Sprintf(`
+    disk_type_id       = "%s"
+`, diskTypeId)
+	}
+	return diskTypeStr
+}
+
+func testAccMDBRedisClusterConfigMain(name, desc string, version string, flavor string, diskSize int,
+	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -516,21 +651,20 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
 
   resources {
-    resource_preset_id = "hm1.nano"
-    disk_size          = 16
+    resource_preset_id = "%s"
+    disk_size          = %d
+%s
   }
 
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
-  }
+%s
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
 }
-`, name, desc, version)
+`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
 }
 
-func testAccMDBRedisClusterConfigUpdated(name, desc string, version string) string {
+func testAccMDBRedisClusterConfigUpdated(name, desc string, version string, flavor string, diskSize int,
+	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -550,21 +684,20 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
 
   resources {
-    resource_preset_id = "hm1.micro"
-    disk_size          = 24
+    resource_preset_id = "%s"
+    disk_size          = %d
+%s
   }
 
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
-  }
+%s
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
 }
-`, name, desc, version)
+`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
 }
 
-func testAccMDBRedisClusterConfigAddedHost(name, desc string, version string) string {
+func testAccMDBRedisClusterConfigAddedHost(name, desc string, version string, flavor string, diskSize int,
+	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
@@ -584,14 +717,12 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
 
   resources {
-    resource_preset_id = "hm1.micro"
-    disk_size          = 24
+    resource_preset_id = "%s"
+    disk_size          = %d
+%s
   }
 
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
-  }
+%s
 
   host {
     zone      = "ru-central1-c"
@@ -600,10 +731,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
 }
-`, name, desc, version)
+`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
 }
 
-func testAccMDBRedisShardedClusterConfig(name, desc string, version string) string {
+func testAccMDBRedisShardedClusterConfig(name, desc string, version string, diskSize int, diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "bar" {
   name        = "%s"
@@ -619,31 +750,17 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   resources {
     resource_preset_id = "hm1.nano"
-    disk_size          = 16
+    disk_size          = %d
+%s
   }
 
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "first"
-  }
-
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "second"
-  }
-
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "third"
-  }
+%s
 }
-`, name, desc, version)
+`, name, desc, version, diskSize, getDiskTypeStr(diskTypeId), getShardedHosts(diskTypeId, "third"))
 }
 
-func testAccMDBRedisShardedClusterConfigUpdated(name, desc string, version string) string {
+func testAccMDBRedisShardedClusterConfigUpdated(name, desc string, version string, diskSize int,
+	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "bar" {
   name        = "%s"
@@ -659,26 +776,11 @@ resource "yandex_mdb_redis_cluster" "bar" {
 
   resources {
     resource_preset_id = "hm1.nano"
-    disk_size          = 16
+    disk_size          = %d
+%s
   }
 
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "first"
-  }
-
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "second"
-  }
-
-  host {
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.foo.id}"
-	shard_name = "new"
-  }
+%s
 }
-`, name, desc, version)
+`, name, desc, version, diskSize, getDiskTypeStr(diskTypeId), getShardedHosts(diskTypeId, "new"))
 }

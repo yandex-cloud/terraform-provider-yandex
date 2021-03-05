@@ -155,6 +155,7 @@ func flattenRedisResources(r *redis.Resources) ([]map[string]interface{}, error)
 
 	res["resource_preset_id"] = r.ResourcePresetId
 	res["disk_size"] = toGigabytes(r.DiskSize)
+	res["disk_type_id"] = r.DiskTypeId
 
 	return []map[string]interface{}{res}, nil
 }
@@ -168,6 +169,10 @@ func expandRedisResources(d *schema.ResourceData) (*redis.Resources, error) {
 
 	if v, ok := d.GetOk("resources.0.disk_size"); ok {
 		rs.DiskSize = toBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk("resources.0.disk_type_id"); ok {
+		rs.DiskTypeId = v.(string)
 	}
 
 	return rs, nil

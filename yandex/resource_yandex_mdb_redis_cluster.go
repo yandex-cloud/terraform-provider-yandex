@@ -94,6 +94,11 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -350,6 +355,10 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
+
+	if d.HasChange("resources.0.disk_type_id") {
+		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
+	}
 
 	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") || d.HasChange("security_group_ids") {
 		if err := updateRedisClusterParams(d, meta); err != nil {

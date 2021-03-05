@@ -72,6 +72,11 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
+						},
 					},
 				},
 			},

@@ -178,8 +178,10 @@ data "yandex_mdb_redis_cluster" "bar" {
 
 func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, version string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version) + mdbRedisClusterByIDConfig
+		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, "hm1.nano", 16,
+			"") + mdbRedisClusterByIDConfig
 	}
 
-	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version) + mdbRedisClusterByNameConfig
+	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, "hm1.nano", 16,
+		"") + mdbRedisClusterByNameConfig
 }

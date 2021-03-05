@@ -10,6 +10,7 @@ ENHANCEMENTS:
 * mdb: add `service_account_id` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * mdb: add `cloud_storage` section in `yandex_mdb_clickhouse_cluster` resource and data source
 * managed-kubernetes: added `network_interface` section for `yandex_kubernetes_node_group`
+* managed-redis: added 'disk_type_id' field
 
 WARNING:
 * managed-kubernetes: `nat` entitiy and `subnet_id` entity in `allocation_policy` section for `yandex_kubernetes_node_group` is now deprecated
