@@ -20,6 +20,9 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 		Read:   resourceYandexFunctionTriggerRead,
 		Update: resourceYandexFunctionTriggerUpdate,
 		Delete: resourceYandexFunctionTriggerDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexFunctionTriggerDefaultTimeout),

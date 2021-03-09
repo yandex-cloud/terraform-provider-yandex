@@ -74,7 +74,10 @@ func TestAccYandexFunction_basic(t *testing.T) {
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexFunctionDestroy,
-		Steps:        []resource.TestStep{basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename, &function)},
+		Steps: []resource.TestStep{
+			basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename, &function),
+			functionImportTestStep(),
+		},
 	})
 }
 
@@ -100,7 +103,9 @@ func TestAccYandexFunction_update(t *testing.T) {
 		CheckDestroy: testYandexFunctionDestroy,
 		Steps: []resource.TestStep{
 			basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename, &function),
+			functionImportTestStep(),
 			basicYandexFunctionTestStep(functionNameUpdated, functionDescUpdated, labelKeyUpdated, labelValueUpdated, zipFilename, &function),
+			functionImportTestStep(),
 		},
 	})
 }
@@ -167,8 +172,24 @@ func TestAccYandexFunction_full(t *testing.T) {
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexFunctionDestroy,
-		Steps:        []resource.TestStep{testConfigFunc(params), testConfigFunc(paramsUpdated)},
+		Steps: []resource.TestStep{
+			testConfigFunc(params),
+			functionImportTestStep(),
+			testConfigFunc(paramsUpdated),
+			functionImportTestStep(),
+		},
 	})
+}
+
+func functionImportTestStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      "yandex_function.test-function",
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateVerifyIgnore: []string{
+			"content", "package", "image_size", "user_hash",
+		},
+	}
 }
 
 func basicYandexFunctionTestStep(functionName, functionDesc, labelKey, labelValue, zipFilename string, function *functions.Function) resource.TestStep {

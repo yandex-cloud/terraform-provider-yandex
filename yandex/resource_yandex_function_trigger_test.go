@@ -84,6 +84,7 @@ func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 		},
 	})
 }
@@ -119,6 +120,7 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 			{
 				Config: testYandexFunctionTriggerBasic(triggerNameUpdated, triggerDescUpdated, labelKeyUpdated, labelValueUpdated),
 				Check: resource.ComposeTestCheckFunc(
@@ -129,6 +131,7 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 		},
 	})
 }
@@ -162,6 +165,7 @@ func TestAccYandexFunctionTrigger_iot(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 		},
 	})
 }
@@ -196,6 +200,7 @@ func TestAccYandexFunctionTrigger_message(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 		},
 	})
 }
@@ -227,6 +232,7 @@ func TestAccYandexFunctionTrigger_object(t *testing.T) {
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
+			functionTriggerImportTestStep(),
 		},
 	})
 }
@@ -246,6 +252,14 @@ func testYandexFunctionTriggerDestroy(s *terraform.State) error {
 	}
 
 	return nil
+}
+
+func functionTriggerImportTestStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      "yandex_function_trigger.test-trigger",
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
 }
 
 func testYandexFunctionTriggerExists(name string, trigger *triggers.Trigger) resource.TestCheckFunc {

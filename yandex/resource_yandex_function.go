@@ -29,6 +29,9 @@ func resourceYandexFunction() *schema.Resource {
 		Read:   resourceYandexFunctionRead,
 		Update: resourceYandexFunctionUpdate,
 		Delete: resourceYandexFunctionDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexFunctionDefaultTimeout),
