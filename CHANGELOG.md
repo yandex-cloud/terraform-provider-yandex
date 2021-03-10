@@ -1,4 +1,6 @@
-## 0.52.0 (Unreleased)
+## 0.53.0 (Unreleased)
+
+## 0.52.0 (March 10, 2021)
 FEATURES:
 * **New Resource:** `yandex_mdb_sqlserver_cluster`
 * managed-kubernetes: support `security_group_ids` for `yandex_kubernetes_node_group` resource and data source
