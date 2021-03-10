@@ -76,7 +76,7 @@ func (u *ContainerRegistryIamUpdater) GetMutexKey() string {
 }
 
 func (u *ContainerRegistryIamUpdater) DescribeResource() string {
-	return fmt.Sprintf("container registry '%s'", u.registryID)
+	return fmt.Sprintf("Container Registry '%s'", u.registryID)
 }
 
 func getContainerRegistryAccessBindings(config *Config, registryID string) ([]*access.AccessBinding, error) {
@@ -92,7 +92,7 @@ func getContainerRegistryAccessBindings(config *Config, registryID string) ([]*a
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for container registry %s: %s", registryID, err)
+			return nil, fmt.Errorf("Error retrieving IAM access bindings for Container Registry %s: %s", registryID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

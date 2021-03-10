@@ -6,6 +6,9 @@ FEATURES:
 * **New Resource:** `yandex_dns_recordset`
 * **New Data Source:** `yandex_dns_zone`
 * serverless: support import for all resources
+* **New Resource:** `yandex_container_repository`
+* **New Resource:** `yandex_container_repository_iam_binding`
+* **New Data Source:** `yandex_container_repository` 
 
 ENHANCEMENTS:
 * mdb: add `service_account_id` section in `yandex_mdb_clickhouse_cluster` resource and data source

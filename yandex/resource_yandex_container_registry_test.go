@@ -26,7 +26,7 @@ func TestAccContainerRegistry_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-value-for-tag"),
@@ -54,7 +54,7 @@ func TestAccContainerRegistry_updateNameAndLabels(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-init-value"),
@@ -100,7 +100,7 @@ func TestAccContainerRegistry_updateOnlyName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-init-value"),
@@ -137,7 +137,7 @@ func TestAccContainerRegistry_updateOnlyLabels(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-init-value"),
@@ -178,7 +178,7 @@ func TestAccContainerRegistry_updateLabelValue(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccContainerRegistry_basic(registryName, folderID, "my-init-value"),
@@ -205,7 +205,7 @@ func TestAccContainerRegistry_updateLabelValue(t *testing.T) {
 	})
 }
 
-func testAccCheckContainerRegisterDestroy(s *terraform.State) error {
+func testAccCheckContainerRegistryDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
 	for _, rs := range s.RootModule().Resources {
@@ -223,7 +223,7 @@ func testAccCheckContainerRegisterDestroy(s *terraform.State) error {
 			} else if ok {
 				return fmt.Errorf("Error while requesting Yandex.Cloud: grpc code error : %d, http message error: %s", grpcStatus.Code(), grpcStatus.Message())
 			}
-			return fmt.Errorf("Registry still exists")
+			return fmt.Errorf("Container Registry still exists")
 		}
 	}
 
@@ -251,7 +251,7 @@ func testAccCheckContainerRegistryExists(n string, registry *containerregistry.R
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Registry %s not found", n)
+			return fmt.Errorf("Container Registry %s not found", n)
 		}
 
 		*registry = *found
@@ -262,7 +262,7 @@ func testAccCheckContainerRegistryExists(n string, registry *containerregistry.R
 func testAccCheckContainerRegistryName(registry *containerregistry.Registry, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if registry.Name != name {
-			return fmt.Errorf("Wrong registry name: expected '%s' got '%s'", name, registry.Name)
+			return fmt.Errorf("Wrong Container Registry name: expected '%s' got '%s'", name, registry.Name)
 		}
 		return nil
 	}
@@ -272,7 +272,7 @@ func testAccCheckContainerRegistryStatus(registry *containerregistry.Registry, s
 	return func(s *terraform.State) error {
 		registryStatus := strings.ToLower(registry.Status.String())
 		if registryStatus != status {
-			return fmt.Errorf("Wrong registry status: expected '%s' got '%s'", status, registryStatus)
+			return fmt.Errorf("Wrong Container Registry status: expected '%s' got '%s'", status, registryStatus)
 		}
 		return nil
 	}
@@ -304,7 +304,7 @@ func testAccCheckContainerRegistryDoesNotContainLabel(registry *containerregistr
 func testAccCheckRegistyIdsEqual(registryID *string, afterUpdateRegistryID *string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if *registryID != *afterUpdateRegistryID {
-			return fmt.Errorf("Registry id has changed: before '%s', after update '%s'", *registryID, *afterUpdateRegistryID)
+			return fmt.Errorf("Container Registry id has changed: before '%s', after update '%s'", *registryID, *afterUpdateRegistryID)
 		}
 
 		return nil

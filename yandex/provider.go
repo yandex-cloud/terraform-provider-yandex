@@ -129,6 +129,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"yandex_client_config":                dataSourceYandexClientConfig(),
 			"yandex_container_registry":           dataSourceYandexContainerRegistry(),
+			"yandex_container_repository":         dataSourceYandexContainerRepository(),
 			"yandex_compute_disk":                 dataSourceYandexComputeDisk(),
 			"yandex_compute_disk_placement_group": dataSourceYandexComputeDiskPlacementGroup(),
 			"yandex_compute_image":                dataSourceYandexComputeImage(),
@@ -170,6 +171,8 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"yandex_container_registry":                    resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":        resourceYandexContainerRegistryIAMBinding(),
+			"yandex_container_repository":                  resourceYandexContainerRepository(),
+			"yandex_container_repository_iam_binding":      resourceYandexContainerRepositoryIAMBinding(),
 			"yandex_compute_disk":                          resourceYandexComputeDisk(),
 			"yandex_compute_disk_placement_group":          resourceYandexComputeDiskPlacementGroup(),
 			"yandex_compute_image":                         resourceYandexComputeImage(),

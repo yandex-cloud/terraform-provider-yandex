@@ -18,7 +18,7 @@ func TestAccDataSourceContainerRegistry_byID(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceContainerRegistryConfig(registryName, folderID, label, true),
@@ -49,7 +49,7 @@ func TestAccDataSourceContainerRegistry_byName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckContainerRegisterDestroy,
+		CheckDestroy: testAccCheckContainerRegistryDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceContainerRegistryConfig(registryName, folderID, label, false),

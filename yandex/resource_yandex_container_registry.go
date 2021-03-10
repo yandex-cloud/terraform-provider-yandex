@@ -72,12 +72,12 @@ func resourceYandexContainerRegistryCreate(d *schema.ResourceData, meta interfac
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating registry: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating Container Registry: %s", err)
 	}
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating registry: %s", err)
+		return fmt.Errorf("Error expanding labels while creating Container Registry: %s", err)
 	}
 
 	req := containerregistry.CreateRegistryRequest{
@@ -91,28 +91,28 @@ func resourceYandexContainerRegistryCreate(d *schema.ResourceData, meta interfac
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create registry: %s", err)
+		return fmt.Errorf("Error while requesting API to create Container Registry: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while get registry create operation metadata: %s", err)
+		return fmt.Errorf("Error while get Container Registry create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*containerregistry.CreateRegistryMetadata)
 	if !ok {
-		return fmt.Errorf("could not get registry ID from create operation metadata")
+		return fmt.Errorf("could not get Container Registry ID from create operation metadata")
 	}
 
 	d.SetId(md.RegistryId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting operation to create registry: %s", err)
+		return fmt.Errorf("Error while waiting operation to create Container Registry: %s", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Registry creation failed: %s", err)
+		return fmt.Errorf("Container Registry creation failed: %s", err)
 	}
 
 	return resourceYandexContainerRegistryRead(d, meta)
@@ -127,7 +127,7 @@ func resourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{
 		})
 
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("Container Registry %q", d.Id()))
 	}
 
 	createdAt, err := getTimestamp(registry.CreatedAt)
@@ -166,7 +166,7 @@ func resourceYandexContainerRegistryUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if len(req.UpdateMask.Paths) == 0 {
-		return fmt.Errorf("No fields were updated for registry %s", d.Id())
+		return fmt.Errorf("No fields were updated for Container Registry %s", d.Id())
 	}
 
 	err := makeRegistryUpdateRequest(req, d, meta)
@@ -180,7 +180,7 @@ func resourceYandexContainerRegistryUpdate(d *schema.ResourceData, meta interfac
 func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Deleting Registry %q", d.Id())
+	log.Printf("[DEBUG] Deleting Container Registry %q", d.Id())
 
 	req := &containerregistry.DeleteRegistryRequest{
 		RegistryId: d.Id(),
@@ -191,7 +191,7 @@ func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interfac
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Delete(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Registry %q", d.Id()))
+		return handleNotFoundError(err, d, fmt.Sprintf("Container Registry %q", d.Id()))
 	}
 
 	err = op.Wait(ctx)
@@ -204,7 +204,7 @@ func resourceYandexContainerRegistryDelete(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting Registry %q", d.Id())
+	log.Printf("[DEBUG] Finished deleting Container Registry %q", d.Id())
 	return nil
 }
 
@@ -216,12 +216,12 @@ func makeRegistryUpdateRequest(req *containerregistry.UpdateRegistryRequest, d *
 
 	op, err := config.sdk.WrapOperation(config.sdk.ContainerRegistry().Registry().Update(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update Registry %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update Container Registry %q: %s", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error updating Registry %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating Container Registry %q: %s", d.Id(), err)
 	}
 
 	return nil

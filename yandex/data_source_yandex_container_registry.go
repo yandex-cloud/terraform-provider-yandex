@@ -68,7 +68,7 @@ func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interfac
 	if registryNameOk {
 		registryID, err = resolveObjectID(ctx, config, d, sdkresolvers.RegistryResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve container registry data source by name: %v", err)
+			return fmt.Errorf("failed to resolve data source Container Registry by name: %v", err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interfac
 
 	if err != nil {
 		if isStatusWithCode(err, codes.NotFound) {
-			return fmt.Errorf("container registry not found: %s", registryID)
+			return fmt.Errorf("Сontainer Registry not found: %s", registryID)
 		}
 		return err
 	}
