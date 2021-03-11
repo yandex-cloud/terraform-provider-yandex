@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"math"
 	"testing"
-	"time"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 )
 
@@ -44,8 +42,7 @@ func testSweepMDBRedisCluster(_ string) error {
 		if !sweepMDBRedisCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Redis cluster %q", c.Id))
 		} else {
-			// Allow all async events to be processed.
-			time.Sleep(time.Minute)
+			dumpSecurityGroups(conf, c.NetworkId)
 			if !sweepVPCNetwork(conf, c.NetworkId) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
 			}

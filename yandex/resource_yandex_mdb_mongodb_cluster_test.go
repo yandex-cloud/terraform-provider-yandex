@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sort"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -43,8 +42,7 @@ func testSweepMDBMongoDBCluster(_ string) error {
 		if !sweepMDBMongoDBCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep MongoDB cluster %q", c.Id))
 		} else {
-			// Allow all async events to be processed.
-			time.Sleep(time.Minute)
+			dumpSecurityGroups(conf, c.NetworkId)
 			if !sweepVPCNetwork(conf, c.NetworkId) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
 			}

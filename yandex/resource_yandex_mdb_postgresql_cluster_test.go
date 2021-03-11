@@ -6,9 +6,8 @@ import (
 	"regexp"
 	"sort"
 	"testing"
-	"time"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -44,8 +43,7 @@ func testSweepMDBPostgreSQLCluster(_ string) error {
 		if !sweepMDBPostgreSQLCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep PostgreSQL cluster %q", c.Id))
 		} else {
-			// Allow all async events to be processed.
-			time.Sleep(time.Minute)
+			dumpSecurityGroups(conf, c.NetworkId)
 			if !sweepVPCNetwork(conf, c.NetworkId) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
 			}

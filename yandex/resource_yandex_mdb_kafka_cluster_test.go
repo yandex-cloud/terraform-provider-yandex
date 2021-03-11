@@ -6,10 +6,9 @@ import (
 	"reflect"
 	"sort"
 	"testing"
-	"time"
 
-	wrappers "github.com/golang/protobuf/ptypes/wrappers"
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -106,8 +105,7 @@ func testSweepMDBKafkaCluster(_ string) error {
 		if !sweepMDBKafkaCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Kafka cluster %q", c.Id))
 		} else {
-			// Allow all async events to be processed.
-			time.Sleep(time.Minute)
+			dumpSecurityGroups(conf, c.NetworkId)
 			if !sweepVPCNetwork(conf, c.NetworkId) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
 			}

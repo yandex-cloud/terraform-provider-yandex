@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -710,4 +711,20 @@ func fieldDeprecatedForAnother(deprecatedFieldName string, newFieldName string) 
 
 func getSDK(config *Config) *ycsdk.SDK {
 	return config.sdk
+}
+
+func dumpSecurityGroups(conf *Config, networkId string) {
+	log.Printf("Listing security groups in the folder")
+	sgList, err := conf.sdk.VPC().SecurityGroup().List(conf.Context(), &vpc.ListSecurityGroupsRequest{
+		FolderId: conf.FolderID,
+		PageSize: 1000,
+	})
+	if err != nil {
+		log.Printf("error getting security groups list: %s", err)
+	}
+	for _, sg := range sgList.SecurityGroups {
+		if sg.NetworkId == networkId {
+			log.Printf("Detected security group %s bound to the network %s", sg.Id, sg.NetworkId)
+		}
+	}
 }
