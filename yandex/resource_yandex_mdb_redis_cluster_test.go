@@ -41,11 +41,6 @@ func testSweepMDBRedisCluster(_ string) error {
 	for _, c := range resp.Clusters {
 		if !sweepMDBRedisCluster(conf, c.Id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Redis cluster %q", c.Id))
-		} else {
-			dumpSecurityGroups(conf, c.NetworkId)
-			if !sweepVPCNetwork(conf, c.NetworkId) {
-				result = multierror.Append(result, fmt.Errorf("failed to sweep VPC network %q", c.NetworkId))
-			}
 		}
 	}
 
