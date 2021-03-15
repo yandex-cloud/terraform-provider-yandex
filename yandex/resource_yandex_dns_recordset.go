@@ -195,8 +195,7 @@ func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecord
 	oldTtl, newTtl := d.GetChange("ttl")
 	oldType, newType := d.GetChange("type")
 
-	oldCountRaw, _ := d.GetChange("rrdatas.#")
-	oldCount := oldCountRaw.(int)
+	oldData, _ := d.GetChange("data")
 
 	req := &dns.UpdateRecordSetsRequest{
 		DnsZoneId: d.Get("zone_id").(string),
@@ -205,7 +204,7 @@ func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecord
 				Name: name,
 				Type: oldType.(string),
 				Ttl:  int64(oldTtl.(int)),
-				Data: make([]string, oldCount),
+				Data: convertStringSet(oldData.(*schema.Set)),
 			},
 		},
 		Additions: []*dns.RecordSet{
@@ -216,12 +215,6 @@ func prepareDnsRecordSetUpdateRequest(d *schema.ResourceData) (*dns.UpdateRecord
 				Data: convertStringSet(d.Get("data").(*schema.Set)),
 			},
 		},
-	}
-
-	for i := 0; i < oldCount; i++ {
-		rrKey := fmt.Sprintf("data.%d", i)
-		oldRR, _ := d.GetChange(rrKey)
-		req.Deletions[0].Data[i] = oldRR.(string)
 	}
 
 	return req, nil

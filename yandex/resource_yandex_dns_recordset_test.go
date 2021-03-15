@@ -73,6 +73,37 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 	})
 }
 
+func TestAccDNSRecordSet_short(t *testing.T) {
+	t.Parallel()
+
+	var rs dns.RecordSet
+	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCAddressDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSRecordSetBasicShort(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "type", "A"),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "name", "srv"),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "ttl", "200"),
+					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", true),
+				),
+			},
+			{
+				ResourceName:      "yandex_dns_recordset.rs1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccDNSRecordSet_zoneChange(t *testing.T) {
 	t.Parallel()
 
@@ -135,7 +166,20 @@ func TestAccDNSRecordSet_update(t *testing.T) {
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", true),
 					testAccCheckDnsRecordsetData(&rs, "192.168.0.2", true),
 				),
-			}, {
+			},
+			{
+				Config: testAccDNSRecordSetBasic4(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "type", "A"),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "name", "srv."+fqdn),
+					resource.TestCheckResourceAttr("yandex_dns_recordset.rs1", "ttl", "200"),
+					testAccCheckDnsRecordsetData(&rs, "192.168.0.1", false),
+					testAccCheckDnsRecordsetData(&rs, "192.168.0.2", false),
+					testAccCheckDnsRecordsetData(&rs, "192.168.0.3", true),
+				),
+			},
+			{
 				Config: testAccDNSRecordSetBasic3(zoneName, fqdn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
@@ -220,6 +264,24 @@ resource "yandex_dns_recordset" "rs1" {
 `, name, fqdn)
 }
 
+func testAccDNSRecordSetBasicShort(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  name        = "%[1]s"
+  description = "desc"
+  zone        = "%[2]s"
+}
+
+resource "yandex_dns_recordset" "rs1" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv"
+  type    = "A"
+  ttl     = 200
+  data    = ["192.168.0.1"]
+}
+`, name, fqdn)
+}
+
 func testAccDNSRecordSetBasic2(name, fqdn string) string {
 	return fmt.Sprintf(`
 resource "yandex_dns_zone" "zone1" {
@@ -252,6 +314,32 @@ resource "yandex_dns_recordset" "rs1" {
   type    = "CNAME"
   ttl     = 300
   data    = ["srv.%[2]s"]
+}
+`, name, fqdn)
+}
+
+func testAccDNSRecordSetBasic4(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  name        = "%[1]s"
+  description = "desc"
+  zone        = "%[2]s"
+}
+
+resource "yandex_dns_recordset" "rs1" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv.%[2]s"
+  type    = "A"
+  ttl     = 200
+  data    = ["192.168.0.3"]
+}
+
+resource "yandex_dns_recordset" "rs2" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv3"
+  type    = "A"
+  ttl     = 200
+  data    = ["192.168.0.10"]
 }
 `, name, fqdn)
 }

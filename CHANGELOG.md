@@ -1,4 +1,6 @@
 ## 0.53.0 (Unreleased)
+BUG FIXES:
+* dns: fix recordset update in `yandex_dns_recordset`
 
 ## 0.52.0 (March 10, 2021)
 FEATURES:
