@@ -1,4 +1,7 @@
 ## 0.53.0 (Unreleased)
+ENHANCEMENTS:
+* serverless: supported log-group trigger
+
 BUG FIXES:
 * dns: fix recordset update in `yandex_dns_recordset`
 

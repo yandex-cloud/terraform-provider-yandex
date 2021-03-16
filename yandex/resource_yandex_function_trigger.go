@@ -12,7 +12,19 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 )
 
-const yandexFunctionTriggerDefaultTimeout = 5 * time.Minute
+const (
+	yandexFunctionTriggerDefaultTimeout = 5 * time.Minute
+
+	triggerTypeIoT           = "iot"
+	triggerTypeMessageQueue  = "message_queue"
+	triggerTypeObjectStorage = "object_storage"
+	triggerTypeTimer         = "timer"
+	triggerTypeLogGroup      = "log_group"
+)
+
+var functionTriggerTypesList = []string{
+	triggerTypeIoT, triggerTypeMessageQueue, triggerTypeObjectStorage, triggerTypeTimer, triggerTypeLogGroup,
+}
 
 func resourceYandexFunctionTrigger() *schema.Resource {
 	return &schema.Resource{
@@ -97,12 +109,12 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"iot": {
+			triggerTypeIoT: {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"message_queue", "object_storage", "timer"},
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeIoT),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"registry_id": {
@@ -126,12 +138,12 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"message_queue": {
+			triggerTypeMessageQueue: {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"iot", "object_storage", "timer"},
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeMessageQueue),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"queue_id": {
@@ -167,12 +179,12 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"object_storage": {
+			triggerTypeObjectStorage: {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"iot", "message_queue", "timer"},
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeObjectStorage),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_id": {
@@ -214,17 +226,49 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"timer": {
+			triggerTypeTimer: {
 				Type:          schema.TypeList,
 				MaxItems:      1,
 				Optional:      true,
 				ForceNew:      true,
-				ConflictsWith: []string{"iot", "message_queue", "object_storage"},
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeTimer),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cron_expression": {
 							Type:     schema.TypeString,
 							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeLogGroup: {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeLogGroup),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_group_ids": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 1,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
 							ForceNew: true,
 						},
 					},
@@ -294,8 +338,26 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	var getInvokeFunctionWithRetry = func() *triggers.InvokeFunctionWithRetry {
+		return &triggers.InvokeFunctionWithRetry{
+			FunctionId:       d.Get("function.0.id").(string),
+			FunctionTag:      d.Get("function.0.tag").(string),
+			ServiceAccountId: d.Get("function.0.service_account_id").(string),
+			RetrySettings:    retrySettings,
+			DeadLetterQueue:  dlqSettings,
+		}
+	}
+
+	var getInvokeFunctionOnce = func() *triggers.InvokeFunctionOnce {
+		return &triggers.InvokeFunctionOnce{
+			FunctionId:       d.Get("function.0.id").(string),
+			FunctionTag:      d.Get("function.0.tag").(string),
+			ServiceAccountId: d.Get("function.0.service_account_id").(string),
+		}
+	}
+
 	triggerCnt := 0
-	if _, ok := d.GetOk("iot"); ok {
+	if _, ok := d.GetOk(triggerTypeIoT); ok {
 		triggerCnt++
 		iot := &triggers.Trigger_Rule_IotMessage{
 			IotMessage: &triggers.Trigger_IoTMessage{
@@ -303,13 +365,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 				DeviceId:   d.Get("iot.0.device_id").(string),
 				MqttTopic:  d.Get("iot.0.topic").(string),
 				Action: &triggers.Trigger_IoTMessage_InvokeFunction{
-					InvokeFunction: &triggers.InvokeFunctionWithRetry{
-						FunctionId:       d.Get("function.0.id").(string),
-						FunctionTag:      d.Get("function.0.tag").(string),
-						ServiceAccountId: d.Get("function.0.service_account_id").(string),
-						RetrySettings:    retrySettings,
-						DeadLetterQueue:  dlqSettings,
-					},
+					InvokeFunction: getInvokeFunctionWithRetry(),
 				},
 			},
 		}
@@ -317,7 +373,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		req.Rule = &triggers.Trigger_Rule{Rule: iot}
 	}
 
-	if _, ok := d.GetOk("message_queue"); ok {
+	if _, ok := d.GetOk(triggerTypeMessageQueue); ok {
 		triggerCnt++
 		batch, err := expandBatchSettings(d, "message_queue.0")
 		if err != nil {
@@ -329,11 +385,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			ServiceAccountId: d.Get("message_queue.0.service_account_id").(string),
 			BatchSettings:    batch,
 			Action: &triggers.Trigger_MessageQueue_InvokeFunction{
-				InvokeFunction: &triggers.InvokeFunctionOnce{
-					FunctionId:       d.Get("function.0.id").(string),
-					FunctionTag:      d.Get("function.0.tag").(string),
-					ServiceAccountId: d.Get("function.0.service_account_id").(string),
-				},
+				InvokeFunction: getInvokeFunctionOnce(),
 			},
 		}
 
@@ -349,7 +401,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		req.Rule = &triggers.Trigger_Rule{Rule: messageQueueRule}
 	}
 
-	if _, ok := d.GetOk("object_storage"); ok {
+	if _, ok := d.GetOk(triggerTypeObjectStorage); ok {
 		triggerCnt++
 
 		events := make([]triggers.Trigger_ObjectStorageEventType, 0)
@@ -370,13 +422,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			Suffix:    d.Get("object_storage.0.suffix").(string),
 			EventType: events,
 			Action: &triggers.Trigger_ObjectStorage_InvokeFunction{
-				InvokeFunction: &triggers.InvokeFunctionWithRetry{
-					FunctionId:       d.Get("function.0.id").(string),
-					FunctionTag:      d.Get("function.0.tag").(string),
-					ServiceAccountId: d.Get("function.0.service_account_id").(string),
-					RetrySettings:    retrySettings,
-					DeadLetterQueue:  dlqSettings,
-				},
+				InvokeFunction: getInvokeFunctionWithRetry(),
 			},
 		}
 
@@ -384,7 +430,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
 	}
 
-	if _, ok := d.GetOk("timer"); ok {
+	if _, ok := d.GetOk(triggerTypeTimer); ok {
 		triggerCnt++
 
 		timer := triggers.Trigger_Timer{
@@ -393,26 +439,47 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		if retrySettings != nil || dlqSettings != nil {
 			timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
-				InvokeFunctionWithRetry: &triggers.InvokeFunctionWithRetry{
-					FunctionId:       d.Get("function.0.id").(string),
-					FunctionTag:      d.Get("function.0.tag").(string),
-					ServiceAccountId: d.Get("function.0.service_account_id").(string),
-					RetrySettings:    retrySettings,
-					DeadLetterQueue:  dlqSettings,
-				},
+				InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
 			}
 		} else {
 			timer.Action = &triggers.Trigger_Timer_InvokeFunction{
-				InvokeFunction: &triggers.InvokeFunctionOnce{
-					FunctionId:       d.Get("function.0.id").(string),
-					FunctionTag:      d.Get("function.0.tag").(string),
-					ServiceAccountId: d.Get("function.0.service_account_id").(string),
-				},
+				InvokeFunction: getInvokeFunctionOnce(),
 			}
 		}
 
 		timerRule := &triggers.Trigger_Rule_Timer{Timer: &timer}
 		req.Rule = &triggers.Trigger_Rule{Rule: timerRule}
+	}
+
+	if _, ok := d.GetOk(triggerTypeLogGroup); ok {
+		triggerCnt++
+
+		var groupIDs []string
+		groupIdSet := d.Get("log_group.0.log_group_ids").(*schema.Set)
+		for _, v := range groupIdSet.List() {
+			groupID := v.(string)
+			groupIDs = append(groupIDs, groupID)
+		}
+
+		cloudLogs := &triggers.Trigger_CloudLogs{
+			LogGroupId: groupIDs,
+			Action: &triggers.Trigger_CloudLogs_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			},
+		}
+		batch, err := expandBatchSettings(d, "log_group.0")
+		if err != nil {
+			return err
+		}
+		if batch != nil {
+			cloudLogs.BatchSettings = &triggers.CloudLogsBatchSettings{
+				Size:   batch.Size,
+				Cutoff: batch.Cutoff,
+			}
+		}
+		req.Rule = &triggers.Trigger_Rule{
+			Rule: &triggers.Trigger_Rule_CloudLogs{CloudLogs: cloudLogs},
+		}
 	}
 
 	if triggerCnt != 1 {
@@ -499,6 +566,48 @@ func resourceYandexFunctionTriggerUpdate(d *schema.ResourceData, meta interface{
 	return resourceYandexFunctionTriggerRead(d, meta)
 }
 
+func flattenYandexFunctionTriggerInvokeOnce(d *schema.ResourceData, function *triggers.InvokeFunctionOnce) error {
+	f := map[string]interface{}{
+		"id":                 function.FunctionId,
+		"tag":                function.FunctionTag,
+		"service_account_id": function.ServiceAccountId,
+	}
+	return d.Set("function", []map[string]interface{}{f})
+}
+
+func flattenYandexFunctionTriggerInvokeWithRetry(d *schema.ResourceData, function *triggers.InvokeFunctionWithRetry) error {
+	f := map[string]interface{}{
+		"id":                 function.FunctionId,
+		"tag":                function.FunctionTag,
+		"service_account_id": function.ServiceAccountId,
+	}
+
+	if retrySettings := function.GetRetrySettings(); retrySettings != nil {
+		f["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
+		if retrySettings.Interval != nil {
+			f["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
+		}
+	}
+
+	err := d.Set("function", []map[string]interface{}{f})
+	if err != nil {
+		return err
+	}
+
+	if deadLetter := function.GetDeadLetterQueue(); deadLetter != nil {
+		dlq := map[string]interface{}{
+			"queue_id":           deadLetter.QueueId,
+			"service_account_id": deadLetter.ServiceAccountId,
+		}
+
+		err = d.Set("dlq", []map[string]interface{}{dlq})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger) error {
 	createdAt, err := getTimestamp(trig.CreatedAt)
 	if err != nil {
@@ -521,40 +630,15 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"topic":       iot.MqttTopic,
 		}
 
-		err = d.Set("iot", []map[string]interface{}{i})
+		err = d.Set(triggerTypeIoT, []map[string]interface{}{i})
 		if err != nil {
 			return err
 		}
 
 		if function := iot.GetInvokeFunction(); function != nil {
-			f := map[string]interface{}{
-				"id":                 function.FunctionId,
-				"tag":                function.FunctionTag,
-				"service_account_id": function.ServiceAccountId,
-			}
-
-			if retrySettings := function.GetRetrySettings(); retrySettings != nil {
-				f["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
-				if retrySettings.Interval != nil {
-					f["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
-				}
-			}
-
-			err = d.Set("function", []map[string]interface{}{f})
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
-			}
-
-			if deadLetter := function.GetDeadLetterQueue(); deadLetter != nil {
-				dlq := map[string]interface{}{
-					"queue_id":           deadLetter.QueueId,
-					"service_account_id": deadLetter.ServiceAccountId,
-				}
-
-				err = d.Set("dlq", []map[string]interface{}{dlq})
-				if err != nil {
-					return err
-				}
 			}
 		}
 	} else if messageQueue := trig.GetRule().GetMessageQueue(); messageQueue != nil {
@@ -572,18 +656,13 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			m["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
 		}
 
-		err = d.Set("message_queue", []map[string]interface{}{m})
+		err = d.Set(triggerTypeMessageQueue, []map[string]interface{}{m})
 		if err != nil {
 			return err
 		}
 
 		if function := messageQueue.GetInvokeFunction(); function != nil {
-			f := map[string]interface{}{
-				"id":                 function.FunctionId,
-				"tag":                function.FunctionTag,
-				"service_account_id": function.ServiceAccountId,
-			}
-			err = d.Set("function", []map[string]interface{}{f})
+			err = flattenYandexFunctionTriggerInvokeOnce(d, function)
 			if err != nil {
 				return err
 			}
@@ -607,40 +686,15 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		}
 
-		err = d.Set("object_storage", []map[string]interface{}{s})
+		err = d.Set(triggerTypeObjectStorage, []map[string]interface{}{s})
 		if err != nil {
 			return err
 		}
 
 		if function := storage.GetInvokeFunction(); function != nil {
-			f := map[string]interface{}{
-				"id":                 function.FunctionId,
-				"tag":                function.FunctionTag,
-				"service_account_id": function.ServiceAccountId,
-			}
-
-			if retrySettings := function.GetRetrySettings(); retrySettings != nil {
-				f["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
-				if retrySettings.Interval != nil {
-					f["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
-				}
-			}
-
-			err = d.Set("function", []map[string]interface{}{f})
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
-			}
-
-			if deadLetter := function.GetDeadLetterQueue(); deadLetter != nil {
-				dlq := map[string]interface{}{
-					"queue_id":           deadLetter.QueueId,
-					"service_account_id": deadLetter.ServiceAccountId,
-				}
-
-				err = d.Set("dlq", []map[string]interface{}{dlq})
-				if err != nil {
-					return err
-				}
 			}
 		}
 	} else if timer := trig.GetRule().GetTimer(); timer != nil {
@@ -648,51 +702,44 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"cron_expression": timer.CronExpression,
 		}
 
-		err = d.Set("timer", []map[string]interface{}{t})
+		err = d.Set(triggerTypeTimer, []map[string]interface{}{t})
 		if err != nil {
 			return err
 		}
 
 		if function := timer.GetInvokeFunctionWithRetry(); function != nil {
-			f := map[string]interface{}{
-				"id":                 function.FunctionId,
-				"tag":                function.FunctionTag,
-				"service_account_id": function.ServiceAccountId,
-			}
-
-			if retrySettings := function.GetRetrySettings(); retrySettings != nil {
-				f["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
-				if retrySettings.Interval != nil {
-					f["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
-				}
-			}
-
-			err = d.Set("function", []map[string]interface{}{f})
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
-			}
-
-			if deadLetter := function.GetDeadLetterQueue(); deadLetter != nil {
-				dlq := map[string]interface{}{
-					"queue_id":           deadLetter.QueueId,
-					"service_account_id": deadLetter.ServiceAccountId,
-				}
-
-				err = d.Set("dlq", []map[string]interface{}{dlq})
-				if err != nil {
-					return err
-				}
 			}
 		} else if function := timer.GetInvokeFunction(); function != nil {
-			f := map[string]interface{}{
-				"id":                 function.FunctionId,
-				"tag":                function.FunctionTag,
-				"service_account_id": function.ServiceAccountId,
-			}
-			err = d.Set("function", []map[string]interface{}{f})
+			err = flattenYandexFunctionTriggerInvokeOnce(d, function)
 			if err != nil {
 				return err
 			}
+		}
+	} else if logGroup := trig.GetRule().GetCloudLogs(); logGroup != nil {
+
+		groupIDs := &schema.Set{F: schema.HashString}
+		for _, groupID := range logGroup.LogGroupId {
+			groupIDs.Add(groupID)
+		}
+		lg := map[string]interface{}{
+			"log_group_ids": groupIDs,
+		}
+		if batch := logGroup.GetBatchSettings(); batch != nil {
+			lg["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			lg["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+		if function := logGroup.GetInvokeFunction(); function != nil {
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		}
+		err = d.Set(triggerTypeLogGroup, []map[string]interface{}{lg})
+		if err != nil {
+			return err
 		}
 	}
 
@@ -796,4 +843,14 @@ func expandBatchSettings(d *schema.ResourceData, prefix string) (settings *trigg
 	settings.Cutoff = &duration.Duration{Seconds: batchCutoff}
 
 	return settings, nil
+}
+
+func functionTriggerConflictingTypes(triggerType string) []string {
+	res := make([]string, 0, len(functionTriggerTypesList)-1)
+	for _, tType := range functionTriggerTypesList {
+		if tType != triggerType {
+			res = append(res, tType)
+		}
+	}
+	return res
 }

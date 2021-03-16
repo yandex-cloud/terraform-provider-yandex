@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -235,6 +236,48 @@ func TestAccYandexFunctionTrigger_object(t *testing.T) {
 			functionTriggerImportTestStep(),
 		},
 	})
+}
+
+func TestAccYandexFunctionTrigger_loggroup(t *testing.T) {
+	t.Parallel()
+
+	trigger := &triggers.Trigger{}
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	logSrcFn := &functions.Function{}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: tetYandexFunctionTriggerLogGroup(triggerName, 5, 100),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
+					testYandexFunctionExists("yandex_function.log-src-fn", logSrcFn),
+					resource.TestCheckResourceAttr(triggerResource, "log_group.0.batch_cutoff", "5"),
+					resource.TestCheckResourceAttr(triggerResource, "log_group.0.batch_size", "100"),
+					testAccCheckCreatedAtAttr(triggerResource),
+					testTriggerLogGroupEqFunctionGroup(logSrcFn, trigger),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
+}
+
+func testTriggerLogGroupEqFunctionGroup(fn *functions.Function, trigger *triggers.Trigger) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		lgs := trigger.Rule.GetCloudLogs().LogGroupId
+		if len(lgs) != 1 {
+			return fmt.Errorf("trigger expected to have one log group, found: %v", lgs)
+		}
+		if triggerLG := lgs[0]; triggerLG != fn.LogGroupId {
+			return fmt.Errorf("trigger expected to have function's log group: %s, but got: %s", fn.LogGroupId, triggerLG)
+		}
+		return nil
+	}
 }
 
 func testYandexFunctionTriggerDestroy(s *terraform.State) error {
@@ -527,4 +570,56 @@ resource "yandex_storage_bucket" "tf-test" {
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 }
 	`, name, name, bucket, getExampleFolderID(), bucket)
+}
+
+func tetYandexFunctionTriggerLogGroup(name string, batchCutoffSeconds, batchSize int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+}
+
+resource "yandex_function" "log-src-fn" {
+  name       = "%s-log-src-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name = "%s"
+  log_group {
+    log_group_ids      = [yandex_function.log-src-fn.loggroup_id]
+    batch_cutoff       = "%d"
+    batch_size         = "%d"
+  }
+  function {
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+}
+	`, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
 }
