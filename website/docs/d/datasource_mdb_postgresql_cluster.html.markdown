@@ -73,8 +73,8 @@ The `resources` block supports:
 
 The `pooler_config` block supports:
 
-* `pooling_mode` - Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for PgBouncer](https://pgbouncer.github.io/usage).
-* `pool_discard` - Setting `server_reset_query_always` parameter in PgBouncer.
+* `pooling_mode` - Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
+* `pool_discard` - Value for `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_discard-yesno).
 
 The `backup_window_start` block supports:
 

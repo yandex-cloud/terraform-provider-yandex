@@ -271,6 +271,142 @@ resource "yandex_vpc_subnet" "foo" {
 }
 ```
 
+Example of creating a High-Availability (HA) PostgreSQL cluster with multiple databases and users.
+```hcl
+resource "random_password" "passwords" {
+  count   = 2
+  length  = 16
+  special = true
+}
+
+output "db_instance_alice_password" {
+  value = random_password.passwords[0].result
+}
+
+output "db_instance_bob_password" {
+  value = random_password.passwords[1].result
+}
+
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "ha_mdu_backup"
+  description = "Example of multiple databases and users"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  folder_id   = "b1g24daaaddddffma52u"
+
+  config {
+    version = "13"
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+
+    access {
+      web_sql = true
+    }
+
+    postgresql_config = {
+      max_connections                   = 395
+      enable_parallel_hash              = true
+      vacuum_cleanup_index_scale_factor = 0.2
+      autovacuum_vacuum_scale_factor    = 0.32
+      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+      shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
+    }
+
+    pooler_config {
+      pool_discard = true
+      pooling_mode = "SESSION"
+    }
+  }
+
+  user {
+    name       = "alice"
+    password   = random_password.passwords[0].result
+    conn_limit = 10
+    permission {
+      database_name = "testdb"
+    }
+    permission {
+      database_name = "testdb1"
+    }
+    permission {
+      database_name = "testdb2"
+    }
+  }
+
+  user {
+    name     = "bob"
+    password = random_password.passwords[1].result
+    permission {
+      database_name = "testdb2"
+    }
+    permission {
+      database_name = "testdb1"
+    }
+  }
+  user {
+    name     = "chuck"
+    password = "123456789"
+    permission {
+      database_name = "testdb"
+    }
+    grants = ["bob", "alice"]
+  }
+
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.b.id
+  }
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.a.id
+  }
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.c.id
+  }
+
+  database {
+    owner = "alice"
+    name  = "testdb"
+  }
+  database {
+    owner = "alice"
+    name  = "testdb2"
+  }
+  database {
+    owner = "bob"
+    name  = "testdb1"
+    extension {
+      name = "postgis"
+    }
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "a" {
+  name           = "mysubnet-a"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+resource "yandex_vpc_subnet" "b" {
+  name           = "mysubnet-b"
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+resource "yandex_vpc_subnet" "c" {
+  name           = "mysubnet-c"
+  zone           = "ru-central1-c"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -337,9 +473,9 @@ The `resources` block supports:
 
 The `pooler_config` block supports:
 
-* `pool_discard` - (Optional) Setting `server_reset_query_always` [parameter in PgBouncer](https://www.pgbouncer.org/config.html).
+* `pool_discard` - (Optional) Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_discard-yesno).
 
-* `pooling_mode` - (Optional) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for PgBouncer](https://pgbouncer.github.io/usage).
+* `pooling_mode` - (Optional) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
 
 The `backup_window_start` block supports:
 

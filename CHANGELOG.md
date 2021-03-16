@@ -1,5 +1,6 @@
 ## 0.53.0 (Unreleased)
 ENHANCEMENTS:
+* mdb: add example and update documentation for `yandex_mdb_postgresql_cluster` resource
 * serverless: supported log-group trigger
 
 BUG FIXES:
