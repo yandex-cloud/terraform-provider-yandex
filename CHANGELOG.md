@@ -1,4 +1,9 @@
-## 0.53.0 (Unreleased)
+## 0.54.0 (Unreleased)
+ENHANCEMENTS:
+
+BUG FIXES:
+
+## 0.53.0 (March 19, 2021)
 ENHANCEMENTS:
 * mdb: add example and update documentation for `yandex_mdb_postgresql_cluster` resource
 * serverless: supported log-group trigger
