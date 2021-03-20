@@ -10,6 +10,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * dns: fix recordset update in `yandex_dns_recordset`
+* storage: Fix timeout while applying CORS settings with empty fields
 
 ## 0.52.0 (March 10, 2021)
 FEATURES:

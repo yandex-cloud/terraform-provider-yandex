@@ -535,7 +535,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 			rule["allowed_methods"] = flattenStringList(ruleObject.AllowedMethods)
 			rule["allowed_origins"] = flattenStringList(ruleObject.AllowedOrigins)
 			// Both the "ExposeHeaders" and "MaxAgeSeconds" might not be set.
-			if ruleObject.AllowedOrigins != nil {
+			if ruleObject.ExposeHeaders != nil {
 				rule["expose_headers"] = flattenStringList(ruleObject.ExposeHeaders)
 			}
 			if ruleObject.MaxAgeSeconds != nil {
@@ -1309,6 +1309,14 @@ func waitCorsPut(s3Client *s3.S3, bucket string, configuration *s3.CORSConfigura
 			return false, err
 		}
 		empty := len(output.CORSRules) == 0 && len(configuration.CORSRules) == 0
+		for _, rule := range output.CORSRules {
+			if rule.ExposeHeaders == nil {
+				rule.ExposeHeaders = make([]*string, 0)
+			}
+			if rule.AllowedHeaders == nil {
+				rule.AllowedHeaders = make([]*string, 0)
+			}
+		}
 		if empty || reflect.DeepEqual(output.CORSRules, configuration.CORSRules) {
 			return true, nil
 		}
