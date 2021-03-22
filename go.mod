@@ -1,6 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.15
+go 1.16
 
 require (
 	github.com/aws/aws-sdk-go v1.19.39
