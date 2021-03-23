@@ -3,6 +3,7 @@ ENHANCEMENTS:
 * serverless: supported API Gateway
 
 BUG FIXES:
+* mdb: fix user settings diff for ClickHouse cluster
 
 ## 0.53.0 (March 19, 2021)
 ENHANCEMENTS:
