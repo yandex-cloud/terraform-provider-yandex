@@ -127,6 +127,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"yandex_api_gateway":                  dataSourceYandexApiGateway(),
 			"yandex_client_config":                dataSourceYandexClientConfig(),
 			"yandex_container_registry":           dataSourceYandexContainerRegistry(),
 			"yandex_container_repository":         dataSourceYandexContainerRepository(),
@@ -169,6 +170,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"yandex_api_gateway":                           resourceYandexApiGateway(),
 			"yandex_container_registry":                    resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":        resourceYandexContainerRegistryIAMBinding(),
 			"yandex_container_repository":                  resourceYandexContainerRepository(),

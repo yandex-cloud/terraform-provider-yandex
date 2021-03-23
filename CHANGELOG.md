@@ -1,6 +1,7 @@
 ## 0.54.0 (Unreleased)
 ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.16.
+* serverless: supported API Gateway
 
 ## 0.53.0 (March 19, 2021)
 ENHANCEMENTS:
