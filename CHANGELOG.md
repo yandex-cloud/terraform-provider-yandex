@@ -1,5 +1,6 @@
 ## 0.54.0 (Unreleased)
 ENHANCEMENTS:
+* serverless: supported API Gateway
 
 BUG FIXES:
 
