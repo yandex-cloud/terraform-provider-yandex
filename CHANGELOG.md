@@ -3,6 +3,9 @@ ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.16.
 * serverless: supported API Gateway
 
+BUG FIXES:
+* mdb: fix user settings diff for ClickHouse cluster
+
 ## 0.53.0 (March 19, 2021)
 ENHANCEMENTS:
 * mdb: add example and update documentation for `yandex_mdb_postgresql_cluster` resource

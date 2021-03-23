@@ -85,11 +85,30 @@ func clickHouseUserHash(v interface{}) int {
 	if ps, ok := m["permission"]; ok {
 		buf.WriteString(fmt.Sprintf("%v-", ps.(*schema.Set).List()))
 	}
+	emptySettings := true
 	if s, ok := m["settings"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", s))
+		for _, settings := range s.([]interface{}) {
+			settings := expandClickHouseUserSettings(settings.(map[string]interface{}))
+			p := flattenClickHouseUserSettings(settings)
+			buf.WriteString(fmt.Sprintf("%v-", p))
+			emptySettings = false
+			break
+		}
+	}
+	if emptySettings {
+		settings := &clickhouse.UserSettings{}
+		p := flattenClickHouseUserSettings(settings)
+		buf.WriteString(fmt.Sprintf("%v-", p))
 	}
 	if q, ok := m["quota"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", q.(*schema.Set).List()))
+		quotaSet := q.(*schema.Set)
+		if len(quotaSet.List()) > 0 {
+			quotas := expandClickHouseUserQuotas(quotaSet)
+			for _, quota := range quotas {
+				p := flattenClickHouseUserQuota(quota)
+				buf.WriteString(fmt.Sprintf(" %v", p))
+			}
+		}
 	}
 
 	return hashcode.String(buf.String())
@@ -1131,8 +1150,15 @@ func getQuotaModeValue(name string) clickhouse.UserSettings_QuotaMode {
 
 func setSettingFromMapInt64(us map[string]interface{}, key string, setting **wrappers.Int64Value) {
 	if v, ok := us[key]; ok {
-		if v.(int) > 0 {
-			*setting = &wrappers.Int64Value{Value: int64(v.(int))}
+		switch vt := v.(type) {
+		case int:
+			if vt > 0 {
+				*setting = &wrappers.Int64Value{Value: int64(vt)}
+			}
+		case int64:
+			if vt > 0 {
+				*setting = &wrappers.Int64Value{Value: vt}
+			}
 		}
 	}
 }
@@ -1478,15 +1504,20 @@ func flattenClickHouseUserQuota(quota *clickhouse.UserQuota) map[string]interfac
 	return p
 }
 
+func falseOnNil(param *wrappers.BoolValue) bool {
+	if param != nil {
+		return param.Value
+	}
+	return false
+}
+
 func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string]interface{} {
 	result := map[string]interface{}{}
 
 	if settings.Readonly != nil {
 		result["readonly"] = settings.Readonly.Value
 	}
-	if settings.AllowDdl != nil {
-		result["allow_ddl"] = settings.AllowDdl.Value
-	}
+	result["allow_ddl"] = falseOnNil(settings.AllowDdl)
 	if settings.InsertQuorum != nil {
 		result["insert_quorum"] = settings.InsertQuorum.Value
 	}
@@ -1502,37 +1533,25 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.InsertQuorumTimeout != nil {
 		result["insert_quorum_timeout"] = settings.InsertQuorumTimeout.Value
 	}
-	if settings.SelectSequentialConsistency != nil {
-		result["select_sequential_consistency"] = settings.SelectSequentialConsistency.Value
-	}
+	result["select_sequential_consistency"] = falseOnNil(settings.SelectSequentialConsistency)
 	if settings.MaxReplicaDelayForDistributedQueries != nil {
 		result["max_replica_delay_for_distributed_queries"] = settings.MaxReplicaDelayForDistributedQueries.Value
 	}
-	if settings.FallbackToStaleReplicasForDistributedQueries != nil {
-		result["fallback_to_stale_replicas_for_distributed_queries"] = settings.FallbackToStaleReplicasForDistributedQueries.Value
-	}
+	result["fallback_to_stale_replicas_for_distributed_queries"] = falseOnNil(settings.FallbackToStaleReplicasForDistributedQueries)
 	if settings.ReplicationAlterPartitionsSync != nil {
 		result["replication_alter_partitions_sync"] = settings.ReplicationAlterPartitionsSync.Value
 	}
 	result["distributed_product_mode"] = getDistributedProductModeName(settings.DistributedProductMode)
-	if settings.DistributedAggregationMemoryEfficient != nil {
-		result["distributed_aggregation_memory_efficient"] = settings.DistributedAggregationMemoryEfficient.Value
-	}
+	result["distributed_aggregation_memory_efficient"] = falseOnNil(settings.DistributedAggregationMemoryEfficient)
 	if settings.DistributedDdlTaskTimeout != nil {
 		result["distributed_ddl_task_timeout"] = settings.DistributedDdlTaskTimeout.Value
 	}
-	if settings.SkipUnavailableShards != nil {
-		result["skip_unavailable_shards"] = settings.SkipUnavailableShards.Value
-	}
-	if settings.Compile != nil {
-		result["compile"] = settings.Compile.Value
-	}
+	result["skip_unavailable_shards"] = falseOnNil(settings.SkipUnavailableShards)
+	result["compile"] = falseOnNil(settings.Compile)
 	if settings.MinCountToCompile != nil {
 		result["min_count_to_compile"] = settings.MinCountToCompile.Value
 	}
-	if settings.CompileExpressions != nil {
-		result["compile_expressions"] = settings.CompileExpressions.Value
-	}
+	result["compile_expressions"] = falseOnNil(settings.CompileExpressions)
 	if settings.MinCountToCompileExpression != nil {
 		result["min_count_to_compile_expression"] = settings.MinCountToCompileExpression.Value
 	}
@@ -1551,9 +1570,7 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.MinBytesToUseDirectIo != nil {
 		result["min_bytes_to_use_direct_io"] = settings.MinBytesToUseDirectIo.Value
 	}
-	if settings.UseUncompressedCache != nil {
-		result["use_uncompressed_cache"] = settings.UseUncompressedCache.Value
-	}
+	result["use_uncompressed_cache"] = falseOnNil(settings.UseUncompressedCache)
 	if settings.MergeTreeMaxRowsToUseCache != nil {
 		result["merge_tree_max_rows_to_use_cache"] = settings.MergeTreeMaxRowsToUseCache.Value
 	}
@@ -1596,12 +1613,8 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.MaxNetworkBandwidthForUser != nil {
 		result["max_network_bandwidth_for_user"] = settings.MaxNetworkBandwidthForUser.Value
 	}
-	if settings.ForceIndexByDate != nil {
-		result["force_index_by_date"] = settings.ForceIndexByDate.Value
-	}
-	if settings.ForcePrimaryKey != nil {
-		result["force_primary_key"] = settings.ForcePrimaryKey.Value
-	}
+	result["force_index_by_date"] = falseOnNil(settings.ForceIndexByDate)
+	result["force_primary_key"] = falseOnNil(settings.ForcePrimaryKey)
 	if settings.MaxRowsToRead != nil {
 		result["max_rows_to_read"] = settings.MaxRowsToRead.Value
 	}
@@ -1687,33 +1700,15 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 		result["min_execution_speed_bytes"] = settings.MinExecutionSpeedBytes.Value
 	}
 	result["count_distinct_implementation"] = getCountDistinctImplementationName(settings.CountDistinctImplementation)
-	if settings.InputFormatValuesInterpretExpressions != nil {
-		result["input_format_values_interpret_expressions"] = settings.InputFormatValuesInterpretExpressions.Value
-	}
-	if settings.InputFormatDefaultsForOmittedFields != nil {
-		result["input_format_defaults_for_omitted_fields"] = settings.InputFormatDefaultsForOmittedFields.Value
-	}
-	if settings.OutputFormatJsonQuote_64BitIntegers != nil {
-		result["output_format_json_quote_64bit_integers"] = settings.OutputFormatJsonQuote_64BitIntegers.Value
-	}
-	if settings.OutputFormatJsonQuoteDenormals != nil {
-		result["output_format_json_quote_denormals"] = settings.OutputFormatJsonQuoteDenormals.Value
-	}
-	if settings.LowCardinalityAllowInNativeFormat != nil {
-		result["low_cardinality_allow_in_native_format"] = settings.LowCardinalityAllowInNativeFormat.Value
-	}
-	if settings.EmptyResultForAggregationByEmptySet != nil {
-		result["empty_result_for_aggregation_by_empty_set"] = settings.EmptyResultForAggregationByEmptySet.Value
-	}
-	if settings.JoinedSubqueryRequiresAlias != nil {
-		result["joined_subquery_requires_alias"] = settings.JoinedSubqueryRequiresAlias.Value
-	}
-	if settings.JoinUseNulls != nil {
-		result["join_use_nulls"] = settings.JoinUseNulls.Value
-	}
-	if settings.TransformNullIn != nil {
-		result["transform_null_in"] = settings.TransformNullIn.Value
-	}
+	result["input_format_values_interpret_expressions"] = falseOnNil(settings.InputFormatValuesInterpretExpressions)
+	result["input_format_defaults_for_omitted_fields"] = falseOnNil(settings.InputFormatDefaultsForOmittedFields)
+	result["output_format_json_quote_64bit_integers"] = falseOnNil(settings.OutputFormatJsonQuote_64BitIntegers)
+	result["output_format_json_quote_denormals"] = falseOnNil(settings.OutputFormatJsonQuoteDenormals)
+	result["low_cardinality_allow_in_native_format"] = falseOnNil(settings.LowCardinalityAllowInNativeFormat)
+	result["empty_result_for_aggregation_by_empty_set"] = falseOnNil(settings.EmptyResultForAggregationByEmptySet)
+	result["joined_subquery_requires_alias"] = falseOnNil(settings.JoinedSubqueryRequiresAlias)
+	result["join_use_nulls"] = falseOnNil(settings.JoinUseNulls)
+	result["transform_null_in"] = falseOnNil(settings.TransformNullIn)
 	if settings.HttpConnectionTimeout != nil {
 		result["http_connection_timeout"] = settings.HttpConnectionTimeout.Value
 	}
@@ -1723,18 +1718,12 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.HttpSendTimeout != nil {
 		result["http_send_timeout"] = settings.HttpSendTimeout.Value
 	}
-	if settings.EnableHttpCompression != nil {
-		result["enable_http_compression"] = settings.EnableHttpCompression.Value
-	}
-	if settings.SendProgressInHttpHeaders != nil {
-		result["send_progress_in_http_headers"] = settings.SendProgressInHttpHeaders.Value
-	}
+	result["enable_http_compression"] = falseOnNil(settings.EnableHttpCompression)
+	result["send_progress_in_http_headers"] = falseOnNil(settings.SendProgressInHttpHeaders)
 	if settings.HttpHeadersProgressInterval != nil {
 		result["http_headers_progress_interval"] = settings.HttpHeadersProgressInterval.Value
 	}
-	if settings.AddHttpCorsHeader != nil {
-		result["add_http_cors_header"] = settings.AddHttpCorsHeader.Value
-	}
+	result["add_http_cors_header"] = falseOnNil(settings.AddHttpCorsHeader)
 	result["quota_mode"] = getQuotaModeName(settings.QuotaMode)
 
 	return result
@@ -1803,7 +1792,7 @@ func flattenClickHouseUsers(users []*clickhouse.User, passwords map[string]strin
 			u["password"] = p
 		}
 
-		u["settings"] = []map[string]interface{}{flattenClickHouseUserSettings(user.Settings)}
+		u["settings"] = []interface{}{flattenClickHouseUserSettings(user.Settings)}
 
 		if len(user.Quotas) > 0 {
 			quotas := schema.NewSet(clickHouseUserQuotaHash, nil)
