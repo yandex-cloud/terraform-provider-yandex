@@ -186,8 +186,16 @@ func setTestIDs() error {
 		envEndpoint = defaultEndpoint
 	}
 
+	providerConfig := &Config{
+		Token: os.Getenv("YC_TOKEN"),
+	}
+	credentials, err := providerConfig.credentials()
+	if err != nil {
+		return err
+	}
+
 	config := &ycsdk.Config{
-		Credentials: ycsdk.OAuthToken(os.Getenv("YC_TOKEN")),
+		Credentials: credentials,
 		Endpoint:    envEndpoint,
 	}
 

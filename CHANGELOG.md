@@ -1,5 +1,8 @@
 ## 0.55.0 (Unreleased)
 
+ENHANCEMENTS:
+* support IAM token in tests
+
 ## 0.54.0 (March 23, 2021)
 ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.16.
@@ -27,7 +30,7 @@ FEATURES:
 * serverless: support import for all resources
 * **New Resource:** `yandex_container_repository`
 * **New Resource:** `yandex_container_repository_iam_binding`
-* **New Data Source:** `yandex_container_repository` 
+* **New Data Source:** `yandex_container_repository`
 
 ENHANCEMENTS:
 * mdb: add `service_account_id` section in `yandex_mdb_clickhouse_cluster` resource and data source
