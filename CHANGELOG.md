@@ -15,6 +15,7 @@ BUG FIXES:
 ENHANCEMENTS:
 * mdb: add example and update documentation for `yandex_mdb_postgresql_cluster` resource
 * serverless: supported log-group trigger
+* managed-redis: added 'tls_enabled' field
 
 BUG FIXES:
 * dns: fix recordset update in `yandex_dns_recordset`

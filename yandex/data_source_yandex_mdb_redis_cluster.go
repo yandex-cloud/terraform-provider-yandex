@@ -118,6 +118,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"tls_enabled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -199,6 +203,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
+	d.Set("tls_enabled", cluster.TlsEnabled)
 
 	conf := extractRedisConfig(cluster.Config)
 	err = d.Set("config", []map[string]interface{}{

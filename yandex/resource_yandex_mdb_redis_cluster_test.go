@@ -89,6 +89,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 	diskTypeId := "network-ssd"
 	baseFlavor := "hm1.nano"
 	updatedFlavor := "hm1.micro"
+	tlsEnabled := false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -97,9 +98,9 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, baseFlavor, baseDiskSize, ""),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, nil, version, baseFlavor, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -114,10 +115,10 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version, updatedFlavor,
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, version, updatedFlavor,
 					updatedDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -132,10 +133,10 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version, updatedFlavor,
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, nil, version, updatedFlavor,
 					updatedDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 2),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -164,6 +165,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	version := "5.0"
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
+	tlsEnabled := false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -174,7 +176,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 			{
 				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version, baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -190,7 +192,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize,
 					diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -217,6 +219,7 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
 	baseFlavor := "hm1.nano"
+	tlsEnabled := true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -225,10 +228,10 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, version, baseFlavor, baseDiskSize,
-					diskTypeId),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, &tlsEnabled, version, baseFlavor,
+					baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -242,10 +245,10 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Change some options
 			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, version, baseFlavor, baseDiskSize,
-					diskTypeId),
+				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, version, baseFlavor,
+					baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -259,10 +262,10 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, version, baseFlavor, baseDiskSize,
-					diskTypeId),
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, version, baseFlavor,
+					baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4),
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -290,6 +293,7 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 	version := "6.0"
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
+	tlsEnabled := false
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -300,7 +304,7 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 			{
 				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version, baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -315,7 +319,7 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 			{
 				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3),
+					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -350,7 +354,7 @@ func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int) resource.TestCheckFunc {
+func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tlsEnabled bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -372,6 +376,10 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int) re
 
 		if found.Id != rs.Primary.ID {
 			return fmt.Errorf("Redis Cluster not found")
+		}
+
+		if found.TlsEnabled != tlsEnabled {
+			return fmt.Errorf("tls mode: found = %t; expected = %t", found.TlsEnabled, tlsEnabled)
 		}
 
 		*r = *found
@@ -622,14 +630,23 @@ func getDiskTypeStr(diskTypeId string) string {
 	return diskTypeStr
 }
 
-func testAccMDBRedisClusterConfigMain(name, desc string, version string, flavor string, diskSize int,
-	diskTypeId string) string {
+func getTlsEnabled(tlsEnabled *bool) string {
+	res := ""
+	if tlsEnabled != nil {
+		res = fmt.Sprintf("tls_enabled = %t", *tlsEnabled)
+	}
+	return res
+}
+
+func testAccMDBRedisClusterConfigMain(name, desc string, tlsEnabled *bool, version string, flavor string,
+	diskSize int, diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
+%s
 
   labels = {
     test_key = "test_value"
@@ -652,10 +669,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
 }
-`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
+`, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
 }
 
-func testAccMDBRedisClusterConfigUpdated(name, desc string, version string, flavor string, diskSize int,
+func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled *bool, version string, flavor string, diskSize int,
 	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
@@ -663,6 +680,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
+%s
 
   labels = {
     new_key = "new_value"
@@ -685,10 +703,11 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
 }
-`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
+`, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId),
+		getSentinelHosts(diskTypeId))
 }
 
-func testAccMDBRedisClusterConfigAddedHost(name, desc string, version string, flavor string, diskSize int,
+func testAccMDBRedisClusterConfigAddedHost(name, desc string, tlsEnabled *bool, version string, flavor string, diskSize int,
 	diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
@@ -696,6 +715,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
+%s
 
   labels = {
     new_key = "new_value"
@@ -723,7 +743,8 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
 }
-`, name, desc, version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
+`, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId),
+		getSentinelHosts(diskTypeId))
 }
 
 func testAccMDBRedisShardedClusterConfig(name, desc string, version string, diskSize int, diskTypeId string) string {

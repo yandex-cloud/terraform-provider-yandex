@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -144,6 +145,12 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Default:  false,
 				ForceNew: true,
 			},
+			"tls_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -264,6 +271,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		HostSpecs:        hosts,
 		Labels:           labels,
 		Sharded:          d.Get("sharded").(bool),
+		TlsEnabled:       &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
 		SecurityGroupIds: securityGroupIds,
 	}
 	return &req, nil
@@ -301,6 +309,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
+	d.Set("tls_enabled", cluster.TlsEnabled)
 
 	resources, err := flattenRedisResources(cluster.Config.Resources)
 	if err != nil {
