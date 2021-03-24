@@ -101,7 +101,6 @@ data yandex_compute_placement_group pgd {
 }
 
 resource yandex_compute_placement_group pgr {
-  name        = "my-group"
   description = "my description"
   labels = {
     first  = "xxx"

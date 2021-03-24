@@ -19,14 +19,15 @@ import (
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/mitchellh/go-homedir"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-
 	ycsdk "github.com/yandex-cloud/go-sdk"
 	"github.com/yandex-cloud/go-sdk/iamkey"
 	"github.com/yandex-cloud/go-sdk/pkg/requestid"
 	"github.com/yandex-cloud/go-sdk/pkg/retry"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
 )
 
 const (
@@ -113,9 +114,20 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		retry.WithAttemptHeader(true),
 		retry.WithBackoff(backoffExponentialWithJitter(defaultExponentialBackoffBase, defaultExponentialBackoffCap)))
 
+	var interceptors = []grpc.UnaryClientInterceptor{
+		retryInterceptor,
+		requestIDInterceptor,
+	}
+
+	// Support deep API logging in case user has requested it.
+	if os.Getenv("TF_ENABLE_API_LOGGING") != "" {
+		log.Print("[INFO] API logging has been requested, turning on")
+		interceptors = append(interceptors, logging.NewAPILoggingUnaryInterceptor())
+	}
+
 	// Make sure retry interceptor is above id interceptor.
 	// Now we will have new request id for every retry attempt.
-	interceptorChain := grpc_middleware.ChainUnaryClient(retryInterceptor, requestIDInterceptor)
+	interceptorChain := grpc_middleware.ChainUnaryClient(interceptors...)
 
 	c.sdk, err = ycsdk.Build(c.contextWithClientTraceID, *yandexSDKConfig,
 		grpc.WithUserAgent(c.userAgent),

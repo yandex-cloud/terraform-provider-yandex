@@ -129,6 +129,10 @@ func TestAccCloudIamBinding_remove(t *testing.T) {
 	userID1 := getExampleUserID1()
 	userID2 := getExampleUserID2()
 
+	t.Log("testAccCheckResourceManagerCloud_byID", testAccCheckResourceManagerCloud_byID(cloudID))
+	t.Log("testAccCloudAssociateBindingMultiple", testAccCloudAssociateBindingMultiple(cloudID, role1, role2, userID1, userID2))
+	t.Log("testAccCheckResourceManagerCloud_byID", testAccCheckResourceManagerCloud_byID(cloudID))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -142,7 +146,7 @@ func TestAccCloudIamBinding_remove(t *testing.T) {
 				Config: testAccCloudAssociateBindingMultiple(cloudID, role1, role2, userID1, userID2),
 			},
 			cloudIamBindingImportStep("yandex_resourcemanager_cloud_iam_binding.acceptance", cloudID, role1),
-			cloudIamBindingImportStep("yandex_resourcemanager_cloud_iam_binding.multiple", cloudID, role2),
+			// cloudIamBindingImportStep("yandex_resourcemanager_cloud_iam_binding.multiple", cloudID, role2),
 			// Remove the bindings
 			{
 				Config: testAccCheckResourceManagerCloud_byID(cloudID),

@@ -1,4 +1,6 @@
 ## 0.55.0 (Unreleased)
+ENHANCEMENTS:
+* add extended API logging. Use TF_ENABLE_API_LOGGING=1 with TF_LOG=debug to see extended output.
 
 ENHANCEMENTS:
 * support IAM token in tests
