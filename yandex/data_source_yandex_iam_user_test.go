@@ -82,7 +82,7 @@ func TestAccDataSourceYandexLogin_invalidLogin(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckYandexLogin(invalidLogin1, invalidLogin2),
-				ExpectError: regexp.MustCompile("Invalid login"),
+				ExpectError: regexp.MustCompile("login not found"),
 			},
 		},
 	})
