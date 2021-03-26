@@ -5,6 +5,7 @@ ENHANCEMENTS:
 ENHANCEMENTS:
 * support IAM token in tests
 * managed-redis: added 'tls_enabled' field
+* mdb: add `host` attribute in `yandex_mdb_kafka_cluster` resource and data source
 
 ## 0.54.0 (March 23, 2021)
 ENHANCEMENTS:

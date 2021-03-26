@@ -87,6 +87,12 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"host": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Set:      kafkaHostHash,
+				Elem:     resourceYandexMDBKafkaHost(),
+			},
 		},
 	}
 }
@@ -157,6 +163,14 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("user", flattenKafkaUsers(users, nil)); err != nil {
+		return err
+	}
+
+	hosts, err := listKafkaHosts(ctx, config, clusterID)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("host", flattenKafkaHosts(hosts)); err != nil {
 		return err
 	}
 

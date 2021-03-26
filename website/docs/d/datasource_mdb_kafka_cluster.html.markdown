@@ -50,6 +50,7 @@ exported:
 * `config` - Configuration of the Kafka cluster. The structure is documented below.
 * `user` - A user of the Kafka cluster. The structure is documented below.
 * `topic` - A topic of the Kafka cluster. The structure is documented below.
+* `host` - A host of the Kafka cluster. The structure is documented below.
 * `security_group_ids` - A list of security groups IDs of the Kafka cluster.
 
 The `config` block supports:
@@ -117,3 +118,12 @@ The `topic_config` block supports:
 `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate`, - (Optional) Kafka topic settings. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/managed-kafka/operations/cluster-topics#update-topic)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
+
+The `host` block supports:
+
+* `name` - The fully qualified domain name of the host.
+* `zone_id` - The availability zone where the Kafka host was created.
+* `role` - Role of the host in the cluster.
+* `health` - Health of the host.
+* `subnet_id` - The ID of the subnet, to which the host belongs.
+* `assign_public_ip` - The flag that defines whether a public IP address is assigned to the node.
