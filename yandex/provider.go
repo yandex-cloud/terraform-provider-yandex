@@ -159,6 +159,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_mdb_postgresql_cluster":       dataSourceYandexMDBPostgreSQLCluster(),
 			"yandex_mdb_redis_cluster":            dataSourceYandexMDBRedisCluster(),
 			"yandex_mdb_kafka_cluster":            dataSourceYandexMDBKafkaCluster(),
+			"yandex_message_queue":                dataSourceYandexMessageQueue(),
 			"yandex_resourcemanager_cloud":        dataSourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_folder":       dataSourceYandexResourceManagerFolder(),
 			"yandex_vpc_address":                  dataSourceYandexVPCAddress(),
@@ -166,7 +167,8 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_vpc_route_table":              dataSourceYandexVPCRouteTable(),
 			"yandex_vpc_security_group":           dataSourceYandexVPCSecurityGroup(),
 			"yandex_vpc_subnet":                   dataSourceYandexVPCSubnet(),
-			"yandex_message_queue":                dataSourceYandexMessageQueue(),
+			"yandex_ydb_database_dedicated":       dataSourceYandexYDBDatabaseDedicated(),
+			"yandex_ydb_database_serverless":      dataSourceYandexYDBDatabaseServerless(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -210,6 +212,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_mdb_postgresql_cluster":                resourceYandexMDBPostgreSQLCluster(),
 			"yandex_mdb_redis_cluster":                     resourceYandexMDBRedisCluster(),
 			"yandex_mdb_kafka_cluster":                     resourceYandexMDBKafkaCluster(),
+			"yandex_message_queue":                         resourceYandexMessageQueue(),
 			"yandex_resourcemanager_cloud_iam_binding":     resourceYandexResourceManagerCloudIAMBinding(),
 			"yandex_resourcemanager_cloud_iam_member":      resourceYandexResourceManagerCloudIAMMember(),
 			"yandex_resourcemanager_folder_iam_binding":    resourceYandexResourceManagerFolderIAMBinding(),
@@ -222,7 +225,8 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_security_group":                    resourceYandexVPCSecurityGroup(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
-			"yandex_message_queue":                         resourceYandexMessageQueue(),
+			"yandex_ydb_database_dedicated":                resourceYandexYDBDatabaseDedicated(),
+			"yandex_ydb_database_serverless":               resourceYandexYDBDatabaseServerless(),
 		},
 	}
 	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)

@@ -10,6 +10,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/grpc"
@@ -18,7 +19,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
-	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
@@ -608,7 +609,7 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 
 	// create new one disk
 	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
-		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0", config)
+		bootDiskSpec, err := expandInstanceGroupAttachedDiskSpecSpec(d, prefix+".initialize_params.0", config)
 		if err != nil {
 			return nil, err
 		}
@@ -672,7 +673,7 @@ func expandBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.Attach
 	return diskSpec, nil
 }
 
-func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
+func expandInstanceGroupAttachedDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &instancegroup.AttachedDiskSpec_DiskSpec{}
 
 	if v, ok := d.GetOk(prefix + ".description"); ok {
@@ -2095,4 +2096,99 @@ func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4Address
 	}
 
 	return &addrSpec, nil
+}
+
+func flattenYDBLocation(database *ydb.Database) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if t := database.GetRegionalDatabase(); t != nil {
+		res["region"] = []map[string]interface{}{{"id": t.RegionId}}
+	}
+
+	if len(res) == 0 {
+		return nil, nil
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func expandYDBLocationSpec(d *schema.ResourceData) (ydb.CreateDatabaseRequest_DatabaseType, error) {
+	var db ydb.CreateDatabaseRequest
+
+	if _, ok := d.GetOk("location.0.region"); ok {
+		v := d.Get("location.0.region.0.id").(string)
+		db.DatabaseType = &ydb.CreateDatabaseRequest_RegionalDatabase{
+			RegionalDatabase: &ydb.RegionalDatabase{
+				RegionId: v,
+			},
+		}
+	}
+
+	if db.DatabaseType != nil {
+		return db.DatabaseType, nil
+	}
+
+	return &ydb.CreateDatabaseRequest_DedicatedDatabase{DedicatedDatabase: &ydb.DedicatedDatabase{}}, nil
+}
+
+func flattenYDBStorageConfig(storageConfig *ydb.StorageConfig) ([]map[string]interface{}, error) {
+	if storageConfig == nil {
+		return nil, nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(storageConfig.StorageOptions))
+	for _, option := range storageConfig.StorageOptions {
+		result = append(result, map[string]interface{}{
+			"storage_type_id": option.StorageTypeId,
+			"group_count":     int(option.GroupCount),
+		})
+	}
+
+	return result, nil
+}
+
+func expandYDBStorageConfigSpec(d *schema.ResourceData) (*ydb.StorageConfig, error) {
+	storageConfig := d.Get("storage_config").([]interface{})
+	if storageConfig == nil {
+		return nil, nil
+	}
+
+	storageOptions := make([]*ydb.StorageOption, 0, len(storageConfig))
+	for _, option := range storageConfig {
+		storageOption := option.(map[string]interface{})
+		storageOptions = append(storageOptions, &ydb.StorageOption{
+			StorageTypeId: storageOption["storage_type_id"].(string),
+			GroupCount:    int64(storageOption["group_count"].(int)),
+		})
+	}
+
+	return &ydb.StorageConfig{StorageOptions: storageOptions}, nil
+}
+
+func flattenYDBScalePolicy(database *ydb.Database) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if sp := database.GetScalePolicy().GetFixedScale(); sp != nil {
+		res["fixed_scale"] = []map[string]interface{}{{"size": int(sp.Size)}}
+	}
+
+	if len(res) == 0 {
+		return nil, nil
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func expandYDBScalePolicySpec(d *schema.ResourceData) (*ydb.ScalePolicy, error) {
+	if _, ok := d.GetOk("scale_policy.0.fixed_scale"); ok {
+		v := d.Get("scale_policy.0.fixed_scale.0.size").(int)
+		return &ydb.ScalePolicy{
+			ScaleType: &ydb.ScalePolicy_FixedScale_{
+				FixedScale: &ydb.ScalePolicy_FixedScale{
+					Size: int64(v),
+				},
+			},
+		}, nil
+	}
+	return nil, nil
 }
