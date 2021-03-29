@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -53,17 +54,13 @@ func resourceYandexApiGateway() *schema.Resource {
 			},
 
 			"spec": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
+				Type:     schema.TypeString,
 				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"yaml_filename": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
+			},
+
+			"spec_content_hash": {
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 
 			"domain": {
@@ -95,7 +92,7 @@ func resourceYandexApiGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	req, err := getCreateApiGatewayRequest(d, config)
+	req, specContent, err := getCreateApiGatewayRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -122,23 +119,26 @@ func resourceYandexApiGatewayCreate(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud API Gateway: %s", err)
 	}
 
+	specHash := hashcode.String(*specContent)
+	setSpecHash(d, specHash)
+
 	return resourceYandexApiGatewayRead(d, meta)
 }
 
-func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigateway.CreateApiGatewayRequest, error) {
+func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigateway.CreateApiGatewayRequest, *string, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("Error expanding labels while creating Yandex Cloud API Gateway: %s", err)
+		return nil, nil, fmt.Errorf("Error expanding labels while creating Yandex Cloud API Gateway: %s", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting folder ID while creating Yandex Cloud API Gateway: %s", err)
+		return nil, nil, fmt.Errorf("Error getting folder ID while creating Yandex Cloud API Gateway: %s", err)
 	}
 
-	specContent, err := loadSpec(d.Get("spec.0.yaml_filename").(string))
+	specContent, err := loadSpec(d.Get("spec").(string))
 	if err != nil {
-		return nil, fmt.Errorf("Error getting spec while creating Yandex Cloud API Gateway: %s", err)
+		return nil, nil, fmt.Errorf("Error getting spec while creating Yandex Cloud API Gateway: %s", err)
 	}
 
 	req := &apigateway.CreateApiGatewayRequest{
@@ -150,7 +150,7 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 			OpenapiSpec: *specContent,
 		},
 	}
-	return req, err
+	return req, specContent, err
 }
 
 func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -167,27 +167,30 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	d.Partial(true)
 
 	var updatePaths []string
-	var partialPaths []string
 	if d.HasChange("name") {
 		updatePaths = append(updatePaths, "name")
-		partialPaths = append(partialPaths, "name")
 	}
 
 	if d.HasChange("description") {
 		updatePaths = append(updatePaths, "description")
-		partialPaths = append(partialPaths, "description")
 	}
 
 	if d.HasChange("labels") {
 		updatePaths = append(updatePaths, "labels")
-		partialPaths = append(partialPaths, "labels")
+	}
+
+	specContent, err := loadSpec(d.Get("spec").(string))
+	if err != nil {
+		return err
+	}
+	newSpecHash := hashcode.String(*specContent)
+	isSpecChanged := false
+	if d.Get("spec_content_hash") != newSpecHash {
+		updatePaths = append(updatePaths, "openapi_spec")
+		isSpecChanged = true
 	}
 
 	if len(updatePaths) != 0 {
-		specContent, err := loadSpec(d.Get("spec.0.yaml_filename").(string))
-		if err != nil {
-			return err
-		}
 		req := apigateway.UpdateApiGatewayRequest{
 			ApiGatewayId: d.Id(),
 			Name:         d.Get("name").(string),
@@ -205,12 +208,24 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error while requesting API to update Yandex Cloud API Gateway: %s", err)
 		}
 
-		for _, v := range partialPaths {
+		for _, v := range updatePaths {
+			if v == "openapi_spec" {
+				continue
+			}
+
 			d.SetPartial(v)
+		}
+
+		if isSpecChanged {
+			d.SetPartial("spec_content_hash")
 		}
 	}
 
 	d.Partial(false)
+
+	if isSpecChanged {
+		setSpecHash(d, newSpecHash)
+	}
 
 	return resourceYandexApiGatewayRead(d, meta)
 }
@@ -275,4 +290,8 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	d.Set("status", strings.ToLower(apiGateway.Status.String()))
 	d.Set("log_group_id", apiGateway.LogGroupId)
 	return d.Set("labels", apiGateway.Labels)
+}
+
+func setSpecHash(d *schema.ResourceData, hash int) {
+	d.Set("spec_content_hash", hash)
 }

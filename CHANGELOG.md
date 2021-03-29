@@ -7,6 +7,9 @@ ENHANCEMENTS:
 * managed-redis: added 'tls_enabled' field
 * mdb: add `host` attribute in `yandex_mdb_kafka_cluster` resource and data source
 
+BUG FIXES:
+* serverless: fix API Gateway specification update
+
 ## 0.54.0 (March 23, 2021)
 ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.16.

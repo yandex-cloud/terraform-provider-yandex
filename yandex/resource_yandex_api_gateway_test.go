@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
+	"io/ioutil"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -14,6 +16,9 @@ import (
 )
 
 const apiGatewayResource = "yandex_api_gateway.test-api-gateway"
+const specFile = "test-fixtures/serverless/main.yaml"
+
+var specHash int
 
 func init() {
 	resource.AddTestSweepers("yandex_api_gateway", &resource.Sweeper{
@@ -21,6 +26,9 @@ func init() {
 		F:            testSweepAPIGateway,
 		Dependencies: []string{},
 	})
+	fileBytes, _ := ioutil.ReadFile(specFile)
+	specString := string(fileBytes)
+	specHash = hashcode.String(specString)
 }
 
 func testSweepAPIGateway(_ string) error {
@@ -65,7 +73,7 @@ func TestAccYandexAPIGateway_basic(t *testing.T) {
 	labelKey := acctest.RandomWithPrefix("tf-api-gateway-label")
 	labelValue := acctest.RandomWithPrefix("tf-api-gateway-label-value")
 
-	yamlFilename := "test-fixtures/serverless/main.yaml"
+	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -91,7 +99,7 @@ func TestAccYandexAPIGateway_update(t *testing.T) {
 	labelKeyUpdated := acctest.RandomWithPrefix("tf-api-gateway-label-updated")
 	labelValueUpdated := acctest.RandomWithPrefix("tf-api-gateway-label-value-updated")
 
-	yamlFilename := "test-fixtures/serverless/main.yaml"
+	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -113,14 +121,14 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
-	params.yamlFilename = "test-fixtures/serverless/main.yaml"
+	params.yamlFilename = specFile
 
 	paramsUpdated := testYandexAPIGatewayParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-api-gateway-updated")
 	paramsUpdated.desc = acctest.RandomWithPrefix("tf-api-gateway-desc-updated")
 	paramsUpdated.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label-updated")
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value-updated")
-	paramsUpdated.yamlFilename = "test-fixtures/serverless/main.yaml"
+	paramsUpdated.yamlFilename = specFile
 
 	testConfigFunc := func(params testYandexAPIGatewayParameters) resource.TestStep {
 		return resource.TestStep{
@@ -235,11 +243,10 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec {
-    yaml_filename = "%s"
-  }
+  spec = "%s"
+  spec_content_hash = %d
 }
-	`, name, desc, labelKey, labelValue, yamlFilename)
+	`, name, desc, labelKey, labelValue, yamlFilename, specHash)
 }
 
 type testYandexAPIGatewayParameters struct {
@@ -259,14 +266,14 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec {
-    yaml_filename = "%s"
-  }
+  spec = "%s"
+  spec_content_hash = %d
 }
 	`,
 		params.name,
 		params.desc,
 		params.labelKey,
 		params.labelValue,
-		params.yamlFilename)
+		params.yamlFilename,
+		specHash)
 }

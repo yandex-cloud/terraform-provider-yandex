@@ -18,7 +18,7 @@ func TestAccDataSourceYandexAPIGateway_byID(t *testing.T) {
 	var apiGateway apigateway.ApiGateway
 	apiGatewayName := acctest.RandomWithPrefix("tf-api-gateway")
 	apiGatewayDesc := acctest.RandomWithPrefix("tf-api-gateway-desc")
-	yamlFilename := "test-fixtures/serverless/main.yaml"
+	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -46,7 +46,7 @@ func TestAccDataSourceYandexAPIGateway_byName(t *testing.T) {
 	var apiGateway apigateway.ApiGateway
 	apiGatewayName := acctest.RandomWithPrefix("tf-api-gateway")
 	apiGatewayDesc := acctest.RandomWithPrefix("tf-api-gateway-desc")
-	yamlFilename := "test-fixtures/serverless/main.yaml"
+	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -77,7 +77,7 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
-	params.yamlFilename = "test-fixtures/serverless/main.yaml"
+	params.yamlFilename = specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -108,11 +108,10 @@ data "yandex_api_gateway" "test-api-gateway" {
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"
   description = "%s"
-  spec {
-    yaml_filename = "%s"
-  }
+  spec = "%s"
+  spec_content_hash = %d
 }
-	`, name, desc, yamlFilename)
+	`, name, desc, yamlFilename, specHash)
 }
 
 func testYandexAPIGatewayByName(name string, desc string, yamlFilename string) string {
@@ -124,11 +123,10 @@ data "yandex_api_gateway" "test-api-gateway" {
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"
   description = "%s"
-  spec {
-    yaml_filename = "%s"
-  }
+  spec = "%s"
+  spec_content_hash = %d
 }
-	`, name, desc, yamlFilename)
+	`, name, desc, yamlFilename, specHash)
 }
 
 func testYandexAPIGatewayDataSource(params testYandexAPIGatewayParameters) string {
@@ -144,14 +142,14 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec {
-    yaml_filename = "%s"
-  }
+  spec = "%s"
+  spec_content_hash = %d
 }
 	`,
 		params.name,
 		params.desc,
 		params.labelKey,
 		params.labelValue,
-		params.yamlFilename)
+		params.yamlFilename,
+		specHash)
 }
