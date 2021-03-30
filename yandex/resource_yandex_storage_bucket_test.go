@@ -2,9 +2,11 @@
 package yandex
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -153,6 +155,72 @@ func TestAccStorageBucket_generatedName(t *testing.T) {
 				Config: testAccStorageBucketConfigWithGeneratedName(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_Policy(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithPolicy(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketPolicy(resourceName, testAccStorageBucketPolicy(rInt)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_PolicyNone(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketBasic(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketPolicy(resourceName, ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_PolicyEmpty(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithEmptyPolicy(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketPolicy(resourceName, ""),
 				),
 			},
 		},
@@ -679,6 +747,57 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 		})
 		if err != nil {
 			return fmt.Errorf("error destroying bucket (%s) in testAccCheckStorageDestroyBucket: %s", rs.Primary.ID, err)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+
+		out, err := conn.GetBucketPolicy(&s3.GetBucketPolicyInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+
+		if policy == "" {
+			if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoSuchBucketPolicy" {
+				// expected
+				return nil
+			}
+			if err == nil {
+				return fmt.Errorf("Expected no policy, got: %#v", *out.Policy)
+			} else {
+				return fmt.Errorf("GetBucketPolicy error: %v, expected %s", err, policy)
+			}
+		}
+		if err != nil {
+			return fmt.Errorf("GetBucketPolicy error: %v, expected %s", err, policy)
+		}
+
+		if v := out.Policy; v == nil {
+			if policy != "" {
+				return fmt.Errorf("bad policy, found nil, expected: %s", policy)
+			}
+		} else {
+			expected := make(map[string]interface{})
+			if err := json.Unmarshal([]byte(policy), &expected); err != nil {
+				return err
+			}
+			actual := make(map[string]interface{})
+			if err := json.Unmarshal([]byte(*v), &actual); err != nil {
+				return err
+			}
+
+			if !reflect.DeepEqual(expected, actual) {
+				return fmt.Errorf("bad policy, expected: %#v, got %#v", expected, actual)
+			}
 		}
 
 		return nil
@@ -1261,6 +1380,59 @@ resource "yandex_storage_bucket" "test" {
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
 	bucket = "tf-test-bucket-%d"
+}
+`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketPolicy(randInt int) string {
+	return fmt.Sprintf(`{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TestPolicySid",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::tf-test-bucket-%[1]d/*",
+        "arn:aws:s3:::tf-test-bucket-%[1]d"
+      ]
+    },
+    {
+      "Sid": "TestPolicySid",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:PutObject",
+      "Resource": [
+        "arn:aws:s3:::tf-test-bucket-%[1]d/*",
+        "arn:aws:s3:::tf-test-bucket-%[1]d"
+      ]
+    }
+  ]
+}`, randInt)
+}
+
+func testAccStorageBucketConfigWithPolicy(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
+  policy = %[2]s
+}
+`, randInt, strconv.Quote(testAccStorageBucketPolicy(randInt))) + testAccCommonIamDependenciesAdminConfig(randInt)
+}
+
+func testAccStorageBucketConfigWithEmptyPolicy(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  bucket = "tf-test-bucket-%d"
+  acl    = "public-read"
 }
 `, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
 }

@@ -185,6 +185,40 @@ resource "yandex_storage_bucket" "test" {
 }
 ```
 
+### Bucket Policy
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::my-policy-bucket/*",
+        "arn:aws:s3:::my-policy-bucket"
+      ]
+    },
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:PutObject",
+      "Resource": [
+        "arn:aws:s3:::my-policy-bucket/*",
+        "arn:aws:s3:::my-policy-bucket"
+      ]
+    }
+  ]
+}
+POLICY
+}
+```
+
 ### All settings example
 
 ```hcl
@@ -424,6 +458,8 @@ The `apply_server_side_encryption_by_default` object supports the following:
 * `sse_algorithm` - (Required) The server-side encryption algorithm to use. Single valid value is `aws:kms`
 
 * `kms_master_key_id` - (Optional) The KMS master key ID used for the SSE-KMS encryption.
+
+The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://cloud.yandex.ru/docs/storage/concepts/policy) for more information on policy format.
 
 ## Attributes Reference
 

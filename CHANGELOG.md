@@ -1,4 +1,7 @@
 ## 0.55.0 (Unreleased)
+FEATURES:
+* storage: `yandex_storage_bucket` resource supports bucket policy configuration
+
 ENHANCEMENTS:
 * add extended API logging. Use TF_ENABLE_API_LOGGING=1 with TF_LOG=debug to see extended output.
 

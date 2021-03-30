@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -17,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	awspolicy "github.com/jen20/awspolicyequivalence"
 )
 
 func resourceYandexStorageBucket() *schema.Resource {
@@ -108,6 +110,13 @@ func resourceYandexStorageBucket() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"policy": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ValidateFunc:     validateStringIsJSON,
+				DiffSuppressFunc: suppressEquivalentAwsPolicyDiffs,
 			},
 
 			"cors_rule": {
@@ -430,6 +439,12 @@ func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
+	if d.HasChange("policy") {
+		if err := resourceYandexStorageBucketPolicyUpdate(s3Client, d); err != nil {
+			return err
+		}
+	}
+
 	if d.HasChange("cors_rule") {
 		if err := resourceYandexStorageBucketCORSUpdate(s3Client, d); err != nil {
 			return err
@@ -512,6 +527,41 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("bucket_domain_name", domainName)
 
+	// Read the policy
+	if _, ok := d.GetOk("policy"); ok {
+
+		pol, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3Client.GetBucketPolicy(&s3.GetBucketPolicyInput{
+				Bucket: aws.String(d.Id()),
+			})
+		})
+		log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
+		if err != nil {
+			if isAWSErr(err, "NoSuchBucketPolicy", "") {
+				if err := d.Set("policy", ""); err != nil {
+					return fmt.Errorf("error setting policy: %s", err)
+				}
+			} else {
+				return fmt.Errorf("error getting current policy: %s", err)
+			}
+		} else {
+			v := pol.(*s3.GetBucketPolicyOutput).Policy
+			if v == nil {
+				if err := d.Set("policy", ""); err != nil {
+					return fmt.Errorf("error setting policy: %s", err)
+				}
+			} else {
+				policy, err := NormalizeJsonString(aws.StringValue(v))
+				if err != nil {
+					return fmt.Errorf("policy contains an invalid JSON: %s", err)
+				}
+				if err := d.Set("policy", policy); err != nil {
+					return fmt.Errorf("error setting policy: %s", err)
+				}
+			}
+		}
+	}
+
 	corsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketCors(&s3.GetBucketCorsInput{
 			Bucket: aws.String(d.Id()),
@@ -592,10 +642,10 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if websiteEndpoint != nil {
 		if err := d.Set("website_endpoint", websiteEndpoint.Endpoint); err != nil {
-			return err
+			return fmt.Errorf("error setting website_endpoint: %s", err)
 		}
 		if err := d.Set("website_domain", websiteEndpoint.Domain); err != nil {
-			return err
+			return fmt.Errorf("error setting website_domain: %s", err)
 		}
 	}
 
@@ -1439,6 +1489,47 @@ func transitionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func resourceYandexStorageBucketPolicyUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	bucket := d.Get("bucket").(string)
+	policy := d.Get("policy").(string)
+
+	if policy == "" {
+		log.Printf("[DEBUG] S3 bucket: %s, delete policy: %s", bucket, policy)
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3conn.DeleteBucketPolicy(&s3.DeleteBucketPolicyInput{
+				Bucket: aws.String(bucket),
+			})
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error deleting S3 policy: %s", err)
+		}
+		return nil
+	}
+	log.Printf("[DEBUG] S3 bucket: %s, put policy: %s", bucket, policy)
+
+	params := &s3.PutBucketPolicyInput{
+		Bucket: aws.String(bucket),
+		Policy: aws.String(policy),
+	}
+
+	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
+		_, err := s3conn.PutBucketPolicy(params)
+		if isAWSErr(err, "MalformedPolicy", "") || isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+			return resource.RetryableError(err)
+		}
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("Error putting S3 policy: %s", err)
+	}
+
+	return nil
+}
+
 func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	rawGrants := d.Get("grant").(*schema.Set).List()
@@ -1806,4 +1897,45 @@ func validateBucketPermissions(permissions []interface{}) error {
 	}
 
 	return nil
+}
+
+func validateStringIsJSON(i interface{}, k string) (warnings []string, errors []error) {
+	v, ok := i.(string)
+	if !ok {
+		errors = append(errors, fmt.Errorf("expected type of %s to be string", k))
+		return warnings, errors
+	}
+
+	if _, err := NormalizeJsonString(v); err != nil {
+		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
+	}
+
+	return warnings, errors
+}
+
+func NormalizeJsonString(jsonString interface{}) (string, error) {
+	var j interface{}
+
+	if jsonString == nil || jsonString.(string) == "" {
+		return "", nil
+	}
+
+	s := jsonString.(string)
+
+	err := json.Unmarshal([]byte(s), &j)
+	if err != nil {
+		return "", err
+	}
+
+	bytes, _ := json.Marshal(j)
+	return string(bytes[:]), nil
+}
+
+func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
+	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
+	if err != nil {
+		return false
+	}
+
+	return equivalent
 }

@@ -14,6 +14,7 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20180906183839-65a6292f0157 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.0.0
 	github.com/hashicorp/vault v0.10.4
+	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/stretchr/testify v1.5.1
