@@ -111,6 +111,15 @@ func expandKafkaConfig2_6(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 	if v, ok := d.GetOk(rootKey + ".log_preallocate"); ok {
 		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
 	}
+	if v, ok := d.GetOk(rootKey + ".socket_send_buffer_bytes"); ok {
+		res.SocketSendBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".socket_receive_buffer_bytes"); ok {
+		res.SocketReceiveBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".auto_create_topics_enable"); ok {
+		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
+	}
 
 	return res, nil
 }
@@ -151,6 +160,15 @@ func expandKafkaConfig2_1(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 	}
 	if v, ok := d.GetOk(rootKey + ".log_preallocate"); ok {
 		res.LogPreallocate = v.(*wrappers.BoolValue)
+	}
+	if v, ok := d.GetOk(rootKey + ".socket_send_buffer_bytes"); ok {
+		res.SocketSendBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".socket_receive_buffer_bytes"); ok {
+		res.SocketReceiveBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".auto_create_topics_enable"); ok {
+		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
 	}
 
 	return res, nil
@@ -273,6 +291,10 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 
 	if v, ok := d.GetOk("config.0.assign_public_ip"); ok {
 		result.AssignPublicIp = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.unmanaged_topics"); ok {
+		result.UnmanagedTopics = v.(bool)
 	}
 
 	if v, ok := d.GetOk("config.0.zones"); ok {
@@ -405,6 +427,7 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 	config := map[string]interface{}{
 		"brokers_count":    cluster.Config.BrokersCount.GetValue(),
 		"assign_public_ip": cluster.Config.AssignPublicIp,
+		"unmanaged_topics": cluster.Config.UnmanagedTopics,
 		"zones":            cluster.Config.ZoneId,
 		"version":          cluster.Config.Version,
 		"kafka": []map[string]interface{}{
@@ -442,6 +465,9 @@ func flattenKafkaConfig2_6Settings(r *kafka.KafkaConfig2_6) (map[string]interfac
 	res["log_retention_ms"] = r.GetLogRetentionMs().GetValue()
 	res["log_segment_bytes"] = r.GetLogSegmentBytes().GetValue()
 	res["log_preallocate"] = r.GetLogPreallocate().GetValue()
+	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
+	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
+	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
 
 	return res, nil
 }
@@ -459,6 +485,9 @@ func flattenKafkaConfig2_1Settings(r *kafka.KafkaConfig2_1) (map[string]interfac
 	res["log_retention_ms"] = r.GetLogRetentionMs()
 	res["log_segment_bytes"] = r.GetLogSegmentBytes()
 	res["log_preallocate"] = r.GetLogPreallocate()
+	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
+	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
+	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
 
 	return res, nil
 }

@@ -59,6 +59,7 @@ The `config` block supports:
 * `brokers_count` - (Optional) Count of brokers per availability zone.
 * `zones` - (Optional) List of availability zones.
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+* `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. Can be either `true` or `false`.
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
 
@@ -78,7 +79,7 @@ The `resources` block supports:
 The `kafka_config` block supports:
 
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
-`log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate` - (Optional) Kafka server settings. For more information, see
+`log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable` - (Optional) Kafka server settings. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 

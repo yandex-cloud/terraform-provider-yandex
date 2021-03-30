@@ -149,6 +149,11 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Default:  false,
 				ForceNew: true,
 			},
+			"unmanaged_topics": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"zookeeper": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -301,6 +306,18 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				Optional: true,
 			},
 			"log_preallocate": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"socket_send_buffer_bytes": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"socket_receive_buffer_bytes": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"auto_create_topics_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -735,6 +752,9 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.log_retention_ms":                "config_spec.kafka.kafka_config_{version}.log_retention_ms",
 	"config.0.kafka.0.kafka_config.0.log_segment_bytes":               "config_spec.kafka.kafka_config_{version}.log_segment_bytes",
 	"config.0.kafka.0.kafka_config.0.log_preallocate":                 "config_spec.kafka.kafka_config_{version}.log_preallocate",
+	"config.0.kafka.0.kafka_config.0.socket_send_buffer_bytes":        "config_spec.kafka.kafka_config_{version}.socket_send_buffer_bytes",
+	"config.0.kafka.0.kafka_config.0.socket_receive_buffer_bytes":     "config_spec.kafka.kafka_config_{version}.socket_receive_buffer_bytes",
+	"config.0.kafka.0.kafka_config.0.auto_create_topics_enable":       "config_spec.kafka.kafka_config_{version}.auto_create_topics_enable",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",

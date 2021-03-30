@@ -27,6 +27,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     brokers_count    = 1
     zones            = ["ru-central1-a"]
     assign_public_ip = false
+    unmanaged_topics = false
     kafka {
       resources {
         resource_preset_id = "s2.micro"
@@ -128,6 +129,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     brokers_count    = 2
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
     assign_public_ip = true
+    unmanaged_topics = false
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -272,6 +274,8 @@ The `config` block supports:
 
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
 
+* `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. Can be either `true` or `false`.
+
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
@@ -297,7 +301,7 @@ The `resources` block supports:
 The `kafka_config` block supports:
 
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
-`log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, - (Optional) Kafka server settings. For more information, see
+`log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable` - (Optional) Kafka server settings. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 

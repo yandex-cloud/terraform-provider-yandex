@@ -8,6 +8,7 @@ ENHANCEMENTS:
 ENHANCEMENTS:
 * support IAM token in tests
 * managed-redis: added 'tls_enabled' field
+* managed-kafka: added 'unmanaged_topics' cluster flag and some cluster config flags
 * mdb: add `host` attribute in `yandex_mdb_kafka_cluster` resource and data source
 
 BUG FIXES:

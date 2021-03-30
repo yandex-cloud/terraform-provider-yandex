@@ -518,6 +518,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
+	  unmanaged_topics = false
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -598,6 +599,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		brokers_count = 1
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
+		unmanaged_topics = false
 		kafka {
 			resources {
 				resource_preset_id = "s2.medium"
@@ -928,6 +930,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
+	  unmanaged_topics = false
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -1018,6 +1021,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 2
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
 	  assign_public_ip = false
+	  unmanaged_topics = false
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
