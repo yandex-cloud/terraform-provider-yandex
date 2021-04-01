@@ -1,4 +1,6 @@
-## 0.55.0 (Unreleased)
+## 0.56.0 (Unreleased)
+
+## 0.55.0 (April 1, 2021)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports bucket policy configuration
 
