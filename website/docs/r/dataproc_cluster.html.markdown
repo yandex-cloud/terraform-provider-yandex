@@ -121,6 +121,7 @@ The following arguments are supported:
 * `cluster_config` - (Required) Configuration and resources for hosts that should be created with the cluster. The structure is documented below.
 * `service_account_id` - (Required) Service account to be used by the Data Proc agent to access resources of Yandex.Cloud. Selected service account should have `mdb.dataproc.agent` role on the folder where the Data Proc cluster will be located.
 * `ui_proxy` - (Optional) Whether to enable UI Proxy feature.
+* `security_group_ids` - (Optional) Security group ids, to which cluster belongs.
 
 ---
 

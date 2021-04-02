@@ -1,4 +1,6 @@
 ## 0.56.0 (Unreleased)
+ENHANCEMENTS:
+* dataproc: supported security_group_ids
 
 ## 0.55.0 (April 1, 2021)
 FEATURES:
@@ -6,8 +8,6 @@ FEATURES:
 
 ENHANCEMENTS:
 * add extended API logging. Use TF_ENABLE_API_LOGGING=1 with TF_LOG=debug to see extended output.
-
-ENHANCEMENTS:
 * support IAM token in tests
 * managed-redis: added 'tls_enabled' field
 * managed-kafka: added 'unmanaged_topics' cluster flag and some cluster config flags

@@ -179,6 +179,13 @@ func resourceYandexDataprocCluster() *schema.Resource {
 				Optional: true,
 			},
 
+			"security_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -275,13 +282,15 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 	d.Set("bucket", cluster.Bucket)
 	d.Set("ui_proxy", cluster.UiProxy)
 
-	err = d.Set("labels", cluster.Labels)
-	if err != nil {
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
-	err = d.Set("cluster_config", flattenDataprocClusterConfig(cluster, subclusters))
-	if err != nil {
+	if err := d.Set("labels", cluster.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("cluster_config", flattenDataprocClusterConfig(cluster, subclusters)); err != nil {
 		return err
 	}
 
@@ -367,6 +376,7 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Bucket:           d.Get("bucket").(string),
 		UiProxy:          d.Get("ui_proxy").(bool),
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
 
 	return &req, nil
@@ -488,10 +498,11 @@ func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateCl
 		ServiceAccountId: d.Get("service_account_id").(string),
 		Bucket:           d.Get("bucket").(string),
 		UiProxy:          d.Get("ui_proxy").(bool),
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
 
 	var updatePaths []string
-	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy"}
+	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy", "security_group_ids"}
 	for _, fieldName := range fieldNames {
 		if d.HasChange(fieldName) {
 			updatePaths = append(updatePaths, fieldName)
