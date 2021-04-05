@@ -249,6 +249,48 @@ The `network_interface` block supports:
 
 * `security_group_ids` - (Optional) Security group ids for network interface.
 
+* `dns_record` - (Optional) List of dns records.  The structure is documented below.
+
+* `ipv6_dns_record` - (Optional) List of ipv6 dns records.  The structure is documented below.
+  
+* `nat_dns_record` - (Optional) List of nat dns records.  The structure is documented below.
+
+---
+
+The `dns_record` block supports:
+
+* `fqdn` - (Required) DNS record fqdn (must have dot at the end).
+
+* `dns_zone_id` - (Optional) DNS zone id (if not set, private zone used).
+
+* `ttl` - (Optional) DNS record TTL.
+
+* `ptr` - (Optional) When set to true, also create PTR DNS record. ---
+
+---
+
+The `ipv6_dns_record` block supports:
+
+* `fqdn` - (Required) DNS record fqdn (must have dot at the end).
+
+* `dns_zone_id` - (Optional) DNS zone id (if not set, private zone used).
+
+* `ttl` - (Optional) DNS record TTL.
+
+* `ptr` - (Optional) When set to true, also create PTR DNS record.
+
+---
+
+The `nat_dns_record` block supports:
+
+* `fqdn` - (Required) DNS record fqdn (must have dot at the end).
+
+* `dns_zone_id` - (Optional) DNS zone id (if not set, private zone used).
+
+* `ttl` - (Optional) DNS record TTL.
+
+* `ptr` - (Optional) When set to true, also create PTR DNS record.
+
 ---
 
 The `resources` block supports:

@@ -1184,6 +1184,9 @@ resource "yandex_compute_instance_group" "group1" {
       network_id         = "${yandex_vpc_network.inst-group-test-network.id}"
       subnet_ids         = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
       security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
+      dns_record {
+        fqdn = "myhost.internal."
+      }
     }
 
     scheduling_policy {

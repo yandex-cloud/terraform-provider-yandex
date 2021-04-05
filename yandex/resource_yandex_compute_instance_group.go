@@ -185,6 +185,84 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										Set:      schema.HashString,
 										Optional: true,
 									},
+
+									"dns_record": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+									},
+
+									"ipv6_dns_record": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+									},
+
+									"nat_dns_record": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -928,7 +1006,7 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
-	inst, err := flattenInstances(instances)
+	inst, err := flattenInstanceGroupManagedInstances(instances)
 	if err != nil {
 		return err
 	}

@@ -215,6 +215,36 @@ The `network_interface` block supports:
 * `ipv4` - Is IPv4 address assigned.
 * `nat` - A public address that can be used to access the internet over NAT.
 * `security_group_ids` - Security group ids for network interface.
+* `dns_record` - List of dns records.  The structure is documented below.
+* `ipv6_dns_record` - List of ipv6 dns records.  The structure is documented below.
+* `nat_dns_record` - List of nat dns records.  The structure is documented below.
+
+---
+
+The `dns_record` block supports:
+
+* `fqdn` - DNS record fqdn.
+* `dns_zone_id` - DNS zone id (if not set, private zone is used).
+* `ttl` - DNS record TTL.
+* `ptr` - When set to true, also create PTR DNS record.
+
+---
+
+The `ipv6_dns_record` block supports:
+
+* `fqdn` - DNS record fqdn.
+* `dns_zone_id` - DNS zone id (if not set, private zone is used).
+* `ttl` - DNS record TTL.
+* `ptr` - When set to true, also create PTR DNS record.
+
+---
+
+The `nat_dns_record` block supports:
+
+* `fqdn` - DNS record fqdn.
+* `dns_zone_id` - DNS zone id (if not set, private zone is used).
+* `ttl` - DNS record TTL.
+* `ptr` - When set to true, also create PTR DNS record.
 
 ---
 
