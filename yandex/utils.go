@@ -130,6 +130,18 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 	}
 
 	deleteSa := func() {
+		// Use a folder updater in a similar way iam resources do to prevent modifying folder access binding while
+		// service account is being deleted.
+		updater, err := newFolderIamUpdaterFromFolderID(config.FolderID, config)
+		if err != nil {
+			log.Printf("[WARN] error deleting temporary service account: %s", err)
+			return
+		}
+
+		mutexKey := updater.GetMutexKey()
+		mutexKV.Lock(mutexKey)
+		defer mutexKV.Unlock(mutexKey)
+
 		op, err := config.sdk.WrapOperation(config.sdk.IAM().ServiceAccount().Delete(context.Background(), &iam.DeleteServiceAccountRequest{
 			ServiceAccountId: saID,
 		}))

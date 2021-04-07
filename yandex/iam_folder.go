@@ -23,8 +23,12 @@ type FolderIamUpdater struct {
 }
 
 func newFolderIamUpdater(d *schema.ResourceData, config *Config) (ResourceIamUpdater, error) {
+	return newFolderIamUpdaterFromFolderID(d.Get("folder_id").(string), config)
+}
+
+func newFolderIamUpdaterFromFolderID(folderId string, config *Config) (ResourceIamUpdater, error) {
 	return &FolderIamUpdater{
-		folderID: d.Get("folder_id").(string),
+		folderID: folderId,
 		Config:   config,
 	}, nil
 }
