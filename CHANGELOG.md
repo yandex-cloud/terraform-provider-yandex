@@ -1,7 +1,8 @@
 ## 0.56.0 (Unreleased)
 ENHANCEMENTS:
-* dataproc: supported security_group_ids
+* dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
+* ydb: support for Yandex Database clusters
 
 ## 0.55.0 (April 1, 2021)
 FEATURES:
