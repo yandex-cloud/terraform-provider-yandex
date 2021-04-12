@@ -435,9 +435,9 @@ func isDiskSizeDecreased(old, new, _ interface{}) bool {
 
 func validateDiskSize(v interface{}, _ string) (warnings []string, errors []error) {
 	value := v.(int)
-	if value < 0 || value > 4096 {
+	if value < 0 || value > 8192 {
 		errors = append(errors, fmt.Errorf(
-			"The `size` can only be between 0 and 4096"))
+			"The `size` can only be between 0 and 8192"))
 	}
 	return warnings, errors
 }
