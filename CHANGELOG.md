@@ -3,6 +3,7 @@ ENHANCEMENTS:
 * dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
 * ydb: support for Yandex Database clusters
+* compute: increase disk size limit from 4096Gb to 8192Gb 
 
 ## 0.55.0 (April 1, 2021)
 FEATURES:
