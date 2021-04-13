@@ -3,7 +3,6 @@ package yandex
 import (
 	"bytes"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 
@@ -52,7 +51,6 @@ func expandALBTarget(config map[string]interface{}) (*apploadbalancer.Target, er
 	if v, ok := config["ip_address"]; ok {
 		target.SetIpAddress(v.(string))
 	}
-
 	return target, nil
 }
 
@@ -61,8 +59,8 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) (*schema.Set, error) {
 
 	for _, t := range tg.Targets {
 		flTarget := map[string]interface{}{
-			"subnet_id":    t.SubnetId,
-			"address_type": t.AddressType,
+			"subnet_id":  t.SubnetId,
+			"ip_address": t.GetIpAddress(),
 		}
 		result.Add(flTarget)
 	}

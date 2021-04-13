@@ -3,7 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
-	//"log"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -56,7 +56,7 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"targets": {
+			"target": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -71,7 +71,7 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceLBTargetGroupTargetHash,
+				Set: resourceALBTargetGroupTargetHash,
 			},
 
 			"created_at": {
@@ -86,7 +86,9 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
+	log.Printf("[DEBUG] Creating TargetGroup %q", d.Id())
 	labels, err := expandLabels(d.Get("labels"))
+
 	if err != nil {
 		return fmt.Errorf("Error expanding labels while creating target group: %s", err)
 	}
@@ -138,11 +140,14 @@ func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("TargetGroup creation failed: %s", err)
 	}
 
+	log.Printf("[DEBUG] Finished creating TargetGroup %q", d.Id())
 	return resourceYandexALBTargetGroupRead(d, meta)
 }
 
 func resourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	log.Printf("[DEBUG] Reading TargetGroup %q", d.Id())
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
@@ -165,20 +170,23 @@ func resourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	d.Set("created_at", createdAt)
-	d.Set("name", tg.Name)
-	d.Set("folder_id", tg.FolderId)
-	d.Set("description", tg.Description)
+	_ = d.Set("created_at", createdAt)
+	_ = d.Set("name", tg.Name)
+	_ = d.Set("folder_id", tg.FolderId)
+	_ = d.Set("description", tg.Description)
 
 	if err := d.Set("target", targets); err != nil {
 		return err
 	}
 
+	log.Printf("[DEBUG] Finished reading TargetGroup %q", d.Id())
 	return d.Set("labels", tg.Labels)
 }
 
 func resourceYandexALBTargetGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	log.Printf("[DEBUG] Updating TargetGroup %q", d.Id())
 
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -211,13 +219,14 @@ func resourceYandexALBTargetGroupUpdate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error updating TargetGroup %q: %s", d.Id(), err)
 	}
 
+	log.Printf("[DEBUG] Finished updating TargetGroup %q", d.Id())
 	return resourceYandexALBTargetGroupRead(d, meta)
 }
 
 func resourceYandexALBTargetGroupDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// log.Printf("[DEBUG] Deleting TargetGroup %q", d.Id())
+	log.Printf("[DEBUG] Deleting TargetGroup %q", d.Id())
 
 	req := &apploadbalancer.DeleteTargetGroupRequest{
 		TargetGroupId: d.Id(),
@@ -241,6 +250,6 @@ func resourceYandexALBTargetGroupDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	// log.Printf("[DEBUG] Finished deleting TargetGroup %q", d.Id())
+	log.Printf("[DEBUG] Finished deleting TargetGroup %q", d.Id())
 	return nil
 }
