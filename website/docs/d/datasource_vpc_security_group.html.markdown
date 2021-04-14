@@ -17,6 +17,12 @@ data "yandex_vpc_security_group" "group1" {
 }
 ```
 
+```hcl
+data "yandex_vpc_security_group" "group1" {
+  name = "my-group1"
+}
+```
+
 This data source is used to define Security Group that can be used by other resources.
 
 ## Argument Reference
@@ -25,6 +31,9 @@ The following arguments are supported:
 
 * `security_group_id` (Required) - Security Group ID.
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+* `name` - (Optional) - Name of the security group.
+
+~> **NOTE:** One of `security_group_id` or `name` should be specified.
 
 ## Attributes Reference
 
