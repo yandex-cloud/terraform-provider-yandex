@@ -1,4 +1,5 @@
-## 0.56.0 (Unreleased)
+## 0.57.0 (Unreleased)
+## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:
 * dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
