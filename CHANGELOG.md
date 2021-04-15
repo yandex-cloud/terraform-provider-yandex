@@ -6,6 +6,9 @@ ENHANCEMENTS:
 * compute: increase disk size limit from 4096Gb to 8192Gb 
 * vpc: add `name` field description at vpc_security_group datasource and example of it usage
 
+BUG FIXES:
+* compute: placement_policy update in `yandex_compute_instance_group`
+
 ## 0.55.0 (April 1, 2021)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports bucket policy configuration

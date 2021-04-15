@@ -2011,10 +2011,6 @@ resource "yandex_compute_instance_group" "group1" {
       network_id = "${yandex_vpc_network.inst-group-test-network.id}"
       subnet_ids = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
     }
-
-    placement_policy {
-      placement_group_id = ""
-    }
   }
 
   scale_policy {
@@ -2501,7 +2497,8 @@ func testAccCheckEmptyPlacementGroupIG(ig *instancegroup.InstanceGroup) resource
 		if ig.InstanceTemplate.PlacementPolicy == nil || ig.InstanceTemplate.PlacementPolicy.PlacementGroupId == "" {
 			return nil
 		}
-		return fmt.Errorf("instance placement_group_id is invalid")
+		return fmt.Errorf("instance placement_group_id is not empty (%s), ig %s",
+			ig.InstanceTemplate.PlacementPolicy.PlacementGroupId, ig.Id)
 	}
 }
 
