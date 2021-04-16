@@ -1,4 +1,7 @@
 ## 0.57.0 (Unreleased)
+FEATURES:
+* support k8s node group placement groups both in resource and data source.
+
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:
 * dataproc: supported `security_group_ids`

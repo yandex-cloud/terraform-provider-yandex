@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -469,7 +468,7 @@ func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
 	res := resourceClusterInfo{
 		ClusterResourceName:            randomResourceName("cluster"),
-		FolderID:                       os.Getenv("YC_FOLDER_ID"),
+		FolderID:                       getExampleFolderID(),
 		Name:                           safeResourceName("clustername"),
 		Description:                    "description",
 		MasterVersion:                  k8sTestVersion,

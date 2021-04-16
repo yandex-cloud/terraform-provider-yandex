@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
-	k8s "github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 )
 
 func init() {
@@ -335,6 +335,31 @@ func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
 	})
 }
 
+//revive:disable:var-naming
+func TestAccKubernetesNodeGroup_createPlacementGroup(t *testing.T) {
+	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResource.PlacementGroupId = "yandex_compute_placement_group.pg.id"
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource) + constPlacementGroupResource,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupNonEmptyPlacementGroup(&ng),
+				),
+			},
+		},
+	})
+}
+
 type resourceNodeGroupInfo struct {
 	ClusterResourceName   string
 	NodeGroupResourceName string
@@ -345,9 +370,10 @@ type resourceNodeGroupInfo struct {
 	Memory string
 	Cores  string
 
-	DiskSize    string
-	Preemptible string
-	ScalePolicy string
+	DiskSize         string
+	Preemptible      string
+	ScalePolicy      string
+	PlacementGroupId string
 
 	LabelKey   string
 	LabelValue string
@@ -565,6 +591,11 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     scheduling_policy {
       preemptible = {{.Preemptible}}
     }
+    {{if .PlacementGroupId}}
+    placement_policy {
+      placement_group_id = {{.PlacementGroupId}}
+    }
+    {{end}}
   }
 
   {{.ScalePolicy}}
@@ -602,6 +633,12 @@ var networkInterfacesTemplate = `
   }
 `
 
+// language=tf
+const constPlacementGroupResource = `
+resource yandex_compute_placement_group pg {
+}
+`
+
 func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
 	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
 	return deps + templateConfig(nodeGroupConfigTemplate, ng.Map())
@@ -610,6 +647,15 @@ func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng reso
 func testAccKubernetesNodeGroupConfig_autoscaled(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
 	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
 	return deps + templateConfig(nodeGroupConfigTemplate, ng.Map())
+}
+
+func checkNodeGroupNonEmptyPlacementGroup(ng *k8s.NodeGroup) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ng.NodeTemplate.PlacementPolicy != nil && ng.NodeTemplate.PlacementPolicy.PlacementGroupId != "" {
+			return nil
+		}
+		return fmt.Errorf("Node group placement_group_id is invalid")
+	}
 }
 
 func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool, autoscaled bool) resource.TestCheckFunc {
@@ -681,6 +727,12 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_unavailable", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxUnavailable()))),
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_expansion", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxExpansion()))),
+		}
+
+		if info.PlacementGroupId != "" {
+			resource.TestCheckResourceAttr(resourceFullName,
+				"instance_template.0.placement_policy.0.placement_group_id",
+				tpl.PlacementPolicy.PlacementGroupId)
 		}
 
 		if info.NetworkInterfaces != enableNAT {
