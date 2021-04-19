@@ -112,7 +112,7 @@ func TestAccALBTargetGroup_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccALBGeneralTGTemplate(
-					"tf-target-group", "tf-descr", testAccALBBaseTemplate(instancePrefix), 1,
+					"tf-target-group", "tf-descr", testAccALBBaseTemplate(instancePrefix), 1, false,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBTargetGroupExists(albTGResource, &tg),
@@ -156,7 +156,7 @@ func TestAccALBTargetGroup_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccALBGeneralTGTemplate(
-					"tf-target-group", "tf-descr", testAccALBBaseTemplate(instancePrefix), 1,
+					"tf-target-group", "tf-descr", testAccALBBaseTemplate(instancePrefix), 1, false,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBTargetGroupExists(albTGResource, &tg),
@@ -165,7 +165,7 @@ func TestAccALBTargetGroup_update(t *testing.T) {
 			},
 			{
 				Config: testAccALBGeneralTGTemplate(
-					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 1,
+					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 1, false,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBTargetGroupExists(albTGResource, &tg),
@@ -174,7 +174,7 @@ func TestAccALBTargetGroup_update(t *testing.T) {
 			},
 			{
 				Config: testAccALBGeneralTGTemplate(
-					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 2,
+					"tf-target-group-updated", "tf-descr-updated", testAccLBBaseTemplate(instancePrefix), 2, false,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBTargetGroupExists(albTGResource, &tg),

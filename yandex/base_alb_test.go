@@ -7,12 +7,17 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
-func testAccALBGeneralTGTemplate(tgName, tgDesc, baseTemplate string, targetsCount int) string {
+func testAccALBGeneralTGTemplate(tgName, tgDesc, baseTemplate string, targetsCount int, isDataSource bool) string {
 	targets := make([]string, targetsCount)
 	for i := 1; i <= targetsCount; i++ {
 		targets[i-1] = fmt.Sprintf("test-instance-%d", i)
 	}
 	return templateConfig(`
+        {{ if .IsDataSource }}
+		  data "yandex_alb_target_group" "test-tg-ds" {
+		  name = "${yandex_alb_target_group.test-tg.name}"
+		}
+		{{ end }}
 		resource "yandex_alb_target_group" "test-tg" {
 		  name		    = "{{.TGName}}"
 		  description	= "{{.TGDescription}}"
@@ -37,6 +42,7 @@ func testAccALBGeneralTGTemplate(tgName, tgDesc, baseTemplate string, targetsCou
 			"TGDescription": tgDesc,
 			"BaseTemplate":  baseTemplate,
 			"Targets":       targets,
+			"IsDataSource":  isDataSource,
 		},
 	)
 }
