@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-multierror"
+	"log"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -13,6 +15,50 @@ import (
 )
 
 const albTGResource = "yandex_alb_target_group.test-tg"
+
+func init() {
+	resource.AddTestSweepers("yandex_alb_target_group", &resource.Sweeper{
+		Name:         "yandex_alb_target_group",
+		F:            testSweepALBTargetGroups,
+		Dependencies: []string{},
+	})
+}
+
+func testSweepALBTargetGroups(_ string) error {
+	log.Printf("[DEBUG] Sweeping TargetGroup")
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	result := &multierror.Error{}
+
+	req := &apploadbalancer.ListTargetGroupsRequest{FolderId: conf.FolderID}
+	it := conf.sdk.ApplicationLoadBalancer().TargetGroup().TargetGroupIterator(conf.Context(), req)
+	for it.Next() {
+		id := it.Value().GetId()
+
+		if !sweepALBTargetGroup(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep ALB Target Group %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepALBTargetGroup(conf *Config, id string) bool {
+	return sweepWithRetry(sweepALBTargetGroupOnce, conf, "ALB Target Group", id)
+}
+
+func sweepALBTargetGroupOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexIAMServiceAccountDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.ApplicationLoadBalancer().TargetGroup().Delete(ctx, &apploadbalancer.DeleteTargetGroupRequest{
+		TargetGroupId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 func albTargetGroupImportStep() resource.TestStep {
 	return resource.TestStep{
