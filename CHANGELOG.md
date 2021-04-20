@@ -1,4 +1,8 @@
 ## 0.56.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_alb_target_group`
+* **New Resource:** `yandex_alb_target_group`
+
 ENHANCEMENTS:
 * dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
