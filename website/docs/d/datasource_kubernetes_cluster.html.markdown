@@ -62,6 +62,7 @@ to access Container Registry or to push node logs and metrics.
 * `network_policy_provider` - Network policy provider for the cluster, if present. Possible values: `CALICO`.
 
 * `kms_provider` - cluster KMS provider parameters.
+* `log_group_id` - Log group where cluster stores cluster system logs, like audit, events, or controlplane logs.
 
 ---
 

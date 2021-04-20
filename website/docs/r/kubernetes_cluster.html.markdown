@@ -174,6 +174,7 @@ that will cause problems for cluster and related node group deletion.
 * `status` - (Computed)Status of the Kubernetes cluster.
 * `health` - (Computed) Health of the Kubernetes cluster.
 * `created_at` - (Computed) The Kubernetes cluster creation timestamp.
+* `log_group_id` - Log group where cluster stores cluster system logs, like audit, events, or controlplane logs.
 
 ---
 

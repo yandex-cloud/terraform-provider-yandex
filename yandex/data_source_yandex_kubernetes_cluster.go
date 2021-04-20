@@ -223,6 +223,10 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 					},
 				},
 			},
+			"log_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
