@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -469,7 +468,7 @@ func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
 	res := resourceClusterInfo{
 		ClusterResourceName:            randomResourceName("cluster"),
-		FolderID:                       os.Getenv("YC_FOLDER_ID"),
+		FolderID:                       getExampleFolderID(),
 		Name:                           safeResourceName("clustername"),
 		Description:                    "description",
 		MasterVersion:                  k8sTestVersion,
@@ -625,6 +624,7 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
+			resource.TestCheckResourceAttrSet(resourceFullName, "log_group_id"),
 		}
 
 		if info.SecurityGroups != "" {

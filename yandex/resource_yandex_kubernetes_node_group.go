@@ -159,6 +159,19 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"placement_policy": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"placement_group_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -707,6 +720,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		V4AddressSpec:         getNodeGroupAddressSpec(d),
 		SchedulingPolicy:      getNodeGroupTemplateSchedulingPolicy(d),
 		NetworkInterfaceSpecs: getNodeGroupNetworkInterfaceSpecs(d),
+		PlacementPolicy:       getNodeGroupTemplatePlacementPolicy(d),
 	}
 
 	return tpl, nil
@@ -716,6 +730,16 @@ func getNodeGroupTemplateSchedulingPolicy(d *schema.ResourceData) *k8s.Schedulin
 	if preemptible, ok := d.GetOk("instance_template.0.scheduling_policy.0.preemptible"); ok {
 		return &k8s.SchedulingPolicy{
 			Preemptible: preemptible.(bool),
+		}
+	}
+
+	return nil
+}
+
+func getNodeGroupTemplatePlacementPolicy(d *schema.ResourceData) *k8s.PlacementPolicy {
+	if placementGroupId, ok := d.GetOk("instance_template.0.placement_policy.0.placement_group_id"); ok {
+		return &k8s.PlacementPolicy{
+			PlacementGroupId: placementGroupId.(string),
 		}
 	}
 
@@ -873,27 +897,28 @@ func flattenKubernetesNodeGroupTaints(taints []*k8s.Taint) interface{} {
 }
 
 var nodeGroupUpdateFieldsMap = map[string]string{
-	"name":                                                "name",
-	"description":                                         "description",
-	"labels":                                              "labels",
-	"instance_template.0.platform_id":                     "node_template.platform_id",
-	"instance_template.0.metadata":                        "node_template.metadata",
-	"instance_template.0.resources.0.memory":              "node_template.resources_spec.memory",
-	"instance_template.0.resources.0.cores":               "node_template.resources_spec.cores",
-	"instance_template.0.resources.0.gpus":                "node_template.resources_spec.gpus",
-	"instance_template.0.resources.0.core_fraction":       "node_template.resources_spec.core_fraction",
-	"instance_template.0.boot_disk.0.type":                "node_template.boot_disk_spec.disk_type_id",
-	"instance_template.0.boot_disk.0.size":                "node_template.boot_disk_spec.disk_size",
-	"instance_template.0.scheduling_policy.0.preemptible": "node_template.scheduling_policy.preemptible",
-	"instance_template.0.network_interface":               "node_template.network_interface_specs",
-	"scale_policy.0.fixed_scale.0.size":                   "scale_policy.fixed_scale.size",
-	"scale_policy.0.auto_scale.0.min":                     "scale_policy.auto_scale.min_size",
-	"scale_policy.0.auto_scale.0.max":                     "scale_policy.auto_scale.max_size",
-	"scale_policy.0.auto_scale.0.initial":                 "scale_policy.auto_scale.initial_size",
-	"version":                                             "version",
-	"maintenance_policy":                                  "maintenance_policy",
-	"deploy_policy.0.max_expansion":                       "deploy_policy.max_expansion",
-	"deploy_policy.0.max_unavailable":                     "deploy_policy.max_unavailable",
+	"name":                                                      "name",
+	"description":                                               "description",
+	"labels":                                                    "labels",
+	"instance_template.0.platform_id":                           "node_template.platform_id",
+	"instance_template.0.metadata":                              "node_template.metadata",
+	"instance_template.0.resources.0.memory":                    "node_template.resources_spec.memory",
+	"instance_template.0.resources.0.cores":                     "node_template.resources_spec.cores",
+	"instance_template.0.resources.0.gpus":                      "node_template.resources_spec.gpus",
+	"instance_template.0.resources.0.core_fraction":             "node_template.resources_spec.core_fraction",
+	"instance_template.0.boot_disk.0.type":                      "node_template.boot_disk_spec.disk_type_id",
+	"instance_template.0.boot_disk.0.size":                      "node_template.boot_disk_spec.disk_size",
+	"instance_template.0.scheduling_policy.0.preemptible":       "node_template.scheduling_policy.preemptible",
+	"instance_template.0.placement_policy.0.placement_group_id": "node_template.placement_policy.placement_group_id",
+	"instance_template.0.network_interface":                     "node_template.network_interface_specs",
+	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
+	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
+	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
+	"scale_policy.0.auto_scale.0.initial":                       "scale_policy.auto_scale.initial_size",
+	"version":                                                   "version",
+	"maintenance_policy":                                        "maintenance_policy",
+	"deploy_policy.0.max_expansion":                             "deploy_policy.max_expansion",
+	"deploy_policy.0.max_unavailable":                           "deploy_policy.max_unavailable",
 }
 
 func resourceYandexKubernetesNodeGroupUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -1021,6 +1046,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"metadata":          ngTpl.GetMetadata(),
 		"scheduling_policy": flattenKubernetesNodeGroupTemplateSchedulingPolicy(ngTpl.GetSchedulingPolicy()),
 		"network_interface": flattenKubernetesNodeGroupNetworkInterfaces(ngTpl.GetNetworkInterfaceSpecs()),
+		"placement_policy":  flattenKubernetesNodeGroupTemplatePlacementPolicy(ngTpl.GetPlacementPolicy()),
 	}
 
 	return []map[string]interface{}{tpl}
@@ -1136,6 +1162,17 @@ func flattenKubernetesNodeGroupTemplateSchedulingPolicy(p *k8s.SchedulingPolicy)
 	return []map[string]interface{}{
 		{
 			"preemptible": p.GetPreemptible(),
+		},
+	}
+}
+
+func flattenKubernetesNodeGroupTemplatePlacementPolicy(p *k8s.PlacementPolicy) []map[string]interface{} {
+	if p == nil {
+		return []map[string]interface{}{}
+	}
+	return []map[string]interface{}{
+		{
+			"placement_group_id": p.PlacementGroupId,
 		},
 	}
 }

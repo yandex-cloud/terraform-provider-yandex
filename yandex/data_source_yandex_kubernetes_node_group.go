@@ -149,6 +149,19 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"placement_policy": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"placement_group_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

@@ -107,6 +107,32 @@ func TestAccDataSourceKubernetesNodeGroup_autoscaled(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_placementGroup(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupDailyMaintenance_basic", true)
+	nodeResource := nodeGroupInfoWithMaintenance(clusterResource.ClusterResourceName, true, false, dailyMaintenancePolicy)
+	nodeResource.PlacementGroupId = "yandex_compute_placement_group.pg.id"
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource) + constPlacementGroupResource,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
+					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
+					testAccCheckCreatedAtAttr(nodeResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 const dataNodeGroupConfigTemplate = `
 data "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   name = "${yandex_kubernetes_node_group.{{.NodeGroupResourceName}}.name}"

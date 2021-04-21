@@ -985,3 +985,52 @@ func TestExpandInstanceGroupNetworkInterface(t *testing.T) {
 		})
 	}
 }
+
+func TestFlattenInstanceGroupPlacementPolicy(t *testing.T) {
+	tests := []struct {
+		name     string
+		spec     *instancegroup.PlacementPolicy
+		expected []map[string]interface{}
+	}{
+		{
+			name: "normal",
+			spec: &instancegroup.PlacementPolicy{
+				PlacementGroupId: "123",
+			},
+			expected: []map[string]interface{}{
+				{
+					"placement_group_id": "123",
+				},
+			},
+		},
+		{
+			name:     "nil",
+			spec:     nil,
+			expected: nil,
+		},
+		{
+			name: "old nil",
+			spec: &instancegroup.PlacementPolicy{
+				PlacementGroupId: "",
+			},
+			expected: []map[string]interface{}{
+				{
+					"placement_group_id": "",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, err := flattenInstanceGroupPlacementPolicy(tt.spec)
+
+			if err != nil {
+				t.Errorf("%v", err)
+			}
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("flattenInstanceGroupScalePolicy() got = %v, want %v", res, tt.expected)
+			}
+		})
+	}
+}

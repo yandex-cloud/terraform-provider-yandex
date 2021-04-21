@@ -2158,7 +2158,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   environment             = "PRESTABLE"
   network_id              = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password          = "strong_password"
-  version                 = "21.1"
+  version                 = "21.3"
 
   labels = {
     test_key = "test_value"

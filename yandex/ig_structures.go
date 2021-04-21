@@ -115,11 +115,13 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 		templateMap["scheduling_policy"] = []map[string]interface{}{{"preemptible": template.SchedulingPolicy.Preemptible}}
 	}
 
-	placementPolicy, err := flattenInstanceGroupPlacementPolicy(template.PlacementPolicy)
-	if err != nil {
-		return []map[string]interface{}{templateMap}, err
+	if template.PlacementPolicy != nil {
+		placementPolicy, err := flattenInstanceGroupPlacementPolicy(template.PlacementPolicy)
+		if err != nil {
+			return []map[string]interface{}{templateMap}, err
+		}
+		templateMap["placement_policy"] = placementPolicy
 	}
-	templateMap["placement_policy"] = placementPolicy
 
 	if template.NetworkSettings != nil {
 		templateMap["network_settings"] = flattenInstanceGroupNetworkSettings(template.GetNetworkSettings())
@@ -348,16 +350,13 @@ func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]ma
 }
 
 func flattenInstanceGroupPlacementPolicy(policy *instancegroup.PlacementPolicy) ([]map[string]interface{}, error) {
-	placementPolicy := make([]map[string]interface{}, 0, 1)
-	var placementGroupId string
 	if policy != nil {
-		placementGroupId = policy.PlacementGroupId
+		placementMap := map[string]interface{}{
+			"placement_group_id": policy.PlacementGroupId,
+		}
+		return []map[string]interface{}{placementMap}, nil
 	}
-	placementMap := map[string]interface{}{
-		"placement_group_id": placementGroupId,
-	}
-	placementPolicy = append(placementPolicy, placementMap)
-	return placementPolicy, nil
+	return nil, nil
 }
 
 func expandInstanceGroupResourcesSpec(d *schema.ResourceData, prefix string) (*instancegroup.ResourcesSpec, error) {
@@ -617,15 +616,8 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
 	}
 
-	schedulingPolicy, err := expandInstanceGroupSchedulingPolicy(d, prefix+".scheduling_policy")
-	if err != nil {
-		return nil, fmt.Errorf("Error create 'scheduling_policy' object of api request: %s", err)
-	}
-
-	placementPolicy, err := expandInstanceGroupPlacementPolicy(d, prefix+".placement_policy")
-	if err != nil {
-		return nil, fmt.Errorf("Error create 'placement_policy' object of api request: %s", err)
-	}
+	schedulingPolicy := expandInstanceGroupSchedulingPolicy(d, prefix+".scheduling_policy")
+	placementPolicy := expandInstanceGroupPlacementPolicy(d, prefix+".placement_policy")
 
 	labels, err := expandLabels(d.Get(prefix + ".labels"))
 	if err != nil {
@@ -825,9 +817,11 @@ func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup
 	return &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}, nil
 }
 
-func expandInstanceGroupPlacementPolicy(d *schema.ResourceData, prefix string) (*instancegroup.PlacementPolicy, error) {
-	p := d.Get(prefix + ".0.placement_group_id").(string)
-	return &instancegroup.PlacementPolicy{PlacementGroupId: p}, nil
+func expandInstanceGroupPlacementPolicy(d *schema.ResourceData, prefix string) *instancegroup.PlacementPolicy {
+	if v, ok := d.GetOk(prefix + ".0.placement_group_id"); ok {
+		return &instancegroup.PlacementPolicy{PlacementGroupId: v.(string)}
+	}
+	return nil
 }
 
 func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) (map[string]interface{}, error) {
@@ -907,9 +901,9 @@ func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.Scal
 	return policy, nil
 }
 
-func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) (*instancegroup.SchedulingPolicy, error) {
+func expandInstanceGroupSchedulingPolicy(d *schema.ResourceData, prefix string) *instancegroup.SchedulingPolicy {
 	p := d.Get(prefix + ".0.preemptible").(bool)
-	return &instancegroup.SchedulingPolicy{Preemptible: p}, nil
+	return &instancegroup.SchedulingPolicy{Preemptible: p}
 }
 
 func expandInstanceGroupCustomRule(d *schema.ResourceData, prefix string) (*instancegroup.ScalePolicy_CustomRule, error) {

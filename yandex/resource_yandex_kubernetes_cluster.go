@@ -308,6 +308,10 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 					},
 				},
 			},
+			"log_group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -729,6 +733,7 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	d.Set("cluster_ipv4_range", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlock())
 	d.Set("node_ipv4_cidr_mask_size", cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize())
 	d.Set("service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock())
+	d.Set("log_group_id", cluster.LogGroupId)
 	if np := cluster.GetNetworkPolicy(); np != nil {
 		if prov := np.GetProvider(); prov != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
 			d.Set("network_policy_provider", prov.String())
