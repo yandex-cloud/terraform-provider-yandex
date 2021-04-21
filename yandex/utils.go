@@ -405,7 +405,7 @@ func (b sortableBindings) String(i int) string {
 	return fmt.Sprintf("%s\x00%s\x00%s", b[i].RoleId, b[i].Subject.Type, b[i].Subject.Id)
 }
 
-func validateIPV4CidrBlocks(v interface{}, k string) (warnings []string, errors []error) {
+func validateCidrBlocks(v interface{}, k string) (warnings []string, errors []error) {
 	_, _, err := net.ParseCIDR(v.(string))
 	if err != nil {
 		errors = append(errors, fmt.Errorf("%q is not a valid IP CIDR range: %s", k, err))

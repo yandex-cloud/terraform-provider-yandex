@@ -41,8 +41,10 @@ The following arguments are supported:
 * `network_id` - The ID of the cluster network.
 
 * `cluster_ipv4_range` - IP range for allocating pod addresses.
+* `cluster_ipv6_range` - Identical to cluster_ipv4_range but for the IPv6 protocol.
 * `node_ipv4_cidr_mask_size` - Size of the masks that are assigned to each node in the cluster.
-* `service_ipv4_range` - IP range Kubernetes services Kubernetes cluster IP addresses will be allocated from
+* `service_ipv4_range` - IP range Kubernetes services Kubernetes cluster IP addresses will be allocated from.
+* `service_ipv6_range` - Identical to service_ipv4_range but for the IPv6 protocol.
 
 * `service_account_id` - Service account to be used for provisioning Compute Cloud and VPC resources
 for Kubernetes cluster. Selected service account should have `edit` role on the folder where the Kubernetes

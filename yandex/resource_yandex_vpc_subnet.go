@@ -45,7 +45,7 @@ func resourceYandexVPCSubnet() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validateIPV4CidrBlocks,
+					ValidateFunc: validateCidrBlocks,
 				},
 			},
 

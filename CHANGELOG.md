@@ -3,6 +3,7 @@ FEATURES:
 * support k8s node group placement groups both in resource and data source.
 * **New Data Source:** `yandex_alb_target_group`
 * **New Resource:** `yandex_alb_target_group`
+* add cluster_ipv6_range and service_ipv6_range attributes both to resource yandex_kubernetes_cluster and data source yandex_kubernetes_cluster
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:

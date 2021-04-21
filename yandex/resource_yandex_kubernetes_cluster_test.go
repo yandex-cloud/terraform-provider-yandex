@@ -147,6 +147,36 @@ func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonal_dualStack(t *testing.T) {
+	clusterResource := clusterInfoWithNetworkPolicy("TestAccKubernetesClusterZonal_dualStack", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterResource.ClusterIPv6Range = "fc00::/96"
+	clusterResource.ServiceIPv6Range = "fc01::/112"
+	clusterResource.ClusterIPv4Range = "10.20.0.0/16"
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+
+	t.Log(testAccKubernetesClusterZonalConfig_basic(clusterResource))
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
 func TestAccKubernetesClusterZonalNoVersion_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesClusterZonalNoVersion_basic", true)
 	clusterResource.MasterVersion = ""
@@ -621,9 +651,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName,
 				"cluster_ipv4_range", cluster.GetIpAllocationPolicy().ClusterIpv4CidrBlock),
 			resource.TestCheckResourceAttr(resourceFullName,
+				"cluster_ipv6_range", cluster.GetIpAllocationPolicy().ClusterIpv6CidrBlock),
+			resource.TestCheckResourceAttr(resourceFullName,
 				"node_ipv4_cidr_mask_size", strconv.Itoa(int(cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize()))),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
+			resource.TestCheckResourceAttr(resourceFullName,
+				"service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock()),
 			resource.TestCheckResourceAttrSet(resourceFullName, "log_group_id"),
 		}
 
@@ -845,6 +879,11 @@ type resourceClusterInfo struct {
 
 	SecurityGroups    string
 	SecurityGroupName string
+
+	ClusterIPv4Range string
+	ClusterIPv6Range string
+	ServiceIPv4Range string
+	ServiceIPv6Range string
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1019,6 +1058,18 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   kms_provider {
     key_id = "${yandex_kms_symmetric_key.{{.KMSKeyResourceName}}.id}"
   }
+  {{if .ClusterIPv4Range}}
+  cluster_ipv4_range = "{{.ClusterIPv4Range}}"
+  {{end}}
+  {{if .ClusterIPv6Range}}
+  cluster_ipv6_range = "{{.ClusterIPv6Range}}"
+  {{end}}
+  {{if .ServiceIPv4Range}}
+  service_ipv4_range = "{{.ServiceIPv4Range}}"
+  {{end}}
+  {{if .ServiceIPv6Range}}
+  service_ipv6_range = "{{.ServiceIPv6Range}}"
+  {{end}}
 }
 `
 
