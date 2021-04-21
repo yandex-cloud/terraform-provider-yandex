@@ -133,12 +133,14 @@ If it is not provided, the default provider folder is used.
 * `cluster_ipv4_range` - (Optional) CIDR block. IP range for allocating pod addresses.
 It should not overlap with any subnet in the network the Kubernetes cluster located in. Static routes will be
 set up for this CIDR blocks in node subnets.
+* `cluster_ipv6_range` - (Optional) Identical to cluster_ipv4_range but for IPv6 protocol.
 
 * `node_ipv4_cidr_mask_size` - (Optional) Size of the masks that are assigned to each node in the cluster. Effectively limits maximum number of pods for each node.
 
 * `service_ipv4_range` - (Optional) CIDR block. IP range Kubernetes service Kubernetes cluster
 IP addresses will be allocated from. It should not overlap with any subnet in the network
 the Kubernetes cluster located in.
+* `service_ipv6_range` - (Optional) Identical to service_ipv4_range but for IPv6 protocol.
 
 * `service_account_id` - Service account to be used for provisioning Compute Cloud and VPC resources
 for Kubernetes cluster. Selected service account should have `edit` role on the folder where the Kubernetes

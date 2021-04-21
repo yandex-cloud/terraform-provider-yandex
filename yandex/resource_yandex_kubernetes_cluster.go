@@ -253,10 +253,18 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Computed: true,
 			},
 			"cluster_ipv4_range": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validateCidrBlocks,
+			},
+			"cluster_ipv6_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validateCidrBlocks,
 			},
 			"node_ipv4_cidr_mask_size": {
 				Type:     schema.TypeInt,
@@ -265,10 +273,18 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Default:  24,
 			},
 			"service_ipv4_range": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validateCidrBlocks,
+			},
+			"service_ipv6_range": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validateCidrBlocks,
 			},
 			"release_channel": {
 				Type:     schema.TypeString,
@@ -535,6 +551,8 @@ func getIPAllocationPolicy(d *schema.ResourceData) *k8s.IPAllocationPolicy {
 		ClusterIpv4CidrBlock: d.Get("cluster_ipv4_range").(string),
 		NodeIpv4CidrMaskSize: int64(d.Get("node_ipv4_cidr_mask_size").(int)),
 		ServiceIpv4CidrBlock: d.Get("service_ipv4_range").(string),
+		ClusterIpv6CidrBlock: d.Get("cluster_ipv6_range").(string),
+		ServiceIpv6CidrBlock: d.Get("service_ipv6_range").(string),
 	}
 
 	return p
@@ -731,8 +749,10 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 	d.Set("node_service_account_id", cluster.NodeServiceAccountId)
 	d.Set("release_channel", cluster.ReleaseChannel.String())
 	d.Set("cluster_ipv4_range", cluster.GetIpAllocationPolicy().GetClusterIpv4CidrBlock())
+	d.Set("cluster_ipv6_range", cluster.GetIpAllocationPolicy().GetClusterIpv6CidrBlock())
 	d.Set("node_ipv4_cidr_mask_size", cluster.GetIpAllocationPolicy().GetNodeIpv4CidrMaskSize())
 	d.Set("service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock())
+	d.Set("service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock())
 	d.Set("log_group_id", cluster.LogGroupId)
 	if np := cluster.GetNetworkPolicy(); np != nil {
 		if prov := np.GetProvider(); prov != k8s.NetworkPolicy_PROVIDER_UNSPECIFIED {
