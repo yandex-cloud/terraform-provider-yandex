@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_target_group"
 sidebar_current: "docs-yandex-alb-target-group"
 description: |-
-An application load balancer distributes the load across cloud resources that are combined into a target group.
+    An application load balancer distributes the load across cloud resources that are combined into a target group.
 ---
 
 Creates a target group in the specified folder and adds the specified targets to it.

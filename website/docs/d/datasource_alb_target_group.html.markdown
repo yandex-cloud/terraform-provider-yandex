@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_target_group"
 sidebar_current: "docs-yandex-datasource-alb-target-group"
 description: |-
-Get information about a Yandex Application Load Balancer target group.
+  Get information about a Yandex Application Load Balancer target group.
 ---
 
 # yandex\_alb\_target\_group
