@@ -1661,12 +1661,15 @@ resource "yandex_compute_instance" "foobar" {
   boot_disk {
     initialize_params {
       size     = 4
-      image_id = "${data.yandex_compute_image.ubuntu.id}"
+      image_id = data.yandex_compute_image.ubuntu.id
     }
   }
 
   network_interface {
-    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    subnet_id = yandex_vpc_subnet.inst-test-subnet.id
+    dns_record {
+      fqdn = "myhost1.internal."
+    }
   }
 }
 
@@ -1674,7 +1677,7 @@ resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  network_id     = yandex_vpc_network.inst-test-network.id
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance)

@@ -107,7 +107,7 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 	return secondaryDisks, nil
 }
 
-func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, string, error) {
+func flattenInstanceNetworkInterfaces(instance *compute.Instance, d *schema.ResourceData) ([]map[string]interface{}, string, string, error) {
 	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
 	var externalIP, internalIP string
 
@@ -155,9 +155,45 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]
 				externalIP = iface.PrimaryV6Address.Address
 			}
 		}
+		prefix := "network_interface." + strconv.Itoa(i) + "."
+		if sp := iface.GetPrimaryV4Address().GetDnsRecords(); sp != nil {
+			nics[i]["dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"dns_record.")
+		}
+
+		if sp := iface.GetPrimaryV6Address().GetDnsRecords(); sp != nil {
+			nics[i]["ipv6_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"ipv6_dns_record.")
+		}
+
+		if sp := iface.GetPrimaryV4Address().GetOneToOneNat().GetDnsRecords(); sp != nil {
+			nics[i]["nat_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"nat_dns_record.")
+		}
 	}
 
 	return nics, externalIP, internalIP, nil
+}
+
+func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord, d *schema.ResourceData, prefix string) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(specs))
+
+	for i, spec := range specs {
+		fullPrefix := prefix + strconv.Itoa(i) + "."
+		res[i] = map[string]interface{}{
+			"fqdn": spec.Fqdn,
+		}
+		if d != nil {
+			if ttl, ok := d.GetOk(fullPrefix + "ttl"); ok {
+				res[i]["ttl"] = ttl
+			}
+			if dnsZoneId, ok := d.GetOk(fullPrefix + "dns_zone_id"); ok {
+				res[i]["dns_zone_id"] = dnsZoneId
+			}
+			if ptr, ok := d.GetOk(fullPrefix + "ptr"); ok {
+				res[i]["ptr"] = ptr
+			}
+		}
+	}
+
+	return res
 }
 
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
@@ -485,9 +521,48 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
 			}
 		}
+
+		if rec, ok := data["dns_record"]; ok {
+			if nics[i].PrimaryV4AddressSpec != nil {
+				nics[i].PrimaryV4AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+			}
+		}
+
+		if rec, ok := data["ipv6_dns_record"]; ok {
+			if nics[i].PrimaryV6AddressSpec != nil {
+				nics[i].PrimaryV6AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+			}
+		}
+
+		if rec, ok := data["nat_dns_record"]; ok {
+			if nics[i].PrimaryV4AddressSpec != nil && nics[i].PrimaryV4AddressSpec.OneToOneNatSpec != nil {
+				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+			}
+		}
 	}
 
 	return nics, nil
+}
+
+func expandComputeInstanceDnsRecords(data []interface{}) []*compute.DnsRecordSpec {
+	recs := make([]*compute.DnsRecordSpec, len(data))
+
+	for i, raw := range data {
+		d := raw.(map[string]interface{})
+		r := &compute.DnsRecordSpec{Fqdn: d["fqdn"].(string)}
+		if s, ok := d["dns_zone_id"]; ok {
+			r.DnsZoneId = s.(string)
+		}
+		if s, ok := d["ttl"]; ok {
+			r.Ttl = int64(s.(int))
+		}
+		if s, ok := d["ptr"]; ok {
+			r.Ptr = s.(bool)
+		}
+		recs[i] = r
+	}
+
+	return recs
 }
 
 func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
