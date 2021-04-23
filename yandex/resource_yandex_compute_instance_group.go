@@ -86,9 +86,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"initialize_params": {
-										Type:     schema.TypeList,
-										Required: true,
-										MaxItems: 1,
+										Type:          schema.TypeList,
+										Optional:      true,
+										MaxItems:      1,
+										ConflictsWith: []string{"instance_template.boot_disk.disk_id"},
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"description": {
@@ -125,6 +126,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 											},
 										},
+									},
+
+									"disk_id": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"instance_template.boot_disk.initialize_params"},
 									},
 
 									"mode": {
@@ -299,7 +306,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"initialize_params": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -333,6 +340,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 											},
 										},
+									},
+
+									"disk_id": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 
 									"mode": {

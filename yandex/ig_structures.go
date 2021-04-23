@@ -397,6 +397,16 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 		ads.Mode = diskMode
 	}
 
+	if _, ok := d.GetOk(prefix + ".disk_id"); ok {
+		if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
+			return ads, fmt.Errorf("Use one of  'disk_id', 'initialize_params', not both.")
+		}
+	}
+
+	if v, ok := d.GetOk(prefix + ".disk_id"); ok {
+		ads.DiskId = v.(string)
+	}
+
 	// create new one disk
 	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
 		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0", config)
@@ -832,18 +842,17 @@ func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) 
 
 	diskSpecSpec := diskSpec.GetDiskSpec()
 
-	if diskSpec == nil {
-		return bootDisk, fmt.Errorf("no disk spec")
+	if diskSpecSpec == nil {
+		bootDisk["disk_id"] = diskSpec.GetDiskId()
+	} else {
+		bootDisk["initialize_params"] = []map[string]interface{}{{
+			"description": diskSpecSpec.Description,
+			"size":        toGigabytes(diskSpecSpec.Size),
+			"type":        diskSpecSpec.TypeId,
+			"image_id":    diskSpecSpec.GetImageId(),
+			"snapshot_id": diskSpecSpec.GetSnapshotId(),
+		}}
 	}
-
-	bootDisk["initialize_params"] = []map[string]interface{}{{
-		"description": diskSpecSpec.Description,
-		"size":        toGigabytes(diskSpecSpec.Size),
-		"type":        diskSpecSpec.TypeId,
-		"image_id":    diskSpecSpec.GetImageId(),
-		"snapshot_id": diskSpecSpec.GetSnapshotId(),
-	}}
-
 	return bootDisk, nil
 }
 

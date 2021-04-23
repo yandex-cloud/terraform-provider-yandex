@@ -204,7 +204,9 @@ The `secondary_disk` block supports:
 
 * `mode` - (Optional) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
-* `initialize_params` - (Required) Parameters used for creating a disk alongside the instance. The structure is documented below.
+* `disk_id` - (Optional) ID of the existing disk. To set use variables.
+
+* `initialize_params` - (Optional) Parameters used for creating a disk alongside the instance. The structure is documented below.
 
 - - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.

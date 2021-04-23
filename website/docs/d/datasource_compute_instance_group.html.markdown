@@ -176,6 +176,7 @@ The `boot_disk` block supports:
 
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+* `disk_id` - ID of the existing disk. To set use variables.
 * `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
 
 ---

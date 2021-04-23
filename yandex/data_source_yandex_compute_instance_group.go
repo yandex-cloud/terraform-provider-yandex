@@ -74,6 +74,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 										Computed: true,
 									},
 
+									"disk_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
 									"initialize_params": {
 										Type:     schema.TypeList,
 										Computed: true,
@@ -264,6 +269,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"mode": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"disk_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},

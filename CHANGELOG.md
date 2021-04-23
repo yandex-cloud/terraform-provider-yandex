@@ -6,6 +6,7 @@ FEATURES:
 * add `host_group_ids` attribute in `yandex_dataproc_cluster` resource and data source
 
 ENHANCEMENTS:
+* compute: add `disk_id` field in `yandex_compute_instance_group`
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:
