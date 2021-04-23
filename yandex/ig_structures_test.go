@@ -977,8 +977,10 @@ func TestExpandInstanceGroupNetworkInterface(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := expandInstanceGroupNetworkInterfaceSpec(tc.data)
-
+			result, err := expandInstanceGroupNetworkInterfaceSpec(tc.data)
+			if err != nil {
+				t.Fatalf(err.Error())
+			}
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
 			}

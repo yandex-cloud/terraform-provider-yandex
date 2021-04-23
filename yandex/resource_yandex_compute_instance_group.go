@@ -173,6 +173,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										Computed: true,
 									},
 
+									"nat_ip_address": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+
 									"ipv6": {
 										Type:     schema.TypeBool,
 										Optional: true,

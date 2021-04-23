@@ -245,8 +245,10 @@ The `network_interface` block supports:
 
 * `subnet_ids` - (Optional) The ID of the subnets to attach this interface to.
 
-* `nat` - (Optional) A public address that can be used to access the internet over NAT.
+* `nat` - (Optional) Flag for using NAT.
 
+* `nat_ip_address` - (Optional) A public address that can be used to access the internet over NAT. Use `variables` to set.
+  
 * `security_group_ids` - (Optional) Security group ids for network interface.
 
 * `dns_record` - (Optional) List of dns records.  The structure is documented below.

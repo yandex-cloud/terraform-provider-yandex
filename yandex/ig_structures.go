@@ -162,6 +162,12 @@ func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInte
 		"ipv6":       nicSpec.PrimaryV6AddressSpec != nil,
 	}
 
+	natAddress := nicSpec.GetPrimaryV4AddressSpec().GetOneToOneNatSpec().GetAddress()
+
+	if natAddress != "" {
+		networkInterface["nat_address"] = natAddress
+	}
+
 	if nicSpec.GetSecurityGroupIds() != nil {
 		networkInterface["security_group_ids"] = convertStringArrToInterface(nicSpec.SecurityGroupIds)
 	}
@@ -484,13 +490,17 @@ func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix str
 	nics := make([]*instancegroup.NetworkInterfaceSpec, len(nicsConfig))
 
 	for i, raw := range nicsConfig {
-		nics[i] = expandInstanceGroupNetworkInterfaceSpec(raw.(map[string]interface{}))
+		nic, err := expandInstanceGroupNetworkInterfaceSpec(raw.(map[string]interface{}))
+		if err != nil {
+			return nics, err
+		}
+		nics[i] = nic
 	}
 
 	return nics, nil
 }
 
-func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *instancegroup.NetworkInterfaceSpec {
+func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) (*instancegroup.NetworkInterfaceSpec, error) {
 	res := &instancegroup.NetworkInterfaceSpec{
 		NetworkId: data["network_id"].(string),
 	}
@@ -526,6 +536,13 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *insta
 		}
 	}
 
+	if na, ok := data["nat_ip_address"]; ok {
+		if nat, ok := data["nat"].(bool); !ok || !nat {
+			return res, fmt.Errorf("Use nat_ip_address only if nat is true ")
+		}
+		res.PrimaryV4AddressSpec.OneToOneNatSpec.Address = na.(string)
+	}
+
 	if sgids, ok := data["security_group_ids"]; ok {
 		res.SecurityGroupIds = expandSecurityGroupIds(sgids)
 	}
@@ -548,7 +565,7 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *insta
 		}
 	}
 
-	return res
+	return res, nil
 }
 
 func expandInstanceGroupDnsRecords(data []interface{}) []*instancegroup.DnsRecordSpec {
