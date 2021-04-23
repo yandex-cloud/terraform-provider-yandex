@@ -52,6 +52,7 @@ exported:
 * `topic` - A topic of the Kafka cluster. The structure is documented below.
 * `host` - A host of the Kafka cluster. The structure is documented below.
 * `security_group_ids` - A list of security groups IDs of the Kafka cluster.
+* `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
 
 The `config` block supports:
 

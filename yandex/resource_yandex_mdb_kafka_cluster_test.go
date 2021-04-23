@@ -183,6 +183,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		},
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 		"security_group_ids": []interface{}{"security-group-x", "security-group-y"},
+		"host_group_ids":     []interface{}{"hg1", "hg2", "hg3"},
 		"topic": []interface{}{
 			map[string]interface{}{
 				"name":               "raw_events",
@@ -316,6 +317,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 			},
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
+		HostGroupIds:     []string{"hg2", "hg1", "hg3"},
 	}
 
 	assert.Equal(t, expected, req)

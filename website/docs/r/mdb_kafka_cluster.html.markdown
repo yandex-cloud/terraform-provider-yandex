@@ -262,6 +262,8 @@ The following arguments are supported:
 
 * `security_group_ids` - (Optional) Security group ids, to which the Kafka cluster belongs.
 
+* `host_group_ids` - (Optional) A list of IDs of the host groups to place VMs of the cluster on.
+
 - - -
 
 The `config` block supports:

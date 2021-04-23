@@ -186,6 +186,14 @@ func resourceYandexDataprocCluster() *schema.Resource {
 				Optional: true,
 			},
 
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -286,6 +294,10 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 		return err
 	}
 
+	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
+		return err
+	}
+
 	if err := d.Set("labels", cluster.Labels); err != nil {
 		return err
 	}
@@ -377,6 +389,7 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		Bucket:           d.Get("bucket").(string),
 		UiProxy:          d.Get("ui_proxy").(bool),
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		HostGroupIds:     expandHostGroupIds(d.Get("host_group_ids")),
 	}
 
 	return &req, nil

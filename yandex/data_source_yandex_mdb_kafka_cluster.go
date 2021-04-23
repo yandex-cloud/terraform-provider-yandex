@@ -87,6 +87,12 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 			"host": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -175,6 +181,10 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 

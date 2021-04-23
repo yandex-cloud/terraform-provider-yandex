@@ -363,6 +363,18 @@ func expandSecurityGroupIds(v interface{}) []string {
 	return m
 }
 
+func expandHostGroupIds(v interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	var m []string
+	hgIdsSet := v.(*schema.Set)
+	for _, val := range hgIdsSet.List() {
+		m = append(m, val.(string))
+	}
+	return m
+}
+
 func expandSubnetIds(v interface{}) []string {
 	if v == nil {
 		return nil

@@ -2,6 +2,8 @@
 FEATURES:
 * support k8s node group placement groups both in resource and data source.
 * add cluster_ipv6_range and service_ipv6_range attributes both to resource yandex_kubernetes_cluster and data source yandex_kubernetes_cluster
+* add `host_group_ids` attribute in `yandex_mdb_kafka_cluster` resource and data source
+* add `host_group_ids` attribute in `yandex_dataproc_cluster` resource and data source
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:
