@@ -439,6 +439,10 @@ This type of metric must have the `zone_id` label.
 
 * `labels` - (Optional) A map of labels of metric.
 
+* `folder_id` - (Optional) Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+
+* `service` - (Optional) Service of custom metric in Yandex Monitoring that should be used for scaling.
+
 ---
 
 The `network_settings` block supports:

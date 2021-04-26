@@ -6,6 +6,8 @@ FEATURES:
 * add `host_group_ids` attribute in `yandex_dataproc_cluster` resource and data source
 
 ENHANCEMENTS:
+* add `service` attribute to `auto_scale.custom_rule` in `yandex_compute_instance_group` resource and data source
+* add `folder_id` attribute to `auto_scale.custom_rule` in `yandex_compute_instance_group` resource and data source
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:

@@ -506,6 +506,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -578,6 +586,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Optional: true,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
+												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},

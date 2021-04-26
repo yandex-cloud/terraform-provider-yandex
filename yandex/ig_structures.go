@@ -268,6 +268,12 @@ func flattenInstanceGroupAutoScale(sp *instancegroup.ScalePolicy_AutoScale) ([]m
 				"target":      rule.Target,
 				"labels":      rule.GetLabels(),
 			}
+			if rule.FolderId != "" {
+				rules[i]["folder_id"] = rule.FolderId
+			}
+			if rule.Service != "" {
+				rules[i]["service"] = rule.Service
+			}
 		}
 	}
 
@@ -922,13 +928,23 @@ func expandInstanceGroupCustomRule(d *schema.ResourceData, prefix string) (*inst
 		return nil, fmt.Errorf("Error expanding labels while creating custom rule: %s", err)
 	}
 
-	return &instancegroup.ScalePolicy_CustomRule{
+	result := &instancegroup.ScalePolicy_CustomRule{
 		RuleType:   instancegroup.ScalePolicy_CustomRule_RuleType(ruleType),
 		MetricType: instancegroup.ScalePolicy_CustomRule_MetricType(metricType),
 		MetricName: d.Get(prefix + ".metric_name").(string),
 		Target:     d.Get(prefix + ".target").(float64),
 		Labels:     labels,
-	}, nil
+	}
+
+	if s, ok := d.GetOk(prefix + ".folder_id"); ok {
+		result.FolderId = s.(string)
+	}
+
+	if s, ok := d.GetOk(prefix + ".service"); ok {
+		result.Service = s.(string)
+	}
+
+	return result, nil
 }
 
 func flattenInstanceGroupManagedInstances(instances []*instancegroup.ManagedInstance) ([]map[string]interface{}, error) {

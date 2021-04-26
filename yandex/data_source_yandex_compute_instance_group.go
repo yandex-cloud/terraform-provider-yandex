@@ -454,6 +454,14 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeFloat,
 													Computed: true,
 												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -518,6 +526,14 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 												"target": {
 													Type:     schema.TypeFloat,
+													Computed: true,
+												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
 													Computed: true,
 												},
 											},

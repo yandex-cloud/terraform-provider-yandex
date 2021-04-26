@@ -149,6 +149,10 @@ This type of metric must have the `zone_id` label.
 
 * `labels` - A map of labels of metric.
 
+* `folder_id` - Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+
+* `service` - Service of custom metric in Yandex Monitoring that should be used for scaling.
+
 ---
 
 The `instance_template` block supports:
