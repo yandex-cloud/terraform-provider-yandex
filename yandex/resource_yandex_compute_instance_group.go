@@ -769,6 +769,47 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"application_load_balancer": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target_group_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"target_group_description": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"target_group_labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"target_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status_message": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -1000,6 +1041,15 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
+	applicationLoadBalancerSpec, err := flattenInstanceGroupApplicationLoadBalancerSpec(instanceGroup)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("application_load_balancer", applicationLoadBalancerSpec); err != nil {
+		return err
+	}
+
 	healthChecks, err := flattenInstanceGroupHealthChecks(instanceGroup)
 	if err != nil {
 		return err
@@ -1106,6 +1156,11 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'load_balancer_spec' object of api request: %s", err)
 	}
 
+	applicationLoadBalancerSpec, err := expandInstanceGroupApplicationLoadBalancerSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating 'application_load_balancer' object of api request: %s", err)
+	}
+
 	variables, err := expandInstanceGroupVariables(d.Get("variables"))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
@@ -1114,19 +1169,20 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 	deletionProtection := d.Get("deletion_protection")
 
 	req := &instancegroup.CreateInstanceGroupRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		Labels:             labels,
-		InstanceTemplate:   instanceTemplate,
-		ScalePolicy:        scalePolicy,
-		DeployPolicy:       deployPolicy,
-		AllocationPolicy:   allocationPolicy,
-		LoadBalancerSpec:   loadBalancerSpec,
-		HealthChecksSpec:   healthChecksSpec,
-		ServiceAccountId:   d.Get("service_account_id").(string),
-		Variables:          variables,
-		DeletionProtection: deletionProtection.(bool),
+		FolderId:                    folderID,
+		Name:                        d.Get("name").(string),
+		Description:                 d.Get("description").(string),
+		Labels:                      labels,
+		InstanceTemplate:            instanceTemplate,
+		ScalePolicy:                 scalePolicy,
+		DeployPolicy:                deployPolicy,
+		AllocationPolicy:            allocationPolicy,
+		LoadBalancerSpec:            loadBalancerSpec,
+		ApplicationLoadBalancerSpec: applicationLoadBalancerSpec,
+		HealthChecksSpec:            healthChecksSpec,
+		ServiceAccountId:            d.Get("service_account_id").(string),
+		Variables:                   variables,
+		DeletionProtection:          deletionProtection.(bool),
 	}
 
 	return req, nil

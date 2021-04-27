@@ -323,6 +323,17 @@ func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[st
 	return res, nil
 }
 
+func flattenInstanceGroupApplicationLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if alb := ig.GetApplicationLoadBalancerState(); alb != nil {
+		res["target_group_id"] = alb.TargetGroupId
+		res["status_message"] = alb.StatusMessage
+	}
+
+	return []map[string]interface{}{res}, nil
+}
+
 func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
 	res := map[string]interface{}{}
 
@@ -330,6 +341,21 @@ func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]m
 		res["target_group_id"] = loadBalancerState.TargetGroupId
 		res["status_message"] = loadBalancerState.StatusMessage
 	}
+
+	return []map[string]interface{}{res}, nil
+}
+func flattenInstanceGroupApplicationLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	if ig.ApplicationLoadBalancerSpec == nil || ig.ApplicationLoadBalancerSpec.TargetGroupSpec == nil {
+		return nil, nil
+	}
+
+	res := map[string]interface{}{}
+	res["target_group_name"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetName()
+	res["target_group_description"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetDescription()
+	res["target_group_labels"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetLabels()
+	res["target_group_id"] = ig.ApplicationLoadBalancerState.GetTargetGroupId()
+	res["status_message"] = ig.ApplicationLoadBalancerState.GetStatusMessage()
+	res["max_opening_traffic_duration"] = ig.ApplicationLoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -794,7 +820,31 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 
 	return &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}, nil
 }
+func expandInstanceGroupApplicationLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.ApplicationLoadBalancerSpec, error) {
+	if _, ok := d.GetOk("application_load_balancer"); !ok {
+		return nil, nil
+	}
 
+	spec := &instancegroup.ApplicationTargetGroupSpec{
+		Name:        d.Get("application_load_balancer.0.target_group_name").(string),
+		Description: d.Get("application_load_balancer.0.target_group_description").(string),
+	}
+
+	if v, ok := d.GetOk("application_load_balancer.0.target_group_labels"); ok {
+		labels, err := expandLabels(v)
+		if err != nil {
+			return nil, fmt.Errorf("Error expanding labels: %s", err)
+		}
+
+		spec.Labels = labels
+	}
+	result := &instancegroup.ApplicationLoadBalancerSpec{TargetGroupSpec: spec}
+	if v, ok := d.GetOk("application_load_balancer.0.max_opening_traffic_duration"); ok {
+		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	return result, nil
+}
 func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.LoadBalancerSpec, error) {
 	if _, ok := d.GetOk("load_balancer"); !ok {
 		return nil, nil

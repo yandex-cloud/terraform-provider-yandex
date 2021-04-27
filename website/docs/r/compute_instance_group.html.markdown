@@ -95,6 +95,8 @@ The following arguments are supported:
 
 * `load_balancer` - (Optional) Load balancing specifications. The structure is documented below.
 
+* `application_load_balancer` - (Optional) Application Load balancing (L7) specifications. The structure is documented below.
+
 * `description` - (Optional) A description of the instance group.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the instance group.
@@ -102,6 +104,18 @@ The following arguments are supported:
 * `variables` - (Optional) A set of key/value  variables pairs to assign to the instance group.
 
 * `deletion_protection` - (Optional) Flag that protects the instance group from accidental deletion.
+
+---
+
+The `application_load_balancer` block supports:
+
+* `target_group_name` - (Optional) The name of the target group.
+
+* `target_group_description` - (Optional) A description of the target group.
+
+* `target_group_labels` - (Optional) A set of key/value label pairs.
+
+* `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 ---
 

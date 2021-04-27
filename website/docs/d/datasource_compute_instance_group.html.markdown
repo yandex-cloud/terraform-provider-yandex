@@ -38,6 +38,8 @@ The following arguments are supported:
 
 * `load_balancer` - Load balancing specification. The structure is documented below.
 
+* `application_load_balancer` - Application Load balancing (L7) specifications. The structure is documented below.
+
 * `deploy_policy` - The deployment policy of the instance group. The structure is documented below.
 
 * `allocation_policy` - The allocation policy of the instance group by zone and region. The structure is documented below.
@@ -51,6 +53,8 @@ The following arguments are supported:
 
 * `load_balancer_state` - Information about which entities can be attached to this load balancer. The structure is documented below.
 
+* `application_load_balancer_state` - Information about which entities can be attached to this application load balancer. The structure is documented below.
+  
 * `created_at` - The instance group creation timestamp.
 
 * `variables` - A set of key/value  variables pairs to assign to the instance group.
@@ -61,6 +65,12 @@ The following arguments are supported:
 
 ---
 
+The `application_load_balancer_state` block supports:
+
+* `target_group_id` - The ID of the target group used for load balancing.
+* `status_message` - The status message of the target group.
+
+---
 The `load_balancer_state` block supports:
 
 * `target_group_id` - The ID of the target group used for load balancing.
@@ -299,6 +309,18 @@ during the update process.
 
 Instance will be considered up and running (and start receiving traffic) only after the startup_duration
 has elapsed and all health checks are passed.
+
+---
+
+The `application_load_balancer` block supports:
+
+* `target_group_name` - The name of the target group.
+* `target_group_description` - A description of the target group.
+* `target_group_labels` - A set of key/value label pairs.
+* `target_group_id` - The ID of the target group.
+* `status_message` - The status message of the target group.
+* `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
 
 ---
 
