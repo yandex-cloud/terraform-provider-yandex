@@ -733,6 +733,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"max_checking_health_duration": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
 			"load_balancer": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -764,6 +769,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						"status_message": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -1000,9 +1010,13 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
-	healthChecks, err := flattenInstanceGroupHealthChecks(instanceGroup)
+	healthChecks, maxDuration, err := flattenInstanceGroupHealthChecks(instanceGroup)
 	if err != nil {
 		return err
+	}
+
+	if maxDuration != nil {
+		d.Set("max_checking_health_duration", maxDuration)
 	}
 
 	inst, err := flattenInstanceGroupManagedInstances(instances)

@@ -93,6 +93,8 @@ The following arguments are supported:
 
 * `health_check` - (Optional) Health check specifications. The structure is documented below.
 
+* `max_checking_health_duration` - (Optional) Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
 * `load_balancer` - (Optional) Load balancing specifications. The structure is documented below.
 
 * `description` - (Optional) A description of the instance group.
@@ -112,6 +114,8 @@ The `load_balancer` block supports:
 * `target_group_description` - (Optional) A description of the target group.
 
 * `target_group_labels` - (Optional) A set of key/value label pairs.
+
+* `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 ---
 

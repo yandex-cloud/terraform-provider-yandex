@@ -37,8 +37,8 @@ require (
 	github.com/shirou/gopsutil v0.0.0-20180427012116-c95755e4bcd7 // indirect
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20210326132454-24349c492ce9
-	github.com/yandex-cloud/go-sdk v0.0.0-20210326140609-dcebefcc0553
+	github.com/yandex-cloud/go-genproto v0.0.0-20210426120457-2bcd8ac75e07
+	github.com/yandex-cloud/go-sdk v0.0.0-20210426142544-19f75ada07c5
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/mod v0.4.1 // indirect

@@ -658,6 +658,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"max_checking_health_duration": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
 			"load_balancer": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -684,6 +689,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 						"status_message": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 					},

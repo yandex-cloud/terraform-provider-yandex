@@ -6,6 +6,7 @@ FEATURES:
 * add `host_group_ids` attribute in `yandex_dataproc_cluster` resource and data source
 
 ENHANCEMENTS:
+* add `max_checking_health_duration` and `max_opening_traffic_duration` in `yandex_compute_instance`
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:

@@ -35,6 +35,7 @@ The following arguments are supported:
 * `folder_id` - The ID of the folder that the instance group belongs to.
 * `labels` - A set of key/value label pairs to assign to the instance group.
 * `health_check` - Health check specification. The structure is documented below.
+* `max_checking_health_duration` - Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 * `load_balancer` - Load balancing specification. The structure is documented below.
 
@@ -309,6 +310,7 @@ The `load_balancer` block supports:
 * `target_group_labels` - A set of key/value label pairs.
 * `target_group_id` - The ID of the target group.
 * `status_message` - The status message of the target group.
+* `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 ---
 

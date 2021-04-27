@@ -287,9 +287,9 @@ func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]ma
 	return []map[string]interface{}{res}, nil
 }
 
-func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, interface{}, error) {
 	if ig.HealthChecksSpec == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	res := make([]map[string]interface{}, len(ig.HealthChecksSpec.HealthCheckSpecs))
@@ -320,7 +320,11 @@ func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[st
 
 		res[i] = specDict
 	}
-	return res, nil
+	var maxCheckingDuration int64
+	if ig.GetHealthChecksSpec().GetMaxCheckingHealthDuration() != nil {
+		maxCheckingDuration = ig.GetHealthChecksSpec().GetMaxCheckingHealthDuration().GetSeconds()
+	}
+	return res, maxCheckingDuration, nil
 }
 
 func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
@@ -345,6 +349,7 @@ func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]ma
 	res["target_group_labels"] = ig.LoadBalancerSpec.TargetGroupSpec.GetLabels()
 	res["target_group_id"] = ig.LoadBalancerState.GetTargetGroupId()
 	res["status_message"] = ig.LoadBalancerState.GetStatusMessage()
+	res["max_opening_traffic_duration"] = ig.LoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -758,6 +763,9 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 	checksCount := d.Get("health_check.#").(int)
 
 	if checksCount == 0 {
+		if _, ok := d.GetOk("max_checking_health_duration"); ok {
+			return nil, fmt.Errorf("Use max_checking_health_duration only in conjunction with health_check ")
+		}
 		return nil, nil
 	}
 
@@ -791,8 +799,12 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 
 		return nil, fmt.Errorf("need tcp_options or http_options")
 	}
+	result := &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}
 
-	return &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}, nil
+	if v, ok := d.GetOk("max_checking_health_duration"); ok {
+		result.MaxCheckingHealthDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+	return result, nil
 }
 
 func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.LoadBalancerSpec, error) {
@@ -814,7 +826,12 @@ func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup
 		spec.Labels = labels
 	}
 
-	return &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}, nil
+	result := &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}
+	if v, ok := d.GetOk("load_balancer.0.max_opening_traffic_duration"); ok {
+		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	return result, nil
 }
 
 func expandInstanceGroupPlacementPolicy(d *schema.ResourceData, prefix string) *instancegroup.PlacementPolicy {
