@@ -198,6 +198,78 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
+						"dns_record": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fqdn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"dns_zone_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ttl": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"ptr": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"ipv6_dns_record": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fqdn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"dns_zone_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ttl": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"ptr": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"nat_dns_record": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"fqdn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"dns_zone_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"ttl": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"ptr": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -307,7 +379,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance)
+	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance, nil)
 	if err != nil {
 		return err
 	}
