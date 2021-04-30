@@ -1,4 +1,6 @@
-## 0.57.0 (Unreleased)
+## 0.58.0 (Unreleased)
+
+## 0.57.0 (April 29, 2021)
 FEATURES:
 * support k8s node group placement groups both in resource and data source.
 * add cluster_ipv6_range and service_ipv6_range attributes both to resource yandex_kubernetes_cluster and data source yandex_kubernetes_cluster
