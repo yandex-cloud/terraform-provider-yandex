@@ -176,7 +176,7 @@ resource "yandex_compute_instance_group" "ig-with-coi" {
   folder_id          = "your folder"
   service_account_id = "your service account id"
   instance_template {
-    platform_id = "standard-v1"
+    platform_id = "standard-v2"
     resources {
       memory = 1
       cores  = 1

@@ -1,4 +1,6 @@
 ## 0.58.0 (Unreleased)
+ENHANCEMENTS:
+* make `standard-v2` a default platform for `yandex_compute_instance` and `yandex_compute_instance_group` resources.  
 
 ## 0.57.0 (April 29, 2021)
 FEATURES:

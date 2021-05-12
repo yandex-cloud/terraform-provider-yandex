@@ -390,7 +390,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
-				Default:  "standard-v1",
+				Default:  "standard-v2",
 			},
 
 			"allow_stopping_for_update": {
