@@ -35,36 +35,6 @@ func TestAccDataSourceKubernetesClusterZonal_basic(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceKubernetesClusterZonal_dualStack(t *testing.T) {
-	clusterResource := clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies("TestAccDataSourceKubernetesClusterZonal_dualStack",
-		true, true, dailyMaintenancePolicy)
-	clusterResourceFullName := clusterResource.ResourceFullName(true)
-	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
-	clusterResource.ClusterIPv6Range = "fc00::/96"
-	clusterResource.ServiceIPv6Range = "fc01::/112"
-	clusterResource.ClusterIPv4Range = "10.20.0.0/16"
-	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
-
-	var cluster k8s.Cluster
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceKubernetesClusterZonalConfig_basic(clusterResource),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
-					testAccCheckResourceIDField(clusterDataSourceFullName, "cluster_id"),
-					checkClusterAttributes(&cluster, &clusterResource, false),
-					testAccCheckCreatedAtAttr(clusterResourceFullName),
-				),
-			},
-		},
-	})
-}
-
 func TestAccDataSourceKubernetesClusterRegional_basic(t *testing.T) {
 	clusterResource := clusterInfoWithSecurityGroupsNetworkAndMaintenancePolicies("testAccDataSourceKubernetesClusterRegionalConfig_basic", false,
 		false, weeklyMaintenancePolicy)

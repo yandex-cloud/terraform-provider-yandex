@@ -2,10 +2,11 @@
 FEATURES:
 * **New Data Source:** `yandex_alb_target_group`
 * **New Resource:** `yandex_alb_target_group`
+* add `ipv6` and `ipv4` attributes to yandex_kubernetes_node_group network interfaces both in resource and the data source.
 
 ENHANCEMENTS:
-* make `standard-v2` a default platform for `yandex_compute_instance` and `yandex_compute_instance_group` resources. 
-  
+* make `standard-v2` a default platform for `yandex_compute_instance` and `yandex_compute_instance_group` resources.
+
 ## 0.57.0 (April 29, 2021)
 FEATURES:
 * support k8s node group placement groups both in resource and data source.
@@ -21,7 +22,7 @@ ENHANCEMENTS:
 * dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
 * ydb: support for Yandex Database clusters
-* compute: increase disk size limit from 4096Gb to 8192Gb 
+* compute: increase disk size limit from 4096Gb to 8192Gb
 * vpc: add `name` field description at vpc_security_group datasource and example of it usage
 
 BUG FIXES:

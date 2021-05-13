@@ -117,6 +117,14 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 										Computed: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
+									"ipv4": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"ipv6": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
 									"nat": {
 										Type:     schema.TypeBool,
 										Computed: true,
