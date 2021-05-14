@@ -16,7 +16,7 @@ A VM instance resource. For more information, see
 ```hcl
 resource "yandex_compute_instance" "default" {
   name        = "test"
-  platform_id = "standard-v2"
+  platform_id = "standard-v1"
   zone        = "ru-central1-a"
 
   resources {

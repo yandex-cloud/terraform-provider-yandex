@@ -4,9 +4,6 @@ FEATURES:
 * **New Resource:** `yandex_alb_target_group`
 * add `ipv6` and `ipv4` attributes to yandex_kubernetes_node_group network interfaces both in resource and the data source.
 
-ENHANCEMENTS:
-* make `standard-v2` a default platform for `yandex_compute_instance` and `yandex_compute_instance_group` resources.
-
 ## 0.57.0 (April 29, 2021)
 FEATURES:
 * support k8s node group placement groups both in resource and data source.

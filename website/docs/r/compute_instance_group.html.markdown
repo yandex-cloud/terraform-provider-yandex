@@ -20,7 +20,7 @@ resource "yandex_compute_instance_group" "group1" {
   service_account_id  = "${yandex_iam_service_account.test_account.id}"
   deletion_protection = true
   instance_template {
-    platform_id = "standard-v2"
+    platform_id = "standard-v1"
     resources {
       memory = 1
       cores  = 2

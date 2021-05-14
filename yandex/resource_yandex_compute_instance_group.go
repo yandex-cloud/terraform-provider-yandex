@@ -270,7 +270,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						"platform_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "standard-v2",
+							Default:  "standard-v1",
 						},
 
 						"description": {
