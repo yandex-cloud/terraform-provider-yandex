@@ -1,4 +1,6 @@
-## 0.58.0 (Unreleased)
+## 0.59.0 (Unreleased)
+
+## 0.58.0 (May 14, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_target_group`
 * **New Resource:** `yandex_alb_target_group`
