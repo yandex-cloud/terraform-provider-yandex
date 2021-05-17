@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -127,6 +126,36 @@ func updateKubernetesClusterWithSweeperDeps(conf *Config, clusterID, serviceAcco
 func TestAccKubernetesClusterZonal_basic(t *testing.T) {
 	clusterResource := clusterInfoWithNetworkPolicy("testAccKubernetesClusterZonalConfig_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_dualStack(t *testing.T) {
+	clusterResource := clusterInfoWithNetworkPolicy("TestAccKubernetesClusterZonal_dualStack", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterResource.ClusterIPv6Range = "fc00::/96"
+	clusterResource.ServiceIPv6Range = "fc01::/112"
+	clusterResource.ClusterIPv4Range = "10.20.0.0/16"
+	clusterResource.ServiceIPv4Range = "10.21.0.0/16"
+
+	t.Log(testAccKubernetesClusterZonalConfig_basic(clusterResource))
 
 	var cluster k8s.Cluster
 
@@ -464,25 +493,6 @@ func safeResourceName(tp string) string {
 
 func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 	return clusterInfoWithMaintenance(testDesc, zonal, true, anyMaintenancePolicy)
-}
-
-func clusterInfoDualStack(testDesc string, zonal bool) resourceClusterInfo {
-	ci := clusterInfo(testDesc, zonal)
-
-	// Use existing resources rather than creating new ones for dual stack clusters.
-	ci.NetworkResourceName = os.Getenv("K8S_SUBNET_NETWORK_ID")
-	ci.SubnetResourceNameA = os.Getenv("K8S_SUBNET_A_ID")
-	ci.SubnetResourceNameB = os.Getenv("K8S_SUBNET_B_ID")
-	ci.SubnetResourceNameC = os.Getenv("K8S_SUBNET_C_ID")
-	ci.SecurityGroupName = os.Getenv("K8S_SECURITY_GROUP_ID")
-	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
-	ci.ClusterIPv6Range = "fc00::/96"
-	ci.ServiceIPv6Range = "fc01::/112"
-	ci.ClusterIPv4Range = "10.20.0.0/16"
-	ci.ServiceIPv4Range = "10.21.0.0/16"
-	ci.DualStack = true
-
-	return ci
 }
 
 func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
@@ -874,10 +884,6 @@ type resourceClusterInfo struct {
 	ClusterIPv6Range string
 	ServiceIPv4Range string
 	ServiceIPv6Range string
-
-	// For dual stack clusters.
-	NetworkFolderID string
-	DualStack       bool
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1016,31 +1022,19 @@ const zonalClusterConfigTemplate = `
 resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
 	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
-{{if .DualStack}}
-	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_dualStack",
-{{end}}
 	"yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
   ]
 
   name        = "{{.Name}}"
   description = "{{.Description}}"
 
-{{if .DualStack}}
-  network_id = "{{.NetworkResourceName}}"
-{{else}}
   network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
-{{end}}
 
   master {
     version = "{{.MasterVersion}}" 
     zonal {
-{{if .DualStack}}
-  	  zone = "ru-central1-a"
-	  subnet_id = "{{.SubnetResourceNameA}}"
-{{else}}
   	  zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}" 
 	  subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
-{{end}}
     }
   
     public_ip = true
@@ -1134,9 +1128,6 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
 `
 
 const clusterDependenciesConfigTemplate = `
-{{if .DualStack}}
-// Use existing infrastructure for dual stack clusters.
-{{else}}
 resource "yandex_vpc_network" "{{.NetworkResourceName}}" {
   description = "{{.TestDescription}}"
 }
@@ -1176,21 +1167,11 @@ resource "yandex_vpc_security_group" "{{.SecurityGroupName}}" {
       v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
-{{end}}
 
 resource "yandex_iam_service_account" "{{.ServiceAccountResourceName}}" {
   name = "{{.ServiceAccountResourceName}}"
   description = "{{.TestDescription}}"
 }
-
-{{if .DualStack}}
-resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}_dualStack" {
-  folder_id   = "{{.NetworkFolderID}}"
-  member      = "serviceAccount:${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
-  role        = "editor"
-  sleep_after = 30
-}
-{{end}}
 
 resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}" {
   folder_id   = "{{.FolderID}}"

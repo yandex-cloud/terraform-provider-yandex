@@ -249,93 +249,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Set:      schema.HashString,
 							Optional: true,
 						},
-
-						"dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-
-						"ipv6_dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-
-						"nat_dns_record": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"fqdn": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"dns_zone_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ttl": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										ForceNew: true,
-									},
-									"ptr": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -566,7 +479,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance, d)
+	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
 	}

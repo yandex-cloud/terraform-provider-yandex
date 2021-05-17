@@ -124,20 +124,9 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Required: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
-									"ipv4": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  true,
-									},
-									"ipv6": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Computed: true,
-									},
 									"nat": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										Computed: true,
 									},
 									"security_group_ids": {
 										Type:     schema.TypeSet,
@@ -769,13 +758,6 @@ func getNodeGroupNetworkInterfaceSpecs(d *schema.ResourceData) []*k8s.NetworkInt
 			nifSpec.SecurityGroupIds = expandSecurityGroupIds(securityGroups)
 		}
 
-		if ipv4, ok := nif["ipv4"]; ok && ipv4.(bool) {
-			nifSpec.PrimaryV4AddressSpec = &k8s.NodeAddressSpec{}
-		}
-		if ipv6, ok := nif["ipv6"]; ok && ipv6.(bool) {
-			nifSpec.PrimaryV6AddressSpec = &k8s.NodeAddressSpec{}
-		}
-
 		if nat, ok := nif["nat"]; ok && nat.(bool) {
 			nifSpec.PrimaryV4AddressSpec = &k8s.NodeAddressSpec{
 				OneToOneNatSpec: &k8s.OneToOneNatSpec{
@@ -1084,8 +1066,6 @@ func flattenKubernetesNodeGroupNetworkInterface(nif *k8s.NetworkInterfaceSpec) m
 		"subnet_ids":         nif.SubnetIds,
 		"security_group_ids": nif.SecurityGroupIds,
 		"nat":                flattenKubernetesNodeGroupNat(nif),
-		"ipv4":               nif.PrimaryV4AddressSpec != nil,
-		"ipv6":               nif.PrimaryV6AddressSpec != nil,
 	}
 }
 

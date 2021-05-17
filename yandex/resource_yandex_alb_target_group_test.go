@@ -18,9 +18,11 @@ const albTGResource = "yandex_alb_target_group.test-tg"
 
 func init() {
 	resource.AddTestSweepers("yandex_alb_target_group", &resource.Sweeper{
-		Name:         "yandex_alb_target_group",
-		F:            testSweepALBTargetGroups,
-		Dependencies: []string{},
+		Name: "yandex_alb_target_group",
+		F:    testSweepALBTargetGroups,
+		Dependencies: []string{
+			"yandex_alb_backend_group",
+		},
 	})
 }
 

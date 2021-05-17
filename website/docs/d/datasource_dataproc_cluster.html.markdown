@@ -46,7 +46,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `service_account_id` - Service account used by the Data Proc agent to access resources of Yandex.Cloud.
 * `ui_proxy` - Whether UI proxy feature is enabled.
 * `zone_id` - ID of the availability zone where the cluster resides.
-* `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
 
 ---
 

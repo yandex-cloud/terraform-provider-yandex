@@ -133,37 +133,6 @@ func TestAccDataSourceKubernetesNodeGroupDailyMaintenance_placementGroup(t *test
 	})
 }
 
-func TestAccDataSourceKubernetesNodeGroup_dualStack(t *testing.T) {
-	clusterResource := clusterInfoDualStack("TestAccDataSourceKubernetesNodeGroup_dualStack", true)
-	nodeResource := nodeGroupInfoDualStack(clusterResource.ClusterResourceName)
-
-	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
-	nodeResourceFullName := nodeResource.ResourceFullName(false)
-
-	var ng k8s.NodeGroup
-
-	// All dual stack test share the same subnet. Disallow concurrent execution.
-	mutexKV.Lock(clusterResource.SubnetResourceNameA)
-	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
-					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
-					testAccCheckCreatedAtAttr(nodeResourceFullName),
-				),
-			},
-		},
-	})
-}
-
 const dataNodeGroupConfigTemplate = `
 data "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   name = "${yandex_kubernetes_node_group.{{.NodeGroupResourceName}}.name}"

@@ -335,6 +335,7 @@ func TestAccKubernetesNodeGroup_autoscaled(t *testing.T) {
 	})
 }
 
+//revive:disable:var-naming
 func TestAccKubernetesNodeGroup_createPlacementGroup(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
@@ -352,36 +353,7 @@ func TestAccKubernetesNodeGroup_createPlacementGroup(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource) + constPlacementGroupResource,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKubernetesNodeGroup_dualStack(t *testing.T) {
-	clusterResource := clusterInfoDualStack("TestAccKubernetesNodeGroup_dualStack", true)
-	nodeResource := nodeGroupInfoDualStack(clusterResource.ClusterResourceName)
-
-	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
-	nodeResourceFullName := nodeResource.ResourceFullName(true)
-
-	var ng k8s.NodeGroup
-
-	// All dual stack test share the same subnet. Disallow concurrent execution.
-	mutexKV.Lock(clusterResource.SubnetResourceNameA)
-	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+					checkNodeGroupNonEmptyPlacementGroup(&ng),
 				),
 			},
 		},
@@ -415,18 +387,10 @@ type resourceNodeGroupInfo struct {
 	policy            maintenancePolicyType
 	SecurityGroupName string
 	SubnetName        string
-
-	DualStack bool
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
 	return nodeGroupInfoWithMaintenance(clusterResourceName, true, true, anyMaintenancePolicy)
-}
-
-func nodeGroupInfoDualStack(clusterResourceName string) resourceNodeGroupInfo {
-	ng := nodeGroupInfoWithMaintenance(clusterResourceName, true, true, anyMaintenancePolicy)
-	ng.DualStack = true
-	return ng
 }
 
 func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoRepair bool, policyType maintenancePolicyType) resourceNodeGroupInfo {
@@ -495,10 +459,6 @@ func (i *resourceNodeGroupInfo) constructMaintenancePolicyField(autoUpgrade, aut
 func (i *resourceNodeGroupInfo) constructNetworkInterfaces(subnetName, securityGroupName string) {
 	i.SubnetName = subnetName
 	i.SecurityGroupName = securityGroupName
-	if i.DualStack {
-		i.NetworkInterfaces = fmt.Sprintf(networkInterfacesTemplateDualStack, subnetName, securityGroupName)
-		return
-	}
 
 	subnetNameGetter := fmt.Sprintf("\"${yandex_vpc_subnet.%s.id}\"", i.SubnetName)
 	securityGroupIDGetter := ""
@@ -673,15 +633,6 @@ var networkInterfacesTemplate = `
   }
 `
 
-var networkInterfacesTemplateDualStack = `
-  network_interface {
-	ipv4 = true
-	ipv6 = true
-    subnet_ids = ["%s"]
-    security_group_ids = ["%s"]
-  }
-`
-
 // language=tf
 const constPlacementGroupResource = `
 resource yandex_compute_placement_group pg {
@@ -696,6 +647,15 @@ func testAccKubernetesNodeGroupConfig_basic(cluster resourceClusterInfo, ng reso
 func testAccKubernetesNodeGroupConfig_autoscaled(cluster resourceClusterInfo, ng resourceNodeGroupInfo) string {
 	deps := testAccKubernetesClusterZonalConfig_basic(cluster)
 	return deps + templateConfig(nodeGroupConfigTemplate, ng.Map())
+}
+
+func checkNodeGroupNonEmptyPlacementGroup(ng *k8s.NodeGroup) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ng.NodeTemplate.PlacementPolicy != nil && ng.NodeTemplate.PlacementPolicy.PlacementGroupId != "" {
+			return nil
+		}
+		return fmt.Errorf("Node group placement_group_id is invalid")
+	}
 }
 
 func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs bool, autoscaled bool) resource.TestCheckFunc {
@@ -734,6 +694,10 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", "standard-v2"),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.platform_id", tpl.GetPlatformId()),
 
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.nat", "true"),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.nat",
+				strconv.FormatBool(tpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4)), //nolint
+
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible", info.Preemptible),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible",
 				strconv.FormatBool(tpl.GetSchedulingPolicy().GetPreemptible())),
@@ -771,23 +735,10 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 				tpl.PlacementPolicy.PlacementGroupId)
 		}
 
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4",
-			strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil))
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6",
-			strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV6AddressSpec != nil))
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat",
-			strconv.FormatBool(
-				tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil &&
-					tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec.OneToOneNatSpec != nil))
-
 		if info.NetworkInterfaces != enableNAT {
-			subnetID := info.SubnetName
-			if !info.DualStack {
-				var err error
-				subnetID, err = getResourceID(info.subnetName(), s)
-				if err != nil {
-					return err
-				}
+			subnetID, err := getResourceID(info.subnetName(), s)
+			if err != nil {
+				return err
 			}
 
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.#", "1")
@@ -796,13 +747,9 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0])
 
 			if info.SecurityGroupName != "" {
-				securityGroupID := info.SecurityGroupName
-				if !info.DualStack {
-					var err error
-					securityGroupID, err = getResourceID(info.securityGroupName(), s)
-					if err != nil {
-						return err
-					}
+				securityGroupID, err := getResourceID(info.securityGroupName(), s)
+				if err != nil {
+					return err
 				}
 
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids", "1")

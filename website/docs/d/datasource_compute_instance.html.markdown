@@ -88,30 +88,6 @@ The `network_interface` block supports:
 * `nat_ip_address` - Public IP address of the instance.
 * `nat_ip_version` - IP version for the public address.
 * `security_group_ids` - Security group ids for network interface.
-* `dns_record` - List of configurations for creating ipv4 DNS records. The structure is documented below.
-* `ipv6_dns_record` - List of configurations for creating ipv6 DNS records. The structure is documented below.
-* `nat_dns_record` - List of configurations for creating ipv4 NAT DNS records. The structure is documented below.
-
-The `dns_record` block supports:
-
-* `fqdn` - DNS record FQDN.
-* `dns_zone_id` - DNS zone ID (if not set, private zone is used).
-* `ttl` - DNS record TTL. in seconds
-* `ptr` - When set to true, also create a PTR DNS record.
-
-The `ipv6_dns_record` block supports:
-
-* `fqdn` - DNS record FQDN.
-* `dns_zone_id` - DNS zone ID (if not set, private zone is used).
-* `ttl` - DNS record TTL. in seconds
-* `ptr` - When set to true, also create a PTR DNS record.
-
-The `nat_dns_record` block supports:
-
-* `fqdn` - DNS record FQDN.
-* `dns_zone_id` - DNS zone ID (if not set, private zone is used).
-* `ttl` - DNS record TTL. in seconds
-* `ptr` - When set to true, also create a TR DNS record.
 
 The `secondary_disk` block supports:
 

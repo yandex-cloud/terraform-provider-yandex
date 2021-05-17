@@ -125,7 +125,6 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 		"bucket":             "bucket-777",
 		"ui_proxy":           "true",
 		"security_group_ids": []interface{}{"security_group_id1"},
-		"host_group_ids":     []interface{}{"hg1", "hg2"},
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexDataprocCluster().Schema, raw)
 
@@ -177,7 +176,6 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 		Bucket:           "bucket-777",
 		UiProxy:          true,
 		SecurityGroupIds: []string{"security_group_id1"},
-		HostGroupIds:     []string{"hg2", "hg1"},
 	}
 
 	assert.Equal(t, expected, req)

@@ -98,13 +98,6 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
-			"host_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"host": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -522,7 +515,6 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
-	hostGroupIds := expandHostGroupIds(d.Get("host_group_ids"))
 
 	req := kafka.CreateClusterRequest{
 		FolderId:         folderID,
@@ -536,7 +528,6 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 		TopicSpecs:       topicSpecs,
 		UserSpecs:        userSpecs,
 		SecurityGroupIds: securityGroupIds,
-		HostGroupIds:     hostGroupIds,
 	}
 	return &req, nil
 }
@@ -614,10 +605,6 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
-		return err
-	}
-
-	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 
