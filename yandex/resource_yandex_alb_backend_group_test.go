@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log"
 	"testing"
 )
@@ -429,7 +431,7 @@ func testAccCheckALBBackendGroupDestroy(s *terraform.State) error {
 		_, err := config.sdk.ApplicationLoadBalancer().BackendGroup().Get(context.Background(), &apploadbalancer.GetBackendGroupRequest{
 			BackendGroupId: rs.Primary.ID,
 		})
-		if err == nil {
+		if status.Code(err) != codes.NotFound {
 			return fmt.Errorf("Backend Group still exists")
 		}
 	}
