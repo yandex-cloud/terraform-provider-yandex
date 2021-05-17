@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/go-multierror"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"log"
 	"testing"
 
@@ -18,9 +20,11 @@ const albTGResource = "yandex_alb_target_group.test-tg"
 
 func init() {
 	resource.AddTestSweepers("yandex_alb_target_group", &resource.Sweeper{
-		Name:         "yandex_alb_target_group",
-		F:            testSweepALBTargetGroups,
-		Dependencies: []string{},
+		Name: "yandex_alb_target_group",
+		F:    testSweepALBTargetGroups,
+		Dependencies: []string{
+			"yandex_alb_backend_group",
+		},
 	})
 }
 
@@ -199,7 +203,7 @@ func testAccCheckALBTargetGroupDestroy(s *terraform.State) error {
 		_, err := config.sdk.ApplicationLoadBalancer().TargetGroup().Get(context.Background(), &apploadbalancer.GetTargetGroupRequest{
 			TargetGroupId: rs.Primary.ID,
 		})
-		if err == nil {
+		if status.Code(err) != codes.NotFound {
 			return fmt.Errorf("TargetGroup still exists")
 		}
 	}
