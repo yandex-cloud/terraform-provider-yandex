@@ -547,11 +547,7 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	// TODO flatten backend properly
-	backend, err := expandALBHttpBackends(d)
-	if err != nil {
-		return fmt.Errorf("Error expanding backends while updating Application Backend Group: %w", err)
-	}
+	// TODO update ALB Backend Group through mask
 
 	req := &apploadbalancer.UpdateBackendGroupRequest{
 		BackendGroupId: d.Id(),
@@ -560,7 +556,22 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 		Labels:         labels,
 	}
 
-	req.SetHttp(backend)
+	_, ok := d.GetOk("http_backend")
+	if ok {
+		backend, err := expandALBHttpBackends(d)
+		if err != nil {
+			return fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
+		}
+		req.SetHttp(backend)
+	}
+	_, ok = d.GetOk("grpc_backend")
+	if ok {
+		backend, err := expandALBGrpcBackends(d)
+		if err != nil {
+			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
+		}
+		req.SetGrpc(backend)
+	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()

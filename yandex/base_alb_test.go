@@ -26,10 +26,9 @@ const albDefaultReceive = "tf-test-receive"
 
 func albBGDefaultALBValues() map[string]interface{} {
 	return map[string]interface{}{
-		"TGName":        acctest.RandomWithPrefix("tf-tg"),
-		"BGName":        acctest.RandomWithPrefix("tf-bg"),
-		"BGDescription": "alb-bg-descriprion",
-		// "BaseTemplate":         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		"TGName":               acctest.RandomWithPrefix("tf-tg"),
+		"BGName":               acctest.RandomWithPrefix("tf-bg"),
+		"BGDescription":        "alb-bg-descriprion",
 		"TlsSni":               albDefaultSni,
 		"TlsValidationContext": albDefaultValidationContext,
 		"BackendWeight":        albDefaultBackendWeight,
