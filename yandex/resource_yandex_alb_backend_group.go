@@ -547,8 +547,6 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	// TODO update ALB Backend Group through mask
-
 	req := &apploadbalancer.UpdateBackendGroupRequest{
 		BackendGroupId: d.Id(),
 		Name:           d.Get("name").(string),
