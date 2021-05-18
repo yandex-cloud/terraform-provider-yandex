@@ -90,17 +90,17 @@ func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Application Target Group: %s", err)
+		return fmt.Errorf("Error expanding labels while creating Application Target Group: %w", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating Application Target Group: %s", err)
+		return fmt.Errorf("Error getting folder ID while creating Application Target Group: %w", err)
 	}
 
 	targets, err := expandALBTargets(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding targets while creating Application Target Group: %s", err)
+		return fmt.Errorf("Error expanding targets while creating Application Target Group: %w", err)
 	}
 
 	req := apploadbalancer.CreateTargetGroupRequest{
@@ -116,12 +116,12 @@ func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}
 
 	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().TargetGroup().Create(ctx, &req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Application Target Group: %s", err)
+		return fmt.Errorf("Error while requesting API to create Application Target Group: %w", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while get Application Target Group create operation metadata: %s", err)
+		return fmt.Errorf("Error while get Application Target Group create operation metadata: %w", err)
 	}
 
 	md, ok := protoMetadata.(*apploadbalancer.CreateTargetGroupMetadata)
@@ -133,11 +133,11 @@ func resourceYandexALBTargetGroupCreate(d *schema.ResourceData, meta interface{}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting operation to create Application Target Group: %s", err)
+		return fmt.Errorf("Error while waiting operation to create Application Target Group: %w", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Application Target Group creation failed: %s", err)
+		return fmt.Errorf("Application Target Group creation failed: %w", err)
 	}
 
 	log.Printf("[DEBUG] Finished creating Application Target Group %q", d.Id())
@@ -195,7 +195,7 @@ func resourceYandexALBTargetGroupUpdate(d *schema.ResourceData, meta interface{}
 
 	targets, err := expandALBTargets(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding targets while updating Application Target Group: %s", err)
+		return fmt.Errorf("Error expanding targets while updating Application Target Group: %w", err)
 	}
 
 	req := &apploadbalancer.UpdateTargetGroupRequest{
@@ -211,12 +211,12 @@ func resourceYandexALBTargetGroupUpdate(d *schema.ResourceData, meta interface{}
 
 	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().TargetGroup().Update(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update Application Target Group %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update Application Target Group %q: %w", d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error updating Application Target Group %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating Application Target Group %q: %w", d.Id(), err)
 	}
 
 	log.Printf("[DEBUG] Finished updating Application Target Group %q", d.Id())

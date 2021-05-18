@@ -80,7 +80,7 @@ func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{})
 	if tgNameOk {
 		tgID, err = resolveObjectID(ctx, config, d, sdkresolvers.TargetGroupResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve data source target group by name: %v", err)
+			return fmt.Errorf("failed to resolve data source target group by name: %w", err)
 		}
 	}
 
