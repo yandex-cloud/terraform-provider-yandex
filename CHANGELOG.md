@@ -1,5 +1,9 @@
 ## 0.59.0 (Unreleased)
 
+
+BUG FIXES:
+* mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`
+
 ## 0.58.0 (May 14, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_target_group`
