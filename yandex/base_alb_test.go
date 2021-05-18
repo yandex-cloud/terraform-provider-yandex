@@ -23,12 +23,11 @@ const albDefaultPath = "tf-test-path"
 const albDefaultPort = "3"
 const albDefaultSend = "tf-test-send"
 const albDefaultReceive = "tf-test-receive"
+const albDefaultDescription = "alb-bg-description"
 
 func albBGDefaultALBValues() map[string]interface{} {
 	return map[string]interface{}{
-		"TGName":               acctest.RandomWithPrefix("tf-tg"),
-		"BGName":               acctest.RandomWithPrefix("tf-bg"),
-		"BGDescription":        "alb-bg-descriprion",
+		"BGDescription":        albDefaultDescription,
 		"TlsSni":               albDefaultSni,
 		"TlsValidationContext": albDefaultValidationContext,
 		"BackendWeight":        albDefaultBackendWeight,
@@ -107,6 +106,8 @@ func testAccALBGeneralBGTemplate(ctx map[string]interface{}, isDataSource, isHtt
 	ctx["IsHttpCheck"] = isHttpCheck
 	ctx["IsGrpcCheck"] = isGrpcCheck
 	ctx["IsStreamCheck"] = isStreamCheck
+	ctx["TGName"] = acctest.RandomWithPrefix("tf-tg")
+	ctx["BGName"] = acctest.RandomWithPrefix("tf-bg")
 	ctx["BaseTemplate"] = testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance"))
 	ctx["IsDataSource"] = isDataSource
 	return templateConfig(`
