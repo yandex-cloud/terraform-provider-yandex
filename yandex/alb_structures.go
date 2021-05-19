@@ -73,9 +73,7 @@ func expandALBHttpBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackend
 		backends = append(backends, backend)
 	}
 
-	backendGroup := &apploadbalancer.HttpBackendGroup{}
-	backendGroup.SetBackends(backends)
-	return backendGroup, nil
+	return &apploadbalancer.HttpBackendGroup{Backends: backends}, nil
 }
 
 func expandALBHttpBackend(config map[string]interface{}) (*apploadbalancer.HttpBackend, error) {
@@ -118,15 +116,14 @@ func expandALBHttpBackend(config map[string]interface{}) (*apploadbalancer.HttpB
 }
 
 func expandALBTargetGroupIds(v interface{}) *apploadbalancer.TargetGroupsBackend {
-	tgb := &apploadbalancer.TargetGroupsBackend{}
 	var l []string
 	if v != nil {
 		for _, val := range v.([]interface{}) {
 			l = append(l, val.(string))
 		}
 	}
-	tgb.SetTargetGroupIds(l)
-	return tgb
+
+	return &apploadbalancer.TargetGroupsBackend{TargetGroupIds: l}
 }
 
 func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingConfig {
@@ -299,9 +296,7 @@ func expandALBGrpcBackends(d *schema.ResourceData) (*apploadbalancer.GrpcBackend
 		backends = append(backends, backend)
 	}
 
-	backendGroup := &apploadbalancer.GrpcBackendGroup{}
-	backendGroup.SetBackends(backends)
-	return backendGroup, nil
+	return &apploadbalancer.GrpcBackendGroup{Backends: backends}, nil
 }
 
 func expandALBGrpcBackend(config map[string]interface{}) (*apploadbalancer.GrpcBackend, error) {
