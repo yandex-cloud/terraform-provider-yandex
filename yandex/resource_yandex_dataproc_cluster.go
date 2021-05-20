@@ -96,6 +96,50 @@ func resourceYandexDataprocCluster() *schema.Resource {
 										},
 									},
 
+									"autoscaling_config": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_hosts_count": {
+													Type:     schema.TypeInt,
+													Required: true,
+												},
+												"preemptible": {
+													Type:     schema.TypeBool,
+													Optional: true,
+													Default:  false,
+												},
+												"measurement_duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Default:  -1,
+												},
+												"warmup_duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Default:  -1,
+												},
+												"stabilization_duration": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Default:  -1,
+												},
+												"cpu_utilization_target": {
+													Type:     schema.TypeFloat,
+													Optional: true,
+													Default:  -1,
+												},
+												"decommission_timeout": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Default:  -1,
+												},
+											},
+										},
+									},
+
 									"subnet_id": {
 										Type:     schema.TypeString,
 										Required: true,
@@ -282,13 +326,33 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 	}
 	subclusters = reorderDataprocSubclusters(d, subclusters)
 
-	d.Set("folder_id", cluster.FolderId)
-	d.Set("name", cluster.Name)
-	d.Set("description", cluster.Description)
-	d.Set("zone_id", cluster.ZoneId)
-	d.Set("service_account_id", cluster.ServiceAccountId)
-	d.Set("bucket", cluster.Bucket)
-	d.Set("ui_proxy", cluster.UiProxy)
+	if err := d.Set("folder_id", cluster.FolderId); err != nil {
+		return err
+	}
+
+	if err := d.Set("name", cluster.Name); err != nil {
+		return err
+	}
+
+	if err := d.Set("description", cluster.Description); err != nil {
+		return err
+	}
+
+	if err := d.Set("zone_id", cluster.ZoneId); err != nil {
+		return err
+	}
+
+	if err := d.Set("service_account_id", cluster.ServiceAccountId); err != nil {
+		return err
+	}
+
+	if err := d.Set("bucket", cluster.Bucket); err != nil {
+		return err
+	}
+
+	if err := d.Set("ui_proxy", cluster.UiProxy); err != nil {
+		return err
+	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
@@ -310,7 +374,9 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 	if err != nil {
 		return err
 	}
-	d.Set("created_at", createdAt)
+	if err := d.Set("created_at", createdAt); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -621,12 +687,13 @@ func getDataprocSubclusterCreateRequest(clusterID string, element interface{}) *
 	createSpec := expandDataprocSubclusterSpec(element)
 
 	return &dataproc.CreateSubclusterRequest{
-		ClusterId:  clusterID,
-		Name:       createSpec.Name,
-		Role:       createSpec.Role,
-		Resources:  createSpec.Resources,
-		SubnetId:   createSpec.SubnetId,
-		HostsCount: createSpec.HostsCount,
+		ClusterId:         clusterID,
+		Name:              createSpec.Name,
+		Role:              createSpec.Role,
+		Resources:         createSpec.Resources,
+		SubnetId:          createSpec.SubnetId,
+		HostsCount:        createSpec.HostsCount,
+		AutoscalingConfig: createSpec.AutoscalingConfig,
 	}
 }
 
@@ -641,6 +708,10 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 		Name:         subclusterSpec["name"].(string),
 		HostsCount:   int64(subclusterSpec["hosts_count"].(int)),
 	}
+	autoscalingConfigs := subclusterSpec["autoscaling_config"].([]interface{})
+	if len(autoscalingConfigs) > 0 {
+		req.AutoscalingConfig = expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+	}
 
 	constFields := []string{"role", "subnet_id"}
 	for _, fieldName := range constFields {
@@ -652,7 +723,11 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 	}
 
 	var updatePaths []string
-	fieldNames := []string{"resources", "name", "hosts_count"}
+	fieldNames := []string{
+		"resources",
+		"name",
+		"hosts_count",
+	}
 	for _, fieldName := range fieldNames {
 		field := path + "." + fieldName
 		if d.HasChange(field) {
@@ -660,6 +735,25 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 		}
 	}
 
+	// later resources also can be added here
+	structureFieldNames := map[string]string{
+		"max_hosts_count":        "autoscaling_config",
+		"preemptible":            "autoscaling_config",
+		"warmup_duration":        "autoscaling_config",
+		"stabilization_duration": "autoscaling_config",
+		"measurement_duration":   "autoscaling_config",
+		"cpu_utilization_target": "autoscaling_config",
+		"decommission_timeout":   "autoscaling_config",
+	}
+
+	for fieldName, structureName := range structureFieldNames {
+		field := path + "." + structureName + ".0." + fieldName
+		if d.HasChange(field) {
+			updatePaths = append(updatePaths, structureName+"."+fieldName)
+		}
+	}
+
+	log.Printf("[DEBUG] fieldMask = %s", updatePaths)
 	if len(updatePaths) == 0 {
 		return nil, nil
 	}

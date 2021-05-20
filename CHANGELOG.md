@@ -1,4 +1,5 @@
 ## 0.59.0 (Unreleased)
+* add `autoscaling_config` to Data Proc subcluster specification
 
 
 BUG FIXES:
