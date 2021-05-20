@@ -146,7 +146,7 @@ func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingC
 }
 
 func expandHealthChecks(v interface{}) []*apploadbalancer.HealthCheck {
-	healthchecks := make([]*apploadbalancer.HealthCheck, 0)
+	var healthchecks []*apploadbalancer.HealthCheck
 
 	if v != nil {
 		healthchecksSet := v.(*schema.Set)
@@ -255,7 +255,7 @@ func expandALBStreamHealthcheck(v interface{}) *apploadbalancer.HealthCheck_Stre
 	if val, ok := config["send"]; ok {
 		payload := &apploadbalancer.Payload{}
 		payload.SetText(val.(string))
-		healthcheck.Receive = payload
+		healthcheck.Send = payload
 	}
 	return healthcheck
 }
