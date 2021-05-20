@@ -14,11 +14,11 @@ func resourceALBBackendGroupBackendHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["name"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%s-", v.(string))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["port"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%d-", v.(int))
+		fmt.Fprintf(&buf, "%d-", v.(int))
 	}
 
 	return hashcode.String(buf.String())
@@ -29,15 +29,15 @@ func resourceALBBackendGroupHealthcheckHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["timeout"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%s-", v.(string))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["interval"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%s-", v.(string))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["healthcheck_port"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%d-", v.(int))
+		fmt.Fprintf(&buf, "%d-", v.(int))
 	}
 
 	return hashcode.String(buf.String())
@@ -48,11 +48,11 @@ func resourceALBTargetGroupTargetHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["subnet_id"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%s-", v.(string))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["ip_address"]; ok {
-		_, _ = fmt.Fprintf(&buf, "%s-", v.(string))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	return hashcode.String(buf.String())
