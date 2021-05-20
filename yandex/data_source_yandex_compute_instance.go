@@ -379,7 +379,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance, nil)
+	networkInterfaces, _, _, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
 	}

@@ -108,7 +108,7 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 	return secondaryDisks, nil
 }
 
-func flattenInstanceNetworkInterfaces(instance *compute.Instance, d *schema.ResourceData) ([]map[string]interface{}, string, string, error) {
+func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, string, error) {
 	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
 	var externalIP, internalIP string
 
@@ -156,41 +156,32 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance, d *schema.Reso
 				externalIP = iface.PrimaryV6Address.Address
 			}
 		}
-		prefix := "network_interface." + strconv.Itoa(i) + "."
+
 		if sp := iface.GetPrimaryV4Address().GetDnsRecords(); sp != nil {
-			nics[i]["dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"dns_record.")
+			nics[i]["dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 
 		if sp := iface.GetPrimaryV6Address().GetDnsRecords(); sp != nil {
-			nics[i]["ipv6_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"ipv6_dns_record.")
+			nics[i]["ipv6_dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 
 		if sp := iface.GetPrimaryV4Address().GetOneToOneNat().GetDnsRecords(); sp != nil {
-			nics[i]["nat_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"nat_dns_record.")
+			nics[i]["nat_dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 	}
 
 	return nics, externalIP, internalIP, nil
 }
 
-func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord, d *schema.ResourceData, prefix string) []map[string]interface{} {
+func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(specs))
 
 	for i, spec := range specs {
-		fullPrefix := prefix + strconv.Itoa(i) + "."
 		res[i] = map[string]interface{}{
-			"fqdn": spec.Fqdn,
-		}
-		if d != nil {
-			if ttl, ok := d.GetOk(fullPrefix + "ttl"); ok {
-				res[i]["ttl"] = ttl
-			}
-			if dnsZoneId, ok := d.GetOk(fullPrefix + "dns_zone_id"); ok {
-				res[i]["dns_zone_id"] = dnsZoneId
-			}
-			if ptr, ok := d.GetOk(fullPrefix + "ptr"); ok {
-				res[i]["ptr"] = ptr
-			}
+			"fqdn":        spec.Fqdn,
+			"dns_zone_id": spec.DnsZoneId,
+			"ttl":         int(spec.Ttl),
+			"ptr":         spec.Ptr,
 		}
 	}
 
