@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -44,6 +45,215 @@ func albBGDefaultALBValues() map[string]interface{} {
 		"Receive":              albDefaultReceive,
 		"Send":                 albDefaultSend,
 	}
+}
+
+type resourceALBBackendGroupInfo struct {
+	IsHttpBackend bool
+	IsGrpcBackend bool
+	IsHttpCheck   bool
+	IsGrpcCheck   bool
+	IsStreamCheck bool
+	IsDataSource  bool
+
+	TGName string
+	BGName string
+
+	BGDescription        string
+	TlsSni               string
+	TlsValidationContext string
+	BackendWeight        string
+	PanicThreshold       string
+	LocalityPercent      string
+	StrictLocality       string
+	Timeout              string
+	Interval             string
+	ServiceName          string
+	Http2                string
+	Host                 string
+	Path                 string
+	Port                 string
+	Receive              string
+	Send                 string
+}
+
+func albBackendGroupInfo() resourceALBBackendGroupInfo {
+	res := resourceALBBackendGroupInfo{
+		IsHttpBackend:        false,
+		IsGrpcBackend:        false,
+		IsHttpCheck:          false,
+		IsGrpcCheck:          false,
+		IsStreamCheck:        false,
+		IsDataSource:         false,
+		TGName:               acctest.RandomWithPrefix("tf-tg"),
+		BGName:               acctest.RandomWithPrefix("tf-bg"),
+		BGDescription:        albDefaultDescription,
+		TlsSni:               albDefaultSni,
+		TlsValidationContext: albDefaultValidationContext,
+		BackendWeight:        albDefaultBackendWeight,
+		PanicThreshold:       albDefaultPanicThreshold,
+		LocalityPercent:      albDefaultLocalityPercent,
+		StrictLocality:       albDefaultStrictLocality,
+		Timeout:              albDefaultTimeout,
+		Interval:             albDefaultInterval,
+		ServiceName:          albDefaultServiceName,
+		Http2:                albDefaultHttp2,
+		Host:                 albDefaultHost,
+		Path:                 albDefaultPath,
+		Port:                 albDefaultPort,
+		Receive:              albDefaultReceive,
+		Send:                 albDefaultSend,
+	}
+
+	return res
+}
+
+const albBackendGroupConfigTemplate = `
+{{ if .IsDataSource }}
+data "yandex_alb_backend_group" "test-bg-ds" {
+  name = yandex_alb_backend_group.test-bg.name
+}		
+{{ end }}
+resource "yandex_alb_backend_group" "test-bg" {
+  name        = "{{.BGName}}"
+  description = "{{.BGDescription}}"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+  
+  {{ if .IsHttpBackend }}
+  http_backend {
+    name = "test-http-backend"
+    weight = {{.BackendWeight}}
+    port = {{.Port}}
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    tls {
+      sni = "{{.TlsSni}}"
+      validation_context {
+        trusted_ca_bytes = "{{.TlsValidationContext}}"
+      }
+    }
+    load_balancing_config {
+      panic_threshold = {{.PanicThreshold}}
+      locality_aware_routing_percent = {{.LocalityPercent}}
+      strict_locality = {{.StrictLocality}}
+    }
+
+    {{ if .IsGrpcCheck }}
+    healthcheck {
+      timeout = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      grpc_healthcheck {
+        service_name = "{{.ServiceName}}"
+      }
+    }
+    {{end}}
+
+    {{ if .IsStreamCheck }}
+    healthcheck {
+      timeout = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      stream_healthcheck {
+        receive = "{{.Receive}}"
+        send = "{{.Send}}"
+      }
+    }
+    {{end}}
+
+    {{ if .IsHttpCheck }}
+    healthcheck {
+      timeout = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      http_healthcheck {
+        host = "{{.Host}}"
+        path = "{{.Path}}"
+        http2 = "{{.Http2}}"
+      }
+    }
+    {{end}}
+
+    http2 = "{{.Http2}}"
+  }
+  {{end}}
+
+  {{ if .IsGrpcBackend }}
+  grpc_backend {
+    name             = "test-grpc-backend"
+    weight           = {{.BackendWeight}}
+    port             = {{.Port}}
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    tls {
+      sni = "{{.TlsSni}}"
+      validation_context {
+        trusted_ca_bytes = "{{.TlsValidationContext}}"
+      }
+    }
+    load_balancing_config {
+      panic_threshold                = {{.PanicThreshold}}
+      locality_aware_routing_percent = {{.LocalityPercent}}
+      strict_locality                = {{.StrictLocality}}
+    }
+
+    {{ if .IsGrpcCheck }}
+    healthcheck {
+      timeout  = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      grpc_healthcheck {
+        service_name = "{{.ServiceName}}"
+      }
+    }
+    {{end}}
+
+    {{ if .IsStreamCheck }}
+    healthcheck {
+      timeout  = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      stream_healthcheck {
+        receive = "{{.Receive}}"
+        send    = "{{.Send}}"
+      }
+    }
+    {{end}}
+
+    {{ if .IsHttpCheck }}
+    healthcheck {
+      timeout = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      http_healthcheck {
+        host  = "{{.Host}}"
+        path  = "{{.Path}}"
+        http2 = "{{.Http2}}"
+      }
+    }
+    {{end}}
+  }
+  {{end}}
+}
+
+{{ if or .IsHttpBackend .IsGrpcBackend }}
+resource "yandex_alb_target_group" "test-target-group" {
+  name		= "{{.TGName}}"
+
+  target {
+	subnet_id	= "${yandex_vpc_subnet.test-subnet.id}"
+	ip_address	= "${yandex_compute_instance.test-instance-1.network_interface.0.ip_address}"
+  }
+
+  target {
+	subnet_id	= "${yandex_vpc_subnet.test-subnet.id}"
+	ip_address	= "${yandex_compute_instance.test-instance-2.network_interface.0.ip_address}"
+  }
+}
+{{ end }}
+
+{{.BaseTemplate}}
+`
+
+func testALBBackendGroupConfig_basic(in resourceALBBackendGroupInfo) string {
+	m := structs.Map(in)
+	config := templateConfig(albBackendGroupConfigTemplate, m)
+	return config
 }
 
 func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHttpBackends, expectedGrpcBackends bool) resource.TestCheckFunc {
@@ -102,7 +312,6 @@ resource "yandex_alb_target_group" "test-tg" {
 func testAccALBGeneralBGTemplate(ctx map[string]interface{}, isDataSource, isHttpBackend, isGrpcBackend, isHttpCheck, isGrpcCheck, isStreamCheck bool) string {
 	ctx["IsHttpBackend"] = isHttpBackend
 	ctx["IsGrpcBackend"] = isGrpcBackend
-	ctx["IsBackend"] = isHttpBackend || isGrpcBackend
 	ctx["IsHttpCheck"] = isHttpCheck
 	ctx["IsGrpcCheck"] = isGrpcCheck
 	ctx["IsStreamCheck"] = isStreamCheck
@@ -110,6 +319,7 @@ func testAccALBGeneralBGTemplate(ctx map[string]interface{}, isDataSource, isHtt
 	ctx["BGName"] = acctest.RandomWithPrefix("tf-bg")
 	ctx["BaseTemplate"] = testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance"))
 	ctx["IsDataSource"] = isDataSource
+
 	return templateConfig(`
 {{ if .IsDataSource }}
 data "yandex_alb_backend_group" "test-bg-ds" {

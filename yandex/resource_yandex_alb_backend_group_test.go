@@ -271,6 +271,11 @@ func TestAccALBBackendGroup_httpBackendWithGrpcHealthcheck(t *testing.T) {
 func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
 	t.Parallel()
 
+	BGResource := albBackendGroupInfo()
+	BGResource.IsHttpBackend = true
+	BGResource.IsStreamCheck = true
+
+	fmt.Printf(testALBBackendGroupConfig_basic(BGResource))
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
 
@@ -280,7 +285,7 @@ func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
 		CheckDestroy: testAccCheckALBBackendGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccALBGeneralBGTemplate(albBGDefaultALBValues(), false, true, false, false, false, true),
+				Config: testALBBackendGroupConfig_basic(BGResource), //testAccALBGeneralBGTemplate(albBGDefaultALBValues(), false, true, false, false, false, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
 					testAccCheckALBBackendGroupValues(&bg, true, false),
