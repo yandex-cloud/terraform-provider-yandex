@@ -74,6 +74,7 @@ The `subcluster_spec` block supports:
 * `resources` - Resources allocated to each host of the Data Proc subcluster. The structure is documented below.
 * `subnet_id` - The ID of the subnet, to which hosts of the subcluster belong.
 * `hosts_count` - Number of hosts within Data Proc subcluster.
+* `autoscaling_config` - Optional autoscaling configuration for compute subclusters.
 
 ---
 
@@ -82,3 +83,15 @@ The `resources` block supports:
 * `resource_preset_id` - The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://cloud.yandex.com/docs/data-proc/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - Type of the storage of a host.
+
+---
+
+The `autoscaling_config` block supports:
+
+* `max_hosts_count` - Maximum number of nodes in autoscaling subclusters.
+* `preemptible` - Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://cloud.yandex.com/docs/compute/concepts/preemptible-vm).
+* `warmup_duration` - The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
+* `stabilization_duration` - Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
+* `measurement_duration` - Time in seconds allotted for averaging metrics.
+* `cpu_utilization_target` - Defines an autoscaling rule based on the average CPU utilization of the instance group. If not set default autoscaling metric will be used.
+* `decommission_timeout` - Timeout to gracefully decommission nodes during downscaling. In seconds.

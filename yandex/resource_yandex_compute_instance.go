@@ -566,7 +566,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance, d)
+	networkInterfaces, externalIP, internalIP, err := flattenInstanceNetworkInterfaces(instance)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -107,7 +108,7 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 	return secondaryDisks, nil
 }
 
-func flattenInstanceNetworkInterfaces(instance *compute.Instance, d *schema.ResourceData) ([]map[string]interface{}, string, string, error) {
+func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, string, error) {
 	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
 	var externalIP, internalIP string
 
@@ -155,41 +156,32 @@ func flattenInstanceNetworkInterfaces(instance *compute.Instance, d *schema.Reso
 				externalIP = iface.PrimaryV6Address.Address
 			}
 		}
-		prefix := "network_interface." + strconv.Itoa(i) + "."
+
 		if sp := iface.GetPrimaryV4Address().GetDnsRecords(); sp != nil {
-			nics[i]["dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"dns_record.")
+			nics[i]["dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 
 		if sp := iface.GetPrimaryV6Address().GetDnsRecords(); sp != nil {
-			nics[i]["ipv6_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"ipv6_dns_record.")
+			nics[i]["ipv6_dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 
 		if sp := iface.GetPrimaryV4Address().GetOneToOneNat().GetDnsRecords(); sp != nil {
-			nics[i]["nat_dns_record"] = flattenComputeInstanceDnsRecords(sp, d, prefix+"nat_dns_record.")
+			nics[i]["nat_dns_record"] = flattenComputeInstanceDnsRecords(sp)
 		}
 	}
 
 	return nics, externalIP, internalIP, nil
 }
 
-func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord, d *schema.ResourceData, prefix string) []map[string]interface{} {
+func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord) []map[string]interface{} {
 	res := make([]map[string]interface{}, len(specs))
 
 	for i, spec := range specs {
-		fullPrefix := prefix + strconv.Itoa(i) + "."
 		res[i] = map[string]interface{}{
-			"fqdn": spec.Fqdn,
-		}
-		if d != nil {
-			if ttl, ok := d.GetOk(fullPrefix + "ttl"); ok {
-				res[i]["ttl"] = ttl
-			}
-			if dnsZoneId, ok := d.GetOk(fullPrefix + "dns_zone_id"); ok {
-				res[i]["dns_zone_id"] = dnsZoneId
-			}
-			if ptr, ok := d.GetOk(fullPrefix + "ptr"); ok {
-				res[i]["ptr"] = ptr
-			}
+			"fqdn":        spec.Fqdn,
+			"dns_zone_id": spec.DnsZoneId,
+			"ttl":         int(spec.Ttl),
+			"ptr":         spec.Ptr,
 		}
 	}
 
@@ -1075,13 +1067,21 @@ func expandDataprocSubclusterSpec(element interface{}) *dataproc.CreateSubcluste
 	roleID := dataproc.Role_value[roleName]
 	resourcesSpec := subclusterSpec["resources"].([]interface{})[0]
 
-	return &dataproc.CreateSubclusterConfigSpec{
+	subcluster := &dataproc.CreateSubclusterConfigSpec{
 		Role:       dataproc.Role(roleID),
 		Name:       subclusterSpec["name"].(string),
 		SubnetId:   subclusterSpec["subnet_id"].(string),
 		HostsCount: int64(subclusterSpec["hosts_count"].(int)),
 		Resources:  expandDataprocResources(resourcesSpec),
 	}
+	if v, ok := subclusterSpec["autoscaling_config"]; ok {
+		autoscalingConfigs := v.([]interface{})
+		if len(autoscalingConfigs) > 0 {
+			subcluster.AutoscalingConfig = expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+		}
+	}
+
+	return subcluster
 }
 
 func expandDataprocResources(r interface{}) *dataproc.Resources {
@@ -1098,6 +1098,51 @@ func expandDataprocResources(r interface{}) *dataproc.Resources {
 		resources.DiskTypeId = v.(string)
 	}
 	return resources
+}
+
+func expandDataprocAutoscalingConfig(r interface{}) *dataproc.AutoscalingConfig {
+	autoscalingConfig := &dataproc.AutoscalingConfig{}
+	autoscalingConfigMap := r.(map[string]interface{})
+	log.Printf("[DEBUG] autoscalingConfigMap = %v", autoscalingConfigMap)
+	if v, ok := autoscalingConfigMap["max_hosts_count"]; ok {
+		if v.(int) >= 0 {
+			autoscalingConfig.MaxHostsCount = int64(v.(int))
+		}
+	}
+	if v, ok := autoscalingConfigMap["preemptible"]; ok {
+		autoscalingConfig.Preemptible = v.(bool)
+	}
+	if v, ok := autoscalingConfigMap["measurement_duration"]; ok {
+		durationSeconds := v.(int)
+		if durationSeconds >= 0 {
+			autoscalingConfig.MeasurementDuration = &duration.Duration{Seconds: int64(durationSeconds)}
+		}
+	}
+	if v, ok := autoscalingConfigMap["warmup_duration"]; ok {
+		durationSeconds := v.(int)
+		if durationSeconds >= 0 {
+			autoscalingConfig.WarmupDuration = &duration.Duration{Seconds: int64(durationSeconds)}
+		}
+	}
+	if v, ok := autoscalingConfigMap["stabilization_duration"]; ok {
+		durationSeconds := v.(int)
+		if durationSeconds >= 0 {
+			autoscalingConfig.StabilizationDuration = &duration.Duration{Seconds: int64(durationSeconds)}
+		}
+	}
+	if v, ok := autoscalingConfigMap["cpu_utilization_target"]; ok {
+		if v.(float64) >= 0 {
+			autoscalingConfig.CpuUtilizationTarget = v.(float64)
+		}
+	}
+	if v, ok := autoscalingConfigMap["decommission_timeout"]; ok {
+		durationSeconds := v.(int)
+		if durationSeconds >= 0 {
+			autoscalingConfig.DecommissionTimeout = int64(durationSeconds)
+		}
+	}
+
+	return autoscalingConfig
 }
 
 func flattenDataprocClusterConfig(cluster *dataproc.Cluster, subclusters []*dataproc.Subcluster) []map[string]interface{} {
@@ -1137,7 +1182,7 @@ func flattenDataprocSubclusters(subclusters []*dataproc.Subcluster) []interface{
 }
 
 func flattenDataprocSubcluster(subcluster *dataproc.Subcluster) map[string]interface{} {
-	return map[string]interface{}{
+	result := map[string]interface{}{
 		"id":          subcluster.Id,
 		"name":        subcluster.Name,
 		"role":        subcluster.Role.String(),
@@ -1145,6 +1190,10 @@ func flattenDataprocSubcluster(subcluster *dataproc.Subcluster) map[string]inter
 		"subnet_id":   subcluster.SubnetId,
 		"hosts_count": subcluster.HostsCount,
 	}
+	if subcluster.AutoscalingConfig != nil {
+		result["autoscaling_config"] = flattenDataprocAutoscalingConfig(subcluster.AutoscalingConfig)
+	}
+	return result
 }
 
 func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
@@ -1153,6 +1202,20 @@ func flattenDataprocResources(r *dataproc.Resources) []map[string]interface{} {
 	res["resource_preset_id"] = r.ResourcePresetId
 	res["disk_type_id"] = r.DiskTypeId
 	res["disk_size"] = toGigabytes(r.DiskSize)
+
+	return []map[string]interface{}{res}
+}
+
+func flattenDataprocAutoscalingConfig(r *dataproc.AutoscalingConfig) []map[string]interface{} {
+	res := map[string]interface{}{}
+
+	res["max_hosts_count"] = int(r.MaxHostsCount)
+	res["preemptible"] = r.Preemptible
+	res["measurement_duration"] = int(r.MeasurementDuration.Seconds)
+	res["warmup_duration"] = int(r.WarmupDuration.Seconds)
+	res["stabilization_duration"] = int(r.StabilizationDuration.Seconds)
+	res["cpu_utilization_target"] = r.CpuUtilizationTarget
+	res["decommission_timeout"] = int(r.DecommissionTimeout)
 
 	return []map[string]interface{}{res}
 }
