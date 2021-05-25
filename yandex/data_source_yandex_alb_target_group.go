@@ -82,7 +82,7 @@ func dataSourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}
 	if tgNameOk {
 		tgID, err = resolveObjectID(ctx, config, d, sdkresolvers.ALBTargetGroupResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve data source target group by name: %w", err)
+			return fmt.Errorf("failed to resolve data source target group by name: %v", err)
 		}
 	}
 

@@ -173,6 +173,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"yandex_alb_backend_group":                     resourceYandexALBBackendGroup(),
 			"yandex_alb_target_group":                      resourceYandexALBTargetGroup(),
 			"yandex_api_gateway":                           resourceYandexApiGateway(),
 			"yandex_container_registry":                    resourceYandexContainerRegistry(),
