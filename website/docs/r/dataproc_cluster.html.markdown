@@ -26,7 +26,8 @@ resource "yandex_dataproc_cluster" "foo" {
   zone_id            = "ru-central1-b"
 
   cluster_config {
-    version_id = "1.0"
+    # Certain cluster version can be set, but better to use default value (last stable version)
+    # version_id = "1.4"
 
     hadoop {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]
@@ -43,7 +44,7 @@ resource "yandex_dataproc_cluster" "foo" {
       resources {
         resource_preset_id = "s2.small"
         disk_type_id       = "network-hdd"
-        disk_size          = 16
+        disk_size          = 20
       }
       subnet_id   = yandex_vpc_subnet.foo.id
       hosts_count = 1
@@ -55,10 +56,42 @@ resource "yandex_dataproc_cluster" "foo" {
       resources {
         resource_preset_id = "s2.small"
         disk_type_id       = "network-hdd"
-        disk_size          = 16
+        disk_size          = 20
       }
       subnet_id   = yandex_vpc_subnet.foo.id
       hosts_count = 2
+    }
+    
+    subcluster_spec {
+      name = "compute"
+      role = "COMPUTENODE"
+      resources {
+        resource_preset_id = "s2.small"
+        disk_type_id       = "network-hdd"
+        disk_size          = 20
+      }
+      subnet_id   = yandex_vpc_subnet.foo.id
+      hosts_count = 2
+    }
+    
+    subcluster_spec {
+      name = "compute_autoscaling"
+      role = "COMPUTENODE"
+      resources {
+        resource_preset_id = "s2.small"
+        disk_type_id       = "network-hdd"
+        disk_size          = 20
+      }
+      subnet_id   = yandex_vpc_subnet.foo.id
+      hosts_count = 2      
+      autoscaling_config {
+        max_hosts_count = 10
+        measurement_duration = 60
+        warmup_duration = 60
+        stabilization_duration = 120
+        preemptible = false
+        decommission_timeout = 60
+      }
     }
   }
 }
@@ -156,6 +189,7 @@ The `subcluster_spec` block supports:
 * `resources` - (Required) Resources allocated to each host of the Data Proc subcluster. The structure is documented below.
 * `subnet_id` - (Required) The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.
 * `hosts_count` - (Required) Number of hosts within Data Proc subcluster.
+* `autoscaling_config` - (Optional) Autoscaling configuration for compute subclusters.
 
 ---
 
@@ -164,6 +198,18 @@ The `resources` block supports:
 * `resource_preset_id` - (Required) The ID of the preset for computational resources available to a host. All available presets are listed in the [documentation](https://cloud.yandex.com/docs/data-proc/concepts/instance-types).
 * `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - (Optional) Type of the storage of a host. One of `network-hdd` (default) or `network-ssd`.
+
+---
+
+The `autoscaling_config` block supports:
+
+* `max_hosts_count` - (Required) Maximum number of nodes in autoscaling subclusters.
+* `preemptible` - (Optional) Bool flag -- whether to use preemptible compute instances. Preemptible instances are stopped at least once every 24 hours, and can be stopped at any time if their resources are needed by Compute. For more information, see [Preemptible Virtual Machines](https://cloud.yandex.com/docs/compute/concepts/preemptible-vm).
+* `warmup_duration` - (Optional) The warmup time of the instance in seconds. During this time, traffic is sent to the instance, but instance metrics are not collected.
+* `stabilization_duration` - (Optional) Minimum amount of time in seconds allotted for monitoring before Instance Groups can reduce the number of instances in the group. During this time, the group size doesn't decrease, even if the new metric values indicate that it should.
+* `measurement_duration` - (Optional) Time in seconds allotted for averaging metrics.
+* `cpu_utilization_target` - (Optional) Defines an autoscaling rule based on the average CPU utilization of the instance group. If not set default autoscaling metric will be used.
+* `decommission_timeout` - (Optional) Timeout to gracefully decommission nodes during downscaling. In seconds.
 
 ## Attributes Reference
 

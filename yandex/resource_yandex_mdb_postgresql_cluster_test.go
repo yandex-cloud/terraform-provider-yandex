@@ -123,6 +123,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				Config:      testAccMDBPGClusterConfigDisallowedUpdateLocale(pgName, pgDesc),
 				ExpectError: regexp.MustCompile("impossible to change lc_collate or lc_type for PostgreSQL Cluster database .*"),
 			},
+			{
+				Config:      testAccMDBPGClusterConfigDisallowedUpdateOwner(pgName, pgDesc),
+				ExpectError: regexp.MustCompile("impossible to change owner for PostgreSQL Cluster database .*"),
+			},
 			// Change some options
 			{
 				Config: testAccMDBPGClusterConfigUpdated(pgName, pgDesc2),
@@ -785,6 +789,63 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     owner      = "alice"
     name       = "testdb"
     lc_collate = "C"
+    lc_type    = "en_US.UTF-8"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
+}
+`, name, desc)
+}
+
+func testAccMDBPGClusterConfigDisallowedUpdateOwner(name, desc string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  config {
+    version = 12
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 10
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  user {
+    name     = "alice"
+    password = "mysecurepassword"
+
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  user {
+    name     = "bob"
+    password = "mysecurepassword"
+
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  host {
+	zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
+  }
+
+  database {
+    owner      = "bob"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
     lc_type    = "en_US.UTF-8"
   }
 

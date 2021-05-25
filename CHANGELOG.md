@@ -1,16 +1,33 @@
-## 0.57.0 (Unreleased)
+## 0.59.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_alb_target_group`
+* **New Resource:** `yandex_alb_target_group`
+* add `autoscaling_config` to Data Proc subcluster specification
+
+
+BUG FIXES:
+* mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`
+
+## 0.58.0 (May 14, 2021)
+FEATURES:
+* add `ipv6` and `ipv4` attributes to yandex_kubernetes_node_group network interfaces both in resource and the data source.
+
+## 0.57.0 (April 29, 2021)
 FEATURES:
 * support k8s node group placement groups both in resource and data source.
 * add cluster_ipv6_range and service_ipv6_range attributes both to resource yandex_kubernetes_cluster and data source yandex_kubernetes_cluster
-* **New Data Source:** `yandex_alb_target_group`
-* **New Resource:** `yandex_alb_target_group`
+* add `host_group_ids` attribute in `yandex_mdb_kafka_cluster` resource and data source
+* add `host_group_ids` attribute in `yandex_dataproc_cluster` resource and data source
+
+ENHANCEMENTS:
+* add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance`
 
 ## 0.56.0 (April 15, 2021)
 ENHANCEMENTS:
 * dataproc: supported `security_group_ids`
 * add `dns_record`, `ipv6_dns_record` and `nat_dns_record` to `network_interface` entity in `yandex_compute_instance_group`
 * ydb: support for Yandex Database clusters
-* compute: increase disk size limit from 4096Gb to 8192Gb 
+* compute: increase disk size limit from 4096Gb to 8192Gb
 * vpc: add `name` field description at vpc_security_group datasource and example of it usage
 
 BUG FIXES:

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/duration"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -117,6 +118,43 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 						"subnet_id":   "subnet-777",
 						"hosts_count": 10,
 					},
+					map[string]interface{}{
+						"name": "compute_001",
+						"role": "COMPUTENODE",
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "s2.small",
+								"disk_type_id":       "network-hdd",
+								"disk_size":          2000,
+							},
+						},
+						"subnet_id":   "subnet-777",
+						"hosts_count": 10,
+					},
+					map[string]interface{}{
+						"name": "compute_002",
+						"role": "COMPUTENODE",
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "s2.small",
+								"disk_type_id":       "network-hdd",
+								"disk_size":          2000,
+							},
+						},
+						"autoscaling_config": []interface{}{
+							map[string]interface{}{
+								"max_hosts_count":        20,
+								"preemptible":            true,
+								"warmup_duration":        121,
+								"stabilization_duration": 122,
+								"measurement_duration":   123,
+								"cpu_utilization_target": 82.0,
+								"decommission_timeout":   65,
+							},
+						},
+						"subnet_id":   "subnet-777",
+						"hosts_count": 10,
+					},
 				},
 			},
 		},
@@ -169,6 +207,37 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 					SubnetId:   "subnet-777",
 					HostsCount: 10,
 				},
+				{
+					Name: "compute_001",
+					Role: dataproc.Role_COMPUTENODE,
+					Resources: &dataproc.Resources{
+						ResourcePresetId: "s2.small",
+						DiskTypeId:       "network-hdd",
+						DiskSize:         2000 * (1 << 30),
+					},
+					SubnetId:   "subnet-777",
+					HostsCount: 10,
+				},
+				{
+					Name: "compute_002",
+					Role: dataproc.Role_COMPUTENODE,
+					Resources: &dataproc.Resources{
+						ResourcePresetId: "s2.small",
+						DiskTypeId:       "network-hdd",
+						DiskSize:         2000 * (1 << 30),
+					},
+					AutoscalingConfig: &dataproc.AutoscalingConfig{
+						MaxHostsCount:         20,
+						Preemptible:           true,
+						WarmupDuration:        &duration.Duration{Seconds: 121},
+						StabilizationDuration: &duration.Duration{Seconds: 122},
+						MeasurementDuration:   &duration.Duration{Seconds: 123},
+						CpuUtilizationTarget:  82,
+						DecommissionTimeout:   65,
+					},
+					SubnetId:   "subnet-777",
+					HostsCount: 10,
+				},
 			},
 		},
 		ZoneId:           "ru-central1-b",
@@ -184,7 +253,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 func TestFlattenDataprocClusterConfig(t *testing.T) {
 	cluster := &dataproc.Cluster{
 		Config: &dataproc.ClusterConfig{
-			VersionId: "1.1",
+			VersionId: "1.4",
 			Hadoop: &dataproc.HadoopConfig{
 				Services:      []dataproc.HadoopConfig_Service{dataproc.HadoopConfig_HDFS, dataproc.HadoopConfig_YARN},
 				Properties:    map[string]string{"prop1": "val1", "prop2": "val2"},
@@ -220,13 +289,48 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 			HostsCount: 10,
 			CreatedAt:  ptypes.TimestampNow(),
 		},
+		{
+			Id:   "subcluster-003",
+			Name: "compute_001",
+			Role: dataproc.Role_COMPUTENODE,
+			Resources: &dataproc.Resources{
+				ResourcePresetId: "s2.small",
+				DiskTypeId:       "network-hdd",
+				DiskSize:         2000 * (1 << 30),
+			},
+			SubnetId:   "subnet-777",
+			HostsCount: 10,
+			CreatedAt:  ptypes.TimestampNow(),
+		},
+		{
+			Id:   "subcluster-004",
+			Name: "compute_002",
+			Role: dataproc.Role_COMPUTENODE,
+			Resources: &dataproc.Resources{
+				ResourcePresetId: "s2.small",
+				DiskTypeId:       "network-hdd",
+				DiskSize:         2000 * (1 << 30),
+			},
+			AutoscalingConfig: &dataproc.AutoscalingConfig{
+				MaxHostsCount:         20,
+				Preemptible:           true,
+				WarmupDuration:        &duration.Duration{Seconds: 121},
+				StabilizationDuration: &duration.Duration{Seconds: 122},
+				MeasurementDuration:   &duration.Duration{Seconds: 123},
+				CpuUtilizationTarget:  82,
+				DecommissionTimeout:   65,
+			},
+			SubnetId:   "subnet-777",
+			HostsCount: 10,
+			CreatedAt:  ptypes.TimestampNow(),
+		},
 	}
 
 	config := flattenDataprocClusterConfig(cluster, subclusters)
 
 	expected := []map[string]interface{}{
 		{
-			"version_id": "1.1",
+			"version_id": "1.4",
 			"hadoop": []map[string]interface{}{
 				{
 					"services":        []string{"HDFS", "YARN"},
@@ -258,6 +362,45 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 							"disk_size":          2000,
 							"disk_type_id":       "network-hdd",
 							"resource_preset_id": "s2.small",
+						},
+					},
+					"subnet_id":   "subnet-777",
+					"hosts_count": int64(10),
+				},
+				map[string]interface{}{
+					"id":   "subcluster-003",
+					"name": "compute_001",
+					"role": "COMPUTENODE",
+					"resources": []map[string]interface{}{
+						{
+							"disk_size":          2000,
+							"disk_type_id":       "network-hdd",
+							"resource_preset_id": "s2.small",
+						},
+					},
+					"subnet_id":   "subnet-777",
+					"hosts_count": int64(10),
+				},
+				map[string]interface{}{
+					"id":   "subcluster-004",
+					"name": "compute_002",
+					"role": "COMPUTENODE",
+					"resources": []map[string]interface{}{
+						{
+							"disk_size":          2000,
+							"disk_type_id":       "network-hdd",
+							"resource_preset_id": "s2.small",
+						},
+					},
+					"autoscaling_config": []map[string]interface{}{
+						{
+							"max_hosts_count":        20,
+							"preemptible":            true,
+							"warmup_duration":        121,
+							"stabilization_duration": 122,
+							"measurement_duration":   123,
+							"cpu_utilization_target": 82.0,
+							"decommission_timeout":   65,
 						},
 					},
 					"subnet_id":   "subnet-777",

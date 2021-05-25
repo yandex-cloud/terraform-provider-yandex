@@ -14,11 +14,11 @@ func resourceALBBackendGroupBackendHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["name"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["port"]; ok {
-		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+		fmt.Fprintf(&buf, "%d-", v.(int))
 	}
 
 	return hashcode.String(buf.String())
@@ -29,15 +29,15 @@ func resourceALBBackendGroupHealthcheckHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["timeout"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["interval"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["healthcheck_port"]; ok {
-		buf.WriteString(fmt.Sprintf("%d-", v.(int)))
+		fmt.Fprintf(&buf, "%d-", v.(int))
 	}
 
 	return hashcode.String(buf.String())
@@ -48,11 +48,11 @@ func resourceALBTargetGroupTargetHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
 	if v, ok := m["subnet_id"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	if v, ok := m["ip_address"]; ok {
-		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+		fmt.Fprintf(&buf, "%s-", v.(string))
 	}
 
 	return hashcode.String(buf.String())
@@ -73,9 +73,7 @@ func expandALBHttpBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackend
 		backends = append(backends, backend)
 	}
 
-	backendGroup := &apploadbalancer.HttpBackendGroup{}
-	backendGroup.SetBackends(backends)
-	return backendGroup, nil
+	return &apploadbalancer.HttpBackendGroup{Backends: backends}, nil
 }
 
 func expandALBHttpBackend(config map[string]interface{}) (*apploadbalancer.HttpBackend, error) {
@@ -118,15 +116,14 @@ func expandALBHttpBackend(config map[string]interface{}) (*apploadbalancer.HttpB
 }
 
 func expandALBTargetGroupIds(v interface{}) *apploadbalancer.TargetGroupsBackend {
-	tgb := &apploadbalancer.TargetGroupsBackend{}
 	var l []string
 	if v != nil {
 		for _, val := range v.([]interface{}) {
 			l = append(l, val.(string))
 		}
 	}
-	tgb.SetTargetGroupIds(l)
-	return tgb
+
+	return &apploadbalancer.TargetGroupsBackend{TargetGroupIds: l}
 }
 
 func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingConfig {
@@ -149,7 +146,7 @@ func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingC
 }
 
 func expandHealthChecks(v interface{}) []*apploadbalancer.HealthCheck {
-	healthchecks := make([]*apploadbalancer.HealthCheck, 0)
+	var healthchecks []*apploadbalancer.HealthCheck
 
 	if v != nil {
 		healthchecksSet := v.(*schema.Set)
@@ -258,7 +255,7 @@ func expandALBStreamHealthcheck(v interface{}) *apploadbalancer.HealthCheck_Stre
 	if val, ok := config["send"]; ok {
 		payload := &apploadbalancer.Payload{}
 		payload.SetText(val.(string))
-		healthcheck.Receive = payload
+		healthcheck.Send = payload
 	}
 	return healthcheck
 }
@@ -299,9 +296,7 @@ func expandALBGrpcBackends(d *schema.ResourceData) (*apploadbalancer.GrpcBackend
 		backends = append(backends, backend)
 	}
 
-	backendGroup := &apploadbalancer.GrpcBackendGroup{}
-	backendGroup.SetBackends(backends)
-	return backendGroup, nil
+	return &apploadbalancer.GrpcBackendGroup{Backends: backends}, nil
 }
 
 func expandALBGrpcBackend(config map[string]interface{}) (*apploadbalancer.GrpcBackend, error) {
