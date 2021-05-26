@@ -155,11 +155,13 @@ func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInte
 	}
 
 	networkInterface := map[string]interface{}{
-		"network_id": nicSpec.NetworkId,
-		"subnet_ids": subnets,
-		"nat":        nat,
-		"ipv4":       nicSpec.PrimaryV4AddressSpec != nil,
-		"ipv6":       nicSpec.PrimaryV6AddressSpec != nil,
+		"network_id":   nicSpec.NetworkId,
+		"subnet_ids":   subnets,
+		"nat":          nat,
+		"ipv4":         nicSpec.PrimaryV4AddressSpec != nil,
+		"ipv6":         nicSpec.PrimaryV6AddressSpec != nil,
+		"ip_address":   nicSpec.GetPrimaryV4AddressSpec().GetAddress(),
+		"ipv6_address": nicSpec.GetPrimaryV6AddressSpec().GetAddress(),
 	}
 
 	if nicSpec.GetSecurityGroupIds() != nil {
@@ -524,6 +526,14 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *insta
 		} else {
 			res.PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
 		}
+	}
+
+	if addr, ok := data["ip_address"]; ok && res.PrimaryV4AddressSpec != nil {
+		res.PrimaryV4AddressSpec.Address = addr.(string)
+	}
+
+	if addr, ok := data["ipv6_address"]; ok && res.PrimaryV6AddressSpec != nil {
+		res.PrimaryV6AddressSpec.Address = addr.(string)
 	}
 
 	if sgids, ok := data["security_group_ids"]; ok {

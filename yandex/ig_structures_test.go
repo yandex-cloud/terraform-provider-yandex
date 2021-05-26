@@ -939,6 +939,29 @@ func TestExpandInstanceGroupNetworkInterface(t *testing.T) {
 			},
 		},
 		{
+			name: "ip_address",
+			data: map[string]interface{}{
+				"network_id": "net_id",
+				"subnet_ids": schema.NewSet(schema.HashString, []interface{}{
+					"subnet1",
+					"subnet2",
+				}),
+				"ip_address": "10.0.0.1",
+				"nat":        true,
+			},
+			expected: &instancegroup.NetworkInterfaceSpec{
+				NetworkId: "net_id",
+				SubnetIds: []string{"subnet1", "subnet2"},
+				PrimaryV4AddressSpec: &instancegroup.PrimaryAddressSpec{
+					Address:         "10.0.0.1",
+					OneToOneNatSpec: &instancegroup.OneToOneNatSpec{IpVersion: instancegroup.IpVersion_IPV4},
+					DnsRecordSpecs:  nil,
+				},
+				PrimaryV6AddressSpec: nil,
+				SecurityGroupIds:     nil,
+			},
+		},
+		{
 			name: "dns_record",
 			data: map[string]interface{}{
 				"network_id": "net_id",

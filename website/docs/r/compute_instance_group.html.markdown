@@ -249,6 +249,10 @@ The `network_interface` block supports:
 
 * `security_group_ids` - (Optional) Security group ids for network interface.
 
+* `ip_address` - (Optional) Manual set static IP address.
+
+* `ipv6_address` - (Optional) Manual set static IPv6 address.
+  
 * `dns_record` - (Optional) List of dns records.  The structure is documented below.
 
 * `ipv6_dns_record` - (Optional) List of ipv6 dns records.  The structure is documented below.

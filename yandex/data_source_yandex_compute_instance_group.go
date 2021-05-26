@@ -173,6 +173,16 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 										Computed: true,
 									},
 
+									"ip_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"ipv6_address": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
 									"security_group_ids": {
 										Type:     schema.TypeSet,
 										Computed: true,

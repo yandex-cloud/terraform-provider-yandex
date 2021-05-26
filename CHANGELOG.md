@@ -2,7 +2,7 @@
 FEATURES:
 * **New Resource:** `yandex_alb_target_group`
 * add `autoscaling_config` to Data Proc subcluster specification
-
+* add `ip_address` and `ipv6_address` attributes  to `network_interface` entity in `yandex_compute_instance_group`
 
 BUG FIXES:
 * mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`

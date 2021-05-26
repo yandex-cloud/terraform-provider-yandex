@@ -215,6 +215,8 @@ The `network_interface` block supports:
 * `ipv4` - Is IPv4 address assigned.
 * `nat` - A public address that can be used to access the internet over NAT.
 * `security_group_ids` - Security group ids for network interface.
+* `ip_address` - Manual set static IP address.
+* `ipv6_address` - Manual set static IPv6 address.
 * `dns_record` - List of dns records.  The structure is documented below.
 * `ipv6_dns_record` - List of ipv6 dns records.  The structure is documented below.
 * `nat_dns_record` - List of nat dns records.  The structure is documented below.
