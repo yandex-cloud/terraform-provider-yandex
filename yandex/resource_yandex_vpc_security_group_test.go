@@ -14,23 +14,27 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
+func getYandexVPCSecurityGroupSweeperDeps() []string {
+	return []string{
+		"yandex_compute_instance",
+		"yandex_compute_instance_group",
+		"yandex_dataproc_cluster",
+		"yandex_kubernetes_node_group",
+		"yandex_kubernetes_cluster",
+		"yandex_mdb_clickhouse_cluster",
+		"yandex_mdb_mongodb_cluster",
+		"yandex_mdb_mysql_cluster",
+		"yandex_mdb_postgresql_cluster",
+		"yandex_mdb_redis_cluster",
+		"yandex_mdb_sqlserver_cluster",
+	}
+}
+
 func init() {
 	resource.AddTestSweepers("yandex_vpc_security_group", &resource.Sweeper{
-		Name: "yandex_vpc_security_group",
-		F:    testSweepVPCSecurityGroups,
-		Dependencies: []string{
-			"yandex_compute_instance",
-			"yandex_compute_instance_group",
-			"yandex_dataproc_cluster",
-			"yandex_kubernetes_node_group",
-			"yandex_kubernetes_cluster",
-			"yandex_mdb_clickhouse_cluster",
-			"yandex_mdb_mongodb_cluster",
-			"yandex_mdb_mysql_cluster",
-			"yandex_mdb_postgresql_cluster",
-			"yandex_mdb_redis_cluster",
-			"yandex_mdb_sqlserver_cluster",
-		},
+		Name:         "yandex_vpc_security_group",
+		F:            testSweepVPCSecurityGroups,
+		Dependencies: getYandexVPCSecurityGroupSweeperDeps(),
 	})
 }
 

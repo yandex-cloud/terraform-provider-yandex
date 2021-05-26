@@ -227,6 +227,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_vpc_network":                           resourceYandexVPCNetwork(),
 			"yandex_vpc_route_table":                       resourceYandexVPCRouteTable(),
 			"yandex_vpc_security_group":                    resourceYandexVPCSecurityGroup(),
+			"yandex_vpc_default_security_group":            resourceYandexVPCDefaultSecurityGroup(),
 			"yandex_vpc_subnet":                            resourceYandexVPCSubnet(),
 			"yandex_ydb_database_dedicated":                resourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":               resourceYandexYDBDatabaseServerless(),

@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/hashicorp/vault/helper/pgpkeys"
@@ -456,5 +457,39 @@ func TestSortInterfaceListByTemplateEmptyTemplate(t *testing.T) {
 		if getField(listToSort[i], name) != v {
 			t.Errorf("sortInterfaceListByTemplate: after sort %v value should be \"%v\" but value is \"%v\"", i, v, getField(listToSort[i], name))
 		}
+	}
+}
+
+func getRandAccTestResourceName() string {
+	return fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+}
+
+func testAccCheckResourceAttrWithValueFactory(name, key string, valueFactory func() string) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		resourceState, ok := state.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("can't get resource '%s'", name)
+		}
+
+		instanceState := resourceState.Primary
+		if instanceState == nil {
+			return fmt.Errorf("there is no primary instance state for '%s'", name)
+		}
+
+		expected := valueFactory()
+		if expected == "0" && (strings.HasSuffix(key, ".#") || strings.HasSuffix(key, ".%")) {
+			return fmt.Errorf("testAccCheckResourceAttrWithValueFactory does not know how to perform empty check =(")
+		}
+
+		actual, ok := instanceState.Attributes[key]
+		if !ok {
+			return fmt.Errorf("%s: there is no '%s' attribute", name, key)
+		}
+
+		if expected != actual {
+			return fmt.Errorf("%s: expected attribute '%s' to have value '%s', got '%s'", name, key, expected, actual)
+		}
+
+		return nil
 	}
 }

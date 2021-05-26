@@ -17,6 +17,65 @@ import (
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
 
+func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"network_id": {
+			Type:     schema.TypeString,
+			Required: true,
+			ForceNew: true,
+		},
+
+		"folder_id": {
+			Type:     schema.TypeString,
+			Computed: true,
+			Optional: true,
+			ForceNew: true,
+		},
+
+		"name": {
+			Type:     schema.TypeString,
+			Optional: true,
+			Default:  "",
+		},
+
+		"description": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+
+		"labels": {
+			Type:     schema.TypeMap,
+			Optional: true,
+			Elem:     &schema.Schema{Type: schema.TypeString},
+			Set:      schema.HashString,
+		},
+
+		"ingress": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Elem:     resourceYandexSecurityGroupRule(),
+			Set:      resourceYandexVPCSecurityGroupRuleHash,
+		},
+
+		"egress": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Elem:     resourceYandexSecurityGroupRule(),
+			Set:      resourceYandexVPCSecurityGroupRuleHash,
+		},
+
+		"status": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+
+		"created_at": {
+			Type:     schema.TypeString,
+			Computed: true,
+		},
+	}
+}
+
 func resourceYandexVPCSecurityGroup() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexVPCSecurityGroupCreate,
@@ -34,63 +93,7 @@ func resourceYandexVPCSecurityGroup() *schema.Resource {
 		},
 
 		SchemaVersion: 0,
-
-		Schema: map[string]*schema.Schema{
-			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
-			},
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-			},
-
-			"ingress": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     resourceYandexSecurityGroupRule(),
-				Set:      resourceYandexVPCSecurityGroupRuleHash,
-			},
-
-			"egress": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem:     resourceYandexSecurityGroupRule(),
-				Set:      resourceYandexVPCSecurityGroupRuleHash,
-			},
-
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+		Schema:        yandexVPCSecurityGroupSchema(),
 	}
 }
 
