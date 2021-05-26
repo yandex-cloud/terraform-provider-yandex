@@ -1,6 +1,7 @@
 ## 0.59.0 (Unreleased)
 FEATURES:
-* **New Resource:** `yandex_alb_target_group`
+* **New Data Source:** `yandex_alb_backend_group`
+* **New Resource:** `yandex_alb_backend_group`
 * add `autoscaling_config` to Data Proc subcluster specification
 * add `ip_address` and `ipv6_address` attributes  to `network_interface` entity in `yandex_compute_instance_group`
 * **New Resource** `yandex_vpc_default_security_group` for network's default security group managment
