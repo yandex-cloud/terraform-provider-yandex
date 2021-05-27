@@ -11,6 +11,8 @@ BUG FIXES:
 
 ## 0.58.0 (May 14, 2021)
 FEATURES:
+* **New Data Source:** `yandex_alb_target_group`
+* **New Resource:** `yandex_alb_target_group`
 * add `ipv6` and `ipv4` attributes to yandex_kubernetes_node_group network interfaces both in resource and the data source.
 
 ## 0.57.0 (April 29, 2021)
