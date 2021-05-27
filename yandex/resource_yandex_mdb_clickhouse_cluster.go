@@ -512,9 +512,10 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"labels": {
 				Type:     schema.TypeMap,
-				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
 			},
 			"version": {
 				Type:         schema.TypeString,
@@ -633,6 +634,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Optional: true,
+				Computed: true,
 			},
 			"admin_password": {
 				Type:      schema.TypeString,
