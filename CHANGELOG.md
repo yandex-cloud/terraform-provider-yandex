@@ -6,6 +6,9 @@ FEATURES:
 * add `ip_address` and `ipv6_address` attributes  to `network_interface` entity in `yandex_compute_instance_group`
 * **New Resource** `yandex_vpc_default_security_group` for network's default security group managment
 
+ENHANCEMENTS:
+* managed-redis: added 'notify_keyspace_events', 'slowlog_log_slower_than', 'slowlog_max_len' and 'databases' fields
+
 BUG FIXES:
 * mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`
 

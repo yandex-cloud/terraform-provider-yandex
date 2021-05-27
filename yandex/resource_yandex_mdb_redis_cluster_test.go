@@ -105,7 +105,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+						"Elg", 5000, 10, 15, version),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -123,7 +124,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+						"Ex", 6000, 12, 17, version),
 					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -142,7 +144,8 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+						"Ex", 6000, 12, 17, version),
 					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -236,7 +239,8 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+						"Elg", 5000, 10, 15, version),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -253,7 +257,8 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+						"Ex", 6000, 12, 17, version),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -271,7 +276,8 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
 					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200, version),
+					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+						"Ex", 6000, 12, 17, version),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
@@ -431,6 +437,7 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 }
 
 func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64,
+	notifyKeyspaceEvents string, slowlogLogSlowerThan int64, slowlogMaxLen int64, databases int64,
 	version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := extractRedisConfig(r.Config)
@@ -439,6 +446,18 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 		}
 		if c.timeout != timeout {
 			return fmt.Errorf("Expected config.timeout '%d', got '%d'", timeout, c.timeout)
+		}
+		if c.notifyKeyspaceEvents != notifyKeyspaceEvents {
+			return fmt.Errorf("Expected config.notify_keyspace_events '%s', got '%s'", notifyKeyspaceEvents, c.notifyKeyspaceEvents)
+		}
+		if c.slowlogLogSlowerThan != slowlogLogSlowerThan {
+			return fmt.Errorf("Expected config.slowlog_log_slower_than '%d', got '%d'", slowlogLogSlowerThan, c.slowlogLogSlowerThan)
+		}
+		if c.slowlogMaxLen != slowlogMaxLen {
+			return fmt.Errorf("Expected config.slowlog_max_len '%d', got '%d'", slowlogMaxLen, c.slowlogMaxLen)
+		}
+		if c.databases != databases {
+			return fmt.Errorf("Expected config.databases '%d', got '%d'", databases, c.databases)
 		}
 		if c.version != version {
 			return fmt.Errorf("Expected config.version '%s', got '%s'", version, c.version)
@@ -656,6 +675,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 100
     maxmemory_policy = "ALLKEYS_LRU"
+	notify_keyspace_events = "Elg"
+	slowlog_log_slower_than = 5000
+	slowlog_max_len = 10
+	databases = 15
 	version			 = "%s"
   }
 
@@ -690,6 +713,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 200
     maxmemory_policy = "VOLATILE_LFU"
+	notify_keyspace_events = "Ex"
+	slowlog_log_slower_than = 6000
+	slowlog_max_len = 12
+	databases = 17
 	version			 = "%s"
   }
 
@@ -725,6 +752,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     password         = "passw0rd"
     timeout          = 200
     maxmemory_policy = "VOLATILE_LFU"
+	notify_keyspace_events = "Ex"
+	slowlog_log_slower_than = 6000
+	slowlog_max_len = 12
+	databases = 17
 	version			 = "%s"
   }
 

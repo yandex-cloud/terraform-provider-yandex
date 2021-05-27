@@ -10,9 +10,13 @@ import (
 )
 
 type redisConfig struct {
-	timeout         int64
-	maxmemoryPolicy string
-	version         string
+	timeout              int64
+	maxmemoryPolicy      string
+	notifyKeyspaceEvents string
+	slowlogLogSlowerThan int64
+	slowlogMaxLen        int64
+	databases            int64
+	version              string
 }
 
 // Sorts list of hosts in accordance with the order in config.
@@ -72,10 +76,18 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		c := rc.RedisConfig_5_0.EffectiveConfig
 		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
 		res.timeout = c.GetTimeout().GetValue()
+		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
+		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
+		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
+		res.databases = c.GetDatabases().GetValue()
 	case *redis.ClusterConfig_RedisConfig_6_0:
 		c := rc.RedisConfig_6_0.EffectiveConfig
 		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
 		res.timeout = c.GetTimeout().GetValue()
+		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
+		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
+		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
+		res.databases = c.GetDatabases().GetValue()
 	}
 
 	return res
@@ -94,6 +106,26 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 		timeout = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
+	var notifyKeyspaceEvents string
+	if v, ok := d.GetOk("config.0.notify_keyspace_events"); ok {
+		notifyKeyspaceEvents = v.(string)
+	}
+
+	var slowlogLogSlowerThan *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.slowlog_log_slower_than"); ok {
+		slowlogLogSlowerThan = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var slowlogMaxLen *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.slowlog_max_len"); ok {
+		slowlogMaxLen = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	var databases *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.databases"); ok {
+		databases = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
 	var version string
 	if v, ok := d.GetOk("config.0.version"); ok {
 		version = v.(string)
@@ -101,8 +133,12 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 	switch version {
 	case "5.0":
 		c := config.RedisConfig5_0{
-			Password: password,
-			Timeout:  timeout,
+			Password:             password,
+			Timeout:              timeout,
+			NotifyKeyspaceEvents: notifyKeyspaceEvents,
+			SlowlogLogSlowerThan: slowlogLogSlowerThan,
+			SlowlogMaxLen:        slowlogMaxLen,
+			Databases:            databases,
 		}
 		err := setMaxMemory5_0(&c, d)
 		if err != nil {
@@ -113,8 +149,12 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 		}
 	case "6.0":
 		c := config.RedisConfig6_0{
-			Password: password,
-			Timeout:  timeout,
+			Password:             password,
+			Timeout:              timeout,
+			NotifyKeyspaceEvents: notifyKeyspaceEvents,
+			SlowlogLogSlowerThan: slowlogLogSlowerThan,
+			SlowlogMaxLen:        slowlogMaxLen,
+			Databases:            databases,
 		}
 		err := setMaxMemory6_0(&c, d)
 		if err != nil {

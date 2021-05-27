@@ -147,6 +147,14 @@ The `config` block supports:
 * `maxmemory_policy` - (Optional) Redis key eviction policy for a dataset that reaches maximum memory.
   Can be any of the listed in [the official RedisDB documentation](https://docs.redislabs.com/latest/rs/administering/database-operations/eviction-policy/).
 
+* `notify_keyspace_events` - (Optional) Select the events that Redis will notify among a set of classes.
+  
+* `slowlog_log_slower_than` - (Optional) Log slow queries below this number in microseconds.
+  
+* `slowlog_max_len` - (Optional) Slow queries log length.
+  
+* `databases` - (Optional) Number of databases (changing requires redis-server restart).
+
 * `version` - (Required) Version of Redis (either 5.0 or 6.0).
 
 The `resources` block supports:

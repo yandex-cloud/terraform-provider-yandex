@@ -128,6 +128,10 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"tls_enabled",
 			"config.0.timeout", // Cannot test full config, because API doesn't return password
 			"config.0.maxmemory_policy",
+			"config.0.notify_keyspace_events",
+			"config.0.slowlog_log_slower_than",
+			"config.0.slowlog_max_len",
+			"config.0.databases",
 			"config.0.version",
 			"security_group_ids",
 		}

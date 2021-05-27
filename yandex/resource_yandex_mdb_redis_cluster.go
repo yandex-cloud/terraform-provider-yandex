@@ -74,6 +74,26 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"notify_keyspace_events": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"slowlog_log_slower_than": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"slowlog_max_len": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"databases": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
 						"version": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -324,10 +344,14 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 	err = d.Set("config", []map[string]interface{}{
 		{
-			"timeout":          conf.timeout,
-			"maxmemory_policy": conf.maxmemoryPolicy,
-			"version":          conf.version,
-			"password":         password,
+			"timeout":                 conf.timeout,
+			"maxmemory_policy":        conf.maxmemoryPolicy,
+			"notify_keyspace_events":  conf.notifyKeyspaceEvents,
+			"slowlog_log_slower_than": conf.slowlogLogSlowerThan,
+			"slowlog_max_len":         conf.slowlogMaxLen,
+			"databases":               conf.databases,
+			"version":                 conf.version,
+			"password":                password,
 		},
 	})
 	if err != nil {

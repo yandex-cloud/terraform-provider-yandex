@@ -57,6 +57,10 @@ The `config` block supports:
 
 * `timeout` - Close the connection after a client is idle for N seconds.
 * `maxmemory_policy` - Redis key eviction policy for a dataset that reaches maximum memory.
+* `notify_keyspace_events` - Select the events that Redis will notify among a set of classes.
+* `slowlog_log_slower_than` - Log slow queries below this number in microseconds.
+* `slowlog_max_len` - Slow queries log length.
+* `databases` - Number of databases (changing requires redis-server restart).
 * `version` - Version of Redis (either 5.0 or 6.0).
 
 The `resources` block supports:
