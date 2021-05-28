@@ -317,3 +317,13 @@ The `graphite_rollup` block supports:
   * `retention` - Retain parameters.
     * `age` - Minimum data age in seconds.
     * `precision` - Accuracy of determining the age of the data in seconds.
+
+The `cloud_storage` block supports:
+
+* `enabled` - (Required) Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
+
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `hour` - Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+* `day` - Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.

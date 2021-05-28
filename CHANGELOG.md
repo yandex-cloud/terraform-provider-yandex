@@ -8,6 +8,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * managed-redis: added 'notify_keyspace_events', 'slowlog_log_slower_than', 'slowlog_max_len' and 'databases' fields
+* add `maintenance_window` section in `yandex_mdb_clickhouse_cluster` resource and data source
 
 BUG FIXES:
 * mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`

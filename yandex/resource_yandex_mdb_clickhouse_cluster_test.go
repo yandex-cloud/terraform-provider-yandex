@@ -129,6 +129,9 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
 					testAccCheckCreatedAtAttr(chResource),
+					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.hour", "20"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -176,6 +179,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 						},
 					}),
 					testAccCheckCreatedAtAttr(chResource),
+					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1092,6 +1096,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
   service_account_id = "${yandex_iam_service_account.sa.id}"
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
 }
 `, name, desc)
 }
@@ -1469,6 +1479,9 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
   }
 
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 `, name, desc)
 }

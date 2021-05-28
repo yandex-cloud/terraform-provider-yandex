@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -599,6 +598,27 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 						"enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
+						},
+					},
+				},
+			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
 						},
 					},
 				},

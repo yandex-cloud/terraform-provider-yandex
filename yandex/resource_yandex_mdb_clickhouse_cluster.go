@@ -671,6 +671,31 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: validateParsableValue(parseClickHouseWeekDay),
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -751,6 +776,17 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 
 	for _, mlModel := range mlModels {
 		err = createClickHouseMlModel(ctx, config, d, mlModel)
+		if err != nil {
+			return err
+		}
+	}
+
+	mw, err := expandClickHouseMaintenanceWindow(d)
+	if err != nil {
+		return err
+	}
+	if mw != nil {
+		err = updateClickHouseMaintenanceWindow(ctx, config, d, mw)
 		if err != nil {
 			return err
 		}
@@ -902,6 +938,11 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 
 	ac := flattenClickHouseAccess(cluster.Config.Access)
 	if err := d.Set("access", ac); err != nil {
+		return err
+	}
+
+	mw := flattenClickHouseMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
 		return err
 	}
 
@@ -1089,6 +1130,7 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"sql_database_management": "config_spec.sql_database_management",
 	"security_group_ids":      "security_group_ids",
 	"service_account_id":      "service_account_id",
+	"maintenance_window":      "maintenance_window",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1165,6 +1207,11 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 		return nil, err
 	}
 
+	mw, err := expandClickHouseMaintenanceWindow(d)
+	if err != nil {
+		return nil, err
+	}
+
 	req := &clickhouse.UpdateClusterRequest{
 		ClusterId:   d.Id(),
 		Name:        d.Get("name").(string),
@@ -1179,8 +1226,9 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 			SqlUserManagement:     &wrappers.BoolValue{Value: d.Get("sql_user_management").(bool)},
 			SqlDatabaseManagement: &wrappers.BoolValue{Value: d.Get("sql_database_management").(bool)},
 		},
-		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
-		ServiceAccountId: d.Get("service_account_id").(string),
+		SecurityGroupIds:  expandSecurityGroupIds(d.Get("security_group_ids")),
+		ServiceAccountId:  d.Get("service_account_id").(string),
+		MaintenanceWindow: mw,
 	}
 
 	if pass, ok := d.GetOk("admin_password"); ok {
@@ -1844,6 +1892,24 @@ func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.Re
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while creating ZooKeeper subcluster in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateClickHouseMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *clickhouse.MaintenanceWindow) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
+			ClusterId:         d.Id(),
+			MaintenanceWindow: mw,
+			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }

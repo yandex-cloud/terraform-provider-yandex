@@ -3,11 +3,12 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"reflect"
+
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/googleapis/type/timeofday"
-	"reflect"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -1907,6 +1908,65 @@ func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]int
 	}
 
 	return result
+}
+
+func parseClickHouseWeekDay(wd string) (clickhouse.WeeklyMaintenanceWindow_WeekDay, error) {
+	val, ok := clickhouse.WeeklyMaintenanceWindow_WeekDay_value[wd]
+	// do not allow WEEK_DAY_UNSPECIFIED
+	if !ok || val == 0 {
+		return clickhouse.WeeklyMaintenanceWindow_WEEK_DAY_UNSPECIFIED,
+			fmt.Errorf("value for 'day' should be one of %s, not `%s`",
+				getJoinedKeys(getEnumValueMapKeysExt(clickhouse.WeeklyMaintenanceWindow_WeekDay_value, true)), wd)
+	}
+
+	return clickhouse.WeeklyMaintenanceWindow_WeekDay(val), nil
+}
+
+func expandClickHouseMaintenanceWindow(d *schema.ResourceData) (*clickhouse.MaintenanceWindow, error) {
+	mwType, ok := d.GetOk("maintenance_window.0.type")
+	if !ok {
+		return nil, nil
+	}
+
+	result := &clickhouse.MaintenanceWindow{}
+
+	switch mwType {
+	case "ANYTIME":
+		result.SetAnytime(&clickhouse.AnytimeMaintenanceWindow{})
+
+	case "WEEKLY":
+		weekly := &clickhouse.WeeklyMaintenanceWindow{}
+		if val, ok := d.GetOk("maintenance_window.0.day"); ok {
+			var err error
+			weekly.Day, err = parseClickHouseWeekDay(val.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+		if v, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			weekly.Hour = int64(v.(int))
+		}
+
+		result.SetWeeklyMaintenanceWindow(weekly)
+	}
+
+	return result, nil
+}
+
+func flattenClickHouseMaintenanceWindow(mw *clickhouse.MaintenanceWindow) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if val := mw.GetAnytime(); val != nil {
+		result["type"] = "ANYTIME"
+	}
+
+	if val := mw.GetWeeklyMaintenanceWindow(); val != nil {
+		result["type"] = "WEEKLY"
+		result["day"] = val.Day.String()
+		result["hour"] = val.Hour
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func flattenClickHouseHosts(hs []*clickhouse.Host) ([]map[string]interface{}, error) {
