@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	multierror "github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -275,6 +275,7 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 
 	name := acctest.RandomWithPrefix("tf-test")
 	saName := acctest.RandomWithPrefix("tf-test")
+	sgName := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -282,7 +283,7 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceGroupConfigFull(name, saName),
+				Config: testAccComputeInstanceGroupConfigFull(name, saName, sgName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupDefaultValues(&ig),
@@ -1125,7 +1126,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
-func testAccComputeInstanceGroupConfigFull(igName string, saName string) string {
+func testAccComputeInstanceGroupConfigFull(igName, saName, sgName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1604-lts"
@@ -1220,7 +1221,7 @@ resource "yandex_vpc_network" "inst-group-test-network" {
 
 resource "yandex_vpc_security_group" "sg1" {
   depends_on  = ["yandex_vpc_network.inst-group-test-network"]
-  name        = "tf-test-sg-1"
+  name        = "%[4]s"
   description = "description"
   network_id  = "${yandex_vpc_network.inst-group-test-network.id}"
   folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
@@ -1265,7 +1266,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   role        = "editor"
   sleep_after = 30
 }
-`, getExampleFolderID(), igName, saName)
+`, getExampleFolderID(), igName, saName, sgName)
 }
 
 func testAccComputeInstanceGroupConfigAutocsale(igName string, saName string) string {
@@ -2194,6 +2195,7 @@ func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.In
 			return fmt.Errorf("instancegroup is not found")
 		}
 
+		//goland:noinspection GoVetCopyLock
 		*instance = *found
 
 		return nil
