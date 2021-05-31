@@ -20,7 +20,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
-  subnet_id   = ["${yandex_vpc_subnet.foo.id}"]
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}"]
 
   config {
     version          = "2.6"
@@ -122,7 +122,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   name        = "test"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
-  subnet_id   = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
+  subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
 
   config {
     version          = "2.6"
@@ -250,7 +250,7 @@ The following arguments are supported:
 
 * `network_id` - (Required) ID of the network, to which the Kafka cluster belongs.
 
-* `subnet_id` - (Optional) IDs of the subnets, to which the Kafka cluster belongs.
+* `subnet_ids` - (Optional) IDs of the subnets, to which the Kafka cluster belongs.
 
 * `environment` - (Required) Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
