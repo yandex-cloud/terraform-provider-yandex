@@ -18,7 +18,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 	var zone dns.DnsZone
 	var net1, net2, net3 vpc.Network
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -57,7 +57,7 @@ func TestAccDNSZone_update(t *testing.T) {
 	var zone dns.DnsZone
 	var net1, net2, net3 vpc.Network
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

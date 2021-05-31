@@ -46,7 +46,7 @@ func TestAccDNSRecordSet_basic(t *testing.T) {
 
 	var rs dns.RecordSet
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -78,7 +78,7 @@ func TestAccDNSRecordSet_short(t *testing.T) {
 
 	var rs dns.RecordSet
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -109,7 +109,7 @@ func TestAccDNSRecordSet_zoneChange(t *testing.T) {
 
 	var rs dns.RecordSet
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -149,7 +149,7 @@ func TestAccDNSRecordSet_update(t *testing.T) {
 
 	var rs dns.RecordSet
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

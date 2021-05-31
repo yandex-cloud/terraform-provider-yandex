@@ -11,7 +11,7 @@ func TestAccDataSourceDNSZone_byID(t *testing.T) {
 	t.Parallel()
 
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
-	fqdn := acctest.RandomWithPrefix("tf-test") + ".example.com."
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

@@ -1184,7 +1184,6 @@ resource "yandex_compute_instance_group" "group1" {
     network_interface {
       network_id         = "${yandex_vpc_network.inst-group-test-network.id}"
       subnet_ids         = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
-      ip_address         = "192.168.0.10"
       security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
       dns_record {
         fqdn = "myhost.internal."
@@ -2362,10 +2361,6 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		// NetworkInterfaceSpec
 		if len(ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()) != 1 {
 			return fmt.Errorf("expected 1 network_interface_spec, got %d", len(ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()))
-		}
-
-		if ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()[0].GetPrimaryV4AddressSpec().GetAddress() != "192.168.0.10" {
-			return fmt.Errorf("invalid ip_address in network_interface_spec")
 		}
 
 		// NetworkSettings
