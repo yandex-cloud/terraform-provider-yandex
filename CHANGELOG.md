@@ -1,5 +1,7 @@
 ## 0.59.0 (Unreleased)
 FEATURES:
+* **New Data Source:** `yandex_alb_http_router`
+* **New Resource:** `yandex_alb_http_router`
 * **New Data Source:** `yandex_alb_backend_group`
 * **New Resource:** `yandex_alb_backend_group`
 * add `autoscaling_config` to Data Proc subcluster specification
