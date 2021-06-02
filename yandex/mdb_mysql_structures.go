@@ -664,6 +664,69 @@ func expandMySQLAccess(d *schema.ResourceData) *mysql.Access {
 	return out
 }
 
+func flattenMysqlMaintenanceWindow(mw *mysql.MaintenanceWindow) ([]interface{}, error) {
+	maintenanceWindow := map[string]interface{}{}
+	if mw != nil {
+		switch p := mw.GetPolicy().(type) {
+		case *mysql.MaintenanceWindow_Anytime:
+			maintenanceWindow["type"] = "ANYTIME"
+			// do nothing
+		case *mysql.MaintenanceWindow_WeeklyMaintenanceWindow:
+			maintenanceWindow["type"] = "WEEKLY"
+			maintenanceWindow["hour"] = p.WeeklyMaintenanceWindow.Hour
+			maintenanceWindow["day"] = mysql.WeeklyMaintenanceWindow_WeekDay_name[int32(p.WeeklyMaintenanceWindow.GetDay())]
+		default:
+			return nil, fmt.Errorf("unsupported Mysql maintenance policy type")
+		}
+	}
+
+	return []interface{}{maintenanceWindow}, nil
+}
+
+func expandMySQLMaintenanceWindow(d *schema.ResourceData) (*mysql.MaintenanceWindow, error) {
+	if _, ok := d.GetOkExists("maintenance_window"); !ok {
+		return nil, nil
+	}
+
+	out := &mysql.MaintenanceWindow{}
+	typeMW, _ := d.GetOk("maintenance_window.0.type")
+	if typeMW == "ANYTIME" {
+		out.Policy = &mysql.MaintenanceWindow_Anytime{
+			Anytime: &mysql.AnytimeMaintenanceWindow{},
+		}
+	} else if typeMW == "WEEKLY" {
+		hour := d.Get("maintenance_window.0.hour").(int)
+		dayString := d.Get("maintenance_window.0.day").(string)
+
+		day, ok := mysql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+		if !ok || day == 0 {
+			return nil, fmt.Errorf(`day value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")`)
+		}
+
+		out.Policy = &mysql.MaintenanceWindow_WeeklyMaintenanceWindow{
+			WeeklyMaintenanceWindow: &mysql.WeeklyMaintenanceWindow{
+				Hour: int64(hour),
+				Day:  mysql.WeeklyMaintenanceWindow_WeekDay(day),
+			},
+		}
+	} else {
+		return nil, fmt.Errorf("maintenance_window.0.type should be ANYTIME or WEEKLY")
+	}
+
+	return out, nil
+}
+
+func mysqlMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {
+	dayString := v.(string)
+	day, ok := mysql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+	if !ok || day == 0 {
+		es = append(es, fmt.Errorf(`expected %s value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"). Current value is %v`, k, v))
+		return
+	}
+
+	return
+}
+
 func flattenMySQLSettingsSQLMode57(settings map[string]string, mySQLConfig *config.MysqlConfig5_7) (map[string]string, error) {
 	modes := make([]int32, 0)
 	for _, v := range mySQLConfig.SqlMode {

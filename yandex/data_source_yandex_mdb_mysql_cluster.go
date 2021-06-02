@@ -251,6 +251,27 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -385,6 +406,15 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("access", access); err != nil {
+		return err
+	}
+
+	maintenanceWindow, err := flattenMysqlMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
 	}
 

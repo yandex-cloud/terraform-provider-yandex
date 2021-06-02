@@ -115,6 +115,9 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "12"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -164,6 +167,9 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "WED"),
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -188,6 +194,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -558,6 +566,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name = "testdb"
   }
 
+  maintenance_window {
+	type = "WEEKLY"
+	day  = "SAT"
+	hour = 12
+  }
+
   user {
     name     = "john"
     password = "password"
@@ -682,7 +696,13 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   labels = {
     new_key = "new_value"
   }
-
+  
+  maintenance_window {
+	type = "WEEKLY"
+    day  = "WED"
+	hour = 22
+  }
+  
   resources {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
@@ -765,6 +785,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   version     = "8.0"
  
   allow_regeneration_host = true
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
 
   labels = {
     new_key = "new_value"

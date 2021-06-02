@@ -311,6 +311,31 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: mysqlMaintenanceWindowSchemaValidateFunc,
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -349,6 +374,11 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("MySQL Cluster creation failed: %s", err)
 	}
+
+	if err := updateMySQLClusterAfterCreate(d, meta); err != nil {
+		return fmt.Errorf("MySQL Cluster %v update params failed: %s", d.Id(), err)
+	}
+
 	return resourceYandexMDBMySQLClusterRead(d, meta)
 }
 
@@ -601,6 +631,15 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	maintenanceWindow, err := flattenMysqlMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+		return err
+	}
+
 	return d.Set("created_at", createdAt)
 }
 
@@ -642,6 +681,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"backup_window_start": "config_spec.backup_window_start",
 	"resources":           "config_spec.resources",
 	"version":             "config_spec.version",
+	"maintenance_window":  "maintenance_window",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -708,6 +748,40 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func updateMySQLClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
+
+	maintenanceWindow, err := expandMySQLMaintenanceWindow(d)
+	if err != nil {
+		return fmt.Errorf("error expanding maintenance_window while updating MySQL after creation: %s", err)
+	}
+
+	if maintenanceWindow == nil {
+		return nil
+	}
+	updatePath := []string{"maintenance_window"}
+	req := &mysql.UpdateClusterRequest{
+		ClusterId:         d.Id(),
+		MaintenanceWindow: maintenanceWindow,
+		UpdateMask:        &field_mask.FieldMask{Paths: updatePath},
+	}
+
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Update(ctx, req))
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update MySQL Cluster after creation %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for operation to update MySQL Cluster after creation %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
 func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
@@ -716,12 +790,18 @@ func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterR
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
+	maintenanceWindow, err := expandMySQLMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding maintenance_window while updating MySQL cluster: %s", err)
+	}
+
 	req := &mysql.UpdateClusterRequest{
-		ClusterId:        d.Id(),
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		ClusterId:         d.Id(),
+		Name:              d.Get("name").(string),
+		Description:       d.Get("description").(string),
+		Labels:            labels,
+		SecurityGroupIds:  securityGroupIds,
+		MaintenanceWindow: maintenanceWindow,
 	}
 
 	return req, nil

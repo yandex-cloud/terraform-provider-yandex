@@ -55,6 +55,7 @@ exported:
 * `access` - Access policy to the MySQL cluster. The structure is documented below.
 * `mysql_config` - MySQL cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
+* `maintenance_window` - Maintenance window settings of the MySQL cluster. The structure is documented below.
 
 The `resources` block supports:
 
@@ -111,3 +112,9 @@ The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.ru/docs/managed-mysql/operations/web-sql-query).
+
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+* `hour` - Hour of the day in UTC (in `HH` format). Values is between 0 and 23.

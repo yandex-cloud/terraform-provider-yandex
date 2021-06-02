@@ -87,6 +87,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name = "db_name"
   }
 
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
   user {
     name     = "user_name"
     password = "your_password"
@@ -139,6 +145,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   database {
     name = "db_name"
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
   }
 
   user {
@@ -248,6 +258,8 @@ The following arguments are supported:
 
 * `restore` - (Optional, ForceNew) The cluster will be created from the specified backup. The structure is documented below.
 
+* `maintenance_window` - (Optional) Maintenance policy of the MySQL cluster. The structure is documented below.
+
 - - -
 
 * `description` - (Optional) Description of the MySQL cluster.
@@ -346,6 +358,13 @@ The `restore` block supports:
 
 * `time` - (Optional, ForceNew) Timestamp of the moment to which the MySQL cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
 
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
+* `day` - (Optional) Day of the week (in `DDD` format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+
+* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
 
 ## Attributes Reference
 
