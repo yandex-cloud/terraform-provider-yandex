@@ -120,6 +120,12 @@ func expandKafkaConfig2_6(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 	if v, ok := d.GetOk(rootKey + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
 	}
+	if v, ok := d.GetOk(rootKey + ".num_partitions"); ok {
+		res.NumPartitions = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".default_replication_factor"); ok {
+		res.DefaultReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 
 	return res, nil
 }
@@ -169,6 +175,12 @@ func expandKafkaConfig2_1(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 	}
 	if v, ok := d.GetOk(rootKey + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".num_partitions"); ok {
+		res.NumPartitions = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".default_replication_factor"); ok {
+		res.DefaultReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	return res, nil
@@ -468,6 +480,8 @@ func flattenKafkaConfig2_6Settings(r *kafka.KafkaConfig2_6) (map[string]interfac
 	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
 	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
 	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
+	res["num_partitions"] = r.GetNumPartitions().GetValue()
+	res["default_replication_factor"] = r.GetDefaultReplicationFactor().GetValue()
 
 	return res, nil
 }
@@ -488,6 +502,8 @@ func flattenKafkaConfig2_1Settings(r *kafka.KafkaConfig2_1) (map[string]interfac
 	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
 	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
 	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
+	res["num_partitions"] = r.GetNumPartitions().GetValue()
+	res["default_replication_factor"] = r.GetDefaultReplicationFactor().GetValue()
 
 	return res, nil
 }
