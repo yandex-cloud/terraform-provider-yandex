@@ -1932,6 +1932,16 @@ func expandClickHouseMaintenanceWindow(d *schema.ResourceData) (*clickhouse.Main
 
 	switch mwType {
 	case "ANYTIME":
+		timeSet := false
+		if _, ok := d.GetOk("maintenance_window.0.day"); ok {
+			timeSet = true
+		}
+		if _, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			timeSet = true
+		}
+		if timeSet {
+			return nil, fmt.Errorf("with ANYTIME type of maintenance window both DAY and HOUR should be omitted")
+		}
 		result.SetAnytime(&clickhouse.AnytimeMaintenanceWindow{})
 
 	case "WEEKLY":

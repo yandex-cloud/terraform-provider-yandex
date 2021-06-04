@@ -77,3 +77,9 @@ The `host` block supports:
   be a part of the network to which the cluster belongs.
 * `shard_name` - The name of the shard to which the host belongs.
 * `fqdn` - The fully qualified domain name of the host.
+
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `hour` - Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+* `day` - Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.

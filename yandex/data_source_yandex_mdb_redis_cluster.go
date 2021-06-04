@@ -156,6 +156,27 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -260,6 +281,11 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	mw := flattenRedisMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
 		return err
 	}
 

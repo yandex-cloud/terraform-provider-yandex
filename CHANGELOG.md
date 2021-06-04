@@ -7,13 +7,13 @@ FEATURES:
 * add `autoscaling_config` to Data Proc subcluster specification
 * add `ip_address` and `ipv6_address` attributes  to `network_interface` entity in `yandex_compute_instance_group`
 * **New Resource** `yandex_vpc_default_security_group` for network's default security group managment
+
 ENHANCEMENTS:
-* mdb: add `maintenance_window` attribute in `yandex_mdb_mysql_cluster` resource and data source
-* managed-redis: added 'notify_keyspace_events', 'slowlog_log_slower_than', 'slowlog_max_len' and 'databases' fields
-* add `maintenance_window` section in `yandex_mdb_clickhouse_cluster` resource and data source
+* managed-redis: added `notify_keyspace_events`, `slowlog_log_slower_than`, `slowlog_max_len` and `databases` fields
+* mdb: add `maintenance_window` section in `yandex_mdb_clickhouse_cluster`, `yandex_mdb_mysql_cluster` and `yandex_mdb_redis_cluster` resource and data source
 * add `num_partitions` and `default_replication_factor` attributes in `yandex_mdb_kafka_cluster` resource and data source
 * change of `dns_record`, `ipv6_dns_record` and `nat_dns_record` in `network_interface` entity of `yandex_compute_instance`
-without instance drop
+  without instance drop
 
 BUG FIXES:
 * mdb: throw error when trying to modify `owner` in `database` block in `yandex_mdb_postgresql_cluster`

@@ -134,6 +134,9 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.0.databases",
 			"config.0.version",
 			"security_group_ids",
+			"maintenance_window.0.type",
+			"maintenance_window.0.day",
+			"maintenance_window.0.hour",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -174,6 +177,9 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
 	)
 }
 

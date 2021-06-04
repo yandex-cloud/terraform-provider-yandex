@@ -111,6 +111,9 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -130,6 +133,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
 					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -243,6 +247,9 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 						"Elg", 5000, 10, 15, version),
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
 					testAccCheckCreatedAtAttr(redisResource),
 				),
 			},
@@ -262,6 +269,7 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckCreatedAtAttr(redisResource),
+					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -691,6 +699,12 @@ resource "yandex_mdb_redis_cluster" "foo" {
 %s
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
 }
 `, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
 }
@@ -729,6 +743,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
 %s
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 `, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId),
 		getSentinelHosts(diskTypeId))

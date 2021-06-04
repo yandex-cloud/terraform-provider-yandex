@@ -4,7 +4,6 @@ import (
 	"fmt"
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
 )
@@ -216,6 +215,75 @@ func expandRedisResources(d *schema.ResourceData) (*redis.Resources, error) {
 	}
 
 	return rs, nil
+}
+
+func parseRedisWeekDay(wd string) (redis.WeeklyMaintenanceWindow_WeekDay, error) {
+	val, ok := redis.WeeklyMaintenanceWindow_WeekDay_value[wd]
+	// do not allow WEEK_DAY_UNSPECIFIED
+	if !ok || val == 0 {
+		return redis.WeeklyMaintenanceWindow_WEEK_DAY_UNSPECIFIED,
+			fmt.Errorf("value for 'day' should be one of %s, not `%s`",
+				getJoinedKeys(getEnumValueMapKeysExt(redis.WeeklyMaintenanceWindow_WeekDay_value, true)), wd)
+	}
+
+	return redis.WeeklyMaintenanceWindow_WeekDay(val), nil
+}
+
+func expandRedisMaintenanceWindow(d *schema.ResourceData) (*redis.MaintenanceWindow, error) {
+	mwType, ok := d.GetOk("maintenance_window.0.type")
+	if !ok {
+		return nil, nil
+	}
+
+	result := &redis.MaintenanceWindow{}
+
+	switch mwType {
+	case "ANYTIME":
+		timeSet := false
+		if _, ok := d.GetOk("maintenance_window.0.day"); ok {
+			timeSet = true
+		}
+		if _, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			timeSet = true
+		}
+		if timeSet {
+			return nil, fmt.Errorf("with ANYTIME type of maintenance window both DAY and HOUR should be omitted")
+		}
+		result.SetAnytime(&redis.AnytimeMaintenanceWindow{})
+
+	case "WEEKLY":
+		weekly := &redis.WeeklyMaintenanceWindow{}
+		if val, ok := d.GetOk("maintenance_window.0.day"); ok {
+			var err error
+			weekly.Day, err = parseRedisWeekDay(val.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+		if v, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			weekly.Hour = int64(v.(int))
+		}
+
+		result.SetWeeklyMaintenanceWindow(weekly)
+	}
+
+	return result, nil
+}
+
+func flattenRedisMaintenanceWindow(mw *redis.MaintenanceWindow) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if val := mw.GetAnytime(); val != nil {
+		result["type"] = "ANYTIME"
+	}
+
+	if val := mw.GetWeeklyMaintenanceWindow(); val != nil {
+		result["type"] = "WEEKLY"
+		result["day"] = val.Day.String()
+		result["hour"] = val.Hour
+	}
+
+	return []map[string]interface{}{result}
 }
 
 func flattenRedisHosts(hs []*redis.Host) ([]map[string]interface{}, error) {

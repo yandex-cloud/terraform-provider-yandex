@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"time"
 
@@ -195,6 +196,31 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: validateParsableValue(parseClickHouseWeekDay),
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -235,6 +261,17 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Redis Cluster creation failed: %s", err)
+	}
+
+	mw, err := expandRedisMaintenanceWindow(d)
+	if err != nil {
+		return err
+	}
+	if mw != nil {
+		err = updateRedisMaintenanceWindow(ctx, config, d, mw)
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceYandexMDBRedisClusterRead(d, meta)
@@ -383,6 +420,11 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	mw := flattenRedisMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
+		return err
+	}
+
 	return d.Set("labels", cluster.Labels)
 }
 
@@ -505,6 +547,19 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		})
 	}
 
+	if d.HasChange("maintenance_window") {
+		mw, err := expandRedisMaintenanceWindow(d)
+		if err != nil {
+			return err
+		}
+		req.MaintenanceWindow = mw
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
+
+		onDone = append(onDone, func() {
+			d.SetPartial("maintenance_window")
+		})
+	}
+
 	err := makeRedisClusterUpdateRequest(req, d, meta)
 	if err != nil {
 		return err
@@ -584,6 +639,24 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetPartial("host")
+	return nil
+}
+
+func updateRedisMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *redis.MaintenanceWindow) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Redis().Cluster().Update(ctx, &redis.UpdateClusterRequest{
+			ClusterId:         d.Id(),
+			MaintenanceWindow: mw,
+			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update maintenance window in Redis Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating maintenance window in Redis Cluster %q: %s", d.Id(), err)
+	}
 	return nil
 }
 

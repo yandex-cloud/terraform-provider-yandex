@@ -35,6 +35,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+  
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -177,6 +181,12 @@ The `host` block supports:
   be a part of the network to which the cluster belongs.
 
 * `shard_name` (Optional) - The name of the shard to which the host belongs.
+
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+* `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
 
 ## Attributes Reference
 
