@@ -258,22 +258,18 @@ func resourceYandexComputeInstance() *schema.Resource {
 									"fqdn": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 									},
 									"dns_zone_id": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ttl": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ptr": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -287,22 +283,18 @@ func resourceYandexComputeInstance() *schema.Resource {
 									"fqdn": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 									},
 									"dns_zone_id": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ttl": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ptr": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -316,22 +308,18 @@ func resourceYandexComputeInstance() *schema.Resource {
 									"fqdn": {
 										Type:     schema.TypeString,
 										Required: true,
-										ForceNew: true,
 									},
 									"dns_zone_id": {
 										Type:     schema.TypeString,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ttl": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ForceNew: true,
 									},
 									"ptr": {
 										Type:     schema.TypeBool,
 										Optional: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -1248,7 +1236,21 @@ func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.Primary
 		return true
 	}
 
-	return new.Address != "" && old.Address != new.Address
+	if new.Address != "" && old.Address != new.Address {
+		return true
+	}
+
+	if len(old.DnsRecordSpecs) != len(new.DnsRecordSpecs) {
+		return true
+	}
+
+	for i, oldrs := range old.DnsRecordSpecs {
+		newrs := new.DnsRecordSpecs[i]
+		if differentRecordSpec(oldrs, newrs) {
+			return true
+		}
+	}
+	return false
 }
 
 func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpec) bool {
@@ -1260,7 +1262,21 @@ func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpe
 		return true
 	}
 
-	return new.Address != "" && old.Address != new.Address
+	if new.Address != "" && old.Address != new.Address {
+		return true
+	}
+
+	if len(old.DnsRecordSpecs) != len(new.DnsRecordSpecs) {
+		return true
+	}
+
+	for i, oldrs := range old.DnsRecordSpecs {
+		newrs := new.DnsRecordSpecs[i]
+		if differentRecordSpec(oldrs, newrs) {
+			return true
+		}
+	}
+	return false
 }
 
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {
@@ -1420,4 +1436,11 @@ func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, d *schema.Res
 	}
 
 	return nil
+}
+
+func differentRecordSpec(r1, r2 *compute.DnsRecordSpec) bool {
+	return r1.GetFqdn() != r2.GetFqdn() ||
+		r1.GetDnsZoneId() != r2.GetDnsZoneId() ||
+		r1.GetTtl() != r2.GetTtl() ||
+		r1.GetPtr() != r2.GetPtr()
 }

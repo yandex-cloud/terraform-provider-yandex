@@ -462,3 +462,73 @@ func TestFlattenInstanceNetworkInterfaces(t *testing.T) {
 		})
 	}
 }
+
+func TestExpandComputePrimaryV4AddressSpec(t *testing.T) {
+	tests := []struct {
+		name string
+		data map[string]interface{}
+		spec *compute.PrimaryAddressSpec
+	}{
+		{
+			name: "1",
+			data: map[string]interface{}{
+				"ipv4":       true,
+				"ip_address": "10.0.0.1",
+			},
+			spec: &compute.PrimaryAddressSpec{
+				Address:         "10.0.0.1",
+				OneToOneNatSpec: nil,
+				DnsRecordSpecs:  nil,
+			},
+		},
+		{
+			name: "1",
+			data: map[string]interface{}{
+				"ipv4":       true,
+				"ip_address": "10.0.0.1",
+				"dns_record": []interface{}{
+					map[string]interface{}{
+						"fqdn":        "a.example.com.",
+						"dns_zone_id": "",
+					},
+					map[string]interface{}{
+						"fqdn":        "b.example.com.",
+						"dns_zone_id": "zone_id",
+						"ttl":         3600,
+						"ptr":         true,
+					},
+				},
+			},
+			spec: &compute.PrimaryAddressSpec{
+				Address:         "10.0.0.1",
+				OneToOneNatSpec: nil,
+				DnsRecordSpecs: []*compute.DnsRecordSpec{
+					{
+						Fqdn:      "a.example.com.",
+						DnsZoneId: "",
+						Ttl:       0,
+						Ptr:       false,
+					},
+					{
+						Fqdn:      "b.example.com.",
+						DnsZoneId: "zone_id",
+						Ttl:       3600,
+						Ptr:       true,
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec, err := expandPrimaryV4AddressSpec(tt.data)
+			if err != nil {
+				t.Error(err.Error())
+			}
+			if !reflect.DeepEqual(tt.spec, spec) {
+				t.Errorf("%v not equals to %v", tt.spec, spec)
+			}
+		})
+	}
+}

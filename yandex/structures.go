@@ -358,9 +358,17 @@ func expandPrimaryV4AddressSpec(config map[string]interface{}) (*compute.Primary
 		}
 
 		natSpec, _ := expandOneToOneNatSpec(config)
+
+		var dnsSpecs []*compute.DnsRecordSpec
+
+		if v1, ok := config["dns_record"]; ok {
+			dnsSpecs = expandComputeInstanceDnsRecords(v1.([]interface{}))
+		}
+
 		return &compute.PrimaryAddressSpec{
 			Address:         config["ip_address"].(string),
 			OneToOneNatSpec: natSpec,
+			DnsRecordSpecs:  dnsSpecs,
 		}, nil
 	}
 	return nil, nil
@@ -372,8 +380,15 @@ func expandPrimaryV6AddressSpec(config map[string]interface{}) (*compute.Primary
 			return nil, nil
 		}
 
+		var dnsSpecs []*compute.DnsRecordSpec
+
+		if v1, ok := config["ipv6_dns_record"]; ok {
+			dnsSpecs = expandComputeInstanceDnsRecords(v1.([]interface{}))
+		}
+
 		return &compute.PrimaryAddressSpec{
-			Address: config["ipv6_address"].(string),
+			Address:        config["ipv6_address"].(string),
+			DnsRecordSpecs: dnsSpecs,
 		}, nil
 	}
 	return nil, nil
@@ -420,6 +435,11 @@ func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatS
 		if !v.(bool) {
 			return nil, nil
 		}
+		var dnsSpecs []*compute.DnsRecordSpec
+
+		if v1, ok := config["nat_dns_record"]; ok {
+			dnsSpecs = expandComputeInstanceDnsRecords(v1.([]interface{}))
+		}
 
 		if ipAddress, ok := config["nat_ip_address"].(string); ok && ipAddress != "" {
 			return &compute.OneToOneNatSpec{
@@ -427,7 +447,8 @@ func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatS
 			}, nil
 		}
 		return &compute.OneToOneNatSpec{
-			IpVersion: compute.IpVersion_IPV4,
+			IpVersion:      compute.IpVersion_IPV4,
+			DnsRecordSpecs: dnsSpecs,
 		}, nil
 	}
 	return nil, nil

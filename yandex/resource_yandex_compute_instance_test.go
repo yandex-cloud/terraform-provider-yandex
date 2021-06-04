@@ -555,6 +555,14 @@ func TestAccComputeInstance_update(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccComputeInstance_update_add_dns(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasDnsRecord(&instance),
+				),
+			},
+			{
 				Config: testAccComputeInstance_update_add_SecurityGroups(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
@@ -1285,6 +1293,18 @@ func testAccCheckComputeInstanceHasNatAddress(instance *compute.Instance) resour
 	}
 }
 
+func testAccCheckComputeInstanceHasDnsRecord(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, i := range instance.NetworkInterfaces {
+			if len(i.GetPrimaryV4Address().GetDnsRecords()) == 0 && len(i.GetPrimaryV6Address().GetDnsRecords()) == 0 {
+				return fmt.Errorf("No DNS records assigned")
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceHasNoNatAddress(instance *compute.Instance) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		for _, i := range instance.NetworkInterfaces {
@@ -1974,6 +1994,69 @@ resource "yandex_compute_instance" "foobar" {
   network_interface {
     subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
     nat       = true
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_update_add_dns(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    dns_record {
+		fqdn = "%[1]s.fakezone."
+    }
   }
 
   metadata = {
