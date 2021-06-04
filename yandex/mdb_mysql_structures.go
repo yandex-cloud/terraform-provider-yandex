@@ -691,6 +691,12 @@ func expandMySQLMaintenanceWindow(d *schema.ResourceData) (*mysql.MaintenanceWin
 	out := &mysql.MaintenanceWindow{}
 	typeMW, _ := d.GetOk("maintenance_window.0.type")
 	if typeMW == "ANYTIME" {
+		if hour, ok := d.GetOk("maintenance_window.0.hour"); ok && hour != "" {
+			return nil, fmt.Errorf("hour should be not set, when using ANYTIME")
+		}
+		if day, ok := d.GetOk("maintenance_window.0.day"); ok && day != "" {
+			return nil, fmt.Errorf("day should be not set, when using ANYTIME")
+		}
 		out.Policy = &mysql.MaintenanceWindow_Anytime{
 			Anytime: &mysql.AnytimeMaintenanceWindow{},
 		}
