@@ -546,20 +546,20 @@ func TestAccComputeInstance_update(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccComputeInstance_update_add_dns(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasDnsRecord(&instance),
+				),
+			},
+			{
 				Config: testAccComputeInstance_update_add_natIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasNatAddress(&instance),
 					testAccCheckComputeInstanceHasNoSG(&instance),
-				),
-			},
-			{
-				Config: testAccComputeInstance_update_add_dns(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasDnsRecord(&instance),
 				),
 			},
 			{
@@ -1976,9 +1976,10 @@ data "yandex_compute_image" "ubuntu" {
 }
 
 resource "yandex_compute_instance" "foobar" {
-  name = "%[1]s"
-  zone = "ru-central1-a"
-  platform_id = "standard-v2"
+  name                      = "%[1]s"
+  zone                      = "ru-central1-a"
+  platform_id               = "standard-v2"
+  allow_stopping_for_update = true
 
   resources {
     cores  = 2
@@ -2037,9 +2038,10 @@ data "yandex_compute_image" "ubuntu" {
 }
 
 resource "yandex_compute_instance" "foobar" {
-  name = "%[1]s"
-  zone = "ru-central1-a"
-  platform_id = "standard-v2"
+  name                      = "%[1]s"
+  zone                      = "ru-central1-a"
+  platform_id               = "standard-v2"
+  allow_stopping_for_update = true
 
   resources {
     cores  = 2
@@ -2048,14 +2050,14 @@ resource "yandex_compute_instance" "foobar" {
 
   boot_disk {
     initialize_params {
-      image_id = "${data.yandex_compute_image.ubuntu.id}"
+      image_id = data.yandex_compute_image.ubuntu.id
     }
   }
 
   network_interface {
-    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    subnet_id = yandex_vpc_subnet.inst-update-test-subnet.id
     dns_record {
-		fqdn = "%[1]s.fakezone."
+      fqdn = "%[1]s.fakezone."
     }
   }
 
@@ -2068,7 +2070,7 @@ resource "yandex_compute_instance" "foobar" {
     only_me = "nothing_else"
   }
 
-  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+  service_account_id = yandex_iam_service_account.inst-test-sa.id
 }
 
 resource "yandex_iam_service_account" "inst-test-sa" {
@@ -2080,13 +2082,13 @@ resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
   zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  network_id     = yandex_vpc_network.inst-test-network.id
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "inst-update-test-subnet" {
   zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  network_id     = yandex_vpc_network.inst-test-network.id
   v4_cidr_blocks = ["10.0.0.0/24"]
 }
 `, instance)
