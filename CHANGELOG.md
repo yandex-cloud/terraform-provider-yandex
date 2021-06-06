@@ -1,4 +1,5 @@
-## 0.59.0 (Unreleased)
+## 0.60.0 (Unreleased)
+## 0.59.0 (June 6, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_http_router`
 * **New Resource:** `yandex_alb_http_router`
