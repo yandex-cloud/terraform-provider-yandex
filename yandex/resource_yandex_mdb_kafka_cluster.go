@@ -1086,7 +1086,6 @@ func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 }
 
 var mdbKafkaUpdateTopicFieldsMap = map[string]string{
-	"topic.%d.name":                                 "topic_spec.name",
 	"topic.%d.partitions":                           "topic_spec.partitions",
 	"topic.%d.replication_factor":                   "topic_spec.replication_factor",
 	"topic.%d.topic_config.0.cleanup_policy":        "topic_spec.topic_config_{version}.cleanup_policy",
