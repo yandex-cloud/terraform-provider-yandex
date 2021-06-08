@@ -96,7 +96,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 
   user {
     name     = "worker"
-    password = ""
+    password = "password"
     permission {
       topic_name = "input"
       role = "ACCESS_ROLE_CONSUMER"
@@ -207,7 +207,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 
   user {
     name     = "worker"
-    password = ""
+    password = "password"
     permission {
       topic_name = "input"
       role = "ACCESS_ROLE_CONSUMER"
