@@ -496,7 +496,7 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 	d.Set("description", bg.Description)
 
 	if bg.GetHttp() != nil {
-		backends, err := flattenALBHttpBackends(bg)
+		backends, err := flattenALBHTTPBackends(bg)
 		if err != nil {
 			return err
 		}
@@ -506,7 +506,7 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 	}
 
 	if bg.GetGrpc() != nil {
-		backends, err := flattenALBGrpcBackends(bg)
+		backends, err := flattenALBGRPCBackends(bg)
 		if err != nil {
 			return err
 		}

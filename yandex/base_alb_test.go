@@ -18,7 +18,7 @@ const albDefaultTimeout = "300s"
 const albDefaultInterval = "1m500s"
 const albDefaultStrictLocality = "true"
 const albDefaultServiceName = "true"
-const albDefaultHttp2 = "true"
+const albDefaultHTTP2 = "true"
 const albDefaultHost = "tf-test-host"
 const albDefaultPath = "tf-test-path"
 const albDefaultPort = "3"
@@ -27,10 +27,10 @@ const albDefaultReceive = "tf-test-receive"
 const albDefaultDescription = "alb-bg-description"
 
 type resourceALBBackendGroupInfo struct {
-	IsHttpBackend bool
-	IsGrpcBackend bool
-	IsHttpCheck   bool
-	IsGrpcCheck   bool
+	IsHTTPBackend bool
+	IsGRPCBackend bool
+	IsHTTPCheck   bool
+	IsGRPCCheck   bool
 	IsStreamCheck bool
 	IsDataSource  bool
 
@@ -49,7 +49,7 @@ type resourceALBBackendGroupInfo struct {
 	Timeout              string
 	Interval             string
 	ServiceName          string
-	Http2                string
+	HTTP2                string
 	Host                 string
 	Path                 string
 	Port                 string
@@ -59,10 +59,10 @@ type resourceALBBackendGroupInfo struct {
 
 func albBackendGroupInfo() resourceALBBackendGroupInfo {
 	res := resourceALBBackendGroupInfo{
-		IsHttpBackend:        false,
-		IsGrpcBackend:        false,
-		IsHttpCheck:          false,
-		IsGrpcCheck:          false,
+		IsHTTPBackend:        false,
+		IsGRPCBackend:        false,
+		IsHTTPCheck:          false,
+		IsGRPCCheck:          false,
 		IsStreamCheck:        false,
 		IsDataSource:         false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
@@ -78,7 +78,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		Timeout:              albDefaultTimeout,
 		Interval:             albDefaultInterval,
 		ServiceName:          albDefaultServiceName,
-		Http2:                albDefaultHttp2,
+		HTTP2:                albDefaultHTTP2,
 		Host:                 albDefaultHost,
 		Path:                 albDefaultPath,
 		Port:                 albDefaultPort,
@@ -103,7 +103,7 @@ resource "yandex_alb_backend_group" "test-bg" {
     tf-label    = "tf-label-value"
     empty-label = ""
   }
-  {{ if .IsHttpBackend }}
+  {{ if .IsHTTPBackend }}
   http_backend {
     name             = "test-http-backend"
     weight           = {{.BackendWeight}}
@@ -120,7 +120,7 @@ resource "yandex_alb_backend_group" "test-bg" {
       locality_aware_routing_percent = {{.LocalityPercent}}
       strict_locality                = {{.StrictLocality}}
     }
-    {{ if .IsGrpcCheck }}
+    {{ if .IsGRPCCheck }}
     healthcheck {
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
@@ -139,21 +139,21 @@ resource "yandex_alb_backend_group" "test-bg" {
       }
     }
     {{end}}
-    {{ if .IsHttpCheck }}
+    {{ if .IsHTTPCheck }}
     healthcheck {
       timeout = "{{.Timeout}}"
       interval = "{{.Interval}}"
       http_healthcheck {
         host  = "{{.Host}}"
         path  = "{{.Path}}"
-        http2 = "{{.Http2}}"
+        http2 = "{{.HTTP2}}"
       }
     }
     {{end}}
-    http2 = "{{.Http2}}"
+    http2 = "{{.HTTP2}}"
   }
   {{end}}
-  {{ if .IsGrpcBackend }}
+  {{ if .IsGRPCBackend }}
   grpc_backend {
     name             = "test-grpc-backend"
     weight           = {{.BackendWeight}}
@@ -170,7 +170,7 @@ resource "yandex_alb_backend_group" "test-bg" {
       locality_aware_routing_percent = {{.LocalityPercent}}
       strict_locality                = {{.StrictLocality}}
     }
-    {{ if .IsGrpcCheck }}
+    {{ if .IsGRPCCheck }}
     healthcheck {
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
@@ -189,21 +189,21 @@ resource "yandex_alb_backend_group" "test-bg" {
       }
     }
     {{end}}
-    {{ if .IsHttpCheck }}
+    {{ if .IsHTTPCheck }}
     healthcheck {
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
       http_healthcheck {
         host  = "{{.Host}}"
         path  = "{{.Path}}"
-        http2 = "{{.Http2}}"
+        http2 = "{{.HTTP2}}"
       }
     }
     {{end}}
   }
   {{end}}
 }
-{{ if or .IsHttpBackend .IsGrpcBackend }}
+{{ if or .IsHTTPBackend .IsGRPCBackend }}
 resource "yandex_alb_target_group" "test-target-group" {
   name		= "{{.TGName}}"
 
@@ -228,13 +228,13 @@ func testALBBackendGroupConfig_basic(in resourceALBBackendGroupInfo) string {
 	return config
 }
 
-func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHttpBackends, expectedGrpcBackends bool) resource.TestCheckFunc {
+func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHTTPBackends, expectedGRPCBackends bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if (bg.GetHttp() != nil) != expectedHttpBackends {
+		if (bg.GetHttp() != nil) != expectedHTTPBackends {
 			return fmt.Errorf("invalid presence or absence of http backend Application Backend Group %s", bg.Name)
 		}
 
-		if (bg.GetGrpc() != nil) != expectedGrpcBackends {
+		if (bg.GetGrpc() != nil) != expectedGRPCBackends {
 			return fmt.Errorf("invalid presence or absence of grpc backend Application Backend Group %s", bg.Name)
 		}
 

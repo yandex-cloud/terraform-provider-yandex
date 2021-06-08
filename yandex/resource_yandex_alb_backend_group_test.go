@@ -98,11 +98,11 @@ func TestAccALBBackendGroup_basic(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_fullWithHttpBackend(t *testing.T) {
+func TestAccALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsHttpBackend = true
+	BGResource.IsHTTPBackend = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -148,11 +148,11 @@ func TestAccALBBackendGroup_fullWithHttpBackend(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_fullWithGrpcBackend(t *testing.T) {
+func TestAccALBBackendGroup_fullWithGRPCBackend(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsGrpcBackend = true
+	BGResource.IsGRPCBackend = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -202,8 +202,8 @@ func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsHttpBackend = true
-	BGResource.IsHttpCheck = true
+	BGResource.IsHTTPBackend = true
+	BGResource.IsHTTPCheck = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -234,7 +234,7 @@ func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
 						albBGResource, "http_backend", "healthcheck.*.http_healthcheck.0.path", albDefaultPath, &backendPath,
 					),
 					testExistsElementWithAttrValue(
-						albBGResource, "http_backend", "healthcheck.*.http_healthcheck.0.http2", albDefaultHttp2, &backendPath,
+						albBGResource, "http_backend", "healthcheck.*.http_healthcheck.0.http2", albDefaultHTTP2, &backendPath,
 					),
 				),
 			},
@@ -243,12 +243,12 @@ func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_httpBackendWithGrpcHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_httpBackendWithGRPCHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsHttpBackend = true
-	BGResource.IsGrpcCheck = true
+	BGResource.IsHTTPBackend = true
+	BGResource.IsGRPCCheck = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -286,7 +286,7 @@ func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsHttpBackend = true
+	BGResource.IsHTTPBackend = true
 	BGResource.IsStreamCheck = true
 
 	var bg apploadbalancer.BackendGroup
@@ -328,8 +328,8 @@ func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsGrpcBackend = true
-	BGResource.IsHttpCheck = true
+	BGResource.IsGRPCBackend = true
+	BGResource.IsHTTPCheck = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -360,7 +360,7 @@ func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
 						albBGResource, "grpc_backend", "healthcheck.*.http_healthcheck.0.path", albDefaultPath, &backendPath,
 					),
 					testExistsElementWithAttrValue(
-						albBGResource, "grpc_backend", "healthcheck.*.http_healthcheck.0.http2", albDefaultHttp2, &backendPath,
+						albBGResource, "grpc_backend", "healthcheck.*.http_healthcheck.0.http2", albDefaultHTTP2, &backendPath,
 					),
 				),
 			},
@@ -369,12 +369,12 @@ func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_grpcBackendWithGrpcHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_grpcBackendWithGRPCHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsGrpcBackend = true
-	BGResource.IsGrpcCheck = true
+	BGResource.IsGRPCBackend = true
+	BGResource.IsGRPCCheck = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -412,7 +412,7 @@ func TestAccALBBackendGroup_grpcBackendWithStreamHealthcheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
-	BGResource.IsGrpcBackend = true
+	BGResource.IsGRPCBackend = true
 	BGResource.IsStreamCheck = true
 
 	var bg apploadbalancer.BackendGroup

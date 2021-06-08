@@ -104,12 +104,16 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"timeout": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ValidateFunc:     validateParsableValue(parseDuration),
+										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 									},
 									"interval": {
-										Type:     schema.TypeString,
-										Required: true,
+										Type:             schema.TypeString,
+										Required:         true,
+										ValidateFunc:     validateParsableValue(parseDuration),
+										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 									},
 									"interval_jitter_percent": {
 										Type:     schema.TypeFloat,
@@ -441,7 +445,7 @@ func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{
 
 	_, ok := d.GetOk("http_backend")
 	if ok {
-		backend, err := expandALBHttpBackends(d)
+		backend, err := expandALBHTTPBackends(d)
 		if err != nil {
 			return fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
 		}
@@ -449,7 +453,7 @@ func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{
 	}
 	_, ok = d.GetOk("grpc_backend")
 	if ok {
-		backend, err := expandALBGrpcBackends(d)
+		backend, err := expandALBGRPCBackends(d)
 		if err != nil {
 			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}
@@ -515,7 +519,7 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 	_ = d.Set("description", bg.Description)
 
 	if bg.GetHttp() != nil {
-		backends, err := flattenALBHttpBackends(bg)
+		backends, err := flattenALBHTTPBackends(bg)
 		if err != nil {
 			return err
 		}
@@ -525,7 +529,7 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if bg.GetGrpc() != nil {
-		backends, err := flattenALBGrpcBackends(bg)
+		backends, err := flattenALBGRPCBackends(bg)
 		if err != nil {
 			return err
 		}
@@ -556,7 +560,7 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 
 	_, ok := d.GetOk("http_backend")
 	if ok {
-		backend, err := expandALBHttpBackends(d)
+		backend, err := expandALBHTTPBackends(d)
 		if err != nil {
 			return fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
 		}
@@ -564,7 +568,7 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 	}
 	_, ok = d.GetOk("grpc_backend")
 	if ok {
-		backend, err := expandALBGrpcBackends(d)
+		backend, err := expandALBGRPCBackends(d)
 		if err != nil {
 			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}

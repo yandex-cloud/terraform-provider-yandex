@@ -80,7 +80,7 @@ func TestAccDataSourceALBBackendGroup_fullWithHttpBackend(t *testing.T) {
 
 	BGResource := albBackendGroupInfo()
 	BGResource.IsDataSource = true
-	BGResource.IsHttpBackend = true
+	BGResource.IsHTTPBackend = true
 
 	backendPath := ""
 	var bg apploadbalancer.BackendGroup
@@ -145,7 +145,7 @@ func TestAccDataSourceALBBackendGroup_fullWithGrpcBackend(t *testing.T) {
 
 	BGResource := albBackendGroupInfo()
 	BGResource.IsDataSource = true
-	BGResource.IsGrpcBackend = true
+	BGResource.IsGRPCBackend = true
 
 	backendPath := ""
 	var bg apploadbalancer.BackendGroup
