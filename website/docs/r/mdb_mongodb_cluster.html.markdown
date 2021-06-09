@@ -59,6 +59,10 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     zone_id   = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
+  
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 ```
 
@@ -166,6 +170,12 @@ The `host` block supports:
 The `access` block supports:
 
 * `data_lens` - (Optional) Allow access for DataLens.
+
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+* `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
 
 ## Attributes Reference
 

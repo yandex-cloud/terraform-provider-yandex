@@ -1,4 +1,7 @@
 ## 0.60.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: add `maintenance_window` section in `yandex_mdb_mongodb_cluster` resource and data source
+
 ## 0.59.0 (June 6, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_http_router`

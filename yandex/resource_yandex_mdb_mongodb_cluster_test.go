@@ -102,6 +102,9 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(mongodbResource),
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -116,6 +119,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "2"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -133,6 +137,9 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -575,6 +582,12 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
 }
 `, name)
 }
@@ -629,6 +642,10 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 `, name)
 }
@@ -700,6 +717,12 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
 }
 `, name, desc)
 }

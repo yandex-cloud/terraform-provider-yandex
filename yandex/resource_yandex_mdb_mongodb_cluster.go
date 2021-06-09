@@ -267,6 +267,31 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: validateParsableValue(parseMongoDBWeekDay),
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -448,7 +473,36 @@ func resourceYandexMDBMongodbClusterCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Mongodb Cluster creation failed: %s", err)
 	}
 
+	mw, err := expandMongoDBMaintenanceWindow(d)
+	if err != nil {
+		return err
+	}
+	if mw != nil {
+		err = updateMongoDBMaintenanceWindow(ctx, config, d, mw)
+		if err != nil {
+			return err
+		}
+	}
+
 	return resourceYandexMDBMongodbClusterRead(d, meta)
+}
+
+func updateMongoDBMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *mongodb.MaintenanceWindow) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MongoDB().Cluster().Update(ctx, &mongodb.UpdateClusterRequest{
+			ClusterId:         d.Id(),
+			MaintenanceWindow: mw,
+			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update maintenance window in MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating maintenance window in MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	return nil
 }
 
 func listMongodbHosts(ctx context.Context, config *Config, d *schema.ResourceData) ([]*mongodb.Host, error) {
@@ -582,6 +636,11 @@ func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	mw := flattenMongoDBMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
 		return err
 	}
 
@@ -937,6 +996,19 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 				d.SetPartial("resources.0.resource_preset_id")
 			})
 		}
+	}
+
+	if d.HasChange("maintenance_window") {
+		mw, err := expandMongoDBMaintenanceWindow(d)
+		if err != nil {
+			return err
+		}
+		req.MaintenanceWindow = mw
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
+
+		onDone = append(onDone, func() {
+			d.SetPartial("maintenance_window")
+		})
 	}
 
 	if len(updatePath) == 0 {

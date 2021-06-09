@@ -34,6 +34,75 @@ func extractMongoDBConfig(cc *mongodb.ClusterConfig) mongodbConfig {
 	return res
 }
 
+func parseMongoDBWeekDay(wd string) (mongodb.WeeklyMaintenanceWindow_WeekDay, error) {
+	val, ok := mongodb.WeeklyMaintenanceWindow_WeekDay_value[wd]
+	// do not allow WEEK_DAY_UNSPECIFIED
+	if !ok || val == 0 {
+		return mongodb.WeeklyMaintenanceWindow_WEEK_DAY_UNSPECIFIED,
+			fmt.Errorf("value for 'day' should be one of %s, not `%s`",
+				getJoinedKeys(getEnumValueMapKeysExt(mongodb.WeeklyMaintenanceWindow_WeekDay_value, true)), wd)
+	}
+
+	return mongodb.WeeklyMaintenanceWindow_WeekDay(val), nil
+}
+
+func expandMongoDBMaintenanceWindow(d *schema.ResourceData) (*mongodb.MaintenanceWindow, error) {
+	mwType, ok := d.GetOk("maintenance_window.0.type")
+	if !ok {
+		return nil, nil
+	}
+
+	result := &mongodb.MaintenanceWindow{}
+
+	switch mwType {
+	case "ANYTIME":
+		timeSet := false
+		if _, ok := d.GetOk("maintenance_window.0.day"); ok {
+			timeSet = true
+		}
+		if _, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			timeSet = true
+		}
+		if timeSet {
+			return nil, fmt.Errorf("with ANYTIME type of maintenance window both DAY and HOUR should be omitted")
+		}
+		result.SetAnytime(&mongodb.AnytimeMaintenanceWindow{})
+
+	case "WEEKLY":
+		weekly := &mongodb.WeeklyMaintenanceWindow{}
+		if val, ok := d.GetOk("maintenance_window.0.day"); ok {
+			var err error
+			weekly.Day, err = parseMongoDBWeekDay(val.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+		if v, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			weekly.Hour = int64(v.(int))
+		}
+
+		result.SetWeeklyMaintenanceWindow(weekly)
+	}
+
+	return result, nil
+}
+
+func flattenMongoDBMaintenanceWindow(mw *mongodb.MaintenanceWindow) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if val := mw.GetAnytime(); val != nil {
+		result["type"] = "ANYTIME"
+	}
+
+	if val := mw.GetWeeklyMaintenanceWindow(); val != nil {
+		result["type"] = "WEEKLY"
+		result["day"] = val.Day.String()
+		result["hour"] = val.Hour
+	}
+
+	return []map[string]interface{}{result}
+}
+
 func flattenMongoDBResources(m *mongodb.Resources) ([]map[string]interface{}, error) {
 	res := map[string]interface{}{}
 

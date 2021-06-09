@@ -210,7 +210,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 						},
 						"day": {
 							Type:         schema.TypeString,
-							ValidateFunc: validateParsableValue(parseClickHouseWeekDay),
+							ValidateFunc: validateParsableValue(parseRedisWeekDay),
 							Optional:     true,
 						},
 						"hour": {
