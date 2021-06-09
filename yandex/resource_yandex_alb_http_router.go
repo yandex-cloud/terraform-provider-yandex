@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"log"
 	"time"
 )
@@ -165,6 +166,15 @@ func resourceYandexALBHTTPRouterUpdate(d *schema.ResourceData, meta interface{})
 		Labels:       labels,
 	}
 
+	var updatePath []string
+	for field, path := range resourceALBHTTPRouterUpdateFieldsMap {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, path)
+		}
+	}
+
+	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
@@ -179,6 +189,7 @@ func resourceYandexALBHTTPRouterUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	log.Printf("[DEBUG] Finished updating Application Http Router %q", d.Id())
+
 	return resourceYandexALBHTTPRouterRead(d, meta)
 }
 
@@ -210,4 +221,10 @@ func resourceYandexALBHTTPRouterDelete(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Finished deleting Application Http Router %q", d.Id())
 	return nil
+}
+
+var resourceALBHTTPRouterUpdateFieldsMap = map[string]string{
+	"name":        "name",
+	"description": "description",
+	"labels":      "labels",
 }
