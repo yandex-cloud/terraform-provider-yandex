@@ -177,7 +177,6 @@ func resourceYandexDataprocCluster() *schema.Resource {
 									"properties": {
 										Type:     schema.TypeMap,
 										Optional: true,
-										ForceNew: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 
@@ -586,6 +585,16 @@ func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateCl
 		if d.HasChange(fieldName) {
 			updatePaths = append(updatePaths, fieldName)
 		}
+	}
+
+	propertiesPath := "cluster_config.0.hadoop.0.properties"
+	if d.HasChange(propertiesPath) {
+		req.ConfigSpec = &dataproc.UpdateClusterConfigSpec{
+			Hadoop: &dataproc.HadoopConfig{
+				Properties: convertStringMap(d.Get(propertiesPath).(map[string]interface{})),
+			},
+		}
+		updatePaths = append(updatePaths, "config_spec.hadoop.properties")
 	}
 
 	if len(updatePaths) == 0 {

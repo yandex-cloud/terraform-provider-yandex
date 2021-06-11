@@ -424,6 +424,7 @@ type dataprocTFConfigParams struct {
 	Labels        string
 	Name          string
 	NetworkName   string
+	Properties    string
 	SA1Name       string
 	SA2Name       string
 	SAId          string
@@ -491,6 +492,9 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 				hosts_count = 1
 			}`,
 		Subcluster3: "",
+		Properties: `{
+			    "yarn:yarn.resourcemanager.am.max-attempts" = 5
+			}`,
 	}
 }
 
@@ -501,6 +505,10 @@ func TestAccDataprocCluster(t *testing.T) {
 	services := []string{"HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"}
 	properties := map[string]string{
 		"yarn:yarn.resourcemanager.am.max-attempts": "5",
+	}
+	updatedProperties := map[string]string{
+		"yarn:yarn.resourcemanager.am.max-attempts": "6",
+		"hdfs:dfs.webhdfs.enabled":                  "true",
 	}
 	resourceName := "yandex_dataproc_cluster.tf-dataproc-cluster"
 
@@ -559,6 +567,10 @@ func TestAccDataprocCluster(t *testing.T) {
 							created_by = "terraform"
 							updated_by = "terraform"
 						}`
+					cfg.Properties = `{
+							"yarn:yarn.resourcemanager.am.max-attempts" = 6
+							"hdfs:dfs.webhdfs.enabled" = "true"
+						}`
 					// modify existing subcluster
 					cfg.Subcluster2 = `
 						subcluster_spec {
@@ -594,6 +606,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket2),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "labels.updated_by", "terraform"),
+					testAccCheckDataprocClusterProperties(&cluster, updatedProperties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
 						"main": {
 							Name: "main",
@@ -747,9 +760,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
 
     hadoop {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]
-      properties = {
-        "yarn:yarn.resourcemanager.am.max-attempts" = 5
-      }
+      properties = {{.Properties}}
       ssh_public_keys = ["{{.SSHKey}}"]
     }
 

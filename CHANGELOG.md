@@ -1,6 +1,7 @@
 ## 0.60.0 (Unreleased)
 ENHANCEMENTS:
 * mdb: add `maintenance_window` section in `yandex_mdb_mongodb_cluster` resource and data source
+* dataproc: added support for properties modification
 
 BUG FIXES:
 * mdb: fixed some errors in implementation of Kafka topics modification
