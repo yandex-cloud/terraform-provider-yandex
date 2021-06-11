@@ -186,105 +186,103 @@ func expandKafkaConfig2_1(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_6(d *schema.ResourceData, rootKey string) (*kafka.TopicConfig2_6, error) {
+func expandKafkaTopicConfig2_6(config map[string]interface{}) (*kafka.TopicConfig2_6, error) {
 	res := &kafka.TopicConfig2_6{}
-	rootKey = rootKey + ".topic_config.0"
 
-	if v, ok := d.GetOk(rootKey + ".cleanup_policy"); ok {
+	if v, ok := config["cleanup_policy"]; ok {
 		_, err := parseKafkaTopicCleanupPolicy(v.(string))
 		if err == nil {
 			res.CleanupPolicy = kafka.TopicConfig2_6_CleanupPolicy(kafka.TopicConfig2_6_CleanupPolicy_value[v.(string)])
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".compression_type"); ok {
+	if v, ok := config["compression_type"]; ok {
 		value, err := parseKafkaCompression(v.(string))
 		if err == nil {
 			res.CompressionType = value
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".delete_retention_ms"); ok {
+	if v, ok := config["delete_retention_ms"]; ok {
 		res.DeleteRetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".file_delete_delay_ms"); ok {
+	if v, ok := config["file_delete_delay_ms"]; ok {
 		res.FileDeleteDelayMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".flush_messages"); ok {
+	if v, ok := config["flush_messages"]; ok {
 		res.FlushMessages = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".flush_ms"); ok {
+	if v, ok := config["flush_ms"]; ok {
 		res.FlushMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".min_compaction_lag_ms"); ok {
+	if v, ok := config["min_compaction_lag_ms"]; ok {
 		res.MinCompactionLagMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".retention_bytes"); ok {
+	if v, ok := config["retention_bytes"]; ok {
 		res.RetentionBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".retention_ms"); ok {
+	if v, ok := config["retention_ms"]; ok {
 		res.RetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_message_bytes"); ok {
+	if v, ok := config["max_message_bytes"]; ok {
 		res.MaxMessageBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".min_insync_replicas"); ok {
+	if v, ok := config["min_insync_replicas"]; ok {
 		res.MinInsyncReplicas = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".segment_bytes"); ok {
+	if v, ok := config["segment_bytes"]; ok {
 		res.SegmentBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".preallocate"); ok {
+	if v, ok := config["preallocate"]; ok {
 		res.Preallocate = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_1(d *schema.ResourceData, rootKey string) (*kafka.TopicConfig2_1, error) {
+func expandKafkaTopicConfig2_1(config map[string]interface{}) (*kafka.TopicConfig2_1, error) {
 	res := &kafka.TopicConfig2_1{}
-	rootKey = rootKey + ".topic_config.0"
 
-	if v, ok := d.GetOk(rootKey + ".cleanup_policy"); ok {
+	if v, ok := config["cleanup_policy"]; ok {
 		_, err := parseKafkaTopicCleanupPolicy(v.(string))
 		if err == nil {
 			res.CleanupPolicy = kafka.TopicConfig2_1_CleanupPolicy(kafka.TopicConfig2_1_CleanupPolicy_value[v.(string)])
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".compression_type"); ok {
+	if v, ok := config["compression_type"]; ok {
 		value, err := parseKafkaCompression(v.(string))
 		if err == nil {
 			res.CompressionType = value
 		}
 	}
-	if v, ok := d.GetOk(rootKey + ".delete_retention_ms"); ok {
+	if v, ok := config["delete_retention_ms"]; ok {
 		res.DeleteRetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".file_delete_delay_ms"); ok {
+	if v, ok := config["file_delete_delay_ms"]; ok {
 		res.FileDeleteDelayMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".flush_messages"); ok {
+	if v, ok := config["flush_messages"]; ok {
 		res.FlushMessages = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".flush_ms"); ok {
+	if v, ok := config["flush_ms"]; ok {
 		res.FlushMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".min_compaction_lag_ms"); ok {
+	if v, ok := config["min_compaction_lag_ms"]; ok {
 		res.MinCompactionLagMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".retention_bytes"); ok {
+	if v, ok := config["retention_bytes"]; ok {
 		res.RetentionBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".retention_ms"); ok {
+	if v, ok := config["retention_ms"]; ok {
 		res.RetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".max_message_bytes"); ok {
+	if v, ok := config["max_message_bytes"]; ok {
 		res.MaxMessageBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".min_insync_replicas"); ok {
+	if v, ok := config["min_insync_replicas"]; ok {
 		res.MinInsyncReplicas = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".segment_bytes"); ok {
+	if v, ok := config["segment_bytes"]; ok {
 		res.SegmentBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOk(rootKey + ".preallocate"); ok {
+	if v, ok := config["preallocate"]; ok {
 		res.Preallocate = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	return res, nil
@@ -352,12 +350,12 @@ func expandKafkaTopics(d *schema.ResourceData) ([]*kafka.TopicSpec, error) {
 	}
 	topics := d.Get("topic").([]interface{})
 
-	for idx := range topics {
-		topic, err := expandKafkaTopic(d, idx, version.(string))
+	for _, topic := range topics {
+		topicSpec, err := expandKafkaTopic(topic.(map[string]interface{}), version.(string))
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, topic)
+		result = append(result, topicSpec)
 	}
 	return result, nil
 }
@@ -732,30 +730,6 @@ func kafkaUsersPasswords(users []*kafka.UserSpec) map[string]string {
 	return result
 }
 
-func kafkaTopicsDiff(currTopics []*kafka.Topic, targetTopics []*kafka.TopicSpec) ([]string, []*kafka.TopicSpec) {
-	m := map[string]bool{}
-	toAdd := []*kafka.TopicSpec{}
-	toDelete := map[string]bool{}
-	for _, topic := range currTopics {
-		toDelete[topic.Name] = true
-		m[topic.Name] = true
-	}
-
-	for _, topic := range targetTopics {
-		delete(toDelete, topic.Name)
-		if _, ok := m[topic.Name]; !ok {
-			toAdd = append(toAdd, topic)
-		}
-	}
-
-	toDel := []string{}
-	for u := range toDelete {
-		toDel = append(toDel, u)
-	}
-
-	return toDel, toAdd
-}
-
 func kafkaUsersDiff(currUsers []*kafka.User, targetUsers []*kafka.UserSpec) ([]string, []*kafka.UserSpec) {
 	m := map[string]bool{}
 	toAdd := []*kafka.UserSpec{}
@@ -782,92 +756,80 @@ func kafkaUsersDiff(currUsers []*kafka.User, targetUsers []*kafka.UserSpec) ([]s
 	return toDel, toAdd
 }
 
-func expandKafkaTopic(d *schema.ResourceData, idx int, version string) (*kafka.TopicSpec, error) {
-	topic := &kafka.TopicSpec{}
+func diffByEntityKey(d *schema.ResourceData, path, indexKey string) map[string][]map[string]interface{} {
+	result := map[string][]map[string]interface{}{}
+	for i := 0; ; i++ {
+		oldEntityI, newEntityI := d.GetChange(fmt.Sprintf("%s.%d", path, i))
+		empty := true
 
-	rootKey := fmt.Sprintf("topic.%d", idx)
-
-	if v, ok := d.GetOk(rootKey + ".name"); ok {
-		topic.Name = v.(string)
-	}
-	if v, ok := d.GetOk(rootKey + ".partitions"); ok {
-		topic.Partitions = &wrappers.Int64Value{Value: int64(v.(int))}
-	}
-	if v, ok := d.GetOk(rootKey + ".replication_factor"); ok {
-		topic.ReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
-	}
-	if _, ok := d.GetOk(rootKey + ".topic_config"); ok {
-		switch version {
-		case "2.6":
-			cfg, err := expandKafkaTopicConfig2_6(d, rootKey)
-			if err != nil {
-				return nil, err
+		oldEntity := oldEntityI.(map[string]interface{})
+		oldEntityKey, ok := oldEntity[indexKey].(string)
+		if ok {
+			empty = false
+			pair, ok := result[oldEntityKey]
+			if !ok {
+				pair = make([]map[string]interface{}, 2)
+				result[oldEntityKey] = pair
 			}
-			topic.SetTopicConfig_2_6(cfg)
-		case "2.1":
-			cfg, err := expandKafkaTopicConfig2_1(d, rootKey)
-			if err != nil {
-				return nil, err
-			}
-			topic.SetTopicConfig_2_1(cfg)
-		default:
-			return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)
+			pair[0] = oldEntity
 		}
-	}
-	return topic, nil
-}
 
-type IndexedTopicSpec struct {
-	index int
-	topic *kafka.TopicSpec
-}
-
-func kafkaFilterModifiedTopics(specs []IndexedTopicSpec, toDelete, toAdd []string) []IndexedTopicSpec {
-	result := make([]IndexedTopicSpec, 0)
-	var skip bool
-	for _, elem := range specs {
-		skip = false
-		for _, del := range toDelete {
-			if elem.topic.Name == del {
-				skip = true
+		newEntity := newEntityI.(map[string]interface{})
+		newEntityKey, ok := newEntity[indexKey].(string)
+		if ok {
+			empty = false
+			if newEntityKey != "" {
+				pair, ok := result[newEntityKey]
+				if !ok {
+					pair = make([]map[string]interface{}, 2)
+					result[newEntityKey] = pair
+				}
+				pair[1] = newEntity
 			}
 		}
-		for _, add := range toAdd {
-			if elem.topic.Name == add {
-				skip = true
-			}
-		}
-		if !skip {
-			result = append(result, elem)
+
+		if empty {
+			break
 		}
 	}
 	return result
 }
 
-func kafkaChangedTopics(d *schema.ResourceData, oldSpecs []interface{}, newSpecs []interface{}, version string) ([]IndexedTopicSpec, error) {
-	result := make([]IndexedTopicSpec, 0)
-	m := map[string]*kafka.TopicSpec{}
-	for idx := range oldSpecs {
-		topic, err := expandKafkaTopic(d, idx, version)
-		if err != nil {
-			return nil, err
-		}
-		m[topic.Name] = topic
+func expandKafkaTopic(spec map[string]interface{}, version string) (*kafka.TopicSpec, error) {
+	topic := &kafka.TopicSpec{}
+
+	if v, ok := spec["name"]; ok {
+		topic.Name = v.(string)
 	}
-	for i := range newSpecs {
-		topic, err := expandKafkaTopic(d, i, version)
-		if err != nil {
-			return nil, err
-		}
-		if t, ok := m[topic.Name]; ok {
-			if topic.Partitions != t.Partitions || topic.ReplicationFactor != t.ReplicationFactor {
-				result = append(result, IndexedTopicSpec{i, topic})
-				continue
+	if v, ok := spec["partitions"]; ok {
+		topic.Partitions = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := spec["replication_factor"]; ok {
+		topic.ReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := spec["topic_config"]; ok {
+		switch version {
+		case "2.6":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_6(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, err
+				}
+				topic.SetTopicConfig_2_6(cfg)
 			}
-			if fmt.Sprintf("%v", topic.GetTopicConfig()) != fmt.Sprintf("%v", t.GetTopicConfig()) {
-				result = append(result, IndexedTopicSpec{i, topic})
+		case "2.1":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_1(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, err
+				}
+				topic.SetTopicConfig_2_1(cfg)
 			}
+		default:
+			return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)
 		}
 	}
-	return result, nil
+	return topic, nil
 }

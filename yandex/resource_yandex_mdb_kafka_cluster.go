@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
@@ -856,51 +857,46 @@ func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	currTopics, err := listKafkaTopics(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-	targetTopics, err := expandKafkaTopics(d)
-	if err != nil {
-		return err
-	}
-	sortKafkaTopics(currTopics, targetTopics)
-
-	var toAdd []string
-	toDelete, toAddSpecs := kafkaTopicsDiff(currTopics, targetTopics)
-
-	for _, topic := range toDelete {
-		err := deleteKafkaTopic(ctx, config, d, topic)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, topic := range toAddSpecs {
-		err := createKafkaTopic(ctx, config, d, topic)
-		toAdd = append(toAdd, topic.Name)
-		if err != nil {
-			return err
-		}
-	}
-
-	version, ok := d.GetOk("config.0.version")
+	versionI, ok := d.GetOk("config.0.version")
 	if !ok {
 		return fmt.Errorf("you must specify version of Kafka")
 	}
+	version := versionI.(string)
 
-	oldSpecs, newSpecs := d.GetChange("topic")
-	changedTopics, err := kafkaChangedTopics(d, oldSpecs.([]interface{}), newSpecs.([]interface{}), version.(string))
-	if err != nil {
-		return err
-	}
-	// Deleted and created topics also looks like changed topics, so we need to filter then manually
-	// Remove them from changed topics slice
-	modifiedTopics := kafkaFilterModifiedTopics(changedTopics, toDelete, toAdd)
-	for _, t := range modifiedTopics {
-		err := updateKafkaTopic(ctx, config, d, t.topic.Name, t, version.(string))
-		if err != nil {
-			return err
+	diffByTopicName := diffByEntityKey(d, "topic", "name")
+	for topicName, topicDiff := range diffByTopicName {
+		oldTopic := topicDiff[0]
+		newTopic := topicDiff[1]
+
+		if oldTopic == nil {
+			topicSpec, err := expandKafkaTopic(newTopic, version)
+			if err != nil {
+				return err
+			}
+			log.Printf("creating topic %+v", topicSpec)
+			if err := createKafkaTopic(ctx, config, d, topicSpec); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if newTopic == nil {
+			log.Printf("topic %s is to be deleted", topicName)
+			if err := deleteKafkaTopic(ctx, config, d, topicName); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if !reflect.DeepEqual(oldTopic, newTopic) {
+			topicSpec, err := expandKafkaTopic(newTopic, version)
+			if err != nil {
+				return err
+			}
+			paths := kafkaTopicUpdateMask(oldTopic, newTopic, getSuffixVerion(d))
+			if err := updateKafkaTopic(ctx, config, d, topicSpec, paths); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -941,6 +937,31 @@ func createKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceDat
 	if err != nil {
 		return fmt.Errorf("error while adding topic to Kafka Cluster %q: %s", d.Id(), err)
 	}
+	return nil
+}
+
+func updateKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceData, topicSpec *kafka.TopicSpec, paths []string) error {
+	request := &kafka.UpdateTopicRequest{
+		ClusterId:  d.Id(),
+		TopicName:  topicSpec.Name,
+		TopicSpec:  topicSpec,
+		UpdateMask: &field_mask.FieldMask{Paths: paths},
+	}
+
+	log.Printf("sending topic update request: %+v", request)
+
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Kafka().Topic().Update(ctx, request),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update topic in Kafka Cluster %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating topic in Kafka Cluster %q: %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -1085,66 +1106,46 @@ func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 	return nil
 }
 
-var mdbKafkaUpdateTopicFieldsMap = map[string]string{
-	"topic.%d.partitions":                           "topic_spec.partitions",
-	"topic.%d.replication_factor":                   "topic_spec.replication_factor",
-	"topic.%d.topic_config.0.cleanup_policy":        "topic_spec.topic_config_{version}.cleanup_policy",
-	"topic.%d.topic_config.0.compression_type":      "topic_spec.topic_config_{version}.compression_type",
-	"topic.%d.topic_config.0.delete_retention_ms":   "topic_spec.topic_config_{version}.delete_retention_ms",
-	"topic.%d.topic_config.0.file_delete_delay_ms":  "topic_spec.topic_config_{version}.file_delete_delay_ms",
-	"topic.%d.topic_config.0.flush_messages":        "topic_spec.topic_config_{version}.flush_messages",
-	"topic.%d.topic_config.0.flush_ms":              "topic_spec.topic_config_{version}.flush_ms",
-	"topic.%d.topic_config.0.min_compaction_lag_ms": "topic_spec.topic_config_{version}.min_compaction_lag_ms",
-	"topic.%d.topic_config.0.retention_bytes":       "topic_spec.topic_config_{version}.retention_bytes",
-	"topic.%d.topic_config.0.retention_ms":          "topic_spec.topic_config_{version}.retention_ms",
-	"topic.%d.topic_config.0.max_message_bytes":     "topic_spec.topic_config_{version}.max_message_bytes",
-	"topic.%d.topic_config.0.min_insync_replicas":   "topic_spec.topic_config_{version}.min_insync_replicas",
-	"topic.%d.topic_config.0.segment_bytes":         "topic_spec.topic_config_{version}.segment_bytes",
-	"topic.%d.topic_config.0.preallocate":           "topic_spec.topic_config_{version}.preallocate",
-}
-
-func updateKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceData, topicName string, topicSpec IndexedTopicSpec, version string) error {
-	request := &kafka.UpdateTopicRequest{
-		ClusterId: d.Id(),
-		TopicName: topicName,
-		TopicSpec: topicSpec.topic,
-	}
-
-	onDone := []func(){}
-	updatePath := []string{}
-
-	for field, path := range mdbKafkaUpdateTopicFieldsMap {
-		fd := fmt.Sprintf(field, topicSpec.index)
-		if d.HasChange(fd) {
-			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVerion(d), -1))
-			onDone = append(onDone, func() {
-				d.SetPartial(field)
-			})
+func kafkaTopicUpdateMask(oldTopic, newTopic map[string]interface{}, version string) []string {
+	var paths []string
+	attrs := []string{"partitions", "replication_factor"}
+	for _, attr := range attrs {
+		val1 := oldTopic[attr]
+		val2 := newTopic[attr]
+		if !reflect.DeepEqual(val1, val2) {
+			paths = append(paths, fmt.Sprintf("topic_spec.%s", attr))
 		}
 	}
 
-	if len(updatePath) == 0 {
-		return nil
+	oldTopicConfig := map[string]interface{}{}
+	topicConfigList, ok := oldTopic["topic_config"].([]interface{})
+	if ok && len(topicConfigList) > 0 {
+		oldTopicConfig = topicConfigList[0].(map[string]interface{})
 	}
 
-	request.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
-
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().Topic().Update(ctx, request),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update topic in Kafka Cluster %q: %s", d.Id(), err)
+	newTopicConfig := map[string]interface{}{}
+	topicConfigList, ok = newTopic["topic_config"].([]interface{})
+	if ok && len(topicConfigList) > 0 {
+		newTopicConfig = topicConfigList[0].(map[string]interface{})
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while updating topic in Kafka Cluster %q: %s", d.Id(), err)
+	keys := map[string]struct{}{}
+	for key := range oldTopicConfig {
+		keys[key] = struct{}{}
+	}
+	for key := range newTopicConfig {
+		keys[key] = struct{}{}
 	}
 
-	for _, f := range onDone {
-		f()
+	for key := range keys {
+		val1 := oldTopicConfig[key]
+		val2 := newTopicConfig[key]
+		if !reflect.DeepEqual(val1, val2) {
+			paths = append(paths, fmt.Sprintf("topic_spec.topic_config_%s.%s", version, key))
+		}
 	}
-	return nil
+
+	return paths
 }
 
 func sortKafkaTopics(topics []*kafka.Topic, specs []*kafka.TopicSpec) {
