@@ -199,7 +199,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
-												"dns_zone": {
+												"dns_zone_id": {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
@@ -224,7 +224,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
-												"dns_zone": {
+												"dns_zone_id": {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
@@ -249,7 +249,7 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
-												"dns_zone": {
+												"dns_zone_id": {
 													Type:     schema.TypeString,
 													Computed: true,
 												},

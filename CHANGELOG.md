@@ -8,7 +8,8 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * mdb: fixed some errors in implementation of Kafka topics modification
-
+* dns: fixed field name error
+ 
 ## 0.59.0 (June 6, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_http_router`
