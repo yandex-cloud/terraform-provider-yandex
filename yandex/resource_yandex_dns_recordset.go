@@ -65,14 +65,9 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 255),
-					DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-						if strings.ToUpper(d.Get("type").(string)) == "AAAA" {
-							return ipv6DiffSuppressor(k, old, new, d)
-						}
-						return false
-					},
 				},
-				Set: schema.HashString,
+				Set:              schema.HashString,
+				DiffSuppressFunc: dataDiffSuppressFunc,
 			},
 		},
 	}
@@ -263,7 +258,33 @@ func rsId(d *schema.ResourceData) string {
 	return fmt.Sprintf("%s %s", d.Get("type").(string), d.Get("name"))
 }
 
-func ipv6DiffSuppressor(_, old, new string, _ *schema.ResourceData) bool {
+func dataDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
+	if strings.ToUpper(d.Get("type").(string)) != "AAAA" {
+		return false
+	}
+	o, n := d.GetChange("data")
+	if o == nil || n == nil {
+		return false
+	}
+
+	oldList := convertStringSet(o.(*schema.Set))
+	newList := convertStringSet(n.(*schema.Set))
+
+	if len(oldList) != len(newList) {
+		return false
+	}
+
+	for i, oldIp := range oldList {
+		log.Printf("compare %s and %s", oldIp, newList[i])
+		if !ipv6Equal(oldIp, newList[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func ipv6Equal(old, new string) bool {
 	ip1 := net.ParseIP(old)
 	ip2 := net.ParseIP(new)
 	return ip1.Equal(ip2)
