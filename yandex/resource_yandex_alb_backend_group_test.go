@@ -18,9 +18,11 @@ const albBGResource = "yandex_alb_backend_group.test-bg"
 
 func init() {
 	resource.AddTestSweepers("yandex_alb_backend_group", &resource.Sweeper{
-		Name:         "yandex_alb_backend_group",
-		F:            testSweepALBBackendGroups,
-		Dependencies: []string{},
+		Name: "yandex_alb_backend_group",
+		F:    testSweepALBBackendGroups,
+		Dependencies: []string{
+			"yandex_alb_http_router",
+		},
 	})
 }
 

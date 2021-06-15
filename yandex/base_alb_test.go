@@ -14,8 +14,8 @@ const albDefaultValidationContext = "tf-test-validation-context"
 const albDefaultBackendWeight = "1"
 const albDefaultPanicThreshold = "50"
 const albDefaultLocalityPercent = "35"
-const albDefaultTimeout = "300s"
-const albDefaultInterval = "1m500s"
+const albDefaultTimeout = "3s"
+const albDefaultInterval = "5s"
 const albDefaultStrictLocality = "true"
 const albDefaultServiceName = "true"
 const albDefaultHTTP2 = "true"
@@ -25,6 +25,72 @@ const albDefaultPort = "3"
 const albDefaultSend = "tf-test-send"
 const albDefaultReceive = "tf-test-receive"
 const albDefaultDescription = "alb-bg-description"
+const albDefaultDirectResponseBody = "Not Found"
+const albDefaultDirectResponseStatus = "404"
+const albDefaultStatusResponse = "not_found"
+const albDefaultRedirectReplacePrefix = "/other"
+const albDefaultAutoHostRewrite = "true"
+
+type resourceALBVirtualHostInfo struct {
+	IsModifyRequestHeaders     bool
+	IsModifyResponseHeaders    bool
+	IsHTTPRoute                bool
+	IsGRPCRoute                bool
+	IsHTTPRouteAction          bool
+	IsRedirectAction           bool
+	IsDirectResponseAction     bool
+	IsGRPCRouteAction          bool
+	IsGRPCStatusResponseAction bool
+	IsDataSource               bool
+
+	BaseTemplate string
+
+	VHName     string
+	TGName     string
+	RouterName string
+	BGName     string
+
+	RouterDescription              string
+	RouteName                      string
+	DirectResponseStatus           string
+	DirectResponseBody             string
+	RedirectReplacePrefix          string
+	HTTPRouteActionTimeout         string
+	GRPCRouteActionTimeout         string
+	GRPCStatusResponseActionStatus string
+	GRPCRouteActionAutoHostRewrite string
+}
+
+func albVirtualHostInfo() resourceALBVirtualHostInfo {
+	res := resourceALBVirtualHostInfo{
+		IsModifyRequestHeaders:         false,
+		IsModifyResponseHeaders:        false,
+		IsHTTPRoute:                    false,
+		IsGRPCRoute:                    false,
+		IsHTTPRouteAction:              false,
+		IsRedirectAction:               false,
+		IsDirectResponseAction:         false,
+		IsGRPCRouteAction:              false,
+		IsGRPCStatusResponseAction:     false,
+		IsDataSource:                   false,
+		BaseTemplate:                   testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		VHName:                         acctest.RandomWithPrefix("tf-virtual-host"),
+		TGName:                         acctest.RandomWithPrefix("tf-tg"),
+		RouterName:                     acctest.RandomWithPrefix("tf-router"),
+		BGName:                         acctest.RandomWithPrefix("tf-bg"),
+		RouterDescription:              albDefaultDescription,
+		RouteName:                      acctest.RandomWithPrefix("tf-route"),
+		DirectResponseStatus:           albDefaultDirectResponseStatus,
+		DirectResponseBody:             albDefaultDirectResponseBody,
+		RedirectReplacePrefix:          albDefaultRedirectReplacePrefix,
+		HTTPRouteActionTimeout:         albDefaultTimeout,
+		GRPCRouteActionTimeout:         albDefaultTimeout,
+		GRPCStatusResponseActionStatus: albDefaultStatusResponse,
+		GRPCRouteActionAutoHostRewrite: albDefaultAutoHostRewrite,
+	}
+
+	return res
+}
 
 type resourceALBBackendGroupInfo struct {
 	IsHTTPBackend bool
@@ -88,6 +154,100 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 
 	return res
 }
+
+const albVirtualHostConfigTemplate = `
+{{ if .IsDataSource }}
+data "yandex_alb_virtual_host" "test-vh-ds" {
+  name = yandex_alb_virtual_host.test-vh.name
+}		
+{{ end }}
+resource "yandex_alb_http_router" "test-router" {
+  name        = "{{.RouterName}}"
+  description = "{{.RouterDescription}}"
+}
+resource "yandex_alb_backend_group" "test-bg" {
+  name        = "{{.BGName}}"
+  {{if .IsHTTPRoute}}
+  http_backend {
+    name             = "test-http-backend"
+    weight           = 1
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+  }
+  {{end}}
+  {{if .IsGRPCRoute}}
+  grpc_backend {
+    name             = "test-grpc-backend"
+    weight           = 1
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+  }
+  {{end}}
+}
+resource "yandex_alb_virtual_host" "test-vh" {
+  name        = "{{.VHName}}"
+  http_router_id = yandex_alb_http_router.test-router.id
+
+  authority = ["*.foo.com", "*-bar.foo.com"]
+
+  {{ if or .IsHTTPRoute .IsGRPCRoute}}
+  route {
+    name = "{{.RouteName}}"
+    {{if .IsHTTPRoute}}
+    http_route {
+      {{if .IsHTTPRouteAction}}
+      http_route_action {
+        backend_group_id = yandex_alb_backend_group.test-bg.id
+        timeout = "{{.HTTPRouteActionTimeout}}"
+      }
+      {{end}}
+      {{if .IsDirectResponseAction}}
+      direct_response_action {
+        status = {{.DirectResponseStatus}}
+        body = "{{.DirectResponseBody}}"
+      }  
+      {{end}}
+      {{if .IsRedirectAction}}
+      redirect_action {
+        replace_prefix = "{{.RedirectReplacePrefix}}"
+      }
+      {{end}}
+    }
+    {{end}}
+    {{if .IsGRPCRoute}}
+    grpc_route {
+      {{if .IsGRPCRouteAction}}
+      grpc_route_action {
+        backend_group_id = yandex_alb_backend_group.test-bg.id
+        max_timeout = "{{.GRPCRouteActionTimeout}}"
+        auto_host_rewrite = {{.GRPCRouteActionAutoHostRewrite}}
+      }
+      {{end}}
+      {{if .IsGRPCStatusResponseAction}}
+      grpc_status_response_action {
+        status = "{{.GRPCStatusResponseActionStatus}}"
+      }  
+      {{end}}
+    }
+    {{end}}
+  }
+  {{end}}
+}
+{{ if or .IsHTTPRoute .IsGRPCRoute }}
+resource "yandex_alb_target_group" "test-target-group" {
+  name		= "{{.TGName}}"
+
+  target {
+	subnet_id	= "${yandex_vpc_subnet.test-subnet.id}"
+	ip_address	= "${yandex_compute_instance.test-instance-1.network_interface.0.ip_address}"
+  }
+
+  target {
+	subnet_id	= "${yandex_vpc_subnet.test-subnet.id}"
+	ip_address	= "${yandex_compute_instance.test-instance-2.network_interface.0.ip_address}"
+  }
+}
+{{ end }}
+{{.BaseTemplate}}
+`
 
 const albBackendGroupConfigTemplate = `
 {{ if .IsDataSource }}
@@ -228,6 +388,12 @@ func testALBBackendGroupConfig_basic(in resourceALBBackendGroupInfo) string {
 	return config
 }
 
+func testALBVirtualHostConfig_basic(in resourceALBVirtualHostInfo) string {
+	m := structs.Map(in)
+	config := templateConfig(albVirtualHostConfigTemplate, m)
+	return config
+}
+
 func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHTTPBackends, expectedGRPCBackends bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if (bg.GetHttp() != nil) != expectedHTTPBackends {
@@ -236,6 +402,22 @@ func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expecte
 
 		if (bg.GetGrpc() != nil) != expectedGRPCBackends {
 			return fmt.Errorf("invalid presence or absence of grpc backend Application Backend Group %s", bg.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckALBVirtualHostValues(vh *apploadbalancer.VirtualHost, expectedHttpRoute, expectedGrpcRoute bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		for _, route := range vh.GetRoutes() {
+			if (route.GetHttp() != nil) != expectedHttpRoute {
+				return fmt.Errorf("invalid presence or absence of http backend Application Backend Group %s", vh.Name)
+			}
+
+			if (route.GetGrpc() != nil) != expectedGrpcRoute {
+				return fmt.Errorf("invalid presence or absence of grpc backend Application Backend Group %s", vh.Name)
+			}
 		}
 
 		return nil

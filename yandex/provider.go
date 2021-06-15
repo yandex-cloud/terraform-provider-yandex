@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -178,6 +179,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_alb_backend_group":                     resourceYandexALBBackendGroup(),
 			"yandex_alb_http_router":                       resourceYandexALBHTTPRouter(),
 			"yandex_alb_target_group":                      resourceYandexALBTargetGroup(),
+			"yandex_alb_virtual_host":                      addPassthroughImport(withALBVirtualHostID(resourceYandexALBVirtualHost())),
 			"yandex_api_gateway":                           resourceYandexApiGateway(),
 			"yandex_container_registry":                    resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":        resourceYandexContainerRegistryIAMBinding(),
@@ -239,6 +241,38 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)
 
 	return provider
+}
+
+func addPassthroughImport(r *schema.Resource) *schema.Resource {
+	r.Importer = &schema.ResourceImporter{
+		State: schema.ImportStatePassthrough,
+	}
+	return r
+}
+
+type crudFunc = func(d *schema.ResourceData, meta interface{}) error
+
+func withALBVirtualHostID(r *schema.Resource) *schema.Resource {
+	r.Read = wrapParseVirtualHostID(r.Read)
+	r.Update = wrapParseVirtualHostID(r.Update)
+	r.Delete = wrapParseVirtualHostID(r.Delete)
+	return r
+}
+
+func wrapParseVirtualHostID(f crudFunc) crudFunc {
+	return func(d *schema.ResourceData, meta interface{}) error {
+		attrs := strings.Split(d.Id(), "/")
+		if len(attrs) < 2 {
+			return fmt.Errorf("error reading virtual_host, wrong id: %q", d.Id())
+		}
+		if err := d.Set("http_router_id", attrs[0]); err != nil {
+			return err
+		}
+		if err := d.Set("name", attrs[1]); err != nil {
+			return err
+		}
+		return f(d, meta)
+	}
 }
 
 var descriptions = map[string]string{

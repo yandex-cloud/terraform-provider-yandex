@@ -7,7 +7,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"strings"
 )
+
+func resourceALBVirtualHostHeaderModificationHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	if v, ok := m["name"]; ok {
+		fmt.Fprintf(&buf, "%s-", v.(string))
+	}
+
+	if v, ok := m["append"]; ok {
+		fmt.Fprintf(&buf, "%s-", v.(string))
+	}
+
+	if v, ok := m["replace"]; ok {
+		fmt.Fprintf(&buf, "%s-", v.(string))
+	}
+
+	if v, ok := m["remove"]; ok {
+		fmt.Fprintf(&buf, "%t-", v.(bool))
+	}
+
+	return hashcode.String(buf.String())
+}
 
 func resourceALBBackendGroupBackendHash(v interface{}) int {
 	var buf bytes.Buffer
@@ -56,6 +80,308 @@ func resourceALBTargetGroupTargetHash(v interface{}) int {
 	}
 
 	return hashcode.String(buf.String())
+}
+
+func expandALBStringListFromSchemaSet(v interface{}) ([]string, error) {
+	var m []string
+	if v == nil {
+		return m, nil
+	}
+	for _, val := range v.(*schema.Set).List() {
+		m = append(m, val.(string))
+	}
+	return m, nil
+}
+
+func expandALBHeaderModification(d *schema.ResourceData, key string) ([]*apploadbalancer.HeaderModification, error) {
+	var modifications []*apploadbalancer.HeaderModification
+	modificationSet := d.Get(key).(*schema.Set)
+
+	for _, b := range modificationSet.List() {
+		modificationConfig := b.(map[string]interface{})
+
+		backend, err := expandALBModification(modificationConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		modifications = append(modifications, backend)
+	}
+
+	return modifications, nil
+}
+
+func expandALBModification(config map[string]interface{}) (*apploadbalancer.HeaderModification, error) {
+	modification := &apploadbalancer.HeaderModification{}
+
+	if v, ok := config["name"]; ok {
+		modification.Name = v.(string)
+	}
+
+	if v, ok := config["append"]; ok {
+		modification.SetAppend(v.(string))
+	}
+
+	if v, ok := config["replace"]; ok {
+		modification.SetReplace(v.(string))
+	}
+
+	if v, ok := config["remove"]; ok {
+		modification.SetRemove(v.(bool))
+	}
+
+	return modification, nil
+}
+
+func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
+	var routes []*apploadbalancer.Route
+	routeSet := d.Get("route").([]interface{})
+
+	for _, b := range routeSet {
+		routeConfig := b.(map[string]interface{})
+
+		route, err := expandALBRoute(routeConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		routes = append(routes, route)
+	}
+
+	return routes, nil
+}
+
+func expandALBRoute(config map[string]interface{}) (*apploadbalancer.Route, error) {
+	route := &apploadbalancer.Route{}
+
+	if v, ok := config["name"]; ok {
+		route.Name = v.(string)
+	}
+
+	if v, ok := config["http_route"]; ok {
+		if len(v.([]interface{})) > 0 {
+			route.SetHttp(expandALBHTTPRoute(v.([]interface{})))
+		}
+	}
+
+	if v, ok := config["grpc_route"]; ok && len(v.([]interface{})) > 0 {
+		route.SetGrpc(expandALBGRPCRoute(v.([]interface{})))
+	}
+
+	return route, nil
+}
+
+func expandALBHTTPRoute(v []interface{}) *apploadbalancer.HttpRoute {
+	httpRoute := &apploadbalancer.HttpRoute{}
+	config := v[0].(map[string]interface{})
+	if val, ok := config["http_match"]; ok && len(val.([]interface{})) > 0 {
+		httpRoute.Match = expandALBHTTPRouteMatch(val)
+	}
+	if val, ok := config["http_route_action"]; ok && len(val.([]interface{})) > 0 {
+		httpRoute.SetRoute(expandALBHTTPRouteAction(val))
+	}
+
+	if val, ok := config["redirect_action"]; ok && len(val.([]interface{})) > 0 {
+		httpRoute.SetRedirect(expandALBRedirectAction(val))
+	}
+
+	if val, ok := config["direct_response_action"]; ok && len(val.([]interface{})) > 0 {
+		httpRoute.SetDirectResponse(expandALBDirectResponseAction(val))
+	}
+	return httpRoute
+}
+
+func expandALBDirectResponseAction(v interface{}) *apploadbalancer.DirectResponseAction {
+	directResponseAction := &apploadbalancer.DirectResponseAction{}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["status"]; ok {
+		directResponseAction.Status = int64(val.(int))
+	}
+
+	if val, ok := config["body"]; ok {
+		payload := &apploadbalancer.Payload{}
+		payload.SetText(val.(string))
+		directResponseAction.Body = payload
+	}
+
+	return directResponseAction
+}
+
+func expandALBRedirectAction(v interface{}) *apploadbalancer.RedirectAction {
+	redirectAction := &apploadbalancer.RedirectAction{}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["replace_scheme"]; ok {
+		redirectAction.ReplaceScheme = val.(string)
+	}
+
+	if val, ok := config["replace_host"]; ok {
+		redirectAction.ReplaceHost = val.(string)
+	}
+
+	if val, ok := config["replace_port"]; ok {
+		redirectAction.ReplacePort = int64(val.(int))
+	}
+
+	if val, ok := config["remove_query"]; ok {
+		redirectAction.RemoveQuery = val.(bool)
+	}
+
+	if val, ok := config["replace_path"]; ok {
+		redirectAction.SetReplacePath(val.(string))
+	}
+
+	if val, ok := config["replace_prefix"]; ok {
+		redirectAction.SetReplacePrefix(val.(string))
+	}
+
+	if val, ok := config["response_code"]; ok {
+		code := apploadbalancer.RedirectAction_RedirectResponseCode_value[strings.ToUpper(val.(string))]
+		redirectAction.ResponseCode = apploadbalancer.RedirectAction_RedirectResponseCode(code)
+	}
+
+	return redirectAction
+}
+
+func expandALBHTTPRouteAction(v interface{}) *apploadbalancer.HttpRouteAction {
+	routeAction := &apploadbalancer.HttpRouteAction{}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["backend_group_id"]; ok {
+		routeAction.BackendGroupId = val.(string)
+	}
+
+	if val, ok := config["timeout"]; ok {
+		d, err := parseDuration(val.(string))
+		if err == nil {
+			routeAction.Timeout = d
+		}
+	}
+
+	if val, ok := config["idle_timeout"]; ok {
+		d, err := parseDuration(val.(string))
+		if err == nil {
+			routeAction.IdleTimeout = d
+		}
+	}
+
+	if val, ok := config["prefix_rewrite"]; ok {
+		routeAction.PrefixRewrite = val.(string)
+	}
+
+	if val, ok := config["upgrade_types"]; ok {
+		upgradeTypes, err := expandALBStringListFromSchemaSet(val)
+		if err == nil {
+			routeAction.UpgradeTypes = upgradeTypes
+		}
+	}
+
+	if val, ok := config["host_rewrite"]; ok {
+		routeAction.SetHostRewrite(val.(string))
+	}
+
+	if val, ok := config["auto_host_rewrite"]; ok {
+		routeAction.SetAutoHostRewrite(val.(bool))
+	}
+
+	return routeAction
+}
+
+func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
+	routeAction := &apploadbalancer.GrpcRouteAction{}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["backend_group_id"]; ok {
+		routeAction.BackendGroupId = val.(string)
+	}
+
+	if val, ok := config["max_timeout"]; ok {
+		d, err := parseDuration(val.(string))
+		if err == nil {
+			routeAction.MaxTimeout = d
+		}
+	}
+
+	if val, ok := config["idle_timeout"]; ok {
+		d, err := parseDuration(val.(string))
+		if err == nil {
+			routeAction.IdleTimeout = d
+		}
+	}
+
+	if val, ok := config["host_rewrite"]; ok {
+		routeAction.SetHostRewrite(val.(string))
+	}
+
+	if val, ok := config["auto_host_rewrite"]; ok {
+		routeAction.SetAutoHostRewrite(val.(bool))
+	}
+	return routeAction
+}
+
+func expandALBHTTPRouteMatch(v interface{}) *apploadbalancer.HttpRouteMatch {
+	httpRouteMatch := &apploadbalancer.HttpRouteMatch{}
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["path"]; ok && len(val.([]interface{})) > 0 {
+		httpRouteMatch.Path = expandALBStringMatch(val)
+	}
+	if val, ok := config["http_method"]; ok {
+		if res, err := expandALBStringListFromSchemaSet(val); err == nil {
+			httpRouteMatch.HttpMethod = res
+		}
+	}
+	return httpRouteMatch
+}
+
+func expandALBGRPCRoute(v []interface{}) *apploadbalancer.GrpcRoute {
+	grpcRoute := &apploadbalancer.GrpcRoute{}
+	config := v[0].(map[string]interface{})
+	if val, ok := config["grpc_match"]; ok && len(val.([]interface{})) > 0 {
+		grpcRoute.Match = expandALBGRPCRouteMatch(val)
+	}
+	if val, ok := config["grpc_route_action"]; ok && len(val.([]interface{})) > 0 {
+		grpcRoute.SetRoute(expandALBGRPCRouteAction(val))
+	}
+	if val, ok := config["grpc_status_response_action"]; ok && len(val.([]interface{})) > 0 {
+		grpcRoute.SetStatusResponse(expandALBGRPCStatusResponseAction(val))
+	}
+	return grpcRoute
+}
+
+func expandALBGRPCStatusResponseAction(v interface{}) *apploadbalancer.GrpcStatusResponseAction {
+	statusResponseAction := &apploadbalancer.GrpcStatusResponseAction{}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["status"]; ok {
+		code := apploadbalancer.GrpcStatusResponseAction_Status_value[strings.ToUpper(val.(string))]
+		statusResponseAction.Status = apploadbalancer.GrpcStatusResponseAction_Status(code)
+	}
+
+	return statusResponseAction
+}
+
+func expandALBGRPCRouteMatch(v interface{}) *apploadbalancer.GrpcRouteMatch {
+	grpcRouteMatch := &apploadbalancer.GrpcRouteMatch{}
+	config := v.([]interface{})[0].(map[string]interface{})
+	if val, ok := config["fqmn"]; ok && len(val.([]interface{})) > 0 {
+		grpcRouteMatch.Fqmn = expandALBStringMatch(val)
+	}
+	return grpcRouteMatch
+}
+
+func expandALBStringMatch(v interface{}) *apploadbalancer.StringMatch {
+	stringMatch := &apploadbalancer.StringMatch{}
+	config := v.([]interface{})[0].(map[string]interface{})
+
+	if val, ok := config["exact"]; ok {
+		stringMatch.SetExactMatch(val.(string))
+	}
+
+	if val, ok := config["prefix"]; ok {
+		stringMatch.SetPrefixMatch(val.(string))
+	}
+	return stringMatch
 }
 
 func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackendGroup, error) {
@@ -358,6 +684,156 @@ func expandALBTarget(config map[string]interface{}) (*apploadbalancer.Target, er
 		target.SetIpAddress(v.(string))
 	}
 	return target, nil
+}
+
+func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModification) (*schema.Set, error) {
+	result := &schema.Set{F: resourceALBVirtualHostHeaderModificationHash}
+
+	for _, modification := range modifications {
+		flModification := map[string]interface{}{
+			"name":    modification.Name,
+			"append":  modification.GetAppend(),
+			"replace": modification.GetReplace(),
+			"remove":  modification.GetRemove(),
+		}
+
+		result.Add(flModification)
+	}
+
+	return result, nil
+}
+
+func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+
+	for _, route := range routes {
+		flRoute := map[string]interface{}{
+			"name": route.Name,
+		}
+
+		if route.GetHttp() != nil {
+			flHttpRoute := flattenALBHTTPRoute(route.GetHttp())
+			flRoute["http_route"] = flHttpRoute
+		}
+
+		if route.GetGrpc() != nil {
+			flGrpcRoute := flattenALBGRPCRoute(route.GetGrpc())
+			flRoute["grpc_route"] = flGrpcRoute
+		}
+
+		result = append(result, flRoute)
+	}
+
+	return result, nil
+}
+
+func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interface{} {
+	flRoute := make(map[string]interface{})
+
+	if route.GetMatch() != nil {
+		flMatch := []map[string]interface{}{
+			{
+				"fqmn": flattenALBStringMatch(route.Match.Fqmn),
+			},
+		}
+
+		flRoute["http_match"] = flMatch
+	}
+
+	if routeAction := route.GetRoute(); routeAction != nil {
+		flRouteAction := []map[string]interface{}{
+			{
+				"backend_group_id":  routeAction.BackendGroupId,
+				"max_timeout":       formatDuration(routeAction.MaxTimeout),
+				"idle_timeout":      formatDuration(routeAction.IdleTimeout),
+				"host_rewrite":      routeAction.GetHostRewrite(),
+				"auto_host_rewrite": routeAction.GetAutoHostRewrite(),
+			},
+		}
+
+		flRoute["grpc_route_action"] = flRouteAction
+	}
+
+	if statusResponseAction := route.GetStatusResponse(); statusResponseAction != nil {
+		flRoute["grpc_status_response_action"] = []map[string]interface{}{
+			{
+				"status": strings.ToLower(statusResponseAction.Status.String()),
+			},
+		}
+	}
+
+	return []map[string]interface{}{flRoute}
+}
+
+func flattenALBStringMatch(match *apploadbalancer.StringMatch) []map[string]interface{} {
+	flStringMatch := []map[string]interface{}{
+		{
+			"exact":  match.GetExactMatch(),
+			"prefix": match.GetPrefixMatch(),
+		},
+	}
+
+	return flStringMatch
+}
+
+func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interface{} {
+	flRoute := make(map[string]interface{})
+
+	if route.GetMatch() != nil {
+		flMatch := []map[string]interface{}{
+			{
+				"http_method": route.Match.HttpMethod,
+				"path":        flattenALBStringMatch(route.Match.Path),
+			},
+		}
+
+		flRoute["http_match"] = flMatch
+	}
+
+	if routeAction := route.GetRoute(); routeAction != nil {
+		flRouteAction := []map[string]interface{}{
+			{
+				"backend_group_id":  routeAction.BackendGroupId,
+				"timeout":           formatDuration(routeAction.Timeout),
+				"idle_timeout":      formatDuration(routeAction.IdleTimeout),
+				"prefix_rewrite":    routeAction.PrefixRewrite,
+				"upgrade_types":     routeAction.GetUpgradeTypes(),
+				"host_rewrite":      routeAction.GetHostRewrite(),
+				"auto_host_rewrite": routeAction.GetAutoHostRewrite(),
+			},
+		}
+
+		flRoute["http_route_action"] = flRouteAction
+	}
+
+	if redirectAction := route.GetRedirect(); redirectAction != nil {
+		flRedirectAction := []map[string]interface{}{
+			{
+				"replace_scheme": redirectAction.ReplaceScheme,
+				"replace_host":   redirectAction.ReplaceHost,
+				"replace_port":   int(redirectAction.ReplacePort),
+				"remove_query":   redirectAction.RemoveQuery,
+				"response_code":  strings.ToLower(redirectAction.ResponseCode.String()),
+				"replace_path":   redirectAction.GetReplacePath(),
+				"replace_prefix": redirectAction.GetReplacePrefix(),
+			},
+		}
+
+		flRoute["redirect_action"] = flRedirectAction
+	}
+
+	if directAction := route.GetDirectResponse(); directAction != nil {
+		flDirectAction := []map[string]interface{}{
+			{
+				"status": int(directAction.Status),
+				"body":   directAction.Body.GetText(),
+			},
+		}
+
+		flRoute["direct_response_action"] = flDirectAction
+	}
+
+	return []map[string]interface{}{flRoute}
 }
 
 func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {
