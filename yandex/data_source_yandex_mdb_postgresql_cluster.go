@@ -316,6 +316,27 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -397,6 +418,15 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	maintenanceWindow, err := flattenPGMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
 	}
 

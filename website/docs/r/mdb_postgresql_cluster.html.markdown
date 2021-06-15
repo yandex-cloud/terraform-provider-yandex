@@ -38,6 +38,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     }
   }
 
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
   database {
     name  = "db_name"
     owner = "user_name"
@@ -86,6 +92,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
   }
 
   database {
@@ -443,6 +453,8 @@ The following arguments are supported:
 
 - - -
 
+* `maintenance_window` - (Optional) Maintenance policy of the PostgreSQL cluster. The structure is documented below.
+
 
 The `config` block supports:
 
@@ -596,6 +608,13 @@ Possible values:
   - false (default) — the restore point refers to the first backup moment before [time].
   - true — the restore point refers to the first backup point after [time].
 
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
+* `day` - (Optional) Day of the week (in `DDD` format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+
+* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
 
 ## Attributes Reference
 

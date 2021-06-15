@@ -52,6 +52,7 @@ exported:
 * `database` - A database of the PostgreSQL cluster. The structure is documented below.
 * `host` - A host of the PostgreSQL cluster. The structure is documented below.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
+* `maintenance_window` - Maintenance window settings of the PostgreSQL cluster. The structure is documented below.
 
 The `config` block supports:
 
@@ -129,5 +130,10 @@ The `host` block supports:
 * `replication_source` - Host replication source (fqdn), case when replication_source is empty then host in HA group.
 * `priority` - Host priority in HA group.
 
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+* `hour` - Hour of the day in UTC (in `HH` format). Values is between 0 and 23.
 
 

@@ -111,6 +111,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "1"),
+
+					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.hour", "12"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -148,6 +151,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckPostgresqlConfigUpdate(pgResource),
 					testAccCheckCreatedAtAttr(pgResource),
 					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "2"),
+
+					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.day", "WED"),
+					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.hour", "22"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -170,6 +176,8 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgResource, "host.1.zone", "ru-central1-b"),
 					testAccCheckCreatedAtAttr(pgResource),
 					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "1"),
+
+					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -664,6 +672,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     test_key = "test_value"
   }
 
+  maintenance_window {
+	type = "WEEKLY"
+	day  = "SAT"
+	hour = 12
+  }
+
   config {
     version = 12
 
@@ -867,6 +881,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     new_key = "new_value"
   }
 
+  maintenance_window {
+	type = "WEEKLY"
+    day  = "WED"
+	hour = 22
+  }
+
   config {
     version = 12
 
@@ -971,6 +991,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   labels = {
     new_key = "new_value"
+  }
+
+  maintenance_window {
+    type = "ANYTIME"
   }
 
   config {

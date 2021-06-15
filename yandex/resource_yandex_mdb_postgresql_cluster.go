@@ -395,6 +395,31 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: pgMaintenanceWindowSchemaValidateFunc,
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -472,6 +497,15 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 	if err := d.Set("host_master_name", hostMasterName); err != nil {
+		return err
+	}
+
+	maintenanceWindow, err := flattenPGMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
 	}
 
@@ -563,6 +597,10 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 
 	if err := updateMasterPGClusterHosts(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
+	}
+
+	if err := updatePGClusterAfterCreate(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
 	}
 
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
@@ -703,6 +741,40 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	return req, nil
 }
 
+func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
+
+	maintenanceWindow, err := expandPGMaintenanceWindow(d)
+	if err != nil {
+		return fmt.Errorf("error expanding maintenance_window while updating PostgreSQL after creation: %s", err)
+	}
+
+	if maintenanceWindow == nil {
+		return nil
+	}
+	updatePath := []string{"maintenance_window"}
+	req := &postgresql.UpdateClusterRequest{
+		ClusterId:         d.Id(),
+		MaintenanceWindow: maintenanceWindow,
+		UpdateMask:        &field_mask.FieldMask{Paths: updatePath},
+	}
+
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, req))
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster after creation %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for operation to update PostgreSQL Cluster after creation %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
 func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
@@ -769,6 +841,7 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		"config.0.backup_window_start":     "config_spec.backup_window_start",
 		"config.0.resources":               "config_spec.resources",
 		"security_group_ids":               "security_group_ids",
+		"maintenance_window":               "maintenance_window",
 	}
 
 	if updateFieldConfigName != "" {
@@ -826,13 +899,19 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
+	maintenanceWindow, err := expandPGMaintenanceWindow(d)
+	if err != nil {
+		return nil, updateFieldConfigName, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
+	}
+
 	req := &postgresql.UpdateClusterRequest{
-		ClusterId:        d.Id(),
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		ConfigSpec:       configSpec,
-		SecurityGroupIds: securityGroupIds,
+		ClusterId:         d.Id(),
+		Name:              d.Get("name").(string),
+		Description:       d.Get("description").(string),
+		Labels:            labels,
+		ConfigSpec:        configSpec,
+		MaintenanceWindow: maintenanceWindow,
+		SecurityGroupIds:  securityGroupIds,
 	}
 
 	return req, updateFieldConfigName, nil

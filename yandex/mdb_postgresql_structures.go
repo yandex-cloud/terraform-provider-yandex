@@ -1181,6 +1181,75 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 	return out
 }
 
+func flattenPGMaintenanceWindow(mw *postgresql.MaintenanceWindow) ([]interface{}, error) {
+	maintenanceWindow := map[string]interface{}{}
+	if mw != nil {
+		switch p := mw.GetPolicy().(type) {
+		case *postgresql.MaintenanceWindow_Anytime:
+			maintenanceWindow["type"] = "ANYTIME"
+			// do nothing
+		case *postgresql.MaintenanceWindow_WeeklyMaintenanceWindow:
+			maintenanceWindow["type"] = "WEEKLY"
+			maintenanceWindow["hour"] = p.WeeklyMaintenanceWindow.Hour
+			maintenanceWindow["day"] = postgresql.WeeklyMaintenanceWindow_WeekDay_name[int32(p.WeeklyMaintenanceWindow.GetDay())]
+		default:
+			return nil, fmt.Errorf("unsupported PostgreSQL maintenance policy type")
+		}
+	}
+
+	return []interface{}{maintenanceWindow}, nil
+}
+
+func expandPGMaintenanceWindow(d *schema.ResourceData) (*postgresql.MaintenanceWindow, error) {
+	if _, ok := d.GetOkExists("maintenance_window"); !ok {
+		return nil, nil
+	}
+
+	out := &postgresql.MaintenanceWindow{}
+	typeMW, _ := d.GetOk("maintenance_window.0.type")
+	if typeMW == "ANYTIME" {
+		if hour, ok := d.GetOk("maintenance_window.0.hour"); ok && hour != "" {
+			return nil, fmt.Errorf("hour should be not set, when using ANYTIME")
+		}
+		if day, ok := d.GetOk("maintenance_window.0.day"); ok && day != "" {
+			return nil, fmt.Errorf("day should be not set, when using ANYTIME")
+		}
+		out.Policy = &postgresql.MaintenanceWindow_Anytime{
+			Anytime: &postgresql.AnytimeMaintenanceWindow{},
+		}
+	} else if typeMW == "WEEKLY" {
+		hour := d.Get("maintenance_window.0.hour").(int)
+		dayString := d.Get("maintenance_window.0.day").(string)
+
+		day, ok := postgresql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+		if !ok || day == 0 {
+			return nil, fmt.Errorf(`day value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")`)
+		}
+
+		out.Policy = &postgresql.MaintenanceWindow_WeeklyMaintenanceWindow{
+			WeeklyMaintenanceWindow: &postgresql.WeeklyMaintenanceWindow{
+				Hour: int64(hour),
+				Day:  postgresql.WeeklyMaintenanceWindow_WeekDay(day),
+			},
+		}
+	} else {
+		return nil, fmt.Errorf("maintenance_window.0.type should be ANYTIME or WEEKLY")
+	}
+
+	return out, nil
+}
+
+func pgMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {
+	dayString := v.(string)
+	day, ok := postgresql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+	if !ok || day == 0 {
+		es = append(es, fmt.Errorf(`expected %s value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"). Current value is %v`, k, v))
+		return
+	}
+
+	return
+}
+
 func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.ConfigSpec) (updateFieldConfigName string, err error) {
 
 	version := configSpec.Version
