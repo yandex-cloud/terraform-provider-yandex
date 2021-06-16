@@ -148,6 +148,12 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"network_acceleration_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"standard", "software_accelerated"}, false),
+						},
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
@@ -723,6 +729,11 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
 	}
 
+	ns, err := getNodeGroupTemplateNetworkSettings(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
+	}
+
 	tpl := &k8s.NodeTemplate{
 		PlatformId:            h.GetString("platform_id"),
 		ResourcesSpec:         getNodeGroupResourceSpec(d),
@@ -732,6 +743,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		SchedulingPolicy:      getNodeGroupTemplateSchedulingPolicy(d),
 		NetworkInterfaceSpecs: getNodeGroupNetworkInterfaceSpecs(d),
 		PlacementPolicy:       getNodeGroupTemplatePlacementPolicy(d),
+		NetworkSettings:       ns,
 	}
 
 	return tpl, nil
@@ -755,6 +767,19 @@ func getNodeGroupTemplatePlacementPolicy(d *schema.ResourceData) *k8s.PlacementP
 	}
 
 	return nil
+}
+
+func getNodeGroupTemplateNetworkSettings(d *schema.ResourceData) (*k8s.NodeTemplate_NetworkSettings, error) {
+	if v, ok := d.GetOk("instance_template.0.network_acceleration_type"); ok {
+		typeVal, ok := k8s.NodeTemplate_NetworkSettings_Type_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'network_acceleration_type' should be 'standard' or 'software_accelerated'', not '%s'", v)
+		}
+		return &k8s.NodeTemplate_NetworkSettings{
+			Type: k8s.NodeTemplate_NetworkSettings_Type(typeVal),
+		}, nil
+	}
+	return nil, nil
 }
 
 func getNodeGroupNetworkInterfaceSpecs(d *schema.ResourceData) []*k8s.NetworkInterfaceSpec {
@@ -929,6 +954,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.scheduling_policy.0.preemptible":       "node_template.scheduling_policy.preemptible",
 	"instance_template.0.placement_policy.0.placement_group_id": "node_template.placement_policy.placement_group_id",
 	"instance_template.0.network_interface":                     "node_template.network_interface_specs",
+	"instance_template.0.network_acceleration_type":             "node_template.network_settings",
 	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
@@ -1057,14 +1083,15 @@ func resourceYandexKubernetesNodeGroupDelete(d *schema.ResourceData, meta interf
 
 func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]interface{} {
 	tpl := map[string]interface{}{
-		"platform_id":       ngTpl.GetPlatformId(),
-		"nat":               ngTpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4, //nolint
-		"resources":         flattenKubernetesNodeGroupTemplateResources(ngTpl.GetResourcesSpec()),
-		"boot_disk":         flattenKubernetesNodeGroupTemplateBootDisk(ngTpl.GetBootDiskSpec()),
-		"metadata":          ngTpl.GetMetadata(),
-		"scheduling_policy": flattenKubernetesNodeGroupTemplateSchedulingPolicy(ngTpl.GetSchedulingPolicy()),
-		"network_interface": flattenKubernetesNodeGroupNetworkInterfaces(ngTpl.GetNetworkInterfaceSpecs()),
-		"placement_policy":  flattenKubernetesNodeGroupTemplatePlacementPolicy(ngTpl.GetPlacementPolicy()),
+		"platform_id":               ngTpl.GetPlatformId(),
+		"nat":                       ngTpl.GetV4AddressSpec().GetOneToOneNatSpec().GetIpVersion() == k8s.IpVersion_IPV4, //nolint
+		"resources":                 flattenKubernetesNodeGroupTemplateResources(ngTpl.GetResourcesSpec()),
+		"boot_disk":                 flattenKubernetesNodeGroupTemplateBootDisk(ngTpl.GetBootDiskSpec()),
+		"metadata":                  ngTpl.GetMetadata(),
+		"scheduling_policy":         flattenKubernetesNodeGroupTemplateSchedulingPolicy(ngTpl.GetSchedulingPolicy()),
+		"network_interface":         flattenKubernetesNodeGroupNetworkInterfaces(ngTpl.GetNetworkInterfaceSpecs()),
+		"placement_policy":          flattenKubernetesNodeGroupTemplatePlacementPolicy(ngTpl.GetPlacementPolicy()),
+		"network_acceleration_type": strings.ToLower(ngTpl.GetNetworkSettings().GetType().String()),
 	}
 
 	return []map[string]interface{}{tpl}

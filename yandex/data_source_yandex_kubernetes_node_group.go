@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -137,6 +136,10 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 									},
 								},
 							},
+						},
+						"network_acceleration_type": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 						"metadata": {
 							Type:     schema.TypeMap,

@@ -77,6 +77,7 @@ The `instance_template` block supports:
 * `resources.0.gpus` - Number of GPU cores allocated to the instance.
 
 * `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
+* `network_acceleration_type` - Type of network acceleration. Values: `standard`, `software_accelerated`.
 
 * `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 

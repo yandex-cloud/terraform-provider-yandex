@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/fatih/structs"
@@ -388,6 +389,43 @@ func TestAccKubernetesNodeGroup_dualStack(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_networkSettings", true)
+
+	nodeResourceStandard := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceSoftwareAcceleration := nodeResourceStandard
+
+	nodeResourceStandard.NetworkAccelerationType = "standard"
+	nodeResourceSoftwareAcceleration.NetworkAccelerationType = "software_accelerated"
+
+	nodeResourceFullName := nodeResourceStandard.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceSoftwareAcceleration),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceSoftwareAcceleration, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceStandard),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceSoftwareAcceleration, true, false),
+				),
+			},
+			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
 type resourceNodeGroupInfo struct {
 	ClusterResourceName   string
 	NodeGroupResourceName string
@@ -417,6 +455,8 @@ type resourceNodeGroupInfo struct {
 	SubnetName        string
 
 	DualStack bool
+
+	NetworkAccelerationType string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -636,6 +676,10 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
       placement_group_id = {{.PlacementGroupId}}
     }
     {{end}}
+
+    {{if .NetworkAccelerationType}}
+	network_acceleration_type = "{{.NetworkAccelerationType}}"
+	{{end}}
   }
 
   {{.ScalePolicy}}
@@ -737,6 +781,8 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible", info.Preemptible),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.scheduling_policy.0.preemptible",
 				strconv.FormatBool(tpl.GetSchedulingPolicy().GetPreemptible())),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_acceleration_type",
+				strings.ToLower(tpl.NetworkSettings.Type.String())),
 
 			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.current_version",
 				versionInfo.GetCurrentVersion()),

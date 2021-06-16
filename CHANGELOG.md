@@ -5,6 +5,7 @@ FEATURES:
 ENHANCEMENTS:
 * mdb: add `maintenance_window` section in `yandex_mdb_mongodb_cluster`, `yandex_mdb_postgresql_cluster` resource and data source
 * dataproc: added support for properties modification
+* k8s: support `network_acceleration_type` in k8s node group resource and data source.
 
 BUG FIXES:
 * mdb: fixed some errors in implementation of Kafka topics modification

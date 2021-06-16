@@ -128,6 +128,7 @@ The `instance_template` block supports:
 * `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
 
 * `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
+* `network_acceleration_type` - (Optional) Type of network acceleration. Values: `standard`, `software_accelerated`.
 
 ---
 

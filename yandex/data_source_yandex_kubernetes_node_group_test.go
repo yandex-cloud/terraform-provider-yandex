@@ -164,6 +164,32 @@ func TestAccDataSourceKubernetesNodeGroup_dualStack(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesNodeGroup_networkSettingsSoftwareAccelerated(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroup_networkSettingsSoftwareAccelerated", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
+	nodeResource.NetworkAccelerationType = "software_accelerated"
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
+					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
+					testAccCheckCreatedAtAttr(nodeResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 const dataNodeGroupConfigTemplate = `
 data "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   name = "${yandex_kubernetes_node_group.{{.NodeGroupResourceName}}.name}"
