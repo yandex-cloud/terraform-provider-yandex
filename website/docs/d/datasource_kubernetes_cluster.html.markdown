@@ -65,6 +65,7 @@ to access Container Registry or to push node logs and metrics.
 
 * `kms_provider` - cluster KMS provider parameters.
 * `log_group_id` - Log group where cluster stores cluster system logs, like audit, events, or controlplane logs.
+* `network_implementation` - (Optional) Network Implementation options. The structure is documented below.
 
 ---
 
@@ -134,5 +135,11 @@ component (master or node group) should be upgraded.
 The `kms_provider` block contains:
 
 * `key_id` - KMS key ID.
+
+---
+
+The `network_implementation` block can contain one of:
+
+* `cilium` - Cilium network implementation configuration. No options exist.
 
 ---

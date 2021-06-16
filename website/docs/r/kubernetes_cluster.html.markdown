@@ -177,7 +177,7 @@ that will cause problems for cluster and related node group deletion.
 * `health` - (Computed) Health of the Kubernetes cluster.
 * `created_at` - (Computed) The Kubernetes cluster creation timestamp.
 * `log_group_id` - Log group where cluster stores cluster system logs, like audit, events, or controlplane logs.
-
+* `network_implementation` - (Optional) Network Implementation options. The structure is documented below.
 ---
 
 The `master` block supports:
@@ -256,6 +256,12 @@ component (master or node group) should be upgraded.
 The `kms_provider` block contains:
 
 * `key_id` - KMS key ID.
+
+---
+
+The `network_implementation` block can contain one of:
+
+* `cilium` - (Optional) Cilium network implementation configuration. No options exist.
 
 ## Timeouts
 

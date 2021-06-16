@@ -61,6 +61,34 @@ func TestAccDataSourceKubernetesClusterRegional_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium", true)
+
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
+	clusterResource.NetworkImplementationCilium = true
+	clusterResource.MasterVersion = "1.20"
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					testAccCheckResourceIDField(clusterDataSourceFullName, "cluster_id"),
+					checkClusterAttributes(&cluster, &clusterResource, false),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 const dataClusterConfigTemplate = `
 data "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   name = "${yandex_kubernetes_cluster.{{.ClusterResourceName}}.name}" 

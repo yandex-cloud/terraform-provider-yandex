@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -328,6 +329,26 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"network_implementation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cilium": {
+							Type:          schema.TypeList,
+							MaxItems:      1,
+							Optional:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -440,6 +461,10 @@ func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interfac
 }
 
 func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClusterRequest, error) {
+	if d.HasChange("network_implementation") {
+		return nil, errors.New("value of network_implementation can only be set upon resource creation")
+	}
+
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating Kubernetes cluster: %s", err)
@@ -541,6 +566,15 @@ func prepareCreateKubernetesClusterRequest(d *schema.ResourceData, meta *Config)
 		ReleaseChannel:       releaseChannel,
 		NetworkPolicy:        networkPolicy,
 		KmsProvider:          getKubernetesClusterKMSProvider(d),
+	}
+
+	_, ok := d.GetOk("network_implementation.0.cilium")
+	if ok {
+		req.NetworkImplementation = &k8s.CreateClusterRequest_Cilium{
+			Cilium: &k8s.Cilium{
+				RoutingMode: k8s.Cilium_TUNNEL,
+			},
+		}
 	}
 
 	return req, nil
@@ -766,6 +800,17 @@ func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.Resource
 			}); err != nil {
 				return err
 			}
+		}
+	}
+
+	if networkImplementation := cluster.GetNetworkImplementation(); networkImplementation != nil {
+		switch networkImplementation.(type) {
+		case *k8s.Cluster_Cilium:
+			d.Set("network_implementation", []map[string]interface{}{
+				{
+					"cilium": []map[string]interface{}{{}},
+				},
+			})
 		}
 	}
 

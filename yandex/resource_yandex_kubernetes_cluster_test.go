@@ -453,6 +453,32 @@ func TestAccKubernetesCluster_wrong(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_networkImplementationCilium", true)
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterResource.NetworkImplementationCilium = true
+	clusterResource.MasterVersion = "1.20"
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.zonal"),
+		},
+	})
+}
+
 func randomResourceName(tp string) string {
 	return fmt.Sprintf("test_%s_%s", tp, acctest.RandString(10))
 }
@@ -605,6 +631,10 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			return fmt.Errorf("expected zonal cluster, but got regional")
 		}
 
+		if info.NetworkImplementationCilium == true && cluster.GetNetworkImplementation() == nil {
+			return fmt.Errorf("expected network implementation, but got none")
+		}
+
 		if !info.zonal && regionalMaster == nil {
 			return fmt.Errorf("expected regional cluster, but got zonal")
 		}
@@ -649,6 +679,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock()),
 			resource.TestCheckResourceAttrSet(resourceFullName, "log_group_id"),
+		}
+
+		if networkImplementation := cluster.GetNetworkImplementation(); networkImplementation != nil {
+			switch networkImplementation.(type) {
+			case *k8s.Cluster_Cilium:
+				resource.TestCheckResourceAttrSet(resourceFullName, "network_implementation.0.cilium.0")
+			}
 		}
 
 		if info.SecurityGroups != "" {
@@ -878,6 +915,8 @@ type resourceClusterInfo struct {
 	// For dual stack clusters.
 	NetworkFolderID string
 	DualStack       bool
+
+	NetworkImplementationCilium bool
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1075,6 +1114,13 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   {{end}}
   {{if .ServiceIPv6Range}}
   service_ipv6_range = "{{.ServiceIPv6Range}}"
+  {{end}}
+
+  {{if .NetworkImplementationCilium}}
+  network_implementation {
+    cilium {
+    }
+  }
   {{end}}
 }
 `
