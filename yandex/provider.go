@@ -131,6 +131,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_alb_backend_group":            dataSourceYandexALBBackendGroup(),
 			"yandex_alb_http_router":              dataSourceYandexALBHTTPRouter(),
 			"yandex_alb_target_group":             dataSourceYandexALBTargetGroup(),
+			"yandex_alb_virtual_host":             dataSourceYandexALBVirtualHost(),
 			"yandex_api_gateway":                  dataSourceYandexApiGateway(),
 			"yandex_client_config":                dataSourceYandexClientConfig(),
 			"yandex_container_registry":           dataSourceYandexContainerRegistry(),

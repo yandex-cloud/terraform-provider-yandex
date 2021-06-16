@@ -157,8 +157,8 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 
 const albVirtualHostConfigTemplate = `
 {{ if .IsDataSource }}
-data "yandex_alb_virtual_host" "test-vh-ds" {
-  name = yandex_alb_virtual_host.test-vh.name
+data "yandex_alb_virtual_host" "test-virtual-host-ds" {
+  virtual_host_id = yandex_alb_virtual_host.test-vh.id
 }		
 {{ end }}
 resource "yandex_alb_http_router" "test-router" {

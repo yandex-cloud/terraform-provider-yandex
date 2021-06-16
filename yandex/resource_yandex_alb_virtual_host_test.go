@@ -280,10 +280,15 @@ func testAccCheckALBVirtualHostDestroy(s *terraform.State) error {
 		if rs.Type != "yandex_alb_virtual_host" {
 			continue
 		}
+		httpRouterID := rs.Primary.Attributes["http_router_id"]
+		virtualHostName := rs.Primary.Attributes["name"]
+		if httpRouterID == "" || virtualHostName == "" {
+			httpRouterID, virtualHostName = retrieveDataFromVirtualHostID(rs.Primary.ID)
+		}
 
 		_, err := config.sdk.ApplicationLoadBalancer().VirtualHost().Get(context.Background(), &apploadbalancer.GetVirtualHostRequest{
-			HttpRouterId:    rs.Primary.Attributes["http_router_id"],
-			VirtualHostName: rs.Primary.Attributes["name"],
+			HttpRouterId:    httpRouterID,
+			VirtualHostName: virtualHostName,
 		})
 		if status.Code(err) != codes.NotFound {
 			return fmt.Errorf("Virtual Host still exists")
