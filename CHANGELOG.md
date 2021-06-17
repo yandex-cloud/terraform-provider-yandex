@@ -1,4 +1,6 @@
-## 0.60.0 (Unreleased)
+## 0.61.0 (Unreleased)
+
+## 0.60.0 (June 17, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_virtual_host`
 * **New Resource:** `yandex_alb_virtual_host`
