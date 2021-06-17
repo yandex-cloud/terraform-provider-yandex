@@ -2,6 +2,8 @@
 FEATURES:
 * **New Data Source:** `yandex_alb_virtual_host`
 * **New Resource:** `yandex_alb_virtual_host`
+* **New Data Source:** `yandex_mdb_elasticsearch_cluster`
+* **New Resource:** `yandex_mdb_elasticsearch_cluster`
 
 ENHANCEMENTS:
 * mdb: add `maintenance_window` section in `yandex_mdb_mongodb_cluster`, `yandex_mdb_postgresql_cluster` resource and data source
