@@ -29,6 +29,8 @@ func init() {
 			"yandex_mdb_postgresql_cluster",
 			"yandex_mdb_redis_cluster",
 			"yandex_mdb_kafka_cluster",
+			"yandex_ydb_database_serverless",
+			"yandex_ydb_database_dedicated",
 			"yandex_lb_target_group",
 			"yandex_vpc_security_group",
 		},
