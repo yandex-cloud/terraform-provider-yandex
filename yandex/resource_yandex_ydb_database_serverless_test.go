@@ -38,7 +38,7 @@ func testSweepYDBDatabaseServerless(_ string) error {
 	result := &multierror.Error{}
 	for _, c := range resp.Databases {
 		// only serverless, other types are swept in a separate sweeper
-		if _, ok := c.DatabaseType.(*ydb.Database_ServerlessDatabase); !ok {
+		if _, ok := c.DatabaseType.(*ydb.Database_ServerlessDatabase); ok {
 			if !sweepYDBSServerlessDatabase(conf, c.Id) {
 				result = multierror.Append(result, fmt.Errorf("failed to sweep YDB serverless database%q", c.Id))
 			}
