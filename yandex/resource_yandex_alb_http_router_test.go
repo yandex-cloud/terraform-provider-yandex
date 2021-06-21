@@ -18,11 +18,9 @@ const albRouterResource = "yandex_alb_http_router.test-router"
 
 func init() {
 	resource.AddTestSweepers("yandex_alb_http_router", &resource.Sweeper{
-		Name: "yandex_alb_http_router",
-		F:    testSweepALBHTTPRouters,
-		Dependencies: []string{
-			"yandex_alb_virtual_host",
-		},
+		Name:         "yandex_alb_http_router",
+		F:            testSweepALBHTTPRouters,
+		Dependencies: []string{},
 	})
 }
 

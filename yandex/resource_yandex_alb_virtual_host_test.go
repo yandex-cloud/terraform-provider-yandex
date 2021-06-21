@@ -3,76 +3,16 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
-	"strings"
 	"testing"
 )
 
 const albVHResource = "yandex_alb_virtual_host.test-vh"
-
-func init() {
-	resource.AddTestSweepers("yandex_alb_virtual_host", &resource.Sweeper{
-		Name:         "yandex_alb_virtual_host",
-		F:            testSweepALBVirtualHosts,
-		Dependencies: []string{},
-	})
-}
-
-func testSweepALBVirtualHosts(_ string) error {
-	log.Printf("[DEBUG] Sweeping VirtualHost")
-	conf, err := configForSweepers()
-	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
-	}
-
-	result := &multierror.Error{}
-
-	req := &apploadbalancer.ListHttpRoutersRequest{FolderId: conf.FolderID}
-	routerIt := conf.sdk.ApplicationLoadBalancer().HttpRouter().HttpRouterIterator(conf.Context(), req)
-	for routerIt.Next() {
-		routerId := routerIt.Value().GetId()
-
-		req := &apploadbalancer.ListVirtualHostsRequest{HttpRouterId: routerId}
-		it := conf.sdk.ApplicationLoadBalancer().VirtualHost().VirtualHostIterator(conf.Context(), req)
-		for it.Next() {
-			name := it.Value().GetName()
-			id := routerId + "/" + name
-
-			if !sweepALBVirtualHost(conf, id) {
-				result = multierror.Append(result, fmt.Errorf("failed to sweep ALB Virtual Host %q", id))
-			}
-		}
-	}
-
-	return result.ErrorOrNil()
-}
-
-func sweepALBVirtualHost(conf *Config, id string) bool {
-	return sweepWithRetry(sweepALBVirtualHostOnce, conf, "ALB Virtual Host", id)
-}
-
-func sweepALBVirtualHostOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexALBVirtualHostDefaultTimeout)
-	defer cancel()
-
-	attrs := strings.Split(id, "/")
-	if len(attrs) < 2 {
-		return fmt.Errorf("failed to sweap ALB Virtual Host, wrong id: %q", id)
-	}
-
-	op, err := conf.sdk.ApplicationLoadBalancer().VirtualHost().Delete(ctx, &apploadbalancer.DeleteVirtualHostRequest{
-		HttpRouterId:    attrs[0],
-		VirtualHostName: attrs[1],
-	})
-	return handleSweepOperation(ctx, conf, op, err)
-}
 
 func albVirtualHostImportStep() resource.TestStep {
 	return resource.TestStep{
