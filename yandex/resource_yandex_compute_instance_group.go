@@ -86,9 +86,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"initialize_params": {
-										Type:     schema.TypeList,
-										Required: true,
-										MaxItems: 1,
+										Type:          schema.TypeList,
+										Optional:      true,
+										MaxItems:      1,
+										ConflictsWith: []string{"instance_template.boot_disk.disk_id"},
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"description": {
@@ -125,6 +126,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 											},
 										},
+									},
+
+									"disk_id": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"instance_template.boot_disk.initialize_params"},
 									},
 
 									"mode": {
@@ -171,6 +178,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Computed: true,
+									},
+
+									"nat_ip_address": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 
 									"ipv6": {
@@ -311,7 +323,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"initialize_params": {
 										Type:     schema.TypeList,
-										Required: true,
+										Optional: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -345,6 +357,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 											},
 										},
+									},
+
+									"disk_id": {
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 
 									"mode": {
@@ -518,6 +535,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -590,6 +615,14 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Optional: true,
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
+												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
@@ -745,6 +778,11 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"max_checking_health_duration": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
 			"load_balancer": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -776,6 +814,52 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						"status_message": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			"application_load_balancer": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target_group_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"target_group_description": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"target_group_labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"target_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status_message": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							ForceNew: true,
 						},
 					},
 				},
@@ -1012,9 +1096,22 @@ func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.I
 		return err
 	}
 
-	healthChecks, err := flattenInstanceGroupHealthChecks(instanceGroup)
+	applicationLoadBalancerSpec, err := flattenInstanceGroupApplicationLoadBalancerSpec(instanceGroup)
 	if err != nil {
 		return err
+	}
+
+	if err := d.Set("application_load_balancer", applicationLoadBalancerSpec); err != nil {
+		return err
+	}
+
+	healthChecks, maxDuration, err := flattenInstanceGroupHealthChecks(instanceGroup)
+	if err != nil {
+		return err
+	}
+
+	if maxDuration != nil {
+		d.Set("max_checking_health_duration", maxDuration)
 	}
 
 	inst, err := flattenInstanceGroupManagedInstances(instances)
@@ -1118,6 +1215,11 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 		return nil, fmt.Errorf("Error creating 'load_balancer_spec' object of api request: %s", err)
 	}
 
+	applicationLoadBalancerSpec, err := expandInstanceGroupApplicationLoadBalancerSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating 'application_load_balancer' object of api request: %s", err)
+	}
+
 	variables, err := expandInstanceGroupVariables(d.Get("variables"))
 	if err != nil {
 		return nil, fmt.Errorf("Error creating 'variables' object of api request: %s", err)
@@ -1126,19 +1228,20 @@ func prepareCreateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 	deletionProtection := d.Get("deletion_protection")
 
 	req := &instancegroup.CreateInstanceGroupRequest{
-		FolderId:           folderID,
-		Name:               d.Get("name").(string),
-		Description:        d.Get("description").(string),
-		Labels:             labels,
-		InstanceTemplate:   instanceTemplate,
-		ScalePolicy:        scalePolicy,
-		DeployPolicy:       deployPolicy,
-		AllocationPolicy:   allocationPolicy,
-		LoadBalancerSpec:   loadBalancerSpec,
-		HealthChecksSpec:   healthChecksSpec,
-		ServiceAccountId:   d.Get("service_account_id").(string),
-		Variables:          variables,
-		DeletionProtection: deletionProtection.(bool),
+		FolderId:                    folderID,
+		Name:                        d.Get("name").(string),
+		Description:                 d.Get("description").(string),
+		Labels:                      labels,
+		InstanceTemplate:            instanceTemplate,
+		ScalePolicy:                 scalePolicy,
+		DeployPolicy:                deployPolicy,
+		AllocationPolicy:            allocationPolicy,
+		LoadBalancerSpec:            loadBalancerSpec,
+		ApplicationLoadBalancerSpec: applicationLoadBalancerSpec,
+		HealthChecksSpec:            healthChecksSpec,
+		ServiceAccountId:            d.Get("service_account_id").(string),
+		Variables:                   variables,
+		DeletionProtection:          deletionProtection.(bool),
 	}
 
 	return req, nil

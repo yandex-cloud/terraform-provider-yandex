@@ -74,6 +74,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 										Computed: true,
 									},
 
+									"disk_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
 									"initialize_params": {
 										Type:     schema.TypeList,
 										Computed: true,
@@ -165,6 +170,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 									"nat": {
 										Type:     schema.TypeBool,
+										Computed: true,
+									},
+
+									"nat_ip_address": {
+										Type:     schema.TypeString,
 										Computed: true,
 									},
 
@@ -274,6 +284,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"mode": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"disk_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -464,6 +479,14 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeFloat,
 													Computed: true,
 												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -528,6 +551,14 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 												},
 												"target": {
 													Type:     schema.TypeFloat,
+													Computed: true,
+												},
+												"folder_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"service": {
+													Type:     schema.TypeString,
 													Computed: true,
 												},
 											},
@@ -668,6 +699,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"max_checking_health_duration": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
 			"load_balancer": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -694,6 +730,46 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 						"status_message": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			"application_load_balancer": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target_group_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"target_group_description": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"target_group_labels": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"target_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status_message": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_opening_traffic_duration": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 					},
@@ -808,6 +884,24 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				},
 			},
 
+			"application_balancer_state": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status_message": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -863,6 +957,14 @@ func flattenInstanceGroupDataSource(d *schema.ResourceData, instanceGroup *insta
 		return err
 	}
 	if err := d.Set("load_balancer_state", loadBalancerState); err != nil {
+		return err
+	}
+
+	applicationLoadBalancerState, err := flattenInstanceGroupApplicationLoadBalancerState(instanceGroup)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("application_load_balancer", applicationLoadBalancerState); err != nil {
 		return err
 	}
 

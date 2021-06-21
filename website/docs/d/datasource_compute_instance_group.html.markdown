@@ -35,8 +35,11 @@ The following arguments are supported:
 * `folder_id` - The ID of the folder that the instance group belongs to.
 * `labels` - A set of key/value label pairs to assign to the instance group.
 * `health_check` - Health check specification. The structure is documented below.
+* `max_checking_health_duration` - Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 * `load_balancer` - Load balancing specification. The structure is documented below.
+
+* `application_load_balancer` - Application Load balancing (L7) specifications. The structure is documented below.
 
 * `deploy_policy` - The deployment policy of the instance group. The structure is documented below.
 
@@ -51,6 +54,8 @@ The following arguments are supported:
 
 * `load_balancer_state` - Information about which entities can be attached to this load balancer. The structure is documented below.
 
+* `application_load_balancer_state` - Information about which entities can be attached to this application load balancer. The structure is documented below.
+  
 * `created_at` - The instance group creation timestamp.
 
 * `variables` - A set of key/value  variables pairs to assign to the instance group.
@@ -61,6 +66,12 @@ The following arguments are supported:
 
 ---
 
+The `application_load_balancer_state` block supports:
+
+* `target_group_id` - The ID of the target group used for load balancing.
+* `status_message` - The status message of the target group.
+
+---
 The `load_balancer_state` block supports:
 
 * `target_group_id` - The ID of the target group used for load balancing.
@@ -149,6 +160,10 @@ This type of metric must have the `zone_id` label.
 
 * `labels` - A map of labels of metric.
 
+* `folder_id` - Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+
+* `service` - Service of custom metric in Yandex Monitoring that should be used for scaling.
+
 ---
 
 The `instance_template` block supports:
@@ -176,6 +191,7 @@ The `boot_disk` block supports:
 
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
+* `disk_id` - ID of the existing disk. To set use variables.
 * `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
 
 ---
@@ -213,7 +229,8 @@ The `network_interface` block supports:
 * `network_id` - The ID of the network.
 * `subnet_ids` - The IDs of the subnets.
 * `ipv4` - Is IPv4 address assigned.
-* `nat` - A public address that can be used to access the internet over NAT.
+* `nat` - Flag for using NAT.
+* `nat_ip_address` - A public address that can be used to access the internet over NAT. Use `variables` to set.
 * `security_group_ids` - Security group ids for network interface.
 * `ip_address` - Manual set static IP address.
 * `ipv6_address` - Manual set static IPv6 address.
@@ -304,6 +321,18 @@ has elapsed and all health checks are passed.
 
 ---
 
+The `application_load_balancer` block supports:
+
+* `target_group_name` - The name of the target group.
+* `target_group_description` - A description of the target group.
+* `target_group_labels` - A set of key/value label pairs.
+* `target_group_id` - The ID of the target group.
+* `status_message` - The status message of the target group.
+* `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
+
+---
+
 The `load_balancer` block supports:
 
 * `target_group_name` - The name of the target group.
@@ -311,6 +340,7 @@ The `load_balancer` block supports:
 * `target_group_labels` - A set of key/value label pairs.
 * `target_group_id` - The ID of the target group.
 * `status_message` - The status message of the target group.
+* `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 ---
 

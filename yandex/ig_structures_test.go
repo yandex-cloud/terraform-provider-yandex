@@ -486,7 +486,7 @@ func TestFlattenInstanceGroupHealthChecks(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res, err := flattenInstanceGroupHealthChecks(&instancegroup.InstanceGroup{HealthChecksSpec: tt.spec})
+			res, _, err := flattenInstanceGroupHealthChecks(&instancegroup.InstanceGroup{HealthChecksSpec: tt.spec})
 
 			if err != nil {
 				t.Errorf("%v", err)
@@ -1000,8 +1000,10 @@ func TestExpandInstanceGroupNetworkInterface(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := expandInstanceGroupNetworkInterfaceSpec(tc.data)
-
+			result, err := expandInstanceGroupNetworkInterfaceSpec(tc.data)
+			if err != nil {
+				t.Fatalf(err.Error())
+			}
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
 			}

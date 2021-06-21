@@ -1,4 +1,11 @@
 ## 0.61.0 (Unreleased)
+ENHANCEMENTS:
+* add `application_load_balancer` entity in `yandex_compute_instance_group` resource and data source
+* add `max_checking_health_duration` and `max_opening_traffic_duration` in `yandex_compute_instance_group`
+* add `service` attribute to `auto_scale.custom_rule` in `yandex_compute_instance_group` resource and data source
+* add `folder_id` attribute to `auto_scale.custom_rule` in `yandex_compute_instance_group` resource and data source
+* add `nat_ip_address` attribute to `instance_template.network_interface` in `yandex_compute_instance_group` resource and data source
+* add `disk_id` attribute to `instance_template.boot_disk`,`instance_template.secondary_disk` in `yandex_compute_instance_group`
 
 ## 0.60.0 (June 17, 2021)
 FEATURES:

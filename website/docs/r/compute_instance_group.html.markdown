@@ -93,7 +93,11 @@ The following arguments are supported:
 
 * `health_check` - (Optional) Health check specifications. The structure is documented below.
 
+* `max_checking_health_duration` - (Optional) Timeout for waiting for the VM to become healthy. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
 * `load_balancer` - (Optional) Load balancing specifications. The structure is documented below.
+
+* `application_load_balancer` - (Optional) Application Load balancing (L7) specifications. The structure is documented below.
 
 * `description` - (Optional) A description of the instance group.
 
@@ -105,6 +109,18 @@ The following arguments are supported:
 
 ---
 
+The `application_load_balancer` block supports:
+
+* `target_group_name` - (Optional) The name of the target group.
+
+* `target_group_description` - (Optional) A description of the target group.
+
+* `target_group_labels` - (Optional) A set of key/value label pairs.
+
+* `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
+---
+
 The `load_balancer` block supports:
 
 * `target_group_name` - (Optional) The name of the target group.
@@ -112,6 +128,8 @@ The `load_balancer` block supports:
 * `target_group_description` - (Optional) A description of the target group.
 
 * `target_group_labels` - (Optional) A set of key/value label pairs.
+
+* `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
 ---
 
@@ -204,7 +222,9 @@ The `secondary_disk` block supports:
 
 * `mode` - (Optional) The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 
-* `initialize_params` - (Required) Parameters used for creating a disk alongside the instance. The structure is documented below.
+* `disk_id` - (Optional) ID of the existing disk. To set use variables.
+
+* `initialize_params` - (Optional) Parameters used for creating a disk alongside the instance. The structure is documented below.
 
 - - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.
@@ -245,8 +265,10 @@ The `network_interface` block supports:
 
 * `subnet_ids` - (Optional) The ID of the subnets to attach this interface to.
 
-* `nat` - (Optional) A public address that can be used to access the internet over NAT.
+* `nat` - (Optional) Flag for using NAT.
 
+* `nat_ip_address` - (Optional) A public address that can be used to access the internet over NAT. Use `variables` to set.
+  
 * `security_group_ids` - (Optional) Security group ids for network interface.
 
 * `ip_address` - (Optional) Manual set static IP address.
@@ -442,6 +464,10 @@ This type of metric must have the `zone_id` label.
 * `target` - (Required) Target metric value level.
 
 * `labels` - (Optional) A map of labels of metric.
+
+* `folder_id` - (Optional) Folder ID of custom metric in Yandex Monitoring that should be used for scaling.
+
+* `service` - (Optional) Service of custom metric in Yandex Monitoring that should be used for scaling.
 
 ---
 

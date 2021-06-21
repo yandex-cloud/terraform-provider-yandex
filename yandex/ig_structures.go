@@ -164,6 +164,8 @@ func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInte
 		"ipv6_address": nicSpec.GetPrimaryV6AddressSpec().GetAddress(),
 	}
 
+	networkInterface["nat_address"] = nicSpec.GetPrimaryV4AddressSpec().GetOneToOneNatSpec().GetAddress()
+
 	if nicSpec.GetSecurityGroupIds() != nil {
 		networkInterface["security_group_ids"] = convertStringArrToInterface(nicSpec.SecurityGroupIds)
 	}
@@ -270,6 +272,12 @@ func flattenInstanceGroupAutoScale(sp *instancegroup.ScalePolicy_AutoScale) ([]m
 				"target":      rule.Target,
 				"labels":      rule.GetLabels(),
 			}
+			if rule.FolderId != "" {
+				rules[i]["folder_id"] = rule.FolderId
+			}
+			if rule.Service != "" {
+				rules[i]["service"] = rule.Service
+			}
 		}
 	}
 
@@ -289,9 +297,9 @@ func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]ma
 	return []map[string]interface{}{res}, nil
 }
 
-func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, interface{}, error) {
 	if ig.HealthChecksSpec == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	res := make([]map[string]interface{}, len(ig.HealthChecksSpec.HealthCheckSpecs))
@@ -322,7 +330,22 @@ func flattenInstanceGroupHealthChecks(ig *instancegroup.InstanceGroup) ([]map[st
 
 		res[i] = specDict
 	}
-	return res, nil
+	var maxCheckingDuration int64
+	if ig.GetHealthChecksSpec().GetMaxCheckingHealthDuration() != nil {
+		maxCheckingDuration = ig.GetHealthChecksSpec().GetMaxCheckingHealthDuration().GetSeconds()
+	}
+	return res, maxCheckingDuration, nil
+}
+
+func flattenInstanceGroupApplicationLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if alb := ig.GetApplicationLoadBalancerState(); alb != nil {
+		res["target_group_id"] = alb.TargetGroupId
+		res["status_message"] = alb.StatusMessage
+	}
+
+	return []map[string]interface{}{res}, nil
 }
 
 func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
@@ -332,6 +355,22 @@ func flattenInstanceGroupLoadBalancerState(ig *instancegroup.InstanceGroup) ([]m
 		res["target_group_id"] = loadBalancerState.TargetGroupId
 		res["status_message"] = loadBalancerState.StatusMessage
 	}
+
+	return []map[string]interface{}{res}, nil
+}
+
+func flattenInstanceGroupApplicationLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]map[string]interface{}, error) {
+	if ig.ApplicationLoadBalancerSpec == nil || ig.ApplicationLoadBalancerSpec.TargetGroupSpec == nil {
+		return nil, nil
+	}
+
+	res := map[string]interface{}{}
+	res["target_group_name"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetName()
+	res["target_group_description"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetDescription()
+	res["target_group_labels"] = ig.ApplicationLoadBalancerSpec.TargetGroupSpec.GetLabels()
+	res["target_group_id"] = ig.ApplicationLoadBalancerState.GetTargetGroupId()
+	res["status_message"] = ig.ApplicationLoadBalancerState.GetStatusMessage()
+	res["max_opening_traffic_duration"] = ig.ApplicationLoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -347,6 +386,7 @@ func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]ma
 	res["target_group_labels"] = ig.LoadBalancerSpec.TargetGroupSpec.GetLabels()
 	res["target_group_id"] = ig.LoadBalancerState.GetTargetGroupId()
 	res["status_message"] = ig.LoadBalancerState.GetStatusMessage()
+	res["max_opening_traffic_duration"] = ig.LoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -397,6 +437,16 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 		}
 
 		ads.Mode = diskMode
+	}
+
+	if _, ok := d.GetOk(prefix + ".disk_id"); ok {
+		if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
+			return ads, fmt.Errorf("Use one of  'disk_id', 'initialize_params', not both.")
+		}
+	}
+
+	if v, ok := d.GetOk(prefix + ".disk_id"); ok {
+		ads.DiskId = v.(string)
 	}
 
 	// create new one disk
@@ -486,13 +536,17 @@ func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix str
 	nics := make([]*instancegroup.NetworkInterfaceSpec, len(nicsConfig))
 
 	for i, raw := range nicsConfig {
-		nics[i] = expandInstanceGroupNetworkInterfaceSpec(raw.(map[string]interface{}))
+		nic, err := expandInstanceGroupNetworkInterfaceSpec(raw.(map[string]interface{}))
+		if err != nil {
+			return nics, err
+		}
+		nics[i] = nic
 	}
 
 	return nics, nil
 }
 
-func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *instancegroup.NetworkInterfaceSpec {
+func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) (*instancegroup.NetworkInterfaceSpec, error) {
 	res := &instancegroup.NetworkInterfaceSpec{
 		NetworkId: data["network_id"].(string),
 	}
@@ -536,6 +590,13 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *insta
 		res.PrimaryV6AddressSpec.Address = addr.(string)
 	}
 
+	if na, ok := data["nat_ip_address"]; ok {
+		if nat, ok := data["nat"].(bool); !ok || !nat {
+			return res, fmt.Errorf("Use nat_ip_address only if nat is true ")
+		}
+		res.PrimaryV4AddressSpec.OneToOneNatSpec.Address = na.(string)
+	}
+
 	if sgids, ok := data["security_group_ids"]; ok {
 		res.SecurityGroupIds = expandSecurityGroupIds(sgids)
 	}
@@ -558,7 +619,7 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) *insta
 		}
 	}
 
-	return res
+	return res, nil
 }
 
 func expandInstanceGroupDnsRecords(data []interface{}) []*instancegroup.DnsRecordSpec {
@@ -768,6 +829,9 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 	checksCount := d.Get("health_check.#").(int)
 
 	if checksCount == 0 {
+		if _, ok := d.GetOk("max_checking_health_duration"); ok {
+			return nil, fmt.Errorf("Use max_checking_health_duration only in conjunction with health_check ")
+		}
 		return nil, nil
 	}
 
@@ -801,8 +865,38 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 
 		return nil, fmt.Errorf("need tcp_options or http_options")
 	}
+	result := &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}
 
-	return &instancegroup.HealthChecksSpec{HealthCheckSpecs: checks}, nil
+	if v, ok := d.GetOk("max_checking_health_duration"); ok {
+		result.MaxCheckingHealthDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+	return result, nil
+}
+
+func expandInstanceGroupApplicationLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.ApplicationLoadBalancerSpec, error) {
+	if _, ok := d.GetOk("application_load_balancer"); !ok {
+		return nil, nil
+	}
+
+	spec := &instancegroup.ApplicationTargetGroupSpec{
+		Name:        d.Get("application_load_balancer.0.target_group_name").(string),
+		Description: d.Get("application_load_balancer.0.target_group_description").(string),
+	}
+
+	if v, ok := d.GetOk("application_load_balancer.0.target_group_labels"); ok {
+		labels, err := expandLabels(v)
+		if err != nil {
+			return nil, fmt.Errorf("Error expanding labels: %s", err)
+		}
+
+		spec.Labels = labels
+	}
+	result := &instancegroup.ApplicationLoadBalancerSpec{TargetGroupSpec: spec}
+	if v, ok := d.GetOk("application_load_balancer.0.max_opening_traffic_duration"); ok {
+		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	return result, nil
 }
 
 func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup.LoadBalancerSpec, error) {
@@ -824,7 +918,12 @@ func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup
 		spec.Labels = labels
 	}
 
-	return &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}, nil
+	result := &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}
+	if v, ok := d.GetOk("load_balancer.0.max_opening_traffic_duration"); ok {
+		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+
+	return result, nil
 }
 
 func expandInstanceGroupPlacementPolicy(d *schema.ResourceData, prefix string) *instancegroup.PlacementPolicy {
@@ -842,18 +941,17 @@ func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) 
 
 	diskSpecSpec := diskSpec.GetDiskSpec()
 
-	if diskSpec == nil {
-		return bootDisk, fmt.Errorf("no disk spec")
+	if diskSpecSpec == nil {
+		bootDisk["disk_id"] = diskSpec.GetDiskId()
+	} else {
+		bootDisk["initialize_params"] = []map[string]interface{}{{
+			"description": diskSpecSpec.Description,
+			"size":        toGigabytes(diskSpecSpec.Size),
+			"type":        diskSpecSpec.TypeId,
+			"image_id":    diskSpecSpec.GetImageId(),
+			"snapshot_id": diskSpecSpec.GetSnapshotId(),
+		}}
 	}
-
-	bootDisk["initialize_params"] = []map[string]interface{}{{
-		"description": diskSpecSpec.Description,
-		"size":        toGigabytes(diskSpecSpec.Size),
-		"type":        diskSpecSpec.TypeId,
-		"image_id":    diskSpecSpec.GetImageId(),
-		"snapshot_id": diskSpecSpec.GetSnapshotId(),
-	}}
-
 	return bootDisk, nil
 }
 
@@ -932,13 +1030,23 @@ func expandInstanceGroupCustomRule(d *schema.ResourceData, prefix string) (*inst
 		return nil, fmt.Errorf("Error expanding labels while creating custom rule: %s", err)
 	}
 
-	return &instancegroup.ScalePolicy_CustomRule{
+	result := &instancegroup.ScalePolicy_CustomRule{
 		RuleType:   instancegroup.ScalePolicy_CustomRule_RuleType(ruleType),
 		MetricType: instancegroup.ScalePolicy_CustomRule_MetricType(metricType),
 		MetricName: d.Get(prefix + ".metric_name").(string),
 		Target:     d.Get(prefix + ".target").(float64),
 		Labels:     labels,
-	}, nil
+	}
+
+	if s, ok := d.GetOk(prefix + ".folder_id"); ok {
+		result.FolderId = s.(string)
+	}
+
+	if s, ok := d.GetOk(prefix + ".service"); ok {
+		result.Service = s.(string)
+	}
+
+	return result, nil
 }
 
 func flattenInstanceGroupManagedInstances(instances []*instancegroup.ManagedInstance) ([]map[string]interface{}, error) {
