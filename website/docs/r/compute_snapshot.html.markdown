@@ -49,6 +49,15 @@ In addition to the arguments listed above, the following computed attributes are
 * `storage_size` - Size of the snapshot, specified in GB.
 * `created_at` - Creation timestamp of the snapshot.
 
+## Timeouts
+
+This resource provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default 20 minutes
+- `update` - Default 20 minutes
+- `delete` - Default 20 minutes
+
 ## Import
 
 A snapshot can be imported using the `id` of the resource, e.g.
