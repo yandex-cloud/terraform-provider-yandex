@@ -161,11 +161,9 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						},
 						"kafka_config": []interface{}{
 							map[string]interface{}{
-								"compression_type":           "COMPRESSION_TYPE_ZSTD",
-								"log_retention_bytes":        1024 * 1024 * 1024,
-								"log_preallocate":            true,
-								"num_partitions":             5,
-								"default_replication_factor": 1,
+								"compression_type":    "COMPRESSION_TYPE_ZSTD",
+								"log_retention_bytes": 1024 * 1024 * 1024,
+								"log_preallocate":     true,
 							},
 						},
 					},
@@ -268,11 +266,9 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 				},
 				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_2_6{
 					KafkaConfig_2_6: &kafka.KafkaConfig2_6{
-						CompressionType:          kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
-						LogRetentionBytes:        &wrappers.Int64Value{Value: 1024 * 1024 * 1024},
-						LogPreallocate:           &wrappers.BoolValue{Value: true},
-						NumPartitions:            &wrappers.Int64Value{Value: 5},
-						DefaultReplicationFactor: &wrappers.Int64Value{Value: 1},
+						CompressionType:   kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+						LogRetentionBytes: &wrappers.Int64Value{Value: 1024 * 1024 * 1024},
+						LogPreallocate:    &wrappers.BoolValue{Value: true},
 					},
 				},
 			},
@@ -380,8 +376,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 16777216),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{CleanupPolicy: kafka.TopicConfig2_6_CLEANUP_POLICY_COMPACT_AND_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaClusterNumPartitions(&r, 1),
-					testAccCheckMDBKafkaClusterDefaultReplicationFactor(&r, 1),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -403,8 +397,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaClusterNumPartitions(&r, 5),
-					testAccCheckMDBKafkaClusterDefaultReplicationFactor(&r, 2),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{CleanupPolicy: kafka.TopicConfig2_6_CLEANUP_POLICY_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -448,8 +440,6 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}, Preallocate: &wrappers.BoolValue{Value: true}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaClusterNumPartitions(&r, 1),
-					testAccCheckMDBKafkaClusterDefaultReplicationFactor(&r, 1),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -475,8 +465,6 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaClusterNumPartitions(&r, 5),
-					testAccCheckMDBKafkaClusterDefaultReplicationFactor(&r, 2),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -564,8 +552,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
 		  log_preallocate     		 = true
-		  num_partitions	  		 = 1
-		  default_replication_factor = 1
 		}
 	  }
 	}
@@ -647,8 +633,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 				log_retention_bytes 	   = 2147483648
 				log_segment_bytes   	   = 268435456
 				log_preallocate     	   = true
-				num_partitions	  		   = 5
-		  		default_replication_factor = 2
 			}
 		}
 	}
@@ -748,26 +732,6 @@ func testAccCheckMDBKafkaClusterLogPreallocate(r *kafka.Cluster, value bool) res
 		v := r.Config.Kafka.GetKafkaConfig_2_6().LogPreallocate
 		if v.GetValue() != value {
 			return fmt.Errorf("incorrect log_preallocate value: expected '%v' but found '%v'", value, v.GetValue())
-		}
-		return nil
-	}
-}
-
-func testAccCheckMDBKafkaClusterNumPartitions(r *kafka.Cluster, value int64) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().NumPartitions
-		if v.GetValue() != value {
-			return fmt.Errorf("incorrect num_partitions value: expected '%v' but found '%v'", value, v.GetValue())
-		}
-		return nil
-	}
-}
-
-func testAccCheckMDBKafkaClusterDefaultReplicationFactor(r *kafka.Cluster, value int64) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().DefaultReplicationFactor
-		if v.GetValue() != value {
-			return fmt.Errorf("incorrect default_replication_factor value: expected '%v' but found '%v'", value, v.GetValue())
 		}
 		return nil
 	}
@@ -999,8 +963,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
 		  log_preallocate     		 = true
-		  num_partitions	  		 = 1
-		  default_replication_factor = 1
 		}
 	  }
 	  zookeeper {
@@ -1093,8 +1055,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  log_retention_bytes 		 = 2147483648
 		  log_segment_bytes   		 = 268435456
 		  log_preallocate     		 = true
-		  num_partitions	  		 = 5
-		  default_replication_factor = 2
 		}
 	  }
 	  zookeeper {
