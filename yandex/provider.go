@@ -130,6 +130,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"yandex_alb_backend_group":            dataSourceYandexALBBackendGroup(),
 			"yandex_alb_http_router":              dataSourceYandexALBHTTPRouter(),
+			"yandex_alb_load_balancer":            dataSourceYandexALBLoadBalancer(),
 			"yandex_alb_target_group":             dataSourceYandexALBTargetGroup(),
 			"yandex_alb_virtual_host":             dataSourceYandexALBVirtualHost(),
 			"yandex_api_gateway":                  dataSourceYandexApiGateway(),

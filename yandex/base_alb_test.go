@@ -303,8 +303,8 @@ resource "yandex_alb_target_group" "test-target-group" {
 
 const albLoadBalancerConfigTemplate = `
 {{ if .IsDataSource }}
-data "yandex_alb_backend_group" "test-bg-ds" {
-  name = yandex_alb_backend_group.test-bg.name
+data "yandex_alb_load_balancer" "test-alb-ds" {
+  name = yandex_alb_load_balancer.test-balancer.name
 }		
 {{ end }}
 resource "yandex_alb_http_router" "test-router" {
