@@ -1208,6 +1208,21 @@ resource "yandex_vpc_subnet" "{{.SubnetResourceNameC}}" {
   v4_cidr_blocks = ["192.168.2.0/24"]
 }
 
+resource "yandex_vpc_default_security_group" "default-network-sg" {
+  description = "{{.TestDescription}}"
+  network_id  = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+
+  ingress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+      protocol = "ANY"
+      v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "yandex_vpc_security_group" "{{.SecurityGroupName}}" {
   description = "{{.TestDescription}}"
   network_id  = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
