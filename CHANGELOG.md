@@ -1,4 +1,6 @@
 ## 0.61.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_alb_load_balancer`
 ENHANCEMENTS:
 * add `application_load_balancer` entity in `yandex_compute_instance_group` resource and data source
 * add `max_checking_health_duration` and `max_opening_traffic_duration` in `yandex_compute_instance_group`

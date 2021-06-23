@@ -30,6 +30,58 @@ const albDefaultDirectResponseStatus = "404"
 const albDefaultStatusResponse = "not_found"
 const albDefaultRedirectReplacePrefix = "/other"
 const albDefaultAutoHostRewrite = "true"
+const albDefaultAllowHTTP10 = "true"
+const albDefaultMaxConcurrentStreams = "2"
+const albDefaultHTTPToHTTPS = "true"
+const albDefaultCertificateID = "fpqgafu7o9h5jnshk0mn"
+
+type resourceALBLoadBalancerInfo struct {
+	IsHTTPListener        bool
+	IsTLSListener         bool
+	IsRedirects           bool
+	IsHTTPListenerHandler bool
+	IsTLSListenerHandler  bool
+	IsDataSource          bool
+	IsHTTP2Options        bool
+	IsAllowHTTP10         bool
+
+	BaseTemplate string
+
+	BalancerName         string
+	RouterName           string
+	ListenerName         string
+	BalancerDescription  string
+	AllowHTTP10          string
+	MaxConcurrentStreams string
+	EndpointPort         string
+	HTTPToHTTPS          string
+	CertificateID        string
+}
+
+func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
+	res := resourceALBLoadBalancerInfo{
+		IsHTTPListener:        false,
+		IsTLSListener:         false,
+		IsDataSource:          false,
+		IsRedirects:           false,
+		IsHTTPListenerHandler: false,
+		IsTLSListenerHandler:  false,
+		IsHTTP2Options:        false,
+		IsAllowHTTP10:         false,
+		BaseTemplate:          testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		BalancerName:          acctest.RandomWithPrefix("tf-load-balancer"),
+		RouterName:            acctest.RandomWithPrefix("tf-router"),
+		ListenerName:          acctest.RandomWithPrefix("tf-listener"),
+		BalancerDescription:   acctest.RandomWithPrefix("tf-load-balancer-description"),
+		AllowHTTP10:           albDefaultAllowHTTP10,
+		MaxConcurrentStreams:  albDefaultMaxConcurrentStreams,
+		EndpointPort:          albDefaultPort,
+		HTTPToHTTPS:           albDefaultHTTPToHTTPS,
+		CertificateID:         albDefaultCertificateID,
+	}
+
+	return res
+}
 
 type resourceALBVirtualHostInfo struct {
 	IsModifyRequestHeaders     bool
@@ -249,6 +301,87 @@ resource "yandex_alb_target_group" "test-target-group" {
 {{.BaseTemplate}}
 `
 
+const albLoadBalancerConfigTemplate = `
+{{ if .IsDataSource }}
+data "yandex_alb_backend_group" "test-bg-ds" {
+  name = yandex_alb_backend_group.test-bg.name
+}		
+{{ end }}
+resource "yandex_alb_http_router" "test-router" {
+  name        = "{{.RouterName}}"
+}
+
+resource "yandex_alb_load_balancer" "test-balancer" {
+  name        = "{{.BalancerName}}"
+  description = "{{.BalancerDescription}}"
+
+  network_id  = yandex_vpc_network.test-network.id
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+  allocation_policy {
+    location {
+      zone_id   = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.test-subnet.id 
+    }
+  }
+  {{ if or .IsHTTPListener .IsTLSListener }}
+  listener {
+    name = "{{.ListenerName}}"
+    endpoint {
+      address {
+        external_ipv4_address {
+        }
+      }
+      ports = [ {{.EndpointPort}} ]
+    }    
+    {{if .IsHTTPListener}}
+    http {
+      {{if .IsHTTPListenerHandler}}
+      handler {
+        http_router_id = yandex_alb_http_router.test-router.id
+        {{if .IsAllowHTTP10}}
+        allow_http10 = {{.AllowHTTP10}}
+        {{end}}
+        {{if .IsHTTP2Options}}
+        http2_options {
+          max_concurrent_streams = {{.MaxConcurrentStreams}}
+        }
+        {{end}}
+      }
+      {{end}}
+      {{if .IsRedirects}}
+      redirects {
+        http_to_https = {{.HTTPToHTTPS}}
+      }
+      {{end}}
+    }
+    {{end}}
+    {{if .IsTLSListener}}
+    tls {
+      default_handler {
+        http_handler {
+          http_router_id = yandex_alb_http_router.test-router.id
+          {{if .IsAllowHTTP10}}
+            allow_http10 = {{.AllowHTTP10}}
+          {{end}}
+          {{if .IsHTTP2Options}}
+          http2_options {
+            max_concurrent_streams = {{.MaxConcurrentStreams}}
+          }
+          {{end}}
+        }
+        certificate_ids = ["{{.CertificateID}}"]
+      }
+    }
+    {{end}}
+  }    
+  {{end}}
+}
+{{.BaseTemplate}}
+`
+
 const albBackendGroupConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_backend_group" "test-bg-ds" {
@@ -385,6 +518,12 @@ resource "yandex_alb_target_group" "test-target-group" {
 func testALBBackendGroupConfig_basic(in resourceALBBackendGroupInfo) string {
 	m := structs.Map(in)
 	config := templateConfig(albBackendGroupConfigTemplate, m)
+	return config
+}
+
+func testALBLoadBalancerConfig_basic(in resourceALBLoadBalancerInfo) string {
+	m := structs.Map(in)
+	config := templateConfig(albLoadBalancerConfigTemplate, m)
 	return config
 }
 

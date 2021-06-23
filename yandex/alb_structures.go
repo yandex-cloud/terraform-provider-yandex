@@ -33,6 +33,25 @@ func resourceALBVirtualHostHeaderModificationHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func resourceALBAllocationPolicyLocationHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+
+	if v, ok := m["zone_id"]; ok {
+		fmt.Fprintf(&buf, "%s-", v.(string))
+	}
+
+	if v, ok := m["subnet_id"]; ok {
+		fmt.Fprintf(&buf, "%s-", v.(string))
+	}
+
+	if v, ok := m["disable_traffic"]; ok {
+		fmt.Fprintf(&buf, "%t-", v.(bool))
+	}
+
+	return hashcode.String(buf.String())
+}
+
 func resourceALBBackendGroupBackendHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
@@ -89,6 +108,17 @@ func expandALBStringListFromSchemaSet(v interface{}) ([]string, error) {
 	}
 	for _, val := range v.(*schema.Set).List() {
 		m = append(m, val.(string))
+	}
+	return m, nil
+}
+
+func expandALBInt64ListFromList(v interface{}) ([]int64, error) {
+	var m []int64
+	if v == nil {
+		return m, nil
+	}
+	for _, val := range v.([]interface{}) {
+		m = append(m, int64(val.(int)))
 	}
 	return m, nil
 }
@@ -382,6 +412,271 @@ func expandALBStringMatch(v interface{}) *apploadbalancer.StringMatch {
 		stringMatch.SetPrefixMatch(val.(string))
 	}
 	return stringMatch
+}
+
+func expandALBAllocationPolicy(d *schema.ResourceData) (*apploadbalancer.AllocationPolicy, error) {
+	var locations []*apploadbalancer.Location
+	config := d.Get("allocation_policy").([]interface{})[0].(map[string]interface{})
+
+	if v, ok := config["location"]; ok {
+		locationsList := v.(*schema.Set)
+		for _, b := range locationsList.List() {
+			locationConfig := b.(map[string]interface{})
+
+			location, err := expandALBLocation(locationConfig)
+			if err != nil {
+				return nil, err
+			}
+
+			locations = append(locations, location)
+		}
+	}
+
+	return &apploadbalancer.AllocationPolicy{Locations: locations}, nil
+}
+
+func expandALBLocation(config map[string]interface{}) (*apploadbalancer.Location, error) {
+	location := &apploadbalancer.Location{}
+
+	if v, ok := config["zone_id"]; ok {
+		location.ZoneId = v.(string)
+	}
+
+	if v, ok := config["subnet_id"]; ok {
+		location.SubnetId = v.(string)
+	}
+
+	if v, ok := config["disable_traffic"]; ok {
+		location.DisableTraffic = v.(bool)
+	}
+
+	return location, nil
+}
+
+func expandALBListeners(d *schema.ResourceData) ([]*apploadbalancer.ListenerSpec, error) {
+	var listeners []*apploadbalancer.ListenerSpec
+	backendSet := d.Get("listener").([]interface{})
+
+	for _, l := range backendSet {
+		config := l.(map[string]interface{})
+
+		listener, err := expandALBListener(config)
+		if err != nil {
+			return nil, err
+		}
+
+		listeners = append(listeners, listener)
+	}
+
+	return listeners, nil
+}
+
+func expandALBListener(config map[string]interface{}) (*apploadbalancer.ListenerSpec, error) {
+	listener := &apploadbalancer.ListenerSpec{}
+
+	if v, ok := config["name"]; ok {
+		listener.Name = v.(string)
+	}
+
+	if v, ok := config["endpoint"]; ok {
+		listener.EndpointSpecs = expandALBEndpoints(v)
+	}
+
+	if conf, ok := getFirstElementConfig(config, "http"); ok {
+		listener.SetHttp(expandALBHTTPListener(conf))
+	}
+
+	if conf, ok := getFirstElementConfig(config, "tls"); ok {
+		listener.SetTls(expandALBTLSListener(conf))
+	}
+
+	return listener, nil
+}
+
+func getFirstElementConfig(config map[string]interface{}, key string) (map[string]interface{}, bool) {
+	if v, ok := config[key]; ok {
+		switch v := v.(type) {
+		case []interface{}:
+			if len(v) > 0 {
+				var resultConfig map[string]interface{}
+				if result := v[0]; result != nil {
+					resultConfig = result.(map[string]interface{})
+				} else {
+					resultConfig = map[string]interface{}{}
+				}
+				return resultConfig, true
+			}
+		case []map[string]interface{}:
+			if len(v) > 0 {
+				if result := v[0]; result != nil {
+					return result, true
+				}
+			}
+		}
+	}
+	return nil, false
+}
+
+func expandALBTLSListener(config map[string]interface{}) *apploadbalancer.TlsListener {
+	tlsListener := &apploadbalancer.TlsListener{}
+	if conf, ok := getFirstElementConfig(config, "default_handler"); ok {
+		tlsListener.SetDefaultHandler(expandALBTLSHandler(conf))
+	}
+	if v, ok := config["sni_handler"]; ok {
+		tlsListener.SniHandlers = expandALBSNIMatches(v)
+	}
+
+	return tlsListener
+}
+
+func expandALBSNIMatches(v interface{}) []*apploadbalancer.SniMatch {
+	var matches []*apploadbalancer.SniMatch
+
+	if v != nil {
+		matchSet := v.([]interface{})
+
+		for _, h := range matchSet {
+			match := &apploadbalancer.SniMatch{}
+			config := h.(map[string]interface{})
+
+			if val, ok := config["name"]; ok {
+				match.Name = val.(string)
+			}
+
+			if val, ok := config["server_names"]; ok {
+				if serverNames, err := expandALBStringListFromSchemaSet(val); err == nil {
+					match.ServerNames = serverNames
+				}
+			}
+
+			if val, ok := config["handler"]; ok {
+				handlerConfig := val.(map[string]interface{})
+				match.Handler = expandALBTLSHandler(handlerConfig)
+			}
+
+			matches = append(matches, match)
+		}
+	}
+	return matches
+}
+
+func expandALBHTTPListener(config map[string]interface{}) *apploadbalancer.HttpListener {
+	httpListener := &apploadbalancer.HttpListener{}
+
+	if conf, ok := getFirstElementConfig(config, "handler"); ok {
+		httpListener.Handler = expandALBHTTPHandler(conf)
+	}
+
+	if conf, ok := getFirstElementConfig(config, "redirects"); ok {
+		if v, ok := conf["http_to_https"]; ok {
+			httpListener.Redirects = &apploadbalancer.Redirects{HttpToHttps: v.(bool)}
+		}
+	}
+
+	return httpListener
+}
+
+func expandALBHTTPHandler(config map[string]interface{}) *apploadbalancer.HttpHandler {
+	httpHandler := &apploadbalancer.HttpHandler{}
+
+	if v, ok := config["allow_http10"]; ok {
+		httpHandler.SetAllowHttp10(v.(bool))
+	}
+
+	if v, ok := config["http_router_id"]; ok {
+		httpHandler.HttpRouterId = v.(string)
+	}
+
+	if conf, ok := getFirstElementConfig(config, "http2_options"); ok {
+		http2Options := &apploadbalancer.Http2Options{}
+		if val, ok := conf["max_concurrent_streams"]; ok {
+			http2Options.MaxConcurrentStreams = int64(val.(int))
+		}
+		httpHandler.SetHttp2Options(http2Options)
+	}
+
+	return httpHandler
+}
+
+func expandALBTLSHandler(config map[string]interface{}) *apploadbalancer.TlsHandler {
+	tlsHandler := &apploadbalancer.TlsHandler{}
+
+	if conf, ok := getFirstElementConfig(config, "http_handler"); ok {
+		tlsHandler.SetHttpHandler(expandALBHTTPHandler(conf))
+	}
+
+	if v, ok := config["certificate_ids"]; ok {
+		if certificateIDs, err := expandALBStringListFromSchemaSet(v); err == nil {
+			tlsHandler.CertificateIds = certificateIDs
+		}
+	}
+
+	return tlsHandler
+}
+
+func expandALBEndpoints(v interface{}) []*apploadbalancer.EndpointSpec {
+	var endpoints []*apploadbalancer.EndpointSpec
+	if v != nil {
+
+		for _, h := range v.([]interface{}) {
+			endpoint := &apploadbalancer.EndpointSpec{}
+			config := h.(map[string]interface{})
+
+			if val, ok := config["address"]; ok {
+				endpoint.AddressSpecs = expandALBEndpointAddresses(val)
+			}
+
+			if val, ok := config["ports"]; ok {
+				if ports, err := expandALBInt64ListFromList(val); err == nil {
+					endpoint.Ports = ports
+				}
+			}
+
+			endpoints = append(endpoints, endpoint)
+		}
+	}
+	return endpoints
+}
+
+func expandALBEndpointAddresses(v interface{}) []*apploadbalancer.AddressSpec {
+	var addresses []*apploadbalancer.AddressSpec
+	if v != nil {
+
+		for _, h := range v.([]interface{}) {
+			elem := &apploadbalancer.AddressSpec{}
+			elemConfig := h.(map[string]interface{})
+
+			if config, ok := getFirstElementConfig(elemConfig, "external_ipv4_address"); ok {
+				address := &apploadbalancer.ExternalIpv4AddressSpec{}
+				if value, ok := config["address"]; ok {
+					address.Address = value.(string)
+				}
+				elem.SetExternalIpv4AddressSpec(address)
+			}
+
+			if config, ok := getFirstElementConfig(elemConfig, "internal_ipv4_address"); ok {
+				address := &apploadbalancer.InternalIpv4AddressSpec{}
+				if value, ok := config["address"]; ok {
+					address.Address = value.(string)
+				}
+				if value, ok := config["subnet_id"]; ok {
+					address.SubnetId = value.(string)
+				}
+				elem.SetInternalIpv4AddressSpec(address)
+			}
+
+			if config, ok := getFirstElementConfig(elemConfig, "external_ipv6_address"); ok {
+				address := &apploadbalancer.ExternalIpv6AddressSpec{}
+				if value, ok := config["address"]; ok {
+					address.Address = value.(string)
+				}
+				elem.SetExternalIpv6AddressSpec(address)
+			}
+
+			addresses = append(addresses, elem)
+		}
+	}
+	return addresses
 }
 
 func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackendGroup, error) {
@@ -834,6 +1129,170 @@ func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interfac
 	}
 
 	return []map[string]interface{}{flRoute}
+}
+
+func flattenALBListeners(alb *apploadbalancer.LoadBalancer) ([]interface{}, error) {
+	var result []interface{}
+
+	for _, listener := range alb.GetListeners() {
+
+		flListener := map[string]interface{}{
+			"name":     listener.Name,
+			"endpoint": flattenALBEndpoints(listener.Endpoints),
+		}
+
+		switch listener.GetListener().(type) {
+		case *apploadbalancer.Listener_Http:
+			if http := listener.GetHttp(); http != nil {
+				flListener["http"] = flattenALBHTTPListener(http)
+			}
+		case *apploadbalancer.Listener_Tls:
+			if tls := listener.GetTls(); tls != nil {
+				flListener["tls"] = flattenALBTLSListener(tls)
+			}
+		}
+
+		result = append(result, flListener)
+	}
+
+	return result, nil
+}
+
+func flattenALBEndpoints(endpoints []*apploadbalancer.Endpoint) []interface{} {
+	var result []interface{}
+
+	for _, endpoint := range endpoints {
+		flEndpoint := map[string]interface{}{
+			"address": flattenALBAddresses(endpoint.GetAddresses()),
+		}
+		var ports []int
+		for _, p := range endpoint.GetPorts() {
+			ports = append(ports, int(p))
+		}
+		flEndpoint["ports"] = ports
+		result = append(result, flEndpoint)
+	}
+
+	return result
+}
+
+func flattenALBAddresses(addresses []*apploadbalancer.Address) []interface{} {
+	var result []interface{}
+
+	for _, address := range addresses {
+		flAddress := map[string]interface{}{}
+		if exIPv4 := address.GetExternalIpv4Address(); exIPv4 != nil {
+			flAddress["external_ipv4_address"] = []map[string]interface{}{
+				{
+					"address": exIPv4.GetAddress(),
+				},
+			}
+		}
+		if exIPv6 := address.GetExternalIpv6Address(); exIPv6 != nil {
+			flAddress["external_ipv6_address"] = []map[string]interface{}{
+				{
+					"address": exIPv6.GetAddress(),
+				},
+			}
+		}
+		if inIPv4 := address.GetInternalIpv4Address(); inIPv4 != nil {
+			flAddress["internal_ipv4_address"] = []map[string]interface{}{
+				{
+					"address": inIPv4.GetAddress(),
+				},
+			}
+		}
+		result = append(result, flAddress)
+	}
+
+	return result
+}
+
+func flattenALBHTTPListener(httpListener *apploadbalancer.HttpListener) []interface{} {
+	flHTTPListener := map[string]interface{}{
+		"handler": flattenALBHTTPHandler(httpListener.GetHandler()),
+	}
+	if redirects := httpListener.GetRedirects(); redirects != nil {
+		flHTTPListener["redirects"] = []map[string]interface{}{{
+			"http_to_https": redirects.GetHttpToHttps(),
+		},
+		}
+	}
+	return []interface{}{flHTTPListener}
+}
+
+func flattenALBTLSListener(tlsListener *apploadbalancer.TlsListener) []interface{} {
+	flTLSListener := map[string]interface{}{
+		"default_handler": flattenALBTLSHandler(tlsListener.GetDefaultHandler()),
+		"sni_handler":     flattenALBSniHandlers(tlsListener.GetSniHandlers()),
+	}
+	return []interface{}{flTLSListener}
+}
+
+func flattenALBSniHandlers(matches []*apploadbalancer.SniMatch) []interface{} {
+	var result []interface{}
+	for _, m := range matches {
+		flMatch := []map[string]interface{}{
+			{
+				"name":         m.GetName(),
+				"server_names": m.GetServerNames(),
+				"handler":      flattenALBTLSHandler(m.GetHandler()),
+			},
+		}
+		result = append(result, flMatch)
+	}
+	return result
+}
+
+func flattenALBHTTPHandler(httpHandler *apploadbalancer.HttpHandler) []interface{} {
+	if httpHandler != nil {
+		flHTTPHandler := map[string]interface{}{
+			"http_router_id": httpHandler.GetHttpRouterId(),
+		}
+
+		switch httpHandler.ProtocolSettings.(type) {
+		case *apploadbalancer.HttpHandler_Http2Options:
+			flHTTPHandler["http2_options"] = []map[string]interface{}{
+				{
+					"max_concurrent_streams": httpHandler.GetHttp2Options().GetMaxConcurrentStreams(),
+				},
+			}
+		case *apploadbalancer.HttpHandler_AllowHttp10:
+			flHTTPHandler["allow_http10"] = httpHandler.GetAllowHttp10()
+		}
+
+		return []interface{}{flHTTPHandler}
+	}
+	return []interface{}{}
+}
+
+func flattenALBTLSHandler(tlsHandler *apploadbalancer.TlsHandler) []interface{} {
+	if tlsHandler != nil {
+		flTLSHandler := map[string]interface{}{
+			"certificate_ids": tlsHandler.GetCertificateIds(),
+			"http_handler":    flattenALBHTTPHandler(tlsHandler.GetHttpHandler()),
+		}
+		return []interface{}{flTLSHandler}
+	}
+	return []interface{}{}
+}
+
+func flattenALBAllocationPolicy(alb *apploadbalancer.LoadBalancer) ([]map[string]interface{}, error) {
+	result := &schema.Set{F: resourceALBAllocationPolicyLocationHash}
+
+	for _, location := range alb.GetAllocationPolicy().Locations {
+
+		flLocation := map[string]interface{}{
+			"zone_id":         location.ZoneId,
+			"subnet_id":       location.SubnetId,
+			"disable_traffic": location.DisableTraffic,
+		}
+		result.Add(flLocation)
+	}
+
+	return []map[string]interface{}{
+		{"location": result},
+	}, nil
 }
 
 func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {

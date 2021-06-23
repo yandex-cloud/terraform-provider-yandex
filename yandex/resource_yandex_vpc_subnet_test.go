@@ -18,6 +18,7 @@ func init() {
 		Name: "yandex_vpc_subnet",
 		F:    testSweepVPCSubnets,
 		Dependencies: []string{
+			"yandex_alb_load_balancer",
 			"yandex_compute_instance",
 			"yandex_compute_instance_group",
 			"yandex_dataproc_cluster",
