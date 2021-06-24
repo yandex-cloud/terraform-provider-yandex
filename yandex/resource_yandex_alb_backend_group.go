@@ -518,7 +518,8 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 	_ = d.Set("folder_id", bg.FolderId)
 	_ = d.Set("description", bg.Description)
 
-	if bg.GetHttp() != nil {
+	switch bg.GetBackend().(type) {
+	case *apploadbalancer.BackendGroup_Http:
 		backends, err := flattenALBHTTPBackends(bg)
 		if err != nil {
 			return err
@@ -526,9 +527,7 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 		if err := d.Set("http_backend", backends); err != nil {
 			return err
 		}
-	}
-
-	if bg.GetGrpc() != nil {
+	case *apploadbalancer.BackendGroup_Grpc:
 		backends, err := flattenALBGRPCBackends(bg)
 		if err != nil {
 			return err

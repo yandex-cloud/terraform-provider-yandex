@@ -315,6 +315,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   name        = "{{.BalancerName}}"
   description = "{{.BalancerDescription}}"
 
+  security_group_ids = [yandex_vpc_security_group.test-security-group]
   network_id  = yandex_vpc_network.test-network.id
   labels = {
     tf-label    = "tf-label-value"
@@ -379,6 +380,19 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   }    
   {{end}}
 }
+
+resource "yandex_vpc_security_group" "test-security-group" {
+  name        = "healthchecks"
+  network_id  = yandex_vpc_network.test-network.id
+
+  ingress {
+    protocol       = "TCP"
+    description    = "healthchecks"
+    port           = 30080
+    v6_cidr_blocks = ["198.18.235.0/24", "198.18.248.0/24"]
+  }
+}
+
 {{.BaseTemplate}}
 `
 

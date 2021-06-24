@@ -986,10 +986,15 @@ func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModific
 
 	for _, modification := range modifications {
 		flModification := map[string]interface{}{
-			"name":    modification.Name,
-			"append":  modification.GetAppend(),
-			"replace": modification.GetReplace(),
-			"remove":  modification.GetRemove(),
+			"name": modification.Name,
+		}
+		switch modification.Operation.(type) {
+		case *apploadbalancer.HeaderModification_Append:
+			flModification["append"] = modification.GetAppend()
+		case *apploadbalancer.HeaderModification_Replace:
+			flModification["replace"] = modification.GetReplace()
+		case *apploadbalancer.HeaderModification_Remove:
+			flModification["remove"] = modification.GetRemove()
 		}
 
 		result.Add(flModification)
@@ -1006,12 +1011,11 @@ func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}
 			"name": route.Name,
 		}
 
-		if route.GetHttp() != nil {
+		switch route.GetRoute().(type) {
+		case *apploadbalancer.Route_Http:
 			flHttpRoute := flattenALBHTTPRoute(route.GetHttp())
 			flRoute["http_route"] = flHttpRoute
-		}
-
-		if route.GetGrpc() != nil {
+		case *apploadbalancer.Route_Grpc:
 			flGrpcRoute := flattenALBGRPCRoute(route.GetGrpc())
 			flRoute["grpc_route"] = flGrpcRoute
 		}
@@ -1035,24 +1039,29 @@ func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interfac
 		flRoute["http_match"] = flMatch
 	}
 
-	if routeAction := route.GetRoute(); routeAction != nil {
+	switch route.GetAction().(type) {
+	case *apploadbalancer.GrpcRoute_Route:
+		routeAction := route.GetRoute()
 		flRouteAction := []map[string]interface{}{
 			{
-				"backend_group_id":  routeAction.BackendGroupId,
-				"max_timeout":       formatDuration(routeAction.MaxTimeout),
-				"idle_timeout":      formatDuration(routeAction.IdleTimeout),
-				"host_rewrite":      routeAction.GetHostRewrite(),
-				"auto_host_rewrite": routeAction.GetAutoHostRewrite(),
+				"backend_group_id": routeAction.BackendGroupId,
+				"max_timeout":      formatDuration(routeAction.MaxTimeout),
+				"idle_timeout":     formatDuration(routeAction.IdleTimeout),
 			},
+		}
+		switch routeAction.GetHostRewriteSpecifier().(type) {
+		case *apploadbalancer.GrpcRouteAction_HostRewrite:
+			flRouteAction[0]["host_rewrite"] = routeAction.GetHostRewrite()
+		case *apploadbalancer.GrpcRouteAction_AutoHostRewrite:
+			flRouteAction[0]["auto_host_rewrite"] = routeAction.GetAutoHostRewrite()
 		}
 
 		flRoute["grpc_route_action"] = flRouteAction
-	}
 
-	if statusResponseAction := route.GetStatusResponse(); statusResponseAction != nil {
+	case *apploadbalancer.GrpcRoute_StatusResponse:
 		flRoute["grpc_status_response_action"] = []map[string]interface{}{
 			{
-				"status": strings.ToLower(statusResponseAction.Status.String()),
+				"status": strings.ToLower(route.GetStatusResponse().Status.String()),
 			},
 		}
 	}
@@ -1061,14 +1070,22 @@ func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interfac
 }
 
 func flattenALBStringMatch(match *apploadbalancer.StringMatch) []map[string]interface{} {
-	flStringMatch := []map[string]interface{}{
-		{
-			"exact":  match.GetExactMatch(),
-			"prefix": match.GetPrefixMatch(),
-		},
+	switch match.GetMatch().(type) {
+	case *apploadbalancer.StringMatch_ExactMatch:
+		return []map[string]interface{}{
+			{
+				"exact": match.GetExactMatch(),
+			},
+		}
+	case *apploadbalancer.StringMatch_PrefixMatch:
+		return []map[string]interface{}{
+			{
+				"prefix": match.GetPrefixMatch(),
+			},
+		}
 	}
 
-	return flStringMatch
+	return []map[string]interface{}{}
 }
 
 func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interface{} {
@@ -1085,23 +1102,29 @@ func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interfac
 		flRoute["http_match"] = flMatch
 	}
 
-	if routeAction := route.GetRoute(); routeAction != nil {
+	switch route.GetAction().(type) {
+	case *apploadbalancer.HttpRoute_Route:
+		routeAction := route.GetRoute()
 		flRouteAction := []map[string]interface{}{
 			{
-				"backend_group_id":  routeAction.BackendGroupId,
-				"timeout":           formatDuration(routeAction.Timeout),
-				"idle_timeout":      formatDuration(routeAction.IdleTimeout),
-				"prefix_rewrite":    routeAction.PrefixRewrite,
-				"upgrade_types":     routeAction.GetUpgradeTypes(),
-				"host_rewrite":      routeAction.GetHostRewrite(),
-				"auto_host_rewrite": routeAction.GetAutoHostRewrite(),
+				"backend_group_id": routeAction.BackendGroupId,
+				"timeout":          formatDuration(routeAction.Timeout),
+				"idle_timeout":     formatDuration(routeAction.IdleTimeout),
+				"prefix_rewrite":   routeAction.PrefixRewrite,
+				"upgrade_types":    routeAction.GetUpgradeTypes(),
 			},
 		}
 
-		flRoute["http_route_action"] = flRouteAction
-	}
+		switch routeAction.GetHostRewriteSpecifier().(type) {
+		case *apploadbalancer.HttpRouteAction_HostRewrite:
+			flRouteAction[0]["host_rewrite"] = routeAction.GetHostRewrite()
+		case *apploadbalancer.HttpRouteAction_AutoHostRewrite:
+			flRouteAction[0]["auto_host_rewrite"] = routeAction.GetAutoHostRewrite()
+		}
 
-	if redirectAction := route.GetRedirect(); redirectAction != nil {
+		flRoute["http_route_action"] = flRouteAction
+	case *apploadbalancer.HttpRoute_Redirect:
+		redirectAction := route.GetRedirect()
 		flRedirectAction := []map[string]interface{}{
 			{
 				"replace_scheme": redirectAction.ReplaceScheme,
@@ -1109,15 +1132,19 @@ func flattenALBHTTPRoute(route *apploadbalancer.HttpRoute) []map[string]interfac
 				"replace_port":   int(redirectAction.ReplacePort),
 				"remove_query":   redirectAction.RemoveQuery,
 				"response_code":  strings.ToLower(redirectAction.ResponseCode.String()),
-				"replace_path":   redirectAction.GetReplacePath(),
-				"replace_prefix": redirectAction.GetReplacePrefix(),
 			},
 		}
 
-		flRoute["redirect_action"] = flRedirectAction
-	}
+		switch redirectAction.GetPath().(type) {
+		case *apploadbalancer.RedirectAction_ReplacePath:
+			flRedirectAction[0]["replace_path"] = redirectAction.GetReplacePath()
+		case *apploadbalancer.RedirectAction_ReplacePrefix:
+			flRedirectAction[0]["replace_prefix"] = redirectAction.GetReplacePrefix()
+		}
 
-	if directAction := route.GetDirectResponse(); directAction != nil {
+		flRoute["redirect_action"] = flRedirectAction
+	case *apploadbalancer.HttpRoute_DirectResponse:
+		directAction := route.GetDirectResponse()
 		flDirectAction := []map[string]interface{}{
 			{
 				"status": int(directAction.Status),
@@ -1319,48 +1346,8 @@ func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 			}
 		}
 
-		flHealthchecks := &schema.Set{F: resourceALBBackendGroupHealthcheckHash}
-		if healtchchecks := b.GetHealthchecks(); len(healtchchecks) > 0 {
-			check := healtchchecks[0]
+		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
 
-			flHealthcheck := map[string]interface{}{
-				"timeout":                 formatDuration(check.Timeout),
-				"interval":                formatDuration(check.Interval),
-				"interval_jitter_percent": check.IntervalJitterPercent,
-				"healthy_threshold":       check.HealthyThreshold,
-				"unhealthy_threshold":     check.UnhealthyThreshold,
-				"healthcheck_port":        int(check.HealthcheckPort),
-			}
-
-			if http := check.GetHttp(); http != nil {
-				flHealthcheck["http_healthcheck"] = []map[string]interface{}{
-					{
-						"host":  http.Host,
-						"path":  http.Path,
-						"http2": http.UseHttp2,
-					},
-				}
-			}
-
-			if grpc := check.GetGrpc(); grpc != nil {
-				flHealthcheck["grpc_healthcheck"] = []map[string]interface{}{
-					{
-						"service_name": grpc.ServiceName,
-					},
-				}
-			}
-
-			if stream := check.GetStream(); stream != nil {
-				flHealthcheck["stream_healthcheck"] = []map[string]interface{}{
-					{
-						"receive": stream.Receive.String(),
-						"send":    stream.Send.String(),
-					},
-				}
-			}
-
-			flHealthchecks.Add(flHealthcheck)
-		}
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
@@ -1368,8 +1355,11 @@ func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 			"weight":                int(b.BackendWeight.Value),
 			"tls":                   flTls,
 			"load_balancing_config": flLoadBalancingConfig,
-			"target_group_ids":      b.GetTargetGroups().TargetGroupIds,
 			"healthcheck":           flHealthchecks,
+		}
+		switch b.GetBackendType().(type) {
+		case *apploadbalancer.HttpBackend_TargetGroups:
+			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
 		}
 		result.Add(flBackend)
 	}
@@ -1400,48 +1390,7 @@ func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 				},
 			}
 		}
-		flHealthchecks := &schema.Set{F: resourceALBBackendGroupHealthcheckHash}
-		if healthchecks := b.GetHealthchecks(); len(healthchecks) == 1 {
-			check := healthchecks[0]
-
-			flHealthcheck := map[string]interface{}{
-				"timeout":                 formatDuration(check.Timeout),
-				"interval":                formatDuration(check.Interval),
-				"interval_jitter_percent": check.IntervalJitterPercent,
-				"healthy_threshold":       check.HealthyThreshold,
-				"unhealthy_threshold":     check.UnhealthyThreshold,
-				"healthcheck_port":        int(check.HealthcheckPort),
-			}
-
-			if http := check.GetHttp(); http != nil {
-				flHealthcheck["http_healthcheck"] = []map[string]interface{}{
-					{
-						"host":  http.Host,
-						"path":  http.Path,
-						"http2": http.UseHttp2,
-					},
-				}
-			}
-
-			if grpc := check.GetGrpc(); grpc != nil {
-				flHealthcheck["grpc_healthcheck"] = []map[string]interface{}{
-					{
-						"service_name": grpc.ServiceName,
-					},
-				}
-			}
-
-			if stream := check.GetStream(); stream != nil {
-				flHealthcheck["stream_healthcheck"] = []map[string]interface{}{
-					{
-						"receive": stream.Receive.String(),
-						"send":    stream.Send.String(),
-					},
-				}
-			}
-
-			flHealthchecks.Add(flHealthcheck)
-		}
+		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
 
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
@@ -1449,8 +1398,11 @@ func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 			"weight":                int(b.BackendWeight.Value),
 			"tls":                   flTls,
 			"load_balancing_config": flLoadBalancingConfig,
-			"target_group_ids":      b.GetTargetGroups().TargetGroupIds,
 			"healthcheck":           flHealthchecks,
+		}
+		switch b.GetBackendType().(type) {
+		case *apploadbalancer.GrpcBackend_TargetGroups:
+			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
 		}
 		result.Add(flBackend)
 	}
@@ -1458,14 +1410,64 @@ func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 	return result, nil
 }
 
+func flattenALBHealthchecks(healthchecks []*apploadbalancer.HealthCheck) interface{} {
+	flHealthchecks := &schema.Set{F: resourceALBBackendGroupHealthcheckHash}
+	if len(healthchecks) > 0 {
+		check := healthchecks[0]
+
+		flHealthcheck := map[string]interface{}{
+			"timeout":                 formatDuration(check.Timeout),
+			"interval":                formatDuration(check.Interval),
+			"interval_jitter_percent": check.IntervalJitterPercent,
+			"healthy_threshold":       check.HealthyThreshold,
+			"unhealthy_threshold":     check.UnhealthyThreshold,
+			"healthcheck_port":        int(check.HealthcheckPort),
+		}
+		switch check.GetHealthcheck().(type) {
+		case *apploadbalancer.HealthCheck_Http:
+			http := check.GetHttp()
+			flHealthcheck["http_healthcheck"] = []map[string]interface{}{
+				{
+					"host":  http.Host,
+					"path":  http.Path,
+					"http2": http.UseHttp2,
+				},
+			}
+		case *apploadbalancer.HealthCheck_Grpc:
+			flHealthcheck["grpc_healthcheck"] = []map[string]interface{}{
+				{
+					"service_name": check.GetGrpc().ServiceName,
+				},
+			}
+		case *apploadbalancer.HealthCheck_Stream:
+			stream := check.GetStream()
+			flHealthcheck["stream_healthcheck"] = []map[string]interface{}{
+				{
+					"receive": stream.Receive.String(),
+					"send":    stream.Send.String(),
+				},
+			}
+		}
+
+		flHealthchecks.Add(flHealthcheck)
+	}
+
+	return flHealthchecks
+}
+
 func flattenALBTargets(tg *apploadbalancer.TargetGroup) (*schema.Set, error) {
 	result := &schema.Set{F: resourceALBTargetGroupTargetHash}
 
 	for _, t := range tg.Targets {
 		flTarget := map[string]interface{}{
-			"subnet_id":  t.SubnetId,
-			"ip_address": t.GetIpAddress(),
+			"subnet_id": t.SubnetId,
 		}
+
+		switch t.GetAddressType().(type) {
+		case *apploadbalancer.Target_IpAddress:
+			flTarget["ip_address"] = t.GetIpAddress()
+		}
+
 		result.Add(flTarget)
 	}
 
