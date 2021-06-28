@@ -231,6 +231,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_resourcemanager_folder_iam_binding":    resourceYandexResourceManagerFolderIAMBinding(),
 			"yandex_resourcemanager_folder_iam_member":     resourceYandexResourceManagerFolderIAMMember(),
 			"yandex_resourcemanager_folder_iam_policy":     resourceYandexResourceManagerFolderIAMPolicy(),
+			"yandex_resourcemanager_folder":                resourceYandexResourceManagerFolder(),
 			"yandex_storage_bucket":                        resourceYandexStorageBucket(),
 			"yandex_storage_object":                        resourceYandexStorageObject(),
 			"yandex_vpc_address":                           resourceYandexVPCAddress(),

@@ -2,6 +2,7 @@
 FEATURES:
 * **New Data Source:** `yandex_alb_load_balancer`
 * **New Resource:** `yandex_alb_load_balancer`
+* **New Resource:** `yandex_resourcemanager_folder`
 
 ENHANCEMENTS:
 * add `application_load_balancer` entity in `yandex_compute_instance_group` resource and data source
