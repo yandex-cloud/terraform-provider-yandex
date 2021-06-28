@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"io/ioutil"
 	"testing"
 
@@ -18,7 +17,7 @@ import (
 const apiGatewayResource = "yandex_api_gateway.test-api-gateway"
 const specFile = "test-fixtures/serverless/main.yaml"
 
-var specHash int
+var spec string
 
 func init() {
 	resource.AddTestSweepers("yandex_api_gateway", &resource.Sweeper{
@@ -27,8 +26,7 @@ func init() {
 		Dependencies: []string{},
 	})
 	fileBytes, _ := ioutil.ReadFile(specFile)
-	specString := string(fileBytes)
-	specHash = hashcode.String(specString)
+	spec = string(fileBytes)
 }
 
 func testSweepAPIGateway(_ string) error {
@@ -73,14 +71,12 @@ func TestAccYandexAPIGateway_basic(t *testing.T) {
 	labelKey := acctest.RandomWithPrefix("tf-api-gateway-label")
 	labelValue := acctest.RandomWithPrefix("tf-api-gateway-label-value")
 
-	yamlFilename := specFile
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
-			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, yamlFilename, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, &apiGateway),
 		},
 	})
 }
@@ -99,15 +95,13 @@ func TestAccYandexAPIGateway_update(t *testing.T) {
 	labelKeyUpdated := acctest.RandomWithPrefix("tf-api-gateway-label-updated")
 	labelValueUpdated := acctest.RandomWithPrefix("tf-api-gateway-label-value-updated")
 
-	yamlFilename := specFile
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
-			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, yamlFilename, &apiGateway),
-			basicYandexAPIGatewayTestStep(apiGatewayNameUpdated, apiGatewayDescUpdated, labelKeyUpdated, labelValueUpdated, yamlFilename, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayNameUpdated, apiGatewayDescUpdated, labelKeyUpdated, labelValueUpdated, &apiGateway),
 		},
 	})
 }
@@ -121,14 +115,12 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
-	params.yamlFilename = specFile
 
 	paramsUpdated := testYandexAPIGatewayParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-api-gateway-updated")
 	paramsUpdated.desc = acctest.RandomWithPrefix("tf-api-gateway-desc-updated")
 	paramsUpdated.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label-updated")
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value-updated")
-	paramsUpdated.yamlFilename = specFile
 
 	testConfigFunc := func(params testYandexAPIGatewayParameters) resource.TestStep {
 		return resource.TestStep{
@@ -137,8 +129,10 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 				testYandexAPIGatewayExists(apiGatewayResource, &apiGateway),
 				resource.TestCheckResourceAttr(apiGatewayResource, "name", params.name),
 				resource.TestCheckResourceAttr(apiGatewayResource, "description", params.desc),
+				resource.TestCheckResourceAttr(apiGatewayResource, "spec", spec),
 				resource.TestCheckResourceAttrSet(apiGatewayResource, "folder_id"),
 				testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
+				testYandexAPIGatewayContainsUserDomains(&apiGateway, make(map[string]struct{})),
 				testAccCheckCreatedAtAttr(apiGatewayResource),
 			),
 		}
@@ -155,15 +149,17 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	})
 }
 
-func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, yamlFilename string, apiGateway *apigateway.ApiGateway) resource.TestStep {
+func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, apiGateway *apigateway.ApiGateway) resource.TestStep {
 	return resource.TestStep{
-		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue, yamlFilename),
+		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue),
 		Check: resource.ComposeTestCheckFunc(
 			testYandexAPIGatewayExists(apiGatewayResource, apiGateway),
 			resource.TestCheckResourceAttr(apiGatewayResource, "name", apiGatewayName),
 			resource.TestCheckResourceAttr(apiGatewayResource, "description", apiGatewayDesc),
+			resource.TestCheckResourceAttr(apiGatewayResource, "spec", spec),
 			resource.TestCheckResourceAttrSet(apiGatewayResource, "folder_id"),
 			testYandexAPIGatewayContainsLabel(apiGateway, labelKey, labelValue),
+			testYandexAPIGatewayContainsUserDomains(apiGateway, make(map[string]struct{})),
 			testAccCheckCreatedAtAttr(apiGatewayResource),
 		),
 	}
@@ -234,7 +230,29 @@ func testYandexAPIGatewayContainsLabel(apiGateway *apigateway.ApiGateway, key st
 	}
 }
 
-func testYandexAPIGatewayBasic(name string, desc string, labelKey string, labelValue string, yamlFilename string) string {
+func testYandexAPIGatewayContainsUserDomains(apiGateway *apigateway.ApiGateway, domains map[string]struct{}) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		attachedDomains := apiGateway.AttachedDomains
+		expectedLen := len(domains)
+		actualLen := len(attachedDomains)
+		if actualLen != expectedLen {
+			return fmt.Errorf("Incorrect number of attached domains: expected '%q' but found '%q'", expectedLen, actualLen)
+		}
+
+		for _, domain := range attachedDomains {
+			domainId := domain.DomainId
+			if _, ok := domains[domainId]; !ok {
+				return fmt.Errorf("Domain '%s' was not expected to be attached", domainId)
+			}
+
+			delete(domains, domainId)
+		}
+
+		return nil
+	}
+}
+
+func testYandexAPIGatewayBasic(name, desc, labelKey, labelValue string) string {
 	return fmt.Sprintf(`
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"
@@ -243,18 +261,22 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec = "%s"
-  spec_content_hash = %d
+  spec = <<EOF
+%sEOF
 }
-	`, name, desc, labelKey, labelValue, yamlFilename, specHash)
+	`,
+		name,
+		desc,
+		labelKey,
+		labelValue,
+		spec)
 }
 
 type testYandexAPIGatewayParameters struct {
-	name         string
-	desc         string
-	labelKey     string
-	labelValue   string
-	yamlFilename string
+	name       string
+	desc       string
+	labelKey   string
+	labelValue string
 }
 
 func testYandexAPIGatewayFull(params testYandexAPIGatewayParameters) string {
@@ -266,14 +288,13 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec = "%s"
-  spec_content_hash = %d
+  spec = <<EOF
+%sEOF
 }
 	`,
 		params.name,
 		params.desc,
 		params.labelKey,
 		params.labelValue,
-		params.yamlFilename,
-		specHash)
+		spec)
 }

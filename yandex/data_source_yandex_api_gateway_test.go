@@ -18,7 +18,6 @@ func TestAccDataSourceYandexAPIGateway_byID(t *testing.T) {
 	var apiGateway apigateway.ApiGateway
 	apiGatewayName := acctest.RandomWithPrefix("tf-api-gateway")
 	apiGatewayDesc := acctest.RandomWithPrefix("tf-api-gateway-desc")
-	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -26,7 +25,7 @@ func TestAccDataSourceYandexAPIGateway_byID(t *testing.T) {
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexAPIGatewayByID(apiGatewayName, apiGatewayDesc, yamlFilename),
+				Config: testYandexAPIGatewayByID(apiGatewayName, apiGatewayDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexAPIGatewayExists(apiGatewayDataSource, &apiGateway),
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "api_gateway_id"),
@@ -46,7 +45,6 @@ func TestAccDataSourceYandexAPIGateway_byName(t *testing.T) {
 	var apiGateway apigateway.ApiGateway
 	apiGatewayName := acctest.RandomWithPrefix("tf-api-gateway")
 	apiGatewayDesc := acctest.RandomWithPrefix("tf-api-gateway-desc")
-	yamlFilename := specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -54,7 +52,7 @@ func TestAccDataSourceYandexAPIGateway_byName(t *testing.T) {
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexAPIGatewayByName(apiGatewayName, apiGatewayDesc, yamlFilename),
+				Config: testYandexAPIGatewayByName(apiGatewayName, apiGatewayDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexAPIGatewayExists(apiGatewayDataSource, &apiGateway),
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "api_gateway_id"),
@@ -77,7 +75,6 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
-	params.yamlFilename = specFile
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -91,6 +88,7 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "name", params.name),
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "description", params.desc),
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "folder_id"),
+
 					testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
 					testAccCheckCreatedAtAttr(apiGatewayDataSource),
 				),
@@ -99,7 +97,7 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	})
 }
 
-func testYandexAPIGatewayByID(name string, desc string, yamlFilename string) string {
+func testYandexAPIGatewayByID(name, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_api_gateway" "test-api-gateway" {
   api_gateway_id = "${yandex_api_gateway.test-api-gateway.id}"
@@ -108,13 +106,13 @@ data "yandex_api_gateway" "test-api-gateway" {
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"
   description = "%s"
-  spec = "%s"
-  spec_content_hash = %d
+  spec = <<EOF
+%sEOF
 }
-	`, name, desc, yamlFilename, specHash)
+	`, name, desc, spec)
 }
 
-func testYandexAPIGatewayByName(name string, desc string, yamlFilename string) string {
+func testYandexAPIGatewayByName(name, desc string) string {
 	return fmt.Sprintf(`
 data "yandex_api_gateway" "test-api-gateway" {
   name = "${yandex_api_gateway.test-api-gateway.name}"
@@ -123,10 +121,10 @@ data "yandex_api_gateway" "test-api-gateway" {
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"
   description = "%s"
-  spec = "%s"
-  spec_content_hash = %d
+  spec = <<EOF
+%sEOF
 }
-	`, name, desc, yamlFilename, specHash)
+	`, name, desc, spec)
 }
 
 func testYandexAPIGatewayDataSource(params testYandexAPIGatewayParameters) string {
@@ -142,14 +140,13 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
-  spec = "%s"
-  spec_content_hash = %d
+  spec = <<EOF
+%sEOF
 }
 	`,
 		params.name,
 		params.desc,
 		params.labelKey,
 		params.labelValue,
-		params.yamlFilename,
-		specHash)
+		spec)
 }

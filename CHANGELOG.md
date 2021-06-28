@@ -10,7 +10,9 @@ ENHANCEMENTS:
 * add `folder_id` attribute to `auto_scale.custom_rule` in `yandex_compute_instance_group` resource and data source
 * add `nat_ip_address` attribute to `instance_template.network_interface` in `yandex_compute_instance_group` resource and data source
 * add `disk_id` attribute to `instance_template.boot_disk`,`instance_template.secondary_disk` in `yandex_compute_instance_group`
+* apigateway: change `spec` attribute from filename to string
 * docs: add info about timeouts for `yandex_compute_snapshot`
+* docs: add `yandex_api_gateway`
 
 ## 0.60.0 (June 17, 2021)
 FEATURES:
