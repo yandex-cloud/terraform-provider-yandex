@@ -25,7 +25,7 @@ func init() {
 }
 
 func sweepFolderOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDefaultTimeout)
+	ctx, cancel := conf.ContextWithTimeout(yandexResourceManagerFolderDeleteTimeout)
 	defer cancel()
 
 	op, err := conf.sdk.ResourceManager().Folder().Delete(ctx, &resourcemanager.DeleteFolderRequest{
