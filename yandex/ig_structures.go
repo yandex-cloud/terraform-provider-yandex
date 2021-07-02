@@ -591,7 +591,7 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) (*inst
 	}
 
 	if na, ok := data["nat_ip_address"]; ok {
-		if nat, ok := data["nat"].(bool); !ok || !nat {
+		if nat, ok := data["nat"].(bool); na.(string) != "" && (!ok || !nat) {
 			return res, fmt.Errorf("Use nat_ip_address only if nat is true ")
 		}
 		res.PrimaryV4AddressSpec.OneToOneNatSpec.Address = na.(string)
