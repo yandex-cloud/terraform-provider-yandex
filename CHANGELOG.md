@@ -15,6 +15,9 @@ ENHANCEMENTS:
 * docs: add info about timeouts for `yandex_compute_snapshot`
 * docs: add `yandex_api_gateway`
 
+BUG FIXES:
+* compute: Remove restrictions for `type` attribute at `instance_template.boot_disk.initialize_params`,`instance_template.secondary_disk.initialize_params` in `yandex_compute_instance_group`
+
 ## 0.60.0 (June 17, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_virtual_host`
