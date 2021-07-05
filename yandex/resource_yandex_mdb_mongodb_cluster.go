@@ -1004,7 +1004,7 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 			return err
 		}
 		req.MaintenanceWindow = mw
-		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
+		updatePath = append(updatePath, "maintenance_window")
 
 		onDone = append(onDone, func() {
 			d.SetPartial("maintenance_window")
