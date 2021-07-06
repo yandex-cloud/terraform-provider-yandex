@@ -164,7 +164,7 @@ func flattenInstanceGroupNetworkInterfaceSpec(nicSpec *instancegroup.NetworkInte
 		"ipv6_address": nicSpec.GetPrimaryV6AddressSpec().GetAddress(),
 	}
 
-	networkInterface["nat_address"] = nicSpec.GetPrimaryV4AddressSpec().GetOneToOneNatSpec().GetAddress()
+	networkInterface["nat_ip_address"] = nicSpec.GetPrimaryV4AddressSpec().GetOneToOneNatSpec().GetAddress()
 
 	if nicSpec.GetSecurityGroupIds() != nil {
 		networkInterface["security_group_ids"] = convertStringArrToInterface(nicSpec.SecurityGroupIds)
@@ -590,11 +590,11 @@ func expandInstanceGroupNetworkInterfaceSpec(data map[string]interface{}) (*inst
 		res.PrimaryV6AddressSpec.Address = addr.(string)
 	}
 
-	if na, ok := data["nat_ip_address"]; ok {
-		if nat, ok := data["nat"].(bool); na.(string) != "" && (!ok || !nat) {
+	if na, ok := data["nat_ip_address"].(string); ok && na != "" {
+		if nat, ok := data["nat"].(bool); !ok || !nat {
 			return res, fmt.Errorf("Use nat_ip_address only if nat is true ")
 		}
-		res.PrimaryV4AddressSpec.OneToOneNatSpec.Address = na.(string)
+		res.PrimaryV4AddressSpec.OneToOneNatSpec.Address = na
 	}
 
 	if sgids, ok := data["security_group_ids"]; ok {
