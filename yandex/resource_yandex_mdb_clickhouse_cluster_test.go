@@ -180,6 +180,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					}),
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
+					resource.TestCheckResourceAttr(chResource, "cloud_storage.0.enabled", "true"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -1481,6 +1482,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   maintenance_window {
     type = "ANYTIME"
+  }
+
+  cloud_storage {
+    enabled = true
   }
 }
 `, name, desc)
