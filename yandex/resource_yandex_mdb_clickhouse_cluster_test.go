@@ -885,6 +885,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
+  version        = "21.6"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1113,6 +1114,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
+  version        = "21.6"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1497,6 +1499,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
   description              = "%s"
   environment              = "PRESTABLE"
+  version                  = "21.6"
   network_id               = "${yandex_vpc_network.mdb-ch-test-net.id}"
   copy_schema_on_new_hosts = true
 
@@ -1803,6 +1806,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     name = "test_model2"
     type = "ML_MODEL_TYPE_CATBOOST"
     uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+  }
+
+  cloud_storage {
+    enabled = true
   }
 }
 `, name, desc)
