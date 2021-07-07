@@ -1,8 +1,10 @@
 ## 0.61.0 (Unreleased)
 FEATURES:
 * **New Data Source:** `yandex_alb_load_balancer`
+* **New Data Source:** `yandex_function_scaling_policy`
 * **New Resource:** `yandex_alb_load_balancer`
 * **New Resource:** `yandex_resourcemanager_folder`
+* **New Resource:** `yandex_function_scaling_policy`
 
 ENHANCEMENTS:
 * add `application_load_balancer` entity in `yandex_compute_instance_group` resource and data source
@@ -18,6 +20,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * compute: Remove restrictions for `type` attribute at `instance_template.boot_disk.initialize_params`,`instance_template.secondary_disk.initialize_params` in `yandex_compute_instance_group`
+* functions: `execution_timeout` attribute change now provides `yandex_function` resource update
 
 ## 0.60.0 (June 17, 2021)
 FEATURES:

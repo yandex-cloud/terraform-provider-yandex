@@ -268,7 +268,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 		partialPaths = append(partialPaths, "labels")
 	}
 
-	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "service_account_id", "environment", "tags", "package", "content"}
+	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id", "environment", "tags", "package", "content"}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
 		if d.HasChange(p) {
