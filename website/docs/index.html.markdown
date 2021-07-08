@@ -47,7 +47,7 @@ The following keys can be used to configure the provider.
   This can also be specified using environment variable `YC_SERVICE_ACCOUNT_KEY_FILE`.
   You can read how to create service account key file [here][yandex-service-account-key].
 
-~> **NOTE:** Only one of `token` or `service_account_key_file` can be specified.
+~> **NOTE:** Only one of `token` or `service_account_key_file` must be specified.
 
 ~> **NOTE:** One can authenticate via instance service account from inside a compute instance. In order to use this method, omit both `token`/`service_account_key_file` and attach service account to the instance.
 [Working with Yandex.Cloud from inside an instance][instance-service-account]
