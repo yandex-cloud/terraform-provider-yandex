@@ -91,7 +91,6 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Type:         schema.TypeInt,
 										Optional:     true,
 										Computed:     true,
-										ValidateFunc: validation.IntAtLeast(64),
 									},
 									"type": {
 										Type:     schema.TypeString,
