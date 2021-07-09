@@ -1,4 +1,6 @@
-## 0.61.0 (Unreleased)
+## 0.62.0 (Unreleased)
+
+## 0.61.0 (July 9, 2021)
 FEATURES:
 * **New Data Source:** `yandex_alb_load_balancer`
 * **New Data Source:** `yandex_function_scaling_policy`
