@@ -2,9 +2,11 @@
 FEATURES:
 * **New Data Source:** `yandex_alb_load_balancer`
 * **New Data Source:** `yandex_function_scaling_policy`
+* **New Data Source:** `yandex_vpc_security_group_rule` for getting info about security group rules
 * **New Resource:** `yandex_alb_load_balancer`
 * **New Resource:** `yandex_resourcemanager_folder`
 * **New Resource:** `yandex_function_scaling_policy`
+* **New Resource** `yandex_vpc_security_group_rule` for security group rule managment
 
 ENHANCEMENTS:
 * add `application_load_balancer` entity in `yandex_compute_instance_group` resource and data source

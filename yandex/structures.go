@@ -811,19 +811,38 @@ func expandSecurityGroupRulesSpec(d *schema.ResourceData) ([]*vpc.SecurityGroupR
 	return securityRules, nil
 }
 
-func securityRuleCidrs(res map[string]interface{}) (*vpc.CidrBlocks, bool) {
-	cidr := new(vpc.CidrBlocks)
+func securityRuleCidrsFromMap(res map[string]interface{}) (*vpc.CidrBlocks, bool) {
+	var v4Blocks interface{} = nil
+	var v6Blocks interface{} = nil
 
 	if v, ok := res["v4_cidr_blocks"]; ok {
-		arr := v.([]interface{})
+		v4Blocks = v
+	}
+
+	if v, ok := res["v6_cidr_blocks"]; ok {
+		v6Blocks = v
+	}
+
+	return securityRuleCirds(v4Blocks, v6Blocks)
+}
+
+func securityRuleCidrsFromResourceData(data *schema.ResourceData) (*vpc.CidrBlocks, bool) {
+	return securityRuleCirds(data.Get("v4_cidr_blocks"), data.Get("v6_cidr_blocks"))
+}
+
+func securityRuleCirds(v4Blocks, v6Blocks interface{}) (*vpc.CidrBlocks, bool) {
+	cidr := new(vpc.CidrBlocks)
+
+	if v4Blocks != nil {
+		arr := v4Blocks.([]interface{})
 		cidr.V4CidrBlocks = make([]string, len(arr))
 		for i, c := range arr {
 			cidr.V4CidrBlocks[i] = c.(string)
 		}
 	}
 
-	if v, ok := res["v6_cidr_blocks"]; ok {
-		arr := v.([]interface{})
+	if v6Blocks != nil {
+		arr := v6Blocks.([]interface{})
 		cidr.V6CidrBlocks = make([]string, len(arr))
 		for i, c := range arr {
 			cidr.V6CidrBlocks[i] = c.(string)
@@ -835,74 +854,38 @@ func securityRuleCidrs(res map[string]interface{}) (*vpc.CidrBlocks, bool) {
 }
 
 // return nil on ANY-typed port range
-func securityRulePorts(res map[string]interface{}) (*vpc.PortRange, error) {
+func securityRulePortsFromMap(res map[string]interface{}) (*vpc.PortRange, error) {
 	port := int64(res["port"].(int))
-	frPort := int64(res["from_port"].(int))
+	fromPort := int64(res["from_port"].(int))
 	toPort := int64(res["to_port"].(int))
 
-	if port == -1 && frPort == -1 && toPort == -1 {
+	return securityRulePorts(port, fromPort, toPort)
+}
+
+func securityRulePortsFromResourceData(data *schema.ResourceData) (*vpc.PortRange, error) {
+	port := int64(data.Get("port").(int))
+	fromPort := int64(data.Get("from_port").(int))
+	toPort := int64(data.Get("to_port").(int))
+
+	return securityRulePorts(port, fromPort, toPort)
+}
+
+func securityRulePorts(port, fromPort, toPort int64) (*vpc.PortRange, error) {
+	if port == -1 && fromPort == -1 && toPort == -1 {
 		return nil, nil
 	}
 
 	if port != -1 {
-		if frPort != -1 || toPort != -1 {
+		if fromPort != -1 || toPort != -1 {
 			return nil, fmt.Errorf("cannot set from_port/to_port with port")
 		}
-		frPort = port
+		fromPort = port
 		toPort = port
-	} else if frPort == -1 || toPort == -1 {
+	} else if fromPort == -1 || toPort == -1 {
 		return nil, fmt.Errorf("port or from_port + to_port must be defined")
 	}
 
-	return &vpc.PortRange{FromPort: frPort, ToPort: toPort}, nil
-}
-
-func securityRuleDescriptionToRuleSpec(dir string, v interface{}) (*vpc.SecurityGroupRuleSpec, error) {
-	res, ok := v.(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("fail to cast %#v to map[string]interface{}", v)
-	}
-
-	sr := new(vpc.SecurityGroupRuleSpec)
-
-	directionId := vpc.SecurityGroupRule_Direction_value[strings.ToUpper(dir)]
-	sr.SetDirection(vpc.SecurityGroupRule_Direction(directionId))
-
-	if v, ok := res["description"].(string); ok {
-		sr.SetDescription(v)
-	}
-
-	if v, ok := res["security_group_id"].(string); ok && v != "" {
-		sr.SetSecurityGroupId(v)
-	}
-
-	if v, ok := res["predefined_target"].(string); ok && v != "" {
-		sr.SetPredefinedTarget(v)
-	}
-
-	if p, ok := res["protocol"].(string); ok {
-		sr.SetProtocolName(p)
-	}
-
-	if v, ok := res["labels"]; ok {
-		labels, err := expandLabels(v)
-		if err != nil {
-			return sr, err
-		}
-		sr.SetLabels(labels)
-	}
-
-	if cidr, ok := securityRuleCidrs(res); ok {
-		sr.SetCidrBlocks(cidr)
-	}
-
-	ports, err := securityRulePorts(res)
-	if err != nil {
-		return sr, err
-	}
-	sr.SetPorts(ports)
-
-	return sr, nil
+	return &vpc.PortRange{FromPort: fromPort, ToPort: toPort}, nil
 }
 
 func flattenMaintenanceWindow(mw *k8s.MaintenanceWindow) (*schema.Set, error) {

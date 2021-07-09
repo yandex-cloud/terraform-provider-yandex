@@ -53,6 +53,7 @@ func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 		"ingress": {
 			Type:     schema.TypeSet,
 			Optional: true,
+			Computed: true,
 			Elem:     resourceYandexSecurityGroupRule(),
 			Set:      resourceYandexVPCSecurityGroupRuleHash,
 		},
@@ -60,6 +61,7 @@ func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 		"egress": {
 			Type:     schema.TypeSet,
 			Optional: true,
+			Computed: true,
 			Elem:     resourceYandexSecurityGroupRule(),
 			Set:      resourceYandexVPCSecurityGroupRuleHash,
 		},
