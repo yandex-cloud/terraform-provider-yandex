@@ -70,6 +70,11 @@ func resourceYandexStorageObject() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"source", "content"},
 			},
+			"content_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -122,12 +127,18 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Trying to create new storage object %q in bucket %q", key, bucket)
 
-	if _, err := s3conn.PutObject(&s3.PutObjectInput{
+	putObjectInput := &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 		ACL:    aws.String(d.Get("acl").(string)),
 		Body:   body,
-	}); err != nil {
+	}
+
+	if v, ok := d.GetOk("content_type"); ok {
+		putObjectInput.ContentType = aws.String(v.(string))
+	}
+
+	if _, err := s3conn.PutObject(putObjectInput); err != nil {
 		return fmt.Errorf("error putting object in bucket %q: %s", bucket, err)
 	}
 
@@ -162,6 +173,8 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 	log.Printf("[DEBUG] Reading storage object meta: %s", resp)
 
+	d.Set("content_type", resp.ContentType)
+
 	return nil
 }
 
@@ -170,6 +183,7 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 		"source",
 		"content",
 		"content_base64",
+		"content_type",
 	} {
 		if d.HasChange(key) {
 			return resourceYandexStorageObjectCreate(d, meta)

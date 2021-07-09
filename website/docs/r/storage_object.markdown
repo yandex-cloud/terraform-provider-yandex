@@ -36,6 +36,8 @@ The following arguments are supported:
 
 * `content_base64` - (Optional, conflicts with `source` and `content`) Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file.
 
+* `content_type` - (Optional) A standard MIME type describing the format of the object data, e.g. `application/octet-stream`. All Valid MIME Types are valid for this input.
+
 * `access_key` - (Optional) The access key to use when applying changes. If omitted, `storage_access_key` specified in config is used.
 
 * `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in config is used.

@@ -171,6 +171,50 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 		},
 	})
 }
+func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
+	var obj s3.GetObjectOutput
+	resourceName := "yandex_storage_object.test"
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigContentType(rInt, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectContentType(&obj, "application/octet-stream"),
+				),
+			},
+		},
+	})
+}
+func TestAccStorageObject_contentTypeText(t *testing.T) {
+	var obj s3.GetObjectOutput
+	resourceName := "yandex_storage_object.test"
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigContentType(rInt, "text/plain"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectContentType(&obj, "text/plain"),
+				),
+			},
+		},
+	})
+}
 
 func TestAccStorageObject_updateAcl(t *testing.T) {
 	var obj s3.GetObjectOutput
@@ -285,6 +329,15 @@ func testAccCheckStorageObjectBody(obj *s3.GetObjectOutput, want string) resourc
 		return nil
 	}
 }
+func testAccCheckStorageObjectContentType(obj *s3.GetObjectOutput, want string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if got := *obj.ContentType; got != want {
+			return fmt.Errorf("wrong result content_type %q; want %q", got, want)
+		}
+
+		return nil
+	}
+}
 
 func testAccStorageObjectCreateTempFile(t *testing.T, data string) string {
 	tmpFile, err := ioutil.TempFile("", "tf-acc-storage-obj")
@@ -363,6 +416,28 @@ resource "yandex_storage_object" "test" {
 	content_base64 = "%[2]s"
 }
 `, randInt, contentBase64) + testAccCommonIamDependenciesEditorConfig(randInt)
+}
+
+func testAccStorageObjectConfigContentType(randInt int, contentType string) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+	bucket = "tf-object-test-bucket-%[1]d"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key            = "test-key"
+	content        = "some-content-type"
+	content_type   = "%[2]s"
+}
+`, randInt, contentType) + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageObjectAclPreConfig(randInt int) string {

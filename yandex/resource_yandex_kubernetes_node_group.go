@@ -88,9 +88,9 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Computed:     true,
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
 									},
 									"type": {
 										Type:     schema.TypeString,

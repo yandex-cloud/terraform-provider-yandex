@@ -17,6 +17,7 @@ ENHANCEMENTS:
 * apigateway: change `spec` attribute from filename to string
 * docs: add info about timeouts for `yandex_compute_snapshot`
 * docs: add `yandex_api_gateway`
+* add `content_type` attribute in `yandex_storage_object` resource
 
 BUG FIXES:
 * compute: Remove restrictions for `type` attribute at `instance_template.boot_disk.initialize_params`,`instance_template.secondary_disk.initialize_params` in `yandex_compute_instance_group`
