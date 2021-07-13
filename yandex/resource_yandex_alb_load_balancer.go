@@ -338,12 +338,13 @@ func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{
 	}
 
 	req := apploadbalancer.CreateLoadBalancerRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		RegionId:    d.Get("region_id").(string),
-		NetworkId:   d.Get("network_id").(string),
-		Labels:      labels,
+		FolderId:         folderID,
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		RegionId:         d.Get("region_id").(string),
+		NetworkId:        d.Get("network_id").(string),
+		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
+		Labels:           labels,
 	}
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)
@@ -418,6 +419,7 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", alb.Description)
 	d.Set("region_id", alb.RegionId)
 	d.Set("network_id", alb.NetworkId)
+	d.Set("security_group_ids", alb.SecurityGroupIds)
 	d.Set("log_group_id", alb.LogGroupId)
 	d.Set("status", strings.ToLower(alb.Status.String()))
 
@@ -451,10 +453,11 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	req := &apploadbalancer.UpdateLoadBalancerRequest{
-		LoadBalancerId: d.Id(),
-		Name:           d.Get("name").(string),
-		Description:    d.Get("description").(string),
-		Labels:         labels,
+		LoadBalancerId:   d.Id(),
+		Name:             d.Get("name").(string),
+		Description:      d.Get("description").(string),
+		SecurityGroupIds: expandStringSet(d.Get("security_group_ids")),
+		Labels:           labels,
 	}
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)

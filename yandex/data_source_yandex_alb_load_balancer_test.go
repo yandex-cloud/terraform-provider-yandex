@@ -419,6 +419,8 @@ resource "yandex_alb_load_balancer" "test-alb" {
 
   network_id = yandex_vpc_network.test-network.id
 
+  security_group_ids = [yandex_vpc_security_group.test-security-group.id]
+
   labels = {
     tf-label    = "tf-label-value"
     empty-label = ""
@@ -438,6 +440,17 @@ resource "yandex_vpc_subnet" "test-subnet" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.test-network.id
   v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_security_group" "test-security-group" {
+  network_id = yandex_vpc_network.test-network.id
+
+  ingress {
+    protocol       = "TCP"
+    description    = "healthchecks"
+    port           = 30080
+    v6_cidr_blocks = ["198.18.235.0/24", "198.18.248.0/24"]
+  }
 }
 `, name, desc)
 }

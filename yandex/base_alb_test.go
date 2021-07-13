@@ -315,7 +315,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   name        = "{{.BalancerName}}"
   description = "{{.BalancerDescription}}"
 
-  security_group_ids = [yandex_vpc_security_group.test-security-group]
+  security_group_ids = [yandex_vpc_security_group.test-security-group.id]
   network_id  = yandex_vpc_network.test-network.id
   labels = {
     tf-label    = "tf-label-value"
@@ -382,8 +382,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
 }
 
 resource "yandex_vpc_security_group" "test-security-group" {
-  name        = "healthchecks"
-  network_id  = yandex_vpc_network.test-network.id
+  network_id = yandex_vpc_network.test-network.id
 
   ingress {
     protocol       = "TCP"

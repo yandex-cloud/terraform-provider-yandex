@@ -27,6 +27,18 @@ type ReducedDiskServiceClient interface {
 	Get(ctx context.Context, in *compute.GetDiskRequest, opts ...grpc.CallOption) (*compute.Disk, error)
 }
 
+func expandStringSet(v interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	var result []string
+	set := v.(*schema.Set)
+	for _, val := range set.List() {
+		result = append(result, val.(string))
+	}
+	return result
+}
+
 func expandLabels(v interface{}) (map[string]string, error) {
 	m := make(map[string]string)
 	if v == nil {
