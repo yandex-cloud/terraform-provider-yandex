@@ -16,7 +16,7 @@ Manages a DNS Zone.
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_dns_zone" "zone1" {
-  name        = "my_private_zone"
+  name        = "my-private-zone"
   description = "desc"
 
   labels = {
