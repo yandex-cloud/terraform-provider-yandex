@@ -337,6 +337,11 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -439,6 +444,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	d.Set("health", cluster.GetHealth().String())
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	d.SetId(cluster.Id)
 	return nil

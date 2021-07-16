@@ -95,6 +95,7 @@ func testAccDataSourceMDBClickHouseClusterAttributesCheck(datasourceName string,
 			"sql_user_management",
 			"sql_database_management",
 			"service_account_id",
+			"deletion_protection",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -135,6 +136,7 @@ func testAccDataSourceMDBClickHouseClusterCheck(datasourceName string, resourceN
 		resource.TestCheckResourceAttr(datasourceName, "sql_database_management", "false"),
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }
@@ -153,8 +155,8 @@ data "yandex_mdb_clickhouse_cluster" "bar" {
 
 func testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucket string, useDataID bool, randInt int) string {
 	if useDataID {
-		return testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucket, randInt) + mdbClickHouseClusterByIDConfig
+		return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt) + mdbClickHouseClusterByIDConfig
 	}
 
-	return testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucket, randInt) + mdbClickHouseClusterByNameConfig
+	return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt) + mdbClickHouseClusterByNameConfig
 }

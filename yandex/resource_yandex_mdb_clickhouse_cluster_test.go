@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"testing"
 
@@ -101,7 +102,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -132,6 +133,39 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "true"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "true"),
+				),
+			},
+			// test 'deletion_protection
+			{
+				Config:      testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRODUCTION", true, bucketName, rInt),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -875,7 +909,7 @@ resource "yandex_storage_object" "test_ml_model" {
 `, bucket)
 }
 
-func testAccMDBClickHouseClusterConfigMain(name, desc, bucket string, randInt int) string {
+func testAccMDBClickHouseClusterConfigMain(name, desc, environment string, deletionProtection bool, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   depends_on = [
@@ -884,7 +918,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   name           = "%s"
   description    = "%s"
-  environment    = "PRESTABLE"
+  environment    = "%s"
   version        = "21.6"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
@@ -1104,8 +1138,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     day  = "FRI"
     hour = 20
   }
+
+  deletion_protection = %t
 }
-`, name, desc)
+`, name, desc, environment, deletionProtection)
 }
 
 func testAccMDBClickHouseClusterConfigUpdated(name, desc, bucket string, randInt int) string {

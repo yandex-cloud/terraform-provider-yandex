@@ -221,6 +221,11 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -319,17 +324,18 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := redis.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Environment:      env,
-		ConfigSpec:       configSpec,
-		HostSpecs:        hosts,
-		Labels:           labels,
-		Sharded:          d.Get("sharded").(bool),
-		TlsEnabled:       &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
-		SecurityGroupIds: securityGroupIds,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Environment:        env,
+		ConfigSpec:         configSpec,
+		HostSpecs:          hosts,
+		Labels:             labels,
+		Sharded:            d.Get("sharded").(bool),
+		TlsEnabled:         &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 	return &req, nil
 }
@@ -425,6 +431,8 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	d.Set("deletion_protection", cluster.DeletionProtection)
+
 	return d.Set("labels", cluster.Labels)
 }
 
@@ -435,7 +443,7 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
 	}
 
-	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") || d.HasChange("security_group_ids") {
+	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") || d.HasChange("security_group_ids") || d.HasChange("deletion_protection") {
 		if err := updateRedisClusterParams(d, meta); err != nil {
 			return err
 		}
@@ -544,6 +552,14 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 		onDone = append(onDone, func() {
 			d.SetPartial("security_group_ids")
+		})
+	}
+
+	if d.HasChange("deletion_protection") {
+		req.DeletionProtection = d.Get("deletion_protection").(bool)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection")
+		onDone = append(onDone, func() {
+			d.SetPartial("deletion_protection")
 		})
 	}
 

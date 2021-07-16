@@ -218,6 +218,11 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -302,17 +307,18 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 	}
 
 	req := sqlserver.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Environment:      env,
-		ConfigSpec:       configSpec,
-		DatabaseSpecs:    dbs,
-		UserSpecs:        userSpecs,
-		HostSpecs:        hosts,
-		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Environment:        env,
+		ConfigSpec:         configSpec,
+		DatabaseSpecs:      dbs,
+		UserSpecs:          userSpecs,
+		HostSpecs:          hosts,
+		Labels:             labels,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 	return &req, nil
 }
@@ -415,6 +421,9 @@ func resourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
+
 	return d.Set("created_at", createdAt)
 }
 
@@ -534,6 +543,7 @@ var mdbSQLServerUpdateFieldsMap = map[string]string{
 	"resources.0.resource_preset_id": "config_spec.resources.resource_preset_id",
 	"resources.0.disk_size":          "config_spec.resources.disk_size",
 	"security_group_ids":             "security_group_ids",
+	"deletion_protection":            "deletion_protection",
 }
 
 func sqlserverClusterUpdate(ctx context.Context, config *Config, d *schema.ResourceData) error {
@@ -546,11 +556,12 @@ func sqlserverClusterUpdate(ctx context.Context, config *Config, d *schema.Resou
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := &sqlserver.UpdateClusterRequest{
-		ClusterId:        d.Id(),
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		ClusterId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	resources := expandSQLServerResources(d)

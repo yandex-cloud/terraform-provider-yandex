@@ -696,6 +696,11 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -869,19 +874,20 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := clickhouse.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Environment:      env,
-		DatabaseSpecs:    dbSpecs,
-		ConfigSpec:       configSpec,
-		HostSpecs:        firstHosts,
-		UserSpecs:        users,
-		Labels:           labels,
-		ShardName:        firstShard,
-		SecurityGroupIds: securityGroupIds,
-		ServiceAccountId: d.Get("service_account_id").(string),
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Environment:        env,
+		DatabaseSpecs:      dbSpecs,
+		ConfigSpec:         configSpec,
+		HostSpecs:          firstHosts,
+		UserSpecs:          users,
+		Labels:             labels,
+		ShardName:          firstShard,
+		SecurityGroupIds:   securityGroupIds,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 	return &req, toAdd, nil
 }
@@ -1057,6 +1063,7 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		d.Set("sql_database_management", false)
 	}
 	d.Set("service_account_id", cluster.ServiceAccountId)
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	cs := flattenClickHouseCloudStorage(cluster.Config.CloudStorage)
 	if err := d.Set("cloud_storage", cs); err != nil {
@@ -1132,6 +1139,7 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"security_group_ids":      "security_group_ids",
 	"service_account_id":      "service_account_id",
 	"maintenance_window":      "maintenance_window",
+	"deletion_protection":     "deletion_protection",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1228,9 +1236,10 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 			SqlDatabaseManagement: &wrappers.BoolValue{Value: d.Get("sql_database_management").(bool)},
 			CloudStorage:          expandClickHouseCloudStorage(d),
 		},
-		SecurityGroupIds:  expandSecurityGroupIds(d.Get("security_group_ids")),
-		ServiceAccountId:  d.Get("service_account_id").(string),
-		MaintenanceWindow: mw,
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		MaintenanceWindow:  mw,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	if pass, ok := d.GetOk("admin_password"); ok {

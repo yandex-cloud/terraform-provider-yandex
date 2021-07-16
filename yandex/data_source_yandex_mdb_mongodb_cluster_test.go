@@ -68,6 +68,7 @@ func testAccDataSourceMDBMongoDBClusterAttributesCheck(datasourceName string, re
 			"maintenance_window.0.type",
 			"maintenance_window.0.day",
 			"maintenance_window.0.hour",
+			"deletion_protection",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -103,6 +104,7 @@ func testAccDataSourceMDBMongoDBClusterCheck(datasourceName string, resourceName
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 	)
 }
 
@@ -113,5 +115,5 @@ data "yandex_mdb_mongodb_cluster" "bar" {
 `
 
 func testAccDataSourceMDBMongoDBClusterConfig(mongodbName string) string {
-	return testAccMDBMongoDBClusterConfigMain(mongodbName) + mdbMongoDBClusterByNameConfig
+	return testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false) + mdbMongoDBClusterByNameConfig
 }

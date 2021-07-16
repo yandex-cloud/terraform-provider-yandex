@@ -420,6 +420,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -523,6 +528,8 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	return d.Set("database", flattenPGDatabases(databases))
 }
@@ -725,17 +732,18 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := &postgresql.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Labels:           labels,
-		Environment:      env,
-		ConfigSpec:       confSpec,
-		UserSpecs:        userSpecs,
-		DatabaseSpecs:    databaseSpecs,
-		HostSpecs:        hostSpecs,
-		SecurityGroupIds: securityGroupIds,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Labels:             labels,
+		Environment:        env,
+		ConfigSpec:         confSpec,
+		UserSpecs:          userSpecs,
+		DatabaseSpecs:      databaseSpecs,
+		HostSpecs:          hostSpecs,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	return req, nil
@@ -842,6 +850,7 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		"config.0.resources":               "config_spec.resources",
 		"security_group_ids":               "security_group_ids",
 		"maintenance_window":               "maintenance_window",
+		"deletion_protection":              "deletion_protection",
 	}
 
 	if updateFieldConfigName != "" {
@@ -905,13 +914,14 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 	}
 
 	req := &postgresql.UpdateClusterRequest{
-		ClusterId:         d.Id(),
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Labels:            labels,
-		ConfigSpec:        configSpec,
-		MaintenanceWindow: maintenanceWindow,
-		SecurityGroupIds:  securityGroupIds,
+		ClusterId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		ConfigSpec:         configSpec,
+		MaintenanceWindow:  maintenanceWindow,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	return req, updateFieldConfigName, nil

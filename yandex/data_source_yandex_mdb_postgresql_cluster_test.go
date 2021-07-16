@@ -246,6 +246,10 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"security_group_ids.#",
 				"security_group_ids.#",
 			},
+			{
+				"deletion_protection",
+				"deletion_protection",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -289,7 +293,9 @@ func testAccDataSourceMDBPGClusterCheck(datasourceName string, resourceName stri
 		resource.TestCheckResourceAttr(datasourceName, "config.0.backup_window_start.#", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 	)
 }
 
@@ -307,8 +313,8 @@ data "yandex_mdb_postgresql_cluster" "bar" {
 
 func testAccDataSourceMDBPGClusterConfig(pgName, pgDesc string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBPGClusterConfigMain(pgName, pgDesc) + mdbPGClusterByIDConfig
+		return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false) + mdbPGClusterByIDConfig
 	}
 
-	return testAccMDBPGClusterConfigMain(pgName, pgDesc) + mdbPGClusterByNameConfig
+	return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false) + mdbPGClusterByNameConfig
 }

@@ -88,7 +88,7 @@ func TestAccMDBSQLServerCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create SQLServer Cluster
 			{
-				Config: testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc),
+				Config: testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBSQLServerClusterExists(sqlserverResource, 1),
 					resource.TestCheckResourceAttr(sqlserverResource, "name", SQLServerName),
@@ -100,6 +100,39 @@ func TestAccMDBSQLServerCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(sqlserverResource, "resources.0.resource_preset_id", "s2.small"),
 					testAccCheckCreatedAtAttr(sqlserverResource),
 					resource.TestCheckResourceAttr(sqlserverResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(sqlserverResource, "deletion_protection", "true"),
+				),
+			},
+			mdbSQLServerClusterImportStep(sqlserverResource),
+			// uncheck 'deletion_protection
+			{
+				Config: testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBSQLServerClusterExists(sqlserverResource, 1),
+					resource.TestCheckResourceAttr(sqlserverResource, "deletion_protection", "false"),
+				),
+			},
+			mdbSQLServerClusterImportStep(sqlserverResource),
+			// check 'deletion_protection
+			{
+				Config: testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc, "PRESTABLE", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBSQLServerClusterExists(sqlserverResource, 1),
+					resource.TestCheckResourceAttr(sqlserverResource, "deletion_protection", "true"),
+				),
+			},
+			// trigger deletion by changing environment
+			{
+				Config:      testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc, "PRODUCTION", true),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			mdbSQLServerClusterImportStep(sqlserverResource),
+			// uncheck 'deletion_protection
+			{
+				Config: testAccMDBSQLServerClusterConfigMain(SQLServerName, SQLServerDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBSQLServerClusterExists(sqlserverResource, 1),
+					resource.TestCheckResourceAttr(sqlserverResource, "deletion_protection", "false"),
 				),
 			},
 			mdbSQLServerClusterImportStep(sqlserverResource),
@@ -312,12 +345,12 @@ resource "yandex_vpc_security_group" "mdb-sqlserver-test-sg-y" {
 }
 `
 
-func testAccMDBSQLServerClusterConfigMain(name, desc string) string {
+func testAccMDBSQLServerClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
 	return fmt.Sprintf(sqlserverVPCDependencies+`
 resource "yandex_mdb_sqlserver_cluster" "foo" {
   name        = "%s"
   description = "%s"
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = yandex_vpc_network.mdb-sqlserver-test-net.id
 
 
@@ -351,8 +384,10 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   }
 
   security_group_ids = [yandex_vpc_security_group.mdb-sqlserver-test-sg-x.id]
+
+  deletion_protection = %t
 }
-`, name, desc)
+`, name, desc, environment, deletionProtection)
 }
 
 func testAccMDBSQLServerClusterConfigUpdated(name, desc string) string {

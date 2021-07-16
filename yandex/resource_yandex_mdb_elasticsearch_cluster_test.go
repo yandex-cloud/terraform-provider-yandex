@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"testing"
 	"time"
@@ -62,6 +63,20 @@ func sweepMDBElasticsearchClusterOnce(conf *Config, id string) error {
 	return handleSweepOperation(ctx, conf, op, err)
 }
 
+func mdbElasticsearchClusterImportStep(name string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      name,
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateVerifyIgnore: []string{
+			"health",                  // volatile value
+			"config.0.admin_password", // not importable
+			"host",                    // host name not importable
+		},
+	}
+
+}
+
 func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 	t.Parallel()
 
@@ -79,7 +94,7 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Elasticsearch Cluster
 			{
-				Config: testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, randInt),
+				Config: testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, "PRESTABLE", true, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBElasticsearchClusterExists(elasticsearchResource, &r, 5),
 					resource.TestCheckResourceAttr(elasticsearchResource, "name", elasticsearchName),
@@ -87,6 +102,7 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(elasticsearchResource, "description", elasticsearchDesc),
 					resource.TestCheckResourceAttr(elasticsearchResource, "config.0.admin_password", "password"),
 					resource.TestCheckResourceAttrSet(elasticsearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(elasticsearchResource, "deletion_protection", "true"),
 					// resource.TestCheckResourceAttrSet(elasticsearchResource, "host.0.fqdn"),
 					testAccCheckCreatedAtAttr(elasticsearchResource),
 					testAccCheckMDBElasticsearchClusterContainsLabel(&r, "test_key", "test_value"),
@@ -99,16 +115,39 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 					},
 				),
 			},
+			mdbElasticsearchClusterImportStep(elasticsearchResource),
+			// uncheck 'deletion_protection'
 			{
-				ResourceName:      elasticsearchResource,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"health",                  // volatile value
-					"config.0.admin_password", // not importable
-					"host",                    // host name not importable
-				},
+				Config: testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, "PRESTABLE", false, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBElasticsearchClusterExists(elasticsearchResource, &r, 5),
+					resource.TestCheckResourceAttr(elasticsearchResource, "deletion_protection", "false"),
+				),
 			},
+			mdbElasticsearchClusterImportStep(elasticsearchResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, "PRESTABLE", true, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBElasticsearchClusterExists(elasticsearchResource, &r, 5),
+					resource.TestCheckResourceAttr(elasticsearchResource, "deletion_protection", "true"),
+				),
+			},
+			mdbElasticsearchClusterImportStep(elasticsearchResource),
+			// test 'deletion_protection
+			{
+				Config:      testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, "PRODUCTION", true, randInt),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBElasticsearchClusterConfig(elasticsearchName, elasticsearchDesc, "PRESTABLE", false, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBElasticsearchClusterExists(elasticsearchResource, &r, 5),
+					resource.TestCheckResourceAttr(elasticsearchResource, "deletion_protection", "false"),
+				),
+			},
+			mdbElasticsearchClusterImportStep(elasticsearchResource),
 			// Update Elasticsearch Cluster
 			{
 				Config: testAccMDBElasticsearchClusterConfigUpdated(elasticsearchName, elasticsearchDesc2, randInt),
@@ -129,16 +168,7 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 					},
 				),
 			},
-			{
-				ResourceName:      elasticsearchResource,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"health",                  // volatile value
-					"config.0.admin_password", // not importable
-					"host",                    // host name not importable
-				},
-			},
+			mdbElasticsearchClusterImportStep(elasticsearchResource),
 		},
 	})
 }
@@ -262,7 +292,7 @@ func testAccCheckMDBElasticsearchClusterHasPlugins(r *elasticsearch.Cluster, plu
 	}
 }
 
-func testAccMDBElasticsearchClusterConfig(name, desc string, randInt int) string {
+func testAccMDBElasticsearchClusterConfig(name, desc, environment string, deletionProtection bool, randInt int) string {
 	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf("\n"+elasticsearchVPCDependencies+`
 
 locals {
@@ -279,10 +309,11 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
   labels = {
     test_key  = "test_value"
   }
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = "${yandex_vpc_network.mdb-elasticsearch-test-net.id}"
   security_group_ids = [yandex_vpc_security_group.mdb-elasticsearch-test-sg-x.id]
   service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = %t
 
   config {
 
@@ -305,7 +336,6 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
     }
 
     plugins = ["analysis-icu", "repository-s3"]
-
   }
 
   dynamic "host" {
@@ -334,7 +364,7 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
   ]
 
 }
-`, name, desc)
+`, name, desc, environment, deletionProtection)
 }
 
 func testAccMDBElasticsearchClusterConfigUpdated(name, desc string, randInt int) string {

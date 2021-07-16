@@ -272,6 +272,11 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -417,6 +422,8 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	d.Set("created_at", createdAt)
 	d.SetId(clusterID)

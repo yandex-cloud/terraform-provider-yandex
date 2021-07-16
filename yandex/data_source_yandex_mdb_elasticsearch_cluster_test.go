@@ -84,6 +84,7 @@ func testAccDataSourceMDBElasticseachClusterAttributesCheck(datasourceName strin
 			"config",
 			"security_group_ids",
 			"service_account_id",
+			"deletion_protection",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -116,6 +117,7 @@ func testAccDataSourceMDBElasticsearchClusterCheck(datasourceName string, resour
 		resource.TestCheckResourceAttr(datasourceName, "config.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "5"),
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		// our host stored in set and indexed by hashcode, not order.
 		// resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
@@ -136,8 +138,8 @@ data "yandex_mdb_elasticsearch_cluster" "bar" {
 
 func testAccDataSourceMDBElasticsearchClusterConfig(name, desc string, randInt int, useDataID bool) string {
 	if useDataID {
-		return testAccMDBElasticsearchClusterConfig(name, desc, randInt) + mdbElasticsearchClusterByIDConfig
+		return testAccMDBElasticsearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbElasticsearchClusterByIDConfig
 	}
 
-	return testAccMDBElasticsearchClusterConfig(name, desc, randInt) + mdbElasticsearchClusterByNameConfig
+	return testAccMDBElasticsearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbElasticsearchClusterByNameConfig
 }

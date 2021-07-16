@@ -190,6 +190,11 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -296,6 +301,8 @@ func dataSourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interf
 	if err := d.Set("sqlserver_config", clusterConfig); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	createdAt, err := getTimestamp(cluster.CreatedAt)
 	if err != nil {

@@ -336,6 +336,11 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -493,17 +498,18 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := mysql.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Environment:      env,
-		ConfigSpec:       configSpec,
-		DatabaseSpecs:    dbSpecs,
-		UserSpecs:        users,
-		HostSpecs:        hostSpecs,
-		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Environment:        env,
+		ConfigSpec:         configSpec,
+		DatabaseSpecs:      dbSpecs,
+		UserSpecs:          users,
+		HostSpecs:          hostSpecs,
+		Labels:             labels,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 	return &req, nil
 }
@@ -640,6 +646,8 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	d.Set("deletion_protection", cluster.DeletionProtection)
+
 	return d.Set("created_at", createdAt)
 }
 
@@ -682,6 +690,7 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"resources":           "config_spec.resources",
 	"version":             "config_spec.version",
 	"maintenance_window":  "maintenance_window",
+	"deletion_protection": "deletion_protection",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -796,12 +805,13 @@ func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterR
 	}
 
 	req := &mysql.UpdateClusterRequest{
-		ClusterId:         d.Id(),
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Labels:            labels,
-		SecurityGroupIds:  securityGroupIds,
-		MaintenanceWindow: maintenanceWindow,
+		ClusterId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		SecurityGroupIds:   securityGroupIds,
+		MaintenanceWindow:  maintenanceWindow,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	return req, nil

@@ -99,6 +99,11 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Set:      kafkaHostHash,
 				Elem:     resourceYandexMDBKafkaHost(),
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -187,6 +192,8 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	d.SetId(cluster.Id)
 	return nil

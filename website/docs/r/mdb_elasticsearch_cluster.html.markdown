@@ -171,6 +171,8 @@ The following arguments are supported:
 
 * `service_account_id` - (Optional) ID of the service account authorized for this cluster.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
 - - -
 
 The `config` block supports:

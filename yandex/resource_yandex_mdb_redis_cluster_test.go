@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -98,7 +99,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, nil, version, baseFlavor, baseDiskSize, ""),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true, nil, version, baseFlavor, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
@@ -114,6 +115,39 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false, nil, version, baseFlavor, baseDiskSize, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
+					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true, nil, version, baseFlavor, baseDiskSize, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
+					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
+				),
+			},
+			mdbRedisClusterImportStep(redisResource),
+			// check 'deletion_protection
+			{
+				Config:      testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRODUCTION", true, nil, version, baseFlavor, baseDiskSize, ""),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false, nil, version, baseFlavor, baseDiskSize, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled),
+					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
@@ -235,8 +269,8 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Redis Cluster
 			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, &tlsEnabled, version, baseFlavor,
-					baseDiskSize, diskTypeId),
+				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false, &tlsEnabled, version,
+					baseFlavor, baseDiskSize, diskTypeId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled),
 					resource.TestCheckResourceAttr(redisResource, "name", redisName),
@@ -665,13 +699,13 @@ func getTlsEnabled(tlsEnabled *bool) string {
 	return res
 }
 
-func testAccMDBRedisClusterConfigMain(name, desc string, tlsEnabled *bool, version string, flavor string,
-	diskSize int, diskTypeId string) string {
+func testAccMDBRedisClusterConfigMain(name, desc, environment string, deletionProtection bool, tlsEnabled *bool,
+	version string, flavor string, diskSize int, diskTypeId string) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
   name        = "%s"
   description = "%s"
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = "${yandex_vpc_network.foo.id}"
 %s
 
@@ -705,8 +739,10 @@ resource "yandex_mdb_redis_cluster" "foo" {
     day  = "FRI"
     hour = 20
   }
+  
+  deletion_protection = %t
 }
-`, name, desc, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId))
+`, name, desc, environment, getTlsEnabled(tlsEnabled), version, flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId), deletionProtection)
 }
 
 func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled *bool, version string, flavor string, diskSize int,

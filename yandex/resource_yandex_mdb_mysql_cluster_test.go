@@ -99,7 +99,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create MySQL Cluster
 			{
-				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc),
+				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
@@ -115,9 +115,42 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(mysqlResource),
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 1),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "true"),
 
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "12"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "false"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "true"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// trigger deletion by changing environment
+			{
+				Config:      testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRODUCTION", true),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBMySQLClusterConfigMain(mysqlName, mysqlDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "false"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -539,12 +572,12 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
-func testAccMDBMySQLClusterConfigMain(name, desc string) string {
+func testAccMDBMySQLClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
 	return fmt.Sprintf(mysqlVPCDependencies+`
 resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
   description = "%s"
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = "${yandex_vpc_network.foo.id}"
   version     = "5.7"
   labels = {
@@ -587,8 +620,9 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+  deletion_protection = %t
 }
-`, name, desc)
+`, name, desc, environment, deletionProtection)
 }
 
 func testAccMDBMySQLClusterConfigDisallowedUpdatePublicIP(name, desc string) string {
@@ -771,6 +805,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-x.id, yandex_vpc_security_group.sg-y.id]
+  deletion_protection = false
 }
 `, name, desc)
 }

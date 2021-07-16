@@ -474,6 +474,9 @@ The following arguments are supported:
 
 * `service_account_id` - (Optional) ID of the service account used for access to Yandex Object Storage.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
+
 - - -
 
 The `clickhouse` block supports:
@@ -795,9 +798,9 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `web_sql` - (Optional) Allow access for DataLens. Can be either `true` or `false`.
+* `web_sql` - (Optional) Allow access for Web SQL. Can be either `true` or `false`.
 
-* `data_lens` - (Optional) Allow access for Web SQL. Can be either `true` or `false`.
+* `data_lens` - (Optional) Allow access for DataLens. Can be either `true` or `false`.
 
 * `metrika` - (Optional) Allow access for Yandex.Metrika. Can be either `true` or `false`.
 

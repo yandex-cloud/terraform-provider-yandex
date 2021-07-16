@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"sort"
 	"testing"
 
@@ -90,7 +91,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create MongoDB Cluster
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName),
+				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbName),
@@ -105,6 +106,39 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// trigger deletion by changing environment
+			{
+				Config:      testAccMDBMongoDBClusterConfigMain(mongodbName, "PRODUCTION", false),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -533,11 +567,11 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
-func testAccMDBMongoDBClusterConfigMain(name string) string {
+func testAccMDBMongoDBClusterConfigMain(name, environment string, deletionProtection bool) string {
 	return fmt.Sprintf(mongodbVPCDependencies+`
 resource "yandex_mdb_mongodb_cluster" "foo" {
   name        = "%s"
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = "${yandex_vpc_network.foo.id}"
 
   cluster_config {
@@ -588,8 +622,10 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     day  = "FRI"
     hour = 20
   }
+  
+  deletion_protection = %t
 }
-`, name)
+`, name, environment, deletionProtection)
 }
 
 func testAccMDBMongoDBClusterConfigRoles(name string) string {

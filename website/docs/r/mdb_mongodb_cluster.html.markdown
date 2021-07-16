@@ -101,6 +101,7 @@ The following arguments are supported:
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 - - -
 
 The `cluster_config` block supports:

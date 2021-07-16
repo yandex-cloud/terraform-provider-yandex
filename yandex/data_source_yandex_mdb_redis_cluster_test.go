@@ -137,6 +137,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"maintenance_window.0.type",
 			"maintenance_window.0.day",
 			"maintenance_window.0.hour",
+			"deletion_protection",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -180,6 +181,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 	)
 }
 
@@ -198,10 +200,10 @@ data "yandex_mdb_redis_cluster" "bar" {
 func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnabled *bool, version string,
 	useDataID bool) string {
 	if useDataID {
-		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, tlsEnabled, version, "hm1.nano", 16,
+		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "RESTABLE", false, tlsEnabled, version, "hm1.nano", 16,
 			"") + mdbRedisClusterByIDConfig
 	}
 
-	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, tlsEnabled, version, "hm1.nano", 16,
+	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false, tlsEnabled, version, "hm1.nano", 16,
 		"") + mdbRedisClusterByNameConfig
 }

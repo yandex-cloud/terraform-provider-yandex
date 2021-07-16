@@ -273,6 +273,8 @@ The following arguments are supported:
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
 - - -
 
 * `allow_regeneration_host` - (Optional) Allow drop and create host when `host.assign_public_ip` changed. The new host will be created (recreated) with a different FQDN.

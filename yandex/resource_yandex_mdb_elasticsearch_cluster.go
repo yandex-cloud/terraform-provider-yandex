@@ -225,6 +225,11 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 				Computed: true,
 				Elem:     elasticsearchHostResource,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -337,6 +342,8 @@ func resourceYandexMDBElasticsearchClusterRead(d *schema.ResourceData, meta inte
 		return err
 	}
 
+	d.Set("deletion_protection", cluster.GetDeletionProtection())
+
 	return nil
 }
 
@@ -420,8 +427,9 @@ func prepareCreateElasticsearchRequest(d *schema.ResourceData, meta *Config) (*e
 
 		HostSpecs: convertElasticsearchHostsToSpecs(hosts),
 
-		SecurityGroupIds: securityGroupIds,
-		ServiceAccountId: d.Get("service_account_id").(string),
+		SecurityGroupIds:   securityGroupIds,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	return req, nil
@@ -595,6 +603,13 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "service_account_id")
 
 		changed = append(changed, "service_account_id")
+	}
+
+	if d.HasChange("deletion_protection") {
+		req.DeletionProtection = d.Get("deletion_protection").(bool)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection")
+
+		changed = append(changed, "deletion_protection")
 	}
 
 	// TODO  folder

@@ -96,7 +96,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterConfigMain(pgName, pgDesc),
+				Config: testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
 					resource.TestCheckResourceAttr(pgResource, "name", pgName),
@@ -111,9 +111,41 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(pgResource),
 					resource.TestCheckResourceAttr(pgResource, "security_group_ids.#", "1"),
-
 					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.hour", "12"),
+					resource.TestCheckResourceAttr(pgResource, "deletion_protection", "true"),
+				),
+			},
+			mdbPGClusterImportStep(pgResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
+					resource.TestCheckResourceAttr(pgResource, "deletion_protection", "false"),
+				),
+			},
+			mdbPGClusterImportStep(pgResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
+					resource.TestCheckResourceAttr(pgResource, "deletion_protection", "true"),
+				),
+			},
+			mdbPGClusterImportStep(pgResource),
+			// trigger deletion by changing environment
+			{
+				Config:      testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRODUCTION", true),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(pgResource, &cluster, 1),
+					resource.TestCheckResourceAttr(pgResource, "deletion_protection", "false"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -660,12 +692,12 @@ resource "yandex_vpc_security_group" "mdb-pg-test-sg-y" {
 }
 `
 
-func testAccMDBPGClusterConfigMain(name, desc string) string {
+func testAccMDBPGClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "%s"
   description = "%s"
-  environment = "PRESTABLE"
+  environment = "%s"
   network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
 
   labels = {
@@ -710,8 +742,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
+  deletion_protection = %t
 }
-`, name, desc)
+`, name, desc, environment, deletionProtection)
 }
 
 func testAccMDBPGClusterConfigDisallowedUpdatePublicIP(name, desc string) string {

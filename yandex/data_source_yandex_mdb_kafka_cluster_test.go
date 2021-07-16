@@ -44,10 +44,10 @@ func TestAccDataSourceMDBKafkaCluster_byID(t *testing.T) {
 
 func testAccDataSourceMDBKafkaClusterConfig(kfName, kfDesc string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBKafkaClusterConfigMain(kfName, kfDesc) + mdbKafkaClusterByIDConfig
+		return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false) + mdbKafkaClusterByIDConfig
 	}
 
-	return testAccMDBKafkaClusterConfigMain(kfName, kfDesc) + mdbKafkaClusterByNameConfig
+	return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false) + mdbKafkaClusterByNameConfig
 }
 
 func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
@@ -84,6 +84,7 @@ func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, reso
 			"topics",
 			"users",
 			"security_group_ids",
+			"deletion_protection",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -120,6 +121,7 @@ func testAccDataSourceMDBKafkaClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "topic.#", "2"),
 		resource.TestCheckResourceAttr(datasourceName, "user.#", "2"),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
 }

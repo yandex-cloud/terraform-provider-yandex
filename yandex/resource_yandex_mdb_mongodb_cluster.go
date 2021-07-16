@@ -292,6 +292,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -420,17 +425,18 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	req := mongodb.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        d.Get("network_id").(string),
-		Environment:      env,
-		ConfigSpec:       configSpec,
-		HostSpecs:        hosts,
-		UserSpecs:        users,
-		DatabaseSpecs:    dbSpecs,
-		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          d.Get("network_id").(string),
+		Environment:        env,
+		ConfigSpec:         configSpec,
+		HostSpecs:          hosts,
+		UserSpecs:          users,
+		DatabaseSpecs:      dbSpecs,
+		Labels:             labels,
+		SecurityGroupIds:   securityGroupIds,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 	return &req, nil
 }
@@ -643,6 +649,8 @@ func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{
 	if err := d.Set("maintenance_window", mw); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	return d.Set("labels", cluster.Labels)
 }
@@ -932,6 +940,7 @@ var mdbMongodbUpdateFieldsMap = map[string]string{
 	"cluster_config.0.access":              "config_spec.access",
 	"cluster_config.0.backup_window_start": "config_spec.backup_window_start",
 	"security_group_ids":                   "security_group_ids",
+	"deletion_protection":                  "deletion_protection",
 }
 
 func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1009,6 +1018,10 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		onDone = append(onDone, func() {
 			d.SetPartial("maintenance_window")
 		})
+	}
+
+	if d.HasChange("deletion_protection") {
+		req.DeletionProtection = d.Get("deletion_protection").(bool)
 	}
 
 	if len(updatePath) == 0 {

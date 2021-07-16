@@ -268,6 +268,8 @@ The following arguments are supported:
 
 * `host_group_ids` - (Optional) A list of IDs of the host groups to place VMs of the cluster on.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
 - - -
 
 The `config` block supports:

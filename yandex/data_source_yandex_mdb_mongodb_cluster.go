@@ -250,6 +250,11 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -378,6 +383,8 @@ func dataSourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interfac
 	if err := d.Set("maintenance_window", mw); err != nil {
 		return err
 	}
+
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	d.SetId(cluster.Id)
 

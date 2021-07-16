@@ -170,6 +170,10 @@ func testAccDataSourceMDBSQLServerClusterAttributesCheck(datasourceName string, 
 				"security_group_ids.#",
 				"security_group_ids.#",
 			},
+			{
+				"deletion_protection",
+				"deletion_protection",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -211,6 +215,7 @@ func testAccDataSourceMDBSQLServerClusterCheck(datasourceName string, resourceNa
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 	)
 }
 
@@ -228,8 +233,8 @@ data "yandex_mdb_sqlserver_cluster" "bar" {
 
 func testAccDataSourceMDBSQLServerClusterConfig(sqlserverName, sqlserverDesc string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBSQLServerClusterConfigMain(sqlserverName, sqlserverDesc) + mdbSQLServerClusterByIDConfig
+		return testAccMDBSQLServerClusterConfigMain(sqlserverName, sqlserverDesc, "PRESTABLE", false) + mdbSQLServerClusterByIDConfig
 	}
 
-	return testAccMDBSQLServerClusterConfigMain(sqlserverName, sqlserverDesc) + mdbSQLServerClusterByNameConfig
+	return testAccMDBSQLServerClusterConfigMain(sqlserverName, sqlserverDesc, "PRESTABLE", false) + mdbSQLServerClusterByNameConfig
 }
