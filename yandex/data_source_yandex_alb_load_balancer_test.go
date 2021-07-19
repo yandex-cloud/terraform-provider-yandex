@@ -449,7 +449,7 @@ resource "yandex_vpc_security_group" "test-security-group" {
     protocol       = "TCP"
     description    = "healthchecks"
     port           = 30080
-    v6_cidr_blocks = ["198.18.235.0/24", "198.18.248.0/24"]
+    v4_cidr_blocks = ["198.18.235.0/24", "198.18.248.0/24"]
   }
 }
 `, name, desc)
