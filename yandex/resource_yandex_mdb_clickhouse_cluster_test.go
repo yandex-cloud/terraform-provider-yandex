@@ -919,7 +919,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "%s"
-  version        = "21.6"
+  version        = "21.7"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1150,7 +1150,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
-  version        = "21.6"
+  version        = "21.7"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1535,7 +1535,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
   description              = "%s"
   environment              = "PRESTABLE"
-  version                  = "21.6"
+  version                  = "21.7"
   network_id               = "${yandex_vpc_network.mdb-ch-test-net.id}"
   copy_schema_on_new_hosts = true
 
@@ -2219,7 +2219,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   environment             = "PRESTABLE"
   network_id              = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password          = "strong_password"
-  version                 = "21.3"
+  version                 = "21.7"
 
   labels = {
     test_key = "test_value"
