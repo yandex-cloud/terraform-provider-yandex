@@ -46,6 +46,7 @@ func yandexVPCSecurityGroupSchema() map[string]*schema.Schema {
 		"labels": {
 			Type:     schema.TypeMap,
 			Optional: true,
+			Computed: true,
 			Elem:     &schema.Schema{Type: schema.TypeString},
 			Set:      schema.HashString,
 		},
@@ -113,6 +114,7 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -501,6 +503,7 @@ var hashableRuleNames = []string{
 	"to_port",
 	"security_group_id",
 	"predefined_target",
+	"description",
 }
 
 func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {

@@ -1,4 +1,8 @@
 ## 0.62.0 (Unreleased)
+BUG FIXES:
+* vpc: fix dirty plan of `labels` in vpc resources
+* vpc: fix `yandex_vpc_security_group_rule` doc
+* vpc: fix ignoring description when changing at inline rules of `yandex_vpc_security_group`
 
 ENHANCEMENTS:
 * add `deletion_protection` attribute to `yandex_mdb_clickhouse_cluster`, `yandex_mdb_elasticsearch_cluster`, `yandex_mdb_kafka_cluster`, `yandex_mdb_mongodb_cluster`, `yandex_mdb_mysql_cluster`, `yandex_mdb_postgresql_cluster`,  `yandex_mdb_redis_cluster`, `yandex_mdb_sqlserver_cluster` resources and data sources
