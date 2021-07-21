@@ -420,5 +420,16 @@ resource "yandex_vpc_subnet" "test-subnet" {
   network_id     = yandex_vpc_network.test-network.id
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
+
+resource "yandex_vpc_security_group" "test-security-group" {
+  network_id = yandex_vpc_network.test-network.id
+
+  ingress {
+    protocol       = "TCP"
+    description    = "healthchecks"
+    port           = 30080
+    v4_cidr_blocks = ["198.18.235.0/24", "198.18.248.0/24"]
+  }
+}
 `, name, desc)
 }
