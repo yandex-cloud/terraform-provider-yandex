@@ -20,8 +20,8 @@ func makeCheck(sg *vpc.SecurityGroup, folderID, name, desc string) resource.Test
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "description", desc),
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.#", "1"),
-		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.3168776168.protocol", "TCP"),
-		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.3168776168.port", "8080"),
+		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.2142518804.protocol", "TCP"),
+		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.2142518804.port", "8080"),
 		testAccCheckCreatedAtAttr("data.yandex_vpc_security_group.sg1"),
 	)
 }
