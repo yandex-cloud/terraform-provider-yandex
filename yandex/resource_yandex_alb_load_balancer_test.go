@@ -395,10 +395,12 @@ func testAccCheckALBLoadBalancerContainsLabel(balancer *apploadbalancer.LoadBala
 func testAccALBLoadBalancerBasic(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_alb_load_balancer" "test-balancer" {
-  name		  = "%s"
+  name        = "%s"
   description = "%s"
 
   network_id = yandex_vpc_network.test-network.id
+
+  security_group_ids = [yandex_vpc_security_group.test-security-group.id]
 
   labels = {
     tf-label    = "tf-label-value"

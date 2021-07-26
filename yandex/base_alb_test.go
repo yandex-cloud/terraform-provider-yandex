@@ -305,7 +305,7 @@ const albLoadBalancerConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_load_balancer" "test-alb-ds" {
   name = yandex_alb_load_balancer.test-balancer.name
-}		
+}
 {{ end }}
 resource "yandex_alb_http_router" "test-router" {
   name        = "{{.RouterName}}"
