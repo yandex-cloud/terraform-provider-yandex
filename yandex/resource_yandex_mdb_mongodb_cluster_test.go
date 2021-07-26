@@ -121,7 +121,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			// check 'deletion_protection'
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
@@ -130,7 +130,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			// trigger deletion by changing environment
 			{
-				Config:      testAccMDBMongoDBClusterConfigMain(mongodbName, "PRODUCTION", false),
+				Config:      testAccMDBMongoDBClusterConfigMain(mongodbName, "PRODUCTION", true),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			// uncheck 'deletion_protection'
