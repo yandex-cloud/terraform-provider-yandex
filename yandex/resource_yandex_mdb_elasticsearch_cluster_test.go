@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 	"reflect"
 	"regexp"
 	"sort"
@@ -57,7 +59,18 @@ func sweepMDBElasticsearchClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBElasticsearchClusterDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().ElasticSearch().Cluster().Delete(ctx, &elasticsearch.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().ElasticSearch().Cluster().Update(ctx, &elasticsearch.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && isStatusWithCode(err, codes.InvalidArgument) { // skip 'InvalidArgument desc = no changes detected'
+		return err
+	}
+
+	op, err = conf.sdk.MDB().ElasticSearch().Cluster().Delete(ctx, &elasticsearch.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 	"math"
 	"regexp"
 	"testing"
@@ -56,7 +58,18 @@ func sweepMDBRedisClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBRedisClusterDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().Redis().Cluster().Update(ctx, &redis.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && isStatusWithCode(err, codes.InvalidArgument) { // skip 'InvalidArgument desc = no changes detected'
+		return err
+	}
+
+	op, err = conf.sdk.MDB().Redis().Cluster().Delete(ctx, &redis.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

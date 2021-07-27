@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 	"regexp"
 	"sort"
 	"testing"
@@ -57,7 +59,18 @@ func sweepMDBMysqlClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBMySQLClusterDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().MySQL().Cluster().Update(ctx, &mysql.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && isStatusWithCode(err, codes.InvalidArgument) { // skip 'InvalidArgument desc = no changes detected'
+		return err
+	}
+
+	op, err = conf.sdk.MDB().MySQL().Cluster().Delete(ctx, &mysql.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

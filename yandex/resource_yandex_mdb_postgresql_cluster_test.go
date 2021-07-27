@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/codes"
 	"regexp"
 	"sort"
 	"testing"
@@ -56,7 +58,18 @@ func sweepMDBPostgreSQLClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBPostgreSQLClusterDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && isStatusWithCode(err, codes.InvalidArgument) { // skip 'InvalidArgument desc = no changes detected'
+		return err
+	}
+
+	op, err = conf.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, &postgresql.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
