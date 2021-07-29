@@ -1,4 +1,7 @@
 ## 0.62.0 (Unreleased)
+FEATURES:
+* storage: `yandex_storage_bucket` resource supports website routing rules configuraion
+
 BUG FIXES:
 * vpc: fix dirty plan of `labels` in vpc resources
 * vpc: fix `yandex_vpc_security_group_rule` doc

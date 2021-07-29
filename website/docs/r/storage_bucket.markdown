@@ -30,6 +30,16 @@ resource "yandex_storage_bucket" "test" {
   website {
     index_document = "index.html"
     error_document = "error.html"
+    routing_rules = <<EOF
+[{
+    "Condition": {
+        "KeyPrefixEquals": "docs/"
+    },
+    "Redirect": {
+        "ReplaceKeyPrefixWith": "documents/"
+    }
+}]
+EOF
   }
 
 }
@@ -371,9 +381,14 @@ The following arguments are supported:
 
 The `website` object supports the following:
 
-* `index_document` - (Required) Storage returns this index document when requests are made to the root domain or any of the subfolders.
+* `index_document` - (Required, unless using `redirect_all_requests_to`) Storage returns this index document when requests are made to the root domain or any of the subfolders.
 
 * `error_document` - (Optional) An absolute path to the document to return in case of a 4XX error.
+
+* `redirect_all_requests_to` - (Optional) A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
+
+* `routing_rules` - (Optional) A json array containing [routing rules](https://cloud.yandex.ru/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
+
 
 The `CORS` object supports the following:
 

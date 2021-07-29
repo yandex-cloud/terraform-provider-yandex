@@ -256,7 +256,7 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 	})
 }
 
-func TestAccStorageBucket_website(t *testing.T) {
+func TestAccStorageBucket_Website_Simple(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
@@ -295,6 +295,91 @@ func TestAccStorageBucket_website(t *testing.T) {
 					wrapWithRetries(testAccCheckStorageBucketWebsite(resourceName, "", "", "", "")),
 					resource.TestCheckResourceAttr(resourceName, "website.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "website_endpoint", ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_WebsiteRedirect(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketWebsiteConfigWithRedirect(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketWebsite(resourceName, "", "", "", "hashicorp.com?my=query"),
+					resource.TestCheckResourceAttr(resourceName, "website_endpoint", testAccWebsiteEndpoint(rInt)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_WebsiteHttpsRedirect(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketWebsiteConfigWithHttpsRedirect(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketWebsite(resourceName, "", "", "https", "hashicorp.com?my=query"),
+					resource.TestCheckResourceAttr(resourceName, "website_endpoint", testAccWebsiteEndpoint(rInt)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_WebsiteRoutingRules(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketWebsiteConfigWithRoutingRules(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketWebsite(
+						resourceName, "index.html", "error.html", "", ""),
+					testAccCheckStorageBucketWebsiteRoutingRules(
+						resourceName,
+						[]*s3.RoutingRule{
+							{
+								Condition: &s3.Condition{
+									KeyPrefixEquals: aws.String("docs/"),
+								},
+								Redirect: &s3.Redirect{
+									HttpRedirectCode:     aws.String("301"),
+									Protocol:             aws.String("http"),
+									ReplaceKeyPrefixWith: aws.String("documents/"),
+								},
+							},
+						},
+					),
+					resource.TestCheckResourceAttr(resourceName, "website_endpoint", testAccWebsiteEndpoint(rInt)),
 				),
 			},
 		},
@@ -863,6 +948,34 @@ func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string
 	}
 }
 
+func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.RoutingRule) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+
+		out, err := conn.GetBucketWebsite(&s3.GetBucketWebsiteInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+
+		if err != nil {
+			if routingRules == nil {
+				return nil
+			}
+			return fmt.Errorf("GetBucketWebsite error: %v", err)
+		}
+
+		if !reflect.DeepEqual(out.RoutingRules, routingRules) {
+			return fmt.Errorf("bad routing rule, expected: %v, got %v", routingRules, out.RoutingRules)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckStorageBucketVersioning(n string, versioningStatus string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
@@ -1066,6 +1179,71 @@ resource "yandex_storage_bucket" "test" {
 		index_document = "index.html"
 		error_document = "error.html"
 	}
+}
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+}
+
+func testAccStorageBucketWebsiteConfigWithRedirect(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket-%[1]d"
+  acl    = "public-read"
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  website {
+    redirect_all_requests_to = "http://hashicorp.com?my=query"
+  }
+}
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+}
+
+func testAccStorageBucketWebsiteConfigWithHttpsRedirect(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket-%[1]d"
+  acl    = "public-read"
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  website {
+    redirect_all_requests_to = "https://hashicorp.com?my=query"
+  }
+}
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+}
+
+func testAccStorageBucketWebsiteConfigWithRoutingRules(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_storage_bucket" "test" {
+  bucket = "tf-test-bucket-%[1]d"
+  acl    = "public-read"
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+
+    routing_rules = <<EOF
+[
+  {
+    "Condition": {
+      "KeyPrefixEquals": "docs/"
+    },
+    "Redirect": {
+      "Protocol": "http",
+      "HttpRedirectCode": "301",
+      "ReplaceKeyPrefixWith": "documents/"
+    }
+  }
+]
+EOF
+
+  }
 }
 `, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
 }

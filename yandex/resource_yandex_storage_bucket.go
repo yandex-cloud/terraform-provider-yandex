@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
@@ -13,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/hashicorp/go-getter/helper/url"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -166,6 +166,26 @@ func resourceYandexStorageBucket() *schema.Resource {
 						"error_document": {
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+
+						"redirect_all_requests_to": {
+							Type: schema.TypeString,
+							ConflictsWith: []string{
+								"website.0.index_document",
+								"website.0.error_document",
+								"website.0.routing_rules",
+							},
+							Optional: true,
+						},
+
+						"routing_rules": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validateStringIsJSON,
+							StateFunc: func(v interface{}) string {
+								json, _ := NormalizeJsonString(v)
+								return json
+							},
 						},
 					},
 				},
@@ -625,6 +645,40 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 			w["error_document"] = *v.Key
 		}
 
+		if v := ws.RedirectAllRequestsTo; v != nil {
+			if v.Protocol == nil {
+				w["redirect_all_requests_to"] = aws.StringValue(v.HostName)
+			} else {
+				var host string
+				var path string
+				var query string
+				parsedHostName, err := url.Parse(aws.StringValue(v.HostName))
+				if err == nil {
+					host = parsedHostName.Host
+					path = parsedHostName.Path
+					query = parsedHostName.RawQuery
+				} else {
+					host = aws.StringValue(v.HostName)
+					path = ""
+				}
+
+				w["redirect_all_requests_to"] = (&url.URL{
+					Host:     host,
+					Path:     path,
+					Scheme:   aws.StringValue(v.Protocol),
+					RawQuery: query,
+				}).String()
+			}
+		}
+
+		if v := ws.RoutingRules; v != nil {
+			rr, err := normalizeRoutingRules(v)
+			if err != nil {
+				return fmt.Errorf("Error while marshaling routing rules: %s", err)
+			}
+			w["routing_rules"] = rr
+		}
+
 		// We have special handling for the website configuration,
 		// so only add the configuration if there is any
 		if len(w) > 0 {
@@ -1063,15 +1117,23 @@ func resourceYandexStorageBucketWebsiteUpdate(s3Client *s3.S3, d *schema.Resourc
 func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceData, website map[string]interface{}) error {
 	bucket := d.Get("bucket").(string)
 
-	var indexDocument, errorDocument string
+	var indexDocument, errorDocument, redirectAllRequestsTo, routingRules string
 	if v, ok := website["index_document"]; ok {
 		indexDocument = v.(string)
 	}
 	if v, ok := website["error_document"]; ok {
 		errorDocument = v.(string)
 	}
-	if indexDocument == "" {
-		return fmt.Errorf("\"index_document\" field must be specified")
+
+	if v, ok := website["redirect_all_requests_to"]; ok {
+		redirectAllRequestsTo = v.(string)
+	}
+	if v, ok := website["routing_rules"]; ok {
+		routingRules = v.(string)
+	}
+
+	if indexDocument == "" && redirectAllRequestsTo == "" {
+		return fmt.Errorf("Must specify either index_document or redirect_all_requests_to.")
 	}
 
 	websiteConfiguration := &s3.WebsiteConfiguration{}
@@ -1082,6 +1144,32 @@ func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceDa
 
 	if errorDocument != "" {
 		websiteConfiguration.ErrorDocument = &s3.ErrorDocument{Key: aws.String(errorDocument)}
+	}
+
+	if redirectAllRequestsTo != "" {
+		redirect, err := url.Parse(redirectAllRequestsTo)
+		if err == nil && redirect.Scheme != "" {
+			var redirectHostBuf bytes.Buffer
+			redirectHostBuf.WriteString(redirect.Host)
+			if redirect.Path != "" {
+				redirectHostBuf.WriteString(redirect.Path)
+			}
+			if redirect.RawQuery != "" {
+				redirectHostBuf.WriteString("?")
+				redirectHostBuf.WriteString(redirect.RawQuery)
+			}
+			websiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{HostName: aws.String(redirectHostBuf.String()), Protocol: aws.String(redirect.Scheme)}
+		} else {
+			websiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{HostName: aws.String(redirectAllRequestsTo)}
+		}
+	}
+
+	if routingRules != "" {
+		var unmarshaledRules []*s3.RoutingRule
+		if err := json.Unmarshal([]byte(routingRules), &unmarshaledRules); err != nil {
+			return err
+		}
+		websiteConfiguration.RoutingRules = unmarshaledRules
 	}
 
 	putInput := &s3.PutBucketWebsiteInput{
@@ -1929,6 +2017,49 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 
 	bytes, _ := json.Marshal(j)
 	return string(bytes[:]), nil
+}
+
+func normalizeRoutingRules(w []*s3.RoutingRule) (string, error) {
+	withNulls, err := json.Marshal(w)
+	if err != nil {
+		return "", err
+	}
+
+	var rules []map[string]interface{}
+	if err := json.Unmarshal(withNulls, &rules); err != nil {
+		return "", err
+	}
+
+	var cleanRules []map[string]interface{}
+	for _, rule := range rules {
+		cleanRules = append(cleanRules, removeNil(rule))
+	}
+
+	withoutNulls, err := json.Marshal(cleanRules)
+	if err != nil {
+		return "", err
+	}
+
+	return string(withoutNulls), nil
+}
+
+func removeNil(data map[string]interface{}) map[string]interface{} {
+	withoutNil := make(map[string]interface{})
+
+	for k, v := range data {
+		if v == nil {
+			continue
+		}
+
+		switch v := v.(type) {
+		case map[string]interface{}:
+			withoutNil[k] = removeNil(v)
+		default:
+			withoutNil[k] = v
+		}
+	}
+
+	return withoutNil
 }
 
 func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
