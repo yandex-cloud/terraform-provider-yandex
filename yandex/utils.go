@@ -238,6 +238,11 @@ func isRequestIDPresent(err error) (string, bool) {
 	return "", false
 }
 
+func errorMessage(err error) string {
+	grpcStatus, _ := status.FromError(err)
+	return grpcStatus.Message()
+}
+
 func convertStringArrToInterface(sslice []string) []interface{} {
 	islice := make([]interface{}, len(sslice))
 	for i, str := range sslice {

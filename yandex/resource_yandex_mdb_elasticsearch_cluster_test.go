@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/genproto/protobuf/field_mask"
-	"google.golang.org/grpc/codes"
 	"reflect"
 	"regexp"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -66,7 +66,7 @@ func sweepMDBElasticsearchClusterOnce(conf *Config, id string) error {
 		UpdateMask:         &mask,
 	})
 	err = handleSweepOperation(ctx, conf, op, err)
-	if err != nil && isStatusWithCode(err, codes.InvalidArgument) { // skip 'InvalidArgument desc = no changes detected'
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
 		return err
 	}
 
