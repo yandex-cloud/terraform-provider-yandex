@@ -5,10 +5,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/duration"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 	"text/template"
 
@@ -69,7 +71,18 @@ func sweepDataprocClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexDataprocClusterDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.Dataproc().Cluster().Update(ctx, &dataproc.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		return err
+	}
+
+	op, err = conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
@@ -158,12 +171,13 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 				},
 			},
 		},
-		"zone_id":            "ru-central1-b",
-		"service_account_id": "sa-777",
-		"bucket":             "bucket-777",
-		"ui_proxy":           "true",
-		"security_group_ids": []interface{}{"security_group_id1"},
-		"host_group_ids":     []interface{}{"hg1", "hg2"},
+		"zone_id":             "ru-central1-b",
+		"service_account_id":  "sa-777",
+		"bucket":              "bucket-777",
+		"ui_proxy":            "true",
+		"security_group_ids":  []interface{}{"security_group_id1"},
+		"host_group_ids":      []interface{}{"hg1", "hg2"},
+		"deletion_protection": "false",
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexDataprocCluster().Schema, raw)
 
@@ -241,12 +255,13 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 				},
 			},
 		},
-		ZoneId:           "ru-central1-b",
-		ServiceAccountId: "sa-777",
-		Bucket:           "bucket-777",
-		UiProxy:          true,
-		SecurityGroupIds: []string{"security_group_id1"},
-		HostGroupIds:     []string{"hg2", "hg1"},
+		ZoneId:             "ru-central1-b",
+		ServiceAccountId:   "sa-777",
+		Bucket:             "bucket-777",
+		UiProxy:            true,
+		SecurityGroupIds:   []string{"security_group_id1"},
+		HostGroupIds:       []string{"hg2", "hg1"},
+		DeletionProtection: false,
 	}
 
 	assert.Equal(t, expected, req)
@@ -416,24 +431,25 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 }
 
 type dataprocTFConfigParams struct {
-	Bucket1       string
-	Bucket2       string
-	CurrentBucket string
-	Description   string
-	FolderID      string
-	Labels        string
-	Name          string
-	NetworkName   string
-	Properties    string
-	SA1Name       string
-	SA2Name       string
-	SAId          string
-	SSHKey        string
-	Subcluster1   string
-	Subcluster2   string
-	Subcluster3   string
-	SubnetName    string
-	Zone          string
+	Bucket1            string
+	Bucket2            string
+	CurrentBucket      string
+	Description        string
+	FolderID           string
+	Labels             string
+	Name               string
+	NetworkName        string
+	Properties         string
+	SA1Name            string
+	SA2Name            string
+	SAId               string
+	SSHKey             string
+	Subcluster1        string
+	Subcluster2        string
+	Subcluster3        string
+	SubnetName         string
+	Zone               string
+	DeletionProtection bool
 }
 
 func (cfg *dataprocTFConfigParams) update(updater func(*dataprocTFConfigParams)) dataprocTFConfigParams {
@@ -495,6 +511,7 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 		Properties: `{
 			    "yarn:yarn.resourcemanager.am.max-attempts" = 5
 			}`,
+		DeletionProtection: false,
 	}
 }
 
@@ -518,7 +535,9 @@ func TestAccDataprocCluster(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocClusterConfig(t, templateParams),
+				Config: testAccDataprocClusterConfig(t, templateParams.update(func(cfg *dataprocTFConfigParams) {
+					cfg.DeletionProtection = true
+				})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "folder_id", getExampleFolderID()),
@@ -530,6 +549,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "1.0"),
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "true"),
 					testAccCheckDataprocClusterServices(&cluster, services),
 					testAccCheckDataprocClusterProperties(&cluster, properties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
@@ -554,6 +574,17 @@ func TestAccDataprocCluster(t *testing.T) {
 							HostsCount: 1,
 						},
 					}),
+				),
+			},
+			// uncheck 'deletion_protection'
+			dataprocClusterImportStep(resourceName),
+			{
+				Config: testAccDataprocClusterConfig(t, templateParams.update(func(cfg *dataprocTFConfigParams) {
+					cfg.DeletionProtection = false
+				})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
 				),
 			},
 			dataprocClusterImportStep(resourceName),
@@ -754,6 +785,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
   name               = "{{.Name}}"
   service_account_id = {{.SAId}}
   zone_id            = "{{.Zone}}"
+  deletion_protection = {{.DeletionProtection}}
 
   cluster_config {
     version_id = "1.0"

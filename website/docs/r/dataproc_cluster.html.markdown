@@ -164,6 +164,7 @@ The following arguments are supported:
 * `ui_proxy` - (Optional) Whether to enable UI Proxy feature.
 * `security_group_ids` - (Optional) A list of security group IDs that the cluster belongs to.
 * `host_group_ids` - (Optional) A list of host group IDs to place VMs of the cluster on.
+* `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
 ---
 

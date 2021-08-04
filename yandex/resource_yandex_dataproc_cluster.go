@@ -255,6 +255,12 @@ func resourceYandexDataprocCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -377,6 +383,8 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 		return err
 	}
 
+	d.Set("deletion_protection", cluster.DeletionProtection)
+
 	return nil
 }
 
@@ -444,17 +452,18 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 	}
 
 	req := dataproc.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		ConfigSpec:       expandDataprocCreateClusterConfigSpec(d),
-		ZoneId:           zoneID,
-		ServiceAccountId: d.Get("service_account_id").(string),
-		Bucket:           d.Get("bucket").(string),
-		UiProxy:          d.Get("ui_proxy").(bool),
-		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
-		HostGroupIds:     expandHostGroupIds(d.Get("host_group_ids")),
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		ConfigSpec:         expandDataprocCreateClusterConfigSpec(d),
+		ZoneId:             zoneID,
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		Bucket:             d.Get("bucket").(string),
+		UiProxy:            d.Get("ui_proxy").(bool),
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
+		HostGroupIds:       expandHostGroupIds(d.Get("host_group_ids")),
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	return &req, nil
@@ -569,18 +578,19 @@ func getDataprocClusterUpdateRequest(d *schema.ResourceData) (*dataproc.UpdateCl
 	}
 
 	req := &dataproc.UpdateClusterRequest{
-		ClusterId:        d.Id(),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		Name:             d.Get("name").(string),
-		ServiceAccountId: d.Get("service_account_id").(string),
-		Bucket:           d.Get("bucket").(string),
-		UiProxy:          d.Get("ui_proxy").(bool),
-		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		ClusterId:          d.Id(),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		Name:               d.Get("name").(string),
+		ServiceAccountId:   d.Get("service_account_id").(string),
+		Bucket:             d.Get("bucket").(string),
+		UiProxy:            d.Get("ui_proxy").(bool),
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	var updatePaths []string
-	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy", "security_group_ids"}
+	fieldNames := []string{"description", "labels", "name", "service_account_id", "bucket", "ui_proxy", "security_group_ids", "deletion_protection"}
 	for _, fieldName := range fieldNames {
 		if d.HasChange(fieldName) {
 			updatePaths = append(updatePaths, fieldName)
