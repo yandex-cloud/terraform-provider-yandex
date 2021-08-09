@@ -21,7 +21,7 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, "5.0", true),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, "6.2", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil),
@@ -43,7 +43,7 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, "5.0", false),
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, "6.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled),

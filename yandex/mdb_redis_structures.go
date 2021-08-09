@@ -87,6 +87,14 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
 		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 		res.databases = c.GetDatabases().GetValue()
+	case *redis.ClusterConfig_RedisConfig_6_2:
+		c := rc.RedisConfig_6_2.EffectiveConfig
+		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+		res.timeout = c.GetTimeout().GetValue()
+		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
+		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
+		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
+		res.databases = c.GetDatabases().GetValue()
 	}
 
 	return res
@@ -162,6 +170,22 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 		cs = &redis.ConfigSpec_RedisConfig_6_0{
 			RedisConfig_6_0: &c,
 		}
+	case "6.2":
+		c := config.RedisConfig6_2{
+			Password:             password,
+			Timeout:              timeout,
+			NotifyKeyspaceEvents: notifyKeyspaceEvents,
+			SlowlogLogSlowerThan: slowlogLogSlowerThan,
+			SlowlogMaxLen:        slowlogMaxLen,
+			Databases:            databases,
+		}
+		err := setMaxMemory6_2(&c, d)
+		if err != nil {
+			return nil, version, err
+		}
+		cs = &redis.ConfigSpec_RedisConfig_6_2{
+			RedisConfig_6_2: &c,
+		}
 	}
 
 	return &cs, version, nil
@@ -181,6 +205,17 @@ func setMaxMemory5_0(c *config.RedisConfig5_0, d *schema.ResourceData) error {
 func setMaxMemory6_0(c *config.RedisConfig6_0, d *schema.ResourceData) error {
 	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
 		mp, err := parseRedisMaxmemoryPolicy6_0(v.(string))
+		if err != nil {
+			return err
+		}
+		c.MaxmemoryPolicy = mp
+	}
+	return nil
+}
+
+func setMaxMemory6_2(c *config.RedisConfig6_2, d *schema.ResourceData) error {
+	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
+		mp, err := parseRedisMaxmemoryPolicy6_2(v.(string))
 		if err != nil {
 			return err
 		}
@@ -355,4 +390,13 @@ func parseRedisMaxmemoryPolicy6_0(s string) (config.RedisConfig6_0_MaxmemoryPoli
 			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig6_0_MaxmemoryPolicy_value)), s)
 	}
 	return config.RedisConfig6_0_MaxmemoryPolicy(v), nil
+}
+
+func parseRedisMaxmemoryPolicy6_2(s string) (config.RedisConfig6_2_MaxmemoryPolicy, error) {
+	v, ok := config.RedisConfig6_2_MaxmemoryPolicy_value[s]
+	if !ok {
+		return 0, fmt.Errorf("value for 'maxmemory_policy' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig6_2_MaxmemoryPolicy_value)), s)
+	}
+	return config.RedisConfig6_2_MaxmemoryPolicy(v), nil
 }

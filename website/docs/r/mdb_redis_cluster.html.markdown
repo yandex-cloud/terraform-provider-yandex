@@ -161,7 +161,7 @@ The `config` block supports:
   
 * `databases` - (Optional) Number of databases (changing requires redis-server restart).
 
-* `version` - (Required) Version of Redis (either 5.0 or 6.0).
+* `version` - (Required) Version of Redis (5.0, 6.0 or 6.2).
 
 The `resources` block supports:
 

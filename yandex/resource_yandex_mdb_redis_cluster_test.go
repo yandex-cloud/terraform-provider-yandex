@@ -97,7 +97,7 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 	redisDesc := "Redis Cluster Terraform Test"
 	redisDesc2 := "Redis Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
-	version := "5.0"
+	version := "6.2"
 	baseDiskSize := 16
 	updatedDiskSize := 24
 	diskTypeId := "network-ssd"
@@ -216,7 +216,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
 	redisDesc := "Sharded Redis Cluster Terraform Test"
 	folderID := getExampleFolderID()
-	version := "5.0"
+	version := "6.2"
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
 	tlsEnabled := false

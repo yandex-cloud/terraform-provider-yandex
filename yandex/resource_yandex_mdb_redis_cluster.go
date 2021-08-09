@@ -537,8 +537,9 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_5_0")
 		case "6.0":
 			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_6_0")
+		case "6.2":
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_6_2")
 		}
-
 		onDone = append(onDone, func() {
 			d.SetPartial("config")
 		})

@@ -61,7 +61,7 @@ The `config` block supports:
 * `slowlog_log_slower_than` - Log slow queries below this number in microseconds.
 * `slowlog_max_len` - Slow queries log length.
 * `databases` - Number of databases (changing requires redis-server restart).
-* `version` - Version of Redis (either 5.0 or 6.0).
+* `version` - Version of Redis (5.0, 6.0 or 6.2).
 
 The `resources` block supports:
 

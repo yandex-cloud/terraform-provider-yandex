@@ -1,6 +1,7 @@
 ## 0.62.0 (Unreleased)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports website routing rules configuraion
+* mdb: support Redis 6.2 in `yandex_mdb_redis_cluster`
 
 BUG FIXES:
 * vpc: fix dirty plan of `labels` in vpc resources
