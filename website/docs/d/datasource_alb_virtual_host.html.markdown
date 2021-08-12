@@ -14,7 +14,8 @@ Get information about a Yandex ALB Virtual Host. For more information, see
 
 ```hcl
 data "yandex_alb_virtual_host" "my-vh-data" {
-  virtual_host_id = yandex_alb_virtual_host.my-vh.id
+  name = yandex_alb_virtual_host.my-vh.name
+  http_router_id = yandex_alb_virtual_host.my-router.id
 }
 ```
 
@@ -24,7 +25,8 @@ This data source is used to define [Application Load Balancer Virtual Host] that
 
 The following arguments are supported:
 
-* `virtual_host_id` - (Optional) The ID of a specific Virtual Host.
+* `virtual_host_id` - (Optional) The ID of a specific Virtual Host. Virtual Host ID is concatenation of HTTP Router ID
+  and Virtual Host name with `/` symbol between them. For Example, "http_router_id/vhost_name".
 * `name` - (Optional) Name of the Virtual Host.
 * `http_router_id` - (Optional) HTTP Router that the resource belongs to.
 
