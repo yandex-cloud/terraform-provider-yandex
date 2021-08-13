@@ -72,6 +72,8 @@ func TestAccYandexResourceManagerFolder_create(t *testing.T) {
 
 	folderInfo := newFolderInfo()
 
+	t.Log(testAccResourceManagerFolder(folderInfo))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
