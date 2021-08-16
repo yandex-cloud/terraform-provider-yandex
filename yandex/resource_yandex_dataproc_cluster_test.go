@@ -788,7 +788,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
   deletion_protection = {{.DeletionProtection}}
 
   cluster_config {
-    version_id = "1.0"
+    version_id = "1.4"
 
     hadoop {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]
