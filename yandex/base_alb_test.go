@@ -2,6 +2,8 @@ package yandex
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -33,7 +35,6 @@ const albDefaultAutoHostRewrite = "true"
 const albDefaultAllowHTTP10 = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
-const albDefaultCertificateID = "fpqgafu7o9h5jnshk0mn"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener        bool
@@ -77,7 +78,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		MaxConcurrentStreams:  albDefaultMaxConcurrentStreams,
 		EndpointPort:          albDefaultPort,
 		HTTPToHTTPS:           albDefaultHTTPToHTTPS,
-		CertificateID:         albDefaultCertificateID,
+		CertificateID:         os.Getenv("ALB_TEST_CERTIFICATE_ID"),
 	}
 
 	return res
