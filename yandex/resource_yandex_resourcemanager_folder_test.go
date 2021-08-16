@@ -62,8 +62,8 @@ func newFolderInfo() *resourceFolderInfo {
 	return &resourceFolderInfo{
 		Name:        acctest.RandomWithPrefix(folderPrefix),
 		Description: acctest.RandString(20),
-		LabelKey:    acctest.RandString(10),
-		LabelValue:  acctest.RandString(10),
+		LabelKey:    "label_key",
+		LabelValue:  "label_value",
 	}
 }
 
@@ -72,6 +72,7 @@ func TestAccYandexResourceManagerFolder_create(t *testing.T) {
 
 	folderInfo := newFolderInfo()
 
+	// TODO: remove me once the problem is resolved.
 	t.Log(testAccResourceManagerFolder(folderInfo))
 
 	resource.Test(t, resource.TestCase{
