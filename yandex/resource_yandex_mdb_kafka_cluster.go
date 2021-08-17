@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"reflect"
 	"strings"
@@ -45,9 +46,10 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Required: true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"config": {
 				Type:     schema.TypeList,

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"time"
 
@@ -77,9 +78,10 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 			// ID of the network that the cluster belongs to.
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"service_account_id": {

@@ -44,9 +44,10 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Required: true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"environment": {
 				Type:         schema.TypeString,

@@ -49,9 +49,10 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				ValidateFunc: validateParsableValue(parseMysqlEnv),
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"version": {
 				Type:     schema.TypeString,

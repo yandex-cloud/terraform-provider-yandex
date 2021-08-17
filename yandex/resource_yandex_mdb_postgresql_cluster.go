@@ -50,9 +50,10 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"network_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.NoZeroValues,
 			},
 			"config": {
 				Type:     schema.TypeList,
