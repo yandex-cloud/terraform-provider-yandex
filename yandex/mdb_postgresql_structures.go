@@ -406,7 +406,8 @@ func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo,
 		return 0
 	}
 
-	if existsHostInfo.zone != newHostInfo.zone || existsHostInfo.subnetID != newHostInfo.subnetID {
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
 		return 0
 	}
 
@@ -437,7 +438,8 @@ func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo,
 
 func comparePGNoNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo, currentNameHost map[string]struct{}) int {
 
-	if existsHostInfo.zone != newHostInfo.zone || existsHostInfo.subnetID != newHostInfo.subnetID {
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
 		return 0
 	}
 
