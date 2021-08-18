@@ -306,7 +306,6 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 			"node_labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -942,6 +941,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"name":                                                      "name",
 	"description":                                               "description",
 	"labels":                                                    "labels",
+	"node_labels":                                               "node_labels",
 	"instance_template.0.platform_id":                           "node_template.platform_id",
 	"instance_template.0.metadata":                              "node_template.metadata",
 	"instance_template.0.resources.0.memory":                    "node_template.resources_spec.memory",
@@ -1042,6 +1042,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		},
 		MaintenancePolicy: mp,
 		DeployPolicy:      dp,
+		NodeLabels:        getNodeGroupNodeLabels(d),
 	}
 
 	return req, nil

@@ -180,7 +180,7 @@ func TestAccKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
 }
 
 func TestAccKubernetesNodeGroup_update(t *testing.T) {
-	clusterResource := clusterInfo("testAccKubernetesNodeGroupConfig_basic", true)
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_update", true)
 	clusterResource.MasterVersion = k8sTestUpdateVersion
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResource.Version = k8sTestVersion
@@ -193,6 +193,8 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource.Version = k8sTestUpdateVersion
 	nodeUpdatedResource.LabelKey = "new_label_key"
 	nodeUpdatedResource.LabelValue = "new_label_value"
+	nodeUpdatedResource.NodeLabelKey = "new_node_label_key"
+	nodeUpdatedResource.NodeLabelValue = "new_node_label_value"
 	nodeUpdatedResource.Memory = "4"
 	nodeUpdatedResource.Cores = "2"
 	nodeUpdatedResource.DiskSize = "65"
@@ -444,6 +446,9 @@ type resourceNodeGroupInfo struct {
 	LabelKey   string
 	LabelValue string
 
+	NodeLabelKey   string
+	NodeLabelValue string
+
 	MaintenancePolicy string
 
 	NetworkInterfaces string
@@ -482,6 +487,8 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		Preemptible:           "true",
 		LabelKey:              "label_key",
 		LabelValue:            "label_value",
+		NodeLabelKey:          "node_label_key",
+		NodeLabelValue:        "node_label_value",
 		ScalePolicy:           fixedScalePolicy,
 		NetworkInterfaces:     enableNAT,
 	}
@@ -652,6 +659,9 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   labels = {
 	{{.LabelKey}} = "{{.LabelValue}}"
   }
+  node_labels = {
+	{{.NodeLabelKey}} = "{{.NodeLabelValue}}"
+  }
 
   instance_template {
     platform_id = "standard-v2"
@@ -694,9 +704,6 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
 
   {{.MaintenancePolicy}}
 
-  node_labels = {
-    label1 = "value1"
-  }
   node_taints = [
     "key1=value1:NoSchedule"
   ]
