@@ -490,7 +490,7 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 				resources {
 					resource_preset_id = "s2.small"
 					disk_type_id       = "network-hdd"
-					disk_size          = 16
+					disk_size          = 24
 				}
 				subnet_id = yandex_vpc_subnet.tf-dataproc-subnet.id
 				hosts_count = 1
@@ -502,7 +502,7 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 				resources {
 					resource_preset_id = "s2.micro"
 					disk_type_id       = "network-hdd"
-					disk_size          = 16
+					disk_size          = 24
 				}
 				subnet_id = yandex_vpc_subnet.tf-dataproc-subnet.id
 				hosts_count = 1
@@ -546,7 +546,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description",
 						"Dataproc Cluster created by Terraform"),
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket1),
-					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "1.0"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "1.4"),
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "true"),
@@ -559,7 +559,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							Resources: &dataproc.Resources{
 								ResourcePresetId: "s2.small",
 								DiskTypeId:       "network-hdd",
-								DiskSize:         16 * (1 << 30),
+								DiskSize:         24 * (1 << 30),
 							},
 							HostsCount: 1,
 						},
@@ -569,7 +569,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							Resources: &dataproc.Resources{
 								ResourcePresetId: "s2.micro",
 								DiskTypeId:       "network-hdd",
-								DiskSize:         16 * (1 << 30),
+								DiskSize:         24 * (1 << 30),
 							},
 							HostsCount: 1,
 						},
@@ -623,7 +623,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							resources {
 								resource_preset_id = "s2.small"
 								disk_type_id       = "network-hdd"
-								disk_size          = 16
+								disk_size          = 24
 							}
 							subnet_id = yandex_vpc_subnet.tf-dataproc-subnet.id
 							hosts_count = 1
@@ -645,7 +645,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							Resources: &dataproc.Resources{
 								ResourcePresetId: "s2.small",
 								DiskTypeId:       "network-hdd",
-								DiskSize:         16 * (1 << 30),
+								DiskSize:         24 * (1 << 30),
 							},
 							HostsCount: 1,
 						},
@@ -665,7 +665,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							Resources: &dataproc.Resources{
 								ResourcePresetId: "s2.small",
 								DiskTypeId:       "network-hdd",
-								DiskSize:         16 * (1 << 30),
+								DiskSize:         24 * (1 << 30),
 							},
 							HostsCount: 1,
 						},
@@ -687,7 +687,7 @@ func TestAccDataprocCluster(t *testing.T) {
 							Resources: &dataproc.Resources{
 								ResourcePresetId: "s2.small",
 								DiskTypeId:       "network-hdd",
-								DiskSize:         16 * (1 << 30),
+								DiskSize:         24 * (1 << 30),
 							},
 							HostsCount: 1,
 						},

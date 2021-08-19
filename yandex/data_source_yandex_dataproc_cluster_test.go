@@ -60,7 +60,7 @@ func testAccDataSourceDataprocClusterCheck(datasourceName, resourceName, cluster
 		testAccDataSourceDataprocClusterAttributesCheck(datasourceName, resourceName),
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "cluster_config.0.subcluster_spec.#", "2"),
-		resource.TestCheckResourceAttr(datasourceName, "cluster_config.0.version_id", "1.0"),
+		resource.TestCheckResourceAttr(datasourceName, "cluster_config.0.version_id", "1.4"),
 		resource.TestCheckResourceAttr(datasourceName, "description",
 			"Dataproc Cluster created by Terraform"),
 		resource.TestCheckResourceAttr(datasourceName, "folder_id", getExampleFolderID()),
