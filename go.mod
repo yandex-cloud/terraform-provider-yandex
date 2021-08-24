@@ -24,8 +24,8 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20210624105554-57ddfa443e1f
-	github.com/yandex-cloud/go-sdk v0.0.0-20210517154707-ca282b96279e
+	github.com/yandex-cloud/go-genproto v0.0.0-20210816122645-072f0f433ffb
+	github.com/yandex-cloud/go-sdk v0.0.0-20210816123146-aedab61cdc84
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/mod v0.4.1 // indirect

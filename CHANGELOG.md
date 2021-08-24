@@ -2,6 +2,7 @@
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports website routing rules configuraion
 * mdb: support Redis 6.2 in `yandex_mdb_redis_cluster`
+* mdb: support Kafka 2.8 in `yandex_mdb_kafka_cluster`
 
 BUG FIXES:
 * vpc: fix dirty plan of `labels` in vpc resources

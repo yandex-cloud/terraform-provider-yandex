@@ -141,31 +141,87 @@ func expandKafkaConfig2_1(d *schema.ResourceData, rootKey string) (*kafka.KafkaC
 		res.CompressionType = value
 	}
 	if v, ok := d.GetOk(rootKey + ".log_flush_interval_messages"); ok {
-		res.LogFlushIntervalMessages = v.(*wrappers.Int64Value)
+		res.LogFlushIntervalMessages = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_flush_interval_ms"); ok {
-		res.LogFlushIntervalMs = v.(*wrappers.Int64Value)
+		res.LogFlushIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_flush_scheduler_interval_ms"); ok {
-		res.LogFlushSchedulerIntervalMs = v.(*wrappers.Int64Value)
+		res.LogFlushSchedulerIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_retention_bytes"); ok {
-		res.LogRetentionBytes = v.(*wrappers.Int64Value)
+		res.LogRetentionBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_retention_hours"); ok {
-		res.LogRetentionHours = v.(*wrappers.Int64Value)
+		res.LogRetentionHours = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_retention_minutes"); ok {
-		res.LogRetentionMinutes = v.(*wrappers.Int64Value)
+		res.LogRetentionMinutes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_retention_ms"); ok {
-		res.LogRetentionMs = v.(*wrappers.Int64Value)
+		res.LogRetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_segment_bytes"); ok {
-		res.LogSegmentBytes = v.(*wrappers.Int64Value)
+		res.LogSegmentBytes = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOk(rootKey + ".log_preallocate"); ok {
-		res.LogPreallocate = v.(*wrappers.BoolValue)
+		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".socket_send_buffer_bytes"); ok {
+		res.SocketSendBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".socket_receive_buffer_bytes"); ok {
+		res.SocketReceiveBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".auto_create_topics_enable"); ok {
+		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(rootKey + ".num_partitions"); ok {
+		res.NumPartitions = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".default_replication_factor"); ok {
+		res.DefaultReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return res, nil
+}
+
+func expandKafkaConfig2_8(d *schema.ResourceData, rootKey string) (*kafka.KafkaConfig2_8, error) {
+	res := &kafka.KafkaConfig2_8{}
+
+	if v, ok := d.GetOk(rootKey + ".compression_type"); ok {
+		value, err := parseKafkaCompression(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		res.CompressionType = value
+	}
+	if v, ok := d.GetOk(rootKey + ".log_flush_interval_messages"); ok {
+		res.LogFlushIntervalMessages = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_flush_interval_ms"); ok {
+		res.LogFlushIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_flush_scheduler_interval_ms"); ok {
+		res.LogFlushSchedulerIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_retention_bytes"); ok {
+		res.LogRetentionBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_retention_hours"); ok {
+		res.LogRetentionHours = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_retention_minutes"); ok {
+		res.LogRetentionMinutes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_retention_ms"); ok {
+		res.LogRetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_segment_bytes"); ok {
+		res.LogSegmentBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".log_preallocate"); ok {
+		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	if v, ok := d.GetOk(rootKey + ".socket_send_buffer_bytes"); ok {
 		res.SocketSendBufferBytes = &wrappers.Int64Value{Value: int64(v.(int))}
@@ -288,6 +344,57 @@ func expandKafkaTopicConfig2_1(config map[string]interface{}) (*kafka.TopicConfi
 	return res, nil
 }
 
+func expandKafkaTopicConfig2_8(config map[string]interface{}) (*kafka.TopicConfig2_8, error) {
+	res := &kafka.TopicConfig2_8{}
+
+	if v, ok := config["cleanup_policy"]; ok {
+		_, err := parseKafkaTopicCleanupPolicy(v.(string))
+		if err == nil {
+			res.CleanupPolicy = kafka.TopicConfig2_8_CleanupPolicy(kafka.TopicConfig2_8_CleanupPolicy_value[v.(string)])
+		}
+	}
+	if v, ok := config["compression_type"]; ok {
+		value, err := parseKafkaCompression(v.(string))
+		if err == nil {
+			res.CompressionType = value
+		}
+	}
+	if v, ok := config["delete_retention_ms"]; ok {
+		res.DeleteRetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["file_delete_delay_ms"]; ok {
+		res.FileDeleteDelayMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["flush_messages"]; ok {
+		res.FlushMessages = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["flush_ms"]; ok {
+		res.FlushMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["min_compaction_lag_ms"]; ok {
+		res.MinCompactionLagMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["retention_bytes"]; ok {
+		res.RetentionBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["retention_ms"]; ok {
+		res.RetentionMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["max_message_bytes"]; ok {
+		res.MaxMessageBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["min_insync_replicas"]; ok {
+		res.MinInsyncReplicas = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["segment_bytes"]; ok {
+		res.SegmentBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := config["preallocate"]; ok {
+		res.Preallocate = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	return res, nil
+}
+
 func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	result := &kafka.ConfigSpec{}
 
@@ -318,6 +425,12 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	result.Kafka.Resources = expandKafkaResources(d, "config.0.kafka.0.resources.0")
 
 	switch version := result.Version; version {
+	case "2.8":
+		cfg, err := expandKafkaConfig2_8(d, "config.0.kafka.0.kafka_config.0")
+		if err != nil {
+			return nil, err
+		}
+		result.Kafka.SetKafkaConfig_2_8(cfg)
 	case "2.6":
 		cfg, err := expandKafkaConfig2_6(d, "config.0.kafka.0.kafka_config.0")
 		if err != nil {
@@ -433,6 +546,12 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 			return nil, err
 		}
 	}
+	if cluster.Config.Kafka.GetKafkaConfig_2_8() != nil {
+		kafkaConfig, err = flattenKafkaConfig2_8Settings(cluster.Config.Kafka.GetKafkaConfig_2_8())
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	config := map[string]interface{}{
 		"brokers_count":    cluster.Config.BrokersCount.GetValue(),
@@ -488,15 +607,37 @@ func flattenKafkaConfig2_1Settings(r *kafka.KafkaConfig2_1) (map[string]interfac
 	res := map[string]interface{}{}
 
 	res["compression_type"] = r.GetCompressionType().String()
-	res["log_flush_interval_messages"] = r.GetLogFlushIntervalMessages()
-	res["log_flush_interval_ms"] = r.GetLogFlushIntervalMs()
-	res["log_flush_scheduler_interval_ms"] = r.GetLogFlushSchedulerIntervalMs()
-	res["log_retention_bytes"] = r.GetLogRetentionBytes()
-	res["log_retention_hours"] = r.GetLogRetentionHours()
-	res["log_retention_minutes"] = r.GetLogRetentionMinutes()
-	res["log_retention_ms"] = r.GetLogRetentionMs()
-	res["log_segment_bytes"] = r.GetLogSegmentBytes()
-	res["log_preallocate"] = r.GetLogPreallocate()
+	res["log_flush_interval_messages"] = r.GetLogFlushIntervalMessages().GetValue()
+	res["log_flush_interval_ms"] = r.GetLogFlushIntervalMs().GetValue()
+	res["log_flush_scheduler_interval_ms"] = r.GetLogFlushSchedulerIntervalMs().GetValue()
+	res["log_retention_bytes"] = r.GetLogRetentionBytes().GetValue()
+	res["log_retention_hours"] = r.GetLogRetentionHours().GetValue()
+	res["log_retention_minutes"] = r.GetLogRetentionMinutes().GetValue()
+	res["log_retention_ms"] = r.GetLogRetentionMs().GetValue()
+	res["log_segment_bytes"] = r.GetLogSegmentBytes().GetValue()
+	res["log_preallocate"] = r.GetLogPreallocate().GetValue()
+	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
+	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
+	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
+	res["num_partitions"] = r.GetNumPartitions().GetValue()
+	res["default_replication_factor"] = r.GetDefaultReplicationFactor().GetValue()
+
+	return res, nil
+}
+
+func flattenKafkaConfig2_8Settings(r *kafka.KafkaConfig2_8) (map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["compression_type"] = r.GetCompressionType().String()
+	res["log_flush_interval_messages"] = r.GetLogFlushIntervalMessages().GetValue()
+	res["log_flush_interval_ms"] = r.GetLogFlushIntervalMs().GetValue()
+	res["log_flush_scheduler_interval_ms"] = r.GetLogFlushSchedulerIntervalMs().GetValue()
+	res["log_retention_bytes"] = r.GetLogRetentionBytes().GetValue()
+	res["log_retention_hours"] = r.GetLogRetentionHours().GetValue()
+	res["log_retention_minutes"] = r.GetLogRetentionMinutes().GetValue()
+	res["log_retention_ms"] = r.GetLogRetentionMs().GetValue()
+	res["log_segment_bytes"] = r.GetLogSegmentBytes().GetValue()
+	res["log_preallocate"] = r.GetLogPreallocate().GetValue()
 	res["socket_send_buffer_bytes"] = r.GetSocketSendBufferBytes().GetValue()
 	res["socket_receive_buffer_bytes"] = r.GetSocketReceiveBufferBytes().GetValue()
 	res["auto_create_topics_enable"] = r.GetAutoCreateTopicsEnable().GetValue()
@@ -582,6 +723,9 @@ func flattenKafkaTopics(topics []*kafka.Topic) []map[string]interface{} {
 		if d.GetTopicConfig_2_1() != nil {
 			cfg = flattenKafkaTopicConfig2_1(d.GetTopicConfig_2_1())
 		}
+		if d.GetTopicConfig_2_8() != nil {
+			cfg = flattenKafkaTopicConfig2_8(d.GetTopicConfig_2_8())
+		}
 		if len(cfg) != 0 {
 			m["topic_config"] = []map[string]interface{}{cfg}
 		}
@@ -640,6 +784,51 @@ func flattenKafkaTopicConfig2_1(topicConfig *kafka.TopicConfig2_1) map[string]in
 	result := make(map[string]interface{})
 
 	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig2_1_CLEANUP_POLICY_UNSPECIFIED {
+		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
+	}
+	if topicConfig.GetCompressionType() != kafka.CompressionType_COMPRESSION_TYPE_UNSPECIFIED {
+		result["compression_type"] = topicConfig.GetCompressionType().String()
+	}
+	if topicConfig.GetDeleteRetentionMs() != nil {
+		result["delete_retention_ms"] = topicConfig.GetDeleteRetentionMs().GetValue()
+	}
+	if topicConfig.GetFileDeleteDelayMs() != nil {
+		result["file_delete_delay_ms"] = topicConfig.GetFileDeleteDelayMs().GetValue()
+	}
+	if topicConfig.GetFlushMessages() != nil {
+		result["flush_messages"] = topicConfig.GetFlushMessages().GetValue()
+	}
+	if topicConfig.GetFlushMs() != nil {
+		result["flush_ms"] = topicConfig.GetFlushMs().GetValue()
+	}
+	if topicConfig.GetMinCompactionLagMs() != nil {
+		result["min_compaction_lag_ms"] = topicConfig.GetMinCompactionLagMs().GetValue()
+	}
+	if topicConfig.GetRetentionBytes() != nil {
+		result["retention_bytes"] = topicConfig.GetRetentionBytes().GetValue()
+	}
+	if topicConfig.GetRetentionMs() != nil {
+		result["retention_ms"] = topicConfig.GetRetentionMs().GetValue()
+	}
+	if topicConfig.GetMaxMessageBytes() != nil {
+		result["max_message_bytes"] = topicConfig.GetMaxMessageBytes().GetValue()
+	}
+	if topicConfig.GetMinInsyncReplicas() != nil {
+		result["min_insync_replicas"] = topicConfig.GetMinInsyncReplicas().GetValue()
+	}
+	if topicConfig.GetSegmentBytes() != nil {
+		result["segment_bytes"] = topicConfig.GetSegmentBytes().GetValue()
+	}
+	if topicConfig.GetPreallocate() != nil {
+		result["preallocate"] = topicConfig.GetPreallocate().GetValue()
+	}
+	return result
+}
+
+func flattenKafkaTopicConfig2_8(topicConfig *kafka.TopicConfig2_8) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig2_8_CLEANUP_POLICY_UNSPECIFIED {
 		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
 	}
 	if topicConfig.GetCompressionType() != kafka.CompressionType_COMPRESSION_TYPE_UNSPECIFIED {
@@ -826,6 +1015,15 @@ func expandKafkaTopic(spec map[string]interface{}, version string) (*kafka.Topic
 					return nil, err
 				}
 				topic.SetTopicConfig_2_1(cfg)
+			}
+		case "2.8":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_8(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, err
+				}
+				topic.SetTopicConfig_2_8(cfg)
 			}
 		default:
 			return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)

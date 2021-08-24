@@ -161,7 +161,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		"labels":      map[string]interface{}{"label1": "val1", "label2": "val2"},
 		"config": []interface{}{
 			map[string]interface{}{
-				"version":       "2.6",
+				"version":       "2.8",
 				"brokers_count": 1,
 				"zones":         []interface{}{"ru-central1-b", "ru-central1-c"},
 				"kafka": []interface{}{
@@ -175,9 +175,21 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						},
 						"kafka_config": []interface{}{
 							map[string]interface{}{
-								"compression_type":    "COMPRESSION_TYPE_ZSTD",
-								"log_retention_bytes": 1024 * 1024 * 1024,
-								"log_preallocate":     true,
+								"compression_type":                "COMPRESSION_TYPE_ZSTD",
+								"log_flush_interval_messages":     1,
+								"log_flush_interval_ms":           2,
+								"log_flush_scheduler_interval_ms": 3,
+								"log_retention_bytes":             4,
+								"log_retention_hours":             5,
+								"log_retention_minutes":           6,
+								"log_retention_ms":                7,
+								"log_segment_bytes":               8,
+								"log_preallocate":                 true,
+								"socket_send_buffer_bytes":        9,
+								"socket_receive_buffer_bytes":     10,
+								"auto_create_topics_enable":       true,
+								"num_partitions":                  11,
+								"default_replication_factor":      12,
 							},
 						},
 					},
@@ -269,7 +281,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		Labels:      map[string]string{"label1": "val1", "label2": "val2"},
 		Environment: kafka.Cluster_PRESTABLE,
 		ConfigSpec: &kafka.ConfigSpec{
-			Version:      "2.6",
+			Version:      "2.8",
 			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
 			ZoneId:       []string{"ru-central1-b", "ru-central1-c"},
 			Kafka: &kafka.ConfigSpec_Kafka{
@@ -278,11 +290,23 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 					DiskSize:         21474836480,
 					DiskTypeId:       "network-ssd",
 				},
-				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_2_6{
-					KafkaConfig_2_6: &kafka.KafkaConfig2_6{
-						CompressionType:   kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
-						LogRetentionBytes: &wrappers.Int64Value{Value: 1024 * 1024 * 1024},
-						LogPreallocate:    &wrappers.BoolValue{Value: true},
+				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_2_8{
+					KafkaConfig_2_8: &kafka.KafkaConfig2_8{
+						CompressionType:             kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+						LogFlushIntervalMessages:    &wrappers.Int64Value{Value: 1},
+						LogFlushIntervalMs:          &wrappers.Int64Value{Value: 2},
+						LogFlushSchedulerIntervalMs: &wrappers.Int64Value{Value: 3},
+						LogRetentionBytes:           &wrappers.Int64Value{Value: 4},
+						LogRetentionHours:           &wrappers.Int64Value{Value: 5},
+						LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
+						LogRetentionMs:              &wrappers.Int64Value{Value: 7},
+						LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
+						LogPreallocate:              &wrappers.BoolValue{Value: true},
+						SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
+						SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
+						AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
+						NumPartitions:               &wrappers.Int64Value{Value: 11},
+						DefaultReplicationFactor:    &wrappers.Int64Value{Value: 12},
 					},
 				},
 			},
@@ -300,9 +324,9 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 				Name:              "raw_events",
 				Partitions:        &wrappers.Int64Value{Value: int64(12)},
 				ReplicationFactor: &wrappers.Int64Value{Value: int64(1)},
-				TopicConfig: &kafka.TopicSpec_TopicConfig_2_6{
-					TopicConfig_2_6: &kafka.TopicConfig2_6{
-						CleanupPolicy:      kafka.TopicConfig2_6_CLEANUP_POLICY_COMPACT_AND_DELETE,
+				TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
+					TopicConfig_2_8: &kafka.TopicConfig2_8{
+						CleanupPolicy:      kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
 						CompressionType:    kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
 						MinInsyncReplicas:  &wrappers.Int64Value{Value: int64(1)},
 						DeleteRetentionMs:  &wrappers.Int64Value{Value: int64(2)},
@@ -357,6 +381,220 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 	assert.Equal(t, expected, req)
 }
 
+func TestExpandKafka21ClusterConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{
+			map[string]interface{}{
+				"version": "2.1",
+				"kafka": []interface{}{
+					map[string]interface{}{
+						"kafka_config": []interface{}{
+							map[string]interface{}{
+								"compression_type":                "COMPRESSION_TYPE_ZSTD",
+								"log_flush_interval_messages":     1,
+								"log_flush_interval_ms":           2,
+								"log_flush_scheduler_interval_ms": 3,
+								"log_retention_bytes":             4,
+								"log_retention_hours":             5,
+								"log_retention_minutes":           6,
+								"log_retention_ms":                7,
+								"log_segment_bytes":               8,
+								"log_preallocate":                 true,
+								"socket_send_buffer_bytes":        9,
+								"socket_receive_buffer_bytes":     10,
+								"auto_create_topics_enable":       true,
+								"num_partitions":                  11,
+								"default_replication_factor":      12,
+							},
+						},
+					},
+				},
+			},
+		},
+		"topic": []interface{}{
+			map[string]interface{}{
+				"name":               "raw_events",
+				"partitions":         12,
+				"replication_factor": 1,
+				"topic_config": []interface{}{
+					map[string]interface{}{
+						"cleanup_policy":        "CLEANUP_POLICY_COMPACT_AND_DELETE",
+						"compression_type":      "COMPRESSION_TYPE_ZSTD",
+						"min_insync_replicas":   1,
+						"delete_retention_ms":   2,
+						"file_delete_delay_ms":  3,
+						"flush_messages":        4,
+						"flush_ms":              5,
+						"min_compaction_lag_ms": 6,
+						"retention_bytes":       7,
+						"retention_ms":          8,
+						"segment_bytes":         9,
+						"max_message_bytes":     16777216,
+						"preallocate":           "true",
+					},
+				},
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	config := &Config{FolderID: "folder-777"}
+	req, err := prepareKafkaCreateRequest(resourceData, config)
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	assert.Equal(t, &kafka.ConfigSpec_Kafka_KafkaConfig_2_1{
+		KafkaConfig_2_1: &kafka.KafkaConfig2_1{
+			CompressionType:             kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+			LogFlushIntervalMessages:    &wrappers.Int64Value{Value: 1},
+			LogFlushIntervalMs:          &wrappers.Int64Value{Value: 2},
+			LogFlushSchedulerIntervalMs: &wrappers.Int64Value{Value: 3},
+			LogRetentionBytes:           &wrappers.Int64Value{Value: 4},
+			LogRetentionHours:           &wrappers.Int64Value{Value: 5},
+			LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
+			LogRetentionMs:              &wrappers.Int64Value{Value: 7},
+			LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
+			LogPreallocate:              &wrappers.BoolValue{Value: true},
+			SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
+			SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
+			AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
+			NumPartitions:               &wrappers.Int64Value{Value: 11},
+			DefaultReplicationFactor:    &wrappers.Int64Value{Value: 12},
+		},
+	}, req.ConfigSpec.Kafka.KafkaConfig)
+
+	assert.Equal(t, &kafka.TopicSpec{
+		Name:              "raw_events",
+		Partitions:        &wrappers.Int64Value{Value: int64(12)},
+		ReplicationFactor: &wrappers.Int64Value{Value: int64(1)},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_2_1{
+			TopicConfig_2_1: &kafka.TopicConfig2_1{
+				CleanupPolicy:      kafka.TopicConfig2_1_CLEANUP_POLICY_COMPACT_AND_DELETE,
+				CompressionType:    kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+				MinInsyncReplicas:  &wrappers.Int64Value{Value: int64(1)},
+				DeleteRetentionMs:  &wrappers.Int64Value{Value: int64(2)},
+				FileDeleteDelayMs:  &wrappers.Int64Value{Value: int64(3)},
+				FlushMessages:      &wrappers.Int64Value{Value: int64(4)},
+				FlushMs:            &wrappers.Int64Value{Value: int64(5)},
+				MinCompactionLagMs: &wrappers.Int64Value{Value: int64(6)},
+				RetentionBytes:     &wrappers.Int64Value{Value: int64(7)},
+				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
+				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
+				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
+				Preallocate:        &wrappers.BoolValue{Value: true},
+			},
+		},
+	}, req.TopicSpecs[0])
+}
+
+func TestExpandKafka26ClusterConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{
+			map[string]interface{}{
+				"version": "2.6",
+				"kafka": []interface{}{
+					map[string]interface{}{
+						"kafka_config": []interface{}{
+							map[string]interface{}{
+								"compression_type":                "COMPRESSION_TYPE_ZSTD",
+								"log_flush_interval_messages":     1,
+								"log_flush_interval_ms":           2,
+								"log_flush_scheduler_interval_ms": 3,
+								"log_retention_bytes":             4,
+								"log_retention_hours":             5,
+								"log_retention_minutes":           6,
+								"log_retention_ms":                7,
+								"log_segment_bytes":               8,
+								"log_preallocate":                 true,
+								"socket_send_buffer_bytes":        9,
+								"socket_receive_buffer_bytes":     10,
+								"auto_create_topics_enable":       true,
+								"num_partitions":                  11,
+								"default_replication_factor":      12,
+							},
+						},
+					},
+				},
+			},
+		},
+		"topic": []interface{}{
+			map[string]interface{}{
+				"name":               "raw_events",
+				"partitions":         12,
+				"replication_factor": 1,
+				"topic_config": []interface{}{
+					map[string]interface{}{
+						"cleanup_policy":        "CLEANUP_POLICY_COMPACT_AND_DELETE",
+						"compression_type":      "COMPRESSION_TYPE_ZSTD",
+						"min_insync_replicas":   1,
+						"delete_retention_ms":   2,
+						"file_delete_delay_ms":  3,
+						"flush_messages":        4,
+						"flush_ms":              5,
+						"min_compaction_lag_ms": 6,
+						"retention_bytes":       7,
+						"retention_ms":          8,
+						"segment_bytes":         9,
+						"max_message_bytes":     16777216,
+						"preallocate":           "true",
+					},
+				},
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	config := &Config{FolderID: "folder-777"}
+	req, err := prepareKafkaCreateRequest(resourceData, config)
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	assert.Equal(t, &kafka.ConfigSpec_Kafka_KafkaConfig_2_6{
+		KafkaConfig_2_6: &kafka.KafkaConfig2_6{
+			CompressionType:             kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+			LogFlushIntervalMessages:    &wrappers.Int64Value{Value: 1},
+			LogFlushIntervalMs:          &wrappers.Int64Value{Value: 2},
+			LogFlushSchedulerIntervalMs: &wrappers.Int64Value{Value: 3},
+			LogRetentionBytes:           &wrappers.Int64Value{Value: 4},
+			LogRetentionHours:           &wrappers.Int64Value{Value: 5},
+			LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
+			LogRetentionMs:              &wrappers.Int64Value{Value: 7},
+			LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
+			LogPreallocate:              &wrappers.BoolValue{Value: true},
+			SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
+			SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
+			AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
+			NumPartitions:               &wrappers.Int64Value{Value: 11},
+			DefaultReplicationFactor:    &wrappers.Int64Value{Value: 12},
+		},
+	}, req.ConfigSpec.Kafka.KafkaConfig)
+
+	assert.Equal(t, &kafka.TopicSpec{
+		Name:              "raw_events",
+		Partitions:        &wrappers.Int64Value{Value: int64(12)},
+		ReplicationFactor: &wrappers.Int64Value{Value: int64(1)},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_2_6{
+			TopicConfig_2_6: &kafka.TopicConfig2_6{
+				CleanupPolicy:      kafka.TopicConfig2_6_CLEANUP_POLICY_COMPACT_AND_DELETE,
+				CompressionType:    kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+				MinInsyncReplicas:  &wrappers.Int64Value{Value: int64(1)},
+				DeleteRetentionMs:  &wrappers.Int64Value{Value: int64(2)},
+				FileDeleteDelayMs:  &wrappers.Int64Value{Value: int64(3)},
+				FlushMessages:      &wrappers.Int64Value{Value: int64(4)},
+				FlushMs:            &wrappers.Int64Value{Value: int64(5)},
+				MinCompactionLagMs: &wrappers.Int64Value{Value: int64(6)},
+				RetentionBytes:     &wrappers.Int64Value{Value: int64(7)},
+				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
+				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
+				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
+				Preallocate:        &wrappers.BoolValue{Value: true},
+			},
+		},
+	}, req.TopicSpecs[0])
+}
+
 // Test that a Kafka Cluster can be created, updated and destroyed in single zone mode
 func TestAccMDBKafkaCluster_single(t *testing.T) {
 	t.Parallel()
@@ -389,7 +627,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 16777216),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{CleanupPolicy: kafka.TopicConfig2_6_CLEANUP_POLICY_COMPACT_AND_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -444,7 +682,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{CleanupPolicy: kafka.TopicConfig2_6_CLEANUP_POLICY_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -485,7 +723,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}, Preallocate: &wrappers.BoolValue{Value: true}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}, Preallocate: &wrappers.BoolValue{Value: true}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -510,7 +748,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_6{MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -584,7 +822,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	deletion_protection = %t
 
 	config {
-	  version          = "2.6"
+	  version          = "2.8"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
@@ -665,7 +903,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id, yandex_vpc_security_group.mdb-kafka-test-sg-y.id]
 
 	config {
-		version = "2.6"
+		version = "2.8"
 		brokers_count = 1
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
@@ -747,7 +985,7 @@ func testAccCheckMDBKafkaClusterContainsLabel(r *kafka.Cluster, key string, valu
 
 func testAccCheckMDBKafkaClusterCompressionType(r *kafka.Cluster, value kafka.CompressionType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().CompressionType
+		v := r.Config.Kafka.GetKafkaConfig_2_8().CompressionType
 		if v != value {
 			return fmt.Errorf("incorrect compression_type value: expected '%s' but found '%s'", value, v)
 		}
@@ -757,7 +995,7 @@ func testAccCheckMDBKafkaClusterCompressionType(r *kafka.Cluster, value kafka.Co
 
 func testAccCheckMDBKafkaClusterLogRetentionBytes(r *kafka.Cluster, value int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().LogRetentionBytes
+		v := r.Config.Kafka.GetKafkaConfig_2_8().LogRetentionBytes
 		if v.GetValue() != value {
 			return fmt.Errorf("incorrect log_retention_bytes value: expected '%v' but found '%v'", value, v.GetValue())
 		}
@@ -767,7 +1005,7 @@ func testAccCheckMDBKafkaClusterLogRetentionBytes(r *kafka.Cluster, value int64)
 
 func testAccCheckMDBKafkaClusterLogSegmentBytes(r *kafka.Cluster, value int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().LogSegmentBytes
+		v := r.Config.Kafka.GetKafkaConfig_2_8().LogSegmentBytes
 		if v.GetValue() != value {
 			return fmt.Errorf("incorrect log_segment_bytes value: expected '%v' but found '%v'", value, v.GetValue())
 		}
@@ -777,7 +1015,7 @@ func testAccCheckMDBKafkaClusterLogSegmentBytes(r *kafka.Cluster, value int64) r
 
 func testAccCheckMDBKafkaClusterLogPreallocate(r *kafka.Cluster, value bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_6().LogPreallocate
+		v := r.Config.Kafka.GetKafkaConfig_2_8().LogPreallocate
 		if v.GetValue() != value {
 			return fmt.Errorf("incorrect log_preallocate value: expected '%v' but found '%v'", value, v.GetValue())
 		}
@@ -894,7 +1132,7 @@ func testAccCheckMDBKafkaTopicMaxMessageBytes(r string, topic string, value int6
 		if err != nil {
 			return err
 		}
-		v := resp.GetTopicConfig_2_6().MaxMessageBytes.GetValue()
+		v := resp.GetTopicConfig_2_8().MaxMessageBytes.GetValue()
 		if v != value {
 			return fmt.Errorf("MaxMessageByte for topic %v has value: %v, expected: %v", topic, v, value)
 		}
@@ -902,7 +1140,7 @@ func testAccCheckMDBKafkaTopicMaxMessageBytes(r string, topic string, value int6
 	}
 }
 
-func testAccCheckMDBKafkaTopicConfig(r string, topicName string, topicConfig *kafka.TopicConfig2_6) resource.TestCheckFunc {
+func testAccCheckMDBKafkaTopicConfig(r string, topicName string, topicConfig *kafka.TopicConfig2_8) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -922,7 +1160,7 @@ func testAccCheckMDBKafkaTopicConfig(r string, topicName string, topicConfig *ka
 		if err != nil {
 			return err
 		}
-		actualTopicConfig := resp.GetTopicConfig_2_6()
+		actualTopicConfig := resp.GetTopicConfig_2_8()
 		if !reflect.DeepEqual(topicConfig, actualTopicConfig) {
 			return fmt.Errorf("topic %v differs, actual: %v, expected %v", topicName, actualTopicConfig, topicConfig)
 		}
@@ -996,7 +1234,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id]
 
 	config {
-	  version          = "2.6"
+	  version          = "2.8"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
@@ -1087,7 +1325,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	]
 
 	config {
-	  version          = "2.6"
+	  version          = "2.8"
 	  brokers_count    = 2
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
 	  assign_public_ip = false
