@@ -616,7 +616,7 @@ The `maintenance_window` block supports:
 
 * `day` - (Optional) Day of the week (in `DDD` format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
 
-* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
+* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
 
 ## Attributes Reference
 
