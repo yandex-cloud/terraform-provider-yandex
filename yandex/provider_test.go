@@ -38,6 +38,7 @@ var testAccEnvVars = []string{
 }
 
 var testCloudID = "not initialized"
+var testOrganizationID = "not initialized"
 var testCloudName = "not initialized"
 var testFolderID = "not initialized"
 var testFolderName = "not initialized"
@@ -155,6 +156,10 @@ func getExampleCloudID() string {
 	return testCloudID
 }
 
+func getExampleOrganizationID() string {
+	return testOrganizationID
+}
+
 func getExampleFolderID() string {
 	return testFolderID
 }
@@ -208,6 +213,7 @@ func setTestIDs() error {
 
 	// setup example ID values for test cases
 	testCloudID = os.Getenv("YC_CLOUD_ID")
+	testOrganizationID = os.Getenv("YC_ORGANIZATION_ID")
 	testCloudName = getCloudNameByID(sdk, testCloudID)
 
 	testFolderID = os.Getenv("YC_FOLDER_ID")

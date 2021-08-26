@@ -17,6 +17,8 @@ func TestAccCloudIamBinding_basic(t *testing.T) {
 	role := "viewer"
 	userID := getExampleUserID2()
 
+	t.Log(testAccCloudAssociateBindingBasic(cloudID, role, userID))
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
