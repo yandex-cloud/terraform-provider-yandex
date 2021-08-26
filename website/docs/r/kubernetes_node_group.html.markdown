@@ -30,7 +30,6 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
     network_interface {
       nat                = true
       subnet_ids         = ["${yandex_vpc_subnet.my_subnet.id}"]
-      security_group_ids = ["${yandex_vpc_security_group.my_sg.id}"]
     }
 
     resources {
@@ -151,7 +150,7 @@ The `network_interface` block supports:
 * `ipv4` - (Optional) Allocate an IPv4 address for the interface. The default value is `true`.
 * `ipv6` - (Optional) If true, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
 * `nat` - A public address that can be used to access the internet over NAT.
-* `security_group_ids` - Security group ids for network interface.
+* `security_group_ids` - (Optional) Security group ids for network interface.
 
 ---
 
