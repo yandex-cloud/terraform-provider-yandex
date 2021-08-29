@@ -18,7 +18,7 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
   cluster_id  = "${yandex_kubernetes_cluster.my_cluster.id}"
   name        = "name"
   description = "description"
-  version     = "1.14"
+  version     = "1.17"
 
   labels = {
     "key" = "value"
