@@ -1,8 +1,8 @@
 package yandex
 
 import (
+	"errors"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -228,6 +228,25 @@ func (l *ElasticsearchHostList) RemoveByName(name string) (*ElasticsearchHost, b
 	return l.RemoveBy(func(h *ElasticsearchHost) bool { return h.Name == name })
 }
 
+func (l ElasticsearchHostList) HasMasters() bool {
+	for i := range l {
+		if l[i].Type == elasticsearch.Host_MASTER_NODE {
+			return true
+		}
+	}
+	return false
+}
+
+func (l ElasticsearchHostList) CountMasters() int {
+	var c = 0
+	for i := range l {
+		if l[i].Type == elasticsearch.Host_MASTER_NODE {
+			c++
+		}
+	}
+	return c
+}
+
 type ElasticsearchHostPredicateFunc func(h *ElasticsearchHost) bool
 
 func (l *ElasticsearchHostList) RemoveBy(p ElasticsearchHostPredicateFunc) (*ElasticsearchHost, bool) {
@@ -299,6 +318,10 @@ func elasticseachHostDiffCustomize(rdiff *schema.ResourceDiff, _ interface{}) er
 	oldHosts, _ := expandElasticsearchHosts(os)
 	newHosts, _ := expandElasticsearchHosts(ns)
 
+	if len(oldHosts) > 0 && oldHosts.CountMasters() != newHosts.CountMasters() {
+		return errors.New("Adding/removing master nodes not supported")
+	}
+
 	var ready = make([]bool, len(newHosts))
 
 	for i := range newHosts {
@@ -332,8 +355,6 @@ func elasticseachHostDiffCustomize(rdiff *schema.ResourceDiff, _ interface{}) er
 		return err
 	}
 
-	log.Printf("NEW: %#v\n\n", hs)
-	log.Printf("OLD: %#v\n\n", os)
 	return rdiff.SetNew("host", hs)
 }
 

@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
@@ -100,7 +101,6 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 
 						"edition": {
@@ -151,6 +151,11 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							MaxItems: 1,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								// suppress diff for not defined masters nodes
+								h, _ := expandElasticsearchHosts(d.Get("host"))
+								return !h.HasMasters()
+							},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resources": {
@@ -627,6 +632,7 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 			"config.0.plugins":        "config_spec.elasticsearch_spec.plugins",
 			"config.0.admin_password": "config_spec.admin_password",
 			"config.0.edition":        "config_spec.edition",
+			"config.0.version":        "config_spec.version",
 		}
 
 		for key, path := range fields {

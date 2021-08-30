@@ -82,6 +82,15 @@ func TestExpandElasticsearcConfigSpec(t *testing.T) {
 			}},
 			"plugins": []interface{}{"analysis-icu"},
 		}},
+		"host": []interface{}{map[string]interface{}{
+			"name": "data",
+			"zone": "sas",
+			"type": "DATA_NODE",
+		}, map[string]interface{}{
+			"name": "master",
+			"zone": "man",
+			"type": "MASTER_NODE",
+		}},
 	}
 
 	expected := &elasticsearch.ConfigSpec{
@@ -97,6 +106,58 @@ func TestExpandElasticsearcConfigSpec(t *testing.T) {
 				},
 			},
 			MasterNode: &elasticsearch.ElasticsearchSpec_MasterNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         10 * 1024 * 1024 * 1024,
+				},
+			},
+			Plugins: []string{"analysis-icu"},
+		},
+	}
+
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBElasticsearchCluster().Schema, raw)
+
+	spec := expandElasticsearchConfigSpec(resourceData)
+
+	require.Equal(t, expected, spec)
+}
+
+func TestExpandElasticsearcConfigSpec_SuppressMasters(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{map[string]interface{}{
+			"version":        "7.10",
+			"edition":        "basic",
+			"admin_password": "password",
+			"data_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"master_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"plugins": []interface{}{"analysis-icu"},
+		}},
+		"host": []interface{}{map[string]interface{}{
+			"name": "data",
+			"zone": "sas",
+			"type": "DATA_NODE",
+		}},
+	}
+
+	expected := &elasticsearch.ConfigSpec{
+		Version:       "7.10",
+		Edition:       "basic",
+		AdminPassword: "password",
+		ElasticsearchSpec: &elasticsearch.ElasticsearchSpec{
+			DataNode: &elasticsearch.ElasticsearchSpec_DataNode{
 				Resources: &elasticsearch.Resources{
 					ResourcePresetId: "s2.micro",
 					DiskTypeId:       "network-ssd",
