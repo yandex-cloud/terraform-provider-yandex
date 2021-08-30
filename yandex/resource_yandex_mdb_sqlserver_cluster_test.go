@@ -367,7 +367,7 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   network_id  = yandex_vpc_network.mdb-sqlserver-test-net.id
 
 
-  version = "2016sp2std"
+  version = "2016sp2ent"
 
   labels = { test_key_create : "test_value_create" }
 
@@ -412,7 +412,7 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   network_id  = yandex_vpc_network.mdb-sqlserver-test-net.id
 
 
-  version = "2016sp2std"
+  version = "2016sp2ent"
 
   resources {
     resource_preset_id = "s2.small"
@@ -499,7 +499,7 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   network_id  = yandex_vpc_network.mdb-sqlserver-test-net.id
 
 
-  version = "2016sp2std"
+  version = "2016sp2ent"
 
   labels = { test_key_create : "test_value_create" }
 
