@@ -3,10 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
+	"os"
 	"regexp"
 	"strings"
 	"testing"
+
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -87,6 +89,9 @@ func mdbSQLServerClusterImportStep(name string) resource.TestStep {
 
 // Test that a SQLServer Cluster can be created, updated and destroyed
 func TestAccMDBSQLServerCluster_full(t *testing.T) {
+	if os.Getenv("TF_SQL_LICENSE_ACCEPTED") != "1" {
+		t.Skip()
+	}
 	t.Parallel()
 
 	SQLServerName := acctest.RandomWithPrefix("tf-sqlserver")
@@ -184,6 +189,9 @@ func TestAccMDBSQLServerCluster_full(t *testing.T) {
 
 // Test that a SQLServer Cluster can't be created with 2 hosts
 func TestAccMDBSQLServerCluster_ha2(t *testing.T) {
+	if os.Getenv("TF_SQL_LICENSE_ACCEPTED") != "1" {
+		t.Skip()
+	}
 	t.Parallel()
 
 	SQLServerName := acctest.RandomWithPrefix("tf-sqlserver-ha2")
@@ -205,6 +213,9 @@ func TestAccMDBSQLServerCluster_ha2(t *testing.T) {
 
 // Test that a SQLServer Cluster can be created with 3 hosts, updated and destroyed
 func TestAccMDBSQLServerCluster_ha3(t *testing.T) {
+	if os.Getenv("TF_SQL_LICENSE_ACCEPTED") != "1" {
+		t.Skip()
+	}
 	t.Parallel()
 
 	SQLServerName := acctest.RandomWithPrefix("tf-sqlserver-ha3")

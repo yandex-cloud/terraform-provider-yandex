@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -10,6 +11,9 @@ import (
 )
 
 func TestAccDataSourceMDBSQLServerCluster_byID(t *testing.T) {
+	if os.Getenv("TF_SQL_LICENSE_ACCEPTED") != "1" {
+		t.Skip()
+	}
 	t.Parallel()
 
 	sqlserverName := acctest.RandomWithPrefix("ds-sqlserver-by-id")
@@ -31,6 +35,9 @@ func TestAccDataSourceMDBSQLServerCluster_byID(t *testing.T) {
 }
 
 func TestAccDataSourceMDBSQLServerCluster_byName(t *testing.T) {
+	if os.Getenv("TF_SQL_LICENSE_ACCEPTED") != "1" {
+		t.Skip()
+	}
 	t.Parallel()
 
 	sqlserverName := acctest.RandomWithPrefix("ds-sqlserver-by-name")
