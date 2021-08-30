@@ -1,4 +1,6 @@
-## 0.62.0 (Unreleased)
+## 0.63.0 (Unreleased)
+
+## 0.62.0 (August 30, 2021)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports website routing rules configuraion
 * mdb: support Redis 6.2 in `yandex_mdb_redis_cluster`
