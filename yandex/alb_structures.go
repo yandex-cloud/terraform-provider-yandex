@@ -1225,7 +1225,8 @@ func flattenALBAddresses(addresses []*apploadbalancer.Address) []interface{} {
 		if inIPv4 := address.GetInternalIpv4Address(); inIPv4 != nil {
 			flAddress["internal_ipv4_address"] = []map[string]interface{}{
 				{
-					"address": inIPv4.GetAddress(),
+					"address":   inIPv4.GetAddress(),
+					"subnet_id": inIPv4.GetSubnetId(),
 				},
 			}
 		}
