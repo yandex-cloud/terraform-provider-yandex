@@ -16,8 +16,10 @@ import (
 
 const apiGatewayResource = "yandex_api_gateway.test-api-gateway"
 const specFile = "test-fixtures/serverless/main.yaml"
+const specFileUpdated = "test-fixtures/serverless/main_updated.yaml"
 
 var spec string
+var specUpdated string
 
 func init() {
 	resource.AddTestSweepers("yandex_api_gateway", &resource.Sweeper{
@@ -27,6 +29,8 @@ func init() {
 	})
 	fileBytes, _ := ioutil.ReadFile(specFile)
 	spec = string(fileBytes)
+	fileBytes, _ = ioutil.ReadFile(specFileUpdated)
+	specUpdated = string(fileBytes)
 }
 
 func testSweepAPIGateway(_ string) error {
@@ -76,7 +80,7 @@ func TestAccYandexAPIGateway_basic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
-			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec, &apiGateway),
 		},
 	})
 }
@@ -100,8 +104,8 @@ func TestAccYandexAPIGateway_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexAPIGatewayDestroy,
 		Steps: []resource.TestStep{
-			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, &apiGateway),
-			basicYandexAPIGatewayTestStep(apiGatewayNameUpdated, apiGatewayDescUpdated, labelKeyUpdated, labelValueUpdated, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec, &apiGateway),
+			basicYandexAPIGatewayTestStep(apiGatewayNameUpdated, apiGatewayDescUpdated, labelKeyUpdated, labelValueUpdated, specUpdated, &apiGateway),
 		},
 	})
 }
@@ -149,9 +153,9 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	})
 }
 
-func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, apiGateway *apigateway.ApiGateway) resource.TestStep {
+func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, spec string, apiGateway *apigateway.ApiGateway) resource.TestStep {
 	return resource.TestStep{
-		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue),
+		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec),
 		Check: resource.ComposeTestCheckFunc(
 			testYandexAPIGatewayExists(apiGatewayResource, apiGateway),
 			resource.TestCheckResourceAttr(apiGatewayResource, "name", apiGatewayName),
@@ -252,7 +256,7 @@ func testYandexAPIGatewayContainsUserDomains(apiGateway *apigateway.ApiGateway, 
 	}
 }
 
-func testYandexAPIGatewayBasic(name, desc, labelKey, labelValue string) string {
+func testYandexAPIGatewayBasic(name, desc, labelKey, labelValue string, spec string) string {
 	return fmt.Sprintf(`
 resource "yandex_api_gateway" "test-api-gateway" {
   name        = "%s"

@@ -163,7 +163,7 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	var updatePaths []string
 
 	if d.HasChange("spec") {
-		updatePaths = append(updatePaths, "spec")
+		updatePaths = append(updatePaths, "openapi_spec")
 	}
 
 	if d.HasChange("name") {
