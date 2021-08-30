@@ -16,6 +16,7 @@ ENHANCEMENTS:
 * add `deletion_protection` attribute to `yandex_mdb_clickhouse_cluster`, `yandex_mdb_elasticsearch_cluster`, `yandex_mdb_kafka_cluster`, `yandex_mdb_mongodb_cluster`, `yandex_mdb_mysql_cluster`, `yandex_mdb_postgresql_cluster`,  `yandex_mdb_redis_cluster`, `yandex_mdb_sqlserver_cluster` resources and data sources
 * add `deletion_protection` attribute to `yandex_dataproc_cluster` data source
 * support updating of k8s node group `node_labels` without recreation.
+* docs: added a description of the port to the documentation for `yandex_mdb_postgresql_cluster`
 
 ## 0.61.0 (July 9, 2021)
 FEATURES:

@@ -10,6 +10,7 @@ description: |-
 
 Manages a PostgreSQL cluster within the Yandex.Cloud. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/).
+[How to connect to the DB](https://cloud.yandex.com/en-ru/docs/managed-postgresql/quickstart#connect). To connect, use port 6432. The port number is not configurable.
 
 ## Example Usage
 
