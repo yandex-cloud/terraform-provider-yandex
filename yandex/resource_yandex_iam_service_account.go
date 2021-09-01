@@ -35,8 +35,7 @@ func resourceYandexIAMServiceAccount() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "",
+				Required: true,
 			},
 
 			"description": {
