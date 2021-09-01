@@ -44,7 +44,7 @@ The following arguments are supported:
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`.
 
-~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `admin` role, though this role is not necessary to be able to create an object with any ACL.
+~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
 
 ## Attributes Reference
 

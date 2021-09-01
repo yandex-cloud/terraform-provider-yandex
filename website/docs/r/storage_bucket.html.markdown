@@ -10,12 +10,46 @@ description: |-
 
 Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs/storage/concepts/bucket).
 
+~> **Note:** Your need to provide [static access key](https://cloud.yandex.com/docs/iam/concepts/authorization/access-key) (Access and Secret) to create storage client to work with Storage Service. To create them you need Service Account and proper permissions.
+
+
 ## Example Usage
 
 ### Simple Private Bucket
 
 ```hcl
+locals {
+  folder_id = "<folder-id>"
+}
+
+provider "yandex" {
+  folder_id = local.folder_id
+  zone      = "ru-central1-a"
+}
+
+// Create SA
+resource "yandex_iam_service_account" "sa" {
+  folder_id = local.folder_id
+  name      = "tf-test-sa"
+}
+
+// Grant permissions
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = local.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
+}
+
+// Create Static Access Keys
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.sa.id
+  description        = "static access key for object storage"
+}
+
+// Use keys to create bucket
 resource "yandex_storage_bucket" "test" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
   bucket = "tf-test-bucket"
 }
 ```
@@ -361,11 +395,11 @@ The following arguments are supported:
 
 * `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
 
-~> **Note:** To change ACL after creation, service account with `admin` role should be used, though this role is not necessary to create a bucket with any ACL.
+~> **Note:** To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 
 * `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.com/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
-~> **Note:** To manage `grant` argument, service account with `admin` role should be used.
+~> **Note:** To manage `grant` argument, service account with `storage.admin` role should be used.
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 
@@ -374,6 +408,8 @@ The following arguments are supported:
 * `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/cors/) (documented below).
 
 * `versioning` - (Optional) A state of [versioning](https://cloud.yandex.com/docs/storage/concepts/versioning) (documented below)
+
+~> **Note:** To manage `versioning` argument, service account with `storage.admin` role should be used.
 
 * `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.com/docs/storage/concepts/server-logs) (documented below).
 
