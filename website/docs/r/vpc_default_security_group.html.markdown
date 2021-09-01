@@ -9,12 +9,12 @@ description: |-
 # yandex\_vpc\_default\_security\_group
 
 Manages a Default Security Group within the Yandex.Cloud. For more information, see the official documentation 
-of [security group](https://cloud.yandex.ru/docs/vpc/concepts/security-groups) 
-or [default security group](https://cloud.yandex.ru/docs/vpc/concepts/security-groups#default-security-group).
+of [security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups) 
+or [default security group](https://cloud.yandex.com/docs/vpc/concepts/security-groups#default-security-group).
 
 ~> **NOTE:** This resource is not intended for managing security group in general case. To manage normal security group use [yandex_vpc_security_group](vpc_security_group.html)
 
-When [network](https://cloud.yandex.ru/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it.
+When [network](https://cloud.yandex.com/docs/vpc/concepts/network) is created, a non-removable security group, called a *default security group*, is automatically attached to it.
 Life time of default security group cannot be controlled, so in fact the resource `yandex_vpc_default_security_group` does not create or delete any security groups, instead it simply takes or releases
 control of the default security group.
 
@@ -95,7 +95,7 @@ The `ingress` and `egress` block supports:
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
 * `security_group_id` (Optional) - Target security group ID for this rule.
-* `predefined_target` (Optional) - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.ru/docs/vpc/concepts/security-groups) for possible options.
+* `predefined_target` (Optional) - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.com/docs/vpc/concepts/security-groups) for possible options.
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 

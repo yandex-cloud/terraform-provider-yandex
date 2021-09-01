@@ -9,7 +9,7 @@ description: |-
 # yandex\_compute\_placement\_group
 
 A Placement group resource. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/compute/concepts/placement-groups).
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/placement-groups).
 
 ## Example Usage
 

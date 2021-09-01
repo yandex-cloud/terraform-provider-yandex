@@ -82,7 +82,7 @@ The `kafka_config` block supports:
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
   `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`,
   `num_partitions`, `default_replication_factor` - (Optional) Kafka server settings. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/managed-kafka/operations/cluster-update)
+[the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
 The `zookeeper` block supports:
@@ -119,7 +119,7 @@ The `topic_config` block supports:
 
 * `compression_type`, `delete_retention_ms`, `file_delete_delay_ms`, `flush_messages`, `flush_ms`, `min_compaction_lag_ms`,
 `retention_bytes`, `retention_ms`, `max_message_bytes`, `min_insync_replicas`, `segment_bytes`, `preallocate`, - (Optional) Kafka topic settings. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/managed-kafka/operations/cluster-topics#update-topic)
+[the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-topics#update-topic)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
 The `host` block supports:

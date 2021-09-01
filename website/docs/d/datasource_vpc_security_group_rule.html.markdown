@@ -9,7 +9,7 @@ description: |-
 # yandex\_vpc\_security\_group\_rule
 
 Get information about a Yandex VPC Security Group Rule. For more information, see
-[Yandex.Cloud VPC](https://cloud.yandex.ru/docs/vpc/concepts/security-groups).
+[Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
 
 ```hcl
 data "yandex_vpc_security_group_rule" "rule1" {
@@ -38,6 +38,6 @@ The following attribute is exported:
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).
 * `security_group_id` - Target security group ID for this rule.
-* `predefined_target` - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.ru/docs/vpc/concepts/security-groups) for possible options.
+* `predefined_target` - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.com/docs/vpc/concepts/security-groups) for possible options.
 * `v4_cidr_blocks` - The blocks of  IPv4 addresses for this rule.
 * `v6_cidr_blocks` - The blocks of  IPv6 addresses for this rule.

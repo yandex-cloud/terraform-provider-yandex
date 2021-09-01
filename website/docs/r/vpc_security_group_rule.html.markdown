@@ -9,8 +9,8 @@ description: |-
 # yandex\_vpc\_security\_group\_rule
 
 Manages a single Secuirity Group Rule within the Yandex.Cloud. For more information, see the official documentation
-of [security groups](https://cloud.yandex.ru/docs/vpc/concepts/security-groups)
-and [security group rules](https://cloud.yandex.ru/docs/vpc/concepts/security-groups#rules).
+of [security groups](https://cloud.yandex.com/docs/vpc/concepts/security-groups)
+and [security group rules](https://cloud.yandex.com/docs/vpc/concepts/security-groups#rules).
 
 ~> **NOTE:** There is another way to manage security group rules by `ingress` and `egress` arguments in [yandex_vpc_security_group](vpc_security_group.html). Both ways are equivalent but not compatible now. Using in-line rules of [yandex_vpc_security_group](vpc_security_group.html) with Security Group Rule resource at the same time will cause a conflict of rules configuration.
 
@@ -65,7 +65,7 @@ The following arguments are supported:
 * `to_port` (Optional) - Maximum port number.
 * `port` (Optional) - Port number (if applied to a single port).
 * `security_group_id` (Optional) - Target security group ID for this rule.
-* `predefined_target` (Optional) - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.ru/docs/vpc/concepts/security-groups) for possible options.
+* `predefined_target` (Optional) - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.com/docs/vpc/concepts/security-groups) for possible options.
 * `v4_cidr_blocks` (Optional) - The blocks of IPv4 addresses for this rule.
 * `v6_cidr_blocks` (Optional) - The blocks of IPv6 addresses for this rule. `v6_cidr_blocks` argument is currently not supported. It will be available in the future.
 

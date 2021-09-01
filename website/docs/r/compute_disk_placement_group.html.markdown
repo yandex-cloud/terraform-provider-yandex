@@ -9,7 +9,7 @@ description: |-
 # yandex\_compute\_disk\_placement\_group
 
 A Disk Placement Group resource. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/compute/concepts/disk#nr-disks).
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
 ## Example Usage
 

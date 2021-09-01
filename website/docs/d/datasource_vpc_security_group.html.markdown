@@ -9,7 +9,7 @@ description: |-
 # yandex\_vpc\_security\_group
 
 Get information about a Yandex VPC Security Group. For more information, see
-[Yandex.Cloud VPC](https://cloud.yandex.ru/docs/vpc/concepts/security-groups).
+[Yandex.Cloud VPC](https://cloud.yandex.com/docs/vpc/concepts/security-groups).
 
 ```hcl
 data "yandex_vpc_security_group" "group1" {

@@ -89,4 +89,4 @@ The following keys can be used to configure the provider.
 [yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope
 [yandex-service-account-key]: https://cloud.yandex.com/docs/iam/operations/iam-token/create-for-sa#keys-create
 [instance-service-account]: https://cloud.yandex.com/docs/compute/operations/vm-connect/auth-inside-vm
-[yandex-iam-create-token]: https://cloud.yandex.ru/docs/iam/operations/iam-token/create
+[yandex-iam-create-token]: https://cloud.yandex.com/docs/iam/operations/iam-token/create

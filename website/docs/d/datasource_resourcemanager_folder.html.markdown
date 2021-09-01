@@ -9,7 +9,7 @@ description: |-
 # yandex\_resourcemanager\_folder
 
 Use this data source to get information about a Yandex Resource Manager Folder. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/resource-manager/concepts/resources-hierarchy#folder).
+[the official documentation](https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder).
 
 ```hcl
 # Get folder by ID

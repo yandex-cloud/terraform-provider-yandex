@@ -9,7 +9,7 @@ description: |-
 # yandex\_compute\_disk_\placement_group
 
 Get information about a Yandex Compute Disk Placement group. For more information, see
-[the official documentation](https://cloud.yandex.ru/docs/compute/concepts/disk#nr-disks).
+[the official documentation](https://cloud.yandex.com/docs/compute/concepts/disk#nr-disks).
 
 ## Example Usage
 

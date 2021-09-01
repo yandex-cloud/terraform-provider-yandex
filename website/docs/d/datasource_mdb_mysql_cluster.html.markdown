@@ -111,7 +111,7 @@ The `host` block supports:
 The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
-* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.ru/docs/managed-mysql/operations/web-sql-query).
+* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-mysql/operations/web-sql-query).
 
 The `maintenance_window` block supports:
 

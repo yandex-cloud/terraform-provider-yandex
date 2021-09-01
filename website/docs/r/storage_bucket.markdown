@@ -369,13 +369,13 @@ The following arguments are supported:
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.
 
-* `website` - (Optional) A [website object](https://cloud.yandex.ru/docs/storage/concepts/hosting) (documented below).
+* `website` - (Optional) A [website object](https://cloud.yandex.com/docs/storage/concepts/hosting) (documented below).
 
 * `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/cors/) (documented below).
 
-* `versioning` - (Optional) A state of [versioning](https://cloud.yandex.ru/docs/storage/concepts/versioning) (documented below)
+* `versioning` - (Optional) A state of [versioning](https://cloud.yandex.com/docs/storage/concepts/versioning) (documented below)
 
-* `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.ru/docs/storage/concepts/server-logs) (documented below).
+* `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.com/docs/storage/concepts/server-logs) (documented below).
 
 * `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://cloud.yandex.com/docs/storage/concepts/lifecycles) (documented below).
 
@@ -387,7 +387,7 @@ The `website` object supports the following:
 
 * `redirect_all_requests_to` - (Optional) A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
 
-* `routing_rules` - (Optional) A json array containing [routing rules](https://cloud.yandex.ru/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
+* `routing_rules` - (Optional) A json array containing [routing rules](https://cloud.yandex.com/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
 
 
 The `CORS` object supports the following:
@@ -474,7 +474,7 @@ The `apply_server_side_encryption_by_default` object supports the following:
 
 * `kms_master_key_id` - (Optional) The KMS master key ID used for the SSE-KMS encryption.
 
-The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://cloud.yandex.ru/docs/storage/concepts/policy) for more information on policy format.
+The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://cloud.yandex.com/docs/storage/concepts/policy) for more information on policy format.
 
 ## Attributes Reference
 
