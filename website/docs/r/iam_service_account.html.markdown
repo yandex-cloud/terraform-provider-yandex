@@ -28,9 +28,8 @@ resource "yandex_iam_service_account" "sa" {
 
 The following arguments are supported:
 
-* `name` - (Optional) Name of the service account.
+* `name` - (Required) Name of the service account.
     Can be updated without creating a new resource.
-    Name should comply to this pattern: /[a-z]([-a-z0-9]{0,61}[a-z0-9])?/
 
 * `description` - (Optional) Description of the service account.
 
