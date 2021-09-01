@@ -85,8 +85,8 @@ The `scale_policy` block supports:
 
 * `auto_scale` - The auto scaling policy of the instance group. The structure is documented below.
 
-* `test_auto_scale` - The test auto scaling policy of the instance group. Use it to test how the auto scale works. 
-The structure is documented below.
+* `test_auto_scale` - The test auto scaling policy of the instance group. Use it to test how the auto scale works. The structure is documented below.
+
 ---
 
 The `fixed_scale` block supports:

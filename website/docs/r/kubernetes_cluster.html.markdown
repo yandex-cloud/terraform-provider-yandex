@@ -178,6 +178,7 @@ that will cause problems for cluster and related node group deletion.
 * `created_at` - (Computed) The Kubernetes cluster creation timestamp.
 * `log_group_id` - Log group where cluster stores cluster system logs, like audit, events, or controlplane logs.
 * `network_implementation` - (Optional) Network Implementation options. The structure is documented below.
+
 ---
 
 The `master` block supports:
