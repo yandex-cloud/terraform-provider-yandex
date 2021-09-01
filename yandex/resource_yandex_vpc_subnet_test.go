@@ -28,6 +28,7 @@ func init() {
 			"yandex_mdb_mongodb_cluster",
 			"yandex_mdb_mysql_cluster",
 			"yandex_mdb_postgresql_cluster",
+			"yandex_mdb_greenplum_cluster",
 			"yandex_mdb_redis_cluster",
 			"yandex_mdb_kafka_cluster",
 			"yandex_ydb_database_serverless",
