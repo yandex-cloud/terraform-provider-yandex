@@ -2,7 +2,9 @@ package yandex
 
 import (
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -45,6 +47,25 @@ func validateParsableValue(parseFunc interface{}) schema.SchemaValidateFunc {
 			}
 		}
 		errors = append(errors, fmt.Errorf("expected parse function's last return value to be an error"))
+		return
+	}
+}
+
+func ConvertableToInt() schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		str, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected %s to be a stringified integer", k))
+			return
+		}
+
+		_, err := strconv.ParseInt(str, 10, 64)
+		if err != nil {
+			es = append(es, fmt.Errorf("expected %s to be an integer in the range (%d, %d), got %q",
+				k, math.MinInt64, math.MaxInt64, str))
+			return
+		}
+
 		return
 	}
 }

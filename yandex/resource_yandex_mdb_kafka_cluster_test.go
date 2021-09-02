@@ -627,7 +627,12 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
 					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 16777216),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{
+						CleanupPolicy:   kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
+						MaxMessageBytes: &wrappers.Int64Value{Value: 16777216},
+						SegmentBytes:    &wrappers.Int64Value{Value: 134217728},
+						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
+					}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -682,7 +687,12 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_DELETE, MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{
+						CleanupPolicy:   kafka.TopicConfig2_8_CLEANUP_POLICY_DELETE,
+						MaxMessageBytes: &wrappers.Int64Value{Value: 33554432},
+						SegmentBytes:    &wrappers.Int64Value{Value: 268435456},
+						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
+					}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -850,6 +860,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		cleanup_policy    = "CLEANUP_POLICY_COMPACT_AND_DELETE"
 		max_message_bytes = 16777216
 		segment_bytes     = 134217728
+		flush_ms          = 9223372036854775807
 	  }
 	}
 
@@ -932,6 +943,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 			cleanup_policy = "CLEANUP_POLICY_DELETE"
 	 		max_message_bytes = 33554432
 			segment_bytes = 268435456
+			flush_ms      = 9223372036854775807
 		}
 	}
 

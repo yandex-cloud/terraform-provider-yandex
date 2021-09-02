@@ -3,6 +3,9 @@ FEATURES:
 * **New Data Source:** `yandex_mdb_greenplum_cluster`
 * **New Resource:** `yandex_mdb_greenplum_cluster`
 
+BUG FIXES:
+* mdb: fix terraform crash when using big integers as Kafka broker and topic config values
+
 ## 0.62.0 (August 30, 2021)
 FEATURES:
 * storage: `yandex_storage_bucket` resource supports website routing rules configuraion

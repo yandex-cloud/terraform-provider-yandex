@@ -289,60 +289,72 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				ValidateFunc: validateParsableValue(parseKafkaCompression),
 			},
 			"log_flush_interval_messages": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_flush_interval_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_flush_scheduler_interval_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_retention_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_retention_hours": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_retention_minutes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_retention_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_segment_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"log_preallocate": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"socket_send_buffer_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"socket_receive_buffer_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"auto_create_topics_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"num_partitions": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 			"default_replication_factor": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
 			},
 		},
 	}
@@ -362,44 +374,54 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 				ValidateFunc: validateParsableValue(parseKafkaCompression),
 			},
 			"delete_retention_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"file_delete_delay_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"flush_messages": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"flush_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"min_compaction_lag_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"retention_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"retention_ms": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"max_message_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"min_insync_replicas": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"segment_bytes": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ConvertableToInt(),
 			},
 			"preallocate": {
 				Type:     schema.TypeBool,
@@ -848,6 +870,7 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	log.Printf("[DEBUG] Sending Kafka cluster update request: %+v", req)
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Kafka().Cluster().Update(ctx, req))
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Kafka Cluster %q: %s", d.Id(), err)
@@ -885,7 +908,7 @@ func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
 			if err != nil {
 				return err
 			}
-			log.Printf("creating topic %+v", topicSpec)
+			log.Printf("[DEBUG] Creating topic %+v", topicSpec)
 			if err := createKafkaTopic(ctx, config, d, topicSpec); err != nil {
 				return err
 			}
@@ -893,7 +916,7 @@ func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if newTopic == nil {
-			log.Printf("topic %s is to be deleted", topicName)
+			log.Printf("[DEBUG] Topic %s is to be deleted", topicName)
 			if err := deleteKafkaTopic(ctx, config, d, topicName); err != nil {
 				return err
 			}
@@ -960,7 +983,7 @@ func updateKafkaTopic(ctx context.Context, config *Config, d *schema.ResourceDat
 		UpdateMask: &field_mask.FieldMask{Paths: paths},
 	}
 
-	log.Printf("sending topic update request: %+v", request)
+	log.Printf("[DEBUG] Sending topic update request: %+v", request)
 
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Kafka().Topic().Update(ctx, request),
