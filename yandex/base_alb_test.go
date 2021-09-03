@@ -334,6 +334,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     endpoint {
       address {
         external_ipv4_address {
+          subnet_id = yandex_vpc_subnet.test-subnet.id
         }
       }
       ports = [ {{.EndpointPort}} ]
