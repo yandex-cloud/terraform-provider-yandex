@@ -6,7 +6,7 @@ description: |-
   A network load balancer is used to evenly distribute the load across cloud resources.
 ---
 
-Creates a network load balancer in the specified folder using the data specified in the config. 
+Creates a network load balancer in the specified folder using the data specified in the config.
 For more information, see [the official documentation](https://cloud.yandex.com/docs/load-balancer/concepts).
 
 # yandex\_lb\_network\_load\_balancer
@@ -52,7 +52,7 @@ If omitted, the provider folder is used.
 
 * `labels` - (Optional) Labels to assign to this network load balancer. A list of key/value pairs.
 
-* `region_id` - (Optional) ID of the availability zone where the network load balancer resides. 
+* `region_id` - (Optional) ID of the availability zone where the network load balancer resides.
 The default is 'ru-central1'.
 
 * `type` - (Optional) Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
@@ -135,6 +135,8 @@ The `internal_address_spec` block supports:
 
 * `subnet_id` - (Required) ID of the subnet to which the internal IP address belongs.
 
+* `address` - (Optional) Internal IP address for a listener. Must belong to the subnet that is referenced in subnet_id. IP address will be allocated if it wasn't been set.
+
 * `ip_version` - (Optional) IP version of the internal addresses that the load balancer works with. Must be one of ipv4 or ipv6. The default is ipv4.
 
 ## Attributes Reference
@@ -147,7 +149,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Timeouts
 
-This resource provides the following configuration options for 
+This resource provides the following configuration options for
 [timeouts](/docs/configuration/resources.html#timeouts):
 
 - `create` - Default is 5 minute.

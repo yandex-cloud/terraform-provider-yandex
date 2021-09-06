@@ -2,6 +2,8 @@
 FEATURES:
 * **New Data Source:** `yandex_mdb_greenplum_cluster`
 * **New Resource:** `yandex_mdb_greenplum_cluster`
+* docs: add info about internal address for `lb_network_load_balancer`
+* docs: add info about loadbalancer_healthchecks predefined target for `vpc_security_group`
 
 BUG FIXES:
 * mdb: fix terraform crash when using big integers as Kafka broker and topic config values
