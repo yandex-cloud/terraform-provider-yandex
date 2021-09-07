@@ -1,4 +1,6 @@
-## 0.63.0 (Unreleased)
+## 0.64.0 (Unreleased)
+
+## 0.63.0 (September 07, 2021)
 FEATURES:
 * **New Data Source:** `yandex_mdb_greenplum_cluster`
 * **New Resource:** `yandex_mdb_greenplum_cluster`
