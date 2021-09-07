@@ -62,7 +62,7 @@ func ConvertableToInt() schema.SchemaValidateFunc {
 		_, err := strconv.ParseInt(str, 10, 64)
 		if err != nil {
 			es = append(es, fmt.Errorf("expected %s to be an integer in the range (%d, %d), got %q",
-				k, math.MinInt64, math.MaxInt64, str))
+				k, int64(math.MinInt64), int64(math.MaxInt64), str))
 			return
 		}
 
