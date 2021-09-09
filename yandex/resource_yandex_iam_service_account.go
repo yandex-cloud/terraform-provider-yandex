@@ -123,12 +123,7 @@ func resourceYandexIAMServiceAccountRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(sa.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(sa.CreatedAt))
 	d.Set("name", sa.Name)
 	d.Set("folder_id", sa.FolderId)
 	d.Set("description", sa.Description)

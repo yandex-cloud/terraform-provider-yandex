@@ -1065,11 +1065,7 @@ func flattenInstanceGroupManagedInstances(instances []*instancegroup.ManagedInst
 		instDict["status_message"] = instance.GetStatusMessage()
 		instDict["zone_id"] = instance.GetZoneId()
 
-		changedAt, err := getTimestamp(instance.GetStatusChangedAt())
-		if err != nil {
-			return res, err
-		}
-		instDict["status_changed_at"] = changedAt
+		instDict["status_changed_at"] = getTimestamp(instance.GetStatusChangedAt())
 
 		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
 		if err != nil {

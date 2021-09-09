@@ -327,12 +327,7 @@ func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	createdAt, err := getTimestamp(nlb.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(nlb.CreatedAt))
 	d.Set("name", nlb.Name)
 	d.Set("folder_id", nlb.FolderId)
 	d.Set("description", nlb.Description)

@@ -484,13 +484,8 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("ALB Backend Group with ID %q", bgID))
 	}
 
-	createdAt, err := getTimestamp(bg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("backend_group_id", bg.Id)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(bg.CreatedAt))
 	d.Set("name", bg.Name)
 	d.Set("folder_id", bg.FolderId)
 	d.Set("description", bg.Description)

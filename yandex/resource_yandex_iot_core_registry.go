@@ -140,18 +140,13 @@ func resourceYandexIoTCoreRegistryCreate(d *schema.ResourceData, meta interface{
 }
 
 func flattenYandexIoTCoreRegistry(d *schema.ResourceData, registry *iot.Registry) error {
-	createdAt, err := getTimestamp(registry.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("name", registry.Name)
 	d.Set("description", registry.Description)
 	d.Set("folder_id", registry.FolderId)
 	if err := d.Set("labels", registry.Labels); err != nil {
 		return err
 	}
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(registry.CreatedAt))
 	return nil
 }
 

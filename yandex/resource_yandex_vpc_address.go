@@ -123,15 +123,10 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 		return handleAddressNotFoundError(err, d, id)
 	}
 
-	createdAt, err := getTimestamp(address.GetCreatedAt())
-	if err != nil {
-		return err
-	}
-
 	if err := d.Set("folder_id", address.GetFolderId()); err != nil {
 		return err
 	}
-	if err := d.Set("created_at", createdAt); err != nil {
+	if err := d.Set("created_at", getTimestamp(address.GetCreatedAt())); err != nil {
 		return err
 	}
 	if err := d.Set("name", address.GetName()); err != nil {

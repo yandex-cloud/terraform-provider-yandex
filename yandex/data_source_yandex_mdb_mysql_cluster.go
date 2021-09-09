@@ -387,11 +387,6 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
@@ -425,7 +420,7 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.SetId(clusterID)
 	return nil
 }

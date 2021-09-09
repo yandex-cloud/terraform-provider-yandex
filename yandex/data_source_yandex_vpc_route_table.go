@@ -93,16 +93,11 @@ func dataSourceYandexVPCRouteTableRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("route table with ID %q", routeTableID))
 	}
 
-	createdAt, err := getTimestamp(routeTable.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("route_table_id", routeTable.Id)
 	d.Set("name", routeTable.Name)
 	d.Set("description", routeTable.Description)
 	d.Set("folder_id", routeTable.FolderId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(routeTable.CreatedAt))
 	d.Set("network_id", routeTable.NetworkId)
 	if err := d.Set("labels", routeTable.Labels); err != nil {
 		return err

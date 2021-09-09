@@ -95,14 +95,9 @@ func dataSourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("snapshot with ID %q", snapshotID))
 	}
 
-	createdAt, err := getTimestamp(snapshot.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("snapshot_id", snapshot.Id)
 	d.Set("folder_id", snapshot.FolderId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(snapshot.CreatedAt))
 	d.Set("name", snapshot.Name)
 	d.Set("description", snapshot.Description)
 	d.Set("storage_size", toGigabytes(snapshot.StorageSize))

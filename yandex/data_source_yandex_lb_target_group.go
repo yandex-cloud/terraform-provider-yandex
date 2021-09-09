@@ -92,11 +92,6 @@ func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("target group with ID %q", tgID))
 	}
 
-	createdAt, err := getTimestamp(tg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	targets, err := flattenLBTargets(tg)
 	if err != nil {
 		return err
@@ -105,7 +100,7 @@ func dataSourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{})
 	d.Set("target_group_id", tg.Id)
 	d.Set("name", tg.Name)
 	d.Set("description", tg.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(tg.CreatedAt))
 	d.Set("folder_id", tg.FolderId)
 
 	if err := d.Set("labels", tg.Labels); err != nil {

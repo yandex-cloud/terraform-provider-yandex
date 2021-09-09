@@ -215,12 +215,7 @@ func resourceYandexVPCSubnetRead(d *schema.ResourceData, meta interface{}) error
 		return handleNotFoundError(err, d, fmt.Sprintf("Subnet %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(subnet.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(subnet.CreatedAt))
 	d.Set("name", subnet.Name)
 	d.Set("zone", subnet.ZoneId)
 	d.Set("folder_id", subnet.FolderId)

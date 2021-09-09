@@ -120,13 +120,8 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	createdAt, err := getTimestamp(image.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("image_id", image.Id)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(image.CreatedAt))
 	d.Set("family", image.Family)
 	d.Set("folder_id", image.FolderId)
 	d.Set("name", image.Name)

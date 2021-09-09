@@ -399,12 +399,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	createdAt, err := getTimestamp(instance.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)

@@ -84,16 +84,11 @@ func dataSourceYandexContainerRegistryRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	createdAt, err := getTimestamp(registry.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("registry_id", registry.Id)
 	d.Set("folder_id", registry.FolderId)
 	d.Set("name", registry.Name)
 	d.Set("status", strings.ToLower(registry.Status.String()))
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(registry.CreatedAt))
 	if err := d.Set("labels", registry.Labels); err != nil {
 		return err
 	}

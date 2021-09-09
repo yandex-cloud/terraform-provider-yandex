@@ -291,12 +291,7 @@ func resourceYandexMDBElasticsearchClusterRead(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("health", cluster.GetHealth().String())
 	d.Set("status", cluster.GetStatus().String())
 

@@ -165,12 +165,7 @@ func resourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	createdAt, err := getTimestamp(tg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	_ = d.Set("created_at", createdAt)
+	_ = d.Set("created_at", getTimestamp(tg.CreatedAt))
 	_ = d.Set("name", tg.Name)
 	_ = d.Set("folder_id", tg.FolderId)
 	_ = d.Set("description", tg.Description)

@@ -87,17 +87,12 @@ func dataSourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta inte
 		return fmt.Errorf("failed to resolve data source folder by ID: %v", err)
 	}
 
-	createdAt, err := getTimestamp(folder.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("folder_id", folder.Id)
 	d.Set("name", folder.Name)
 	d.Set("description", folder.Description)
 	d.Set("cloud_id", folder.CloudId)
 	d.Set("status", strings.ToLower(folder.Status.String()))
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(folder.CreatedAt))
 
 	if err := d.Set("labels", folder.Labels); err != nil {
 		return err

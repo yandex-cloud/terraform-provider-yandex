@@ -228,12 +228,7 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 		return handleNotFoundError(err, d, fmt.Sprintf("Image %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(image.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(image.CreatedAt))
 	d.Set("name", image.Name)
 	d.Set("folder_id", image.FolderId)
 	d.Set("description", image.Description)

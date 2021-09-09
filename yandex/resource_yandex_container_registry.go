@@ -130,12 +130,7 @@ func resourceYandexContainerRegistryRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Registry %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(registry.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(registry.CreatedAt))
 	d.Set("name", registry.Name)
 	d.Set("folder_id", registry.FolderId)
 	d.Set("status", strings.ToLower(registry.Status.String()))

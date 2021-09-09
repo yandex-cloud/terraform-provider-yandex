@@ -136,12 +136,7 @@ func resourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Http Router %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(bg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(bg.CreatedAt))
 	d.Set("name", bg.Name)
 	d.Set("folder_id", bg.FolderId)
 	d.Set("description", bg.Description)

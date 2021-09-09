@@ -418,14 +418,9 @@ func resourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
-	return d.Set("created_at", createdAt)
+	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
 
 func listSQLServerUsers(ctx context.Context, config *Config, id string) ([]*sqlserver.User, error) {

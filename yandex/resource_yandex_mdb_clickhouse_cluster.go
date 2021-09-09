@@ -1035,16 +1035,11 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)
 	d.Set("network_id", cluster.NetworkId)

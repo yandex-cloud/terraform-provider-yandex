@@ -312,12 +312,7 @@ func dataSourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("cluster_id", cluster.Id)
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)

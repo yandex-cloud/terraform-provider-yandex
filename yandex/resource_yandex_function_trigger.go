@@ -609,19 +609,13 @@ func flattenYandexFunctionTriggerInvokeWithRetry(d *schema.ResourceData, functio
 }
 
 func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger) error {
-	createdAt, err := getTimestamp(trig.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("name", trig.Name)
 	d.Set("folder_id", trig.FolderId)
 	d.Set("description", trig.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(trig.CreatedAt))
 	if err := d.Set("labels", trig.Labels); err != nil {
 		return err
 	}
-	d.Set("created_at", createdAt)
 
 	if iot := trig.GetRule().GetIotMessage(); iot != nil {
 		i := map[string]interface{}{
@@ -630,7 +624,7 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"topic":       iot.MqttTopic,
 		}
 
-		err = d.Set(triggerTypeIoT, []map[string]interface{}{i})
+		err := d.Set(triggerTypeIoT, []map[string]interface{}{i})
 		if err != nil {
 			return err
 		}
@@ -656,7 +650,7 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			m["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
 		}
 
-		err = d.Set(triggerTypeMessageQueue, []map[string]interface{}{m})
+		err := d.Set(triggerTypeMessageQueue, []map[string]interface{}{m})
 		if err != nil {
 			return err
 		}
@@ -686,7 +680,7 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		}
 
-		err = d.Set(triggerTypeObjectStorage, []map[string]interface{}{s})
+		err := d.Set(triggerTypeObjectStorage, []map[string]interface{}{s})
 		if err != nil {
 			return err
 		}
@@ -702,7 +696,7 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"cron_expression": timer.CronExpression,
 		}
 
-		err = d.Set(triggerTypeTimer, []map[string]interface{}{t})
+		err := d.Set(triggerTypeTimer, []map[string]interface{}{t})
 		if err != nil {
 			return err
 		}
@@ -732,12 +726,12 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			lg["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
 		}
 		if function := logGroup.GetInvokeFunction(); function != nil {
-			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			err := flattenYandexFunctionTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
 			}
 		}
-		err = d.Set(triggerTypeLogGroup, []map[string]interface{}{lg})
+		err := d.Set(triggerTypeLogGroup, []map[string]interface{}{lg})
 		if err != nil {
 			return err
 		}

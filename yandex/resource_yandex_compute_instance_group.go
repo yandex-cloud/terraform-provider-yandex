@@ -1030,12 +1030,7 @@ func resourceYandexComputeInstanceGroupRead(d *schema.ResourceData, meta interfa
 }
 
 func flattenInstanceGroup(d *schema.ResourceData, instanceGroup *instancegroup.InstanceGroup, instances []*instancegroup.ManagedInstance) error {
-	createdAt, err := getTimestamp(instanceGroup.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(instanceGroup.CreatedAt))
 	d.Set("folder_id", instanceGroup.GetFolderId())
 	d.Set("name", instanceGroup.GetName())
 	d.Set("description", instanceGroup.GetDescription())

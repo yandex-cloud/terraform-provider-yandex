@@ -239,17 +239,12 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 		return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(disk.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	diskPlacementPolicy, err := flattenDiskPlacementPolicy(disk)
 	if err != nil {
 		return err
 	}
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(disk.CreatedAt))
 	d.Set("name", disk.Name)
 	d.Set("folder_id", disk.FolderId)
 	d.Set("zone", disk.ZoneId)

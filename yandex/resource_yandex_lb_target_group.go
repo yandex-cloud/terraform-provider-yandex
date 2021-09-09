@@ -169,12 +169,7 @@ func resourceYandexLBTargetGroupRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	createdAt, err := getTimestamp(tg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(tg.CreatedAt))
 	d.Set("name", tg.Name)
 	d.Set("folder_id", tg.FolderId)
 	d.Set("region_id", tg.RegionId)

@@ -239,12 +239,7 @@ func yandexVPCSecurityGroupRead(d *schema.ResourceData, meta interface{}, id str
 		return handleNotFoundError(err, d, fmt.Sprintf("Security group %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(securityGroup.GetCreatedAt())
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("created_at", createdAt); err != nil {
+	if err := d.Set("created_at", getTimestamp(securityGroup.GetCreatedAt())); err != nil {
 		return err
 	}
 	if err := d.Set("name", securityGroup.GetName()); err != nil {

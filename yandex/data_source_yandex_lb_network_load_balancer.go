@@ -221,11 +221,6 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, fmt.Sprintf("network load balancer with ID %q", nlbID))
 	}
 
-	createdAt, err := getTimestamp(nlb.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	ls, err := flattenLBListenerSpecs(nlb)
 	if err != nil {
 		return err
@@ -241,7 +236,7 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 	d.Set("type", strings.ToLower(nlb.Type.String()))
 	d.Set("region_id", nlb.RegionId)
 	d.Set("description", nlb.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(nlb.CreatedAt))
 	d.Set("folder_id", nlb.FolderId)
 
 	if err := d.Set("labels", nlb.Labels); err != nil {

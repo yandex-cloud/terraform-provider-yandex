@@ -79,14 +79,9 @@ func dataSourceYandexComputePlacementGroupRead(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, fmt.Sprintf("snapshot with ID %q", groupID))
 	}
 
-	createdAt, err := getTimestamp(group.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("group_id", group.Id)
 	d.Set("folder_id", group.FolderId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(group.CreatedAt))
 	d.Set("name", group.Name)
 	d.Set("description", group.Description)
 

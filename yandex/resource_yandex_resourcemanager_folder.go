@@ -131,12 +131,7 @@ func resourceYandexResourceManagerFolderRead(d *schema.ResourceData, meta interf
 		return handleNotFoundError(err, d, fmt.Sprintf("Folder %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(folder.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(folder.CreatedAt))
 	d.Set("name", folder.Name)
 	d.Set("cloud_id", folder.CloudId)
 	d.Set("description", folder.Description)

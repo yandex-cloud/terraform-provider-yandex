@@ -230,12 +230,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 		pageToken = resp.NextPageToken
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("cluster_id", cluster.Id)
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)

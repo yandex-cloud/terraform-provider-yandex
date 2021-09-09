@@ -147,12 +147,7 @@ func resourceYandexComputeSnapshotRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Snapshot %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(snapshot.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(snapshot.CreatedAt))
 	d.Set("name", snapshot.Name)
 	d.Set("folder_id", snapshot.FolderId)
 	d.Set("description", snapshot.Description)

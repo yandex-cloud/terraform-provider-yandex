@@ -508,12 +508,7 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Backend Group %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(bg.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	_ = d.Set("created_at", createdAt)
+	_ = d.Set("created_at", getTimestamp(bg.CreatedAt))
 	_ = d.Set("name", bg.Name)
 	_ = d.Set("folder_id", bg.FolderId)
 	_ = d.Set("description", bg.Description)

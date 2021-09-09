@@ -140,12 +140,7 @@ func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 		return handleNotFoundError(err, d, fmt.Sprintf("DnsZone %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(dnsZone.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(dnsZone.CreatedAt))
 	d.Set("name", dnsZone.Name)
 	d.Set("folder_id", dnsZone.FolderId)
 	d.Set("zone", dnsZone.Zone)

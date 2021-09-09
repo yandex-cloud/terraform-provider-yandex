@@ -13,14 +13,13 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
@@ -449,16 +448,11 @@ func (action instanceAction) String() string {
 	}
 }
 
-func getTimestamp(protots *timestamp.Timestamp) (string, error) {
-	if protots == nil {
-		return "", nil
+func getTimestamp(timestamp *timestamppb.Timestamp) string {
+	if timestamp == nil {
+		return ""
 	}
-	ts, err := ptypes.Timestamp(protots)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert protobuf timestamp: %s", err)
-	}
-
-	return ts.Format(defaultTimeFormat), nil
+	return timestamp.AsTime().Format(defaultTimeFormat)
 }
 
 func stringSliceToLower(s []string) []string {

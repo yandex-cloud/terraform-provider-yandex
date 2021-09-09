@@ -134,16 +134,11 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	if err := d.Set("labels", cluster.Labels); err != nil {
 		return err
 	}
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("cluster_id", cluster.Id)
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)

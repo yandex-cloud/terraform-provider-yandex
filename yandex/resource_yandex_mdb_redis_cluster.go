@@ -359,12 +359,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)
 	d.Set("network_id", cluster.NetworkId)

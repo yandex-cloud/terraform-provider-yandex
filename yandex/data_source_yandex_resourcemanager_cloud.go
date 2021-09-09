@@ -63,15 +63,10 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 		return fmt.Errorf("failed to resolve data source cloud by id: %v", err)
 	}
 
-	createdAt, err := getTimestamp(cloud.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("cloud_id", cloud.Id)
 	d.Set("name", cloud.Name)
 	d.Set("description", cloud.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cloud.CreatedAt))
 	d.SetId(cloud.Id)
 
 	return nil

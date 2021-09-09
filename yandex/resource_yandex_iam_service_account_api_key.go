@@ -110,13 +110,8 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(ak.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("service_account_id", ak.ServiceAccountId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(ak.CreatedAt))
 	d.Set("description", ak.Description)
 
 	return nil

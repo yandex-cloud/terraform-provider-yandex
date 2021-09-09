@@ -164,12 +164,7 @@ func yandexVPCNetworkRead(d *schema.ResourceData, meta interface{}, id string) e
 		subnetIds[i] = subnet.Id
 	}
 
-	createdAt, err := getTimestamp(network.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(network.CreatedAt))
 	d.Set("name", network.Name)
 	d.Set("folder_id", network.FolderId)
 	d.Set("description", network.Description)

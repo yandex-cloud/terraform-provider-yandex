@@ -375,11 +375,7 @@ func populateDataprocClusterResourceData(d *schema.ResourceData, config *Config,
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-	if err := d.Set("created_at", createdAt); err != nil {
+	if err := d.Set("created_at", getTimestamp(cluster.CreatedAt)); err != nil {
 		return err
 	}
 

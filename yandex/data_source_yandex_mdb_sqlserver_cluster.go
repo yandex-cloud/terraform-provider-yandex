@@ -304,11 +304,7 @@ func dataSourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interf
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.SetId(cluster.Id)
 	return nil
 }

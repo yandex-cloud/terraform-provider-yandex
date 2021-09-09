@@ -144,12 +144,7 @@ func resourceYandexComputeDiskPlacementGroupRead(d *schema.ResourceData, meta in
 		return handleNotFoundError(err, d, fmt.Sprintf("Disk Placement Group %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(placementGroup.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(placementGroup.CreatedAt))
 	d.Set("name", placementGroup.Name)
 	d.Set("folder_id", placementGroup.FolderId)
 	d.Set("description", placementGroup.Description)

@@ -413,11 +413,6 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	if err := d.Set("labels", cluster.Labels); err != nil {
 		return err
 	}
@@ -435,7 +430,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("cluster_id", cluster.Id)
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)

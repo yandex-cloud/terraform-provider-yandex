@@ -130,15 +130,10 @@ func resourceYandexIoTCoreDeviceCreate(d *schema.ResourceData, meta interface{})
 }
 
 func flattenYandexIoTCoreDevice(d *schema.ResourceData, device *iot.Device) error {
-	createdAt, err := getTimestamp(device.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("registry_id", device.RegistryId)
 	d.Set("name", device.Name)
 	d.Set("description", device.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(device.CreatedAt))
 
 	return nil
 }

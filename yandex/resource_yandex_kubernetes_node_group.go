@@ -849,13 +849,8 @@ func getNodeGroupResourceSpec(d *schema.ResourceData) *k8s.ResourcesSpec {
 }
 
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
-	createdAt, err := getTimestamp(ng.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("cluster_id", ng.ClusterId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(ng.CreatedAt))
 	d.Set("name", ng.Name)
 	d.Set("description", ng.Description)
 	d.Set("status", strings.ToLower(ng.Status.String()))

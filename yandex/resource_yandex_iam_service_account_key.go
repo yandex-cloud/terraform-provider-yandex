@@ -149,13 +149,8 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(key.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("service_account_id", key.GetServiceAccountId())
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(key.CreatedAt))
 	d.Set("description", key.Description)
 	d.Set("key_algorithm", iam.Key_Algorithm_name[int32(key.KeyAlgorithm)])
 	d.Set("public_key", key.PublicKey)

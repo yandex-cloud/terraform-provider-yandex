@@ -76,15 +76,10 @@ func dataSourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Http Router with ID %q", routerID))
 	}
 
-	createdAt, err := getTimestamp(router.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("http_router_id", router.Id)
 	d.Set("name", router.Name)
 	d.Set("description", router.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(router.CreatedAt))
 	d.Set("folder_id", router.FolderId)
 
 	if err := d.Set("labels", router.Labels); err != nil {

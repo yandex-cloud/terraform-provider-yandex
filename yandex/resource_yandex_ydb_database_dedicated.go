@@ -463,10 +463,6 @@ func flattenYandexYDBDatabaseDedicated(d *schema.ResourceData, database *ydb.Dat
 }
 
 func flattenYandexYDBDatabase(d *schema.ResourceData, database *ydb.Database) error {
-	createdAt, err := getTimestamp(database.CreatedAt)
-	if err != nil {
-		return err
-	}
 	baseEP, dbPath, useTLS, err := parseYandexYDBDatabaseEndpoint(database.Endpoint)
 	if err != nil {
 		return err
@@ -475,7 +471,7 @@ func flattenYandexYDBDatabase(d *schema.ResourceData, database *ydb.Database) er
 	d.Set("name", database.Name)
 	d.Set("folder_id", database.FolderId)
 	d.Set("description", database.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(database.CreatedAt))
 	if err := d.Set("labels", database.Labels); err != nil {
 		return err
 	}

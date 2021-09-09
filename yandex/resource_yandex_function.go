@@ -430,15 +430,10 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 }
 
 func flattenYandexFunction(d *schema.ResourceData, function *functions.Function, version *functions.Version) error {
-	createdAt, err := getTimestamp(function.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("name", function.Name)
 	d.Set("folder_id", function.FolderId)
 	d.Set("description", function.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(function.CreatedAt))
 	if err := d.Set("labels", function.Labels); err != nil {
 		return err
 	}

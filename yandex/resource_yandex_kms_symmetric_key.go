@@ -167,18 +167,8 @@ func resourceYandexKMSSymmetricKeyRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("KMS Symmetric Key %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(key.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	rotatedAt, err := getTimestamp(key.RotatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
-	d.Set("rotated_at", rotatedAt)
+	d.Set("created_at", getTimestamp(key.CreatedAt))
+	d.Set("rotated_at", getTimestamp(key.RotatedAt))
 	d.Set("folder_id", key.FolderId)
 	d.Set("name", key.Name)
 	d.Set("description", key.Description)

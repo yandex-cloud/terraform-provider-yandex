@@ -408,12 +408,7 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("ALB Load Balancer %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(alb.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(alb.CreatedAt))
 	d.Set("name", alb.Name)
 	d.Set("folder_id", alb.FolderId)
 	d.Set("description", alb.Description)

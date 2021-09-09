@@ -244,15 +244,10 @@ func resourceYandexApiGatewayDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiGateway) error {
-	createdAt, err := getTimestamp(apiGateway.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("name", apiGateway.Name)
 	d.Set("folder_id", apiGateway.FolderId)
 	d.Set("description", apiGateway.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(apiGateway.CreatedAt))
 	d.Set("domain", apiGateway.Domain)
 	d.Set("status", strings.ToLower(apiGateway.Status.String()))
 	d.Set("log_group_id", apiGateway.LogGroupId)

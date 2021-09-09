@@ -70,16 +70,11 @@ func dataSourceYandexIAMServiceAccountRead(d *schema.ResourceData, meta interfac
 		return handleNotFoundError(err, d, fmt.Sprintf("service account with ID %q", serviceAccountID))
 	}
 
-	createdAt, err := getTimestamp(sa.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("service_account_id", sa.Id)
 	d.Set("folder_id", sa.FolderId)
 	d.Set("name", sa.Name)
 	d.Set("description", sa.Description)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(sa.CreatedAt))
 	d.SetId(sa.Id)
 
 	return nil

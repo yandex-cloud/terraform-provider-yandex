@@ -115,13 +115,8 @@ func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, 
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Static Access Key %q", d.Id()))
 	}
 
-	createdAt, err := getTimestamp(sak.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("service_account_id", sak.ServiceAccountId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(sak.CreatedAt))
 	d.Set("description", sak.Description)
 	d.Set("access_key", sak.KeyId)
 

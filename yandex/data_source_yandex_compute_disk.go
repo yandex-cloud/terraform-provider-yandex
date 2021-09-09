@@ -122,11 +122,6 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("disk with ID %q", diskID))
 	}
 
-	createdAt, err := getTimestamp(disk.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	diskPlacementPolicy, err := flattenDiskPlacementPolicy(disk)
 	if err != nil {
 		return err
@@ -134,7 +129,7 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 
 	d.Set("disk_id", disk.Id)
 	d.Set("folder_id", disk.FolderId)
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(disk.CreatedAt))
 	d.Set("name", disk.Name)
 	d.Set("description", disk.Description)
 	d.Set("type", disk.TypeId)

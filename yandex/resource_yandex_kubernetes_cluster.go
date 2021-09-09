@@ -767,12 +767,7 @@ func getZonalMasterExternalAddressSpec(d *schema.ResourceData) *k8s.ExternalAddr
 }
 
 func flattenKubernetesClusterAttributes(cluster *k8s.Cluster, d *schema.ResourceData, clusterResource bool) error {
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("folder_id", cluster.FolderId)
 	d.Set("name", cluster.Name)
 	d.Set("description", cluster.Description)

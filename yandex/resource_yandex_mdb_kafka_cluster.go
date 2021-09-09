@@ -593,12 +593,7 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.Set("name", cluster.Name)
 	d.Set("folder_id", cluster.FolderId)
 	d.Set("network_id", cluster.NetworkId)

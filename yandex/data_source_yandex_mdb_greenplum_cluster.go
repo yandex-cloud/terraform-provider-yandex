@@ -299,14 +299,9 @@ func dataSourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	createdAt, err := getTimestamp(cluster.CreatedAt)
-	if err != nil {
-		return err
-	}
-
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
-	d.Set("created_at", createdAt)
+	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 
 	d.SetId(cluster.Id)
 	return nil
