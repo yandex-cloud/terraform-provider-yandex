@@ -100,6 +100,51 @@ func TestAccALBBackendGroup_basic(t *testing.T) {
 	})
 }
 
+func TestAccALBBackendGroup_fullWithEmptyTLS(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsHTTPBackend = true
+	BGResource.IsEmptyTLS = true
+
+	var bg apploadbalancer.BackendGroup
+	backendPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBBackendGroupExists(albBGResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testExistsFirstElementWithAttr(
+						albBGResource, "http_backend", "name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "weight", albDefaultBackendWeight, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "port", albDefaultPort, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "load_balancing_config.0.strict_locality", albDefaultStrictLocality, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "load_balancing_config.0.locality_aware_routing_percent", albDefaultLocalityPercent, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "load_balancing_config.0.panic_threshold", albDefaultPanicThreshold, &backendPath,
+					),
+				),
+			},
+			albBackendGroupImportStep(),
+		},
+	})
+}
+
 func TestAccALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 	t.Parallel()
 

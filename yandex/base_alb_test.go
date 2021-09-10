@@ -152,6 +152,7 @@ type resourceALBBackendGroupInfo struct {
 	IsGRPCCheck   bool
 	IsStreamCheck bool
 	IsDataSource  bool
+	IsEmptyTLS    bool
 
 	BaseTemplate string
 
@@ -184,6 +185,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		IsGRPCCheck:          false,
 		IsStreamCheck:        false,
 		IsDataSource:         false,
+		IsEmptyTLS:           false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		TGName:               acctest.RandomWithPrefix("tf-tg"),
 		BGName:               acctest.RandomWithPrefix("tf-bg"),
@@ -417,10 +419,12 @@ resource "yandex_alb_backend_group" "test-bg" {
     port             = {{.Port}}
     target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
     tls {
+      {{ if not .IsEmptyTLS }}
       sni = "{{.TlsSni}}"
       validation_context {
         trusted_ca_bytes = "{{.TlsValidationContext}}"
       }
+      {{end}}
     }
     load_balancing_config {
       panic_threshold                = {{.PanicThreshold}}

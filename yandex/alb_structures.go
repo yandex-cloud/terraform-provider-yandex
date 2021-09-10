@@ -886,14 +886,17 @@ func expandALBTls(v interface{}) *apploadbalancer.BackendTls {
 		tls.Sni = val.(string)
 	}
 	if ctx, ok := config["validation_context"]; ok {
-		context := &apploadbalancer.ValidationContext{}
-		if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_bytes"]; ok {
-			context.SetTrustedCaBytes(val.(string))
+		list := ctx.([]interface{})
+		if len(list) > 0 {
+			context := &apploadbalancer.ValidationContext{}
+			if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_bytes"]; ok {
+				context.SetTrustedCaBytes(val.(string))
+			}
+			if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_id"]; ok {
+				context.SetTrustedCaId(val.(string))
+			}
+			tls.SetValidationContext(context)
 		}
-		if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_id"]; ok {
-			context.SetTrustedCaId(val.(string))
-		}
-		tls.SetValidationContext(context)
 	}
 
 	return tls
