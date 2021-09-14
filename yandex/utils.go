@@ -19,6 +19,7 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
@@ -446,6 +447,30 @@ func (action instanceAction) String() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func parseDuration(s string) (*durationpb.Duration, error) {
+	if s == "" {
+		return nil, nil
+	}
+
+	v, err := time.ParseDuration(s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse duration: %v", err)
+	}
+
+	if v < 0 {
+		return nil, fmt.Errorf("can not use negative duration")
+	}
+
+	return durationpb.New(v), nil
+}
+
+func formatDuration(d *durationpb.Duration) string {
+	if d == nil {
+		return ""
+	}
+	return d.AsDuration().String()
 }
 
 func getTimestamp(timestamp *timestamppb.Timestamp) string {

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
 )
 
@@ -40,7 +41,7 @@ func testSweepYDBDatabaseDedicated(_ string) error {
 		// skip serverless, it's swept in a separate sweeper
 		if _, ok := c.DatabaseType.(*ydb.Database_ServerlessDatabase); !ok {
 			if !sweepYDBDatabaseDedicated(conf, c.Id) {
-				result = multierror.Append(result, fmt.Errorf("failed to sweep YDB dedicated database%q", c.Id))
+				result = multierror.Append(result, fmt.Errorf("failed to sweep YDB dedicated database %q", c.Id))
 			}
 		}
 	}

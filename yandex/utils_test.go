@@ -12,9 +12,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/hashicorp/vault/helper/pgpkeys"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
@@ -492,4 +494,20 @@ func testAccCheckResourceAttrWithValueFactory(name, key string, valueFactory fun
 
 		return nil
 	}
+}
+
+func TestParseDuration(t *testing.T) {
+	d := (&schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}).TestResourceData()
+	i := d.Get("name")
+	r, err := parseDuration(i.(string))
+	require.NoError(t, err)
+	require.Nil(t, r)
 }

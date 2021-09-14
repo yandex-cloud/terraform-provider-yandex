@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
 )
 
@@ -39,8 +40,8 @@ func testSweepYDBDatabaseServerless(_ string) error {
 	for _, c := range resp.Databases {
 		// only serverless, other types are swept in a separate sweeper
 		if _, ok := c.DatabaseType.(*ydb.Database_ServerlessDatabase); ok {
-			if !sweepYDBSServerlessDatabase(conf, c.Id) {
-				result = multierror.Append(result, fmt.Errorf("failed to sweep YDB serverless database%q", c.Id))
+			if !sweepYDBServerlessDatabase(conf, c.Id) {
+				result = multierror.Append(result, fmt.Errorf("failed to sweep YDB serverless database %q", c.Id))
 			}
 		}
 	}
@@ -48,11 +49,11 @@ func testSweepYDBDatabaseServerless(_ string) error {
 	return result.ErrorOrNil()
 }
 
-func sweepYDBSServerlessDatabase(conf *Config, id string) bool {
-	return sweepWithRetry(sweepYDBSServerlessDatabaseOnce, conf, "YDB serverless database", id)
+func sweepYDBServerlessDatabase(conf *Config, id string) bool {
+	return sweepWithRetry(sweepYDBServerlessDatabaseOnce, conf, "YDB serverless database", id)
 }
 
-func sweepYDBSServerlessDatabaseOnce(conf *Config, id string) error {
+func sweepYDBServerlessDatabaseOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexYDBServerlessDefaultTimeout)
 	defer cancel()
 

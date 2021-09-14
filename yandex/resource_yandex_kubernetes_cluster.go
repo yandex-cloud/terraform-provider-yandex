@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
@@ -1013,32 +1011,6 @@ func shouldSuppressDiffForTimeOfDay(k, old, new string, d *schema.ResourceData) 
 func formatTimeOfDay(ts *timeofday.TimeOfDay) string {
 	tt := time.Date(0, 0, 0, int(ts.GetHours()), int(ts.GetMinutes()), int(ts.GetSeconds()), int(ts.GetNanos()), time.UTC)
 	return tt.Format("15:04:05.000000000")
-}
-
-func parseDuration(s string) (*duration.Duration, error) {
-	if s == "" {
-		return nil, nil
-	}
-
-	v, err := time.ParseDuration(s)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse duration: %v", err)
-	}
-
-	if v < 0 {
-		return nil, fmt.Errorf("can not use negative duration")
-	}
-
-	return ptypes.DurationProto(v), nil
-}
-
-func formatDuration(d *duration.Duration) string {
-	if d == nil {
-		return ""
-	}
-
-	td := time.Nanosecond*time.Duration(d.GetNanos()) + time.Second*time.Duration(d.GetSeconds())
-	return td.String()
 }
 
 func shouldSuppressDiffForTimeDuration(k, old, new string, d *schema.ResourceData) bool {

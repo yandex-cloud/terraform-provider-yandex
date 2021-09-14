@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `name` - (Optional) Name of the Yandex Database serverless cluster.
 
-* `folder_id` - (Optional) ID of the folder that the Yandex Database serverless cluster belong to.
+* `folder_id` - (Optional) ID of the folder that the Yandex Database serverless cluster belongs to.
   It will be deduced from provider configuration if not set explicitly.
 
 ~> **NOTE:** If `database_id` is not specified
