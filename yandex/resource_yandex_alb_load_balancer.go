@@ -239,7 +239,7 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 													Type:     schema.TypeString,
 													Required: true,
 												},
-												"service_name": {
+												"server_names": {
 													Type:     schema.TypeSet,
 													Required: true,
 													Elem:     &schema.Schema{Type: schema.TypeString},

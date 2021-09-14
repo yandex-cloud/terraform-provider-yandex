@@ -247,6 +247,9 @@ func TestAccALBLoadBalancer_tlsListenerWithHTTP2Options(t *testing.T) {
 					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams", albDefaultMaxConcurrentStreams, &listenerPath,
 					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.sni_handler.0.handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,
+					),
 				),
 			},
 			albLoadBalancerImportStep(),

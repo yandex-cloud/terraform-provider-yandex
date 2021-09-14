@@ -1,4 +1,7 @@
 ## 0.64.0 (Unreleased)
+BUG FIXES:
+* fix sni handler expanding.
+* fix internal_ipv4_address missing subnet_id field
 
 ## 0.63.1 (September 10, 2021)
 BUG FIXES:

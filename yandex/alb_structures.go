@@ -550,8 +550,10 @@ func expandALBSNIMatches(v interface{}) []*apploadbalancer.SniMatch {
 			}
 
 			if val, ok := config["handler"]; ok {
-				handlerConfig := val.(map[string]interface{})
-				match.Handler = expandALBTLSHandler(handlerConfig)
+				handlerConfig := val.([]interface{})
+				if len(handlerConfig) == 1 {
+					match.Handler = expandALBTLSHandler(handlerConfig[0].(map[string]interface{}))
+				}
 			}
 
 			matches = append(matches, match)
@@ -1228,7 +1230,8 @@ func flattenALBAddresses(addresses []*apploadbalancer.Address) []interface{} {
 		if inIPv4 := address.GetInternalIpv4Address(); inIPv4 != nil {
 			flAddress["internal_ipv4_address"] = []map[string]interface{}{
 				{
-					"address": inIPv4.GetAddress(),
+					"address":   inIPv4.GetAddress(),
+					"subnet_id": inIPv4.GetSubnetId(),
 				},
 			}
 		}
@@ -1262,12 +1265,10 @@ func flattenALBTLSListener(tlsListener *apploadbalancer.TlsListener) []interface
 func flattenALBSniHandlers(matches []*apploadbalancer.SniMatch) []interface{} {
 	var result []interface{}
 	for _, m := range matches {
-		flMatch := []map[string]interface{}{
-			{
-				"name":         m.GetName(),
-				"server_names": m.GetServerNames(),
-				"handler":      flattenALBTLSHandler(m.GetHandler()),
-			},
+		flMatch := map[string]interface{}{
+			"name":         m.GetName(),
+			"server_names": m.GetServerNames(),
+			"handler":      flattenALBTLSHandler(m.GetHandler()),
 		}
 		result = append(result, flMatch)
 	}

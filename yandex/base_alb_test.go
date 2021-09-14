@@ -335,7 +335,8 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     name = "{{.ListenerName}}"
     endpoint {
       address {
-        external_ipv4_address {
+        internal_ipv4_address {
+          subnet_id = yandex_vpc_subnet.test-subnet.id
         }
       }
       ports = [ {{.EndpointPort}} ]
@@ -377,6 +378,16 @@ resource "yandex_alb_load_balancer" "test-balancer" {
           {{end}}
         }
         certificate_ids = ["{{.CertificateID}}"]
+      }
+      sni_handler {
+        name = "host"
+        server_names = ["host.url.com"]
+        handler {
+          http_handler {
+            http_router_id = yandex_alb_http_router.test-router.id
+          }
+          certificate_ids = ["{{.CertificateID}}"]
+        }
       }
     }
     {{end}}
