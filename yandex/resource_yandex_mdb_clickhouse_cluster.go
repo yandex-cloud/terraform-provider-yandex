@@ -44,10 +44,9 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Required: true,
 			},
 			"network_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.NoZeroValues,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"environment": {
 				Type:         schema.TypeString,
@@ -874,11 +873,16 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
+	networkID, err := expandAndValidateNetworkId(d, meta)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
+	}
+
 	req := clickhouse.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
-		NetworkId:          d.Get("network_id").(string),
+		NetworkId:          networkID,
 		Environment:        env,
 		DatabaseSpecs:      dbSpecs,
 		ConfigSpec:         configSpec,

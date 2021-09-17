@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"reflect"
 	"strings"
@@ -46,10 +45,9 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Required: true,
 			},
 			"network_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.NoZeroValues,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"config": {
 				Type:     schema.TypeList,
@@ -562,11 +560,16 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 	hostGroupIds := expandHostGroupIds(d.Get("host_group_ids"))
 
+	networkID, err := expandAndValidateNetworkId(d, meta)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding network id on Kafka Cluster create: %s", err)
+	}
+
 	req := kafka.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
-		NetworkId:          d.Get("network_id").(string),
+		NetworkId:          networkID,
 		Environment:        env,
 		ConfigSpec:         configSpec,
 		Labels:             labels,

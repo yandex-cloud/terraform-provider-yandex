@@ -50,10 +50,9 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"network_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.NoZeroValues,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"config": {
 				Type:     schema.TypeList,
@@ -727,11 +726,16 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
+	networkID, err := expandAndValidateNetworkId(d, meta)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding network id on PostgreSQL Cluster create: %s", err)
+	}
+
 	req := &postgresql.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
-		NetworkId:          d.Get("network_id").(string),
+		NetworkId:          networkID,
 		Labels:             labels,
 		Environment:        env,
 		ConfigSpec:         confSpec,

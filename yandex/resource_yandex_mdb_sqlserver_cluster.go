@@ -53,10 +53,9 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 				ValidateFunc: validateParsableValue(parseSQLServerEnv),
 			},
 			"network_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.NoZeroValues,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -307,11 +306,16 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 		return nil, fmt.Errorf("Error while expanding sqlserver_config on SQLServer Cluster create: %s", err)
 	}
 
+	networkID, err := expandAndValidateNetworkId(d, meta)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding network id on SQLServer Cluster create: %s", err)
+	}
+
 	req := sqlserver.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
-		NetworkId:          d.Get("network_id").(string),
+		NetworkId:          networkID,
 		Environment:        env,
 		ConfigSpec:         configSpec,
 		DatabaseSpecs:      dbs,

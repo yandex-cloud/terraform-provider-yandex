@@ -6,8 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -79,10 +77,9 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 			// ID of the network that the cluster belongs to.
 			"network_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.NoZeroValues,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"service_account_id": {
@@ -416,6 +413,11 @@ func prepareCreateElasticsearchRequest(d *schema.ResourceData, meta *Config) (*e
 		return nil, fmt.Errorf("Error while expanding hosts on Elasticsearch Cluster create: %s", err)
 	}
 
+	networkID, err := expandAndValidateNetworkId(d, meta)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding network id on Elasticsearch Cluster create: %s", err)
+	}
+
 	req := &elasticsearch.CreateClusterRequest{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -423,7 +425,7 @@ func prepareCreateElasticsearchRequest(d *schema.ResourceData, meta *Config) (*e
 
 		FolderId:    folderID,
 		Environment: env,
-		NetworkId:   d.Get("network_id").(string),
+		NetworkId:   networkID,
 
 		ConfigSpec: config,
 
