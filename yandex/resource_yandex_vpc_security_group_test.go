@@ -235,7 +235,7 @@ resource "yandex_vpc_security_group" "sg1" {
 
   ingress {
     description    = "rule1 description"
-    protocol       = "TCP"
+    protocol       = "tcp"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port           = 8080
   }
@@ -290,7 +290,7 @@ resource "yandex_vpc_security_group" "sg1" {
 
   ingress {
     description    = "rule1 description"
-    protocol       = "ICMP"
+    protocol       = "icmp"
     v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
     port = -1
   }

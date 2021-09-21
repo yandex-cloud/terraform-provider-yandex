@@ -6,6 +6,7 @@ FEATURES:
 BUG FIXES:
 * fix sni handler expanding
 * fix `internal_ipv4_address` missing `subnet_id` field
+* fix non empty plan when `yandex_vpc_security_group_rule` protocol written in non uppercase
 
 ## 0.63.1 (September 10, 2021)
 BUG FIXES:

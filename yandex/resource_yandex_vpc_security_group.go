@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -106,6 +107,12 @@ func resourceYandexSecurityGroupRule() *schema.Resource {
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.ToUpper(old) == strings.ToUpper(new) {
+						return true
+					}
+					return false
+				},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -492,7 +499,6 @@ func resourceYandexVPCSecurityGroupDelete(d *schema.ResourceData, meta interface
 
 var hashableRuleNames = []string{
 	"direction",
-	"protocol",
 	"port",
 	"from_port",
 	"to_port",
@@ -501,11 +507,21 @@ var hashableRuleNames = []string{
 	"description",
 }
 
+var toUpperCaseHashableRuleNames = []string{
+	"protocol",
+}
+
 func resourceYandexVPCSecurityGroupRuleHash(v interface{}) int {
 	var buf bytes.Buffer
 	m, ok := v.(map[string]interface{})
 	if !ok {
 		return 0
+	}
+
+	for _, name := range toUpperCaseHashableRuleNames {
+		if v, ok := m[name]; ok {
+			buf.WriteString(fmt.Sprintf("%v-", strings.ToUpper(v.(string))))
+		}
 	}
 
 	for _, name := range hashableRuleNames {

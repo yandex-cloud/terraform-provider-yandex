@@ -43,6 +43,12 @@ func resourceYandexVpcSecurityGroupRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if strings.ToUpper(old) == strings.ToUpper(new) {
+						return true
+					}
+					return false
+				},
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -326,7 +332,7 @@ func securityRuleDescriptionToRuleSpec(dir string, v interface{}) (*vpc.Security
 	}
 
 	if p, ok := res["protocol"].(string); ok {
-		sr.SetProtocolName(p)
+		sr.SetProtocolName(strings.ToUpper(p))
 	}
 
 	if v, ok := res["labels"]; ok {
@@ -373,7 +379,7 @@ func securityRuleResourceToSpec(data *schema.ResourceData) (*vpc.SecurityGroupRu
 	}
 
 	if p, ok := data.Get("protocol").(string); ok {
-		sr.SetProtocolName(p)
+		sr.SetProtocolName(strings.ToUpper(p))
 	}
 
 	if v, ok := data.GetOk("labels"); ok {
