@@ -1,4 +1,6 @@
-## 0.64.0 (Unreleased)
+## 0.65.0 (Unreleased)
+
+## 0.64.0 (September 22, 2021)
 FEATURES:
 * **New Resource:** `yandex_logging_group`
 * **New Data Source:** `yandex_logging_group`
