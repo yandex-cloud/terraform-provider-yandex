@@ -1,4 +1,6 @@
 ## 0.65.0 (Unreleased)
+BUG FIXES:
+* mdb: fix password change in Redis
 
 ## 0.64.0 (September 22, 2021)
 FEATURES:

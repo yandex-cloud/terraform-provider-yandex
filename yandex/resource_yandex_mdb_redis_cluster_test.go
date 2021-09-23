@@ -241,7 +241,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 				),
 			},
 			mdbRedisClusterImportStep(redisResourceSharded),
-			// Add new shard, delete old shard
+			// Add new shard, delete old shard, change password
 			{
 				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize,
 					diskTypeId),
@@ -376,7 +376,7 @@ func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
 				),
 			},
 			mdbRedisClusterImportStep(redisResourceSharded),
-			// Add new shard, delete old shard
+			// Add new shard, delete old shard, change password
 			{
 				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize, ""),
 				Check: resource.ComposeTestCheckFunc(
@@ -881,7 +881,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
   sharded     = true
 
   config {
-    password = "passw0rd"
+    password = "new_passw0rd"
 	version	 = "%s"
   }
 

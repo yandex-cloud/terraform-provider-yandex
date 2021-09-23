@@ -532,13 +532,30 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		req.ConfigSpec.RedisSpec = *conf
+		updateFieldConfigName := ""
 		switch version {
 		case "5.0":
-			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_5_0")
+			updateFieldConfigName = "redis_config_5_0"
 		case "6.0":
-			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_6_0")
+			updateFieldConfigName = "redis_config_6_0"
 		case "6.2":
-			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.redis_config_6_2")
+			updateFieldConfigName = "redis_config_6_2"
+		}
+		fields := [...]string{
+			"password",
+			"timeout",
+			"maxmemory_policy",
+			"notify_keyspace_events",
+			"slowlog_log_slower_than",
+			"slowlog_max_len",
+			"databases",
+			"version",
+		}
+		for _, field := range fields {
+			fullPath := "config_spec." + updateFieldConfigName + "." + field
+			if d.HasChange("config.0." + field) {
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, fullPath)
+			}
 		}
 		onDone = append(onDone, func() {
 			d.SetPartial("config")
