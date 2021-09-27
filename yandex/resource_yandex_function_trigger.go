@@ -3,12 +3,14 @@ package yandex
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 )
 
@@ -20,10 +22,16 @@ const (
 	triggerTypeObjectStorage = "object_storage"
 	triggerTypeTimer         = "timer"
 	triggerTypeLogGroup      = "log_group"
+	triggerTypeLogging       = "logging"
 )
 
 var functionTriggerTypesList = []string{
-	triggerTypeIoT, triggerTypeMessageQueue, triggerTypeObjectStorage, triggerTypeTimer, triggerTypeLogGroup,
+	triggerTypeIoT,
+	triggerTypeMessageQueue,
+	triggerTypeObjectStorage,
+	triggerTypeTimer,
+	triggerTypeLogGroup,
+	triggerTypeLogging,
 }
 
 func resourceYandexFunctionTrigger() *schema.Resource {
@@ -275,6 +283,62 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
+			triggerTypeLogging: {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeLogging),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"group_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"resource_ids": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"resource_types": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"levels": {
+							Type:     schema.TypeSet,
+							Required: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			"dlq": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -454,15 +518,8 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 	if _, ok := d.GetOk(triggerTypeLogGroup); ok {
 		triggerCnt++
 
-		var groupIDs []string
-		groupIdSet := d.Get("log_group.0.log_group_ids").(*schema.Set)
-		for _, v := range groupIdSet.List() {
-			groupID := v.(string)
-			groupIDs = append(groupIDs, groupID)
-		}
-
 		cloudLogs := &triggers.Trigger_CloudLogs{
-			LogGroupId: groupIDs,
+			LogGroupId: convertStringSet(d.Get("log_group.0.log_group_ids").(*schema.Set)),
 			Action: &triggers.Trigger_CloudLogs_InvokeFunction{
 				InvokeFunction: getInvokeFunctionWithRetry(),
 			},
@@ -482,8 +539,51 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	if _, ok := d.GetOk(triggerTypeLogging); ok {
+		triggerCnt++
+
+		levels := []logging.LogLevel_Level{}
+		levelName := map[string]logging.LogLevel_Level{
+			"debug": logging.LogLevel_DEBUG,
+			"error": logging.LogLevel_ERROR,
+			"fatal": logging.LogLevel_FATAL,
+			"info":  logging.LogLevel_INFO,
+			"trace": logging.LogLevel_TRACE,
+			"warn":  logging.LogLevel_WARN,
+		}
+		for _, l := range convertStringSet(d.Get("logging.0.levels").(*schema.Set)) {
+			if v, ok := levelName[strings.ToLower(l)]; ok {
+				levels = append(levels, v)
+			}
+		}
+
+		logging := &triggers.Trigger_Logging{
+			LogGroupId:   d.Get("logging.0.group_id").(string),
+			ResourceId:   convertStringSet(d.Get("logging.0.resource_ids").(*schema.Set)),
+			ResourceType: convertStringSet(d.Get("logging.0.resource_types").(*schema.Set)),
+			Levels:       levels,
+
+			Action: &triggers.Trigger_Logging_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			},
+		}
+		batch, err := expandBatchSettings(d, "logging.0")
+		if err != nil {
+			return err
+		}
+		if batch != nil {
+			logging.BatchSettings = &triggers.LoggingBatchSettings{
+				Size:   batch.Size,
+				Cutoff: batch.Cutoff,
+			}
+		}
+		req.Rule = &triggers.Trigger_Rule{
+			Rule: &triggers.Trigger_Rule_Logging{Logging: logging},
+		}
+	}
+
 	if triggerCnt != 1 {
-		return fmt.Errorf("Yandex Cloud Functions Trigger must have only one any iot, message_queue, object_storage, timer section")
+		return fmt.Errorf("Yandex Cloud Functions Trigger must have only one any iot, message_queue, object_storage, timer, logging section")
 	}
 
 	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Triggers().Trigger().Create(ctx, &req))
@@ -732,6 +832,25 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			}
 		}
 		err := d.Set(triggerTypeLogGroup, []map[string]interface{}{lg})
+		if err != nil {
+			return err
+		}
+	} else if logging := trig.GetRule().GetLogging(); logging != nil {
+
+		lg := map[string]interface{}{
+			"group_id": logging.LogGroupId,
+		}
+		if batch := logging.GetBatchSettings(); batch != nil {
+			lg["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			lg["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+		if function := logging.GetInvokeFunction(); function != nil {
+			err := flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		}
+		err := d.Set(triggerTypeLogging, []map[string]interface{}{lg})
 		if err != nil {
 			return err
 		}

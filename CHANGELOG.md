@@ -4,6 +4,9 @@
 BUG FIXES:
 * mdb: fix password change in Redis
 
+ENHANCEMENTS
+* serverless: supported logging trigger
+
 ## 0.64.0 (September 22, 2021)
 FEATURES:
 * **New Resource:** `yandex_logging_group`

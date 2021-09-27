@@ -181,6 +181,54 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
+			"logging": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"resource_ids": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"resource_types": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"levels": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"batch_size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"function": {
 				Type:     schema.TypeList,
 				MaxItems: 1,

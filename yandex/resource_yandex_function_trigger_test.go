@@ -250,7 +250,7 @@ func TestAccYandexFunctionTrigger_loggroup(t *testing.T) {
 		CheckDestroy: testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: tetYandexFunctionTriggerLogGroup(triggerName, 5, 100),
+				Config: testYandexFunctionTriggerLogGroup(triggerName, 5, 100),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexFunctionTriggerExists(triggerResource, trigger),
 					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
@@ -278,6 +278,34 @@ func testTriggerLogGroupEqFunctionGroup(fn *functions.Function, trigger *trigger
 		}
 		return nil
 	}
+}
+
+func TestAccYandexFunctionTrigger_logging(t *testing.T) {
+	t.Parallel()
+
+	trigger := &triggers.Trigger{}
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	logSrcFn := &functions.Function{}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexFunctionTriggerLogging(triggerName, 5, 100),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
+					testYandexFunctionExists("yandex_function.log-src-fn", logSrcFn),
+					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_cutoff", "5"),
+					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
+					testAccCheckCreatedAtAttr(triggerResource),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
 }
 
 func testYandexFunctionTriggerDestroy(s *terraform.State) error {
@@ -572,7 +600,7 @@ resource "yandex_storage_bucket" "tf-test" {
 	`, name, name, bucket, getExampleFolderID(), bucket)
 }
 
-func tetYandexFunctionTriggerLogGroup(name string, batchCutoffSeconds, batchSize int) string {
+func testYandexFunctionTriggerLogGroup(name string, batchCutoffSeconds, batchSize int) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "test-account" {
   name = "%s-acc"
@@ -615,6 +643,65 @@ resource "yandex_function_trigger" "test-trigger" {
     log_group_ids      = [yandex_function.log-src-fn.loggroup_id]
     batch_cutoff       = "%d"
     batch_size         = "%d"
+  }
+  function {
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+}
+	`, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
+}
+
+func testYandexFunctionTriggerLogging(name string, batchCutoffSeconds, batchSize int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_logging_group" "default-logging-group" {
+	name = "default"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+}
+
+resource "yandex_function" "logging-src-fn" {
+  name       = "%s-logging-src-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name = "%s"
+  logging {
+    group_id = yandex_logging_group.default-logging-group.id
+    batch_cutoff = "%d"
+    batch_size   = "%d"
+	resource_ids = [yandex_function.logging-src-fn.id]
+	resource_types = ["serverless.function"]
+	levels = ["info"]
   }
   function {
     id                 = yandex_function.tf-test.id

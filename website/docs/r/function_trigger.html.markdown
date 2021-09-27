@@ -68,6 +68,14 @@ The following arguments are supported:
 * `timer` - [Timer](https://cloud.yandex.com/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present
 * `timer.0.cron_expression` - Cron expression for timer for Yandex Cloud Functions Trigger
 
+* `logging` - [Logging](https://cloud.yandex.com/docs/functions/concepts/trigger/logging) settings definition for Yandex Cloud Functions Trigger, if present
+* `logging.0.group_id` - Logging group ID for Yandex Cloud Functions Trigger
+* `logging.0.resource_ids` - Resource ID filter setting for Yandex Cloud Functions Trigger
+* `logging.0.resource_types` - Resource type filter setting for Yandex Cloud Functions Trigger
+* `logging.0.levels` - Logging level filter setting for Yandex Cloud Functions Trigger
+* `logging.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `logging.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
