@@ -1,11 +1,11 @@
 ## 0.65.0 (Unreleased)
 
+ENHANCEMENTS
+* serverless: supported logging trigger
+
 ## 0.64.1 (September 24, 2021)
 BUG FIXES:
 * mdb: fix password change in Redis
-
-ENHANCEMENTS
-* serverless: supported logging trigger
 
 ## 0.64.0 (September 22, 2021)
 FEATURES:
