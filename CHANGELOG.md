@@ -3,6 +3,9 @@
 ENHANCEMENTS
 * serverless: supported logging trigger
 
+BUG FIXES:
+* mdb: invalid plan was generated when user didn't specify zookeeper resources for multibroker Kafka cluster
+
 ## 0.64.1 (September 24, 2021)
 BUG FIXES:
 * mdb: fix password change in Redis

@@ -43,43 +43,6 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-c" {
   network_id     = yandex_vpc_network.mdb-kafka-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
-
-resource "yandex_vpc_security_group" "mdb-kafka-test-sg-x" {
-  network_id     = "${yandex_vpc_network.mdb-kafka-test-net.id}"
-  ingress {
-    protocol          = "ANY"
-    description       = "Allow incoming traffic from members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol          = "ANY"
-    description       = "Allow outgoing traffic to members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-}
-
-resource "yandex_vpc_security_group" "mdb-kafka-test-sg-y" {
-  network_id     = "${yandex_vpc_network.mdb-kafka-test-net.id}"
-
-  ingress {
-    protocol          = "ANY"
-    description       = "Allow incoming traffic from members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol          = "ANY"
-    description       = "Allow outgoing traffic to members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-}
 `
 
 func init() {
@@ -595,6 +558,116 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 	}, req.TopicSpecs[0])
 }
 
+func TestKafkaClusterUpdateRequest(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":        "new-name",
+		"description": "new description",
+		"labels":      map[string]interface{}{"label1": "val1", "label2": "val2"},
+		"config": []interface{}{
+			map[string]interface{}{
+				"version":       "2.8",
+				"brokers_count": 1,
+				"zones":         []interface{}{"ru-central1-b", "ru-central1-c"},
+				"kafka": []interface{}{
+					map[string]interface{}{
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "s2.micro",
+								"disk_size":          20,
+								"disk_type_id":       "network-ssd",
+							},
+						},
+						"kafka_config": []interface{}{
+							map[string]interface{}{
+								"compression_type":                "COMPRESSION_TYPE_ZSTD",
+								"log_flush_interval_messages":     1,
+								"log_flush_interval_ms":           2,
+								"log_flush_scheduler_interval_ms": 3,
+								"log_retention_bytes":             4,
+								"log_retention_hours":             5,
+								"log_retention_minutes":           6,
+								"log_retention_ms":                7,
+								"log_segment_bytes":               8,
+								"log_preallocate":                 true,
+								"socket_send_buffer_bytes":        9,
+								"socket_receive_buffer_bytes":     10,
+								"auto_create_topics_enable":       true,
+								"num_partitions":                  11,
+								"default_replication_factor":      12,
+							},
+						},
+					},
+				},
+				"zookeeper": []interface{}{
+					map[string]interface{}{
+						"resources": []interface{}{
+							map[string]interface{}{
+								"resource_preset_id": "b2.medium",
+								"disk_size":          32,
+								"disk_type_id":       "network-ssd",
+							},
+						},
+					},
+				},
+			},
+		},
+		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
+		"security_group_ids": []interface{}{"security-group-x", "security-group-y"},
+		"host_group_ids":     []interface{}{"hg1", "hg2", "hg3"},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	req, err := kafkaClusterUpdateRequest(resourceData)
+	require.NoError(t, err)
+
+	expected := &kafka.UpdateClusterRequest{
+		Name:        "new-name",
+		Description: "new description",
+		Labels:      map[string]string{"label1": "val1", "label2": "val2"},
+		ConfigSpec: &kafka.ConfigSpec{
+			Version:      "2.8",
+			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
+			ZoneId:       []string{"ru-central1-b", "ru-central1-c"},
+			Kafka: &kafka.ConfigSpec_Kafka{
+				Resources: &kafka.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskSize:         21474836480,
+					DiskTypeId:       "network-ssd",
+				},
+				KafkaConfig: &kafka.ConfigSpec_Kafka_KafkaConfig_2_8{
+					KafkaConfig_2_8: &kafka.KafkaConfig2_8{
+						CompressionType:             kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+						LogFlushIntervalMessages:    &wrappers.Int64Value{Value: 1},
+						LogFlushIntervalMs:          &wrappers.Int64Value{Value: 2},
+						LogFlushSchedulerIntervalMs: &wrappers.Int64Value{Value: 3},
+						LogRetentionBytes:           &wrappers.Int64Value{Value: 4},
+						LogRetentionHours:           &wrappers.Int64Value{Value: 5},
+						LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
+						LogRetentionMs:              &wrappers.Int64Value{Value: 7},
+						LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
+						LogPreallocate:              &wrappers.BoolValue{Value: true},
+						SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
+						SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
+						AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
+						NumPartitions:               &wrappers.Int64Value{Value: 11},
+						DefaultReplicationFactor:    &wrappers.Int64Value{Value: 12},
+					},
+				},
+			},
+			Zookeeper: &kafka.ConfigSpec_Zookeeper{
+				Resources: &kafka.Resources{
+					ResourcePresetId: "b2.medium",
+					DiskSize:         34359738368,
+					DiskTypeId:       "network-ssd",
+				},
+			},
+		},
+		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
+	}
+
+	assert.Equal(t, expected, req)
+}
+
 // Test that a Kafka Cluster can be created, updated and destroyed in single zone mode
 func TestAccMDBKafkaCluster_single(t *testing.T) {
 	t.Parallel()
@@ -618,7 +691,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
-					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
@@ -678,7 +750,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
-					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "2"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.medium", "network-hdd", 17*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
@@ -723,10 +794,8 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
-					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "1"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
-					testAccCheckMDBKafkaConfigZookeeperHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b"}),
@@ -747,10 +816,8 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
-					resource.TestCheckResourceAttr(kfResource, "security_group_ids.#", "2"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 19327352832),
-					testAccCheckMDBKafkaConfigZookeeperHasResources(&r, "s2.medium", "network-ssd", 19327352832),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-c"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
@@ -828,7 +895,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  test_key = "test_value"
 	}
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
-	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id]
 	deletion_protection = %t
 
 	config {
@@ -911,7 +977,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		new_key = "new_value"
 	}
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
-	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id, yandex_vpc_security_group.mdb-kafka-test-sg-y.id]
 
 	config {
 		version = "2.8"
@@ -1064,22 +1129,6 @@ func testAccCheckMDBKafkaConfigZones(r *kafka.Cluster, zones []string) resource.
 	return func(s *terraform.State) error {
 		if !reflect.DeepEqual(r.Config.ZoneId, zones) {
 			return fmt.Errorf("expected zones '%s', got '%s'", zones, r.Config.ZoneId)
-		}
-		return nil
-	}
-}
-
-func testAccCheckMDBKafkaConfigZookeeperHasResources(r *kafka.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs := r.Config.Zookeeper.Resources
-		if rs.ResourcePresetId != resourcePresetID {
-			return fmt.Errorf("expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
-		}
-		if rs.DiskTypeId != diskType {
-			return fmt.Errorf("expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
-		}
-		if rs.DiskSize != diskSize {
-			return fmt.Errorf("expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
 		}
 		return nil
 	}
@@ -1243,7 +1292,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
 	]
-	security_group_ids = [yandex_vpc_security_group.mdb-kafka-test-sg-x.id]
 
 	config {
 	  version          = "2.8"
@@ -1261,13 +1309,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
 		  log_preallocate     		 = true
-		}
-	  }
-	  zookeeper {
-		resources {
-		  resource_preset_id = "s2.micro"
-		  disk_type_id       = "network-ssd"
-		  disk_size          = 16
 		}
 	  }
 	}
@@ -1331,10 +1372,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
 	]
-	security_group_ids = [
-	  yandex_vpc_security_group.mdb-kafka-test-sg-x.id,
-	  yandex_vpc_security_group.mdb-kafka-test-sg-y.id
-	]
 
 	config {
 	  version          = "2.8"
@@ -1353,13 +1390,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  log_retention_bytes 		 = 2147483648
 		  log_segment_bytes   		 = 268435456
 		  log_preallocate     		 = true
-		}
-	  }
-	  zookeeper {
-		resources {
-		  resource_preset_id = "s2.medium"
-		  disk_type_id       = "network-ssd"
-		  disk_size          = 18
 		}
 	  }
 	}

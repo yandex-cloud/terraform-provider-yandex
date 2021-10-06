@@ -69,6 +69,7 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"subnet_ids": {
@@ -98,12 +99,14 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Optional: true,
+				Computed: true,
 			},
 			"host_group_ids": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			"host": {
@@ -170,6 +173,7 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 			"zookeeper": {
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem:     resourceYandexMDBKafkaClusterZookeeperConfig(),
 			},
@@ -191,6 +195,29 @@ func resourceYandexMDBKafkaClusterResources() *schema.Resource {
 			"disk_type_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBKafkaZookeeperResources() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"resource_preset_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"disk_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"disk_type_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 		},
@@ -434,9 +461,10 @@ func resourceYandexMDBKafkaClusterZookeeperConfig() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"resources": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				MaxItems: 1,
-				Elem:     resourceYandexMDBKafkaClusterResources(),
+				Elem:     resourceYandexMDBKafkaZookeeperResources(),
 			},
 		},
 	}

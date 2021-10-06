@@ -120,7 +120,6 @@ func testAccDataSourceMDBKafkaClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "zookeeper.#", "0"),
 		resource.TestCheckResourceAttr(datasourceName, "topic.#", "2"),
 		resource.TestCheckResourceAttr(datasourceName, "user.#", "2"),
-		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
 	)
