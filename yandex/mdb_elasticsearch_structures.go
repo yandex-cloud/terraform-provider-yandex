@@ -61,6 +61,40 @@ func expandElasticsearchConfigSpec(d *schema.ResourceData) *elasticsearch.Config
 	return config
 }
 
+func expandElasticsearchConfigSpecUpdate(d *schema.ResourceData) *elasticsearch.ConfigSpecUpdate {
+	config := &elasticsearch.ConfigSpecUpdate{
+
+		Version: d.Get("config.0.version").(string),
+
+		Edition: d.Get("config.0.edition").(string),
+
+		AdminPassword: d.Get("config.0.admin_password").(string),
+
+		ElasticsearchSpec: &elasticsearch.ElasticsearchSpec{
+			DataNode: &elasticsearch.ElasticsearchSpec_DataNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: d.Get("config.0.data_node.0.resources.0.resource_preset_id").(string),
+					DiskTypeId:       d.Get("config.0.data_node.0.resources.0.disk_type_id").(string),
+					DiskSize:         toBytes(d.Get("config.0.data_node.0.resources.0.disk_size").(int)),
+				},
+			},
+			Plugins: convertStringSet(d.Get("config.0.plugins").(*schema.Set)),
+		},
+	}
+
+	if _, exist := d.GetOk("config.0.master_node"); exist {
+		config.ElasticsearchSpec.MasterNode = &elasticsearch.ElasticsearchSpec_MasterNode{
+			Resources: &elasticsearch.Resources{
+				ResourcePresetId: d.Get("config.0.master_node.0.resources.0.resource_preset_id").(string),
+				DiskTypeId:       d.Get("config.0.master_node.0.resources.0.disk_type_id").(string),
+				DiskSize:         toBytes(d.Get("config.0.master_node.0.resources.0.disk_size").(int)),
+			},
+		}
+	}
+
+	return config
+}
+
 func flattenElasticsearchClusterConfig(config *elasticsearch.ClusterConfig, password string) []interface{} {
 	res := map[string]interface{}{
 		"version":        config.Version,

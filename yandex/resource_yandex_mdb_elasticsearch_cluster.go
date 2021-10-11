@@ -619,7 +619,7 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 	// TODO  folder
 
 	if d.HasChange("config") {
-		req.ConfigSpec = expandElasticsearchConfigSpec(d)
+		req.ConfigSpec = expandElasticsearchConfigSpecUpdate(d)
 
 		fields := map[string]string{
 			"config.0.data_node.0.resources.0.resource_preset_id":   "config_spec.elasticsearch_spec.data_node.resources.resource_preset_id",

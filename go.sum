@@ -293,8 +293,12 @@ github.com/vmihailenco/msgpack v3.3.3+incompatible h1:wapg9xDUZDzGCNFlwc5SqI1rvc
 github.com/vmihailenco/msgpack v3.3.3+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/yandex-cloud/go-genproto v0.0.0-20210824140926-1bca7bc0c005 h1:hy+cB7UQZm3o+YLL7EP4g4kFNh9cYlijRhclZvfVpEg=
 github.com/yandex-cloud/go-genproto v0.0.0-20210824140926-1bca7bc0c005/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20210927112212-0025f65c089d h1:XyPIHKMuv3PU6odik1i7Rsi37hbumko8z1KUV81oZlQ=
+github.com/yandex-cloud/go-genproto v0.0.0-20210927112212-0025f65c089d/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20210824141121-182aedd44a25 h1:LAoYmSjiHbNcF0GgQXQEmJ4QFMq3Nr7IAuqyNX1UeuI=
 github.com/yandex-cloud/go-sdk v0.0.0-20210824141121-182aedd44a25/go.mod h1:+uZSgJiDErUbesV8oymTc926itAPfjo07jc9DUdNYHY=
+github.com/yandex-cloud/go-sdk v0.0.0-20210927113321-18ab1436844a h1:tYvbiJ4zA3PTALt9qABT9KLjzVgnO9L6XKzAKYTRtnk=
+github.com/yandex-cloud/go-sdk v0.0.0-20210927113321-18ab1436844a/go.mod h1:SeI/ieHEcu+JUxUAhFb+X6loOUV7vPTTgSfGE6E6lHs=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

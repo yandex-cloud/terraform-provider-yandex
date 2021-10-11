@@ -1,6 +1,7 @@
 ## 0.65.0 (Unreleased)
 
 ENHANCEMENTS
+* elasticsearch: update go-sdk version, add tests
 * serverless: supported logging trigger
 
 BUG FIXES:

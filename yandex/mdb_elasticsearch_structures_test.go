@@ -60,7 +60,7 @@ func TestExpandElasticsearcHosts(t *testing.T) {
 	require.Equal(t, expected, hosts)
 }
 
-func TestExpandElasticsearcConfigSpec(t *testing.T) {
+func TestExpandElasticsearchConfigSpec(t *testing.T) {
 	raw := map[string]interface{}{
 		"config": []interface{}{map[string]interface{}{
 			"version":        "7.10",
@@ -123,7 +123,7 @@ func TestExpandElasticsearcConfigSpec(t *testing.T) {
 	require.Equal(t, expected, spec)
 }
 
-func TestExpandElasticsearcConfigSpec_SuppressMasters(t *testing.T) {
+func TestExpandElasticsearchConfigSpec_SuppressMasters(t *testing.T) {
 	raw := map[string]interface{}{
 		"config": []interface{}{map[string]interface{}{
 			"version":        "7.10",
@@ -175,7 +175,7 @@ func TestExpandElasticsearcConfigSpec_SuppressMasters(t *testing.T) {
 	require.Equal(t, expected, spec)
 }
 
-func TestExpandElasticsearcConfigSpec_MinRequired(t *testing.T) {
+func TestExpandElasticsearchConfigSpec_MinRequired(t *testing.T) {
 	raw := map[string]interface{}{
 		"config": []interface{}{map[string]interface{}{
 			"admin_password": "password",
@@ -210,7 +210,7 @@ func TestExpandElasticsearcConfigSpec_MinRequired(t *testing.T) {
 	require.Equal(t, expected, spec)
 }
 
-func TestFlattenElasticsearcConfigSpec(t *testing.T) {
+func TestFlattenElasticsearchConfig(t *testing.T) {
 	config := &elasticsearch.ClusterConfig{
 		Version: "7.10",
 		Edition: "basic",
@@ -257,4 +257,154 @@ func TestFlattenElasticsearcConfigSpec(t *testing.T) {
 	raw := flattenElasticsearchClusterConfig(config, "password")
 
 	require.Equal(t, expected, raw)
+}
+
+func TestExpandElasticsearchConfigSpecUpdate(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{map[string]interface{}{
+			"version":        "7.10",
+			"edition":        "basic",
+			"admin_password": "password",
+			"data_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"master_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"plugins": []interface{}{"analysis-icu"},
+		}},
+		"host": []interface{}{map[string]interface{}{
+			"name": "data",
+			"zone": "sas",
+			"type": "DATA_NODE",
+		}, map[string]interface{}{
+			"name": "master",
+			"zone": "man",
+			"type": "MASTER_NODE",
+		}},
+	}
+
+	expected := &elasticsearch.ConfigSpecUpdate{
+		Version:       "7.10",
+		Edition:       "basic",
+		AdminPassword: "password",
+		ElasticsearchSpec: &elasticsearch.ElasticsearchSpec{
+			DataNode: &elasticsearch.ElasticsearchSpec_DataNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         10 * 1024 * 1024 * 1024,
+				},
+			},
+			MasterNode: &elasticsearch.ElasticsearchSpec_MasterNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         10 * 1024 * 1024 * 1024,
+				},
+			},
+			Plugins: []string{"analysis-icu"},
+		},
+	}
+
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBElasticsearchCluster().Schema, raw)
+
+	spec := expandElasticsearchConfigSpecUpdate(resourceData)
+
+	require.Equal(t, expected, spec)
+}
+
+func TestExpandElasticsearchConfigSpecUpdate_SuppressMasters(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{map[string]interface{}{
+			"version":        "7.10",
+			"edition":        "basic",
+			"admin_password": "password",
+			"data_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"master_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+			"plugins": []interface{}{"analysis-icu"},
+		}},
+		"host": []interface{}{map[string]interface{}{
+			"name": "data",
+			"zone": "sas",
+			"type": "DATA_NODE",
+		}},
+	}
+
+	expected := &elasticsearch.ConfigSpecUpdate{
+		Version:       "7.10",
+		Edition:       "basic",
+		AdminPassword: "password",
+		ElasticsearchSpec: &elasticsearch.ElasticsearchSpec{
+			DataNode: &elasticsearch.ElasticsearchSpec_DataNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         10 * 1024 * 1024 * 1024,
+				},
+			},
+			Plugins: []string{"analysis-icu"},
+		},
+	}
+
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBElasticsearchCluster().Schema, raw)
+
+	spec := expandElasticsearchConfigSpecUpdate(resourceData)
+
+	require.Equal(t, expected, spec)
+}
+
+func TestExpandElasticsearchConfigSpecUpdate_MinRequired(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{map[string]interface{}{
+			"admin_password": "password",
+			"data_node": []interface{}{map[string]interface{}{
+				"resources": []interface{}{map[string]interface{}{
+					"resource_preset_id": "s2.micro",
+					"disk_type_id":       "network-ssd",
+					"disk_size":          10,
+				}},
+			}},
+		}},
+	}
+
+	expected := &elasticsearch.ConfigSpecUpdate{
+		AdminPassword: "password",
+		ElasticsearchSpec: &elasticsearch.ElasticsearchSpec{
+			DataNode: &elasticsearch.ElasticsearchSpec_DataNode{
+				Resources: &elasticsearch.Resources{
+					ResourcePresetId: "s2.micro",
+					DiskTypeId:       "network-ssd",
+					DiskSize:         10 * 1024 * 1024 * 1024,
+				},
+			},
+			Plugins: []string{},
+		},
+	}
+
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBElasticsearchCluster().Schema, raw)
+
+	spec := expandElasticsearchConfigSpecUpdate(resourceData)
+
+	require.Equal(t, expected, spec)
 }
