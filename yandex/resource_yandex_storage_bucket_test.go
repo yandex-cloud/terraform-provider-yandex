@@ -1794,6 +1794,39 @@ func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExp
 	})
 }
 
+// Test yandex_storage_bucket import with policy operation
+func TestAccStorageBucket_ImportBasic(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithPolicy(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketPolicy(resourceName, testAccStorageBucketPolicy(rInt)),
+				),
+			},
+			bucketStorageImportStep(resourceName),
+		},
+	})
+}
+
+func bucketStorageImportStep(resourceName string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      resourceName,
+		ImportStateId:     fmt.Sprintf("%s", resourceName),
+		ImportState:       true,
+		ImportStateVerify: true,
+	}
+}
+
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		err := f(s)
