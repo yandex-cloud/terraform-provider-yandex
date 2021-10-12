@@ -6,6 +6,7 @@ FEATURES:
 ENHANCEMENTS:
 * elasticsearch: update go-sdk version, add tests
 * serverless: supported logging trigger
+* add `name`, `replication_source`, `replication_source_name` attributes to `host` entity in `yandex_mdb_mysql_cluster` resource and data source
 
 BUG FIXES:
 * mdb: invalid plan was generated when user didn't specify zookeeper resources for multibroker Kafka cluster

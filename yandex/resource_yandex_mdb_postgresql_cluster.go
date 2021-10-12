@@ -1080,7 +1080,7 @@ func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{})
 func validatePGAssignPublicIP(currentHosts []*postgresql.Host, targetHosts []*PostgreSQLHostSpec) error {
 	for _, currentHost := range currentHosts {
 		for _, targetHost := range targetHosts {
-			if currentHost.Name == targetHost.Fqdn &&
+			if currentHost.Name == targetHost.Fqdn && // Name in protobuf is the FQDN of the host.
 				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
 				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host %s in resource_yandex_mdb_postgresql_cluster, "+
 					"if you really need it you should delete one host and add another", currentHost.Name)
@@ -1131,7 +1131,6 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		if !hostInfo.isNew {
 			hostsToDelete = append(hostsToDelete, hostInfo.fqdn)
 		} else if compareHostsInfo.haveHostWithName && (hostInfo.oldPriority != hostInfo.newPriority || hostInfo.oldReplicationSource != hostInfo.newReplicationSource) {
-
 			if err := updatePGHost(ctx, config, d, &postgresql.UpdateHostSpec{
 				HostName:          hostInfo.fqdn,
 				ReplicationSource: hostInfo.newReplicationSource,
@@ -1163,7 +1162,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 		return err
 	}
 
-	if compareHostsInfo.hierarhyExists && len(compareHostsInfo.createHostsInfo) == 0 {
+	if compareHostsInfo.hierarchyExists && len(compareHostsInfo.createHostsInfo) == 0 {
 		return fmt.Errorf("Create cluster hosts error. Exists host with replication source, which can't be created. Possibly there is a loop")
 	}
 
@@ -1193,7 +1192,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 		}
 	}
 
-	if compareHostsInfo.hierarhyExists {
+	if compareHostsInfo.hierarchyExists {
 		return createPGClusterHosts(ctx, config, d)
 	}
 
@@ -1541,6 +1540,7 @@ func deletePGHosts(ctx context.Context, config *Config, d *schema.ResourceData, 
 
 	return nil
 }
+
 func deletePGHost(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, &postgresql.DeleteClusterHostsRequest{

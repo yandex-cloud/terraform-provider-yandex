@@ -196,6 +196,18 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"replication_source": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"replication_source_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -347,6 +359,12 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 
 func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	err := validateClusterConfig(d, config, false)
+	if err != nil {
+		return err
+	}
+
 	req, err := prepareCreateMySQLRequest(d, config)
 	if err != nil {
 		return err
@@ -380,6 +398,13 @@ func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("MySQL Cluster creation failed: %s", err)
 	}
 
+	// Update hosts after creation (e.g. configure cascade replicas)
+	log.Printf("[INFO] Updating cluster hosts after creation (if needed)...")
+	if err := updateMysqlClusterHosts(d, config); err != nil {
+		return fmt.Errorf("MySQL Cluster %v update params failed: %s", d.Id(), err)
+	}
+
+	log.Printf("[INFO] Updating cluster after creation (if needed)...")
 	if err := updateMySQLClusterAfterCreate(d, meta); err != nil {
 		return fmt.Errorf("MySQL Cluster %v update params failed: %s", d.Id(), err)
 	}
@@ -442,6 +467,11 @@ func resourceYandexMDBMySQLClusterRestore(d *schema.ResourceData, meta interface
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("MySQL Cluster creation from backup %v failed: %s", backupID, err)
 	}
+
+	if err := updateMysqlClusterHosts(d, config); err != nil {
+		return fmt.Errorf("MySQL Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
+	}
+
 	return resourceYandexMDBMySQLClusterRead(d, meta)
 }
 
@@ -472,9 +502,14 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("error while expanding databases on Mysql Cluster create: %s", err)
 	}
 
-	hostSpecs, err := expandMysqlHosts(d)
+	hostSpecs, err := expandMysqlHostSpec(d)
 	if err != nil {
 		return nil, fmt.Errorf("error while expanding hostsFromScheme on MySQL Cluster create: %s", err)
+	}
+	// It is not possible to specify replication-source during cluster creation (host names are unknown)
+	// so, create all hosts as HA-hosts, and then reconfigure it
+	for _, hostSpec := range hostSpecs {
+		hostSpec.ReplicationSource = ""
 	}
 
 	users, err := expandMySQLUsers(nil, d)
@@ -550,17 +585,13 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	hostSpecs, err := expandMysqlHosts(d)
+	fHosts, err := flattenMysqlHosts(d, hosts, false)
 	if err != nil {
 		return err
 	}
-
-	sortMysqlHosts(hosts, hostSpecs)
-
-	fHosts, err := flattenMysqlHosts(hosts)
-
-	if err != nil {
-		return err
+	log.Printf("[DEBUG] reading cluster:")
+	for i, h := range fHosts {
+		log.Printf("[DEBUG] match [%d]: %s -> %s", i, h["name"], h["fqdn"])
 	}
 
 	if err := d.Set("host", fHosts); err != nil {
@@ -652,7 +683,13 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
 	d.Partial(true)
+
+	err := validateClusterConfig(d, config, true)
+	if err != nil {
+		return err
+	}
 
 	if err := updateMysqlClusterParams(d, meta); err != nil {
 		return err
@@ -671,7 +708,7 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("host") {
-		if err := updateMysqlClusterHosts(d, meta); err != nil {
+		if err := updateMysqlClusterHosts(d, config); err != nil {
 			return err
 		}
 	}
@@ -1084,145 +1121,130 @@ func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 	return nil
 }
 
+func validateMysqlAssignPublicIP(currentHosts []*mysql.Host, targetHosts []*MySQLHostSpec) error {
+	for _, currentHost := range currentHosts {
+		for _, targetHost := range targetHosts {
+			if currentHost.Name == targetHost.Fqdn && // Name in protobuf is the FQDN of the host.
+				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
+				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host in resource_yandex_mdb_mysql_cluster, " +
+					"if you really need it you should delete one host and add another or set `allow_regeneration_host` = true")
+			}
+		}
+	}
+	return nil
+}
+
 func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
+	// Ideas:
+	// 1. In order to do it safely for clients: firstly add new hosts and only then delete unneeded hosts
+	// 2. Batch Add/Update operations are not supported, so we should update hosts one by one
+	//    It may produce issues with cascade replicas: we should change replication-source in such way, that
+	//    there is no attempts to create replication loop
+	//    Solution: update HA-replicas first, then use BFS (using `compareMySQLHostsInfoResult.hierarchyExists`)
+
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	// Step 1: Add new hosts (as HA-hosts):
+	err := createMysqlClusterHosts(ctx, config, d)
+	if err != nil {
+		return err
+	}
+
+	// Step 2: update hosts:
 	currHosts, err := listMysqlHosts(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
 
-	targetHosts, err := expandMysqlHosts(d)
+	compareHostsInfo, err := compareMySQLHostsInfo(d, currHosts, true)
 	if err != nil {
 		return err
 	}
 
-	toDelete, toAdd, changeAssignPublicIP := mysqlHostsDiff(currHosts, targetHosts)
-
-	if changeAssignPublicIP && d.Get("allow_regeneration_host") == false {
-		return fmt.Errorf("forbidden to change assign_public_ip setting for existing host in resource_yandex_mdb_mysql_cluster, " +
-			"if you really need it you should delete one host and add another or set `allow_regeneration_host` = true")
-	}
-
-	for _, h := range toAdd {
-		err := addMysqlHost(ctx, config, d, h)
-		if err != nil {
-			return err
+	for _, hostInfo := range compareHostsInfo.hostsInfo {
+		if hostInfo.inTargetSet && compareHostsInfo.haveHostWithName && hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
+			log.Printf("[DEBUG] Updating host (change replication-source: %v stream from %v", hostInfo.fqdn, hostInfo.newReplicationSource)
+			if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
+				HostName:          hostInfo.fqdn,
+				ReplicationSource: hostInfo.newReplicationSource,
+			}); err != nil {
+				return err
+			}
 		}
 	}
 
-	if err := deleteMysqlHosts(ctx, config, d, toDelete); err != nil {
-		return err
+	// Step 3: delete hosts:
+	for _, hostInfo := range compareHostsInfo.hostsInfo {
+		if !hostInfo.inTargetSet {
+			log.Printf("[DEBUG] Deleting host %v", hostInfo.fqdn)
+			if err := deleteMysqlHost(ctx, config, d, hostInfo.fqdn); err != nil {
+				return err
+			}
+		}
 	}
 
 	d.SetPartial("host")
 	return nil
 }
 
-type hostKey struct {
-	ZoneID         string
-	SubnetID       string
-	AssignPublicIP bool
-}
-type hostHalfKey struct {
-	ZoneID   string
-	SubnetID string
-}
-
-func mysqlHostsDiff(currHosts []*mysql.Host, targetHosts []*mysql.HostSpec) ([]string, []*mysql.HostSpec, bool) {
-	current := map[hostKey][]*mysql.Host{}
-	target := map[hostKey][]*mysql.HostSpec{}
-
-	diffKey := map[hostHalfKey]struct{}{}
-
-	for _, h := range targetHosts {
-		key := hostKey{
-			ZoneID:         h.ZoneId,
-			SubnetID:       h.SubnetId,
-			AssignPublicIP: h.AssignPublicIp,
-		}
-
-		target[key] = append(target[key], h)
+func printCompareHostInfo(compareHostInfo compareMySQLHostsInfoResult) {
+	log.Printf("[DEBUG] Current cluster hosts view:")
+	for _, hi := range compareHostInfo.hostsInfo {
+		log.Printf("[DEBUG] %s -> %s", hi.name, hi.fqdn)
 	}
-
-	for _, h := range currHosts {
-		key := hostKey{
-			ZoneID:         h.ZoneId,
-			SubnetID:       h.SubnetId,
-			AssignPublicIP: h.AssignPublicIp,
-		}
-
-		current[key] = append(current[key], h)
+	for _, chi := range compareHostInfo.createHostsInfo {
+		log.Printf("[DEBUG] new %s", chi.name)
 	}
-
-	toAdd := []*mysql.HostSpec{}
-	for key, targetHostList := range target {
-		currentHostList := current[key]
-		for i := len(currentHostList); i < len(targetHostList); i++ {
-			toAdd = append(toAdd, targetHostList[i])
-			halfKey := hostHalfKey{
-				ZoneID:   targetHostList[i].ZoneId,
-				SubnetID: targetHostList[i].SubnetId,
-			}
-			diffKey[halfKey] = struct{}{}
-		}
-	}
-
-	changeAssignPublicIP := false
-
-	toDelete := []string{}
-	for key, currentHostList := range current {
-		targetHostList := target[key]
-		for i := len(targetHostList); i < len(currentHostList); i++ {
-			toDelete = append(toDelete, currentHostList[i].Name)
-
-			halfKey := hostHalfKey{
-				ZoneID:   currentHostList[i].ZoneId,
-				SubnetID: currentHostList[i].SubnetId,
-			}
-
-			if _, ok := diffKey[halfKey]; ok {
-				changeAssignPublicIP = true
-			}
-		}
-	}
-
-	return toDelete, toAdd, changeAssignPublicIP
 }
 
-func addMysqlHost(ctx context.Context, config *Config, d *schema.ResourceData, host *mysql.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
-			ClusterId: d.Id(),
-			HostSpecs: []*mysql.HostSpec{host},
-		}),
-	)
+func createMysqlClusterHosts(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	currHosts, err := listMysqlHosts(ctx, config, d.Id())
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create host for MySQL Cluster %q: %s", d.Id(), err)
+		return err
 	}
 
-	err = op.Wait(ctx)
+	compareHostsInfo, err := compareMySQLHostsInfo(d, currHosts, true)
 	if err != nil {
-		return fmt.Errorf("error while creating host for MySQL Cluster %q: %s", d.Id(), err)
+		return err
+	}
+	printCompareHostInfo(compareHostsInfo)
+
+	if compareHostsInfo.hierarchyExists && len(compareHostsInfo.createHostsInfo) == 0 {
+		return fmt.Errorf("Create cluster hosts error. Exists host with replication source, which can't be created. Possibly there is a loop")
 	}
 
-	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("creating host for MySQL Cluster %q failed: %s", d.Id(), err)
+	var newHosts []*mysql.HostSpec
+	for _, newHostInfo := range compareHostsInfo.createHostsInfo {
+		newHosts = append(newHosts, &mysql.HostSpec{
+			ZoneId:         newHostInfo.zone,
+			SubnetId:       newHostInfo.subnetID,
+			AssignPublicIp: newHostInfo.assignPublicIP,
+		})
+	}
+
+	for _, newHost := range newHosts { // batch operations are not supported
+		log.Printf("[DEBUG] Add new host: %+v", newHost)
+		err = addMySQLHost(ctx, config, d, newHost)
+		if err != nil {
+			return err
+		}
+	}
+
+	if compareHostsInfo.hierarchyExists {
+		return createMysqlClusterHosts(ctx, config, d)
 	}
 
 	return nil
 }
 
-func deleteMysqlHosts(ctx context.Context, config *Config, d *schema.ResourceData, names []string) error {
-	if len(names) == 0 {
-		return nil
-	}
+func deleteMysqlHost(ctx context.Context, config *Config, d *schema.ResourceData, fqdn string) error {
 	op, err := config.sdk.WrapOperation(
+		// FYI: Deleting multiple hosts at once is not supported yet
 		config.sdk.MDB().MySQL().Cluster().DeleteHosts(ctx, &mysql.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
-			HostNames: names,
+			HostNames: []string{fqdn},
 		}),
 	)
 	if err != nil {
@@ -1269,5 +1291,33 @@ func resourceYandexMDBMySQLClusterDelete(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Finished deleting MySQL Cluster %q", d.Id())
+	return nil
+}
+
+func validateClusterConfig(d *schema.ResourceData, config *Config, isUpdate bool) error {
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	targetHosts, err := expandEnrichedMySQLHostSpec(d)
+	if err != nil {
+		return err
+	}
+	err = validateMysqlReplicationReferences(targetHosts)
+	if err != nil {
+		return err
+	}
+
+	if isUpdate && d.Get("allow_regeneration_host") == false {
+		currHosts, err := listMysqlHosts(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
+
+		err = validateMysqlAssignPublicIP(currHosts, targetHosts)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

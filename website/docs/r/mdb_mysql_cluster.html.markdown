@@ -128,6 +128,80 @@ resource "yandex_vpc_subnet" "bar" {
 }
 ```
 
+Example of creating a MySQL Cluster with cascade replicas: HA-group consist of 'na-1' and 'na-2', cascade replicas form a chain 'na-1' -> 'nb-1' -> 'nb-2'
+
+```hcl
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "db_name"
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  user {
+    name     = "user_name"
+    password = "your_password"
+    permission {
+      database_name = "db_name"
+      roles         = ["ALL"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-2"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "nb-1"
+    replication_source_name = "na-1"
+    subnet_id               = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone                    = "ru-central1-b"
+    name                    = "nb-2"
+    replication_source_name = "nb-1"
+    subnet_id               = yandex_vpc_subnet.bar.id
+  }
+  
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
+
 Example of creating a Single Node MySQL with user params.
 
 ```hcl
@@ -339,13 +413,19 @@ The `database` block supports:
 
 The `host` block supports:
 
-* `fqdn` - (Computed) The fully qualified domain name of the host.
-
 * `zone` - (Required) The availability zone where the MySQL host will be created.
+
+* `fqdn` - (Computed) The fully qualified domain name of the host.
 
 * `subnet_id` - (Optional) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. When changing the `assign_public_ip` attribute and `allow_regeneration_host` is true, the old host is deleted and a new host is created. Changing this parameter for an existing host is not supported at the moment.
+
+* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please refer to `replication_source_name` parameter.
+
+* `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
+
+* `replication_source_name` - (Optional) Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
 
 The `access` block supports:
 If not specified then does not make any changes.  

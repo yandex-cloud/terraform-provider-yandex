@@ -17,9 +17,8 @@ import (
 )
 
 type PostgreSQLHostSpec struct {
-	HostSpec        *postgresql.HostSpec
-	Fqdn            string
-	HasComputedFqdn bool
+	HostSpec *postgresql.HostSpec
+	Fqdn     string
 }
 
 func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData) ([]interface{}, error) {
@@ -309,8 +308,8 @@ type pgHostInfo struct {
 	newReplicationSource     string
 	newReplicationSourceName string
 
-	exists bool
-	isNew  bool
+	// isNew is true when host is present in target set (and shouldn't be removed)
+	isNew bool
 
 	rowNumber int
 }
@@ -359,7 +358,7 @@ func sortPGHostsInfo(hostsInfo map[string]*pgHostInfo) []*pgHostInfo {
 	return orderedHostsInfo
 }
 
-func loadNewHosltsInfo(d *schema.ResourceData, newHosts []interface{}, isUpdate bool) (hostsInfo []*pgHostInfo, haveHostWithName bool, err error) {
+func loadNewPgHostsInfo(d *schema.ResourceData, newHosts []interface{}, isUpdate bool) (hostsInfo []*pgHostInfo, haveHostWithName bool, err error) {
 	hostsInfo = make([]*pgHostInfo, 0)
 	uniqueNames := make(map[string]struct{})
 
@@ -392,7 +391,7 @@ func loadNewHosltsInfo(d *schema.ResourceData, newHosts []interface{}, isUpdate 
 	}
 
 	if haveHostWithName && haveHostWithoutName && isUpdate {
-		return nil, haveHostWithName, fmt.Errorf("Names should be set for all hosts or not set in any host")
+		return nil, haveHostWithName, fmt.Errorf("names should be set for all hosts or unset for all host")
 	}
 
 	return hostsInfo, haveHostWithName, nil
@@ -577,7 +576,7 @@ func comparePGNoNamedHostsInfo(existsHostsInfo map[string]*pgHostInfo, newHostsI
 	return compareMap
 }
 
-func loadExistsPGHosltsInfo(currentHosts []*postgresql.Host, oldHosts []interface{}) (hostsInfo map[string]*pgHostInfo, nameToHost map[string]string) {
+func loadExistingPGHostsInfo(currentHosts []*postgresql.Host, oldHosts []interface{}) (hostsInfo map[string]*pgHostInfo, nameToHost map[string]string) {
 	hostsInfo = make(map[string]*pgHostInfo)
 	nameToHost = make(map[string]string)
 
@@ -591,8 +590,6 @@ func loadExistsPGHosltsInfo(currentHosts []*postgresql.Host, oldHosts []interfac
 			assignPublicIP:       h.AssignPublicIp,
 			oldPriority:          int(h.Priority.GetValue()),
 			oldReplicationSource: h.ReplicationSource,
-
-			exists: true,
 
 			rowNumber: i,
 		}
@@ -625,8 +622,10 @@ type comparePGHostsInfoResult struct {
 	hostsInfo        map[string]*pgHostInfo
 	createHostsInfo  []*pgHostInfo
 	haveHostWithName bool
-	hierarhyExists   bool
-	hostMasterName   string
+	// when hierarchyExists is true - we cannot change replication source graph in a single round
+	// because we don't know all FQDNs.
+	hierarchyExists bool
+	hostMasterName  string
 }
 
 func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host, isUpdate bool) (comparePGHostsInfoResult, error) {
@@ -637,9 +636,9 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 
 	result.hostMasterName = interfaceToString(d.Get("host_master_name"))
 
-	existHostsInfo, nameToHost := loadExistsPGHosltsInfo(currentHosts, oldHosts.([]interface{}))
+	existHostsInfo, nameToHost := loadExistingPGHostsInfo(currentHosts, oldHosts.([]interface{}))
 
-	newHostsInfo, haveHostWithName, err := loadNewHosltsInfo(d, newHosts.([]interface{}), isUpdate)
+	newHostsInfo, haveHostWithName, err := loadNewPgHostsInfo(d, newHosts.([]interface{}), isUpdate)
 
 	if err != nil {
 		return result, err
@@ -695,7 +694,7 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 				newHostInfo.newReplicationSource = fqdn
 				result.createHostsInfo = append(result.createHostsInfo, newHostInfo)
 			} else {
-				result.hierarhyExists = true
+				result.hierarchyExists = true
 			}
 		}
 
@@ -1035,7 +1034,7 @@ func expandPGHosts(d *schema.ResourceData) ([]*PostgreSQLHostSpec, error) {
 
 func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 	hostSpec := &postgresql.HostSpec{}
-	host := &PostgreSQLHostSpec{HostSpec: hostSpec, HasComputedFqdn: false}
+	host := &PostgreSQLHostSpec{HostSpec: hostSpec}
 	if v, ok := m["zone"]; ok {
 		host.HostSpec.ZoneId = v.(string)
 	}
@@ -1048,7 +1047,6 @@ func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 		host.HostSpec.AssignPublicIp = v.(bool)
 	}
 	if v, ok := m["fqdn"]; ok && v.(string) != "" {
-		host.HasComputedFqdn = true
 		host.Fqdn = v.(string)
 	}
 

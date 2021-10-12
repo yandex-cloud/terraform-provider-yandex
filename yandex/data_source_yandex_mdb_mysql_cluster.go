@@ -3,8 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -197,6 +197,10 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"replication_source": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -325,17 +329,14 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	hostFromScheme, err := expandMysqlHosts(d)
+	fHosts, err := flattenMysqlHosts(d, hosts, true)
 	if err != nil {
 		return err
 	}
 
-	sortMysqlHosts(hosts, hostFromScheme)
-
-	fHosts, err := flattenMysqlHosts(hosts)
-
-	if err != nil {
-		return err
+	log.Printf("[DEBUG] reading cluster:")
+	for i, h := range fHosts {
+		log.Printf("[DEBUG] match [%d]: %s -> %s", i, h["name"], h["fqdn"])
 	}
 
 	if err := d.Set("host", fHosts); err != nil {

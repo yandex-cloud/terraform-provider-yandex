@@ -591,14 +591,14 @@ The `host` block supports:
 
 * `fqdn` - (Computed) The fully qualified domain name of the host.
 
-* `name` - (Optional) Host state name. Is should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
+* `name` - (Optional) Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
 Also, this field is used to select which host will be selected as a master host. Please see `host_master_name` parameter.
 
 * `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
 
 * `priority` - Host priority in HA group. It works only when `name` is set.
 
-* `replication_source_name` - Host replication source name, case when not set then host shuld be in HA group. It works only when `name` is set.
+* `replication_source_name` - (Optional) Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
 
 The `restore` block supports:
 

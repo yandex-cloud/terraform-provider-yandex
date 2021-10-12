@@ -23,6 +23,7 @@ require (
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20210927112212-0025f65c089d
 	github.com/yandex-cloud/go-sdk v0.0.0-20210927113321-18ab1436844a

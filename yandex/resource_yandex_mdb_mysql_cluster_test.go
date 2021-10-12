@@ -82,10 +82,16 @@ func mdbMysqlClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"user",                    // not returned
-			"health",                  // volatile value
-			"host",                    // the order of hosts differs
-			"allow_regeneration_host", // Only state flag
+			"user",                           // not returned
+			"health",                         // volatile value
+			"host",                           // the order of hosts differs
+			"allow_regeneration_host",        // Only state flag
+			"host.0.name",                    // not returned
+			"host.1.name",                    // not returned
+			"host.2.name",                    // not returned
+			"host.0.replication_source_name", // not returned
+			"host.1.replication_source_name", // not returned
+			"host.2.replication_source_name", // not returned
 		},
 	}
 }
@@ -268,6 +274,19 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
 					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// Configure cascade replica
+			{
+				Config: testAccMDBMysqlClusterHANamedWithCascade(mysqlName, mysqlDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.replication_source"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "nc"),
+					resource.TestCheckResourceAttrSet(mysqlResource, "host.3.replication_source"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.replication_source_name", "nb"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -975,9 +994,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   host {
     zone      = "ru-central1-c"
     subnet_id = yandex_vpc_subnet.foo_c.id
-
-    assign_public_ip = true
-  }
+ }
 
   host {
     zone      = "ru-central1-b"
@@ -987,6 +1004,97 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   host {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo_a.id
+  }
+
+  security_group_ids = [yandex_vpc_security_group.sg-y.id]
+}
+`, name, desc)
+}
+
+func testAccMDBMysqlClusterHANamedWithCascade(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+  deletion_protection = false
+
+  allow_regeneration_host = true
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  database {
+    name = "new_testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
+    }
+  }
+
+  user {
+    name     = "mary"
+    password = "password"
+
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+
+    permission {
+      database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone             = "ru-central1-c"
+    subnet_id        = yandex_vpc_subnet.foo_c.id
+    name             = "na"
+    assign_public_ip = true
+  }
+
+  host {
+    zone                    = "ru-central1-c"
+    subnet_id               = yandex_vpc_subnet.foo_c.id
+    name                    = "nb"
+    replication_source_name = "nc"
+  }
+
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.foo_b.id
+    name      = "nc"
+  }
+
+  host {
+    zone                    = "ru-central1-a"
+    subnet_id               = yandex_vpc_subnet.foo_a.id
+    name                    = "nd"
+    replication_source_name = "nb"
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-y.id]

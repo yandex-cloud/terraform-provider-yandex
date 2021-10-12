@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/stretchr/objx"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -193,39 +195,6 @@ func expandMysqlUserPermissions(ps *schema.Set) ([]*mysql.Permission, error) {
 	return result, nil
 }
 
-func expandMysqlHosts(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
-	var result []*mysql.HostSpec
-	hosts := d.Get("host").([]interface{})
-
-	for _, v := range hosts {
-		config := v.(map[string]interface{})
-		host, err := expandMysqlHost(config)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, host)
-	}
-
-	return result, nil
-}
-
-func expandMysqlHost(config map[string]interface{}) (*mysql.HostSpec, error) {
-	hostSpec := &mysql.HostSpec{}
-	if v, ok := config["zone"]; ok {
-		hostSpec.ZoneId = v.(string)
-	}
-
-	if v, ok := config["subnet_id"]; ok {
-		hostSpec.SubnetId = v.(string)
-	}
-
-	if v, ok := config["assign_public_ip"]; ok {
-		hostSpec.AssignPublicIp = v.(bool)
-	}
-
-	return hostSpec, nil
-}
-
 func expandMysqlResources(d *schema.ResourceData) *mysql.Resources {
 	rs := &mysql.Resources{}
 
@@ -299,6 +268,177 @@ func expandMysqlBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
 	return out
 }
 
+type compareMySQLHostsInfoResult struct {
+	hostsInfo        map[string]*myHostInfo // fqdn -> *myHostInfo
+	createHostsInfo  []*myHostInfo          // hosts to be created
+	haveHostWithName bool
+	hierarchyExists  bool
+}
+
+type myHostInfo struct {
+	name string
+	fqdn string
+
+	zone     string
+	subnetID string
+
+	assignPublicIP bool
+
+	oldReplicationSource     string
+	oldReplicationSourceName string
+
+	newReplicationSource     string
+	newReplicationSourceName string
+
+	// inTargetSet is true when host is present in target set (and shouldn't be removed)
+	inTargetSet bool
+
+	rowNumber int
+}
+
+type MySQLHostSpec struct {
+	HostSpec              *mysql.HostSpec
+	Fqdn                  string
+	Name                  string
+	ReplicationSourceName string
+}
+
+func expandMysqlHostSpec(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
+	var result []*mysql.HostSpec
+	hosts := d.Get("host").([]interface{})
+
+	for _, v := range hosts {
+		config := v.(map[string]interface{})
+		host, err := expandMysqlHost(config)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, host)
+	}
+
+	return result, nil
+}
+
+func expandEnrichedMySQLHostSpec(d *schema.ResourceData) ([]*MySQLHostSpec, error) {
+	var result []*MySQLHostSpec
+	hosts := d.Get("host").([]interface{})
+
+	for _, v := range hosts {
+		config := v.(map[string]interface{})
+		host, err := expandEnrichedMySQLHost(config)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, host)
+	}
+
+	return result, nil
+}
+
+func expandMysqlHost(config map[string]interface{}) (*mysql.HostSpec, error) {
+	hostSpec := &mysql.HostSpec{}
+	if v, ok := config["zone"]; ok {
+		hostSpec.ZoneId = v.(string)
+	}
+
+	if v, ok := config["subnet_id"]; ok {
+		hostSpec.SubnetId = v.(string)
+	}
+
+	if v, ok := config["assign_public_ip"]; ok {
+		hostSpec.AssignPublicIp = v.(bool)
+	}
+
+	return hostSpec, nil
+}
+
+func expandEnrichedMySQLHost(config map[string]interface{}) (*MySQLHostSpec, error) {
+	hostSpec, err := expandMysqlHost(config)
+	if err != nil {
+		return nil, err
+	}
+	mysqlHostSpec := &MySQLHostSpec{HostSpec: hostSpec}
+	if v, ok := config["fqdn"]; ok && v.(string) != "" {
+		mysqlHostSpec.Fqdn = v.(string)
+	}
+	if v, ok := config["name"]; ok {
+		mysqlHostSpec.Name = v.(string)
+	}
+	if v, ok := config["replication_source_name"]; ok {
+		mysqlHostSpec.ReplicationSourceName = v.(string)
+	}
+	return mysqlHostSpec, nil
+}
+
+func validateMysqlReplicationReferences(targetHosts []*MySQLHostSpec) error {
+	// Names are unique:
+	names := make(map[string]bool, 0)
+	for _, host := range targetHosts {
+		if host.Name != "" {
+			if _, ok := names[host.Name]; ok {
+				return fmt.Errorf("duplicat host names '%s' in resource_yandex_mdb_mysql_cluster", host.Name)
+			}
+			names[host.Name] = true
+		}
+	}
+
+	if len(names) != 0 && len(names) != len(targetHosts) {
+		fmt.Errorf("all or none hosts should have names")
+	}
+
+	// ReplicationSourceName refers to existing names:
+	for _, host := range targetHosts {
+		if host.ReplicationSourceName != "" {
+			if !names[host.ReplicationSourceName] {
+				return fmt.Errorf("replication_source_name '%s' for host '%s' doesn't exists", host.ReplicationSourceName, host.Name)
+			}
+		}
+	}
+
+	// self-replication is not allowed:
+	for _, host := range targetHosts {
+		if host.Name != "" && host.Name == host.ReplicationSourceName {
+			return fmt.Errorf("host with name '%s' refers to itself as to replication source", host.Name)
+		}
+	}
+
+	// all hosts are reachable from HA-group (no loops)
+	if len(names) != 0 {
+		visited := make(map[string]bool, 0)
+		for _, host := range targetHosts {
+			if host.ReplicationSourceName == "" { // HA-nodes
+				visited[host.Name] = true
+			}
+		}
+		if len(visited) == 0 {
+			return fmt.Errorf("there should be at least one HA-node in cluster")
+		}
+		for {
+			if len(visited) == len(targetHosts) {
+				break // Ok. all hosts are reachable
+			}
+
+			numVisited := len(visited)
+			for _, host := range targetHosts {
+				if host.ReplicationSourceName != "" && visited[host.ReplicationSourceName] {
+					visited[host.Name] = true
+				}
+			}
+			if len(visited) == numVisited {
+				unreachableHosts := make([]string, 0)
+				for _, host := range targetHosts {
+					if !visited[host.Name] {
+						unreachableHosts = append(unreachableHosts, host.Name)
+					}
+				}
+				return fmt.Errorf("there is no replication chain from HA-hosts to following hosts: '%s' (probably, there is a loop in replication_source chain)", strings.Join(unreachableHosts, ", "))
+			}
+		}
+	}
+
+	return nil
+}
+
 func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Host, error) {
 	hosts := []*mysql.Host{}
 	pageToken := ""
@@ -324,31 +464,453 @@ func listMysqlHosts(ctx context.Context, config *Config, id string) ([]*mysql.Ho
 	return hosts, nil
 }
 
-func sortMysqlHosts(hosts []*mysql.Host, hostSpecs []*mysql.HostSpec) {
-	for i, h := range hostSpecs {
-		for j := i + 1; j < len(hosts); j++ {
-			if h.ZoneId == hosts[j].ZoneId {
-				hosts[i], hosts[j] = hosts[j], hosts[i]
+func addMySQLHost(ctx context.Context, config *Config, d *schema.ResourceData, host *mysql.HostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MySQL().Cluster().AddHosts(ctx, &mysql.AddClusterHostsRequest{
+			ClusterId: d.Id(),
+			HostSpecs: []*mysql.HostSpec{host},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create host for MySQL Cluster %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while creating host for MySQL Cluster %q: %s", d.Id(), err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("creating host for MySQL Cluster %q failed: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func updateMySQLHost(ctx context.Context, config *Config, d *schema.ResourceData, host *mysql.UpdateHostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MySQL().Cluster().UpdateHosts(ctx, &mysql.UpdateClusterHostsRequest{
+			ClusterId:       d.Id(),
+			UpdateHostSpecs: []*mysql.UpdateHostSpec{host},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update host for MySQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating host for MySQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("updating host for MySQL Cluster %q - host %v failed: %s", d.Id(), host.HostName, err)
+	}
+
+	return nil
+}
+
+func loadNewMySQLHostsInfo(newHosts []interface{}) (hostsInfo []*myHostInfo, err error) {
+	hostsInfo = make([]*myHostInfo, 0)
+	for i, hostNewInfo := range newHosts {
+		hni := objx.New(hostNewInfo)
+		if hni == nil {
+			return nil, fmt.Errorf("MySQL.host: failed to read hosts info %v", hostsInfo)
+		}
+		hostsInfo = append(hostsInfo, &myHostInfo{
+			name:                     hni.Get("name").Str(),
+			zone:                     hni.Get("zone").Str(),
+			subnetID:                 hni.Get("subnet_id").Str(),
+			assignPublicIP:           hni.Get("assign_public_ip").Bool(),
+			rowNumber:                i,
+			newReplicationSourceName: hni.Get("replication_source_name").Str(),
+		})
+
+	}
+	return hostsInfo, nil
+}
+
+func validateNewMySQLHostsInfo(newHostsInfo []*myHostInfo, isUpdate bool) (haveHostWithName bool, err error) {
+	uniqueNames := make(map[string]struct{})
+	haveHostWithoutName := false
+
+	for _, nhi := range newHostsInfo {
+		name := nhi.name
+		if name == "" {
+			haveHostWithoutName = true
+		} else {
+			haveHostWithName = true
+			if _, ok := uniqueNames[name]; ok && isUpdate {
+				return haveHostWithName, fmt.Errorf("MySQL.host: name is duplicate %v", name)
+			}
+			uniqueNames[name] = struct{}{}
+		}
+	}
+
+	if haveHostWithName && haveHostWithoutName && isUpdate {
+		return haveHostWithName, fmt.Errorf("names should be set for all hosts or unset for all host")
+	}
+
+	return haveHostWithName, nil
+}
+
+func compareMySQLNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHostInfo, nameToHost map[string]string) int {
+	if existsHostInfo.name == newHostInfo.name {
+		return 10
+	}
+	if existsHostInfo.name != "" {
+		return 0
+	}
+
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
+		return 0
+	}
+
+	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
+		return 0
+	}
+
+	compareWeight := 1
+
+	if newHostInfo.newReplicationSourceName != "" {
+		if fqdn, ok := nameToHost[newHostInfo.newReplicationSourceName]; ok && existsHostInfo.oldReplicationSource == fqdn {
+			compareWeight += 4
+		}
+	}
+
+	return compareWeight
+}
+
+func matchesMySQLNoNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHostInfo) bool {
+	if existsHostInfo.zone != newHostInfo.zone ||
+		existsHostInfo.subnetID != newHostInfo.subnetID && newHostInfo.subnetID != "" {
+		return false
+	}
+
+	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
+		return false
+	}
+
+	return true
+}
+
+func compareMySQLNamedHostsInfoWeight(existsHostsInfo map[string]*myHostInfo, newHostsInfo []*myHostInfo, compareMap map[int]string) int {
+	weight := 0
+
+	nameToHost := make(map[string]string)
+	for row, fqdn := range compareMap {
+		name := newHostsInfo[row].name
+		if name != "" {
+			nameToHost[name] = fqdn
+		}
+	}
+
+	for row, fqdn := range compareMap {
+		weightStep := compareMySQLNamedHostInfo(existsHostsInfo[fqdn], newHostsInfo[row], nameToHost)
+		if weightStep == 0 {
+			return 0
+		}
+
+		weight += weightStep
+	}
+
+	return weight
+}
+
+type myCompareHostNameResult struct {
+	compareMap map[int]string // row idx -> FQDN
+	nameToHost map[string]string
+	hostToName map[string]string
+}
+
+func (me myCompareHostNameResult) copy() myCompareHostNameResult {
+	return myCompareHostNameResult{
+		compareMap: copyMapIntString(me.compareMap),
+		hostToName: copyMapStringString(me.hostToName),
+	}
+}
+
+type mysqlHostMapper struct {
+	// static data:
+	existingHostsInfo map[string]*myHostInfo
+	targetHostsInfo   []*myHostInfo
+	nameToHost        map[string]string
+}
+
+// Recursively generate all reasonable matching existing->target hosts configurations
+// (some values may have no matching counterparty in target hosts)
+// Calls cb function for every possible combination. Note: cb argument is mutable
+func (mapper *mysqlHostMapper) findBestMatch(state map[int]string, itm int, cb func(map[int]string)) {
+	if len(mapper.targetHostsInfo) <= itm {
+		cb(state)
+		return
+	}
+
+	newHostInfo := mapper.targetHostsInfo[itm]
+	// when terraform already knows 'name' to 'fqdn' mapping - we 100% sure that this is good match
+	if fqdn, ok := mapper.nameToHost[newHostInfo.name]; ok {
+		state[itm] = fqdn
+		mapper.findBestMatch(state, itm+1, cb)
+		return
+	}
+
+	// Case: assume that no matching existing host found
+	delete(state, itm)
+	mapper.findBestMatch(copyMapIntString(state), itm+1, cb)
+
+outer:
+	for fqdn, existHostInfo := range mapper.existingHostsInfo {
+		for i := 0; i < itm; i++ { // no duplicates allowed
+			if state[i] == fqdn {
+				continue outer
+			}
+		}
+
+		// some pairs couldn't be matched - skip such combinations
+		weight := compareMySQLNamedHostInfo(existHostInfo, newHostInfo, mapper.nameToHost)
+		if weight == 0 {
+			continue
+		}
+
+		state[itm] = fqdn
+		mapper.findBestMatch(state, itm+1, cb)
+	}
+}
+
+// row idx (in newHostsInfo) -> FQDN
+func compareMySQLNamedHostsInfo(existsHostsInfo map[string]*myHostInfo, newHostsInfo []*myHostInfo) map[int]string {
+	nameToHost := make(map[string]string)
+	for fqdn, hi := range existsHostsInfo {
+		if hi.name != "" {
+			nameToHost[hi.name] = fqdn
+		}
+	}
+
+	mysqlHostMapper := mysqlHostMapper{
+		existingHostsInfo: existsHostsInfo,
+		targetHostsInfo:   newHostsInfo,
+		nameToHost:        nameToHost,
+	}
+	// Find best existingHostsInfo to targetHostsInfo match:
+	weight := 0
+	compareMap := make(map[int]string)
+	mysqlHostMapper.findBestMatch(map[int]string{}, 0, func(candidate map[int]string) {
+		stepWeight := compareMySQLNamedHostsInfoWeight(existsHostsInfo, newHostsInfo, candidate)
+		if stepWeight > weight {
+			weight = stepWeight
+			compareMap = copyMapIntString(candidate)
+		}
+	})
+	return compareMap
+}
+
+// row idx (in newHostsInfo) -> FQDN
+func compareMySQLNoNamedHostsInfo(existingHostsInfo map[string]*myHostInfo, targetHostsInfo []*myHostInfo) map[int]string {
+	compareMap := make(map[int]string)
+	visitedHostNames := make(map[string]struct{})
+
+	for i, targetHostInfo := range targetHostsInfo {
+		for _, existingHostInfo := range existingHostsInfo {
+			if _, ok := visitedHostNames[existingHostInfo.fqdn]; ok {
+				continue
+			}
+			if matchesMySQLNoNamedHostInfo(existingHostInfo, targetHostInfo) {
+				visitedHostNames[existingHostInfo.fqdn] = struct{}{}
+				compareMap[i] = existingHostInfo.fqdn
 				break
 			}
 		}
 	}
+
+	return compareMap
 }
 
-func flattenMysqlHosts(hs []*mysql.Host) ([]map[string]interface{}, error) {
-	out := []map[string]interface{}{}
+func loadExistingMySQLHostsInfo(currentHosts []*mysql.Host, oldHosts []interface{}) (map[string]*myHostInfo, error) {
+	hostsInfo := make(map[string]*myHostInfo)
 
-	for _, h := range hs {
-		m := map[string]interface{}{}
-		m["zone"] = h.ZoneId
-		m["subnet_id"] = h.SubnetId
-		m["assign_public_ip"] = h.AssignPublicIp
-		m["fqdn"] = h.Name
+	for i, h := range currentHosts {
+		// Note: mysql.Host.Name is the FQDN of the host
+		hostsInfo[h.Name] = &myHostInfo{
+			fqdn:                 h.Name,
+			zone:                 h.ZoneId,
+			subnetID:             h.SubnetId,
+			assignPublicIP:       h.AssignPublicIp,
+			oldReplicationSource: h.ReplicationSource,
 
-		out = append(out, m)
+			rowNumber: i,
+		}
 	}
 
-	return out, nil
+	for _, hostOldInfo := range oldHosts {
+		hoi := objx.New(hostOldInfo)
+		if hoi == nil {
+			return nil, fmt.Errorf("MySQL.host: failed to read hosts info %v", hostsInfo)
+		}
+
+		if !hoi.Has("fqdn") || !hoi.Has("name") {
+			continue
+		}
+		fqdn := hoi.Get("fqdn").Str()
+		name := hoi.Get("name").Str()
+
+		if hi, ok := hostsInfo[fqdn]; ok {
+			hi.name = name
+		}
+	}
+
+	return hostsInfo, nil
+}
+
+func compareMySQLHostsInfo(d *schema.ResourceData, currentHosts []*mysql.Host, isUpdate bool) (compareMySQLHostsInfoResult, error) {
+
+	result := compareMySQLHostsInfoResult{}
+
+	oldHosts, newHosts := d.GetChange("host")
+
+	// actual hosts configuration (enriched with 'name', when available): fqdn -> *myHostInfo
+	existingHostsInfo, err := loadExistingMySQLHostsInfo(currentHosts, oldHosts.([]interface{}))
+	if err != nil {
+		return result, err
+	}
+
+	// expected hosts configuration: []*myHostInfo
+	newHostsInfo, err := loadNewMySQLHostsInfo(newHosts.([]interface{}))
+	if err != nil {
+		return result, err
+	}
+
+	result.haveHostWithName, err = validateNewMySQLHostsInfo(newHostsInfo, isUpdate)
+	if err != nil {
+		return result, err
+	}
+
+	nameToHost := make(map[string]string)
+	for fqdn, hi := range existingHostsInfo {
+		if hi.name != "" {
+			nameToHost[hi.name] = fqdn
+		}
+	}
+
+	if result.haveHostWithName {
+		// find best mapping from existingHostsInfo to newHostsInfo
+		compareMap := compareMySQLNamedHostsInfo(existingHostsInfo, newHostsInfo)
+
+		hostToName := make(map[string]string)
+		for i, fqdn := range compareMap {
+			hostToName[fqdn] = newHostsInfo[i].name
+			log.Printf("[DEBUG] match [%d]: %s -> %s", i, newHostsInfo[i].name, fqdn)
+		}
+
+		result.hostsInfo = existingHostsInfo
+		for i, newHostInfo := range newHostsInfo {
+			if existHostFqdn, ok := compareMap[i]; ok {
+				existHostInfo := existingHostsInfo[existHostFqdn]
+				existHostInfo.name = newHostInfo.name
+				existHostInfo.rowNumber = newHostInfo.rowNumber
+				existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
+				existHostInfo.inTargetSet = true
+				nameToHost[existHostInfo.name] = existHostInfo.fqdn
+			}
+		}
+
+		for _, existHostInfo := range existingHostsInfo {
+			if existHostInfo.newReplicationSourceName == "" {
+				existHostInfo.newReplicationSource = ""
+			} else if fqdn, ok := nameToHost[existHostInfo.newReplicationSourceName]; ok {
+				existHostInfo.newReplicationSource = fqdn
+			} else {
+				existHostInfo.newReplicationSource = existHostInfo.oldReplicationSource
+			}
+
+			if existHostInfo.oldReplicationSource == "" {
+				existHostInfo.oldReplicationSourceName = ""
+			} else if name, ok := hostToName[existHostInfo.oldReplicationSource]; ok {
+				existHostInfo.oldReplicationSourceName = name
+			}
+		}
+
+		createHostsInfoPrepare := make([]*myHostInfo, 0)
+		for i, newHostInfo := range newHostsInfo {
+			if _, ok := compareMap[i]; !ok { // for all hosts for which we don't have mapping:
+				if newHostInfo.newReplicationSourceName == "" {
+					createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+				} else {
+					fqdn, ok := nameToHost[newHostInfo.newReplicationSourceName] // resolve cascade Name to FQDN
+					if ok {
+						newHostInfo.newReplicationSource = fqdn
+						createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+					} else {
+						result.hierarchyExists = true
+					}
+				}
+			}
+		}
+
+		result.createHostsInfo = createHostsInfoPrepare
+		return result, nil
+
+	}
+
+	createHostsInfoPrepare := make([]*myHostInfo, 0)
+	compareMap := compareMySQLNoNamedHostsInfo(existingHostsInfo, newHostsInfo)
+	for i, newHostInfo := range newHostsInfo {
+		if existHostFqdn, ok := compareMap[i]; ok {
+			existHostInfo := existingHostsInfo[existHostFqdn]
+			existHostInfo.rowNumber = newHostsInfo[i].rowNumber
+			existHostInfo.inTargetSet = true
+		} else {
+			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)
+		}
+	}
+
+	result.hostsInfo = existingHostsInfo
+	result.createHostsInfo = createHostsInfoPrepare
+	return result, nil
+}
+
+func flattenMysqlHosts(d *schema.ResourceData, hs []*mysql.Host, isDataSource bool) ([]map[string]interface{}, error) {
+	// read operation should return hosts in the same order, as defined in terraform file (otherwise Terraform
+	// will think that some diff exists and should be fixed)
+	// so, we should sort retrieved hosts:
+	compareHostsInfo, err := compareMySQLHostsInfo(d, hs, false)
+	if err != nil {
+		return nil, err
+	}
+
+	hosts := flattenMySQLHostsFromHostInfo(compareHostsInfo.hostsInfo, isDataSource)
+	return hosts, nil
+}
+
+func flattenMySQLHostsFromHostInfo(hostsInfo map[string]*myHostInfo, isDataSource bool) []map[string]interface{} {
+	orderedHostsInfo := make([]*myHostInfo, 0, len(hostsInfo))
+	for _, hostInfo := range hostsInfo {
+		orderedHostsInfo = append(orderedHostsInfo, hostInfo)
+	}
+	sort.Slice(orderedHostsInfo, func(i, j int) bool {
+		if orderedHostsInfo[i].inTargetSet == orderedHostsInfo[j].inTargetSet {
+			return orderedHostsInfo[i].rowNumber < orderedHostsInfo[j].rowNumber
+		}
+		return orderedHostsInfo[i].inTargetSet
+	})
+
+	hosts := []map[string]interface{}{}
+	for _, hostInfo := range orderedHostsInfo {
+		m := map[string]interface{}{}
+		m["zone"] = hostInfo.zone
+		m["subnet_id"] = hostInfo.subnetID
+		m["assign_public_ip"] = hostInfo.assignPublicIP
+		m["fqdn"] = hostInfo.fqdn
+		m["replication_source"] = hostInfo.oldReplicationSource
+		if !isDataSource {
+			m["name"] = hostInfo.name
+			m["replication_source_name"] = hostInfo.oldReplicationSourceName
+		}
+
+		hosts = append(hosts, m)
+	}
+
+	return hosts
 }
 
 func mysqlUsersPasswords(users []*mysql.UserSpec) map[string]string {
