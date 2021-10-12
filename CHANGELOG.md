@@ -1,6 +1,9 @@
 ## 0.65.0 (Unreleased)
 
-ENHANCEMENTS
+FEATURES:
+* **New Resource:** `yandex_kms_symmetric_key_iam_binding`
+
+ENHANCEMENTS:
 * elasticsearch: update go-sdk version, add tests
 * serverless: supported logging trigger
 

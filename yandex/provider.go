@@ -216,6 +216,7 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_iam_service_account_static_access_key":        resourceYandexIAMServiceAccountStaticAccessKey(),
 			"yandex_iot_core_device":                              resourceYandexIoTCoreDevice(),
 			"yandex_iot_core_registry":                            resourceYandexIoTCoreRegistry(),
+			"yandex_kms_symmetric_key_iam_binding":                resourceYandexKMSSymmetricKeyIAMBinding(),
 			"yandex_kms_symmetric_key":                            resourceYandexKMSSymmetricKeyKey(),
 			"yandex_kms_secret_ciphertext":                        resourceYandexKMSSecretCiphertext(),
 			"yandex_kubernetes_cluster":                           resourceYandexKubernetesCluster(),
