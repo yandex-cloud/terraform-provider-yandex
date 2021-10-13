@@ -170,6 +170,11 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"schema_registry": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"zookeeper": {
 				Type:     schema.TypeList,
 				Optional: true,

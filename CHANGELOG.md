@@ -1,4 +1,6 @@
 ## 0.65.0 (Unreleased)
+FEATURES:
+* mdb: support Schema Registry in `yandex_mdb_kafka_cluster`
 
 FEATURES:
 * **New Resource:** `yandex_kms_symmetric_key_iam_binding`

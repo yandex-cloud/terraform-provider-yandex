@@ -124,9 +124,10 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		"labels":      map[string]interface{}{"label1": "val1", "label2": "val2"},
 		"config": []interface{}{
 			map[string]interface{}{
-				"version":       "2.8",
-				"brokers_count": 1,
-				"zones":         []interface{}{"ru-central1-b", "ru-central1-c"},
+				"version":         "2.8",
+				"brokers_count":   1,
+				"zones":           []interface{}{"ru-central1-b", "ru-central1-c"},
+				"schema_registry": true,
 				"kafka": []interface{}{
 					map[string]interface{}{
 						"resources": []interface{}{
@@ -244,9 +245,10 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		Labels:      map[string]string{"label1": "val1", "label2": "val2"},
 		Environment: kafka.Cluster_PRESTABLE,
 		ConfigSpec: &kafka.ConfigSpec{
-			Version:      "2.8",
-			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
-			ZoneId:       []string{"ru-central1-b", "ru-central1-c"},
+			Version:        "2.8",
+			BrokersCount:   &wrappers.Int64Value{Value: int64(1)},
+			ZoneId:         []string{"ru-central1-b", "ru-central1-c"},
+			SchemaRegistry: true,
 			Kafka: &kafka.ConfigSpec_Kafka{
 				Resources: &kafka.Resources{
 					ResourcePresetId: "s2.micro",
@@ -903,6 +905,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
 	  unmanaged_topics = false
+	  schema_registry  = false	
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -984,6 +987,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
 		unmanaged_topics = false
+		schema_registry  = false
 		kafka {
 			resources {
 				resource_preset_id = "s2.medium"
@@ -1299,6 +1303,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
 	  unmanaged_topics = false
+	  schema_registry  = false	
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -1379,6 +1384,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
 	  assign_public_ip = false
 	  unmanaged_topics = false
+      schema_registry  = false
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"

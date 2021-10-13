@@ -28,6 +28,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     zones            = ["ru-central1-a"]
     assign_public_ip = false
     unmanaged_topics = false
+    schema_registry  = false
     kafka {
       resources {
         resource_preset_id = "s2.micro"
@@ -132,6 +133,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
     assign_public_ip = true
     unmanaged_topics = false
+    schema_registry  = false
     kafka {
       resources {
         resource_preset_id = "s2.medium"
@@ -283,6 +285,8 @@ The `config` block supports:
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
 
 * `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. Can be either `true` or `false`.
+
+* `schema_registry` - (Optional) Enables managed schema registry on cluster. Can be either `true` or `false`.
 
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 

@@ -61,6 +61,7 @@ The `config` block supports:
 * `zones` - (Optional) List of availability zones.
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
 * `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. Can be either `true` or `false`.
+* `schema_registry` - (Optional) Enables managed schema registry on cluster. Can be either `true` or `false`.
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
 
