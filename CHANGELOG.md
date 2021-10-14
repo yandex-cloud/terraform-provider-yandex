@@ -1,6 +1,7 @@
 ## 0.65.0 (Unreleased)
 FEATURES:
 * mdb: support Schema Registry in `yandex_mdb_kafka_cluster`
+* resourcemanager: data source `yandex_resourcemanager_cloud` now provides `folders` attribute
 
 FEATURES:
 * **New Resource:** `yandex_kms_symmetric_key_iam_binding`
