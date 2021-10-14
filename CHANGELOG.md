@@ -1,4 +1,12 @@
-## 0.65.0 (Unreleased)
+## 0.66.0 (Unreleased)
+
+FEATURES:
+
+ENHANCEMENTS:
+
+BUG FIXES:
+
+## 0.65.0 (October 14, 2021)
 FEATURES:
 * mdb: support Schema Registry in `yandex_mdb_kafka_cluster`
 
