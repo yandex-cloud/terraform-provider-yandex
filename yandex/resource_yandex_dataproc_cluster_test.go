@@ -5,12 +5,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/duration"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
-	"strings"
 	"testing"
 	"text/template"
 
@@ -71,18 +69,7 @@ func sweepDataprocClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexDataprocClusterDeleteTimeout)
 	defer cancel()
 
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.Dataproc().Cluster().Update(ctx, &dataproc.UpdateClusterRequest{
-		ClusterId:          id,
-		DeletionProtection: false,
-		UpdateMask:         &mask,
-	})
-	err = handleSweepOperation(ctx, conf, op, err)
-	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
-		return err
-	}
-
-	op, err = conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
+	op, err := conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
@@ -535,9 +522,7 @@ func TestAccDataprocCluster(t *testing.T) {
 		CheckDestroy: testAccCheckDataprocClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataprocClusterConfig(t, templateParams.update(func(cfg *dataprocTFConfigParams) {
-					cfg.DeletionProtection = true
-				})),
+				Config: testAccDataprocClusterConfig(t, templateParams),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "folder_id", getExampleFolderID()),
@@ -549,7 +534,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "1.4"),
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
 					testAccCheckDataprocClusterServices(&cluster, services),
 					testAccCheckDataprocClusterProperties(&cluster, properties),
 					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
@@ -574,17 +559,6 @@ func TestAccDataprocCluster(t *testing.T) {
 							HostsCount: 1,
 						},
 					}),
-				),
-			},
-			// uncheck 'deletion_protection'
-			dataprocClusterImportStep(resourceName),
-			{
-				Config: testAccDataprocClusterConfig(t, templateParams.update(func(cfg *dataprocTFConfigParams) {
-					cfg.DeletionProtection = false
-				})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDataprocClusterExists(resourceName, &cluster),
-					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
 				),
 			},
 			dataprocClusterImportStep(resourceName),

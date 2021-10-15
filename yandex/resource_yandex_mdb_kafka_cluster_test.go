@@ -3,11 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"reflect"
-	"regexp"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -84,18 +81,7 @@ func sweepMDBKafkaClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBKafkaClusterDeleteTimeout)
 	defer cancel()
 
-	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
-	op, err := conf.sdk.MDB().Kafka().Cluster().Update(ctx, &kafka.UpdateClusterRequest{
-		ClusterId:          id,
-		DeletionProtection: false,
-		UpdateMask:         &mask,
-	})
-	err = handleSweepOperation(ctx, conf, op, err)
-	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
-		return err
-	}
-
-	op, err = conf.sdk.MDB().Kafka().Cluster().Delete(ctx, &kafka.DeleteClusterRequest{
+	op, err := conf.sdk.MDB().Kafka().Cluster().Delete(ctx, &kafka.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
@@ -687,13 +673,13 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create Kafka Cluster
 			{
-				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", true),
+				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
-					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -709,38 +695,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					}),
 					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
-				),
-			},
-			mdbKafkaClusterImportStep(kfResource),
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
-				),
-			},
-			mdbKafkaClusterImportStep(kfResource),
-			// check 'deletion_protection'
-			{
-				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", true),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "true"),
-				),
-			},
-			mdbKafkaClusterImportStep(kfResource),
-			// trigger deletion by changing environment
-			{
-				Config:      testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRODUCTION", true),
-				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
-			},
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBKafkaClusterExists(kfResource, &r, 1),
-					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
 				),
 			},
 			mdbKafkaClusterImportStep(kfResource),
@@ -886,7 +840,7 @@ func testAccCheckMDBKafkaClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccMDBKafkaClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
+func testAccMDBKafkaClusterConfigMain(name, desc, environment string) string {
 	return fmt.Sprintf(kfVPCDependencies+`
 resource "yandex_mdb_kafka_cluster" "foo" {
 	name        = "%s"
@@ -897,7 +851,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  test_key = "test_value"
 	}
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
-	deletion_protection = %t
+	deletion_protection = false
 
 	config {
 	  version          = "2.8"
@@ -965,7 +919,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name, desc, environment, deletionProtection)
+`, name, desc, environment)
 }
 
 func testAccMDBKafkaClusterConfigUpdated(name, desc string) string {

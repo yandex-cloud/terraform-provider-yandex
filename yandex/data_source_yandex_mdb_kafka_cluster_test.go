@@ -44,10 +44,10 @@ func TestAccDataSourceMDBKafkaCluster_byID(t *testing.T) {
 
 func testAccDataSourceMDBKafkaClusterConfig(kfName, kfDesc string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false) + mdbKafkaClusterByIDConfig
+		return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE") + mdbKafkaClusterByIDConfig
 	}
 
-	return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE", false) + mdbKafkaClusterByNameConfig
+	return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE") + mdbKafkaClusterByNameConfig
 }
 
 func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
