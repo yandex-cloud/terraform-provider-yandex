@@ -3,6 +3,7 @@
 FEATURES:
 
 ENHANCEMENTS:
+* mdb: skip topic management if unmanaged_topics is ON
 
 BUG FIXES:
 

@@ -444,6 +444,14 @@ func expandKafkaTopics(d *schema.ResourceData) ([]*kafka.TopicSpec, error) {
 	}
 	topics := d.Get("topic").([]interface{})
 
+	unmanagedTopics := false
+	if v, ok := d.GetOk("config.0.unmanaged_topics"); ok {
+		unmanagedTopics = v.(bool)
+	}
+	if unmanagedTopics && len(topics) > 0 {
+		return nil, fmt.Errorf("topics should not be specified when unmanaged_topics flag is on")
+	}
+
 	for _, topic := range topics {
 		topicSpec, err := expandKafkaTopic(topic.(map[string]interface{}), version.(string))
 		if err != nil {

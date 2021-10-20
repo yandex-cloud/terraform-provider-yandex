@@ -582,7 +582,7 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 
 	topicSpecs, err := expandKafkaTopics(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding topics on Kafka Cluster create: %s", err)
+		return nil, err
 	}
 
 	userSpecs, err := expandKafkaUsers(d)
@@ -646,19 +646,25 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	topics, err := listKafkaTopics(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
+	if cluster.Config.UnmanagedTopics {
+		if err := d.Set("topic", []map[string]interface{}{}); err != nil {
+			return err
+		}
+	} else {
+		topics, err := listKafkaTopics(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
 
-	topicSpecs, err := expandKafkaTopics(d)
-	if err != nil {
-		return err
-	}
-	sortKafkaTopics(topics, topicSpecs)
+		topicSpecs, err := expandKafkaTopics(d)
+		if err != nil {
+			return err
+		}
+		sortKafkaTopics(topics, topicSpecs)
 
-	if err := d.Set("topic", flattenKafkaTopics(topics)); err != nil {
-		return err
+		if err := d.Set("topic", flattenKafkaTopics(topics)); err != nil {
+			return err
+		}
 	}
 
 	dUsers, err := expandKafkaUsers(d)
@@ -705,9 +711,17 @@ func resourceYandexMDBKafkaClusterUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	unmanagedTopics := false
+	if v, ok := d.GetOk("config.0.unmanaged_topics"); ok {
+		unmanagedTopics = v.(bool)
+	}
 	if d.HasChange("topic") {
-		if err := updateKafkaClusterTopics(d, meta); err != nil {
-			return err
+		if unmanagedTopics {
+			return fmt.Errorf("topics should not be specified when unmanaged_topics flag is on")
+		} else {
+			if err := updateKafkaClusterTopics(d, meta); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -843,6 +857,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.auto_create_topics_enable":       "config_spec.kafka.kafka_config_{version}.auto_create_topics_enable",
 	"config.0.kafka.0.kafka_config.0.num_partitions":                  "config_spec.kafka.kafka_config_{version}.num_partitions",
 	"config.0.kafka.0.kafka_config.0.default_replication_factor":      "config_spec.kafka.kafka_config_{version}.default_replication_factor",
+	"config.0.unmanaged_topics":                                       "config_spec.unmanaged_topics",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
