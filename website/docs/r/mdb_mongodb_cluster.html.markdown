@@ -88,7 +88,7 @@ The following arguments are supported:
 
 - - -
 
-* `version` - (Optional) Version of the MongoDB server software. Can be either `3.6`, `4.0`, `4.2` and `4.4`.
+* `version` - (Optional) Version of the MongoDB server software. Can be either `4.0`, `4.2`, `4.4` and `5.0`.
 
 * `description` - (Optional) Description of the MongoDB cluster.
 
@@ -106,9 +106,9 @@ The following arguments are supported:
 
 The `cluster_config` block supports:
 
-* `version` - (Required) Version of MongoDB (either 4.4, 4.2, 4.0 or 3.6).
+* `version` - (Required) Version of MongoDB (either 5.0, 4.4, 4.2 or 4.0).
 
-* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken. Can be either `4.4`, `4.2`, `4.0` and `3.6`.
+* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken. Can be either `5.0`, `4.4`, `4.2` and `4.0`.
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 

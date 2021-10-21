@@ -1,6 +1,7 @@
 ## 0.66.0 (Unreleased)
 
 FEATURES:
+* mdb: support MongoDB 5.0 in `yandex_mdb_mongodb_cluster`
 
 ENHANCEMENTS:
 * mdb: skip topic management if unmanaged_topics is ON

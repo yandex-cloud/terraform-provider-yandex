@@ -348,6 +348,18 @@ func expandMongoDBBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay
 
 //the following expansion works only because sharded mongodb is not supported
 
+func expandMongoDBSpec5_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_5_0 {
+	return &mongodb.ConfigSpec_MongodbSpec_5_0{
+		MongodbSpec_5_0: &mongodb.MongodbSpec5_0{
+			Mongod: &mongodb.MongodbSpec5_0_Mongod{
+				Resources: expandMongoDBResources(d),
+			},
+			Mongos:   &mongodb.MongodbSpec5_0_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec5_0_MongoCfg{},
+		},
+	}
+}
+
 func expandMongoDBSpec4_4(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_4_4 {
 	return &mongodb.ConfigSpec_MongodbSpec_4_4{
 		MongodbSpec_4_4: &mongodb.MongodbSpec4_4{
