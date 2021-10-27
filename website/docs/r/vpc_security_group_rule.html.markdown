@@ -35,7 +35,7 @@ resource "yandex_vpc_security_group_rule" "rule1" {
   security_group_binding = yandex_vpc_security_group.group1.id
   direction              = "ingress"
   description            = "rule1 description"
-  v4_cidr_blokcs         = ["10.0.1.0/24", "10.0.2.0/24"]
+  v4_cidr_blocks         = ["10.0.1.0/24", "10.0.2.0/24"]
   port                   = 8080
   protocol               = "TCP"
 }
@@ -44,7 +44,7 @@ resource "yandex_vpc_security_group_rule" "rule2" {
   security_group_binding = yandex_vpc_security_group.group1.id
   direction              = "egress"
   description            = "rule2 description"
-  v4_cidr_blokcs         = ["10.0.1.0/24"]
+  v4_cidr_blocks         = ["10.0.1.0/24"]
   from_port              = 8090
   to_port                = 8099
   protocol               = "UDP"
