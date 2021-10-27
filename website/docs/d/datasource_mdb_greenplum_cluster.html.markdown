@@ -63,6 +63,9 @@ exported:
 * `master_hosts` - Info about hosts in master subcluster. The structure is documented below.
 * `segment_hosts` - Info about hosts in segment subcluster. The structure is documented below.
 
+* `access` - Access policy to the Greenplum cluster. The structure is documented below.
+* `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
+
 * `user_name` - Greenplum cluster admin user name.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `deletion_protection` - Flag to protect the cluster from deletion.
@@ -86,3 +89,12 @@ The `resources` block supports:
 * `disk_size` - Volume of the storage available to a Greenplum host, in gigabytes.
 * `disk_type_id` - Type of the storage for Greenplum hosts.
 
+The `backup_window_start` block supports:
+
+* `hours` - The hour at which backup will be started.
+* `minutes` - The minute at which backup will be started.
+
+The `access` block supports:
+
+* `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `web_sql` - Allows access for SQL queries in the management console.

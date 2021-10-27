@@ -76,7 +76,9 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 	t.Parallel()
 
 	GreenplumName := acctest.RandomWithPrefix("tf-greenplum")
+	greenplumNameMod := GreenplumName + "_mod"
 	GreenplumDesc := "Greenplum Cluster Terraform Test"
+	greenplumDescMod := GreenplumDesc + "_mod"
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
@@ -95,6 +97,18 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(greenplumResource),
 					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResource),
+			// Change some options
+			{
+				Config: testAccMDBGreenplumClusterConfigUpdate(greenplumNameMod, greenplumDescMod, "PRESTABLE", false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResource, "name", greenplumNameMod),
+					resource.TestCheckResourceAttr(greenplumResource, "description", greenplumDescMod),
+					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "backup_window_start.0.minutes", "15"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -170,6 +184,19 @@ func testAccCheckMDBGreenplumClusterExists(n string, masterHosts int, segmentHos
 			return fmt.Errorf("Expected %d hosts, got %d", segmentHosts, len(resp.Hosts))
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckMDBGPClusterContainsLabel(r *greenplum.Cluster, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := r.Labels[key]
+		if !ok {
+			return fmt.Errorf("Expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
 		return nil
 	}
 }
@@ -254,6 +281,58 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
       disk_size          = 24
       disk_type_id       = "network-ssd"
     }
+  }
+
+  user_name     = "user1"
+  user_password = "mysecurepassword"
+
+  security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
+
+  deletion_protection = %t
+}
+`, name, desc, environment, deletionProtection)
+}
+
+func testAccMDBGreenplumClusterConfigUpdate(name, desc, environment string, deletionProtection bool) string {
+	return fmt.Sprintf(greenplumVPCDependencies+`
+resource "yandex_mdb_greenplum_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "%s"
+  network_id  = yandex_vpc_network.mdb-greenplum-test-net.id
+  zone = "ru-central1-b"
+  subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
+  assign_public_ip = false
+  version = "6.17"
+
+  labels = { test_key_create2 : "test_value_create2" }
+
+  master_host_count  = 2
+  segment_host_count = 5
+  segment_in_host    = 1
+
+  master_subcluster {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 24
+      disk_type_id       = "network-ssd"
+    }
+  }
+  segment_subcluster {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 24
+      disk_type_id       = "network-ssd"
+    }
+  }
+
+  access {
+    data_lens = true
+  }
+
+  backup_window_start {
+    hours = 22
+    minutes = 15
   }
 
   user_name     = "user1"

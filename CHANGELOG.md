@@ -1,6 +1,8 @@
 ## 0.66.0 (Unreleased)
 
 FEATURES:
+* mdb: support update `name`, `description`, `labels`, `config.access.data_lens`, `config.access.web_sql`, `deletion_protection` in `yandex_mdb_greenplum_cluster` resource
+* mdb: add `access` and `backup_window_start` entities in `yandex_mdb_greenplum_cluster` resource and data source
 * mdb: support MongoDB 5.0 in `yandex_mdb_mongodb_cluster`
 
 ENHANCEMENTS:

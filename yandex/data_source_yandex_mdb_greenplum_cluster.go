@@ -193,6 +193,40 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+
+			"backup_window_start": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hours": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"minutes": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			"access": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -300,6 +334,20 @@ func dataSourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interf
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	accessElement := map[string]interface{}{}
+	if cluster.Config != nil && cluster.Config.Access != nil {
+		accessElement["data_lens"] = cluster.Config.Access.DataLens
+		accessElement["web_sql"] = cluster.Config.Access.WebSql
+	}
+	d.Set("access", []map[string]interface{}{accessElement})
+
+	bwsElement := map[string]interface{}{}
+	if cluster.Config != nil && cluster.Config.BackupWindowStart != nil {
+		bwsElement["hours"] = cluster.Config.BackupWindowStart.Hours
+		bwsElement["minutes"] = cluster.Config.BackupWindowStart.Minutes
+	}
+	d.Set("backup_window_start", []map[string]interface{}{bwsElement})
 
 	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 

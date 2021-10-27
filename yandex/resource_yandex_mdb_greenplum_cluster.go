@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
@@ -222,6 +224,50 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"backup_window_start": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hours": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 23),
+						},
+						"minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 59),
+						},
+					},
+				},
+			},
+
+			"access": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -415,6 +461,20 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
+	accessElement := map[string]interface{}{}
+	if cluster.Config != nil && cluster.Config.Access != nil {
+		accessElement["data_lens"] = cluster.Config.Access.DataLens
+		accessElement["web_sql"] = cluster.Config.Access.WebSql
+	}
+	d.Set("access", []map[string]interface{}{accessElement})
+
+	bwsElement := map[string]interface{}{}
+	if cluster.Config != nil && cluster.Config.BackupWindowStart != nil {
+		bwsElement["hours"] = cluster.Config.BackupWindowStart.Hours
+		bwsElement["minutes"] = cluster.Config.BackupWindowStart.Minutes
+	}
+	d.Set("backup_window_start", []map[string]interface{}{bwsElement})
+
 	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
 
@@ -467,9 +527,123 @@ func listGreenplumSegmentHosts(ctx context.Context, config *Config, id string) (
 	return hosts, nil
 }
 
-func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+var mdbGreenplumUpdateFieldsMap = map[string]string{
+	"name":                "name",
+	"description":         "description",
+	"labels":              "labels",
+	"access.0.data_lens":  "config.access.data_lens",
+	"access.0.web_sql":    "config.access.web_sql",
+	"backup_window_start": "config.backup_window_start",
+	"deletion_protection": "deletion_protection",
+}
 
-	return fmt.Errorf("Changing is not supported for Greenplum Cluster. Id: %v", d.Id())
+func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+	d.Partial(true)
+
+	config := meta.(*Config)
+	req, err := getGreenplumlusterUpdateRequest(d)
+	if err != nil {
+		return err
+	}
+
+	backupWindowStart := expandGreenplumBackupWindowStart(d)
+	req.Config = &greenplum.GreenplumConfig{
+		Version:           d.Get("version").(string),
+		BackupWindowStart: backupWindowStart,
+		Access:            expandGreenplumAccess(d),
+	}
+
+	onDone := []func(){}
+	updatePath := []string{}
+	for field, path := range mdbGreenplumUpdateFieldsMap {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, path)
+			onDone = append(onDone, func() {
+				d.SetPartial(field)
+			})
+		}
+	}
+
+	if d.HasChange("config") {
+		onDone = append(onDone, func() {
+			d.SetPartial("config")
+		})
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
+	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Update(ctx, req))
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update Greenplum Cluster %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating Greenplum Cluster %q: %s", d.Id(), err)
+	}
+
+	for _, f := range onDone {
+		f()
+	}
+
+	d.Partial(false)
+	return resourceYandexMDBGreenplumClusterRead(d, meta)
+}
+
+func getGreenplumlusterUpdateRequest(d *schema.ResourceData) (*greenplum.UpdateClusterRequest, error) {
+	labels, err := expandLabels(d.Get("labels"))
+	if err != nil {
+		return nil, fmt.Errorf("error expanding labels while updating Greenplum cluster: %s", err)
+	}
+
+	req := &greenplum.UpdateClusterRequest{
+		ClusterId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		DeletionProtection: d.Get("deletion_protection").(bool),
+	}
+
+	return req, nil
+}
+
+func expandGreenplumBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
+	out := &timeofday.TimeOfDay{}
+
+	if v, ok := d.GetOk("backup_window_start.0.hours"); ok {
+		out.Hours = int32(v.(int))
+	}
+
+	if v, ok := d.GetOk("backup_window_start.0.minutes"); ok {
+		out.Minutes = int32(v.(int))
+	}
+
+	return out
+}
+
+func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
+	if _, ok := d.GetOkExists("access"); !ok {
+		return nil
+	}
+
+	out := &greenplum.Access{}
+
+	if v, ok := d.GetOk("access.0.data_lens"); ok {
+		out.DataLens = v.(bool)
+	}
+
+	if v, ok := d.GetOk("access.0.web_sql"); ok {
+		out.WebSql = v.(bool)
+	}
+
+	return out
 }
 
 func resourceYandexMDBGreenplumClusterDelete(d *schema.ResourceData, meta interface{}) error {

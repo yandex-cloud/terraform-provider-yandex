@@ -47,6 +47,10 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
     }
   }
 
+  access {
+    web_sql = true
+  }
+
   user_name     = "admin_user"
   user_password = "your_super_secret_password"
 
@@ -111,6 +115,10 @@ The following arguments are supported:
 
 * `segment_subcluster` - (Required) Settings for segment subcluster. The structure is documented below.
 
+* `access` - (Optional) Access policy to the Greenplum cluster. The structure is documented below.
+
+* `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
+
 - - -
 * `user_name` - (Required) Greenplum cluster admin user name.
 
@@ -136,6 +144,18 @@ The `master_subcluster` block supports:
 
 The `segment_subcluster` block supports:
 * `resources` - (Required) Resources allocated to hosts for segment subcluster of the Greenplum cluster. The structure is documented below.
+
+The `backup_window_start` block supports:
+
+* `hours` - (Optional) The hour at which backup will be started (UTC).
+
+* `minutes` - (Optional) The minute at which backup will be started (UTC).
+
+The `access` block supports:
+
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+
+* `web_sql` - Allows access for SQL queries in the management console
 
 ## Attributes Reference
 
