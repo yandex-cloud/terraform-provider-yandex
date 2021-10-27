@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/duration"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 	"text/template"
+
+	"github.com/golang/protobuf/ptypes/duration"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/hashicorp/go-multierror"
@@ -69,7 +72,18 @@ func sweepDataprocClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexDataprocClusterDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.Dataproc().Cluster().Update(ctx, &dataproc.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		return err
+	}
+
+	op, err = conf.sdk.Dataproc().Cluster().Delete(ctx, &dataproc.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

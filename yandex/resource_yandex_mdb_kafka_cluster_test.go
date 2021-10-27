@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -16,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const kfResource = "yandex_mdb_kafka_cluster.foo"
@@ -81,7 +83,18 @@ func sweepMDBKafkaClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBKafkaClusterDeleteTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().Kafka().Cluster().Delete(ctx, &kafka.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().Kafka().Cluster().Update(ctx, &kafka.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		return err
+	}
+
+	op, err = conf.sdk.MDB().Kafka().Cluster().Delete(ctx, &kafka.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const greenplumResource = "yandex_mdb_greenplum_cluster.foo"
@@ -53,7 +55,18 @@ func sweepMDBGreenplumClusterOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexMDBGreenplumClusterDefaultTimeout)
 	defer cancel()
 
-	op, err := conf.sdk.MDB().Greenplum().Cluster().Delete(ctx, &greenplum.DeleteClusterRequest{
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().Greenplum().Cluster().Update(ctx, &greenplum.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		return err
+	}
+
+	op, err = conf.sdk.MDB().Greenplum().Cluster().Delete(ctx, &greenplum.DeleteClusterRequest{
 		ClusterId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
