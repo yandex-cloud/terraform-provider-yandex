@@ -34,6 +34,24 @@ var functionTriggerTypesList = []string{
 	triggerTypeLogging,
 }
 
+var levelNameToEnum = map[string]logging.LogLevel_Level{
+	"debug": logging.LogLevel_DEBUG,
+	"error": logging.LogLevel_ERROR,
+	"fatal": logging.LogLevel_FATAL,
+	"info":  logging.LogLevel_INFO,
+	"trace": logging.LogLevel_TRACE,
+	"warn":  logging.LogLevel_WARN,
+}
+
+var levelEnumToName = map[logging.LogLevel_Level]string{
+	logging.LogLevel_DEBUG: "debug",
+	logging.LogLevel_ERROR: "error",
+	logging.LogLevel_FATAL: "fatal",
+	logging.LogLevel_INFO:  "info",
+	logging.LogLevel_TRACE: "trace",
+	logging.LogLevel_WARN:  "warn",
+}
+
 func resourceYandexFunctionTrigger() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexFunctionTriggerCreate,
@@ -543,16 +561,9 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		triggerCnt++
 
 		levels := []logging.LogLevel_Level{}
-		levelName := map[string]logging.LogLevel_Level{
-			"debug": logging.LogLevel_DEBUG,
-			"error": logging.LogLevel_ERROR,
-			"fatal": logging.LogLevel_FATAL,
-			"info":  logging.LogLevel_INFO,
-			"trace": logging.LogLevel_TRACE,
-			"warn":  logging.LogLevel_WARN,
-		}
+
 		for _, l := range convertStringSet(d.Get("logging.0.levels").(*schema.Set)) {
-			if v, ok := levelName[strings.ToLower(l)]; ok {
+			if v, ok := levelNameToEnum[strings.ToLower(l)]; ok {
 				levels = append(levels, v)
 			}
 		}
@@ -837,8 +848,26 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 		}
 	} else if logging := trig.GetRule().GetLogging(); logging != nil {
 
+		resourceIDs := &schema.Set{F: schema.HashString}
+		for _, id := range logging.ResourceId {
+			resourceIDs.Add(id)
+		}
+		resourceTypes := &schema.Set{F: schema.HashString}
+		for _, t := range logging.ResourceType {
+			resourceTypes.Add(t)
+		}
+		levels := &schema.Set{F: schema.HashString}
+		for _, level := range logging.Levels {
+			if l, ok := levelEnumToName[level]; ok {
+				levels.Add(l)
+			}
+		}
+
 		lg := map[string]interface{}{
-			"group_id": logging.LogGroupId,
+			"group_id":       logging.LogGroupId,
+			"resource_ids":   resourceIDs,
+			"resource_types": resourceTypes,
+			"levels":         levels,
 		}
 		if batch := logging.GetBatchSettings(); batch != nil {
 			lg["batch_size"] = strconv.FormatInt(batch.Size, 10)

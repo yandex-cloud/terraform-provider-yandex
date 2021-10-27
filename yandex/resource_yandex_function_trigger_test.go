@@ -297,7 +297,7 @@ func TestAccYandexFunctionTrigger_logging(t *testing.T) {
 					testYandexFunctionTriggerExists(triggerResource, trigger),
 					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
 					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
-					testYandexFunctionExists("yandex_function.log-src-fn", logSrcFn),
+					testYandexFunctionExists("yandex_function.logging-src-fn", logSrcFn),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_cutoff", "5"),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
 					testAccCheckCreatedAtAttr(triggerResource),
