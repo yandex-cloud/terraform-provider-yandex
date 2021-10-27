@@ -59,6 +59,7 @@ The `config` block supports:
 
 * `version` - Version of the PostgreSQL cluster.
 * `autofailover` - Configuration setting which enables/disables autofailover in cluster.
+* `backup_retain_period_days` - The period in days during which backups are stored.
 * `resources` - Resources allocated to hosts of the PostgreSQL cluster. The structure is documented below.
 * `pooler_config` - Configuration of the connection pooler. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.

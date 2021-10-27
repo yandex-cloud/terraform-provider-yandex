@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
+
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -199,6 +200,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 
 					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.day", "WED"),
 					resource.TestCheckResourceAttr(pgResource, "maintenance_window.0.hour", "22"),
+					resource.TestCheckResourceAttr(pgResource, "config.0.backup_retain_period_days", "12"),
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
@@ -948,7 +950,9 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       sessions_sampling_interval   = 9
       statements_sampling_interval = 8
     }
-
+    
+    backup_retain_period_days = 12
+    
     pooler_config {
       pooling_mode = "TRANSACTION"
       pool_discard = false

@@ -129,6 +129,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"backup_retain_period_days": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
 						"performance_diagnostics": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
@@ -838,19 +843,20 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	mdbPGUpdateFieldsMap := map[string]string{
-		"name":                             "name",
-		"description":                      "description",
-		"labels":                           "labels",
-		"config.0.version":                 "config_spec.version",
-		"config.0.autofailover":            "config_spec.autofailover",
-		"config.0.pooler_config":           "config_spec.pooler_config",
-		"config.0.access":                  "config_spec.access",
-		"config.0.performance_diagnostics": "config_spec.performance_diagnostics",
-		"config.0.backup_window_start":     "config_spec.backup_window_start",
-		"config.0.resources":               "config_spec.resources",
-		"security_group_ids":               "security_group_ids",
-		"maintenance_window":               "maintenance_window",
-		"deletion_protection":              "deletion_protection",
+		"name":                               "name",
+		"description":                        "description",
+		"labels":                             "labels",
+		"config.0.version":                   "config_spec.version",
+		"config.0.autofailover":              "config_spec.autofailover",
+		"config.0.pooler_config":             "config_spec.pooler_config",
+		"config.0.access":                    "config_spec.access",
+		"config.0.performance_diagnostics":   "config_spec.performance_diagnostics",
+		"config.0.backup_window_start":       "config_spec.backup_window_start",
+		"config.0.resources":                 "config_spec.resources",
+		"config.0.backup_retain_period_days": "config_spec.backup_retain_period_days",
+		"security_group_ids":                 "security_group_ids",
+		"maintenance_window":                 "maintenance_window",
+		"deletion_protection":                "deletion_protection",
 	}
 
 	if updateFieldConfigName != "" {

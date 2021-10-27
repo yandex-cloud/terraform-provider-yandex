@@ -471,6 +471,8 @@ The `config` block supports:
 
 * `autofailover` - (Optional) Configuration setting which enables/disables autofailover in cluster.
 
+* `backup_retain_period_days` - (Optional) The period in days during which backups are stored.
+
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 * `pooler_config` - (Optional) Configuration of the connection pooler. The structure is documented below.

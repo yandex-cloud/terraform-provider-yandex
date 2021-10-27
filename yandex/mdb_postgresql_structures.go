@@ -58,6 +58,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData)
 	out["pooler_config"] = poolerConf
 	out["resources"] = resources
 	out["backup_window_start"] = backupWindowStart
+	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
 	out["performance_diagnostics"] = performanceDiagnostics
 	out["access"] = access
 	out["postgresql_config"] = settings
@@ -824,6 +825,10 @@ func expandPGConfigSpec(d *schema.ResourceData) (cs *postgresql.ConfigSpec, upda
 
 	if v, ok := d.GetOkExists("config.0.autofailover"); ok {
 		cs.Autofailover = &wrappers.BoolValue{Value: v.(bool)}
+	}
+
+	if v, ok := d.GetOkExists("config.0.backup_retain_period_days"); ok {
+		cs.BackupRetainPeriodDays = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	poolerConfig, err := expandPGPoolerConfig(d)

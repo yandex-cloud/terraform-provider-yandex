@@ -62,6 +62,10 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 								},
 							},
 						},
+						"backup_retain_period_days": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"performance_diagnostics": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
