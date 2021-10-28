@@ -8,6 +8,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * mdb: skip topic management if unmanaged_topics is ON
+* add docs on k8s node group placement groups.
 
 BUG FIXES:
 

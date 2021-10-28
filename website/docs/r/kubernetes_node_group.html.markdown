@@ -125,6 +125,7 @@ The `instance_template` block supports:
 * `boot_disk` - The specifications for boot disks that will be attached to the instance. The structure is documented below.
 
 * `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
+* `placement_policy` - (Optional) The placement policy configuration. The structure is documented below.
 
 * `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
 * `network_acceleration_type` - (Optional) Type of network acceleration. Values: `standard`, `software_accelerated`.
@@ -141,6 +142,11 @@ The `boot_disk` block supports:
 The `scheduling_policy` block supports:
 
 * `preemptible` - Specifies if the instance is preemptible. Defaults to false.
+---
+
+The `placement_policy` block supports:
+
+* `placement_group_id` - (Optional) Specifies the id of the Placement Group to assign to the instances.
 
 ---
 
