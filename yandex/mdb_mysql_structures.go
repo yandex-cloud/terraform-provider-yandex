@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/stretchr/objx"
 	"log"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/stretchr/objx"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -1338,7 +1339,7 @@ func flattenMySQLSettings(c *mysql.ClusterConfig) (map[string]string, error) {
 
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_0); ok {
 
-		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_8_0.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_8_0.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -1351,7 +1352,7 @@ func flattenMySQLSettings(c *mysql.ClusterConfig) (map[string]string, error) {
 		return settings, err
 	}
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_5_7); ok {
-		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_5_7.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_5_7.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}

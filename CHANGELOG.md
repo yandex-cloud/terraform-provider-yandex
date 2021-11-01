@@ -12,6 +12,7 @@ ENHANCEMENTS:
 * ydb: increase the default timeout to create serverless database
 
 BUG FIXES:
+* mdb: fix behavior of attribute `user.settings.log_min_duration_statement` in `yandex_mdb_postgresql_cluster` resource
 
 ## 0.65.0 (October 14, 2021)
 FEATURES:

@@ -1086,6 +1086,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     permission {
       database_name = "fornewuserdb"
     }
+
+    settings = {
+      default_transaction_isolation = "read uncommitted"
+      log_min_duration_statement    = -1
+    }
   }
 
   host {

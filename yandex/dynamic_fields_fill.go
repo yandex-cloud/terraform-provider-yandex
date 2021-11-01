@@ -217,7 +217,8 @@ func checkValidate(fieldsInfo *objectFieldsInfo, field, value string, t reflect.
 }
 
 func flattenResourceGenerate(fieldsInfo *objectFieldsInfo, v interface{}, includeNil bool,
-	useDefault bool, collapseDefault bool) (map[string]interface{}, error) {
+	useDefault bool, collapseDefault bool,
+	knownDefault map[string]struct{}) (map[string]interface{}, error) {
 
 	if v == nil {
 		return nil, nil
@@ -242,8 +243,15 @@ func flattenResourceGenerate(fieldsInfo *objectFieldsInfo, v interface{}, includ
 				return nil, err
 			}
 
+			needCollapseDefault := collapseDefault
+
+			if needCollapseDefault && knownDefault != nil {
+				if _, ok := knownDefault[field]; ok {
+					needCollapseDefault = false
+				}
+			}
 			err = flattenResourceGenerateOneRow(fieldsInfo, fieldInfo, field,
-				value, collapseDefault, useDefault, includeNil, res)
+				value, needCollapseDefault, useDefault, includeNil, res)
 
 			if err != nil {
 				return nil, err
@@ -306,9 +314,10 @@ func flattenResourceGenerateOneRow(fieldsInfo *objectFieldsInfo, fieldInfo field
 	return nil
 }
 func flattenResourceGenerateMapS(v interface{}, includeNil bool,
-	fieldsInfo *objectFieldsInfo, useDefault bool, collapseDefault bool) (map[string]string, error) {
+	fieldsInfo *objectFieldsInfo, useDefault bool, collapseDefault bool,
+	knownDefault map[string]struct{}) (map[string]string, error) {
 
-	m, err := flattenResourceGenerate(fieldsInfo, v, includeNil, useDefault, collapseDefault)
+	m, err := flattenResourceGenerate(fieldsInfo, v, includeNil, useDefault, collapseDefault, knownDefault)
 	if err != nil {
 		return nil, err
 	}

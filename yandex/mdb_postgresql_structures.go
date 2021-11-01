@@ -132,7 +132,7 @@ func flattenPGSettingsSPL(settings map[string]string, d *schema.ResourceData) ma
 func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map[string]string, error) {
 
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +152,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_12_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -161,7 +161,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +170,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_11_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -179,7 +179,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
-		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_10_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -219,7 +219,10 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
 	out := make([]map[string]interface{}, 0)
 
 	for _, u := range us {
-		ou, err := flattenPGUser(u, fieldsInfo)
+		knownDefault := map[string]struct{}{
+			"log_min_duration_statement": {},
+		}
+		ou, err := flattenPGUser(u, fieldsInfo, knownDefault)
 		if err != nil {
 			return nil, err
 		}
@@ -235,7 +238,7 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
 }
 
 func flattenPGUser(u *postgresql.User,
-	fieldsInfo *objectFieldsInfo) (map[string]interface{}, error) {
+	fieldsInfo *objectFieldsInfo, knownDefault map[string]struct{}) (map[string]interface{}, error) {
 
 	m := map[string]interface{}{}
 	m["name"] = u.Name
@@ -251,7 +254,7 @@ func flattenPGUser(u *postgresql.User,
 
 	m["conn_limit"] = u.ConnLimit
 
-	settings, err := flattenResourceGenerateMapS(u.Settings, false, fieldsInfo, false, true)
+	settings, err := flattenResourceGenerateMapS(u.Settings, false, fieldsInfo, false, true, knownDefault)
 	if err != nil {
 		return nil, err
 	}

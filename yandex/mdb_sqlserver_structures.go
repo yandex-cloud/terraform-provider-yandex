@@ -547,7 +547,7 @@ func flattenSQLServerSettings(c *sqlserver.ClusterConfig) (map[string]string, er
 
 	if cf, ok := c.SqlserverConfig.(*sqlserver.ClusterConfig_SqlserverConfig_2016Sp2Std); ok {
 
-		settings, err := flattenResourceGenerateMapS(cf.SqlserverConfig_2016Sp2Std.UserConfig, false, mdbSQLServerSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.SqlserverConfig_2016Sp2Std.UserConfig, false, mdbSQLServerSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -555,7 +555,7 @@ func flattenSQLServerSettings(c *sqlserver.ClusterConfig) (map[string]string, er
 		return settings, nil
 	}
 	if cf, ok := c.SqlserverConfig.(*sqlserver.ClusterConfig_SqlserverConfig_2016Sp2Ent); ok {
-		settings, err := flattenResourceGenerateMapS(cf.SqlserverConfig_2016Sp2Ent.UserConfig, false, mdbSQLServerSettingsFieldsInfo, false, true)
+		settings, err := flattenResourceGenerateMapS(cf.SqlserverConfig_2016Sp2Ent.UserConfig, false, mdbSQLServerSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
