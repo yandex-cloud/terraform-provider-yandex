@@ -10,16 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stretchr/objx"
-
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"google.golang.org/genproto/googleapis/type/timeofday"
-
+	"github.com/stretchr/objx"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
-
-	"github.com/golang/protobuf/ptypes/wrappers"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	"google.golang.org/genproto/googleapis/type/timeofday"
 )
 
 func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
@@ -283,11 +280,11 @@ type myHostInfo struct {
 	zone     string
 	subnetID string
 
-	assignPublicIP bool
-
+	oldAssignPublicIP        bool
 	oldReplicationSource     string
 	oldReplicationSourceName string
 
+	newAssignPublicIP        bool
 	newReplicationSource     string
 	newReplicationSourceName string
 
@@ -377,7 +374,7 @@ func validateMysqlReplicationReferences(targetHosts []*MySQLHostSpec) error {
 	for _, host := range targetHosts {
 		if host.Name != "" {
 			if _, ok := names[host.Name]; ok {
-				return fmt.Errorf("duplicat host names '%s' in resource_yandex_mdb_mysql_cluster", host.Name)
+				return fmt.Errorf("duplicate host names '%s' in resource_yandex_mdb_mysql_cluster", host.Name)
 			}
 			names[host.Name] = true
 		}
@@ -522,7 +519,7 @@ func loadNewMySQLHostsInfo(newHosts []interface{}) (hostsInfo []*myHostInfo, err
 			name:                     hni.Get("name").Str(),
 			zone:                     hni.Get("zone").Str(),
 			subnetID:                 hni.Get("subnet_id").Str(),
-			assignPublicIP:           hni.Get("assign_public_ip").Bool(),
+			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
 			rowNumber:                i,
 			newReplicationSourceName: hni.Get("replication_source_name").Str(),
 		})
@@ -568,16 +565,16 @@ func compareMySQLNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHostIn
 		return 0
 	}
 
-	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
-		return 0
-	}
-
 	compareWeight := 1
 
 	if newHostInfo.newReplicationSourceName != "" {
 		if fqdn, ok := nameToHost[newHostInfo.newReplicationSourceName]; ok && existsHostInfo.oldReplicationSource == fqdn {
 			compareWeight += 4
 		}
+	}
+
+	if existsHostInfo.oldAssignPublicIP == newHostInfo.newAssignPublicIP {
+		compareWeight++
 	}
 
 	return compareWeight
@@ -589,7 +586,7 @@ func matchesMySQLNoNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHost
 		return false
 	}
 
-	if existsHostInfo.assignPublicIP != newHostInfo.assignPublicIP {
+	if existsHostInfo.oldAssignPublicIP != newHostInfo.newAssignPublicIP {
 		return false
 	}
 
@@ -736,7 +733,7 @@ func loadExistingMySQLHostsInfo(currentHosts []*mysql.Host, oldHosts []interface
 			fqdn:                 h.Name,
 			zone:                 h.ZoneId,
 			subnetID:             h.SubnetId,
-			assignPublicIP:       h.AssignPublicIp,
+			oldAssignPublicIP:    h.AssignPublicIp,
 			oldReplicationSource: h.ReplicationSource,
 
 			rowNumber: i,
@@ -810,6 +807,7 @@ func compareMySQLHostsInfo(d *schema.ResourceData, currentHosts []*mysql.Host, i
 				existHostInfo.name = newHostInfo.name
 				existHostInfo.rowNumber = newHostInfo.rowNumber
 				existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
+				existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
 				existHostInfo.inTargetSet = true
 				nameToHost[existHostInfo.name] = existHostInfo.fqdn
 			}
@@ -900,7 +898,7 @@ func flattenMySQLHostsFromHostInfo(hostsInfo map[string]*myHostInfo, isDataSourc
 		m := map[string]interface{}{}
 		m["zone"] = hostInfo.zone
 		m["subnet_id"] = hostInfo.subnetID
-		m["assign_public_ip"] = hostInfo.assignPublicIP
+		m["assign_public_ip"] = hostInfo.oldAssignPublicIP
 		m["fqdn"] = hostInfo.fqdn
 		m["replication_source"] = hostInfo.oldReplicationSource
 		if !isDataSource {

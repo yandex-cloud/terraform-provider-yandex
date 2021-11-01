@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"regexp"
 	"sort"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
@@ -172,12 +172,6 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "deletion_protection", "false"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
-			{
-				Config: testAccMDBMySQLClusterConfigDisallowedUpdatePublicIP(mysqlName, mysqlDesc),
-				ExpectError: regexp.MustCompile("forbidden to change assign_public_ip setting for existing host in resource_yandex_mdb_mysql_cluster, " +
-					"if you really need it you should delete one host and add another or set `allow_regeneration_host` = true"),
-			},
 			// Change some options
 			{
 				Config: testAccMDBMySQLClusterVersionUpdate(mysqlName, mysqlDesc2),
@@ -287,6 +281,17 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "nc"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.3.replication_source"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.replication_source_name", "nb"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// Change public IP for 2 hosts
+			{
+				Config: testAccMDBMysqlClusterHANamedChangePublicIP(mysqlName, mysqlDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "true"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -657,53 +662,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 `, name, desc, environment, deletionProtection)
 }
 
-func testAccMDBMySQLClusterConfigDisallowedUpdatePublicIP(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
-  version     = "5.7"
-  labels = {
-    test_key = "test_value"
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 16
-  }
-
-  backup_window_start {
-    hours   = 3
-    minutes = 22
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
-  host {
-    zone             = "ru-central1-c"
-    subnet_id        = "${yandex_vpc_subnet.foo_c.id}"
-    assign_public_ip = true
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
-}
-`, name, desc)
-}
-
 func testAccMDBMySQLClusterVersionUpdate(name, desc string) string {
 	return fmt.Sprintf(mysqlVPCDependencies+`
 resource "yandex_mdb_mysql_cluster" "foo" {
@@ -850,8 +808,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
   version     = "8.0"
- 
-  allow_regeneration_host = true
 
   maintenance_window {
     type = "ANYTIME"
@@ -934,8 +890,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
   version     = "8.0"
-
-  allow_regeneration_host = true
 
   labels = {
     new_key = "new_value"
@@ -1021,8 +975,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   version     = "8.0"
   deletion_protection = false
 
-  allow_regeneration_host = true
-
   labels = {
     new_key = "new_value"
   }
@@ -1088,6 +1040,95 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     zone      = "ru-central1-b"
     subnet_id = yandex_vpc_subnet.foo_b.id
     name      = "nc"
+  }
+
+  host {
+    zone                    = "ru-central1-a"
+    subnet_id               = yandex_vpc_subnet.foo_a.id
+    name                    = "nd"
+    replication_source_name = "nb"
+  }
+
+  security_group_ids = [yandex_vpc_security_group.sg-y.id]
+}
+`, name, desc)
+}
+
+func testAccMDBMysqlClusterHANamedChangePublicIP(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+  deletion_protection = false
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  database {
+    name = "new_testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
+    }
+  }
+
+  user {
+    name     = "mary"
+    password = "password"
+
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+
+    permission {
+      database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone             = "ru-central1-c"
+    subnet_id        = yandex_vpc_subnet.foo_c.id
+    name             = "na"
+  }
+
+  host {
+    zone                    = "ru-central1-c"
+    subnet_id               = yandex_vpc_subnet.foo_c.id
+    name                    = "nb"
+    replication_source_name = "nc"
+  }
+
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.foo_b.id
+    name      = "nc"
+	assign_public_ip        = true
   }
 
   host {

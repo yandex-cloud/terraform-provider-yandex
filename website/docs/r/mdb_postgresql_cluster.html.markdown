@@ -587,7 +587,7 @@ The `host` block supports:
 
 * `zone` - (Required) The availability zone where the PostgreSQL host will be created.
 
-* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment.
+* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. It can be changed on the fly only when `name` is set.
 
 * `subnet_id` - (Optional) The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 

@@ -8,12 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
@@ -162,12 +161,6 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgResource, "deletion_protection", "false"),
 				),
 			},
-			mdbPGClusterImportStep(pgResource),
-			{
-				Config: testAccMDBPGClusterConfigDisallowedUpdatePublicIP(pgName, pgDesc),
-				ExpectError: regexp.MustCompile("forbidden to change assign_public_ip setting for existing host .* " +
-					"in resource_yandex_mdb_postgresql_cluster, if you really need it you should delete one host and add another"),
-			},
 			{
 				Config:      testAccMDBPGClusterConfigDisallowedUpdateLocale(pgName, pgDesc),
 				ExpectError: regexp.MustCompile("impossible to change lc_collate or lc_type for PostgreSQL Cluster database .*"),
@@ -243,7 +236,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
 					testAccCheckMDBPGClusterHasUsers(pgResource, map[string][]string{"alice": {"testdb", "newdb"}, "bob": {"newdb", "fornewuserdb"}}),
 					testAccCheckMDBPGClusterHasDatabases(pgResource, []string{"testdb", "newdb", "fornewuserdb"}),
-					resource.TestCheckResourceAttr(pgResource, "host.2.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(pgResource, "host.0.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(pgResource, "host.1.zone", "ru-central1-b"),
 					resource.TestCheckResourceAttrSet(pgResource, "host.1.replication_source"),
 					resource.TestCheckResourceAttr(pgResource, "host.2.priority", "2"),
@@ -252,6 +245,19 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(pgResource),
+			// change some options
+			{
+				Config: testAccMDBPGClusterConfigHANamedUpdated(pgName, pgDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(pgResource, &cluster, 3),
+					resource.TestCheckResourceAttr(pgResource, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(pgResource, "host.1.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(pgResource, "host.2.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(pgResource, "host.0.priority", "1"),
+					resource.TestCheckResourceAttrSet(pgResource, "host.1.replication_source"),
+					resource.TestCheckResourceAttr(pgResource, "host.2.assign_public_ip", "true"),
+				),
+			},
 		},
 	})
 }
@@ -762,55 +768,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 `, name, desc, environment, deletionProtection)
 }
 
-func testAccMDBPGClusterConfigDisallowedUpdatePublicIP(name, desc string) string {
-	return fmt.Sprintf(pgVPCDependencies+`
-resource "yandex_mdb_postgresql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
-
-  labels = {
-    test_key = "test_value"
-  }
-
-  config {
-    version = 12
-
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 10
-      disk_type_id       = "network-ssd"
-    }
-  }
-
-  user {
-    name     = "alice"
-    password = "mysecurepassword"
-
-    permission {
-      database_name = "testdb"
-    }
-  }
-
-  host {
-	zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
-    assign_public_ip = true
-  }
-
-  database {
-    owner      = "alice"
-    name       = "testdb"
-    lc_collate = "en_US.UTF-8"
-    lc_type    = "en_US.UTF-8"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-x.id}"]
-}
-`, name, desc)
-}
-
 func testAccMDBPGClusterConfigDisallowedUpdateLocale(name, desc string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -1182,9 +1139,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-	zone      = "ru-central1-a"
-	name      = "na"
-    subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
+	zone      		 = "ru-central1-a"
+	name      		 = "na"
+    subnet_id 		 = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
+	assign_public_ip = true
   }
   host {
 	zone                    = "ru-central1-b"
@@ -1197,6 +1155,100 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 	name      = "nc"
 	priority  = 2
     subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-c.id}"
+  }
+
+  database {
+    owner      = "alice"
+    name       = "testdb"
+    lc_collate = "en_US.UTF-8"
+    lc_type    = "en_US.UTF-8"
+  }
+
+  database {
+    owner = "alice"
+    name  = "newdb"
+  }
+
+  database {
+    owner = "bob"
+    name  = "fornewuserdb"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-pg-test-sg-y.id}"]
+}
+`, name, desc)
+}
+
+func testAccMDBPGClusterConfigHANamedUpdated(name, desc string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+resource "yandex_mdb_postgresql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-pg-test-net.id}"
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  config {
+    version = 12
+
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_size          = 18
+      disk_type_id       = "network-ssd"
+    }
+
+    pooler_config {
+      pooling_mode = "TRANSACTION"
+      pool_discard = false
+    }
+  }
+
+  user {
+    name     = "alice"
+    password = "mysecurepassword"
+
+    permission {
+      database_name = "testdb"
+    }
+
+    permission {
+      database_name = "newdb"
+    }
+  }
+
+  user {
+    name     = "bob"
+    password = "anothersecurepassword"
+
+    permission {
+      database_name = "newdb"
+    }
+
+    permission {
+      database_name = "fornewuserdb"
+    }
+  }
+
+  host {
+	zone      = "ru-central1-a"
+	name      = "na"
+    subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
+	priority  = 1
+  }
+  host {
+	zone                    = "ru-central1-b"
+	name                    = "nb"
+	replication_source_name = "na"
+    subnet_id               = "${yandex_vpc_subnet.mdb-pg-test-subnet-b.id}"
+  }
+  host {
+	zone      		 = "ru-central1-c"
+	name      		 = "nc"
+	assign_public_ip = true
+    subnet_id 		 = "${yandex_vpc_subnet.mdb-pg-test-subnet-c.id}"
   }
 
   database {

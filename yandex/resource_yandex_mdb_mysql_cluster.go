@@ -319,9 +319,10 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"allow_regeneration_host": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    false,
+				Deprecated: "You can safely remove this option. There is no need to recreate host if assign_public_ip is changed.",
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
@@ -360,7 +361,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 func resourceYandexMDBMySQLClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	err := validateClusterConfig(d, config, false)
+	err := validateClusterConfig(d)
 	if err != nil {
 		return err
 	}
@@ -677,7 +678,9 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	d.Set("deletion_protection", cluster.DeletionProtection)
+	if err := d.Set("deletion_protection", cluster.DeletionProtection); err != nil {
+		return err
+	}
 
 	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
@@ -686,7 +689,7 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 	config := meta.(*Config)
 	d.Partial(true)
 
-	err := validateClusterConfig(d, config, true)
+	err := validateClusterConfig(d)
 	if err != nil {
 		return err
 	}
@@ -1121,19 +1124,6 @@ func updateMysqlUser(ctx context.Context, config *Config, d *schema.ResourceData
 	return nil
 }
 
-func validateMysqlAssignPublicIP(currentHosts []*mysql.Host, targetHosts []*MySQLHostSpec) error {
-	for _, currentHost := range currentHosts {
-		for _, targetHost := range targetHosts {
-			if currentHost.Name == targetHost.Fqdn && // Name in protobuf is the FQDN of the host.
-				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
-				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host in resource_yandex_mdb_mysql_cluster, " +
-					"if you really need it you should delete one host and add another or set `allow_regeneration_host` = true")
-			}
-		}
-	}
-	return nil
-}
-
 func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	// Ideas:
 	// 1. In order to do it safely for clients: firstly add new hosts and only then delete unneeded hosts
@@ -1164,13 +1154,26 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
-		if hostInfo.inTargetSet && compareHostsInfo.haveHostWithName && hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
-			log.Printf("[DEBUG] Updating host (change replication-source: %v stream from %v", hostInfo.fqdn, hostInfo.newReplicationSource)
-			if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
-				HostName:          hostInfo.fqdn,
-				ReplicationSource: hostInfo.newReplicationSource,
-			}); err != nil {
-				return err
+		if compareHostsInfo.haveHostWithName {
+			if hostInfo.inTargetSet {
+				var maskPaths []string
+				if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
+					maskPaths = append(maskPaths, "replication_source")
+				}
+				if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
+					maskPaths = append(maskPaths, "assign_public_ip")
+				}
+				if len(maskPaths) > 0 {
+					log.Printf("[DEBUG] Updating host (change paths: %v)", maskPaths)
+					if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
+						HostName:          hostInfo.fqdn,
+						ReplicationSource: hostInfo.newReplicationSource,
+						AssignPublicIp:    hostInfo.newAssignPublicIP,
+						UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
+					}); err != nil {
+						return err
+					}
+				}
 			}
 		}
 	}
@@ -1220,7 +1223,7 @@ func createMysqlClusterHosts(ctx context.Context, config *Config, d *schema.Reso
 		newHosts = append(newHosts, &mysql.HostSpec{
 			ZoneId:         newHostInfo.zone,
 			SubnetId:       newHostInfo.subnetID,
-			AssignPublicIp: newHostInfo.assignPublicIP,
+			AssignPublicIp: newHostInfo.newAssignPublicIP,
 		})
 	}
 
@@ -1294,10 +1297,7 @@ func resourceYandexMDBMySQLClusterDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func validateClusterConfig(d *schema.ResourceData, config *Config, isUpdate bool) error {
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
-	defer cancel()
-
+func validateClusterConfig(d *schema.ResourceData) error {
 	targetHosts, err := expandEnrichedMySQLHostSpec(d)
 	if err != nil {
 		return err
@@ -1305,18 +1305,6 @@ func validateClusterConfig(d *schema.ResourceData, config *Config, isUpdate bool
 	err = validateMysqlReplicationReferences(targetHosts)
 	if err != nil {
 		return err
-	}
-
-	if isUpdate && d.Get("allow_regeneration_host") == false {
-		currHosts, err := listMysqlHosts(ctx, config, d.Id())
-		if err != nil {
-			return err
-		}
-
-		err = validateMysqlAssignPublicIP(currHosts, targetHosts)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

@@ -10,6 +10,11 @@ ENHANCEMENTS:
 * mdb: skip topic management if unmanaged_topics is ON
 * add docs on k8s node group placement groups.
 * ydb: increase the default timeout to create serverless database
+* add `name`, `replication_source`, `replication_source_name` attributes to `host` entity in `yandex_mdb_mysql_cluster` resource and data source
+* mysql, postgresql: support updating `assign_public_ip` without host recreation
+
+WARNING:
+* `allow_regeneration_host` for mysql host is now DEPRECATED.
 
 BUG FIXES:
 * mdb: fix behavior of attribute `user.settings.log_min_duration_statement` in `yandex_mdb_postgresql_cluster` resource
@@ -24,7 +29,6 @@ FEATURES:
 ENHANCEMENTS:
 * elasticsearch: update go-sdk version, add tests
 * serverless: supported logging trigger
-* add `name`, `replication_source`, `replication_source_name` attributes to `host` entity in `yandex_mdb_mysql_cluster` resource and data source
 
 BUG FIXES:
 * mdb: invalid plan was generated when user didn't specify zookeeper resources for multibroker Kafka cluster

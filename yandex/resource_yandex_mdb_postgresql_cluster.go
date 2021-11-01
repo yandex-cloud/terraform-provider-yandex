@@ -1083,35 +1083,12 @@ func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func validatePGAssignPublicIP(currentHosts []*postgresql.Host, targetHosts []*PostgreSQLHostSpec) error {
-	for _, currentHost := range currentHosts {
-		for _, targetHost := range targetHosts {
-			if currentHost.Name == targetHost.Fqdn && // Name in protobuf is the FQDN of the host.
-				(currentHost.AssignPublicIp != targetHost.HostSpec.AssignPublicIp) {
-				return fmt.Errorf("forbidden to change assign_public_ip setting for existing host %s in resource_yandex_mdb_postgresql_cluster, "+
-					"if you really need it you should delete one host and add another", currentHost.Name)
-			}
-		}
-	}
-	return nil
-}
-
 func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	currHosts, err := listPGHosts(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-
-	targetHosts, err := expandPGHosts(d)
-	if err != nil {
-		return err
-	}
-
-	err = validatePGAssignPublicIP(currHosts, targetHosts)
 	if err != nil {
 		return err
 	}
@@ -1136,13 +1113,27 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
 		if !hostInfo.isNew {
 			hostsToDelete = append(hostsToDelete, hostInfo.fqdn)
-		} else if compareHostsInfo.haveHostWithName && (hostInfo.oldPriority != hostInfo.newPriority || hostInfo.oldReplicationSource != hostInfo.newReplicationSource) {
-			if err := updatePGHost(ctx, config, d, &postgresql.UpdateHostSpec{
-				HostName:          hostInfo.fqdn,
-				ReplicationSource: hostInfo.newReplicationSource,
-				Priority:          &wrappers.Int64Value{Value: int64(hostInfo.newPriority)},
-			}); err != nil {
-				return err
+		} else if compareHostsInfo.haveHostWithName {
+			var maskPaths []string
+			if hostInfo.oldPriority != hostInfo.newPriority {
+				maskPaths = append(maskPaths, "priority")
+			}
+			if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
+				maskPaths = append(maskPaths, "replication_source")
+			}
+			if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
+				maskPaths = append(maskPaths, "assign_public_ip")
+			}
+			if len(maskPaths) > 0 {
+				if err := updatePGHost(ctx, config, d, &postgresql.UpdateHostSpec{
+					HostName:          hostInfo.fqdn,
+					ReplicationSource: hostInfo.newReplicationSource,
+					Priority:          &wrappers.Int64Value{Value: int64(hostInfo.newPriority)},
+					AssignPublicIp:    hostInfo.newAssignPublicIP,
+					UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
+				}); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -1177,7 +1168,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 			err := addPGHost(ctx, config, d, &postgresql.HostSpec{
 				ZoneId:            newHostInfo.zone,
 				SubnetId:          newHostInfo.subnetID,
-				AssignPublicIp:    newHostInfo.assignPublicIP,
+				AssignPublicIp:    newHostInfo.oldAssignPublicIP,
 				ReplicationSource: newHostInfo.newReplicationSource,
 				Priority:          &wrappers.Int64Value{Value: int64(newHostInfo.newPriority)},
 			})
@@ -1190,7 +1181,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 			err := addPGHost(ctx, config, d, &postgresql.HostSpec{
 				ZoneId:         newHostInfo.zone,
 				SubnetId:       newHostInfo.subnetID,
-				AssignPublicIp: newHostInfo.assignPublicIP,
+				AssignPublicIp: newHostInfo.oldAssignPublicIP,
 			})
 			if err != nil {
 				return err

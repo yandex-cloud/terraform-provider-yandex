@@ -1,11 +1,11 @@
 package yandex
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/stretchr/testify/assert"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
@@ -115,22 +115,22 @@ func TestMySQLNamedHostMatcher(t *testing.T) {
 	// loaded from YandexCloud API
 	existingHostsInfo := map[string]*myHostInfo{
 		"rc1a-myhost.yandex.net": {
-			fqdn:           "rc1a-myhost.yandex.net",
-			zone:           "rc1a",
-			subnetID:       "rc1a-subnet",
-			assignPublicIP: false,
+			fqdn:              "rc1a-myhost.yandex.net",
+			zone:              "rc1a",
+			subnetID:          "rc1a-subnet",
+			oldAssignPublicIP: false,
 		},
 		"rc1b-myhost.yandex.net": {
-			fqdn:           "rc1b-myhost.yandex.net",
-			zone:           "rc1b",
-			subnetID:       "rc1b-subnet",
-			assignPublicIP: false,
+			fqdn:              "rc1b-myhost.yandex.net",
+			zone:              "rc1b",
+			subnetID:          "rc1b-subnet",
+			oldAssignPublicIP: false,
 		},
 		"rc1с-myhost.yandex.net": {
-			fqdn:           "rc1с-myhost.yandex.net",
-			zone:           "rc1с",
-			subnetID:       "rc1с-subnet",
-			assignPublicIP: true,
+			fqdn:              "rc1с-myhost.yandex.net",
+			zone:              "rc1с",
+			subnetID:          "rc1с-subnet",
+			oldAssignPublicIP: true,
 		},
 	}
 
@@ -142,9 +142,9 @@ func TestMySQLNamedHostMatcher(t *testing.T) {
 		}, {
 			name: "host-in-c",
 			zone: "rc1c",
-			// it is not possible to change assignPublicIP flag, so such hosts should be re-created
+			// it is not possible to change oldAssignPublicIP flag, so such hosts should be re-created
 			// (in other words such hosts shouldn't match - and shouldn't be in compareMap)
-			assignPublicIP: false,
+			oldAssignPublicIP: false,
 		}, {
 			name:     "host-in-a",
 			zone:     "rc1a",
@@ -170,22 +170,22 @@ func TestMySQLNoNamedHostMatcher(t *testing.T) {
 	// loaded from YandexCloud API
 	existingHostsInfo := map[string]*myHostInfo{
 		"rc1a-myhost.yandex.net": {
-			fqdn:           "rc1a-myhost.yandex.net",
-			zone:           "rc1a",
-			subnetID:       "rc1a-subnet",
-			assignPublicIP: false,
+			fqdn:              "rc1a-myhost.yandex.net",
+			zone:              "rc1a",
+			subnetID:          "rc1a-subnet",
+			oldAssignPublicIP: false,
 		},
 		"rc1b-myhost.yandex.net": {
-			fqdn:           "rc1b-myhost.yandex.net",
-			zone:           "rc1b",
-			subnetID:       "rc1b-subnet",
-			assignPublicIP: false,
+			fqdn:              "rc1b-myhost.yandex.net",
+			zone:              "rc1b",
+			subnetID:          "rc1b-subnet",
+			oldAssignPublicIP: false,
 		},
 		"rc1с-myhost.yandex.net": {
-			fqdn:           "rc1с-myhost.yandex.net",
-			zone:           "rc1с",
-			subnetID:       "rc1с-subnet",
-			assignPublicIP: true,
+			fqdn:              "rc1с-myhost.yandex.net",
+			zone:              "rc1с",
+			subnetID:          "rc1с-subnet",
+			oldAssignPublicIP: true,
 		},
 	}
 
@@ -195,9 +195,9 @@ func TestMySQLNoNamedHostMatcher(t *testing.T) {
 			zone: "rc1b",
 		}, {
 			zone: "rc1c",
-			// it is not possible to change assignPublicIP flag, so such hosts should be re-created
+			// it is not possible to change oldAssignPublicIP flag, so such hosts should be re-created
 			// (in other words such hosts shouldn't match - and shouldn't be in compareMap)
-			assignPublicIP: false,
+			oldAssignPublicIP: false,
 		}, {
 			zone:     "rc1a",
 			subnetID: "rc1a-subnet",

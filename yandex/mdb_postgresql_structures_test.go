@@ -41,8 +41,8 @@ func TestComparePGNamedHostInfo(t *testing.T) {
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z11", subnetID: "sn11", name: "n1",
-	}, map[string]string{}, "mhN") != 4 {
-		t.Error("Compare host with equal zone and subnetID should return 4")
+	}, map[string]string{}, "mhN") != 5 {
+		t.Error("Compare host with equal zone and subnetID should return 5")
 	}
 
 	if comparePGNamedHostInfo(&pgHostInfo{
@@ -65,7 +65,7 @@ func TestComparePGNamedHostInfo(t *testing.T) {
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z11", subnetID: "", name: "n1",
-	}, map[string]string{}, "mhN") != 4 {
-		t.Error("Compare host with equal zone and empty new subnetID should return 4")
+	}, map[string]string{}, "mhN") != 5 {
+		t.Error("Compare host with equal zone and empty new subnetID should return 5")
 	}
 }
