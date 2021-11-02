@@ -52,40 +52,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     }
   }
 
-  topic {
-    name               = "input"
-    partitions         = 2
-    replication_factor = 1
-
-    topic_config {
-      compression_type      = "COMPRESSION_TYPE_LZ4"
-      delete_retention_ms   = 86400000
-      file_delete_delay_ms  = 60000
-      flush_messages        = 128
-      flush_ms              = 1000
-      min_compaction_lag_ms = 0
-      retention_bytes       = 10737418240
-      retention_ms          = 604800000
-      max_message_bytes     = 1048588
-      min_insync_replicas   = 1
-      segment_bytes         = 268435456
-      preallocate           = true
-    }
-  }
-
-  topic {
-    name               = "output"
-    partitions         = 6
-    replication_factor = 1
-
-    topic_config {
-      compression_type      = "COMPRESSION_TYPE_GZIP"
-      segment_bytes         = 536870912
-      max_message_bytes     = 1048588
-      preallocate           = false
-    }
-  }
-
   user {
     name     = "producer-application"
     password = "password"
@@ -164,40 +130,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     }
   }
 
-  topic {
-    name               = "input"
-    partitions         = 2
-    replication_factor = 1
-
-    topic_config {
-      compression_type      = "COMPRESSION_TYPE_LZ4"
-      delete_retention_ms   = 86400000
-      file_delete_delay_ms  = 60000
-      flush_messages        = 128
-      flush_ms              = 1000
-      min_compaction_lag_ms = 0
-      retention_bytes       = 10737418240
-      retention_ms          = 604800000
-      max_message_bytes     = 1048588
-      min_insync_replicas   = 1
-      segment_bytes         = 268435456
-      preallocate           = true
-    }
-  }
-
-  topic {
-    name               = "output"
-    partitions         = 6
-    replication_factor = 1
-
-    topic_config {
-      compression_type      = "COMPRESSION_TYPE_GZIP"
-      segment_bytes         = 536870912
-      max_message_bytes     = 1048588
-      preallocate           = false
-    }
-  }
-
   user {
     name     = "producer-application"
     password = "password"
@@ -258,13 +190,14 @@ The following arguments are supported:
 
 * `subnet_ids` - (Optional) IDs of the subnets, to which the Kafka cluster belongs.
 
-* `environment` - (Required) Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+* `environment` - (Optional) Deployment environment of the Kafka cluster. Can be either `PRESTABLE` or `PRODUCTION`. 
+  The default is `PRODUCTION`.
 
 * `config` - (Required) Configuration of the Kafka cluster. The structure is documented below.
 
 * `user` - (Optional) A user of the Kafka cluster. The structure is documented below.
 
-* `topic` - (Optional) A topic of the Kafka cluster. The structure is documented below.
+* `topic` - (Deprecated) To manage topics, please switch to using a separate resource type `yandex_mdb_kafka_topic`.
 
 * `security_group_ids` - (Optional) Security group ids, to which the Kafka cluster belongs.
 
@@ -272,21 +205,27 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
+~> **Note:** Historically, `topic` blocks of the `yandex_mdb_kafka_cluster` resource were used to manage topics of the Kafka cluster.
+However, this approach has a number of disadvantages. In particular, when adding and removing topics from the tf recipe,
+terraform generates a diff that misleads the user about the planned changes. Also, this approach turned out to be
+inconvenient when managing topics through the Kafka Admin API. Therefore, topic management through a separate resource
+type `yandex_mdb_kafka_topic` was implemented and is now recommended.
+
 - - -
 
 The `config` block supports:
 
 * `version` - (Required) Version of the Kafka server software.
 
-* `brokers_count` - (Optional) Count of brokers per availability zone.
+* `brokers_count` - (Optional) Count of brokers per availability zone. The default is `1`.
 
-* `zones` - (Optional) List of availability zones.
+* `zones` - (Required) List of availability zones.
 
-* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+* `assign_public_ip` - (Optional) Determines whether each broker will be assigned a public IP address. The default is `false`.
 
-* `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. Can be either `true` or `false`.
+* `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. The default is `false`.
 
-* `schema_registry` - (Optional) Enables managed schema registry on cluster. Can be either `true` or `false`.
+* `schema_registry` - (Optional) Enables managed schema registry on cluster. The default is `false`.
 
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 
@@ -346,7 +285,8 @@ The `permission` block supports:
 
 * `role` - (Required) The role type to grant to the topic.
 
-The `topic` block supports:
+The `topic` block is deprecated. To manage topics, please switch to using a separate resource type
+`yandex_mdb_kafka_topic`. The `topic` block supports:
 
 * `name` - (Required) The name of the topic.
 

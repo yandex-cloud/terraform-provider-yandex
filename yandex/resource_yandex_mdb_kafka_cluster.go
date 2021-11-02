@@ -78,9 +78,10 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"topic": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     resourceYandexMDBKafkaTopic(),
+				Type:       schema.TypeList,
+				Optional:   true,
+				Elem:       resourceYandexMDBKafkaClusterTopicBlock(),
+				Deprecated: "to manage topics, please switch to using a separate resource type yandex_mdb_kafka_topic",
 			},
 			"user": {
 				Type:     schema.TypeSet,
@@ -229,7 +230,7 @@ func resourceYandexMDBKafkaZookeeperResources() *schema.Resource {
 	}
 }
 
-func resourceYandexMDBKafkaTopic() *schema.Resource {
+func resourceYandexMDBKafkaClusterTopicBlock() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -646,7 +647,8 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	if cluster.Config.UnmanagedTopics {
+	stateTopics := d.Get("topic").([]interface{})
+	if len(stateTopics) == 0 {
 		if err := d.Set("topic", []map[string]interface{}{}); err != nil {
 			return err
 		}
@@ -711,17 +713,9 @@ func resourceYandexMDBKafkaClusterUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	unmanagedTopics := false
-	if v, ok := d.GetOk("config.0.unmanaged_topics"); ok {
-		unmanagedTopics = v.(bool)
-	}
 	if d.HasChange("topic") {
-		if unmanagedTopics {
-			return fmt.Errorf("topics should not be specified when unmanaged_topics flag is on")
-		} else {
-			if err := updateKafkaClusterTopics(d, meta); err != nil {
-				return err
-			}
+		if err := updateKafkaClusterTopics(d, meta); err != nil {
+			return err
 		}
 	}
 

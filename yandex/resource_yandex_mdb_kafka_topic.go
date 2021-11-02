@@ -1,0 +1,331 @@
+package yandex
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"regexp"
+	"strings"
+	"time"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/grpc/status"
+)
+
+const (
+	// Single topic should be created/updated/deleted much faster but we set these timeouts
+	// to larger values to allow for serial modification of multiple topics.
+	yandexMDBKafkaTopicCreateTimeout = 10 * time.Minute
+	yandexMDBKafkaTopicReadTimeout   = 1 * time.Minute
+	yandexMDBKafkaTopicUpdateTimeout = 10 * time.Minute
+	yandexMDBKafkaTopicDeleteTimeout = 10 * time.Minute
+)
+
+func resourceYandexMDBKafkaTopic() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceYandexMDBKafkaTopicCreate,
+		Read:   resourceYandexMDBKafkaTopicRead,
+		Update: resourceYandexMDBKafkaTopicUpdate,
+		Delete: resourceYandexMDBKafkaTopicDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexMDBKafkaTopicCreateTimeout),
+			Read:   schema.DefaultTimeout(yandexMDBKafkaTopicReadTimeout),
+			Update: schema.DefaultTimeout(yandexMDBKafkaTopicUpdateTimeout),
+			Delete: schema.DefaultTimeout(yandexMDBKafkaTopicDeleteTimeout),
+		},
+
+		SchemaVersion: 0,
+
+		Schema: map[string]*schema.Schema{
+			"cluster_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"partitions": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"replication_factor": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+			"topic_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem:     resourceYandexMDBKafkaClusterTopicConfig(),
+			},
+		},
+	}
+}
+
+func retryConflictingOperation(ctx context.Context, config *Config, action func() (*operation.Operation, error)) (*sdkoperation.Operation, error) {
+	for {
+		op, err := config.sdk.WrapOperation(action())
+		if err == nil {
+			return op, nil
+		}
+
+		st := status.Convert(err)
+		submatch := regexp.MustCompile(`conflicting operation "(.+)" detected`).FindStringSubmatch(st.Message())
+		if len(submatch) < 1 {
+			return op, err
+		}
+
+		operationID := submatch[1]
+		log.Printf("[DEBUG] Waiting for conflicting operation %q to complete", operationID)
+		req := &operation.GetOperationRequest{OperationId: operationID}
+		op, err = config.sdk.WrapOperation(config.sdk.Operation().Get(ctx, req))
+		if err != nil {
+			return nil, err
+		}
+
+		_ = op.Wait(ctx)
+		log.Printf("[DEBUG] Conflicting operation %q has completed. Going to retry initial action.", operationID)
+	}
+}
+
+func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	topicSpec, _, err := buildKafkaTopicSpec(ctx, d, config)
+	if err != nil {
+		return err
+	}
+
+	req := &kafka.CreateTopicRequest{
+		ClusterId: d.Get("cluster_id").(string),
+		TopicSpec: topicSpec,
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Creating Kafka topic: %+v", req)
+		return config.sdk.MDB().Kafka().Topic().Create(ctx, req)
+	})
+	if err != nil {
+		return fmt.Errorf("error while requesting API to create Kafka topic: %s", err)
+	}
+
+	topicID := fmt.Sprintf("%s:%s", req.ClusterId, req.TopicSpec.Name)
+	d.SetId(topicID)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while waiting for Kafka topic create operation: %s", err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("kafka topic creation failed: %s", err)
+	}
+	log.Printf("[DEBUG] Finished creating Kafka topic %q", req.TopicSpec.Name)
+
+	return resourceYandexMDBKafkaTopicRead(d, meta)
+}
+
+func buildKafkaTopicSpec(ctx context.Context, d *schema.ResourceData, config *Config) (*kafka.TopicSpec, string, error) {
+	topicName := d.Get("name").(string)
+	clusterID := d.Get("cluster_id").(string)
+	topicSpec := &kafka.TopicSpec{
+		Name:              topicName,
+		Partitions:        &wrappers.Int64Value{Value: int64(d.Get("partitions").(int))},
+		ReplicationFactor: &wrappers.Int64Value{Value: int64(d.Get("replication_factor").(int))},
+	}
+
+	req := &kafka.GetClusterRequest{ClusterId: clusterID}
+	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, req)
+	if err != nil {
+		return nil, "", err
+	}
+
+	version := cluster.GetConfig().GetVersion()
+	if v, ok := d.GetOk("topic_config"); ok {
+		switch version {
+		case "2.8":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_8(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, "", err
+				}
+				topicSpec.SetTopicConfig_2_8(cfg)
+			}
+		case "2.6":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_6(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, "", err
+				}
+				topicSpec.SetTopicConfig_2_6(cfg)
+			}
+		case "2.1":
+			configList := v.([]interface{})
+			if len(configList) > 0 {
+				cfg, err := expandKafkaTopicConfig2_1(configList[0].(map[string]interface{}))
+				if err != nil {
+					return nil, "", err
+				}
+				topicSpec.SetTopicConfig_2_1(cfg)
+			}
+		default:
+			return nil, "", fmt.Errorf("unable to serialize topic config for kafka of version %v", version)
+		}
+	}
+
+	return topicSpec, version, nil
+}
+
+func resourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	parts := strings.SplitN(d.Id(), ":", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid topic resource id format: %q", d.Id())
+	}
+
+	clusterID := parts[0]
+	topicName := parts[1]
+	topic, err := config.sdk.MDB().Kafka().Topic().Get(ctx, &kafka.GetTopicRequest{
+		ClusterId: clusterID,
+		TopicName: topicName,
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Topic %q", topicName))
+	}
+	d.Set("cluster_id", clusterID)
+	d.Set("name", topic.Name)
+	d.Set("partitions", topic.Partitions.GetValue())
+	d.Set("replication_factor", topic.ReplicationFactor.GetValue())
+
+	var cfg map[string]interface{}
+	if topic.GetTopicConfig_2_8() != nil {
+		cfg = flattenKafkaTopicConfig2_8(topic.GetTopicConfig_2_8())
+	}
+	if topic.GetTopicConfig_2_6() != nil {
+		cfg = flattenKafkaTopicConfig2_6(topic.GetTopicConfig_2_6())
+	}
+	if topic.GetTopicConfig_2_1() != nil {
+		cfg = flattenKafkaTopicConfig2_1(topic.GetTopicConfig_2_1())
+	}
+	if len(cfg) != 0 {
+		if err := d.Set("topic_config", []map[string]interface{}{cfg}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func resourceYandexMDBKafkaTopicUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	topicSpec, version, err := buildKafkaTopicSpec(ctx, d, config)
+	if err != nil {
+		return err
+	}
+
+	clusterID := d.Get("cluster_id").(string)
+	topicName := d.Get("name").(string)
+	request := &kafka.UpdateTopicRequest{
+		ClusterId: clusterID,
+		TopicName: topicName,
+		TopicSpec: topicSpec,
+	}
+
+	var updatePath []string
+	versionPath := strings.Replace(version, ".", "_", -1)
+	for field, path := range mdbKafkaTopicUpdateFieldsMap {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, strings.Replace(path, "{version}", versionPath, -1))
+		}
+	}
+	request.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+	if len(updatePath) == 0 {
+		return nil
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending topic update request: %+v", request)
+		return config.sdk.MDB().Kafka().Topic().Update(ctx, request)
+	})
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update topic %q in Kafka Cluster %q: %s",
+			topicName, clusterID, err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating topic in Kafka Cluster %q: %s", d.Id(), err)
+	}
+
+	log.Printf("[DEBUG] Finished updating Kafka topic %q", topicName)
+	return resourceYandexMDBKafkaTopicRead(d, meta)
+}
+
+var mdbKafkaTopicUpdateFieldsMap = map[string]string{
+	"partitions":         "topic_spec.partitions",
+	"replication_factor": "topic_spec.replication_factor",
+}
+
+func init() {
+	topicConfigSchema := resourceYandexMDBKafkaClusterTopicConfig().Schema
+	for name, _ := range topicConfigSchema {
+		key := fmt.Sprintf("topic_config.0.%s", name)
+		val := fmt.Sprintf("topic_spec.topic_config_{version}.%s", name)
+		mdbKafkaTopicUpdateFieldsMap[key] = val
+	}
+}
+
+func resourceYandexMDBKafkaTopicDelete(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
+	defer cancel()
+
+	topicName := d.Get("name").(string)
+	clusterID := d.Get("cluster_id").(string)
+	request := &kafka.DeleteTopicRequest{
+		ClusterId: clusterID,
+		TopicName: topicName,
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Deleting Kafka topic %q", topicName)
+		return config.sdk.MDB().Kafka().Topic().Delete(ctx, request)
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Kafka topic %q", topicName))
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting topic %q from Kafka Cluster %q: %s", topicName, clusterID, err)
+	}
+
+	log.Printf("[DEBUG] Finished deleting Kafka topic %q", topicName)
+	return nil
+}

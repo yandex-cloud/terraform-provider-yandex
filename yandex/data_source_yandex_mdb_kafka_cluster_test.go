@@ -21,11 +21,21 @@ data "yandex_mdb_kafka_cluster" "bar" {
 }
 `
 
-func TestAccDataSourceMDBKafkaCluster_byID(t *testing.T) {
+const mdbKafkaTopicDataSourceConfig = `
+data "yandex_mdb_kafka_topic" "baz" {
+	cluster_id = yandex_mdb_kafka_cluster.foo.id
+	name = "raw_events"
+}
+`
+
+func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
 	t.Parallel()
 
-	kfName := acctest.RandomWithPrefix("ds-kf-by-id")
-	kfDesc := "KafkaCluster Terraform Datasource Test"
+	clusterName := acctest.RandomWithPrefix("ds-kf-by-id")
+	description := "KafkaCluster Terraform Datasource Test"
+	resourceName := "yandex_mdb_kafka_cluster.foo"
+	clusterDatasource := "data.yandex_mdb_kafka_cluster.bar"
+	topicDatasource := "data.yandex_mdb_kafka_topic.baz"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -33,21 +43,46 @@ func TestAccDataSourceMDBKafkaCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBKafkaClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBKafkaClusterConfig(kfName, kfDesc, true),
-				Check: testAccDataSourceMDBKafkaClusterCheck(
-					"data.yandex_mdb_kafka_cluster.bar",
-					"yandex_mdb_kafka_cluster.foo", kfName, kfDesc),
+				Config: testAccDataSourceMDBKafkaClusterConfig(clusterName, description, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceMDBKafkaClusterAttributesCheck(clusterDatasource, resourceName),
+					testAccCheckResourceIDField(clusterDatasource, "cluster_id"),
+					resource.TestCheckResourceAttr(clusterDatasource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterDatasource, "folder_id", getExampleFolderID()),
+					resource.TestCheckResourceAttr(clusterDatasource, "description", description),
+					resource.TestCheckResourceAttr(clusterDatasource, "environment", "PRESTABLE"),
+					resource.TestCheckResourceAttr(clusterDatasource, "labels.test_key", "test_value"),
+					resource.TestCheckResourceAttr(clusterDatasource, "config.0.brokers_count", "1"),
+					resource.TestCheckResourceAttr(clusterDatasource, "config.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterDatasource, "config.0.version", "2.8"),
+					resource.TestCheckResourceAttr(clusterDatasource, "zookeeper.#", "0"),
+					resource.TestCheckResourceAttr(clusterDatasource, "topic.#", "2"),
+					resource.TestCheckResourceAttr(clusterDatasource, "user.#", "2"),
+					resource.TestCheckResourceAttr(clusterDatasource, "deletion_protection", "false"),
+					testAccCheckCreatedAtAttr(clusterDatasource),
+
+					resource.TestCheckResourceAttr(topicDatasource, "partitions", "1"),
+					resource.TestCheckResourceAttr(topicDatasource, "replication_factor", "1"),
+					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.cleanup_policy", "CLEANUP_POLICY_COMPACT_AND_DELETE"),
+					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.max_message_bytes", "16777216"),
+					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.segment_bytes", "134217728"),
+					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.flush_ms", "9223372036854775807"),
+				),
 			},
 		},
 	})
 }
 
 func testAccDataSourceMDBKafkaClusterConfig(kfName, kfDesc string, useDataID bool) string {
+	wholeConfig := testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE")
+
 	if useDataID {
-		return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE") + mdbKafkaClusterByIDConfig
+		wholeConfig += mdbKafkaClusterByIDConfig
+	} else {
+		wholeConfig += mdbKafkaClusterByNameConfig
 	}
 
-	return testAccMDBKafkaClusterConfigMain(kfName, kfDesc, "PRESTABLE") + mdbKafkaClusterByNameConfig
+	return wholeConfig + mdbKafkaTopicDataSourceConfig
 }
 
 func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
@@ -100,27 +135,4 @@ func testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName string, reso
 
 		return nil
 	}
-}
-
-func testAccDataSourceMDBKafkaClusterCheck(datasourceName string, resourceName string, chName string, desc string) resource.TestCheckFunc {
-	folderID := getExampleFolderID()
-	env := "PRESTABLE"
-
-	return resource.ComposeTestCheckFunc(
-		testAccDataSourceMDBKafkaClusterAttributesCheck(datasourceName, resourceName),
-		testAccCheckResourceIDField(datasourceName, "cluster_id"),
-		resource.TestCheckResourceAttr(datasourceName, "name", chName),
-		resource.TestCheckResourceAttr(datasourceName, "folder_id", folderID),
-		resource.TestCheckResourceAttr(datasourceName, "description", desc),
-		resource.TestCheckResourceAttr(datasourceName, "environment", env),
-		resource.TestCheckResourceAttr(datasourceName, "labels.test_key", "test_value"),
-		resource.TestCheckResourceAttr(datasourceName, "config.0.brokers_count", "1"),
-		resource.TestCheckResourceAttr(datasourceName, "config.0.assign_public_ip", "false"),
-		resource.TestCheckResourceAttr(datasourceName, "config.0.version", "2.8"),
-		resource.TestCheckResourceAttr(datasourceName, "zookeeper.#", "0"),
-		resource.TestCheckResourceAttr(datasourceName, "topic.#", "2"),
-		resource.TestCheckResourceAttr(datasourceName, "user.#", "2"),
-		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
-		testAccCheckCreatedAtAttr(datasourceName),
-	)
 }
