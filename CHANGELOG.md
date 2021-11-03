@@ -1,5 +1,6 @@
-## 0.66.0 (Unreleased)
+## 0.67.0 (Unreleased)
 
+## 0.66.0 (November 3, 2021)
 FEATURES:
 * mdb: Kafka topic management via dedicated resource `yandex_mdb_kafka_topic` is implemented
 * mdb: support update `name`, `description`, `labels`, `config.access.data_lens`, `config.access.web_sql`, `deletion_protection` in `yandex_mdb_greenplum_cluster` resource
