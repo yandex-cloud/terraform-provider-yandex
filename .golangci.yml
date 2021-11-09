@@ -2,10 +2,6 @@ run:
   deadline: 2m30s
   modules-download-mode: vendor
 
-issues:
-  max-per-linter: 0
-  max-same-issues: 0
-
 linters:
   disable-all: true
   enable:
@@ -28,3 +24,14 @@ linters-settings:
   govet:
     disable:
       - copylocks
+
+issues:
+  max-per-linter: 0
+  max-same-issues: 0
+  exclude-rules:
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+    - linters:
+        - staticcheck
+      text: "SA4010:"

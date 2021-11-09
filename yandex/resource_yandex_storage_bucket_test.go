@@ -1821,7 +1821,7 @@ func TestAccStorageBucket_ImportBasic(t *testing.T) {
 func bucketStorageImportStep(resourceName string) resource.TestStep {
 	return resource.TestStep{
 		ResourceName:      resourceName,
-		ImportStateId:     fmt.Sprintf("%s", resourceName),
+		ImportStateId:     resourceName,
 		ImportState:       true,
 		ImportStateVerify: true,
 	}

@@ -1088,17 +1088,12 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	err := createPGClusterHosts(ctx, config, d)
+	if err != nil {
+		return err
+	}
+
 	currHosts, err := listPGHosts(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-
-	err = createPGClusterHosts(ctx, config, d)
-	if err != nil {
-		return err
-	}
-
-	currHosts, err = listPGHosts(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}

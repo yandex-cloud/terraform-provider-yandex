@@ -293,7 +293,7 @@ var mdbKafkaTopicUpdateFieldsMap = map[string]string{
 
 func init() {
 	topicConfigSchema := resourceYandexMDBKafkaClusterTopicConfig().Schema
-	for name, _ := range topicConfigSchema {
+	for name := range topicConfigSchema {
 		key := fmt.Sprintf("topic_config.0.%s", name)
 		val := fmt.Sprintf("topic_spec.topic_config_{version}.%s", name)
 		mdbKafkaTopicUpdateFieldsMap[key] = val

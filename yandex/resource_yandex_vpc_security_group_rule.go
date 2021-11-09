@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
-	"strings"
 )
 
 func resourceYandexVpcSecurityGroupRule() *schema.Resource {
@@ -44,10 +45,7 @@ func resourceYandexVpcSecurityGroupRule() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					if strings.ToUpper(old) == strings.ToUpper(new) {
-						return true
-					}
-					return false
+					return strings.EqualFold(old, new)
 				},
 			},
 			"description": {

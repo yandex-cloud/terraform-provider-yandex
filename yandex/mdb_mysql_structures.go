@@ -370,7 +370,7 @@ func expandEnrichedMySQLHost(config map[string]interface{}) (*MySQLHostSpec, err
 
 func validateMysqlReplicationReferences(targetHosts []*MySQLHostSpec) error {
 	// Names are unique:
-	names := make(map[string]bool, 0)
+	names := map[string]bool{}
 	for _, host := range targetHosts {
 		if host.Name != "" {
 			if _, ok := names[host.Name]; ok {
@@ -381,7 +381,7 @@ func validateMysqlReplicationReferences(targetHosts []*MySQLHostSpec) error {
 	}
 
 	if len(names) != 0 && len(names) != len(targetHosts) {
-		fmt.Errorf("all or none hosts should have names")
+		return fmt.Errorf("all or none hosts should have names")
 	}
 
 	// ReplicationSourceName refers to existing names:
@@ -402,7 +402,7 @@ func validateMysqlReplicationReferences(targetHosts []*MySQLHostSpec) error {
 
 	// all hosts are reachable from HA-group (no loops)
 	if len(names) != 0 {
-		visited := make(map[string]bool, 0)
+		visited := map[string]bool{}
 		for _, host := range targetHosts {
 			if host.ReplicationSourceName == "" { // HA-nodes
 				visited[host.Name] = true
@@ -614,19 +614,6 @@ func compareMySQLNamedHostsInfoWeight(existsHostsInfo map[string]*myHostInfo, ne
 	}
 
 	return weight
-}
-
-type myCompareHostNameResult struct {
-	compareMap map[int]string // row idx -> FQDN
-	nameToHost map[string]string
-	hostToName map[string]string
-}
-
-func (me myCompareHostNameResult) copy() myCompareHostNameResult {
-	return myCompareHostNameResult{
-		compareMap: copyMapIntString(me.compareMap),
-		hostToName: copyMapStringString(me.hostToName),
-	}
 }
 
 type mysqlHostMapper struct {

@@ -201,19 +201,6 @@ func testAccCheckMDBGreenplumClusterExists(n string, masterHosts int, segmentHos
 	}
 }
 
-func testAccCheckMDBGPClusterContainsLabel(r *greenplum.Cluster, key string, value string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		v, ok := r.Labels[key]
-		if !ok {
-			return fmt.Errorf("Expected label with key '%s' not found", key)
-		}
-		if v != value {
-			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
-		}
-		return nil
-	}
-}
-
 const greenplumVPCDependencies = `
 resource "yandex_vpc_network" "mdb-greenplum-test-net" {}
 
