@@ -88,6 +88,7 @@ The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query)
+* `serverless` - Allow access for [Serverless connection](https://cloud.yandex.ru/docs/functions/operations/database-connection#connect). 
 
 
 The `performance_diagnostics` block supports:

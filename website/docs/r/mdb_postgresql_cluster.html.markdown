@@ -502,9 +502,11 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens). Can be either `true` or `false`.
 
-* `web_sql` - Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query)
+* `web_sql` - (Optional) Allows access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query). Can be either `true` or `false`.
+
+* `serverless` - (Optional) Allow access for [Serverless connection](https://cloud.yandex.ru/docs/functions/operations/database-connection#connect). Can be either `true` or `false`.
 
 The `performance_diagnostics` block supports:
 
