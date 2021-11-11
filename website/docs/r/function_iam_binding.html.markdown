@@ -30,4 +30,5 @@ The following arguments are supported:
 * `members` - (Required) Identities that will be granted the privilege in `role`.
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
+  * **serviceAccount:{service_account_id}**: A unique service account ID.
   * **system:{allUsers|allAuthenticatedUsers}**: see [system groups](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group)
