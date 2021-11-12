@@ -6,8 +6,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
@@ -18,11 +20,11 @@ const providerDefaultValueInsecure = false
 const providerDefaultValuePlaintext = false
 const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 
 // WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
 // testAccCheck***Destroy functions tend to use static testAccProvider
-var testAccProviderEmptyFolder map[string]terraform.ResourceProvider
+var testAccProviderEmptyFolder map[string]*schema.Provider
 
 var testAccProvider *schema.Provider
 
@@ -50,13 +52,13 @@ var testUserID2 = "no user id"
 var testStorageEndpoint = "no.storage.endpoint"
 
 func init() {
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"yandex": testAccProvider,
 	}
 
-	testAccProviderEmptyFolder = map[string]terraform.ResourceProvider{
-		"yandex": emptyFolderProvider().(*schema.Provider),
+	testAccProviderEmptyFolder = map[string]*schema.Provider{
+		"yandex": emptyFolderProvider(),
 	}
 
 	if os.Getenv("TF_ACC") != "" {
@@ -67,13 +69,13 @@ func init() {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProviderWithRawConfig(t *testing.T) {
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 
 	raw := map[string]interface{}{
 		"insecure": true,
@@ -82,9 +84,13 @@ func TestProviderWithRawConfig(t *testing.T) {
 		"zone":     "ru-central1-a",
 	}
 
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("err: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags != nil && diags.HasError() {
+		for _, d := range diags {
+			if d.Severity == diag.Error {
+				t.Fatalf("error configuring  provider: %s", d.Summary)
+			}
+		}
 	}
 
 	if err := testProvider.InternalValidate(); err != nil {
@@ -97,16 +103,20 @@ func TestProviderDefaultValues(t *testing.T) {
 	envVars := []string{"YC_INSECURE", "YC_PLAINTEXT", "YC_ENDPOINT"}
 	saveEnvVariable := saveAndUnsetEnvVars(envVars)
 
-	testProvider := Provider().(*schema.Provider)
+	testProvider := Provider()
 
 	raw := map[string]interface{}{
 		"token": "any_string_like_a_oauth",
 		"zone":  "ru-central1-a",
 	}
 
-	err := testProvider.Configure(terraform.NewResourceConfigRaw(raw))
-	if err != nil {
-		t.Fatalf("err: %s", err)
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags != nil && diags.HasError() {
+		for _, d := range diags {
+			if d.Severity == diag.Error {
+				t.Fatalf("error configuring provider: %s", d.Summary)
+			}
+		}
 	}
 
 	if err := testProvider.InternalValidate(); err != nil {

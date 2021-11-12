@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
@@ -1006,7 +1006,7 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+
 			})
 		}
 	}
@@ -1042,21 +1042,21 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		if d.HasChange("resources.0.disk_size") {
 			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_size")
 			onDone = append(onDone, func() {
-				d.SetPartial("resources.0.disk_size")
+
 			})
 		}
 
 		if d.HasChange("resources.0.disk_type_id") {
 			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_type_id")
 			onDone = append(onDone, func() {
-				d.SetPartial("resources.0.disk_type_id")
+
 			})
 		}
 
 		if d.HasChange("resources.0.resource_preset_id") {
 			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.resource_preset_id")
 			onDone = append(onDone, func() {
-				d.SetPartial("resources.0.resource_preset_id")
+
 			})
 		}
 	}
@@ -1070,7 +1070,7 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		updatePath = append(updatePath, "maintenance_window")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("maintenance_window")
+
 		})
 	}
 
@@ -1132,7 +1132,6 @@ func updateMongodbClusterDatabases(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	d.SetPartial("database")
 	return nil
 }
 
@@ -1172,7 +1171,6 @@ func updateMongodbClusterUsers(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("user")
 	return nil
 }
 
@@ -1212,7 +1210,6 @@ func updateMongoDBClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 

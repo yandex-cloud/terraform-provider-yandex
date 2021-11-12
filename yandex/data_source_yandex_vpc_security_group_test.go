@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
@@ -20,8 +20,8 @@ func makeCheck(sg *vpc.SecurityGroup, folderID, name, desc string) resource.Test
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "description", desc),
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "folder_id", folderID),
 		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.#", "1"),
-		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.2142518804.protocol", "TCP"),
-		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.2142518804.port", "8080"),
+		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.0.protocol", "TCP"),
+		resource.TestCheckResourceAttr("data.yandex_vpc_security_group.sg1", "ingress.0.port", "8080"),
 		testAccCheckCreatedAtAttr("data.yandex_vpc_security_group.sg1"),
 	)
 }

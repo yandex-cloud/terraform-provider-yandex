@@ -14,7 +14,7 @@ import (
 
 	"github.com/c2h5oh/datasize"
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
@@ -252,20 +252,16 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 	d.Partial(true)
 
 	var updatePaths []string
-	var partialPaths []string
 	if d.HasChange("name") {
 		updatePaths = append(updatePaths, "name")
-		partialPaths = append(partialPaths, "name")
 	}
 
 	if d.HasChange("description") {
 		updatePaths = append(updatePaths, "description")
-		partialPaths = append(partialPaths, "description")
 	}
 
 	if d.HasChange("labels") {
 		updatePaths = append(updatePaths, "labels")
-		partialPaths = append(partialPaths, "labels")
 	}
 
 	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id", "environment", "tags", "package", "content"}
@@ -299,9 +295,6 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error while requesting API to update Yandex Cloud Function: %s", err)
 		}
 
-		for _, v := range partialPaths {
-			d.SetPartial(v)
-		}
 	}
 
 	if versionReq != nil {
@@ -316,9 +309,6 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("Error while requesting API to create version for Yandex Cloud Function: %s", err)
 		}
 
-		for _, v := range versionPartialPaths {
-			d.SetPartial(v)
-		}
 	}
 	d.Partial(false)
 

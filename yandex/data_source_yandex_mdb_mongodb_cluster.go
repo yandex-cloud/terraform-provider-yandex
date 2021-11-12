@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -67,7 +67,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
@@ -128,7 +127,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 			"cluster_config": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -141,7 +139,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 						},
 						"backup_window_start": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
@@ -164,7 +161,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 						"access": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"data_lens": {
@@ -231,7 +227,6 @@ func dataSourceYandexMDBMongodbCluster() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

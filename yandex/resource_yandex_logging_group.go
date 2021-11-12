@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -162,6 +163,8 @@ func resourceYandexLoggingGroupUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func performYandexLoggingGroupUpdate(d *schema.ResourceData, config *Config, req *logging.UpdateLogGroupRequest) error {
+	d.Partial(true)
+
 	if d.HasChange("name") {
 		req.Name = d.Get("name").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
@@ -202,11 +205,6 @@ func performYandexLoggingGroupUpdate(d *schema.ResourceData, config *Config, req
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating log group %q: %s", d.Id(), err)
-	}
-
-	d.Partial(true)
-	for _, v := range req.UpdateMask.Paths {
-		d.SetPartial(v)
 	}
 
 	d.Partial(false)

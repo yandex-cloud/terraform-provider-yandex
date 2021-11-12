@@ -2,8 +2,9 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -149,7 +150,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.grpc_healthcheck", "http_backend.healthcheck.http_healthcheck"},
 									},
 									"http_healthcheck": {
 										Type:     schema.TypeList,
@@ -174,7 +174,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.stream_healthcheck", "http_backend.healthcheck.grpc_healthcheck"},
 									},
 									"grpc_healthcheck": {
 										Type:     schema.TypeList,
@@ -190,7 +189,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.stream_healthcheck", "http_backend.healthcheck.http_healthcheck"},
 									},
 								},
 							},
@@ -216,16 +214,14 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"trusted_ca_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													Computed:      true,
-													ConflictsWith: []string{"http_backend.tls.validation_context.trusted_ca_bytes"},
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
 												},
 												"trusted_ca_bytes": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													Computed:      true,
-													ConflictsWith: []string{"http_backend.tls.validation_context.trusted_ca_id"},
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
 												},
 											},
 										},
@@ -353,7 +349,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.grpc_healthcheck", "grpc_backend.healthcheck.http_healthcheck"},
 									},
 									"http_healthcheck": {
 										Type:     schema.TypeList,
@@ -378,7 +373,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.stream_healthcheck", "grpc_backend.healthcheck.grpc_healthcheck"},
 									},
 									"grpc_healthcheck": {
 										Type:     schema.TypeList,
@@ -394,7 +388,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.stream_healthcheck", "grpc_backend.healthcheck.http_healthcheck"},
 									},
 								},
 							},
@@ -420,16 +413,14 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"trusted_ca_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													Computed:      true,
-													ConflictsWith: []string{"grpc_backend.tls.validation_context.trusted_ca_bytes"},
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
 												},
 												"trusted_ca_bytes": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													Computed:      true,
-													ConflictsWith: []string{"grpc_backend.tls.validation_context.trusted_ca_id"},
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
 												},
 											},
 										},

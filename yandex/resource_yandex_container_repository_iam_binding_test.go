@@ -2,14 +2,15 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"reflect"
 	"sort"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 )

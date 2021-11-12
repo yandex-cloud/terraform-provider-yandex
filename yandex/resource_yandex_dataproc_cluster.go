@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
@@ -561,9 +561,6 @@ func updateDataprocClusterParams(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error while updating Data Proc Cluster %q: %s", d.Id(), err)
 	}
 
-	for _, field := range req.UpdateMask.Paths {
-		d.SetPartial(field)
-	}
 	return nil
 }
 
@@ -645,9 +642,6 @@ func updateDataprocSubclusters(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		for _, field := range updateReq.UpdateMask.Paths {
-			d.SetPartial(field)
-		}
 	}
 
 	return nil

@@ -3,12 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
@@ -473,7 +474,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("name")
+
 		})
 	}
 
@@ -487,7 +488,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "labels")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("labels")
+
 		})
 	}
 
@@ -496,7 +497,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("description")
+
 		})
 	}
 
@@ -514,7 +515,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.resources")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("resources")
+
 		})
 	}
 
@@ -558,7 +559,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 		onDone = append(onDone, func() {
-			d.SetPartial("config")
+
 		})
 	}
 
@@ -569,7 +570,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("security_group_ids")
+
 		})
 	}
 
@@ -577,7 +578,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.DeletionProtection = d.Get("deletion_protection").(bool)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection")
 		onDone = append(onDone, func() {
-			d.SetPartial("deletion_protection")
+
 		})
 	}
 
@@ -590,7 +591,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
 		onDone = append(onDone, func() {
-			d.SetPartial("maintenance_window")
+
 		})
 	}
 
@@ -672,7 +673,6 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 

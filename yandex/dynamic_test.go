@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
 

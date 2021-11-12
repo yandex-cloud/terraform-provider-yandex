@@ -7,9 +7,9 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
@@ -105,12 +105,12 @@ func TestAccVPCSecurityGroup_basic(t *testing.T) {
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.#", "1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2142518804.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2142518804.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.from_port", "8090"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sg1"),
 				),
 			},
@@ -143,20 +143,20 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.#", "1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2142518804.protocol", "TCP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2142518804.port", "8080"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.from_port", "8090"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.4269128455.to_port", "8099"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.protocol", "TCP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.port", "8080"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.from_port", "8090"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "egress.0.to_port", "8099"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sg1"),
 
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg2", &securityGroup2),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "ingress.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.#", "1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.3113374350.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.3113374350.port", "9000"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.3113374350.predefined_target", "self_security_group"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.0.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.0.port", "9000"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg2", "egress.0.predefined_target", "self_security_group"),
 					// It's hard for test rule with security_group_id because of not stable hash of rule with ID.
 					// predefined_target has the same logic. Assume that test covers this situation.
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sg2"),
@@ -167,14 +167,14 @@ func TestAccVPCSecurityGroup_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSecurityGroupExists("yandex_vpc_security_group.sg1", &securityGroup),
 					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.#", "2"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2329836048.protocol", "ICMP"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2329836048.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2329836048.to_port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.2329836048.from_port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1152638132.protocol", "ANY"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1152638132.port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1152638132.to_port", "-1"),
-					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1152638132.from_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.protocol", "ICMP"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.to_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.0.from_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1.protocol", "ANY"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1.port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1.to_port", "-1"),
+					resource.TestCheckResourceAttr("yandex_vpc_security_group.sg1", "ingress.1.from_port", "-1"),
 					testAccCheckCreatedAtAttr("yandex_vpc_security_group.sg1"),
 				),
 			},

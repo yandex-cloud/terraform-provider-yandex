@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
@@ -760,7 +760,7 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+
 			})
 		}
 	}
@@ -768,7 +768,7 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("mysql_config") {
 		updatePath = append(updatePath, "config_spec."+updateFieldConfigName)
 		onDone = append(onDone, func() {
-			d.SetPartial("mysql_config")
+
 		})
 	}
 
@@ -887,7 +887,6 @@ func updateMysqlClusterDatabases(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	d.SetPartial("database")
 	return nil
 }
 
@@ -1000,7 +999,6 @@ func updateMysqlClusterUsers(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("user")
 	return nil
 }
 
@@ -1188,7 +1186,6 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 

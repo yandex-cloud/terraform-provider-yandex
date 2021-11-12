@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 )
 
@@ -830,7 +830,7 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 
 	if checksCount == 0 {
 		if _, ok := d.GetOk("max_checking_health_duration"); ok {
-			return nil, fmt.Errorf("Use max_checking_health_duration only in conjunction with health_check ")
+			return nil, fmt.Errorf("Use max_checking_health_duration only in conjunction with health_check")
 		}
 		return nil, nil
 	}
@@ -851,12 +851,20 @@ func expandInstanceGroupHealthCheckSpec(d *schema.ResourceData) (*instancegroup.
 		}
 		checks[i] = hc
 
-		if _, ok := d.GetOk(key + ".tcp_options"); ok {
+		// sanity check
+		_, tcpOk := d.GetOk(key + ".tcp_options")
+		_, httpOk := d.GetOk(key + ".http_options")
+
+		if tcpOk && httpOk {
+			return nil, fmt.Errorf("Either 'tcp_options' or 'http_options' should be set, not both")
+		}
+
+		if tcpOk {
 			hc.HealthCheckOptions = &instancegroup.HealthCheckSpec_TcpOptions_{TcpOptions: &instancegroup.HealthCheckSpec_TcpOptions{Port: int64(d.Get(key + ".tcp_options.0.port").(int))}}
 			continue
 		}
 
-		if _, ok := d.GetOk(key + ".http_options"); ok {
+		if httpOk {
 			hc.HealthCheckOptions = &instancegroup.HealthCheckSpec_HttpOptions_{
 				HttpOptions: &instancegroup.HealthCheckSpec_HttpOptions{Port: int64(d.Get(key + ".http_options.0.port").(int)), Path: d.Get(key + ".http_options.0.path").(string)},
 			}

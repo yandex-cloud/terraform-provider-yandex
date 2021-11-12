@@ -8,6 +8,9 @@ ifeq ($(SWEEP),)
 SWEEP=ru-central1
 endif
 
+SWEEP_DIR?=./yandex
+
+
 default: build
 
 build: fmtcheck
@@ -15,7 +18,7 @@ build: fmtcheck
 
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";
-	go test $(TEST) -timeout 120m -v -sweep=$(SWEEP) -sweep-run=$(SWEEP_RUN)
+	go test $(SWEEP_DIR) -v -sweep=$(SWEEP) -sweep-run=$(SWEEP_RUN) -timeout 60m
 
 test: fmtcheck
 	go test $(TEST) -timeout=30s -parallel=4

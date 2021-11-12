@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 )
 
 const yandexContainerRepositoryDefaultTimeout = 5 * time.Minute

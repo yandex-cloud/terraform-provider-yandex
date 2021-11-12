@@ -3,8 +3,9 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -48,7 +49,6 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"backup_window_start": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -68,7 +68,6 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
@@ -144,7 +143,6 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 						"connection_limits": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"max_questions_per_hour": {
@@ -175,7 +173,6 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"host": {
 				Type:     schema.TypeList,
-				MinItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -257,7 +254,6 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

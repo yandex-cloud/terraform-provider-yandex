@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
@@ -249,10 +249,6 @@ func resourceYandexKMSSymmetricKeyUpdate(d *schema.ResourceData, meta interface{
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating KMS Symmetric Key %q: %s", d.Id(), err)
-	}
-
-	for _, v := range req.UpdateMask.Paths {
-		d.SetPartial(v)
 	}
 
 	d.Partial(false)

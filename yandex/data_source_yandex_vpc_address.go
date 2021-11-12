@@ -1,7 +1,7 @@
 package yandex
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -37,7 +37,6 @@ func dataSourceYandexVPCAddress() *schema.Resource {
 			"external_ipv4_address": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"address": {

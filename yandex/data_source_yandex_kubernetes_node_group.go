@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -53,13 +53,11 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			"instance_template": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resources": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"memory": {
@@ -84,7 +82,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 						"boot_disk": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
@@ -149,7 +146,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"scheduling_policy": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -162,7 +158,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"placement_policy": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -178,13 +173,11 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			},
 			"scale_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_scale": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -197,7 +190,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 						},
 						"auto_scale": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -221,7 +213,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			},
 			"allocation_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -251,7 +242,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			"version_info": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"current_version": {
@@ -276,7 +266,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			"maintenance_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_upgrade": {
@@ -330,7 +319,6 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 			"deploy_policy": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"max_expansion": {

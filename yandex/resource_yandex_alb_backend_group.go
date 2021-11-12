@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
 const yandexALBBackendGroupDefaultTimeout = 5 * time.Minute
@@ -148,7 +149,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.grpc_healthcheck", "http_backend.healthcheck.http_healthcheck"},
 									},
 									"http_healthcheck": {
 										Type:     schema.TypeList,
@@ -170,7 +170,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.stream_healthcheck", "http_backend.healthcheck.grpc_healthcheck"},
 									},
 									"grpc_healthcheck": {
 										Type:     schema.TypeList,
@@ -184,7 +183,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"http_backend.healthcheck.stream_healthcheck", "http_backend.healthcheck.http_healthcheck"},
 									},
 								},
 							},
@@ -207,14 +205,12 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"trusted_ca_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"http_backend.tls.validation_context.trusted_ca_bytes"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 												"trusted_ca_bytes": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"http_backend.tls.validation_context.trusted_ca_id"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
@@ -326,7 +322,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.grpc_healthcheck", "grpc_backend.healthcheck.http_healthcheck"},
 									},
 									"http_healthcheck": {
 										Type:     schema.TypeList,
@@ -348,7 +343,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.stream_healthcheck", "grpc_backend.healthcheck.grpc_healthcheck"},
 									},
 									"grpc_healthcheck": {
 										Type:     schema.TypeList,
@@ -362,7 +356,6 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 												},
 											},
 										},
-										ConflictsWith: []string{"grpc_backend.healthcheck.stream_healthcheck", "grpc_backend.healthcheck.http_healthcheck"},
 									},
 								},
 							},
@@ -385,14 +378,12 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"trusted_ca_id": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"grpc_backend.tls.validation_context.trusted_ca_bytes"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 												"trusted_ca_bytes": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"grpc_backend.tls.validation_context.trusted_ca_id"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},

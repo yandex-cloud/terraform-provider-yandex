@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/grpc/codes"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"

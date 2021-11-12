@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -76,7 +76,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 			"master": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -89,7 +88,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 						},
 						"maintenance_policy": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -124,7 +122,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 						"zonal": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
@@ -136,7 +133,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 						},
 						"regional": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -176,7 +172,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 						"version_info": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"current_version": {
@@ -220,7 +215,6 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 			"kms_provider": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_id": {
@@ -237,12 +231,10 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 			"network_implementation": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cilium": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

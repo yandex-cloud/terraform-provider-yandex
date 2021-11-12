@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
@@ -147,12 +147,13 @@ func testAccCheckComputeImageDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := config.sdk.Compute().Image().Get(context.Background(), &compute.GetImageRequest{
+		r, err := config.sdk.Compute().Image().Get(context.Background(), &compute.GetImageRequest{
 			ImageId: rs.Primary.ID,
 		})
 
-		if err == nil {
-			return fmt.Errorf("Image still exists")
+		// Do not trigger error on images from "standard-images" folder
+		if err == nil && r.FolderId != StandardImagesFolderID {
+			return fmt.Errorf("Image still exists: %q", r)
 		}
 	}
 

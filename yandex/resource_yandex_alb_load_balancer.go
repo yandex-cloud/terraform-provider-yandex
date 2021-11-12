@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
 const yandexALBLoadBalancerDefaultTimeout = 10 * time.Minute
@@ -153,7 +154,6 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.internal_ipv4_address", "listener.endpoint.address.external_ipv6_address"},
 												},
 												"internal_ipv4_address": {
 													Type:     schema.TypeList,
@@ -173,7 +173,6 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.external_ipv4_address", "listener.endpoint.address.external_ipv6_address"},
 												},
 												"external_ipv6_address": {
 													Type:     schema.TypeList,
@@ -188,7 +187,6 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.internal_ipv4_address", "listener.endpoint.address.external_ipv4_address"},
 												},
 											},
 										},
@@ -197,18 +195,16 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"http": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"listener.tls"},
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"handler": httpHandler("listener.http.handler", []string{"listener.http.redirects"}),
+									"handler": httpHandler("listener.http.handler"),
 									"redirects": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"listener.http.handler"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"http_to_https": {
@@ -223,10 +219,9 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"tls": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"listener.http"},
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"default_handler": tlsHandler("listener.tls.default_handler"),
@@ -271,7 +266,7 @@ func tlsHandler(path string) *schema.Schema {
 		Required: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler": httpHandler(path+".http_handler", nil),
+				"http_handler": httpHandler(path + ".http_handler"),
 				"certificate_ids": {
 					Type:     schema.TypeSet,
 					Required: true,
@@ -283,12 +278,11 @@ func tlsHandler(path string) *schema.Schema {
 	}
 }
 
-func httpHandler(path string, conflictWith []string) *schema.Schema {
+func httpHandler(path string) *schema.Schema {
 	return &schema.Schema{
-		Type:          schema.TypeList,
-		MaxItems:      1,
-		Optional:      true,
-		ConflictsWith: conflictWith,
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"http_router_id": {
@@ -308,13 +302,11 @@ func httpHandler(path string, conflictWith []string) *schema.Schema {
 							},
 						},
 					},
-					ConflictsWith: []string{path + ".allow_http10"},
 				},
 				"allow_http10": {
-					Type:          schema.TypeBool,
-					Optional:      true,
-					Default:       false,
-					ConflictsWith: []string{path + ".http2_options"},
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
 				},
 			},
 		},

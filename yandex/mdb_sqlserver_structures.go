@@ -7,8 +7,9 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 

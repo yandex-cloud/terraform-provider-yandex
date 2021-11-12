@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/customdiff"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
@@ -286,7 +286,6 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial(labelPropName)
 	}
 
 	namePropName := "name"
@@ -304,7 +303,6 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial(namePropName)
 	}
 
 	descPropName := "description"
@@ -322,7 +320,6 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial(descPropName)
 	}
 
 	placementPolicyPropName := "disk_placement_policy"
@@ -342,7 +339,6 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial(placementPolicyPropName)
 	}
 
 	sizePropName := "size"
@@ -360,7 +356,6 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 
-		d.SetPartial(sizePropName)
 	}
 
 	d.Partial(false)
@@ -393,12 +388,12 @@ func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	resp, err := op.Response()
+	_, err = op.Response()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] Finished deleting Disk %q: %#v", d.Id(), resp)
+	log.Printf("[DEBUG] Finished deleting Disk %q", d.Id())
 	return nil
 }
 
@@ -421,7 +416,7 @@ func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceDat
 	return nil
 }
 
-func isDiskSizeDecreased(old, new, _ interface{}) bool {
+func isDiskSizeDecreased(ctx context.Context, old, new, _ interface{}) bool {
 	if old == nil || new == nil {
 		return false
 	}

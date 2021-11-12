@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -66,7 +66,6 @@ func dataSourceYandexVPCSubnet() *schema.Resource {
 			},
 			"dhcp_options": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/grpc"

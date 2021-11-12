@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -1155,7 +1155,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+
 			})
 		}
 	}
@@ -1174,7 +1174,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 			if h.Type == clickhouse.Host_ZOOKEEPER {
 				updatePath = append(updatePath, "config_spec.zookeeper")
 				onDone = append(onDone, func() {
-					d.SetPartial("zookeeper")
+
 				})
 				break
 			}
@@ -1279,7 +1279,6 @@ func updateClickHouseClusterDatabases(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	d.SetPartial("database")
 	return nil
 }
 
@@ -1319,7 +1318,6 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	d.SetPartial("user")
 	return nil
 }
 
@@ -1435,7 +1433,6 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 
@@ -1474,7 +1471,6 @@ func updateClickHouseClusterShardGroups(d *schema.ResourceData, meta interface{}
 		}
 	}
 
-	d.SetPartial("shard_group")
 	return nil
 }
 
@@ -1513,7 +1509,6 @@ func updateClickHouseFormatSchemas(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	d.SetPartial("format_schema")
 	return nil
 }
 
@@ -1552,7 +1547,6 @@ func updateClickHouseMlModels(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("ml_model")
 	return nil
 }
 

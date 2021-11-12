@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
@@ -267,7 +267,6 @@ func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		d.SetPartial(labelPropName)
 	}
 
 	namePropName := "name"
@@ -285,7 +284,6 @@ func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		d.SetPartial(namePropName)
 	}
 
 	descPropName := "description"
@@ -303,7 +301,6 @@ func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		d.SetPartial(descPropName)
 	}
 
 	minDiskSizePropName := "min_disk_size"
@@ -321,7 +318,6 @@ func resourceYandexComputeImageUpdate(d *schema.ResourceData, meta interface{}) 
 			return err
 		}
 
-		d.SetPartial(minDiskSizePropName)
 	}
 
 	d.Partial(false)

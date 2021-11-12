@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -44,14 +44,12 @@ func dataSourceYandexYDBDatabaseDedicated() *schema.Resource {
 
 			"scale_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"fixed_scale": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"size": {
@@ -84,14 +82,12 @@ func dataSourceYandexYDBDatabaseDedicated() *schema.Resource {
 
 			"location": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"region": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {
@@ -104,7 +100,6 @@ func dataSourceYandexYDBDatabaseDedicated() *schema.Resource {
 						"zone": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"id": {

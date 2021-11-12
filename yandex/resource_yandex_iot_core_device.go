@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
@@ -189,20 +189,16 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 	d.Partial(true)
 
 	var updatePaths []string
-	var partialPaths []string
 	if d.HasChange("name") {
 		updatePaths = append(updatePaths, "name")
-		partialPaths = append(partialPaths, "name")
 	}
 
 	if d.HasChange("description") {
 		updatePaths = append(updatePaths, "description")
-		partialPaths = append(partialPaths, "description")
 	}
 
 	if d.HasChange("aliases") {
 		updatePaths = append(updatePaths, "topic_aliases")
-		partialPaths = append(partialPaths, "aliases")
 	}
 
 	if len(updatePaths) != 0 {
@@ -218,10 +214,6 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 		err = waitOperation(ctx, config, op, err)
 		if err != nil {
 			return fmt.Errorf("Error while requesting API to update IoT Device: %s", err)
-		}
-
-		for _, v := range partialPaths {
-			d.SetPartial(v)
 		}
 	}
 
@@ -254,7 +246,6 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
-		d.SetPartial("certificates")
 	}
 
 	if d.HasChange("passwords") {
@@ -276,7 +267,6 @@ func resourceYandexIoTCoreDeviceUpdate(d *schema.ResourceData, meta interface{})
 			return fmt.Errorf("Failed to add password: %s", err)
 		}
 
-		d.SetPartial("passwords")
 	}
 
 	d.Partial(false)

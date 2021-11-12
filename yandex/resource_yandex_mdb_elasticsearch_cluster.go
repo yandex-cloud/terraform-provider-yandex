@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -554,7 +554,6 @@ func updateElasticsearchClusterHosts(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 
@@ -650,9 +649,6 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	for i := range changed {
-		d.SetPartial(changed[i])
-	}
 	return nil
 }
 

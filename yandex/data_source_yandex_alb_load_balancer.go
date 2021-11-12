@@ -2,10 +2,11 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
-	"strings"
 )
 
 func dataSourceYandexALBLoadBalancer() *schema.Resource {
@@ -81,7 +82,6 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 
 			"allocation_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -136,7 +136,6 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"external_ipv4_address": {
 													Type:     schema.TypeList,
-													MaxItems: 1,
 													Computed: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -146,11 +145,9 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.internal_ipv4_address", "listener.endpoint.address.external_ipv6_address"},
 												},
 												"internal_ipv4_address": {
 													Type:     schema.TypeList,
-													MaxItems: 1,
 													Computed: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -164,11 +161,9 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.external_ipv4_address", "listener.endpoint.address.external_ipv6_address"},
 												},
 												"external_ipv6_address": {
 													Type:     schema.TypeList,
-													MaxItems: 1,
 													Computed: true,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
@@ -178,7 +173,6 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 															},
 														},
 													},
-													ConflictsWith: []string{"listener.endpoint.address.internal_ipv4_address", "listener.endpoint.address.external_ipv4_address"},
 												},
 											},
 										},
@@ -187,18 +181,14 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"http": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"listener.tls"},
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"handler": dataSourceHTTPHandler("listener.http.handler", []string{"listener.http.redirects"}),
+									"handler": dataSourceHTTPHandler("listener.http.handler"),
 									"redirects": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"listener.http.handler"},
+										Type:     schema.TypeList,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"http_to_https": {
@@ -212,10 +202,8 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 							},
 						},
 						"tls": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"listener.http"},
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"default_handler": dataSourceTLSHandler("listener.tls.default_handler"),
@@ -256,11 +244,10 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 func dataSourceTLSHandler(path string) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
-		MaxItems: 1,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler": dataSourceHTTPHandler(path+".http_handler", nil),
+				"http_handler": dataSourceHTTPHandler(path + ".http_handler"),
 				"certificate_ids": {
 					Type:     schema.TypeSet,
 					Computed: true,
@@ -272,12 +259,10 @@ func dataSourceTLSHandler(path string) *schema.Schema {
 	}
 }
 
-func dataSourceHTTPHandler(path string, conflictWith []string) *schema.Schema {
+func dataSourceHTTPHandler(path string) *schema.Schema {
 	return &schema.Schema{
-		Type:          schema.TypeList,
-		MaxItems:      1,
-		Optional:      true,
-		ConflictsWith: conflictWith,
+		Type:     schema.TypeList,
+		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"http_router_id": {
@@ -286,7 +271,6 @@ func dataSourceHTTPHandler(path string, conflictWith []string) *schema.Schema {
 				},
 				"http2_options": {
 					Type:     schema.TypeList,
-					MaxItems: 1,
 					Computed: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
@@ -296,12 +280,10 @@ func dataSourceHTTPHandler(path string, conflictWith []string) *schema.Schema {
 							},
 						},
 					},
-					ConflictsWith: []string{path + ".allow_http10"},
 				},
 				"allow_http10": {
-					Type:          schema.TypeBool,
-					Optional:      true,
-					ConflictsWith: []string{path + ".http2_options"},
+					Type:     schema.TypeBool,
+					Optional: true,
 				},
 			},
 		},

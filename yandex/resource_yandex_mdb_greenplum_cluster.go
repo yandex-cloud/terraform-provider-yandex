@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -553,21 +553,11 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 		Access:            expandGreenplumAccess(d),
 	}
 
-	onDone := []func(){}
 	updatePath := []string{}
 	for field, path := range mdbGreenplumUpdateFieldsMap {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
-			onDone = append(onDone, func() {
-				d.SetPartial(field)
-			})
 		}
-	}
-
-	if d.HasChange("config") {
-		onDone = append(onDone, func() {
-			d.SetPartial("config")
-		})
 	}
 
 	if len(updatePath) == 0 {
@@ -587,10 +577,6 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("error while updating Greenplum Cluster %q: %s", d.Id(), err)
-	}
-
-	for _, f := range onDone {
-		f()
 	}
 
 	d.Partial(false)

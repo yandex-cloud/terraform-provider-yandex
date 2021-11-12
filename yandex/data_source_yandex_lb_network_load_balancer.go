@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -74,7 +74,6 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Set:      resourceLBNetworkLoadBalancerExternalAddressHash,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"address": {
@@ -92,7 +91,6 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Set:      resourceLBNetworkLoadBalancerInternalAddressHash,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"subnet_id": {
@@ -152,7 +150,6 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 									"http_options": {
 										Type:     schema.TypeList,
 										Computed: true,
-										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"port": {
@@ -169,7 +166,6 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 									"tcp_options": {
 										Type:     schema.TypeList,
 										Computed: true,
-										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"port": {

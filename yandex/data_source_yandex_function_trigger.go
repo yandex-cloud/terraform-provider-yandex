@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -45,7 +45,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"iot": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -69,7 +68,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"message_queue": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -103,7 +101,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"object_storage": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -142,7 +139,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"timer": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -156,7 +152,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"log_group": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -165,7 +160,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
-							MinItems: 1,
 						},
 
 						"batch_cutoff": {
@@ -183,7 +177,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"logging": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -231,7 +224,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"function": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -265,7 +257,6 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 			"dlq": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

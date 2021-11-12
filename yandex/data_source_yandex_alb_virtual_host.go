@@ -2,9 +2,10 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
 func dataSourceYandexALBVirtualHost() *schema.Resource {
@@ -46,17 +47,13 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 							Computed: true,
 						},
 						"http_route": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Computed:      true,
-							ConflictsWith: []string{"route.grpc_route"},
+							Type:     schema.TypeList,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"http_route_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Computed:      true,
-										ConflictsWith: []string{"route.http_route.redirect_action", "route.http_route.direct_response_action"},
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
@@ -83,23 +80,19 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Set:      schema.HashString,
 												},
 												"host_rewrite": {
-													Type:          schema.TypeString,
-													Computed:      true,
-													ConflictsWith: []string{"route.http_route.http_route_action.auto_host_rewrite"},
+													Type:     schema.TypeString,
+													Computed: true,
 												},
 												"auto_host_rewrite": {
-													Type:          schema.TypeBool,
-													Computed:      true,
-													ConflictsWith: []string{"route.http_route.http_route_action.host_rewrite"},
+													Type:     schema.TypeBool,
+													Computed: true,
 												},
 											},
 										},
 									},
 									"redirect_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Computed:      true,
-										ConflictsWith: []string{"route.http_route.http_route_action", "route.http_route.direct_response_action"},
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"replace_scheme": {
@@ -123,23 +116,19 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Computed: true,
 												},
 												"replace_path": {
-													Type:          schema.TypeString,
-													Computed:      true,
-													ConflictsWith: []string{"route.http_route.redirect_action.replace_prefix"},
+													Type:     schema.TypeString,
+													Computed: true,
 												},
 												"replace_prefix": {
-													Type:          schema.TypeString,
-													Computed:      true,
-													ConflictsWith: []string{"route.http_route.redirect_action.replace_path"},
+													Type:     schema.TypeString,
+													Computed: true,
 												},
 											},
 										},
 									},
 									"direct_response_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Computed:      true,
-										ConflictsWith: []string{"route.http_route.redirect_action", "route.http_route.http_route_action"},
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
@@ -164,7 +153,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Elem:     schema.TypeString,
 													Set:      schema.HashString,
 												},
-												"path": dataSourceStringMatch("route.http_route.http_match.path."),
+												"path": dataSourceStringMatch(),
 											},
 										},
 									},
@@ -172,10 +161,8 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 							},
 						},
 						"grpc_route": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Computed:      true,
-							ConflictsWith: []string{"route.http_route"},
+							Type:     schema.TypeList,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"grpc_match": {
@@ -184,15 +171,13 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"fqmn": dataSourceStringMatch("route.grpc_route.grpc_match.fqmn."),
+												"fqmn": dataSourceStringMatch(),
 											},
 										},
 									},
 									"grpc_route_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Computed:      true,
-										ConflictsWith: []string{"route.grpc_route.grpc_status_response_action"},
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
@@ -208,23 +193,19 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 													Computed: true,
 												},
 												"host_rewrite": {
-													Type:          schema.TypeString,
-													Computed:      true,
-													ConflictsWith: []string{"route.grpc_route.grpc_route_action.auto_host_rewrite"},
+													Type:     schema.TypeString,
+													Computed: true,
 												},
 												"auto_host_rewrite": {
-													Type:          schema.TypeBool,
-													Computed:      true,
-													ConflictsWith: []string{"route.grpc_route.grpc_route_action.host_rewrite"},
+													Type:     schema.TypeBool,
+													Computed: true,
 												},
 											},
 										},
 									},
 									"grpc_status_response_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Computed:      true,
-										ConflictsWith: []string{"route.grpc_route.grpc_route_action"},
+										Type:     schema.TypeList,
+										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
@@ -255,19 +236,16 @@ func dataSourceHeaderModification(path string) *schema.Schema {
 					Computed: true,
 				},
 				"append": {
-					Type:          schema.TypeString,
-					Computed:      true,
-					ConflictsWith: []string{path + "replace", path + "remove"},
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 				"replace": {
-					Type:          schema.TypeString,
-					Computed:      true,
-					ConflictsWith: []string{path + "append", path + "remove"},
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 				"remove": {
-					Type:          schema.TypeBool,
-					Computed:      true,
-					ConflictsWith: []string{path + "replace", path + "append"},
+					Type:     schema.TypeBool,
+					Computed: true,
 				},
 			},
 		},
@@ -275,22 +253,19 @@ func dataSourceHeaderModification(path string) *schema.Schema {
 	}
 }
 
-func dataSourceStringMatch(path string) *schema.Schema {
+func dataSourceStringMatch() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
-		MaxItems: 1,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"exact": {
-					Type:          schema.TypeString,
-					Computed:      true,
-					ConflictsWith: []string{path + "prefix"},
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 				"prefix": {
-					Type:          schema.TypeString,
-					Computed:      true,
-					ConflictsWith: []string{path + "exact"},
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 			},
 		},

@@ -1,8 +1,9 @@
 package yandex
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceVPCSecurityGroupRule(t *testing.T) {

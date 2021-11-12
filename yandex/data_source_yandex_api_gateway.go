@@ -2,7 +2,8 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -40,7 +40,6 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 			"config": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"timeout": {
@@ -77,7 +76,6 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
@@ -158,7 +156,6 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

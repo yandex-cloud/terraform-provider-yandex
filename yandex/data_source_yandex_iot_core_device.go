@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -38,7 +38,6 @@ func dataSourceYandexIoTCoreDevice() *schema.Resource {
 
 			"certificates": {
 				Type:     schema.TypeSet,
-				MaxItems: 5,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
@@ -46,7 +45,6 @@ func dataSourceYandexIoTCoreDevice() *schema.Resource {
 
 			"passwords": {
 				Type:     schema.TypeSet,
-				MaxItems: 5,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,

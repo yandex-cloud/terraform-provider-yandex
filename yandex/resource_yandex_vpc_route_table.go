@@ -7,8 +7,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
@@ -235,10 +236,6 @@ func resourceYandexVPCRouteTableUpdate(d *schema.ResourceData, meta interface{})
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Route table %q: %s", d.Id(), err)
-	}
-
-	for _, v := range req.UpdateMask.Paths {
-		d.SetPartial(v)
 	}
 
 	d.Partial(false)

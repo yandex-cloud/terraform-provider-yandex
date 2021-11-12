@@ -1,11 +1,13 @@
 package yandex
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
 )
 
@@ -345,8 +347,7 @@ func mapElasticsearchHostNames(actual []*elasticsearch.Host, state Elasticsearch
 	return result
 }
 
-func elasticseachHostDiffCustomize(rdiff *schema.ResourceDiff, _ interface{}) error {
-
+func elasticseachHostDiffCustomize(ctx context.Context, rdiff *schema.ResourceDiff, _ interface{}) error {
 	os, ns := rdiff.GetChange("host")
 
 	oldHosts, _ := expandElasticsearchHosts(os)

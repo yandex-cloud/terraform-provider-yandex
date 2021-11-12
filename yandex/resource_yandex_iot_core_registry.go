@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
@@ -201,20 +201,16 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 	d.Partial(true)
 
 	var updatePaths []string
-	var partialPaths []string
 	if d.HasChange("name") {
 		updatePaths = append(updatePaths, "name")
-		partialPaths = append(partialPaths, "name")
 	}
 
 	if d.HasChange("description") {
 		updatePaths = append(updatePaths, "description")
-		partialPaths = append(partialPaths, "description")
 	}
 
 	if d.HasChange("labels") {
 		updatePaths = append(updatePaths, "labels")
-		partialPaths = append(partialPaths, "labels")
 	}
 
 	if len(updatePaths) != 0 {
@@ -232,9 +228,6 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error while requesting API to update IoT Registry: %s", err)
 		}
 
-		for _, v := range partialPaths {
-			d.SetPartial(v)
-		}
 	}
 
 	if d.HasChange("certificates") {
@@ -266,7 +259,6 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			}
 		}
 
-		d.SetPartial("certificates")
 	}
 
 	if d.HasChange("passwords") {
@@ -296,7 +288,6 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			}
 		}
 
-		d.SetPartial("passwords")
 	}
 
 	d.Partial(false)

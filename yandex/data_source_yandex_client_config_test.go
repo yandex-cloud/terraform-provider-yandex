@@ -1,9 +1,10 @@
 package yandex
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceYandexClientConfig(t *testing.T) {

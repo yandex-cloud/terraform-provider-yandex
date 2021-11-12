@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
@@ -181,7 +181,6 @@ func resourceYandexComputeSnapshotUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(labelPropName)
 	}
 
 	namePropName := "name"
@@ -199,7 +198,6 @@ func resourceYandexComputeSnapshotUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(namePropName)
 	}
 
 	descPropName := "description"
@@ -217,7 +215,6 @@ func resourceYandexComputeSnapshotUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(descPropName)
 	}
 
 	d.Partial(false)

@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
 const yandexALBVirtualHostDefaultTimeout = 5 * time.Minute
@@ -57,17 +58,15 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 							Optional: true,
 						},
 						"http_route": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"route.grpc_route"},
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"http_route_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"route.http_route.redirect_action", "route.http_route.direct_response_action"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
@@ -97,23 +96,20 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Set:      schema.HashString,
 												},
 												"host_rewrite": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"route.http_route.http_route_action.auto_host_rewrite"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 												"auto_host_rewrite": {
-													Type:          schema.TypeBool,
-													Optional:      true,
-													ConflictsWith: []string{"route.http_route.http_route_action.host_rewrite"},
+													Type:     schema.TypeBool,
+													Optional: true,
 												},
 											},
 										},
 									},
 									"redirect_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"route.http_route.http_route_action", "route.http_route.direct_response_action"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"replace_scheme": {
@@ -138,23 +134,20 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Optional: true,
 												},
 												"replace_path": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"route.http_route.redirect_action.replace_prefix"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 												"replace_prefix": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"route.http_route.redirect_action.replace_path"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 											},
 										},
 									},
 									"direct_response_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"route.http_route.redirect_action", "route.http_route.http_route_action"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
@@ -180,7 +173,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Elem:     schema.TypeString,
 													Set:      schema.HashString,
 												},
-												"path": stringMatch("route.http_route.http_match.path."),
+												"path": stringMatch(),
 											},
 										},
 									},
@@ -188,10 +181,9 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 							},
 						},
 						"grpc_route": {
-							Type:          schema.TypeList,
-							MaxItems:      1,
-							Optional:      true,
-							ConflictsWith: []string{"route.http_route"},
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"grpc_match": {
@@ -199,15 +191,14 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"fqmn": stringMatch("route.grpc_route.grpc_match.fqmn."),
+												"fqmn": stringMatch(),
 											},
 										},
 									},
 									"grpc_route_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"route.grpc_route.grpc_status_response_action"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"backend_group_id": {
@@ -227,23 +218,20 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 												},
 												"host_rewrite": {
-													Type:          schema.TypeString,
-													Optional:      true,
-													ConflictsWith: []string{"route.grpc_route.grpc_route_action.auto_host_rewrite"},
+													Type:     schema.TypeString,
+													Optional: true,
 												},
 												"auto_host_rewrite": {
-													Type:          schema.TypeBool,
-													Optional:      true,
-													ConflictsWith: []string{"route.grpc_route.grpc_route_action.host_rewrite"},
+													Type:     schema.TypeBool,
+													Optional: true,
 												},
 											},
 										},
 									},
 									"grpc_status_response_action": {
-										Type:          schema.TypeList,
-										MaxItems:      1,
-										Optional:      true,
-										ConflictsWith: []string{"route.grpc_route.grpc_route_action"},
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
@@ -263,7 +251,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 	}
 }
 
-func stringMatch(path string) *schema.Schema {
+func stringMatch() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		MaxItems: 1,
@@ -271,14 +259,12 @@ func stringMatch(path string) *schema.Schema {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"exact": {
-					Type:          schema.TypeString,
-					Optional:      true,
-					ConflictsWith: []string{path + "prefix"},
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"prefix": {
-					Type:          schema.TypeString,
-					Optional:      true,
-					ConflictsWith: []string{path + "exact"},
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 			},
 		},
@@ -296,19 +282,16 @@ func headerModification(path string) *schema.Schema {
 					Optional: true,
 				},
 				"append": {
-					Type:          schema.TypeString,
-					Optional:      true,
-					ConflictsWith: []string{path + "replace", path + "remove"},
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"replace": {
-					Type:          schema.TypeString,
-					Optional:      true,
-					ConflictsWith: []string{path + "append", path + "remove"},
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"remove": {
-					Type:          schema.TypeBool,
-					Optional:      true,
-					ConflictsWith: []string{path + "replace", path + "append"},
+					Type:     schema.TypeBool,
+					Optional: true,
 				},
 			},
 		},

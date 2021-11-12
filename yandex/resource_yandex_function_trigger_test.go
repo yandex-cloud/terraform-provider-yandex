@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	iot "github.com/yandex-cloud/go-genproto/yandex/cloud/iot/devices/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
@@ -659,7 +659,7 @@ resource "yandex_iam_service_account" "test-account" {
 }
 
 resource "yandex_logging_group" "default-logging-group" {
-	name = "default"
+  name = "test-acc-lg-%[1]s"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "test_account" {
@@ -696,17 +696,17 @@ resource "yandex_function" "logging-src-fn" {
 resource "yandex_function_trigger" "test-trigger" {
   name = "%s"
   logging {
-    group_id = yandex_logging_group.default-logging-group.id
-    batch_cutoff = "%d"
-    batch_size   = "%d"
-	resource_ids = [yandex_function.logging-src-fn.id]
-	resource_types = ["serverless.function"]
-	levels = ["info"]
+    group_id       = yandex_logging_group.default-logging-group.id
+    batch_cutoff   = "%d"
+    batch_size     = "%d"
+    resource_ids   = [yandex_function.logging-src-fn.id]
+    resource_types = ["serverless.function"]
+    levels         = ["info"]
   }
   function {
     id                 = yandex_function.tf-test.id
     service_account_id = yandex_iam_service_account.test-account.id
   }
-}
-	`, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
+} 
+`, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
 }

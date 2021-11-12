@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
 )
@@ -128,7 +128,7 @@ func TestAccDataSourceLBNetworkLoadBalancer_full(t *testing.T) {
 						func() resource.TestCheckFunc {
 							return testCheckResourceSubAttr(
 								nlbDataSourceResource, &listenerPath,
-								fmt.Sprintf("external_address_spec.%d.ip_version", resouceLBAddressHash(&nlb)),
+								"external_address_spec.0.ip_version",
 								lbDefaultListenerIPVersion,
 							)
 						},
@@ -137,7 +137,7 @@ func TestAccDataSourceLBNetworkLoadBalancer_full(t *testing.T) {
 						func() resource.TestCheckFunc {
 							return testCheckResourceSubAttrFn(
 								nlbDataSourceResource, &listenerPath,
-								fmt.Sprintf("external_address_spec.%d.address", resouceLBAddressHash(&nlb)),
+								"external_address_spec.0.address",
 								func(value string) error {
 									address := nlb.GetListeners()[0].GetAddress()
 									if value != address {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -897,7 +897,7 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVerion(d), -1))
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+
 			})
 		}
 	}
@@ -975,7 +975,6 @@ func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("topic")
 	return nil
 }
 
@@ -1075,7 +1074,6 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetPartial("user")
 	return nil
 }
 

@@ -15,10 +15,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 )
@@ -1617,21 +1617,11 @@ resource "yandex_storage_bucket" "test" {
 
 func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		gh := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
-			"id":   id,
-			"type": "CanonicalUser",
-			"uri":  "",
-			"permissions": schema.NewSet(
-				schema.HashString,
-				[]interface{}{"READ", "WRITE"},
-			),
-		}))
-
 		for _, t := range []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(resourceName, gh+".permissions.#", "2"),
-			resource.TestCheckResourceAttr(resourceName, gh+".permissions.2931993811", "READ"),
-			resource.TestCheckResourceAttr(resourceName, gh+".permissions.2319431919", "WRITE"),
-			resource.TestCheckResourceAttr(resourceName, gh+".type", "CanonicalUser"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "2"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "READ"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.1", "WRITE"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.type", "CanonicalUser"),
 		} {
 			if err := t(s); err != nil {
 				return err
@@ -1643,32 +1633,14 @@ func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) 
 
 func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
-		gh1 := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
-			"id":   id,
-			"type": "CanonicalUser",
-			"uri":  "",
-			"permissions": schema.NewSet(
-				schema.HashString,
-				[]interface{}{"READ"},
-			),
-		}))
-		gh2 := fmt.Sprintf("grant.%v", grantHash(map[string]interface{}{
-			"id":   "",
-			"type": "Group",
-			"uri":  "http://acs.amazonaws.com/groups/global/AllUsers",
-			"permissions": schema.NewSet(
-				schema.HashString,
-				[]interface{}{"READ"},
-			),
-		}))
 		for _, t := range []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(resourceName, gh1+".permissions.#", "1"),
-			resource.TestCheckResourceAttr(resourceName, gh1+".permissions.2931993811", "READ"),
-			resource.TestCheckResourceAttr(resourceName, gh1+".type", "CanonicalUser"),
-			resource.TestCheckResourceAttr(resourceName, gh2+".permissions.#", "1"),
-			resource.TestCheckResourceAttr(resourceName, gh2+".permissions.2931993811", "READ"),
-			resource.TestCheckResourceAttr(resourceName, gh2+".type", "Group"),
-			resource.TestCheckResourceAttr(resourceName, gh2+".uri", "http://acs.amazonaws.com/groups/global/AllUsers"),
+			resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.#", "1"),
+			resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.0", "READ"),
+			resource.TestCheckResourceAttr(resourceName, "grant.1.type", "CanonicalUser"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "1"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "READ"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.type", "Group"),
+			resource.TestCheckResourceAttr(resourceName, "grant.0.uri", "http://acs.amazonaws.com/groups/global/AllUsers"),
 		} {
 			if err := t(s); err != nil {
 				return err

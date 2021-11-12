@@ -3,13 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"net"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
 )
@@ -57,19 +56,6 @@ func sweepLBNetworkLoadBalancerOnce(conf *Config, id string) error {
 		NetworkLoadBalancerId: id,
 	})
 	return handleSweepOperation(ctx, conf, op, err)
-}
-
-func resouceLBAddressHash(nlb *loadbalancer.NetworkLoadBalancer) int {
-	ipVersion := "ipv4"
-	if net.ParseIP(nlb.GetListeners()[0].GetAddress()).To4() == nil {
-		ipVersion = "ipv6"
-	}
-	return resourceLBNetworkLoadBalancerExternalAddressHash(
-		map[string]interface{}{
-			"address":    nlb.GetListeners()[0].GetAddress(),
-			"ip_version": ipVersion,
-		},
-	)
 }
 
 func networkLoadBalancerImportStep() resource.TestStep {
@@ -131,7 +117,7 @@ func TestAccLBNetworkLoadBalancer_full(t *testing.T) {
 						func() resource.TestCheckFunc {
 							return testCheckResourceSubAttrFn(
 								nlbResource, &listenerPath,
-								fmt.Sprintf("external_address_spec.%d.address", resouceLBAddressHash(&nlb)),
+								"external_address_spec.0.address",
 								func(value string) error {
 									address := nlb.GetListeners()[0].GetAddress()
 									if value != address {

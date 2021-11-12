@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -64,7 +64,6 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 			"config": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"version": {
@@ -88,12 +87,10 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 						"data_node": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resources": {
 										Type:     schema.TypeList,
-										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -125,7 +122,6 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"resources": {
 										Type:     schema.TypeList,
-										MaxItems: 1,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
@@ -184,7 +180,6 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 			"host": {
 				Type:     schema.TypeSet,
-				MinItems: 1,
 				Computed: true,
 				Set:      elasticsearchHostFQDNHash,
 				Elem: &schema.Resource{

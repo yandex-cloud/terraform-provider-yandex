@@ -3,11 +3,12 @@ package yandex
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"strings"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 func resourceALBVirtualHostHeaderModificationHash(v interface{}) int {

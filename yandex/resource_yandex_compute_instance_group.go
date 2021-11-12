@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
@@ -304,6 +304,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						"metadata": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
@@ -311,8 +312,8 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						"labels": {
 							Type:     schema.TypeMap,
 							Optional: true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 
 						"secondary_disk": {
@@ -531,7 +532,6 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeMap,
 													Optional: true,
 													Elem:     &schema.Schema{Type: schema.TypeString},
-													Set:      schema.HashString,
 												},
 												"folder_id": {
 													Type:     schema.TypeString,
@@ -612,7 +612,6 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 													Type:     schema.TypeMap,
 													Optional: true,
 													Elem:     &schema.Schema{Type: schema.TypeString},
-													Set:      schema.HashString,
 												},
 												"folder_id": {
 													Type:     schema.TypeString,
@@ -709,13 +708,13 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 
 			"health_check": {
-				Type:     schema.TypeList,
-				MinItems: 1,
-				Optional: true,
+				Type:         schema.TypeList,
+				MinItems:     1,
+				Optional:     true,
+				AtLeastOneOf: []string{},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"interval": {
@@ -741,9 +740,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 
 						"tcp_options": {
-							Type:          schema.TypeList,
-							Optional:      true,
-							ConflictsWith: []string{"health_check.http_options"},
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"port": {
@@ -755,9 +755,8 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 
 						"http_options": {
-							Type:          schema.TypeList,
-							Optional:      true,
-							ConflictsWith: []string{"health_check.tcp_options"},
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"port": {

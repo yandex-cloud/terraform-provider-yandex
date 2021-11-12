@@ -6,14 +6,56 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 )
+
+func init() {
+	resource.AddTestSweepers("yandex_container_registry", &resource.Sweeper{
+		Name:         "yandex_container_registry",
+		F:            testSweepContainerRegistry,
+		Dependencies: []string{},
+	})
+}
+
+func testSweepContainerRegistry(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	req := &containerregistry.ListRegistriesRequest{FolderId: conf.FolderID}
+	it := conf.sdk.ContainerRegistry().Registry().RegistryIterator(conf.Context(), req)
+	result := &multierror.Error{}
+	for it.Next() {
+		id := it.Value().GetId()
+		if !sweepContainerRegistry(conf, id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep Container Registry %q", id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepContainerRegistry(conf *Config, id string) bool {
+	return sweepWithRetry(sweepContainerRegistryOnce, conf, "Container Registry", id)
+}
+
+func sweepContainerRegistryOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexContainerRegistryDefaultTimeout)
+	defer cancel()
+
+	op, err := conf.sdk.ContainerRegistry().Registry().Delete(ctx, &containerregistry.DeleteRegistryRequest{
+		RegistryId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
 
 //revive:disable:var-naming
 func TestAccContainerRegistry_basic(t *testing.T) {

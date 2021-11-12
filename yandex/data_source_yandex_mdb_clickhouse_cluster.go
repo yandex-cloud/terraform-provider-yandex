@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -38,7 +38,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			"clickhouse": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"config": {
@@ -192,7 +191,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 						},
 						"resources": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -374,7 +372,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"host": {
 				Type:     schema.TypeList,
-				MinItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -421,7 +418,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 						},
 						"shard_names": {
 							Type:     schema.TypeList,
-							MinItems: 1,
 							Computed: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -478,7 +474,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"backup_window_start": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -495,7 +490,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"access": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -531,12 +525,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			"zookeeper": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resources": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -604,7 +596,6 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

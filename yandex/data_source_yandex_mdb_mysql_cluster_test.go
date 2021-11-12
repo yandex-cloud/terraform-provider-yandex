@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourceMDBMySQLCluster_byID(t *testing.T) {
@@ -135,32 +135,32 @@ func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, reso
 				"user.0.permission.#",
 			},
 			{
-				"user.0.permission.1976334414.database_name",
-				"user.0.permission.1976334414.database_name",
+				"user.0.permission.0.database_name",
+				"user.0.permission.0.database_name",
 			},
 			{
-				"user.0.permission.1976334414.roles.#",
-				"user.0.permission.1976334414.roles.#",
+				"user.0.permission.0.roles.#",
+				"user.0.permission.0.roles.#",
 			},
 			{
-				"user.0.permission.1976334414.roles.0",
-				"user.0.permission.1976334414.roles.0",
+				"user.0.permission.0.roles.0",
+				"user.0.permission.0.roles.0",
 			},
 			{
-				"user.0.permission.1976334414.roles.1",
-				"user.0.permission.1976334414.roles.1",
-			},
-			{
-				"database.#",
-				"database.#",
+				"user.0.permission.0.roles.1",
+				"user.0.permission.0.roles.1",
 			},
 			{
 				"database.#",
 				"database.#",
 			},
 			{
-				"database.4177295200.name",
-				"database.4177295200.name",
+				"database.#",
+				"database.#",
+			},
+			{
+				"database.0.name",
+				"database.0.name",
 			},
 			{
 				"host.#",

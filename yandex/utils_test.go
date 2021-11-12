@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/vault/helper/pgpkeys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -331,14 +331,14 @@ func testDecryptKeyAndTest(name, key, pgpKey string) resource.TestCheckFunc {
 	}
 }
 
-func DefaultAndEmptyFolderProviders() []map[string]terraform.ResourceProvider {
-	return []map[string]terraform.ResourceProvider{
+func DefaultAndEmptyFolderProviders() []map[string]*schema.Provider {
+	return []map[string]*schema.Provider{
 		testAccProviders,
 		testAccProviderEmptyFolder,
 	}
 }
 
-func CustomProvidersTest(t *testing.T, providers []map[string]terraform.ResourceProvider, testCase resource.TestCase) {
+func CustomProvidersTest(t *testing.T, providers []map[string]*schema.Provider, testCase resource.TestCase) {
 	for _, provider := range providers {
 		customTest := testCase
 		customTest.Providers = provider

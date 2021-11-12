@@ -10,10 +10,10 @@ import (
 
 	"github.com/fatih/structs"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
@@ -819,17 +819,10 @@ func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, r
 }
 
 func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPrefix, day, startTime, duration string) resource.TestCheckFunc {
-	window := map[string]interface{}{
-		"day":        day,
-		"start_time": startTime,
-		"duration":   duration,
-	}
-
-	hash := strconv.Itoa(dayOfWeekHash(window))
 	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+hash+".day", day),
-		testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+hash+".start_time", startTime),
-		testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+hash+".duration", duration),
+		resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"0.day", day),
+		testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", startTime),
+		testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", duration),
 	)
 }
 

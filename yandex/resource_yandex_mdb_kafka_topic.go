@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	sdkoperation "github.com/yandex-cloud/go-sdk/operation"

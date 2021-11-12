@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -112,7 +112,6 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 			},
 			"host": {
 				Type:     schema.TypeList,
-				MinItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

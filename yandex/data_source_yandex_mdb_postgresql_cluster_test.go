@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
@@ -239,8 +239,8 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"user.0.permission.#",
 			},
 			{
-				"user.0.permission.4177295200.database_name",
-				"user.0.permission.4177295200.database_name",
+				"user.0.permission.0.database_name",
+				"user.0.permission.0.database_name",
 			},
 			{
 				"security_group_ids.#",

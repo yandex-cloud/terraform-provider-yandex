@@ -1,14 +1,16 @@
 package yandex
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/terraform-provider-yandex/version"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/mutexkv"
 )
 
 const (
@@ -21,15 +23,15 @@ const (
 // Global MutexKV
 var mutexKV = mutexkv.NewMutexKV()
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return provider(false)
 }
 
-func emptyFolderProvider() terraform.ResourceProvider {
+func emptyFolderProvider() *schema.Provider {
 	return provider(true)
 }
 
-func provider(emptyFolder bool) terraform.ResourceProvider {
+func provider(emptyFolder bool) *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
@@ -257,7 +259,10 @@ func provider(emptyFolder bool) terraform.ResourceProvider {
 			"yandex_ydb_database_serverless":                      resourceYandexYDBDatabaseServerless(),
 		},
 	}
-	provider.ConfigureFunc = providerConfigure(provider, emptyFolder)
+
+	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(ctx, d, provider, emptyFolder)
+	}
 
 	return provider
 }
@@ -333,43 +338,48 @@ var descriptions = map[string]string{
 		"Used when a message queue resource doesn't have a secret key explicitly specified.",
 }
 
-func providerConfigure(provider *schema.Provider, emptyFolder bool) schema.ConfigureFunc {
-	return func(d *schema.ResourceData) (interface{}, error) {
-		config := Config{
-			Token:                          d.Get("token").(string),
-			ServiceAccountKeyFileOrContent: d.Get("service_account_key_file").(string),
-			Zone:                           d.Get("zone").(string),
-			FolderID:                       d.Get("folder_id").(string),
-			CloudID:                        d.Get("cloud_id").(string),
-			Endpoint:                       d.Get("endpoint").(string),
-			Plaintext:                      d.Get("plaintext").(bool),
-			Insecure:                       d.Get("insecure").(bool),
-			MaxRetries:                     d.Get("max_retries").(int),
-			StorageEndpoint:                d.Get("storage_endpoint").(string),
-			StorageAccessKey:               d.Get("storage_access_key").(string),
-			StorageSecretKey:               d.Get("storage_secret_key").(string),
-			YMQEndpoint:                    d.Get("ymq_endpoint").(string),
-			YMQAccessKey:                   d.Get("ymq_access_key").(string),
-			YMQSecretKey:                   d.Get("ymq_secret_key").(string),
-		}
-
-		if emptyFolder {
-			config.FolderID = ""
-		}
-
-		terraformVersion := provider.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-
-		if err := config.initAndValidate(provider.StopContext(), terraformVersion, false); err != nil {
-			return nil, err
-		}
-
-		return &config, nil
+func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool) (interface{}, diag.Diagnostics) {
+	//return func(d *schema.ResourceData) (interface{}, error) {
+	config := Config{
+		Token:                          d.Get("token").(string),
+		ServiceAccountKeyFileOrContent: d.Get("service_account_key_file").(string),
+		Zone:                           d.Get("zone").(string),
+		FolderID:                       d.Get("folder_id").(string),
+		CloudID:                        d.Get("cloud_id").(string),
+		Endpoint:                       d.Get("endpoint").(string),
+		Plaintext:                      d.Get("plaintext").(bool),
+		Insecure:                       d.Get("insecure").(bool),
+		MaxRetries:                     d.Get("max_retries").(int),
+		StorageEndpoint:                d.Get("storage_endpoint").(string),
+		StorageAccessKey:               d.Get("storage_access_key").(string),
+		StorageSecretKey:               d.Get("storage_secret_key").(string),
+		YMQEndpoint:                    d.Get("ymq_endpoint").(string),
+		YMQAccessKey:                   d.Get("ymq_access_key").(string),
+		YMQSecretKey:                   d.Get("ymq_secret_key").(string),
+		userAgent:                      p.UserAgent("terraform-provider-yandex", version.ProviderVersion),
 	}
+
+	if emptyFolder {
+		config.FolderID = ""
+	}
+
+	stopCtx, ok := schema.StopContext(ctx)
+	if !ok {
+		stopCtx = ctx
+	}
+	terraformVersion := p.TerraformVersion
+	if terraformVersion == "" {
+		// Terraform 0.12 introduced this field to the protocol
+		// We can therefore assume that if it's missing it's 0.10 or 0.11
+		terraformVersion = "0.11+compatible"
+	}
+
+	if err := config.initAndValidate(stopCtx, terraformVersion, false); err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	return &config, nil
+
 }
 
 func validateSAKey(v interface{}, k string) (warnings []string, errors []error) {

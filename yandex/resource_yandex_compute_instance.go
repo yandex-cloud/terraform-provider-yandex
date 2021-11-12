@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mitchellh/hashstructure"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -661,7 +661,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(labelPropName)
 	}
 
 	metadataPropName := "metadata"
@@ -684,7 +683,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(metadataPropName)
 	}
 
 	namePropName := "name"
@@ -702,7 +700,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(namePropName)
 	}
 
 	descPropName := "description"
@@ -720,7 +717,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(descPropName)
 	}
 
 	serviceAccountPropName := "service_account_id"
@@ -738,7 +734,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(serviceAccountPropName)
 	}
 
 	placementPolicyPropName := "placement_policy"
@@ -770,7 +765,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		d.SetPartial(placementPolicyPropName)
 	}
 
 	networkInterfacesPropName := "network_interface"
@@ -897,7 +891,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				}
 			}
 
-			d.SetPartial(networkInterfacesPropName)
 		}
 	}
 
@@ -937,7 +930,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "resources_spec")
 
 				onDone = append(onDone, func() {
-					d.SetPartial(resourcesPropName)
+
 				})
 			}
 
@@ -946,7 +939,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, platformIDPropName)
 
 				onDone = append(onDone, func() {
-					d.SetPartial(platformIDPropName)
+
 				})
 			}
 
@@ -960,7 +953,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "network_settings")
 
 				onDone = append(onDone, func() {
-					d.SetPartial(networkAccelerationTypePropName)
+
 				})
 			}
 
@@ -1060,7 +1053,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				log.Printf("[DEBUG] Successfully attached disk %s", diskSpec.GetDiskId())
 			}
 
-			d.SetPartial(secDiskPropName)
 		}
 
 		// update interfaces on stopped instance
@@ -1091,7 +1083,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				}
 			}
 
-			d.SetPartial(networkInterfacesPropName)
 		}
 
 		if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {

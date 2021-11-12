@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -64,7 +64,6 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"memory": {
@@ -89,7 +88,6 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			"boot_disk": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"auto_delete": {
@@ -299,8 +297,6 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 			"scheduling_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
-				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

@@ -8,13 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"google.golang.org/genproto/protobuf/field_mask"
-
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const yandexVPCSecurityGroupDefaultTimeout = 3 * time.Minute
@@ -319,17 +317,13 @@ func resourceYandexVPCSecurityGroupUpdate(d *schema.ResourceData, meta interface
 			return fmt.Errorf("error updating Security group %q: %s", d.Id(), err)
 		}
 
-		for _, v := range req.UpdateMask.Paths {
-			d.SetPartial(v)
-		}
 	}
 
 	if d.HasChange("egress") || d.HasChange("ingress") {
 		if err := resourceYandexVPCSecurityGroupUpdateRules(ctx, d, config); err != nil {
 			return err
 		}
-		d.SetPartial("egress")
-		d.SetPartial("ingress")
+
 	}
 
 	d.Partial(false)

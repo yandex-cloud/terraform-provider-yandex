@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
 )
@@ -33,13 +33,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 			"instance_template": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resources": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"memory": {
@@ -66,7 +64,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 						"boot_disk": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"mode": {
@@ -82,7 +79,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 									"initialize_params": {
 										Type:     schema.TypeList,
 										Computed: true,
-										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"description": {
@@ -135,14 +131,12 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 
 						"labels": {
 							Type:     schema.TypeMap,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 
 						"network_interface": {
@@ -296,7 +290,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 									"initialize_params": {
 										Type:     schema.TypeList,
 										Computed: true,
-										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"description": {
@@ -337,7 +330,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 						"scheduling_policy": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -398,12 +390,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 
 			"scale_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -472,7 +462,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 												"labels": {
 													Type:     schema.TypeMap,
 													Elem:     &schema.Schema{Type: schema.TypeString},
-													Set:      schema.HashString,
 													Computed: true,
 												},
 												"target": {
@@ -546,7 +535,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 												"labels": {
 													Type:     schema.TypeMap,
 													Elem:     &schema.Schema{Type: schema.TypeString},
-													Set:      schema.HashString,
 													Computed: true,
 												},
 												"target": {
@@ -573,7 +561,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"deploy_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -607,7 +594,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"allocation_policy": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -636,12 +622,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
 			},
 
 			"health_check": {
 				Type:     schema.TypeList,
-				MinItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -706,7 +690,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"load_balancer": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -722,7 +705,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 						"target_group_id": {
 							Type:     schema.TypeString,
@@ -742,7 +724,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"application_load_balancer": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -758,7 +739,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeMap,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-							Set:      schema.HashString,
 						},
 						"target_group_id": {
 							Type:     schema.TypeString,
@@ -868,7 +848,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"load_balancer_state": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -886,7 +865,6 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 
 			"application_balancer_state": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

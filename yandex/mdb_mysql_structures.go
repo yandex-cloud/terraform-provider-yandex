@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/objx"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 )
 

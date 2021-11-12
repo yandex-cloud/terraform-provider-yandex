@@ -1,4 +1,6 @@
 ## 0.67.0 (Unreleased)
+ENHANCEMENTS:
+* provider: Upgrade to Terraform Plugin SDK V2. There should be no breaking changes from a practitioner's perspective.
 
 ## 0.66.0 (November 3, 2021)
 FEATURES:
@@ -7,6 +9,7 @@ FEATURES:
 * mdb: add `access` and `backup_window_start` entities in `yandex_mdb_greenplum_cluster` resource and data source
 * mdb: support MongoDB 5.0 in `yandex_mdb_mongodb_cluster`
 * mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
+
 
 ENHANCEMENTS:
 * add docs on k8s node group placement groups.

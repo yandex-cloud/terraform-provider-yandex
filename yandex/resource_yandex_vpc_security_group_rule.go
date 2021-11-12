@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -179,7 +179,6 @@ func resourceYandexVpcSecurityGroupRuleUpdate(data *schema.ResourceData, meta in
 	if data.HasChange("description") {
 		req.Description = data.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
-		data.SetPartial("labels")
 	}
 
 	if data.HasChange("labels") {
@@ -190,7 +189,6 @@ func resourceYandexVpcSecurityGroupRuleUpdate(data *schema.ResourceData, meta in
 
 		req.Labels = labelsProp
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "labels")
-		data.SetPartial("labels")
 	}
 
 	if len(req.UpdateMask.Paths) > 0 {

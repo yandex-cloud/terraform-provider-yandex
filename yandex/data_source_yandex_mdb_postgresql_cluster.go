@@ -3,7 +3,7 @@ package yandex
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -21,12 +21,10 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			"config": {
 				Type:     schema.TypeList,
 				Computed: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"access": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -47,7 +45,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						},
 						"backup_window_start": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -68,7 +65,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						},
 						"performance_diagnostics": {
 							Type:     schema.TypeList,
-							MaxItems: 1,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -90,7 +86,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						"pooler_config": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"pool_discard": {
@@ -107,7 +102,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						"resources": {
 							Type:     schema.TypeList,
 							Computed: true,
-							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disk_size": {
@@ -206,7 +200,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			},
 			"host": {
 				Type:     schema.TypeList,
-				MinItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -322,7 +315,6 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

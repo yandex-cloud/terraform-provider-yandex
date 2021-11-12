@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
@@ -255,6 +255,7 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						"grants": {
 							Type:     schema.TypeList,
 							Optional: true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"permission": {
@@ -320,6 +321,7 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 						"replication_source": {
 							Type:     schema.TypeString,
@@ -328,10 +330,12 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 						"priority": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Computed: true,
 						},
 						"replication_source_name": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -344,10 +348,12 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -368,6 +374,7 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Optional: true,
+				Computed: true,
 			},
 			"host_master_name": {
 				Type:     schema.TypeString,
@@ -869,7 +876,7 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
 			onDone = append(onDone, func() {
-				d.SetPartial(field)
+
 			})
 		}
 	}
@@ -987,7 +994,6 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	d.SetPartial("database")
 	return nil
 }
 
@@ -1078,8 +1084,6 @@ func updatePGClusterUsersUpdateAndDrop(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	d.SetPartial("user")
-
 	return nil
 }
 
@@ -1137,7 +1141,6 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.SetPartial("host")
 	return nil
 }
 
@@ -1307,7 +1310,7 @@ func updatePGUser(ctx context.Context, config *Config, d *schema.ResourceData, u
 		if d.HasChange(path + field) {
 			updatePath = append(updatePath, mask)
 			onDone = append(onDone, func() {
-				d.SetPartial(path + field)
+
 			})
 		}
 	}

@@ -4,8 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"

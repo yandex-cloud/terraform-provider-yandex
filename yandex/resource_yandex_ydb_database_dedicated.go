@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -333,6 +333,7 @@ func resourceYandexYDBDatabaseDedicatedUpdate(d *schema.ResourceData, meta inter
 }
 
 func performYandexYDBDatabaseUpdate(d *schema.ResourceData, config *Config, req *ydb.UpdateDatabaseRequest) error {
+	d.Partial(true)
 	// common parameters
 	if d.HasChange("labels") {
 		labelsProp, err := expandLabels(d.Get("labels"))
@@ -365,11 +366,6 @@ func performYandexYDBDatabaseUpdate(d *schema.ResourceData, config *Config, req 
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating database %q: %s", d.Id(), err)
-	}
-
-	d.Partial(true)
-	for _, v := range req.UpdateMask.Paths {
-		d.SetPartial(v)
 	}
 
 	d.Partial(false)

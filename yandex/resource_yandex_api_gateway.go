@@ -2,11 +2,12 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const yandexApiGatewayDefaultTimeout = 5 * time.Minute
@@ -196,9 +197,6 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error while requesting API to update Yandex Cloud API Gateway: %s", err)
 		}
 
-		for _, v := range updatePaths {
-			d.SetPartial(v)
-		}
 	}
 
 	d.Partial(false)
