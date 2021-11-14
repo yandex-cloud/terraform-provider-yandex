@@ -150,7 +150,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 												"http_method": {
 													Type:     schema.TypeSet,
 													Computed: true,
-													Elem:     schema.TypeString,
+													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
 												"path": dataSourceStringMatch(),

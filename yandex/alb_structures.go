@@ -165,13 +165,17 @@ func expandALBModification(config map[string]interface{}) (*apploadbalancer.Head
 }
 
 func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
-	var routes []*apploadbalancer.Route
-	routeSet := d.Get("route").([]interface{})
+	routeSetRaw, ok := d.GetOk("route")
+	if !ok {
+		return nil, nil
+	}
+	routeSet := routeSetRaw.([]interface{})
 
-	for _, b := range routeSet {
+	var routes []*apploadbalancer.Route
+	for i, b := range routeSet {
 		routeConfig := b.(map[string]interface{})
 
-		route, err := expandALBRoute(routeConfig)
+		route, err := expandALBRoute(d, fmt.Sprintf("route.%d", i), routeConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -182,7 +186,7 @@ func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
 	return routes, nil
 }
 
-func expandALBRoute(config map[string]interface{}) (*apploadbalancer.Route, error) {
+func expandALBRoute(d *schema.ResourceData, path string, config map[string]interface{}) (*apploadbalancer.Route, error) {
 	route := &apploadbalancer.Route{}
 
 	if v, ok := config["name"]; ok {
@@ -191,22 +195,22 @@ func expandALBRoute(config map[string]interface{}) (*apploadbalancer.Route, erro
 
 	if v, ok := config["http_route"]; ok {
 		if len(v.([]interface{})) > 0 {
-			route.SetHttp(expandALBHTTPRoute(v.([]interface{})))
+			route.SetHttp(expandALBHTTPRoute(d, path+".http_route.0", v.([]interface{})))
 		}
 	}
 
 	if v, ok := config["grpc_route"]; ok && len(v.([]interface{})) > 0 {
-		route.SetGrpc(expandALBGRPCRoute(v.([]interface{})))
+		route.SetGrpc(expandALBGRPCRoute(d, path+".grpc_route.0", v.([]interface{})))
 	}
 
 	return route, nil
 }
 
-func expandALBHTTPRoute(v []interface{}) *apploadbalancer.HttpRoute {
+func expandALBHTTPRoute(d *schema.ResourceData, path string, v []interface{}) *apploadbalancer.HttpRoute {
 	httpRoute := &apploadbalancer.HttpRoute{}
 	config := v[0].(map[string]interface{})
 	if val, ok := config["http_match"]; ok && len(val.([]interface{})) > 0 {
-		httpRoute.Match = expandALBHTTPRouteMatch(val)
+		httpRoute.Match = expandALBHTTPRouteMatch(d, path+".http_match.0", val)
 	}
 	if val, ok := config["http_route_action"]; ok && len(val.([]interface{})) > 0 {
 		httpRoute.SetRoute(expandALBHTTPRouteAction(val))
@@ -351,11 +355,11 @@ func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
 	return routeAction
 }
 
-func expandALBHTTPRouteMatch(v interface{}) *apploadbalancer.HttpRouteMatch {
+func expandALBHTTPRouteMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.HttpRouteMatch {
 	httpRouteMatch := &apploadbalancer.HttpRouteMatch{}
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["path"]; ok && len(val.([]interface{})) > 0 {
-		httpRouteMatch.Path = expandALBStringMatch(val)
+		httpRouteMatch.Path = expandALBStringMatch(d, path+".path.0", val)
 	}
 	if val, ok := config["http_method"]; ok {
 		if res, err := expandALBStringListFromSchemaSet(val); err == nil {
@@ -365,11 +369,11 @@ func expandALBHTTPRouteMatch(v interface{}) *apploadbalancer.HttpRouteMatch {
 	return httpRouteMatch
 }
 
-func expandALBGRPCRoute(v []interface{}) *apploadbalancer.GrpcRoute {
+func expandALBGRPCRoute(d *schema.ResourceData, path string, v []interface{}) *apploadbalancer.GrpcRoute {
 	grpcRoute := &apploadbalancer.GrpcRoute{}
 	config := v[0].(map[string]interface{})
 	if val, ok := config["grpc_match"]; ok && len(val.([]interface{})) > 0 {
-		grpcRoute.Match = expandALBGRPCRouteMatch(val)
+		grpcRoute.Match = expandALBGRPCRouteMatch(d, path+".grpc_match.0", val)
 	}
 	if val, ok := config["grpc_route_action"]; ok && len(val.([]interface{})) > 0 {
 		grpcRoute.SetRoute(expandALBGRPCRouteAction(val))
@@ -392,24 +396,22 @@ func expandALBGRPCStatusResponseAction(v interface{}) *apploadbalancer.GrpcStatu
 	return statusResponseAction
 }
 
-func expandALBGRPCRouteMatch(v interface{}) *apploadbalancer.GrpcRouteMatch {
+func expandALBGRPCRouteMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.GrpcRouteMatch {
 	grpcRouteMatch := &apploadbalancer.GrpcRouteMatch{}
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["fqmn"]; ok && len(val.([]interface{})) > 0 {
-		grpcRouteMatch.Fqmn = expandALBStringMatch(val)
+		grpcRouteMatch.Fqmn = expandALBStringMatch(d, path+".fqmn.0", val)
 	}
 	return grpcRouteMatch
 }
 
-func expandALBStringMatch(v interface{}) *apploadbalancer.StringMatch {
+func expandALBStringMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.StringMatch {
 	stringMatch := &apploadbalancer.StringMatch{}
-	config := v.([]interface{})[0].(map[string]interface{})
-
-	if val, ok := config["exact"]; ok {
+	if val, ok := d.GetOk(path + ".exact"); ok {
 		stringMatch.SetExactMatch(val.(string))
 	}
 
-	if val, ok := config["prefix"]; ok {
+	if val, ok := d.GetOk(path + ".prefix"); ok {
 		stringMatch.SetPrefixMatch(val.(string))
 	}
 	return stringMatch
@@ -1042,7 +1044,7 @@ func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interfac
 			},
 		}
 
-		flRoute["http_match"] = flMatch
+		flRoute["grpc_match"] = flMatch
 	}
 
 	switch route.GetAction().(type) {

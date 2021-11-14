@@ -170,7 +170,7 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 												"http_method": {
 													Type:     schema.TypeSet,
 													Optional: true,
-													Elem:     schema.TypeString,
+													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
 												"path": stringMatch(),

@@ -248,6 +248,12 @@ resource "yandex_alb_virtual_host" "test-vh" {
     name = "{{.RouteName}}"
     {{if .IsHTTPRoute}}
     http_route {
+      http_match {
+        path {
+          prefix = "/http/match/"
+        }
+        http_method = ["GET", "PUT"]
+      }
       {{if .IsHTTPRouteAction}}
       http_route_action {
         backend_group_id = yandex_alb_backend_group.test-bg.id
@@ -269,6 +275,11 @@ resource "yandex_alb_virtual_host" "test-vh" {
     {{end}}
     {{if .IsGRPCRoute}}
     grpc_route {
+      grpc_match {
+        fqmn {
+          exact = "some.service"
+        }
+      }
       {{if .IsGRPCRouteAction}}
       grpc_route_action {
         backend_group_id = yandex_alb_backend_group.test-bg.id
