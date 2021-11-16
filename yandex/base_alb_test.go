@@ -29,6 +29,7 @@ const albDefaultReceive = "tf-test-receive"
 const albDefaultDescription = "alb-bg-description"
 const albDefaultDirectResponseBody = "Not Found"
 const albDefaultDirectResponseStatus = "404"
+const albDefaultModificationAppend = "header"
 const albDefaultStatusResponse = "not_found"
 const albDefaultRedirectReplacePrefix = "/other"
 const albDefaultAutoHostRewrite = "true"
@@ -104,6 +105,7 @@ type resourceALBVirtualHostInfo struct {
 	BGName     string
 
 	RouterDescription              string
+	ModificationAppend             string
 	RouteName                      string
 	DirectResponseStatus           string
 	DirectResponseBody             string
@@ -133,6 +135,7 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		BGName:                         acctest.RandomWithPrefix("tf-bg"),
 		RouterDescription:              albDefaultDescription,
 		RouteName:                      acctest.RandomWithPrefix("tf-route"),
+		ModificationAppend:             albDefaultModificationAppend,
 		DirectResponseStatus:           albDefaultDirectResponseStatus,
 		DirectResponseBody:             albDefaultDirectResponseBody,
 		RedirectReplacePrefix:          albDefaultRedirectReplacePrefix,
@@ -243,6 +246,10 @@ resource "yandex_alb_virtual_host" "test-vh" {
 
   authority = ["*.foo.com", "*-bar.foo.com"]
 
+  modify_request_headers {
+    name   = "test-header"
+    append = "{{.ModificationAppend}}"
+  } 
   {{ if or .IsHTTPRoute .IsGRPCRoute}}
   route {
     name = "{{.RouteName}}"

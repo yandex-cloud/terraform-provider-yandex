@@ -2,6 +2,9 @@
 ENHANCEMENTS:
 * provider: Upgrade to Terraform Plugin SDK V2. There should be no breaking changes from a practitioner's perspective.
 
+BUG FIXES:
+* alb: fix behavior of attribute `modify_request_headers.append` in `yandex_alb_virtual_host` resource
+
 ## 0.66.0 (November 3, 2021)
 FEATURES:
 * mdb: Kafka topic management via dedicated resource `yandex_mdb_kafka_topic` is implemented

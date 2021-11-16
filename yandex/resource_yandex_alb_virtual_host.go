@@ -273,13 +273,13 @@ func stringMatch() *schema.Schema {
 
 func headerModification(path string) *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
+		Type:     schema.TypeList,
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"name": {
 					Type:     schema.TypeString,
-					Optional: true,
+					Required: true,
 				},
 				"append": {
 					Type:     schema.TypeString,
@@ -295,7 +295,7 @@ func headerModification(path string) *schema.Schema {
 				},
 			},
 		},
-		Set: resourceALBVirtualHostHeaderModificationHash,
+		//Set: resourceALBVirtualHostHeaderModificationHash,
 	}
 }
 

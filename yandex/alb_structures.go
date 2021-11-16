@@ -11,29 +11,6 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
-func resourceALBVirtualHostHeaderModificationHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-
-	if v, ok := m["name"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["append"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["replace"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["remove"]; ok {
-		fmt.Fprintf(&buf, "%t-", v.(bool))
-	}
-
-	return hashcode.String(buf.String())
-}
-
 func resourceALBAllocationPolicyLocationHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
@@ -125,43 +102,38 @@ func expandALBInt64ListFromList(v interface{}) ([]int64, error) {
 }
 
 func expandALBHeaderModification(d *schema.ResourceData, key string) ([]*apploadbalancer.HeaderModification, error) {
-	var modifications []*apploadbalancer.HeaderModification
-	modificationSet := d.Get(key).(*schema.Set)
+	size := d.Get(key + ".#").(int)
+	modifications := make([]*apploadbalancer.HeaderModification, size)
 
-	for _, b := range modificationSet.List() {
-		modificationConfig := b.(map[string]interface{})
-
-		backend, err := expandALBModification(modificationConfig)
-		if err != nil {
-			return nil, err
-		}
-
-		modifications = append(modifications, backend)
+	for i := 0; i < size; i++ {
+		currentKey := fmt.Sprintf(key+".%d.", i)
+		modification := expandALBModification(d, currentKey)
+		modifications[i] = modification
 	}
 
 	return modifications, nil
 }
 
-func expandALBModification(config map[string]interface{}) (*apploadbalancer.HeaderModification, error) {
+func expandALBModification(d *schema.ResourceData, key string) *apploadbalancer.HeaderModification {
 	modification := &apploadbalancer.HeaderModification{}
 
-	if v, ok := config["name"]; ok {
-		modification.Name = v.(string)
+	if v, ok := d.GetOk(key + "name"); ok {
+		modification.SetName(v.(string))
 	}
 
-	if v, ok := config["append"]; ok {
-		modification.SetAppend(v.(string))
-	}
-
-	if v, ok := config["replace"]; ok {
+	if v, ok := d.GetOk(key + "replace"); ok {
 		modification.SetReplace(v.(string))
 	}
 
-	if v, ok := config["remove"]; ok {
+	if v, ok := d.GetOk(key + "append"); ok {
+		modification.SetAppend(v.(string))
+	}
+
+	if v, ok := d.GetOk(key + "remove"); ok {
 		modification.SetRemove(v.(bool))
 	}
 
-	return modification, nil
+	return modification
 }
 
 func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
@@ -989,8 +961,8 @@ func expandALBTarget(config map[string]interface{}) (*apploadbalancer.Target, er
 	return target, nil
 }
 
-func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModification) (*schema.Set, error) {
-	result := &schema.Set{F: resourceALBVirtualHostHeaderModificationHash}
+func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModification) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
 
 	for _, modification := range modifications {
 		flModification := map[string]interface{}{
@@ -1005,7 +977,7 @@ func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModific
 			flModification["remove"] = modification.GetRemove()
 		}
 
-		result.Add(flModification)
+		result = append(result, flModification)
 	}
 
 	return result, nil

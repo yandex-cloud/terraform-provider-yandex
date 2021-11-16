@@ -68,6 +68,12 @@ func TestAccALBVirtualHost_httpRouteWithHTTPRouteAction(t *testing.T) {
 					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
 					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
 					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
 						albVHResource, "route", "name", &vhPath,
 					),
 					testExistsElementWithAttrValue(
@@ -100,6 +106,12 @@ func TestAccALBVirtualHost_httpRouteWithRedirectAction(t *testing.T) {
 					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
 					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
 					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
 						albVHResource, "route", "name", &vhPath,
 					),
 					testExistsElementWithAttrValue(
@@ -131,6 +143,12 @@ func TestAccALBVirtualHost_httpRouteWithDirectResponseAction(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
 					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
 					testExistsFirstElementWithAttr(
 						albVHResource, "route", "name", &vhPath,
 					),
@@ -167,6 +185,12 @@ func TestAccALBVirtualHost_grpcRouteWithGRPCRouteAction(t *testing.T) {
 					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
 					testAccCheckALBVirtualHostValues(&virtualHost, false, true),
 					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
 						albVHResource, "route", "name", &vhPath,
 					),
 					testExistsElementWithAttrValue(
@@ -201,6 +225,12 @@ func TestAccALBVirtualHost_grpcRouteWithGRPCStatusResponseAction(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
 					testAccCheckALBVirtualHostValues(&virtualHost, false, true),
+					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
 					testExistsFirstElementWithAttr(
 						albVHResource, "route", "name", &vhPath,
 					),

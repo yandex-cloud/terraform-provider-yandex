@@ -227,7 +227,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 
 func dataSourceHeaderModification(path string) *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
+		Type:     schema.TypeList,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
@@ -249,7 +249,6 @@ func dataSourceHeaderModification(path string) *schema.Schema {
 				},
 			},
 		},
-		Set: resourceALBVirtualHostHeaderModificationHash,
 	}
 }
 
