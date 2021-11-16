@@ -4,6 +4,8 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * alb: fix behavior of attribute `modify_request_headers.append` in `yandex_alb_virtual_host` resource
+* alb: fix error when `route.http_route.http_match.http_method` attribute of `yandex_alb_virtual_host` resource is used.
+* alb: fix behavior of attribute `route.http_route.http_match.path` in `yandex_alb_virtual_host` resource.
 
 ## 0.66.0 (November 3, 2021)
 FEATURES:
