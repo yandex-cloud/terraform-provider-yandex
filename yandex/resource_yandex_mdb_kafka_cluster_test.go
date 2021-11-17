@@ -720,7 +720,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.medium", "network-hdd", 17*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
@@ -786,7 +785,6 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 19327352832),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-c"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
@@ -957,9 +955,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		schema_registry  = false
 		kafka {
 			resources {
-				resource_preset_id = "s2.medium"
+				resource_preset_id = "s2.micro"
 				disk_type_id       = "network-hdd"
-			  	disk_size          = 17
+                disk_size          = 16
 			}
 			kafka_config {
 				compression_type    	   = "COMPRESSION_TYPE_ZSTD"
@@ -1356,7 +1354,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		resources {
 		  resource_preset_id = "s2.micro"
 		  disk_type_id       = "network-hdd"
-		  disk_size          = 18
+		  disk_size          = 16
 		}
 		kafka_config {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
