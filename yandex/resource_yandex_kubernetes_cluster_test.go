@@ -818,12 +818,31 @@ func testAccCheckClusterLabel(cluster *k8s.Cluster, info *resourceClusterInfo, r
 	}
 }
 
-func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPrefix, day, startTime, duration string) resource.TestCheckFunc {
-	return resource.ComposeTestCheckFunc(
-		resource.TestCheckResourceAttr(resourceFullName, maintenanceWindowPrefix+"0.day", day),
-		testAccCheckStartTime(resourceFullName, maintenanceWindowPrefix+"0.start_time", startTime),
-		testAccCheckDuration(resourceFullName, maintenanceWindowPrefix+"0.duration", duration),
-	)
+func errorResourceCheckFunc(err error) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		return err
+	}
+}
+
+func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPrefix string, day, startTime, duration string) resource.TestCheckFunc {
+	st, err := parseDayTime(startTime)
+	if err != nil {
+		return errorResourceCheckFunc(err)
+	}
+
+	du, err := parseDuration(duration)
+	if err != nil {
+		return errorResourceCheckFunc(err)
+	}
+
+	// can't use shouldSuppressDiffFor function here, thus, using regexp, to match either value
+	// from config (resources tests) or value from api (datasource tests)
+	m := map[string]*regexp.Regexp{
+		"day":        regexp.MustCompile(fmt.Sprintf("\\Q%v\\E", day)),
+		"start_time": regexp.MustCompile(fmt.Sprintf("\\Q%v\\E|\\Q%v\\E", startTime, st)),
+		"duration":   regexp.MustCompile(fmt.Sprintf("\\Q%v\\E|\\Q%v\\E", duration, du)),
+	}
+	return resource.TestMatchTypeSetElemNestedAttrs(resourceFullName, maintenanceWindowPrefix+"*", m)
 }
 
 func testAccCheckAttributeWithSuppress(suppressDiff schema.SchemaDiffSuppressFunc, resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
@@ -844,10 +863,6 @@ func testAccCheckAttributeWithSuppress(suppressDiff schema.SchemaDiffSuppressFun
 
 		return nil
 	}
-}
-
-func testAccCheckStartTime(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
-	return testAccCheckAttributeWithSuppress(shouldSuppressDiffForTimeOfDay, resourceName, attributePath, expectedValue)
 }
 
 func testAccCheckDuration(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
