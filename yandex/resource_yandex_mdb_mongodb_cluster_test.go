@@ -95,6 +95,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 
 	var r mongodb.Cluster
 	mongodbName := acctest.RandomWithPrefix("tf-mongodb")
+	mongodbNameChanged := mongodbName + "-changed"
 	mongodbDesc := "Updated MongDB cluster"
 	folderID := getExampleFolderID()
 
@@ -172,10 +173,10 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			},
 			mdbMongoDBClusterImportStep(),
 			{
-				Config: testAccMDBMongoDBClusterConfigUpdated(mongodbName, mongodbDesc),
+				Config: testAccMDBMongoDBClusterConfigUpdated(mongodbNameChanged, mongodbDesc),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
-					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbName),
+					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbNameChanged),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mongodbResource, "description", mongodbDesc),
 					resource.TestCheckResourceAttrSet(mongodbResource, "host.0.name"),

@@ -902,6 +902,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ClusterId:   d.Id(),
 				Description: d.Get("description").(string),
 				Labels:      labels,
+				Name:        d.Get("name").(string),
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec5_0(d),
@@ -918,6 +919,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ClusterId:   d.Id(),
 				Description: d.Get("description").(string),
 				Labels:      labels,
+				Name:        d.Get("name").(string),
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec4_4(d),
@@ -934,6 +936,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ClusterId:   d.Id(),
 				Description: d.Get("description").(string),
 				Labels:      labels,
+				Name:        d.Get("name").(string),
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec4_2(d),
@@ -950,6 +953,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ClusterId:   d.Id(),
 				Description: d.Get("description").(string),
 				Labels:      labels,
+				Name:        d.Get("name").(string),
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec4_0(d),
@@ -966,6 +970,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ClusterId:   d.Id(),
 				Description: d.Get("description").(string),
 				Labels:      labels,
+				Name:        d.Get("name").(string),
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec3_6(d),
@@ -991,6 +996,7 @@ var mdbMongodbUpdateFieldsMap = map[string]string{
 	"cluster_config.0.backup_window_start": "config_spec.backup_window_start",
 	"security_group_ids":                   "security_group_ids",
 	"deletion_protection":                  "deletion_protection",
+	"name":                                 "name",
 }
 
 func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {

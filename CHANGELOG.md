@@ -6,6 +6,7 @@ BUG FIXES:
 * alb: fix behavior of attribute `modify_request_headers.append` in `yandex_alb_virtual_host` resource
 * alb: fix error when `route.http_route.http_match.http_method` attribute of `yandex_alb_virtual_host` resource is used.
 * alb: fix behavior of attribute `route.http_route.http_match.path` in `yandex_alb_virtual_host` resource.
+* mdb: fix `name` update in `yandex_mdb_mongodb_cluster`
 
 FEATURES:
 * add new resource and data-source `yandex_organizationmanager_saml_federation`
