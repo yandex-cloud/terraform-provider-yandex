@@ -39,6 +39,7 @@ type Config struct {
 	Endpoint                       string
 	FolderID                       string
 	CloudID                        string
+	OrganizationID                 string
 	Zone                           string
 	Token                          string
 	ServiceAccountKeyFileOrContent string

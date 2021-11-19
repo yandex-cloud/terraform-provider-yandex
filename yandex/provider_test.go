@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -140,6 +142,42 @@ func TestProviderDefaultValues(t *testing.T) {
 	if err := restoreEnvVars(saveEnvVariable); err != nil {
 		t.Fatal("failed to restore OS env vars:", envVars, "after test", t.Name(), " - error:", err)
 	}
+}
+
+func TestProviderOrganizationId(t *testing.T) {
+	// save OS env vars
+	envVars := []string{"YC_ORGANIZATION_ID"}
+	saveEnvVariable := saveAndUnsetEnvVars(envVars)
+	defer func() {
+		// restore OS env vars
+		if err := restoreEnvVars(saveEnvVariable); err != nil {
+			t.Fatal("failed to restore OS env vars:", envVars, "after test", t.Name(), " - error:", err)
+		}
+	}()
+
+	testProvider := Provider()
+
+	org := acctest.RandomWithPrefix("org")
+	raw := map[string]interface{}{
+		"token":           "any_string_like_a_oauth",
+		"organization_id": org,
+	}
+
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags != nil && diags.HasError() {
+		for _, d := range diags {
+			if d.Severity == diag.Error {
+				t.Fatalf("error configuring provider: %s", d.Summary)
+			}
+		}
+	}
+
+	if err := testProvider.InternalValidate(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	conf := testProvider.Meta().(*Config)
+	assert.Equal(t, org, conf.OrganizationID)
 }
 
 func testAccPreCheck(t *testing.T) {

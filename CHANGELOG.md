@@ -7,6 +7,10 @@ BUG FIXES:
 * alb: fix error when `route.http_route.http_match.http_method` attribute of `yandex_alb_virtual_host` resource is used.
 * alb: fix behavior of attribute `route.http_route.http_match.path` in `yandex_alb_virtual_host` resource.
 
+FEATURES:
+* add new resource and data-source `yandex_organizationmanager_saml_federation`
+* add new data-source `yandex_organizationmanager_saml_federation_user_account`
+
 ## 0.66.0 (November 3, 2021)
 FEATURES:
 * mdb: Kafka topic management via dedicated resource `yandex_mdb_kafka_topic` is implemented

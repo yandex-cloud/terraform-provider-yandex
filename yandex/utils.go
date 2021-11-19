@@ -68,6 +68,17 @@ func getCloudID(d *schema.ResourceData, config *Config) (string, error) {
 	return res.(string), nil
 }
 
+func getOrganizationID(d *schema.ResourceData, config *Config) (string, error) {
+	res, ok := d.GetOk("organization_id")
+	if !ok {
+		if config.OrganizationID != "" {
+			return config.OrganizationID, nil
+		}
+		return "", fmt.Errorf("cannot determine organization_id: please set 'organization_id' key in this resource or at provider level")
+	}
+	return res.(string), nil
+}
+
 func getFolderID(d *schema.ResourceData, config *Config) (string, error) {
 	res, ok := d.GetOk("folder_id")
 	if !ok {

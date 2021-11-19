@@ -67,7 +67,7 @@ func newFolderInfo() *resourceFolderInfo {
 	}
 }
 
-func TestAccYandexResourceManagerFolder_create(t *testing.T) {
+func TestAccResourceManagerFolder_create(t *testing.T) {
 	t.Parallel()
 
 	folderInfo := newFolderInfo()
