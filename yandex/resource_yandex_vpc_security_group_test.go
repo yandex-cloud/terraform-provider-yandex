@@ -16,6 +16,7 @@ import (
 
 func getYandexVPCSecurityGroupSweeperDeps() []string {
 	return []string{
+		"yandex_alb_load_balancer",
 		"yandex_compute_instance",
 		"yandex_compute_instance_group",
 		"yandex_dataproc_cluster",
