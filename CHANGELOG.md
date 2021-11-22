@@ -1,4 +1,6 @@
-## 0.67.0 (Unreleased)
+## 0.68.0 (Unreleased)
+
+## 0.67.0 (November 22, 2021)
 ENHANCEMENTS:
 * provider: Upgrade to Terraform Plugin SDK V2. There should be no breaking changes from a practitioner's perspective.
 
