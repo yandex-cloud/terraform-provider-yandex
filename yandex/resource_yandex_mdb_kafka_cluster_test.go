@@ -618,7 +618,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
 
-	req, err := kafkaClusterUpdateRequest(resourceData)
+	req, err := kafkaClusterUpdateRequestWithMask(resourceData)
 	require.NoError(t, err)
 
 	expected := &kafka.UpdateClusterRequest{
@@ -664,6 +664,36 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			},
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
+		UpdateMask: &field_mask.FieldMask{Paths: []string{
+			"config_spec.brokers_count",
+			"config_spec.kafka.kafka_config_2_8.auto_create_topics_enable",
+			"config_spec.kafka.kafka_config_2_8.compression_type",
+			"config_spec.kafka.kafka_config_2_8.default_replication_factor",
+			"config_spec.kafka.kafka_config_2_8.log_flush_interval_messages",
+			"config_spec.kafka.kafka_config_2_8.log_flush_interval_ms",
+			"config_spec.kafka.kafka_config_2_8.log_flush_scheduler_interval_ms",
+			"config_spec.kafka.kafka_config_2_8.log_preallocate",
+			"config_spec.kafka.kafka_config_2_8.log_retention_bytes",
+			"config_spec.kafka.kafka_config_2_8.log_retention_hours",
+			"config_spec.kafka.kafka_config_2_8.log_retention_minutes",
+			"config_spec.kafka.kafka_config_2_8.log_retention_ms",
+			"config_spec.kafka.kafka_config_2_8.log_segment_bytes",
+			"config_spec.kafka.kafka_config_2_8.num_partitions",
+			"config_spec.kafka.kafka_config_2_8.socket_receive_buffer_bytes",
+			"config_spec.kafka.kafka_config_2_8.socket_send_buffer_bytes",
+			"config_spec.kafka.resources.disk_size",
+			"config_spec.kafka.resources.disk_type_id",
+			"config_spec.kafka.resources.resource_preset_id",
+			"config_spec.version",
+			"config_spec.zone_id",
+			"config_spec.zookeeper.resources.disk_size",
+			"config_spec.zookeeper.resources.disk_type_id",
+			"config_spec.zookeeper.resources.resource_preset_id",
+			"description",
+			"labels",
+			"name",
+			"security_group_ids",
+		}},
 	}
 
 	assert.Equal(t, expected, req)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -832,6 +833,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"security_group_ids":     "security_group_ids",
 	"deletion_protection":    "deletion_protection",
 	"config.0.zones":         "config_spec.zone_id",
+	"config.0.version":       "config_spec.version",
 	"config.0.brokers_count": "config_spec.brokers_count",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
 	"config.0.kafka.0.resources.0.disk_type_id":                       "config_spec.kafka.resources.disk_type_id",
@@ -880,33 +882,43 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 	return req, nil
 }
 
+func kafkaClusterUpdateRequestWithMask(d *schema.ResourceData) (*kafka.UpdateClusterRequest, error) {
+	req, err := kafkaClusterUpdateRequest(d)
+	if err != nil {
+		return nil, err
+	}
+
+	updatePath := []string{}
+	for field, path := range mdbKafkaUpdateFieldsMap {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVerion(d), -1))
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil, nil
+	}
+
+	sort.Strings(updatePath)
+
+	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+	return req, nil
+}
+
 func getSuffixVerion(d *schema.ResourceData) string {
 	return strings.Replace(d.Get("config.0.version").(string), ".", "_", -1)
 }
 
 func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	req, err := kafkaClusterUpdateRequest(d)
+	req, err := kafkaClusterUpdateRequestWithMask(d)
 	if err != nil {
 		return err
 	}
-
-	onDone := []func(){}
-	updatePath := []string{}
-	for field, path := range mdbKafkaUpdateFieldsMap {
-		if d.HasChange(field) {
-			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVerion(d), -1))
-			onDone = append(onDone, func() {
-
-			})
-		}
-	}
-
-	if len(updatePath) == 0 {
+	if req == nil {
 		return nil
 	}
 
-	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
@@ -921,9 +933,6 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error while updating Kafka Cluster %q: %s", d.Id(), err)
 	}
 
-	for _, f := range onDone {
-		f()
-	}
 	return nil
 }
 
