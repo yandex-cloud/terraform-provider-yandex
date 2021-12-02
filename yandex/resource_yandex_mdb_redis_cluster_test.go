@@ -90,7 +90,7 @@ func mdbRedisClusterImportStep(name string) resource.TestStep {
 }
 
 // Test that a Redis Cluster can be created, updated and destroyed
-func TestAccMDBRedisCluster_full(t *testing.T) {
+func TestAccMDBRedis62Cluster_full(t *testing.T) {
 	t.Parallel()
 
 	var r redis.Cluster
@@ -205,59 +205,6 @@ func TestAccMDBRedisCluster_full(t *testing.T) {
 				),
 			},
 			mdbRedisClusterImportStep(redisResource),
-		},
-	})
-}
-
-// Test that a sharded Redis Cluster can be created, updated and destroyed
-func TestAccMDBRedisCluster_sharded(t *testing.T) {
-	t.Parallel()
-
-	var r redis.Cluster
-	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
-	redisDesc := "Sharded Redis Cluster Terraform Test"
-	folderID := getExampleFolderID()
-	version := "6.2"
-	baseDiskSize := 100
-	diskTypeId := "local-ssd"
-	tlsEnabled := false
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
-		Steps: []resource.TestStep{
-			// Create Redis Cluster
-			{
-				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, version, baseDiskSize, diskTypeId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6, tlsEnabled),
-					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
-					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
-					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
-						diskTypeId),
-					testAccCheckCreatedAtAttr(redisResourceSharded),
-				),
-			},
-			mdbRedisClusterImportStep(redisResourceSharded),
-			// Add new shard, delete old shard, change password
-			{
-				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, version, baseDiskSize,
-					diskTypeId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 6, tlsEnabled),
-					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
-					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
-					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
-						diskTypeId),
-					testAccCheckCreatedAtAttr(redisResourceSharded),
-				),
-			},
-			mdbRedisClusterImportStep(redisResourceSharded),
 		},
 	})
 }
