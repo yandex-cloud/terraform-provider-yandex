@@ -57,7 +57,7 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 			},
 
 			"target": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -71,7 +71,6 @@ func resourceYandexALBTargetGroup() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceALBTargetGroupTargetHash,
 			},
 
 			"created_at": {
@@ -160,10 +159,7 @@ func resourceYandexALBTargetGroupRead(d *schema.ResourceData, meta interface{}) 
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Target Group %q", d.Get("name").(string)))
 	}
 
-	targets, err := flattenALBTargets(tg)
-	if err != nil {
-		return err
-	}
+	targets := flattenALBTargets(tg)
 
 	_ = d.Set("created_at", getTimestamp(tg.CreatedAt))
 	_ = d.Set("name", tg.Name)

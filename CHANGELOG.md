@@ -2,6 +2,9 @@
 FEATURES:
 * mdb: added the ability to upgrade Kafka version using the `version` attribute of `yandex_mdb_kafka_cluster` resource.
 
+BUG FIXES:
+* alb: fix behavior of attribute `address_type` in `yandex_alb_target_group` resource
+
 ## 0.67.0 (November 22, 2021)
 ENHANCEMENTS:
 * provider: Upgrade to Terraform Plugin SDK V2. There should be no breaking changes from a practitioner's perspective.

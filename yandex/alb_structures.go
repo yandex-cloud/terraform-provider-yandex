@@ -64,21 +64,6 @@ func resourceALBBackendGroupHealthcheckHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceALBTargetGroupTargetHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-
-	if v, ok := m["subnet_id"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["ip_address"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	return hashcode.String(buf.String())
-}
-
 func expandALBStringListFromSchemaSet(v interface{}) ([]string, error) {
 	var m []string
 	if v == nil {
@@ -933,32 +918,29 @@ func expandALBGRPCBackend(config map[string]interface{}) (*apploadbalancer.GrpcB
 
 func expandALBTargets(d *schema.ResourceData) ([]*apploadbalancer.Target, error) {
 	var targets []*apploadbalancer.Target
-	targetsSet := d.Get("target").(*schema.Set)
 
-	for _, t := range targetsSet.List() {
-		targetConfig := t.(map[string]interface{})
+	key := "target"
+	size := d.Get(key + ".#").(int)
 
-		target, err := expandALBTarget(targetConfig)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := 0; i < size; i++ {
+		currentKey := fmt.Sprintf(key+".%d.", i)
+		target := expandALBTarget(d, currentKey)
 		targets = append(targets, target)
 	}
 
 	return targets, nil
 }
 
-func expandALBTarget(config map[string]interface{}) (*apploadbalancer.Target, error) {
+func expandALBTarget(d *schema.ResourceData, key string) *apploadbalancer.Target {
 	target := &apploadbalancer.Target{}
 
-	if v, ok := config["subnet_id"]; ok {
+	if v, ok := d.GetOk(key + "subnet_id"); ok {
 		target.SubnetId = v.(string)
 	}
-	if v, ok := config["ip_address"]; ok {
+	if v, ok := d.GetOk(key + "ip_address"); ok {
 		target.SetIpAddress(v.(string))
 	}
-	return target, nil
+	return target
 }
 
 func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModification) ([]map[string]interface{}, error) {
@@ -1434,8 +1416,8 @@ func flattenALBHealthchecks(healthchecks []*apploadbalancer.HealthCheck) interfa
 	return flHealthchecks
 }
 
-func flattenALBTargets(tg *apploadbalancer.TargetGroup) (*schema.Set, error) {
-	result := &schema.Set{F: resourceALBTargetGroupTargetHash}
+func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {
+	var result []interface{}
 
 	for _, t := range tg.Targets {
 		flTarget := map[string]interface{}{
@@ -1447,8 +1429,8 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) (*schema.Set, error) {
 			flTarget["ip_address"] = t.GetIpAddress()
 		}
 
-		result.Add(flTarget)
+		result = append(result, flTarget)
 	}
 
-	return result, nil
+	return result
 }
