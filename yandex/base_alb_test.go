@@ -86,16 +86,17 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 }
 
 type resourceALBVirtualHostInfo struct {
-	IsModifyRequestHeaders     bool
-	IsModifyResponseHeaders    bool
-	IsHTTPRoute                bool
-	IsGRPCRoute                bool
-	IsHTTPRouteAction          bool
-	IsRedirectAction           bool
-	IsDirectResponseAction     bool
-	IsGRPCRouteAction          bool
-	IsGRPCStatusResponseAction bool
-	IsDataSource               bool
+	IsModifyRequestHeaders       bool
+	IsModifyResponseHeaders      bool
+	IsHTTPRoute                  bool
+	IsGRPCRoute                  bool
+	IsHTTPRouteAction            bool
+	IsRedirectAction             bool
+	IsDirectResponseAction       bool
+	IsGRPCRouteAction            bool
+	IsGRPCStatusResponseAction   bool
+	IsDataSource                 bool
+	IsHTTPRouteActionHostRewrite bool
 
 	BaseTemplate string
 
@@ -114,6 +115,8 @@ type resourceALBVirtualHostInfo struct {
 	GRPCRouteActionTimeout         string
 	GRPCStatusResponseActionStatus string
 	GRPCRouteActionAutoHostRewrite string
+	HTTPRouteActionHostRewrite     string
+	HTTPRouteActionAutoHostRewrite bool
 }
 
 func albVirtualHostInfo() resourceALBVirtualHostInfo {
@@ -128,6 +131,7 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		IsGRPCRouteAction:              false,
 		IsGRPCStatusResponseAction:     false,
 		IsDataSource:                   false,
+		IsHTTPRouteActionHostRewrite:   false,
 		BaseTemplate:                   testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		VHName:                         acctest.RandomWithPrefix("tf-virtual-host"),
 		TGName:                         acctest.RandomWithPrefix("tf-tg"),
@@ -143,6 +147,7 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		GRPCRouteActionTimeout:         albDefaultTimeout,
 		GRPCStatusResponseActionStatus: albDefaultStatusResponse,
 		GRPCRouteActionAutoHostRewrite: albDefaultAutoHostRewrite,
+		HTTPRouteActionAutoHostRewrite: false,
 	}
 
 	return res
@@ -265,6 +270,10 @@ resource "yandex_alb_virtual_host" "test-vh" {
       http_route_action {
         backend_group_id = yandex_alb_backend_group.test-bg.id
         timeout = "{{.HTTPRouteActionTimeout}}"
+        auto_host_rewrite = "{{.HTTPRouteActionAutoHostRewrite}}"
+        {{if .IsHTTPRouteActionHostRewrite}}
+        host_rewrite = "{{.HTTPRouteActionHostRewrite}}"
+        {{end}}
       }
       {{end}}
       {{if .IsDirectResponseAction}}

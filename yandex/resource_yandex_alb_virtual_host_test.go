@@ -54,6 +54,8 @@ func TestAccALBVirtualHost_httpRouteWithHTTPRouteAction(t *testing.T) {
 	VHResource := albVirtualHostInfo()
 	VHResource.IsHTTPRoute = true
 	VHResource.IsHTTPRouteAction = true
+	VHResource.IsHTTPRouteActionHostRewrite = true
+	VHResource.HTTPRouteActionHostRewrite = "some.host.rewrite"
 	var virtualHost apploadbalancer.VirtualHost
 	vhPath := ""
 
@@ -78,6 +80,9 @@ func TestAccALBVirtualHost_httpRouteWithHTTPRouteAction(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albVHResource, "route", "http_route.0.http_route_action.0.timeout", albDefaultTimeout, &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "http_route.0.http_route_action.0.host_rewrite", "some.host.rewrite", &vhPath,
 					),
 				),
 			},

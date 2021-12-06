@@ -150,10 +150,12 @@ func expandALBRoute(d *schema.ResourceData, path string, config map[string]inter
 		route.Name = v.(string)
 	}
 
-	if v, ok := config["http_route"]; ok {
-		if len(v.([]interface{})) > 0 {
-			route.SetHttp(expandALBHTTPRoute(d, path+".http_route.0", v.([]interface{})))
+	if _, ok := d.GetOk(path + ".http_route"); ok {
+		r, err := expandALBHTTPRoute(d, path+".http_route.0")
+		if err != nil {
+			return nil, err
 		}
+		route.SetHttp(r)
 	}
 
 	if v, ok := config["grpc_route"]; ok && len(v.([]interface{})) > 0 {
@@ -163,121 +165,143 @@ func expandALBRoute(d *schema.ResourceData, path string, config map[string]inter
 	return route, nil
 }
 
-func expandALBHTTPRoute(d *schema.ResourceData, path string, v []interface{}) *apploadbalancer.HttpRoute {
+func expandALBHTTPRoute(d *schema.ResourceData, path string) (*apploadbalancer.HttpRoute, error) {
 	httpRoute := &apploadbalancer.HttpRoute{}
-	config := v[0].(map[string]interface{})
-	if val, ok := config["http_match"]; ok && len(val.([]interface{})) > 0 {
-		httpRoute.Match = expandALBHTTPRouteMatch(d, path+".http_match.0", val)
+
+	if _, ok := d.GetOk(path + ".http_match"); ok {
+		m, err := expandALBHTTPRouteMatch(d, path+".http_match.0")
+		if err != nil {
+			return nil, err
+		}
+		httpRoute.Match = m
 	}
-	if val, ok := config["http_route_action"]; ok && len(val.([]interface{})) > 0 {
-		httpRoute.SetRoute(expandALBHTTPRouteAction(val))
+	if _, ok := d.GetOk(path + ".http_route_action"); ok {
+		action, err := expandALBHTTPRouteAction(d, path+".http_route_action.0")
+		if err != nil {
+			return nil, err
+		}
+		httpRoute.SetRoute(action)
+	}
+	if _, ok := d.GetOk(path + ".redirect_action"); ok {
+		httpRoute.SetRedirect(expandALBRedirectAction(d, path+".redirect_action.0"))
+	}
+	if _, ok := d.GetOk(path + ".direct_response_action"); ok {
+		httpRoute.SetDirectResponse(expandALBDirectResponseAction(d, path+".direct_response_action.0"))
 	}
 
-	if val, ok := config["redirect_action"]; ok && len(val.([]interface{})) > 0 {
-		httpRoute.SetRedirect(expandALBRedirectAction(val))
-	}
-
-	if val, ok := config["direct_response_action"]; ok && len(val.([]interface{})) > 0 {
-		httpRoute.SetDirectResponse(expandALBDirectResponseAction(val))
-	}
-	return httpRoute
+	return httpRoute, nil
 }
 
-func expandALBDirectResponseAction(v interface{}) *apploadbalancer.DirectResponseAction {
-	directResponseAction := &apploadbalancer.DirectResponseAction{}
-
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["status"]; ok {
-		directResponseAction.Status = int64(val.(int))
+func expandALBDirectResponseAction(d *schema.ResourceData, path string) *apploadbalancer.DirectResponseAction {
+	status := d.Get(path + ".status")
+	directResponseAction := &apploadbalancer.DirectResponseAction{
+		Status: int64(status.(int)),
 	}
 
-	if val, ok := config["body"]; ok {
+	if body, ok := d.GetOk(path + ".body"); ok {
 		payload := &apploadbalancer.Payload{}
-		payload.SetText(val.(string))
+		payload.SetText(body.(string))
 		directResponseAction.Body = payload
 	}
 
 	return directResponseAction
 }
 
-func expandALBRedirectAction(v interface{}) *apploadbalancer.RedirectAction {
+func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalancer.RedirectAction {
+	readStr := func(field string) (string, bool) {
+		s, ok := d.GetOk(path + "." + field)
+		if ok {
+			return s.(string), true
+		}
+
+		return "", false
+	}
+
 	redirectAction := &apploadbalancer.RedirectAction{}
 
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["replace_scheme"]; ok {
-		redirectAction.ReplaceScheme = val.(string)
+	if val, ok := readStr("replace_scheme"); ok {
+		redirectAction.ReplaceScheme = val
 	}
 
-	if val, ok := config["replace_host"]; ok {
-		redirectAction.ReplaceHost = val.(string)
+	if val, ok := readStr("replace_host"); ok {
+		redirectAction.ReplaceHost = val
 	}
 
-	if val, ok := config["replace_port"]; ok {
+	if val, ok := d.GetOk(path + ".replace_port"); ok {
 		redirectAction.ReplacePort = int64(val.(int))
 	}
 
-	if val, ok := config["remove_query"]; ok {
+	if val, ok := d.GetOk(path + ".remove_query"); ok {
 		redirectAction.RemoveQuery = val.(bool)
 	}
 
-	if val, ok := config["replace_path"]; ok {
-		redirectAction.SetReplacePath(val.(string))
+	if val, ok := readStr("replace_path"); ok {
+		redirectAction.SetReplacePath(val)
 	}
 
-	if val, ok := config["replace_prefix"]; ok {
-		redirectAction.SetReplacePrefix(val.(string))
+	if val, ok := readStr("replace_prefix"); ok {
+		redirectAction.SetReplacePrefix(val)
 	}
 
-	if val, ok := config["response_code"]; ok {
-		code := apploadbalancer.RedirectAction_RedirectResponseCode_value[strings.ToUpper(val.(string))]
+	if val, ok := readStr("response_code"); ok {
+		code := apploadbalancer.RedirectAction_RedirectResponseCode_value[strings.ToUpper(val)]
 		redirectAction.ResponseCode = apploadbalancer.RedirectAction_RedirectResponseCode(code)
 	}
 
 	return redirectAction
 }
 
-func expandALBHTTPRouteAction(v interface{}) *apploadbalancer.HttpRouteAction {
-	routeAction := &apploadbalancer.HttpRouteAction{}
-
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["backend_group_id"]; ok {
-		routeAction.BackendGroupId = val.(string)
-	}
-
-	if val, ok := config["timeout"]; ok {
-		d, err := parseDuration(val.(string))
-		if err == nil {
-			routeAction.Timeout = d
+func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteAction, error) {
+	readStr := func(field string) (string, bool) {
+		s, ok := d.GetOk(path + "." + field)
+		if ok {
+			return s.(string), true
 		}
+
+		return "", false
 	}
 
-	if val, ok := config["idle_timeout"]; ok {
-		d, err := parseDuration(val.(string))
-		if err == nil {
-			routeAction.IdleTimeout = d
+	routeAction := &apploadbalancer.HttpRouteAction{
+		BackendGroupId: d.Get(path + ".backend_group_id").(string),
+	}
+
+	if val, ok := readStr("timeout"); ok {
+		d, err := parseDuration(val)
+		if err != nil {
+			return nil, err
 		}
+		routeAction.Timeout = d
 	}
 
-	if val, ok := config["prefix_rewrite"]; ok {
-		routeAction.PrefixRewrite = val.(string)
+	if val, ok := readStr("idle_timeout"); ok {
+		d, err := parseDuration(val)
+		if err != nil {
+			return nil, err
+		}
+		routeAction.IdleTimeout = d
 	}
 
-	if val, ok := config["upgrade_types"]; ok {
+	if val, ok := readStr("prefix_rewrite"); ok {
+		routeAction.PrefixRewrite = val
+	}
+
+	if val, ok := d.GetOk(path + ".upgrade_types"); ok {
 		upgradeTypes, err := expandALBStringListFromSchemaSet(val)
-		if err == nil {
-			routeAction.UpgradeTypes = upgradeTypes
+		if err != nil {
+			return nil, err
 		}
+		routeAction.UpgradeTypes = upgradeTypes
 	}
 
-	if val, ok := config["host_rewrite"]; ok {
-		routeAction.SetHostRewrite(val.(string))
+	if val, ok := readStr("host_rewrite"); ok {
+		routeAction.SetHostRewrite(val)
 	}
 
-	if val, ok := config["auto_host_rewrite"]; ok {
+	if val, ok := d.GetOk(path + ".auto_host_rewrite"); ok {
 		routeAction.SetAutoHostRewrite(val.(bool))
 	}
 
-	return routeAction
+	return routeAction, nil
 }
 
 func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
@@ -312,18 +336,22 @@ func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
 	return routeAction
 }
 
-func expandALBHTTPRouteMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.HttpRouteMatch {
+func expandALBHTTPRouteMatch(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteMatch, error) {
 	httpRouteMatch := &apploadbalancer.HttpRouteMatch{}
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["path"]; ok && len(val.([]interface{})) > 0 {
-		httpRouteMatch.Path = expandALBStringMatch(d, path+".path.0", val)
+
+	if _, ok := d.GetOk(path + ".path"); ok {
+		httpRouteMatch.Path = expandALBStringMatch(d, path+".path.0")
 	}
-	if val, ok := config["http_method"]; ok {
-		if res, err := expandALBStringListFromSchemaSet(val); err == nil {
-			httpRouteMatch.HttpMethod = res
+
+	if val, ok := d.GetOk(path + ".http_method"); ok {
+		res, err := expandALBStringListFromSchemaSet(val)
+		if err != nil {
+			return nil, err
 		}
+
+		httpRouteMatch.HttpMethod = res
 	}
-	return httpRouteMatch
+	return httpRouteMatch, nil
 }
 
 func expandALBGRPCRoute(d *schema.ResourceData, path string, v []interface{}) *apploadbalancer.GrpcRoute {
@@ -357,12 +385,12 @@ func expandALBGRPCRouteMatch(d *schema.ResourceData, path string, v interface{})
 	grpcRouteMatch := &apploadbalancer.GrpcRouteMatch{}
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["fqmn"]; ok && len(val.([]interface{})) > 0 {
-		grpcRouteMatch.Fqmn = expandALBStringMatch(d, path+".fqmn.0", val)
+		grpcRouteMatch.Fqmn = expandALBStringMatch(d, path+".fqmn.0")
 	}
 	return grpcRouteMatch
 }
 
-func expandALBStringMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.StringMatch {
+func expandALBStringMatch(d *schema.ResourceData, path string) *apploadbalancer.StringMatch {
 	stringMatch := &apploadbalancer.StringMatch{}
 	if val, ok := d.GetOk(path + ".exact"); ok {
 		stringMatch.SetExactMatch(val.(string))
