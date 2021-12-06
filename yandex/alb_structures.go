@@ -924,23 +924,36 @@ func expandALBTargets(d *schema.ResourceData) ([]*apploadbalancer.Target, error)
 
 	for i := 0; i < size; i++ {
 		currentKey := fmt.Sprintf(key+".%d.", i)
-		target := expandALBTarget(d, currentKey)
+		target, err := expandALBTarget(d, currentKey)
+		if err != nil {
+			return nil, err
+		}
+
 		targets = append(targets, target)
 	}
 
 	return targets, nil
 }
 
-func expandALBTarget(d *schema.ResourceData, key string) *apploadbalancer.Target {
+func expandALBTarget(d *schema.ResourceData, key string) (*apploadbalancer.Target, error) {
 	target := &apploadbalancer.Target{}
 
-	if v, ok := d.GetOk(key + "subnet_id"); ok {
-		target.SubnetId = v.(string)
+	subnet, gotSubnet := d.GetOk(key + "subnet_id")
+	privateAddr, gotPrivateAddr := d.GetOk(key + "private_ipv4_address")
+	if gotSubnet && gotPrivateAddr {
+		return nil, fmt.Errorf("Cannot specify both subnet_id and private_ipv4_address for a target")
+	}
+
+	if gotSubnet {
+		target.SubnetId = subnet.(string)
 	}
 	if v, ok := d.GetOk(key + "ip_address"); ok {
 		target.SetIpAddress(v.(string))
 	}
-	return target
+	if gotPrivateAddr {
+		target.SetPrivateIpv4Address(privateAddr.(bool))
+	}
+	return target, nil
 }
 
 func flattenALBHeaderModification(modifications []*apploadbalancer.HeaderModification) ([]map[string]interface{}, error) {
@@ -1420,8 +1433,12 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {
 	var result []interface{}
 
 	for _, t := range tg.Targets {
-		flTarget := map[string]interface{}{
-			"subnet_id": t.SubnetId,
+		flTarget := map[string]interface{}{}
+
+		if len(t.SubnetId) > 0 {
+			flTarget["subnet_id"] = t.GetSubnetId()
+		} else {
+			flTarget["private_ipv4_address"] = t.GetPrivateIpv4Address()
 		}
 
 		switch t.GetAddressType().(type) {

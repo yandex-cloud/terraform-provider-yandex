@@ -5,6 +5,9 @@ FEATURES:
 BUG FIXES:
 * alb: fix behavior of attribute `address_type` in `yandex_alb_target_group` resource
 
+ENHANCEMENTS:
+* alb: add `private_ipv4_address` attribute to `target` entity in `yandex_alb_target_group` resource and data source
+
 ## 0.67.0 (November 22, 2021)
 ENHANCEMENTS:
 * provider: Upgrade to Terraform Plugin SDK V2. There should be no breaking changes from a practitioner's perspective.

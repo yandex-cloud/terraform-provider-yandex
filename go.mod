@@ -25,7 +25,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20211012081957-400ccab0fe15
+	github.com/yandex-cloud/go-genproto v0.0.0-20211202135052-789603780fb2
 	github.com/yandex-cloud/go-sdk v0.0.0-20211012083249-d09272b4a71c
 	golang.org/x/net v0.0.0-20211014222326-fd004c51d1d6
 	google.golang.org/genproto v0.0.0-20211013025323-ce878158c4d4
