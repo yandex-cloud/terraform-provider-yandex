@@ -5,6 +5,7 @@ FEATURES:
 BUG FIXES:
 * alb: fix behavior of attribute `address_type` in `yandex_alb_target_group` resource
 * alb: fix behavior of attribute `route.http_route.http_route_action.host_rewrite` in `yandex_alb_virtual_host` resource
+* mdb: fix crash when empty config is specified for Kafka topic within `yandex_mdb_kafka_topic` and `yandex_mdb_kafka_cluster` resources
 
 ENHANCEMENTS:
 * alb: add `private_ipv4_address` attribute to `target` entity in `yandex_alb_target_group` resource and data source

@@ -9,7 +9,10 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"google.golang.org/grpc/codes"
 )
@@ -17,6 +20,86 @@ import (
 const (
 	kafkaClusterResourceName = "yandex_mdb_kafka_cluster.foo"
 )
+
+func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config":       []interface{}{nil},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "2.8")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig:       nil,
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
+func TestBuildKafkaTopicSpec(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{
+				"cleanup_policy":        "CLEANUP_POLICY_COMPACT_AND_DELETE",
+				"compression_type":      "COMPRESSION_TYPE_ZSTD",
+				"min_insync_replicas":   1,
+				"delete_retention_ms":   2,
+				"file_delete_delay_ms":  3,
+				"flush_messages":        4,
+				"flush_ms":              5,
+				"min_compaction_lag_ms": 6,
+				"retention_bytes":       7,
+				"retention_ms":          8,
+				"segment_bytes":         9,
+				"max_message_bytes":     16777216,
+				"preallocate":           "true",
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "2.8")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
+			TopicConfig_2_8: &kafka.TopicConfig2_8{
+				CleanupPolicy:      kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
+				CompressionType:    kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+				MinInsyncReplicas:  &wrappers.Int64Value{Value: int64(1)},
+				DeleteRetentionMs:  &wrappers.Int64Value{Value: int64(2)},
+				FileDeleteDelayMs:  &wrappers.Int64Value{Value: int64(3)},
+				FlushMessages:      &wrappers.Int64Value{Value: int64(4)},
+				FlushMs:            &wrappers.Int64Value{Value: int64(5)},
+				MinCompactionLagMs: &wrappers.Int64Value{Value: int64(6)},
+				RetentionBytes:     &wrappers.Int64Value{Value: int64(7)},
+				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
+				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
+				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
+				Preallocate:        &wrappers.BoolValue{Value: true},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
 
 func TestAccMDBKafkaTopic(t *testing.T) {
 	t.Parallel()

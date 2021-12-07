@@ -949,36 +949,31 @@ func expandKafkaTopic(spec map[string]interface{}, version string) (*kafka.Topic
 		topic.ReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := spec["topic_config"]; ok {
-		switch version {
-		case "2.6":
-			configList := v.([]interface{})
-			if len(configList) > 0 {
-				cfg, err := expandKafkaTopicConfig2_6(configList[0].(map[string]interface{}))
+		configList := v.([]interface{})
+		if len(configList) > 0 && configList[0] != nil {
+			topicConfig := configList[0].(map[string]interface{})
+			switch version {
+			case "2.6":
+				cfg, err := expandKafkaTopicConfig2_6(topicConfig)
 				if err != nil {
 					return nil, err
 				}
 				topic.SetTopicConfig_2_6(cfg)
-			}
-		case "2.1":
-			configList := v.([]interface{})
-			if len(configList) > 0 {
-				cfg, err := expandKafkaTopicConfig2_1(configList[0].(map[string]interface{}))
+			case "2.1":
+				cfg, err := expandKafkaTopicConfig2_1(topicConfig)
 				if err != nil {
 					return nil, err
 				}
 				topic.SetTopicConfig_2_1(cfg)
-			}
-		case "2.8":
-			configList := v.([]interface{})
-			if len(configList) > 0 {
-				cfg, err := expandKafkaTopicConfig2_8(configList[0].(map[string]interface{}))
+			case "2.8":
+				cfg, err := expandKafkaTopicConfig2_8(topicConfig)
 				if err != nil {
 					return nil, err
 				}
 				topic.SetTopicConfig_2_8(cfg)
+			default:
+				return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)
 			}
-		default:
-			return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)
 		}
 	}
 	return topic, nil
