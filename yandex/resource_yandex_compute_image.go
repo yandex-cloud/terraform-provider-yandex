@@ -79,6 +79,13 @@ func resourceYandexComputeImage() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"pooled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"source_family": {
 				Type:          schema.TypeString,
 				Computed:      true,
@@ -174,6 +181,7 @@ func resourceYandexComputeImageCreate(d *schema.ResourceData, meta interface{}) 
 		Family:      d.Get("family").(string),
 		Labels:      labels,
 		MinDiskSize: toBytes(d.Get("min_disk_size").(int)),
+		Pooled:      d.Get("pooled").(bool),
 		ProductIds:  productIds,
 		Os: &compute.Os{
 			Type: osType,
@@ -236,6 +244,7 @@ func resourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("status", strings.ToLower(image.Status.String()))
 	d.Set("family", image.Family)
 	d.Set("size", toGigabytes(image.StorageSize))
+	d.Set("pooled", image.Pooled)
 
 	if err := d.Set("labels", image.Labels); err != nil {
 		return err

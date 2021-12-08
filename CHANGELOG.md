@@ -9,6 +9,7 @@ BUG FIXES:
 
 ENHANCEMENTS:
 * alb: add `private_ipv4_address` attribute to `target` entity in `yandex_alb_target_group` resource and data source
+* compute: add `pooled` attribute in `yandex_compute_image` resource and data source
 
 ## 0.67.0 (November 22, 2021)
 ENHANCEMENTS:

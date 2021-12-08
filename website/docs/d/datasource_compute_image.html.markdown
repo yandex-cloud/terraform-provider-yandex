@@ -66,3 +66,4 @@ exported:
 * `os_type` - Operating system type that the image contains.
 * `labels` - A map of labels applied to this image.
 * `created_at` - Image creation timestamp.
+* `pooled` - Optimize the image to create a disk.

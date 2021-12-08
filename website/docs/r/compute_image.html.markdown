@@ -53,8 +53,10 @@ The following arguments are supported:
 
 * `os_type` - (Optional) Operating system type that is contained in the image. Possible values: "LINUX", "WINDOWS".
 
-* `source_family` - (Optional) The name of the family to use as the source of the new image. 
-    The ID of the latest image is taken from the "standard-images" folder. Changing the family forces 
+* `pooled` - (Optional) Optimize the image to create a disk.
+
+* `source_family` - (Optional) The name of the family to use as the source of the new image.
+    The ID of the latest image is taken from the "standard-images" folder. Changing the family forces
     a new resource to be created.
 
 * `source_image` - (Optional) The ID of an existing image to use as the source of the
@@ -69,7 +71,7 @@ The following arguments are supported:
 * `source_url` - (Optional) The URL to use as the source of the
     image. Changing this URL forces a new resource to be created.
 
-* `product_ids` - (Optional) License IDs that indicate which licenses are 
+* `product_ids` - (Optional) License IDs that indicate which licenses are
     attached to this image.
 
 ~> **NOTE:** One of `source_family`, `source_image`, `source_snapshot`, `source_disk` or `source_url` must be specified.
@@ -84,7 +86,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 ## Timeouts
 
-`yandex_compute_image` provides the following configuration options for 
+`yandex_compute_image` provides the following configuration options for
 [timeouts](/docs/configuration/resources.html#timeouts):
 
 - `create` - Default 5 minutes

@@ -56,6 +56,10 @@ func dataSourceYandexComputeImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"pooled": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"product_ids": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -130,6 +134,7 @@ func dataSourceYandexComputeImageRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("os_type", strings.ToLower(image.Os.Type.String()))
 	d.Set("min_disk_size", toGigabytes(image.MinDiskSize))
 	d.Set("size", toGigabytes(image.StorageSize))
+	d.Set("pooled", image.Pooled)
 
 	if err := d.Set("labels", image.Labels); err != nil {
 		return err
