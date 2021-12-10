@@ -1,4 +1,6 @@
-## 0.68.0 (Unreleased)
+## 0.69.0 (Unreleased)
+
+## 0.68.0 (December 10, 2021)
 FEATURES:
 * mdb: added the ability to upgrade Kafka version using the `version` attribute of `yandex_mdb_kafka_cluster` resource.
 
