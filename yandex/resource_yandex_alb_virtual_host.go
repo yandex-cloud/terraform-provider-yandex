@@ -295,7 +295,6 @@ func headerModification(path string) *schema.Schema {
 				},
 			},
 		},
-		//Set: resourceALBVirtualHostHeaderModificationHash,
 	}
 }
 

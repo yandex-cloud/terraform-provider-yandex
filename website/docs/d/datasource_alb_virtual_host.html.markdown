@@ -52,19 +52,16 @@ The following attributes are exported:
 
 The `modify_request_headers` and `modify_response_headers` blocks support:
 
-* `name` - name of the header modification.
+* `name` - name of the header to modify.
 
 * `append` - Append string to the header value.
 
 * `replace` - New value for a header. Header values support the following
-  [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers)
-  .
+  [formatters](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers).
 
 * `remove` - If set, remove the header.
 
-* `rename` - New name for a header.
-
-~> **NOTE:** Only one type of actions `append` or `replace` or `remove` or `rename` should be specified.
+~> **NOTE:** Only one type of actions `append` or `replace` or `remove` should be specified.
 
 ---
 

@@ -1,5 +1,8 @@
 ## 0.69.0 (Unreleased)
 
+BUG FIXES:
+* docs: Fixed few minor inaccuracies of `yandex_alb_virtual_host` resource
+
 ## 0.68.0 (December 10, 2021)
 FEATURES:
 * mdb: added the ability to upgrade Kafka version using the `version` attribute of `yandex_mdb_kafka_cluster` resource.
