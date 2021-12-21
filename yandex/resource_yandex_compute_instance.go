@@ -462,8 +462,11 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:         schema.TypeString,
+				Computed:     false,
+				Optional:     true,
+				Default:      "running",
+				ValidateFunc: validation.StringInSlice([]string{"running", "stopped"}, false),
 			},
 
 			"created_at": {
@@ -1089,7 +1092,22 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 	}
-
+	if d.HasChange("status") {
+		switch d.Get("status").(string) {
+		case "stopped":
+			if instance.Status != compute.Instance_STOPPED {
+				if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
+					return err
+				}
+			}
+		case "running":
+			if instance.Status != compute.Instance_RUNNING {
+				if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {
+					return err
+				}
+			}
+		}
+	}
 	d.Partial(false)
 
 	return resourceYandexComputeInstanceRead(d, meta)
