@@ -52,7 +52,7 @@ The following arguments are supported:
 
 The `modify_request_headers` and `modify_response_headers` blocks support:
 
-* `name` - (Optional) name of the header modification.
+* `name` - (Required) name of the header to modify.
 
 * `append` - (Optional) Append string to the header value.
 
@@ -61,9 +61,7 @@ The `modify_request_headers` and `modify_response_headers` blocks support:
 
 * `remove` - (Optional) If set, remove the header.
 
-* `rename` - (Optional) New name for a header.
-
-~> **NOTE:** Only one type of actions `append` or `replace` or `remove` or `rename` should be specified.
+~> **NOTE:** Only one type of actions `append` or `replace` or `remove` should be specified.
 
 ---
 
@@ -207,11 +205,11 @@ The `grpc_status_response_action` block supports:
 
 The `path` and `fqmn` blocks support:
 
-* `exact_match` - (Optional) Match exactly.
+* `exact` - (Optional) Match exactly.
   
-* `prefix_match` - (Optional) Match prefix.
+* `prefix` - (Optional) Match prefix.
 
-~> **NOTE:** Exactly one type of string matches `exact_match` or `prefix_match` should be
+~> **NOTE:** Exactly one type of string matches `exact` or `prefix` should be
 specified.
 
 ## Attributes Reference
