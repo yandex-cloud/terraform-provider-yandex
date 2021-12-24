@@ -9,6 +9,7 @@ require (
 	github.com/client9/misspell v0.3.4
 	github.com/fatih/structs v1.1.0
 	github.com/frankban/quicktest v1.14.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/golang/snappy v0.0.4
 	github.com/golangci/golangci-lint v1.43.0
@@ -27,11 +28,12 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20211202135052-789603780fb2
-	github.com/yandex-cloud/go-sdk v0.0.0-20211206101223-7c4e7926bf53
-	golang.org/x/net v0.0.0-20211014222326-fd004c51d1d6
-	google.golang.org/genproto v0.0.0-20211021150943-2b146023228c
-	google.golang.org/grpc v1.41.0
+	github.com/yandex-cloud/go-genproto v0.0.0-20211216135636-408eeddbd93e
+	github.com/yandex-cloud/go-sdk v0.0.0-20211216140256-cebf209f4dc0
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
+	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 )
 

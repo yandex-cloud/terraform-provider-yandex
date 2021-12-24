@@ -62,6 +62,7 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 		"max_connections":            "555",
 		"sql_mode":                   "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
 		"innodb_print_all_deadlocks": "true",
+		"log_slow_rate_type":         "0",
 	}
 
 	if !reflect.DeepEqual(m, ethalon) {
@@ -103,6 +104,7 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 		"max_connections":            "555",
 		"sql_mode":                   "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
 		"innodb_print_all_deadlocks": "true",
+		"log_slow_rate_type":         "0",
 	}
 
 	if !reflect.DeepEqual(m, ethalon) {
