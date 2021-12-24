@@ -1,4 +1,9 @@
 ## 0.69.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_cdn_origin_group`
+* **New Data Source:** `yandex_cdn_resource`
+* **New Resource:** `yandex_cdn_origin_group`
+* **New Resource:** `yandex_cdn_resource`
 
 BUG FIXES:
 * docs: Fixed few minor inaccuracies of `yandex_alb_virtual_host` resource

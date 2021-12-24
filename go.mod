@@ -28,9 +28,9 @@ require (
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20211202135052-789603780fb2
-	github.com/yandex-cloud/go-sdk v0.0.0-20211012083249-d09272b4a71c
+	github.com/yandex-cloud/go-sdk v0.0.0-20211206101223-7c4e7926bf53
 	golang.org/x/net v0.0.0-20211014222326-fd004c51d1d6
-	google.golang.org/genproto v0.0.0-20211013025323-ce878158c4d4
+	google.golang.org/genproto v0.0.0-20211021150943-2b146023228c
 	google.golang.org/grpc v1.41.0
 	google.golang.org/protobuf v1.27.1
 )
