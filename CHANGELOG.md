@@ -4,6 +4,8 @@ FEATURES:
 * **New Data Source:** `yandex_cdn_resource`
 * **New Resource:** `yandex_cdn_origin_group`
 * **New Resource:** `yandex_cdn_resource`
+* alb: add `stream_backend` attribute to `yandex_alb_backend_group` resource and data source
+* alb: add `stream` attribute to `listener` entity in `yandex_alb_load_balancer` resource and data source
 
 BUG FIXES:
 * docs: Fixed few minor inaccuracies of `yandex_alb_virtual_host` resource

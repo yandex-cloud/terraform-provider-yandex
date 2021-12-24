@@ -38,14 +38,15 @@ const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
 
 type resourceALBLoadBalancerInfo struct {
-	IsHTTPListener        bool
-	IsTLSListener         bool
-	IsRedirects           bool
-	IsHTTPListenerHandler bool
-	IsTLSListenerHandler  bool
-	IsDataSource          bool
-	IsHTTP2Options        bool
-	IsAllowHTTP10         bool
+	IsHTTPListener   bool
+	IsStreamListener bool
+	IsTLSListener    bool
+	IsRedirects      bool
+	IsHTTPHandler    bool
+	IsStreamHandler  bool
+	IsDataSource     bool
+	IsHTTP2Options   bool
+	IsAllowHTTP10    bool
 
 	BaseTemplate string
 
@@ -62,24 +63,25 @@ type resourceALBLoadBalancerInfo struct {
 
 func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 	res := resourceALBLoadBalancerInfo{
-		IsHTTPListener:        false,
-		IsTLSListener:         false,
-		IsDataSource:          false,
-		IsRedirects:           false,
-		IsHTTPListenerHandler: false,
-		IsTLSListenerHandler:  false,
-		IsHTTP2Options:        false,
-		IsAllowHTTP10:         false,
-		BaseTemplate:          testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
-		BalancerName:          acctest.RandomWithPrefix("tf-load-balancer"),
-		RouterName:            acctest.RandomWithPrefix("tf-router"),
-		ListenerName:          acctest.RandomWithPrefix("tf-listener"),
-		BalancerDescription:   acctest.RandomWithPrefix("tf-load-balancer-description"),
-		AllowHTTP10:           albDefaultAllowHTTP10,
-		MaxConcurrentStreams:  albDefaultMaxConcurrentStreams,
-		EndpointPort:          albDefaultPort,
-		HTTPToHTTPS:           albDefaultHTTPToHTTPS,
-		CertificateID:         os.Getenv("ALB_TEST_CERTIFICATE_ID"),
+		IsHTTPListener:       false,
+		IsStreamListener:     false,
+		IsTLSListener:        false,
+		IsDataSource:         false,
+		IsRedirects:          false,
+		IsHTTPHandler:        false,
+		IsStreamHandler:      false,
+		IsHTTP2Options:       false,
+		IsAllowHTTP10:        false,
+		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
+		BalancerName:         acctest.RandomWithPrefix("tf-load-balancer"),
+		RouterName:           acctest.RandomWithPrefix("tf-router"),
+		ListenerName:         acctest.RandomWithPrefix("tf-listener"),
+		BalancerDescription:  acctest.RandomWithPrefix("tf-load-balancer-description"),
+		AllowHTTP10:          albDefaultAllowHTTP10,
+		MaxConcurrentStreams: albDefaultMaxConcurrentStreams,
+		EndpointPort:         albDefaultPort,
+		HTTPToHTTPS:          albDefaultHTTPToHTTPS,
+		CertificateID:        os.Getenv("ALB_TEST_CERTIFICATE_ID"),
 	}
 
 	return res
@@ -154,13 +156,14 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 }
 
 type resourceALBBackendGroupInfo struct {
-	IsHTTPBackend bool
-	IsGRPCBackend bool
-	IsHTTPCheck   bool
-	IsGRPCCheck   bool
-	IsStreamCheck bool
-	IsDataSource  bool
-	IsEmptyTLS    bool
+	IsHTTPBackend   bool
+	IsGRPCBackend   bool
+	IsStreamBackend bool
+	IsHTTPCheck     bool
+	IsGRPCCheck     bool
+	IsStreamCheck   bool
+	IsDataSource    bool
+	IsEmptyTLS      bool
 
 	BaseTemplate string
 
@@ -188,6 +191,7 @@ type resourceALBBackendGroupInfo struct {
 func albBackendGroupInfo() resourceALBBackendGroupInfo {
 	res := resourceALBBackendGroupInfo{
 		IsHTTPBackend:        false,
+		IsStreamBackend:      false,
 		IsGRPCBackend:        false,
 		IsHTTPCheck:          false,
 		IsGRPCCheck:          false,
@@ -331,6 +335,7 @@ resource "yandex_alb_target_group" "test-target-group" {
 {{.BaseTemplate}}
 `
 
+// TODO(liubaleks): use terraform to create backend group
 const albLoadBalancerConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_load_balancer" "test-alb-ds" {
@@ -357,7 +362,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       subnet_id = yandex_vpc_subnet.test-subnet.id 
     }
   }
-  {{ if or .IsHTTPListener .IsTLSListener }}
+  {{ if or .IsHTTPListener .IsTLSListener .IsStreamListener}}
   listener {
     name = "{{.ListenerName}}"
     endpoint {
@@ -370,7 +375,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     }    
     {{if .IsHTTPListener}}
     http {
-      {{if .IsHTTPListenerHandler}}
+      {{if .IsHTTPHandler}}
       handler {
         http_router_id = yandex_alb_http_router.test-router.id
         {{if .IsAllowHTTP10}}
@@ -390,9 +395,19 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       {{end}}
     }
     {{end}}
+    {{if .IsStreamListener}}
+    stream {
+      {{if .IsStreamHandler}}
+      handler {
+        backend_group_id = "ds760hlsaj9kj4p01uc7"
+      }
+      {{end}}
+    }
+    {{end}}
     {{if .IsTLSListener}}
     tls {
       default_handler {
+        {{if .IsHTTPHandler}}
         http_handler {
           http_router_id = yandex_alb_http_router.test-router.id
           {{if .IsAllowHTTP10}}
@@ -404,6 +419,12 @@ resource "yandex_alb_load_balancer" "test-balancer" {
           }
           {{end}}
         }
+        {{end}}
+        {{if .IsStreamHandler}}
+        stream_handler {
+          backend_group_id = "ds760hlsaj9kj4p01uc7"
+        }
+        {{end}}
         certificate_ids = ["{{.CertificateID}}"]
       }
       sni_handler {
@@ -502,6 +523,57 @@ resource "yandex_alb_backend_group" "test-bg" {
     http2 = "{{.HTTP2}}"
   }
   {{end}}
+  {{ if .IsStreamBackend }}
+  stream_backend {
+    name             = "test-stream-backend"
+    weight           = {{.BackendWeight}}
+    port             = {{.Port}}
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    tls {
+      {{ if not .IsEmptyTLS }}
+      sni = "{{.TlsSni}}"
+      validation_context {
+        trusted_ca_bytes = "{{.TlsValidationContext}}"
+      }
+      {{end}}
+    }
+    load_balancing_config {
+      panic_threshold                = {{.PanicThreshold}}
+      locality_aware_routing_percent = {{.LocalityPercent}}
+      strict_locality                = {{.StrictLocality}}
+    }
+    {{ if .IsGRPCCheck }}
+    healthcheck {
+      timeout  = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      grpc_healthcheck {
+        service_name = "{{.ServiceName}}"
+      }
+    }
+    {{end}}
+    {{ if .IsStreamCheck }}
+    healthcheck {
+      timeout  = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      stream_healthcheck {
+        receive = "{{.Receive}}"
+        send    = "{{.Send}}"
+      }
+    }
+    {{end}}
+    {{ if .IsHTTPCheck }}
+    healthcheck {
+      timeout = "{{.Timeout}}"
+      interval = "{{.Interval}}"
+      http_healthcheck {
+        host  = "{{.Host}}"
+        path  = "{{.Path}}"
+        http2 = "{{.HTTP2}}"
+      }
+    }
+    {{end}}
+  }
+  {{end}}
   {{ if .IsGRPCBackend }}
   grpc_backend {
     name             = "test-grpc-backend"
@@ -552,7 +624,7 @@ resource "yandex_alb_backend_group" "test-bg" {
   }
   {{end}}
 }
-{{ if or .IsHTTPBackend .IsGRPCBackend }}
+{{ if or .IsHTTPBackend .IsGRPCBackend .IsStreamBackend}}
 resource "yandex_alb_target_group" "test-target-group" {
   name		= "{{.TGName}}"
 
@@ -589,14 +661,18 @@ func testALBVirtualHostConfig_basic(in resourceALBVirtualHostInfo) string {
 	return config
 }
 
-func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHTTPBackends, expectedGRPCBackends bool) resource.TestCheckFunc {
+func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expectedHTTPBackends, expectedGRPCBackends, expectedStreamBackends bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if (bg.GetHttp() != nil) != expectedHTTPBackends {
-			return fmt.Errorf("invalid presence or absence of http backend Application Backend Group %s", bg.Name)
+			return fmt.Errorf("invalid presence or absence of HTTP backend Application Backend Group %s", bg.Name)
 		}
 
 		if (bg.GetGrpc() != nil) != expectedGRPCBackends {
-			return fmt.Errorf("invalid presence or absence of grpc backend Application Backend Group %s", bg.Name)
+			return fmt.Errorf("invalid presence or absence of gRPC backend Application Backend Group %s", bg.Name)
+		}
+
+		if (bg.GetStream() != nil) != expectedStreamBackends {
+			return fmt.Errorf("invalid presence or absence of Stream backend Application Backend Group %s", bg.Name)
 		}
 
 		return nil

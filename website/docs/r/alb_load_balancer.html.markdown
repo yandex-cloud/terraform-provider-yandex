@@ -93,9 +93,11 @@ The `listener` block supports:
 
 * `http` - (Optional) HTTP listener resource. The structure is documented below.
 
+* `stream` - (Optional) Stream listener resource. The structure is documented below.
+
 * `tls` - (Optional) TLS listener resource. The structure is documented below.
 
-~> **NOTE:** Exactly one type of listeners `http` or `tls` should be specified.
+~> **NOTE:** Exactly one listener type: `http` or `tls` or `stream` should be specified.
 
 ---
 
@@ -162,8 +164,22 @@ The `default_handler` and `handler`(from `sni_handler`) block supports:
 
 * `http_handler` - (Required) HTTP handler resource. The structure is documented below.
 
+* `stream_handler` - (Required) Stream handler resource. The structure is documented below.
+
 * `certificate_ids` - (Required) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated
   with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+
+---
+
+The `stream` block supports:
+
+* `handler` - (Optional) Stream handler that sets plaintext Stream backend group. The structure is documented below.
+
+---
+
+The `stream_handler` and `handler`(from `stream`) block supports:
+
+* `backend_group_id` - (Optional) Backend group id.
 
 ---
 

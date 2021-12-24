@@ -59,7 +59,7 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 			"http_backend": {
 				Type:          schema.TypeSet,
 				Optional:      true,
-				ConflictsWith: []string{"grpc_backend"},
+				ConflictsWith: []string{"grpc_backend", "stream_backend"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -75,149 +75,9 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							ValidateFunc: validation.IntBetween(0, 65535),
 							Optional:     true,
 						},
-						"load_balancing_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"panic_threshold": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 100),
-										Optional:     true,
-									},
-									"locality_aware_routing_percent": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 100),
-										Optional:     true,
-									},
-									"strict_locality": {
-										Type:     schema.TypeBool,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"healthcheck": {
-							Type:     schema.TypeSet,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"timeout": {
-										Type:             schema.TypeString,
-										Required:         true,
-										ValidateFunc:     validateParsableValue(parseDuration),
-										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
-									},
-									"interval": {
-										Type:             schema.TypeString,
-										Required:         true,
-										ValidateFunc:     validateParsableValue(parseDuration),
-										DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
-									},
-									"interval_jitter_percent": {
-										Type:     schema.TypeFloat,
-										Optional: true,
-									},
-									"healthy_threshold": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"unhealthy_threshold": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"healthcheck_port": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 65535),
-										Optional:     true,
-									},
-									"stream_healthcheck": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"send": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"receive": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"http_healthcheck": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"host": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"path": {
-													Type:     schema.TypeString,
-													Required: true,
-												},
-												"http2": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"grpc_healthcheck": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"service_name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-								},
-							},
-							Set: resourceALBBackendGroupHealthcheckHash,
-						},
-						"tls": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"sni": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"validation_context": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"trusted_ca_id": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"trusted_ca_bytes": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
+						"load_balancing_config": loadBalancingConfig(),
+						"healthcheck":           healthcheck(),
+						"tls":                   tlsBackend(),
 						"target_group_ids": {
 							Type:     schema.TypeList,
 							Required: true,
@@ -233,10 +93,10 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 				},
 				Set: resourceALBBackendGroupBackendHash,
 			},
-			"grpc_backend": {
+			"stream_backend": {
 				Type:          schema.TypeSet,
 				Optional:      true,
-				ConflictsWith: []string{"http_backend"},
+				ConflictsWith: []string{"grpc_backend", "http_backend"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -252,145 +112,42 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 							ValidateFunc: validation.IntBetween(0, 65535),
 							Optional:     true,
 						},
-						"load_balancing_config": {
+						"load_balancing_config": loadBalancingConfig(),
+						"healthcheck":           healthcheck(),
+						"tls":                   tlsBackend(),
+						"target_group_ids": {
 							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"panic_threshold": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 100),
-										Optional:     true,
-									},
-									"locality_aware_routing_percent": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 100),
-										Optional:     true,
-									},
-									"strict_locality": {
-										Type:     schema.TypeBool,
-										Optional: true,
-									},
-								},
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
 							},
 						},
-						"healthcheck": {
-							Type:     schema.TypeSet,
-							MaxItems: 1,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"timeout": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"interval": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"interval_jitter_percent": {
-										Type:     schema.TypeFloat,
-										Optional: true,
-									},
-									"healthy_threshold": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"unhealthy_threshold": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"healthcheck_port": {
-										Type:         schema.TypeInt,
-										ValidateFunc: validation.IntBetween(0, 65535),
-										Optional:     true,
-									},
-									"stream_healthcheck": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"send": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"receive": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"http_healthcheck": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"host": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"path": {
-													Type:     schema.TypeString,
-													Required: true,
-												},
-												"http2": {
-													Type:     schema.TypeBool,
-													Optional: true,
-												},
-											},
-										},
-									},
-									"grpc_healthcheck": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"service_name": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-								},
-							},
-							Set: resourceALBBackendGroupHealthcheckHash,
+					},
+				},
+				Set: resourceALBBackendGroupBackendHash,
+			},
+			"grpc_backend": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"http_backend", "stream_backend"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
 						},
-						"tls": {
-							Type:     schema.TypeList,
+						"weight": {
+							Type:     schema.TypeInt,
 							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"sni": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"validation_context": {
-										Type:     schema.TypeList,
-										Optional: true,
-										MaxItems: 1,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"trusted_ca_id": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-												"trusted_ca_bytes": {
-													Type:     schema.TypeString,
-													Optional: true,
-												},
-											},
-										},
-									},
-								},
-							},
 						},
+						"port": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 65535),
+							Optional:     true,
+						},
+						"load_balancing_config": loadBalancingConfig(),
+						"healthcheck":           healthcheck(),
+						"tls":                   tlsBackend(),
 						"target_group_ids": {
 							Type:     schema.TypeList,
 							Required: true,
@@ -406,6 +163,154 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func loadBalancingConfig() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"panic_threshold": {
+					Type:         schema.TypeInt,
+					ValidateFunc: validation.IntBetween(0, 100),
+					Optional:     true,
+				},
+				"locality_aware_routing_percent": {
+					Type:         schema.TypeInt,
+					ValidateFunc: validation.IntBetween(0, 100),
+					Optional:     true,
+				},
+				"strict_locality": {
+					Type:     schema.TypeBool,
+					Optional: true,
+				},
+			},
+		},
+	}
+}
+
+func healthcheck() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeSet,
+		MaxItems: 1,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"timeout": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"interval": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"interval_jitter_percent": {
+					Type:     schema.TypeFloat,
+					Optional: true,
+				},
+				"healthy_threshold": {
+					Type:     schema.TypeInt,
+					Optional: true,
+				},
+				"unhealthy_threshold": {
+					Type:     schema.TypeInt,
+					Optional: true,
+				},
+				"healthcheck_port": {
+					Type:         schema.TypeInt,
+					ValidateFunc: validation.IntBetween(0, 65535),
+					Optional:     true,
+				},
+				"stream_healthcheck": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"send": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"receive": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"http_healthcheck": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"host": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"path": {
+								Type:     schema.TypeString,
+								Required: true,
+							},
+							"http2": {
+								Type:     schema.TypeBool,
+								Optional: true,
+							},
+						},
+					},
+				},
+				"grpc_healthcheck": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"service_name": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
+			},
+		},
+		Set: resourceALBBackendGroupHealthcheckHash,
+	}
+}
+
+func tlsBackend() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"sni": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"validation_context": {
+					Type:     schema.TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"trusted_ca_id": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+							"trusted_ca_bytes": {
+								Type:     schema.TypeString,
+								Optional: true,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -449,6 +354,14 @@ func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}
 		req.SetGrpc(backend)
+	}
+	_, ok = d.GetOk("stream_backend")
+	if ok {
+		backend, err := expandALBStreamBackends(d)
+		if err != nil {
+			return fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
+		}
+		req.SetStream(backend)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -521,6 +434,14 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 		if err := d.Set("grpc_backend", backends); err != nil {
 			return err
 		}
+	case *apploadbalancer.BackendGroup_Stream:
+		backends, err := flattenALBStreamBackends(bg)
+		if err != nil {
+			return err
+		}
+		if err := d.Set("stream_backend", backends); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Finished reading Application Backend Group %q", d.Id())
@@ -558,6 +479,15 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}
 		req.SetGrpc(backend)
+	}
+
+	_, ok = d.GetOk("stream_backend")
+	if ok {
+		_, err := expandALBGRPCBackends(d)
+		if err != nil {
+			return fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
+		}
+		//req.SetStream(backend)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

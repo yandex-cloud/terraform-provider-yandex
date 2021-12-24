@@ -185,7 +185,7 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"handler": dataSourceHTTPHandler("listener.http.handler"),
+									"handler": dataSourceHTTPHandler(),
 									"redirects": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -201,12 +201,22 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 								},
 							},
 						},
+						"stream": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"handler": dataSourceStreamHandler(),
+								},
+							},
+						},
 						"tls": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"default_handler": dataSourceTLSHandler("listener.tls.default_handler"),
+									"default_handler": dataSourceTLSHandler(),
 									"sni_handler": {
 										Type:     schema.TypeList,
 										Computed: true,
@@ -222,7 +232,7 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
-												"handler": dataSourceTLSHandler("listener.tls.sni_handler.handler"),
+												"handler": dataSourceTLSHandler(),
 											},
 										},
 									},
@@ -241,13 +251,14 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 	}
 }
 
-func dataSourceTLSHandler(path string) *schema.Schema {
+func dataSourceTLSHandler() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler": dataSourceHTTPHandler(path + ".http_handler"),
+				"http_handler":   dataSourceHTTPHandler(),
+				"stream_handler": dataSourceStreamHandler(),
 				"certificate_ids": {
 					Type:     schema.TypeSet,
 					Computed: true,
@@ -259,7 +270,7 @@ func dataSourceTLSHandler(path string) *schema.Schema {
 	}
 }
 
-func dataSourceHTTPHandler(path string) *schema.Schema {
+func dataSourceHTTPHandler() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
@@ -284,6 +295,21 @@ func dataSourceHTTPHandler(path string) *schema.Schema {
 				"allow_http10": {
 					Type:     schema.TypeBool,
 					Optional: true,
+				},
+			},
+		},
+	}
+}
+
+func dataSourceStreamHandler() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"backend_group_id": {
+					Type:     schema.TypeString,
+					Computed: true,
 				},
 			},
 		},

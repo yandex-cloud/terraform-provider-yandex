@@ -38,7 +38,7 @@ func TestAccDataSourceALBBackendGroup_byID(t *testing.T) {
 					resource.TestCheckResourceAttr(albBgDataSourceResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(albBgDataSourceResource, "target.#", "0"),
 					testAccCheckCreatedAtAttr(albBgDataSourceResource),
-					testAccCheckALBBackendGroupValues(&bg, false, false),
+					testAccCheckALBBackendGroupValues(&bg, false, false, false),
 				),
 			},
 		},
@@ -69,7 +69,7 @@ func TestAccDataSourceALBBackendGroup_byName(t *testing.T) {
 					resource.TestCheckResourceAttr(albBgDataSourceResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(albBgDataSourceResource, "target.#", "0"),
 					testAccCheckCreatedAtAttr(albBgDataSourceResource),
-					testAccCheckALBBackendGroupValues(&bg, false, false),
+					testAccCheckALBBackendGroupValues(&bg, false, false, false),
 				),
 			},
 		},
@@ -95,7 +95,7 @@ func TestAccDataSourceALBBackendGroup_fullWithHttpBackend(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBgDataSourceResource, "http_backend", "tls", &backendPath,
 					),
@@ -141,6 +141,71 @@ func TestAccDataSourceALBBackendGroup_fullWithHttpBackend(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceALBBackendGroup_fullWithStreamBackend(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsDataSource = true
+	BGResource.IsStreamBackend = true
+
+	backendPath := ""
+	var bg apploadbalancer.BackendGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, false, false, false),
+					testExistsFirstElementWithAttr(
+						albBgDataSourceResource, "stream_backend", "tls", &backendPath,
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "tls.0.sni", func(value string) error {
+							tlsSni := bg.GetStream().GetBackends()[0].Tls.Sni
+							if value != tlsSni {
+								return fmt.Errorf("BackendGroup's Stream backend's tls sni doesnt't match. %s != %s", value, tlsSni)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "load_balancing_config.0.locality_aware_routing_percent", func(value string) error {
+							lbConfigPercent := bg.GetStream().GetBackends()[0].LoadBalancingConfig.LocalityAwareRoutingPercent
+							if value != strconv.FormatInt(lbConfigPercent, 10) {
+								return fmt.Errorf("BackendGroup's Stream backend's load balancing config locality aware routing percent doesnt't match. %s != %d", value, lbConfigPercent)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "load_balancing_config.0.panic_threshold", func(value string) error {
+							lbConfigPanicThreshold := bg.GetStream().GetBackends()[0].LoadBalancingConfig.PanicThreshold
+							if value != strconv.FormatInt(lbConfigPanicThreshold, 10) {
+								return fmt.Errorf("BackendGroup's Stream backend's load balancing config panic threshold doesnt't match. %s != %d", value, lbConfigPanicThreshold)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "load_balancing_config.0.strict_locality", func(value string) error {
+							lbConfigStrictLocality := bg.GetStream().GetBackends()[0].LoadBalancingConfig.StrictLocality
+							if value != strconv.FormatBool(lbConfigStrictLocality) {
+								return fmt.Errorf("BackendGroup's Stream backend's load balancing config panic threshold doesnt't match. %s != %t", value, lbConfigStrictLocality)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceALBBackendGroup_fullWithGrpcBackend(t *testing.T) {
 	t.Parallel()
 
@@ -160,7 +225,7 @@ func TestAccDataSourceALBBackendGroup_fullWithGrpcBackend(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, true),
+					testAccCheckALBBackendGroupValues(&bg, false, true, false),
 					testExistsFirstElementWithAttr(
 						albBgDataSourceResource, "grpc_backend", "tls", &backendPath,
 					),

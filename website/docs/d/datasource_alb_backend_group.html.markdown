@@ -39,9 +39,10 @@ The following attributes are exported:
 * `labels` - Labels to assign to this backend group.
 * `http_backend` - Http backend specification that will be used by the ALB Backend Group. Structure is documented below. 
 * `grpc_backend` - Grpc backend specification that will be used by the ALB Backend Group. Structure is documented below.
+* `stream_backend` - Stream backend specification that will be used by the ALB Backend Group. Structure is documented below.
 * `created_at` - Creation timestamp of this backend group.
 
-~> **NOTE:** Only one type of backends `http_backend` or `grpc_backend` should be specified.
+~> **NOTE:** Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
 
 The `http_backend` block supports:
 
@@ -49,6 +50,16 @@ The `http_backend` block supports:
 * `port` - Port for incoming traffic.
 * `weight` - Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights. 
 * `http2` - Enables HTTP2 for upstream requests. If not set, HTTP 1.1 will be used by default.
+* `target_group_ids` - References target groups for the backend.
+* `load_balancing_config` - Load Balancing Config specification that will be used by this backend. Structure is documented below.
+* `healthcheck` - Healthcheck specification that will be used by this backend. Structure is documented below.
+* `tls` - Tls specification that will be used by this backend. Structure is documented below.
+
+The `stream_backend` block supports:
+
+* `name` - Name of the backend.
+* `port` - Port for incoming traffic.
+* `weight` - Weight of the backend. Traffic will be split between backends of the same BackendGroup according to their weights.
 * `target_group_ids` - References target groups for the backend.
 * `load_balancing_config` - Load Balancing Config specification that will be used by this backend. Structure is documented below.
 * `healthcheck` - Healthcheck specification that will be used by this backend. Structure is documented below.

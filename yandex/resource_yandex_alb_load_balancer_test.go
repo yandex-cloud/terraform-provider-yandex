@@ -100,12 +100,50 @@ func TestAccALBLoadBalancer_basic(t *testing.T) {
 	})
 }
 
+func TestAccALBLoadBalancer_streamListener(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsStreamListener = true
+	albResource.IsStreamHandler = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "name", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "endpoint.0.ports.0", albDefaultPort, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "name", albResource.ListenerName, &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "stream.0.handler.0.backend_group_id", &listenerPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
 func TestAccALBLoadBalancer_httpListenerWithHTTP2Options(t *testing.T) {
 	t.Parallel()
 
 	albResource := albLoadBalancerInfo()
 	albResource.IsHTTPListener = true
-	albResource.IsHTTPListenerHandler = true
+	albResource.IsHTTPHandler = true
 	albResource.IsHTTP2Options = true
 
 	var alb apploadbalancer.LoadBalancer
@@ -144,7 +182,7 @@ func TestAccALBLoadBalancer_httpListenerWithAllowHTTP10(t *testing.T) {
 
 	albResource := albLoadBalancerInfo()
 	albResource.IsHTTPListener = true
-	albResource.IsHTTPListenerHandler = true
+	albResource.IsHTTPHandler = true
 	albResource.IsAllowHTTP10 = true
 
 	var alb apploadbalancer.LoadBalancer
@@ -216,12 +254,56 @@ func TestAccALBLoadBalancer_httpListenerWithRedirects(t *testing.T) {
 	})
 }
 
+func TestAccALBLoadBalancer_tlsListenerWithStreamHandler(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsTLSListener = true
+	albResource.IsStreamHandler = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "name", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "endpoint.0.ports.0", albDefaultPort, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "name", albResource.ListenerName, &listenerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.stream_handler.0.backend_group_id", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.sni_handler.0.handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
 func TestAccALBLoadBalancer_tlsListenerWithHTTP2Options(t *testing.T) {
 	t.Parallel()
 
 	albResource := albLoadBalancerInfo()
 	albResource.IsTLSListener = true
-	albResource.IsHTTPListenerHandler = true
+	albResource.IsHTTPHandler = true
 	albResource.IsHTTP2Options = true
 
 	var alb apploadbalancer.LoadBalancer
@@ -249,6 +331,9 @@ func TestAccALBLoadBalancer_tlsListenerWithHTTP2Options(t *testing.T) {
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams", albDefaultMaxConcurrentStreams, &listenerPath,
 					),
 					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "tls.0.sni_handler.0.handler.0.certificate_ids.*", albResource.CertificateID, &listenerPath,
 					),
 				),
@@ -263,7 +348,7 @@ func TestAccALBLoadBalancer_tlsListenerWithAllowHTTP10(t *testing.T) {
 
 	albResource := albLoadBalancerInfo()
 	albResource.IsTLSListener = true
-	albResource.IsHTTPListenerHandler = true
+	albResource.IsHTTPHandler = true
 	albResource.IsAllowHTTP10 = true
 
 	var alb apploadbalancer.LoadBalancer

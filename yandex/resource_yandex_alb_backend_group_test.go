@@ -93,7 +93,7 @@ func TestAccALBBackendGroup_basic(t *testing.T) {
 					testAccCheckALBBackendGroupContainsLabel(&bg, "tf-label", "tf-label-value"),
 					testAccCheckALBBackendGroupContainsLabel(&bg, "empty-label", ""),
 					testAccCheckCreatedAtAttr(albBGResource),
-					testAccCheckALBBackendGroupValues(&bg, false, false),
+					testAccCheckALBBackendGroupValues(&bg, false, false, false),
 				),
 			},
 			albBackendGroupImportStep(),
@@ -120,7 +120,7 @@ func TestAccALBBackendGroup_fullWithEmptyTLS(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
@@ -164,7 +164,7 @@ func TestAccALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
@@ -214,7 +214,7 @@ func TestAccALBBackendGroup_fullWithGRPCBackend(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, true),
+					testAccCheckALBBackendGroupValues(&bg, false, true, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "grpc_backend", "name", &backendPath,
 					),
@@ -265,7 +265,7 @@ func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
@@ -310,7 +310,7 @@ func TestAccALBBackendGroup_httpBackendWithGRPCHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
@@ -322,6 +322,45 @@ func TestAccALBBackendGroup_httpBackendWithGRPCHealthcheck(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albBGResource, "http_backend", "healthcheck.*.grpc_healthcheck.0.service_name", albDefaultServiceName, &backendPath,
+					),
+				),
+			},
+			albBackendGroupImportStep(),
+		},
+	})
+}
+
+func TestAccALBBackendGroup_streamBackend(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsStreamBackend = true
+	BGResource.IsGRPCCheck = true
+
+	var bg apploadbalancer.BackendGroup
+	backendPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBBackendGroupExists(albBGResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, false, false, true),
+					testExistsFirstElementWithAttr(
+						albBGResource, "stream_backend", "name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.timeout", albDefaultTimeout, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.interval", albDefaultInterval, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.grpc_healthcheck.0.service_name", albDefaultServiceName, &backendPath,
 					),
 				),
 			},
@@ -349,7 +388,7 @@ func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, true, false),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
@@ -391,7 +430,7 @@ func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, true),
+					testAccCheckALBBackendGroupValues(&bg, false, true, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "grpc_backend", "name", &backendPath,
 					),
@@ -436,7 +475,7 @@ func TestAccALBBackendGroup_grpcBackendWithGRPCHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, true),
+					testAccCheckALBBackendGroupValues(&bg, false, true, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "grpc_backend", "name", &backendPath,
 					),
@@ -475,7 +514,7 @@ func TestAccALBBackendGroup_grpcBackendWithStreamHealthcheck(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, true),
+					testAccCheckALBBackendGroupValues(&bg, false, true, false),
 					testExistsFirstElementWithAttr(
 						albBGResource, "grpc_backend", "name", &backendPath,
 					),

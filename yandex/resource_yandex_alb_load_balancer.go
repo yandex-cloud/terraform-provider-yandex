@@ -200,7 +200,7 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"handler": httpHandler("listener.http.handler"),
+									"handler": httpHandler(),
 									"redirects": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -218,13 +218,23 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 								},
 							},
 						},
+						"stream": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"handler": streamHandler(),
+								},
+							},
+						},
 						"tls": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"default_handler": tlsHandler("listener.tls.default_handler"),
+									"default_handler": tlsHandler(),
 									"sni_handler": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -240,7 +250,7 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 													Elem:     &schema.Schema{Type: schema.TypeString},
 													Set:      schema.HashString,
 												},
-												"handler": tlsHandler("listener.tls.sni_handler.handler"),
+												"handler": tlsHandler(),
 											},
 										},
 									},
@@ -259,14 +269,15 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 	}
 }
 
-func tlsHandler(path string) *schema.Schema {
+func tlsHandler() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		MaxItems: 1,
 		Required: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"http_handler": httpHandler(path + ".http_handler"),
+				"http_handler":   httpHandler(),
+				"stream_handler": streamHandler(),
 				"certificate_ids": {
 					Type:     schema.TypeSet,
 					Required: true,
@@ -278,7 +289,7 @@ func tlsHandler(path string) *schema.Schema {
 	}
 }
 
-func httpHandler(path string) *schema.Schema {
+func httpHandler() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		MaxItems: 1,
@@ -307,6 +318,22 @@ func httpHandler(path string) *schema.Schema {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Default:  false,
+				},
+			},
+		},
+	}
+}
+
+func streamHandler() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"backend_group_id": {
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 			},
 		},
