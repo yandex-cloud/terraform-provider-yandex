@@ -37,6 +37,8 @@ func TestAccDataSourceComputeDisk_byID(t *testing.T) {
 						"type", "network-hdd"),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
 						"zone"),
+					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
+						"block_size", "4096"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
 				),
 			},
@@ -73,6 +75,8 @@ func TestAccDataSourceComputeDisk_byName(t *testing.T) {
 						"type", "network-hdd"),
 					resource.TestCheckResourceAttrSet("data.yandex_compute_disk.source",
 						"zone"),
+					resource.TestCheckResourceAttr("data.yandex_compute_disk.source",
+						"block_size", "4096"),
 					testAccCheckCreatedAtAttr("data.yandex_compute_disk.source"),
 				),
 			},
@@ -87,10 +91,11 @@ data "yandex_compute_image" "ubuntu" {
 }
 
 resource "yandex_compute_disk" "foo" {
-  name     = "%s"
-  zone     = "ru-central1-a"
-  image_id = "${data.yandex_compute_image.ubuntu.id}"
-  size     = 8
+  name       = "%s"
+  zone       = "ru-central1-a"
+  image_id   = "${data.yandex_compute_image.ubuntu.id}"
+  size       = 8
+  block_size = 4096
 
   labels = {
     my-label = "my-label-value"

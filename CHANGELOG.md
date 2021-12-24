@@ -8,6 +8,9 @@ FEATURES:
 BUG FIXES:
 * docs: Fixed few minor inaccuracies of `yandex_alb_virtual_host` resource
 
+FEATURES:
+* compute: added `block_size` in `yandex_compute_disk` and `yandex_compute_instance` resources.
+
 ## 0.68.0 (December 10, 2021)
 FEATURES:
 * mdb: added the ability to upgrade Kafka version using the `version` attribute of `yandex_mdb_kafka_cluster` resource.

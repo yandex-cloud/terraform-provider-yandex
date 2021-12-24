@@ -41,6 +41,10 @@ func dataSourceYandexComputeDisk() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"block_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"image_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -135,6 +139,7 @@ func dataSourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("type", disk.TypeId)
 	d.Set("zone", disk.ZoneId)
 	d.Set("size", toGigabytes(disk.Size))
+	d.Set("block_size", int(disk.BlockSize))
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())

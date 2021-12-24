@@ -123,6 +123,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 										Type:     schema.TypeInt,
 										Computed: true,
 									},
+									"block_size": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
 									"type": {
 										Type:     schema.TypeString,
 										Computed: true,

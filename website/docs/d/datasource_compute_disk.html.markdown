@@ -46,6 +46,7 @@ exported:
 * `folder_id` - ID of the folder that the disk belongs to.
 * `zone` - ID of the zone where the disk resides.
 * `size` - Size of the disk, specified in Gb.
+* `block_size` - The block size of the disk in bytes.
 * `image_id` - ID of the source image that was used to create this disk.
 * `snapshot_id` - Source snapshot that was used to create this disk. 
 * `type` - Type of the disk.

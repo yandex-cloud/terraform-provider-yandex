@@ -121,6 +121,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestMatchResourceAttr(datasourceName, "fqdn", regexp.MustCompile(instanceName)),
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.auto_delete", "true"),
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.size", "4"),
+		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.block_size", "8192"),
 		resource.TestCheckResourceAttr(datasourceName, "boot_disk.0.initialize_params.0.type", "network-hdd"),
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.0.nat", "false"),
@@ -149,8 +150,9 @@ resource "yandex_compute_instance" "foo" {
 
   boot_disk {
     initialize_params {
-      size     = 4
-      image_id = "${data.yandex_compute_image.ubuntu.id}"
+      size       = 4
+      block_size = 8192
+      image_id   = "${data.yandex_compute_image.ubuntu.id}"
     }
   }
 
@@ -200,8 +202,9 @@ resource "yandex_compute_instance" "foo" {
 
   boot_disk {
     initialize_params {
-      size     = 4
-      image_id = "${data.yandex_compute_image.ubuntu.id}"
+      size       = 4
+      block_size = 8192
+      image_id   = "${data.yandex_compute_image.ubuntu.id}"
     }
   }
 

@@ -76,6 +76,13 @@ func resourceYandexComputeDisk() *schema.Resource {
 				ValidateFunc: validateDiskSize,
 			},
 
+			"block_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Default:  4096,
+			},
+
 			"image_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -183,6 +190,7 @@ func resourceYandexComputeDiskCreate(d *schema.ResourceData, meta interface{}) e
 		TypeId:              d.Get("type").(string),
 		ZoneId:              zone,
 		Size:                toBytes(d.Get("size").(int)),
+		BlockSize:           int64(d.Get("block_size").(int)),
 		DiskPlacementPolicy: diskPlacementPolicy,
 	}
 
@@ -252,6 +260,7 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("status", strings.ToLower(disk.Status.String()))
 	d.Set("type", disk.TypeId)
 	d.Set("size", toGigabytes(disk.Size))
+	d.Set("block_size", int(disk.BlockSize))
 	d.Set("image_id", disk.GetSourceImageId())
 	d.Set("snapshot_id", disk.GetSourceSnapshotId())
 	d.Set("disk_placement_policy", diskPlacementPolicy)

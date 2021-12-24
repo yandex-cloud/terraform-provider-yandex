@@ -145,6 +145,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 										ValidateFunc: validation.IntAtLeast(1),
 									},
 
+									"block_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+
 									"type": {
 										Type:     schema.TypeString,
 										Optional: true,
