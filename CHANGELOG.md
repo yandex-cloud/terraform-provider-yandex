@@ -1,4 +1,6 @@
-## 0.69.0 (Unreleased)
+## 0.70.0 (Unreleased)
+
+## 0.69.0 (December 27, 2021)
 FEATURES:
 * **New Data Source:** `yandex_cdn_origin_group`
 * **New Data Source:** `yandex_cdn_resource`
