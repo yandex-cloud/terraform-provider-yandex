@@ -10,6 +10,8 @@ description: |-
 
 Allows management of [Yandex.Cloud CDN Origin Groups](https://cloud.yandex.ru/docs/cdn/concepts/origins).
 
+> **_NOTE:_**  CDN provider must be activated prior usage of CDN resources, either via UI console or via yc cli command: ```yc cdn provider activate --folder-id <folder-id> --type gcore```
+
 ## Example Usage
 
 ```hcl
