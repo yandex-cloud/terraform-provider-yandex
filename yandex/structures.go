@@ -39,6 +39,17 @@ func expandStringSet(v interface{}) []string {
 	return result
 }
 
+func expandStringSlice(v []interface{}) []string {
+	if v == nil {
+		return nil
+	}
+	s := make([]string, len(v))
+	for i, val := range v {
+		s[i] = val.(string)
+	}
+	return s
+}
+
 func expandLabels(v interface{}) (map[string]string, error) {
 	m := make(map[string]string)
 	if v == nil {
