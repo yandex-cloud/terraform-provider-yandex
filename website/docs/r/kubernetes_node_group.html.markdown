@@ -45,6 +45,10 @@ resource "yandex_kubernetes_node_group" "my_node_group" {
     scheduling_policy {
       preemptible = false
     }
+
+    container_runtime {
+      type = "containerd"
+    }
   }
 
   scale_policy {
@@ -130,6 +134,7 @@ The `instance_template` block supports:
 * `network_interface` - An array with the network interfaces that will be attached to the instance. The structure is documented below.
 * `network_acceleration_type` - (Optional) Type of network acceleration. Values: `standard`, `software_accelerated`.
 
+* `container_runtime` - (Optional) Container runtime configuration. The structure is documented below.
 ---
 
 The `boot_disk` block supports:
@@ -157,6 +162,12 @@ The `network_interface` block supports:
 * `ipv6` - (Optional) If true, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
 * `nat` - A public address that can be used to access the internet over NAT.
 * `security_group_ids` - (Optional) Security group ids for network interface.
+
+---
+
+The `container_runtime` block supports:
+
+* `type` - (Required) Type of container runtime. Values: `docker`, `containerd`.
 
 ---
 

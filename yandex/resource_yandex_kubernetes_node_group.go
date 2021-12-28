@@ -48,6 +48,21 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"container_runtime": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice([]string{"containerd", "docker"}, true),
+									},
+								},
+							},
+						},
 						"resources": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -731,16 +746,22 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
 	}
 
+	crs, err := getNodeGroupContainerRuntimeSettings(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
+	}
+
 	tpl := &k8s.NodeTemplate{
-		PlatformId:            h.GetString("platform_id"),
-		ResourcesSpec:         getNodeGroupResourceSpec(d),
-		BootDiskSpec:          getNodeGroupBootDiskSpec(d),
-		Metadata:              metadata,
-		V4AddressSpec:         getNodeGroupAddressSpec(d),
-		SchedulingPolicy:      getNodeGroupTemplateSchedulingPolicy(d),
-		NetworkInterfaceSpecs: getNodeGroupNetworkInterfaceSpecs(d),
-		PlacementPolicy:       getNodeGroupTemplatePlacementPolicy(d),
-		NetworkSettings:       ns,
+		PlatformId:               h.GetString("platform_id"),
+		ResourcesSpec:            getNodeGroupResourceSpec(d),
+		BootDiskSpec:             getNodeGroupBootDiskSpec(d),
+		Metadata:                 metadata,
+		V4AddressSpec:            getNodeGroupAddressSpec(d),
+		SchedulingPolicy:         getNodeGroupTemplateSchedulingPolicy(d),
+		NetworkInterfaceSpecs:    getNodeGroupNetworkInterfaceSpecs(d),
+		PlacementPolicy:          getNodeGroupTemplatePlacementPolicy(d),
+		NetworkSettings:          ns,
+		ContainerRuntimeSettings: crs,
 	}
 
 	return tpl, nil
@@ -847,6 +868,19 @@ func getNodeGroupResourceSpec(d *schema.ResourceData) *k8s.ResourcesSpec {
 	return spec
 }
 
+func getNodeGroupContainerRuntimeSettings(d *schema.ResourceData) (*k8s.NodeTemplate_ContainerRuntimeSettings, error) {
+	if v, ok := d.GetOk("instance_template.0.container_runtime.0.type"); ok {
+		typeVal, ok := k8s.NodeTemplate_ContainerRuntimeSettings_Type_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'type' should be 'containerd' or 'docker', not '%s'", v)
+		}
+		return &k8s.NodeTemplate_ContainerRuntimeSettings{
+			Type: k8s.NodeTemplate_ContainerRuntimeSettings_Type(typeVal),
+		}, nil
+	}
+	return nil, nil
+}
+
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
 	d.Set("cluster_id", ng.ClusterId)
 	d.Set("created_at", getTimestamp(ng.CreatedAt))
@@ -948,6 +982,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.placement_policy.0.placement_group_id": "node_template.placement_policy.placement_group_id",
 	"instance_template.0.network_interface":                     "node_template.network_interface_specs",
 	"instance_template.0.network_acceleration_type":             "node_template.network_settings",
+	"instance_template.0.container_runtime.0.type":              "node_template.container_runtime_settings.type",
 	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
@@ -1086,6 +1121,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"network_interface":         flattenKubernetesNodeGroupNetworkInterfaces(ngTpl.GetNetworkInterfaceSpecs()),
 		"placement_policy":          flattenKubernetesNodeGroupTemplatePlacementPolicy(ngTpl.GetPlacementPolicy()),
 		"network_acceleration_type": strings.ToLower(ngTpl.GetNetworkSettings().GetType().String()),
+		"container_runtime":         flattenKubernetesNodeGroupTemplateContainerRuntime(ngTpl.GetContainerRuntimeSettings()),
 	}
 
 	return []map[string]interface{}{tpl}
@@ -1214,6 +1250,26 @@ func flattenKubernetesNodeGroupTemplatePlacementPolicy(p *k8s.PlacementPolicy) [
 	return []map[string]interface{}{
 		{
 			"placement_group_id": p.PlacementGroupId,
+		},
+	}
+}
+
+func flattenKubernetesNodeGroupTemplateContainerRuntime(p *k8s.NodeTemplate_ContainerRuntimeSettings) []map[string]interface{} {
+	if p == nil {
+		return []map[string]interface{}{}
+	}
+
+	// TODO: if container_runtime is not explicitly specified on creation, then API returns
+	// TYPE_UNSPECIFIED container runtime type. This type is not documented and should not be returned to end user.
+	// Backend should fill container runtime info properly to avoid such situations (fix needed). For now
+	// TYPE_UNSPECIFIED is ignored.
+	if p.GetType() == k8s.NodeTemplate_ContainerRuntimeSettings_TYPE_UNSPECIFIED {
+		return []map[string]interface{}{}
+	}
+
+	return []map[string]interface{}{
+		{
+			"type": strings.ToLower(p.GetType().String()),
 		},
 	}
 }

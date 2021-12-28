@@ -84,6 +84,7 @@ The `instance_template` block supports:
 * `scheduling_policy` - The scheduling policy for the instances in node group. The structure is documented below.
 * `placement_policy` - (Optional) The placement policy configuration. The structure is documented below.
 
+* `container_runtime` - Container runtime configuration. The structure is documented below.
 ---
 
 The `network_interface` block supports:
@@ -112,6 +113,12 @@ The `placement_policy` block supports:
 
 * `placement_group_id` - (Optional) Specifies the id of the Placement Group to assign to the instances.
 
+
+---
+
+The `container_runtime` block supports:
+
+* `type` - Type of container runtime. Values: `docker`, `containerd`.
 
 ---
 

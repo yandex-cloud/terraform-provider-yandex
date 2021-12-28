@@ -420,10 +420,66 @@ func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceStandard),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResourceSoftwareAcceleration, true, false),
+					checkNodeGroupAttributes(&ng, &nodeResourceStandard, true, false),
 				),
 			},
 			k8sNodeGroupImportStep(nodeResourceFullName),
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_containerRuntime(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerRuntime", true)
+
+	nodeResourceDocker := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceContainerd := nodeResourceDocker
+
+	nodeResourceDocker.ContainerRuntimeType = "docker"
+	nodeResourceContainerd.ContainerRuntimeType = "containerd"
+
+	nodeResourceFullName := nodeResourceDocker.ResourceFullName(true)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceDocker),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceDocker, true, false),
+				),
+			},
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceContainerd),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResourceContainerd, true, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesNodeGroup_containerRuntime_invalid(t *testing.T) {
+	t.Parallel()
+
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerRuntime_invalid", true)
+	nodeResourceInvalid := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceInvalid.ContainerRuntimeType = "some_invalid_type"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceInvalid),
+				ExpectError: regexp.MustCompile("expected instance_template.0.container_runtime.0.type to be one of"),
+			},
 		},
 	})
 }
@@ -434,6 +490,8 @@ type resourceNodeGroupInfo struct {
 	Name                  string
 	Description           string
 	Version               string
+
+	ContainerRuntimeType string
 
 	Memory string
 	Cores  string
@@ -666,6 +724,12 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   instance_template {
     platform_id = "standard-v2"
 
+	{{if .ContainerRuntimeType}}
+	container_runtime {
+		type = "{{.ContainerRuntimeType}}"
+	}
+	{{end}}
+
     {{.NetworkInterfaces}}
 
     resources {
@@ -700,7 +764,7 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     }
   }
 
-  version = {{.Version}}
+  version = "{{.Version}}"
 
   {{.MaintenancePolicy}}
 
@@ -816,22 +880,33 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_unavailable", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxUnavailable()))),
 			resource.TestCheckResourceAttr(resourceFullName, "deploy_policy.0.max_expansion", strconv.Itoa(int(ng.GetDeployPolicy().GetMaxExpansion()))),
+
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4",
+				strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil)),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6",
+				strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV6AddressSpec != nil)),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat",
+				strconv.FormatBool(
+					tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil &&
+						tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec.OneToOneNatSpec != nil)),
 		}
 
 		if info.PlacementGroupId != "" {
-			resource.TestCheckResourceAttr(resourceFullName,
-				"instance_template.0.placement_policy.0.placement_group_id",
-				tpl.PlacementPolicy.PlacementGroupId)
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName,
+					"instance_template.0.placement_policy.0.placement_group_id",
+					tpl.PlacementPolicy.PlacementGroupId),
+			)
 		}
 
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv4",
-			strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil))
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.ipv6",
-			strconv.FormatBool(tpl.NetworkInterfaceSpecs[0].PrimaryV6AddressSpec != nil))
-		resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat",
-			strconv.FormatBool(
-				tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec != nil &&
-					tpl.NetworkInterfaceSpecs[0].PrimaryV4AddressSpec.OneToOneNatSpec != nil))
+		if info.ContainerRuntimeType != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
+					strings.ToLower(tpl.GetContainerRuntimeSettings().GetType().String())),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
+					strings.ToLower(info.ContainerRuntimeType)),
+			)
+		}
 
 		if info.NetworkInterfaces != enableNAT {
 			subnetID := info.SubnetName
@@ -843,10 +918,12 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 				}
 			}
 
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.#", "1")
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids", "1")
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids.0", subnetID)
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.subnet_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0])
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.0", subnetID),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.subnet_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0]),
+			)
 
 			if info.SecurityGroupName != "" {
 				securityGroupID := info.SecurityGroupName
@@ -858,12 +935,17 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 					}
 				}
 
-				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids", "1")
-				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids.0", securityGroupID)
-				resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.0.security_group_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SubnetIds[0])
+				checkFuncsAr = append(checkFuncsAr,
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.0", securityGroupID),
+					resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.security_group_ids.0", ng.NodeTemplate.NetworkInterfaceSpecs[0].SecurityGroupIds[0]),
+				)
 			}
 		} else {
-			resource.TestCheckResourceAttr(resourceFullName, "master.0.network_interface.#", "0")
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.#", "1"),
+				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_interface.0.nat", "true"),
+			)
 		}
 
 		if info.policy != emptyMaintenancePolicy {
