@@ -166,6 +166,7 @@ func sweepCDNOriginGroup(conf *Config, id int64) bool {
 		defer cancel()
 
 		op, err := conf.sdk.CDN().OriginGroup().Delete(ctx, &cdn.DeleteOriginGroupRequest{
+			FolderId:      conf.FolderID,
 			OriginGroupId: id,
 		})
 
