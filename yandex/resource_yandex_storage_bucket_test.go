@@ -1785,18 +1785,8 @@ func TestAccStorageBucket_ImportBasic(t *testing.T) {
 					testAccCheckStorageBucketPolicy(resourceName, testAccStorageBucketPolicy(rInt)),
 				),
 			},
-			bucketStorageImportStep(resourceName),
 		},
 	})
-}
-
-func bucketStorageImportStep(resourceName string) resource.TestStep {
-	return resource.TestStep{
-		ResourceName:      resourceName,
-		ImportStateId:     resourceName,
-		ImportState:       true,
-		ImportStateVerify: true,
-	}
 }
 
 func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
