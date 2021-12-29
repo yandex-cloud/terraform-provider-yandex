@@ -760,3 +760,76 @@ func fieldDeprecatedForAnother(deprecatedFieldName string, newFieldName string) 
 func getSDK(config *Config) *ycsdk.SDK {
 	return config.sdk
 }
+
+func generateFieldMasks(d *schema.ResourceData, fieldsMap map[string]string) []string {
+	changedPaths := make(map[string]bool)
+
+	for longField, longPath := range fieldsMap {
+		if !d.HasChange(longField) {
+			continue
+		}
+
+		fields := splitFieldPath(longField)
+		paths := strings.Split(longPath, ".")
+
+		if len(paths) != len(fields) {
+			panic(fmt.Sprintf("different length: %s and %s", longField, longPath))
+		}
+
+		var found bool
+
+		for i, field := range fields {
+			path := strings.Join(paths[0:i+1], ".")
+
+			if _, ok := changedPaths[path]; ok {
+				found = true
+				break
+			}
+
+			if !d.HasChange(field) {
+				continue
+			}
+
+			if strings.HasSuffix(field, ".0") {
+				size := d.Get(field[:len(field)-2] + ".#").(int)
+				if size == 0 {
+					changedPaths[path] = true
+					found = true
+					break
+				}
+			}
+
+			if _, ok := d.GetOk(field); !ok {
+				changedPaths[path] = true
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			changedPaths[longPath] = true
+		}
+	}
+
+	res := make([]string, 0, len(changedPaths))
+	for k := range changedPaths {
+		res = append(res, k)
+	}
+
+	return res
+}
+
+func splitFieldPath(path string) []string {
+	newPath := strings.ReplaceAll(path, ".0", "__0")
+	var sb strings.Builder
+	var paths []string
+
+	for i, token := range strings.Split(newPath, ".") {
+		if i != 0 {
+			sb.WriteString(".")
+		}
+		sb.WriteString(strings.ReplaceAll(token, "__0", ".0"))
+		paths = append(paths, sb.String())
+	}
+	return paths
+}

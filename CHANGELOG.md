@@ -1,5 +1,7 @@
 ## 0.70.0 (Unreleased)
 FEATURES:
+* **New Resource:** `yandex_datatransfer_endpoint`
+* **New Resource:** `yandex_datatransfer_transfer`
 * managed-kubernetes: add `container_runtime` attribute to `yandex_kubernetes_node_group` resource and data source
 
 ## 0.69.0 (December 27, 2021)
