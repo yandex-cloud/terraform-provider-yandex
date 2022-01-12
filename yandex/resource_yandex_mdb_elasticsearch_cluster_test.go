@@ -127,6 +127,9 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 						time.Sleep(2 * time.Minute)
 						return nil
 					},
+					resource.TestCheckResourceAttr(elasticsearchResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(elasticsearchResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(elasticsearchResource, "maintenance_window.0.hour", "20"),
 				),
 			},
 			mdbElasticsearchClusterImportStep(elasticsearchResource),
@@ -180,6 +183,7 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 						time.Sleep(time.Minute)
 						return nil
 					},
+					resource.TestCheckResourceAttr(elasticsearchResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbElasticsearchClusterImportStep(elasticsearchResource),
@@ -377,6 +381,11 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
     yandex_vpc_subnet.mdb-elasticsearch-test-subnet-c,
   ]
 
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
 }
 `, name, desc, environment, deletionProtection)
 }
@@ -452,6 +461,9 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
     yandex_vpc_subnet.mdb-elasticsearch-test-subnet-c,
   ]
 
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 `, name, desc)
 }

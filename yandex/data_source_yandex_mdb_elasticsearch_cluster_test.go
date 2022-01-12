@@ -85,6 +85,9 @@ func testAccDataSourceMDBElasticseachClusterAttributesCheck(datasourceName strin
 			"security_group_ids",
 			"service_account_id",
 			"deletion_protection",
+			"maintenance_window.0.type",
+			"maintenance_window.0.day",
+			"maintenance_window.0.hour",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -121,6 +124,9 @@ func testAccDataSourceMDBElasticsearchClusterCheck(datasourceName string, resour
 		// our host stored in set and indexed by hashcode, not order.
 		// resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		testAccCheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
 	)
 }
 

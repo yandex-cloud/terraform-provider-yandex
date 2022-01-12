@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -36,7 +37,7 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 
 		SchemaVersion: 0,
 
-		CustomizeDiff: elasticseachHostDiffCustomize,
+		CustomizeDiff: elasticsearchHostDiffCustomize,
 
 		Schema: map[string]*schema.Schema{
 
@@ -234,6 +235,31 @@ func resourceYandexMDBElasticsearchCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: validateParsableValue(parseElasticsearchWeekDay),
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -343,6 +369,11 @@ func resourceYandexMDBElasticsearchClusterRead(d *schema.ResourceData, meta inte
 
 	d.Set("deletion_protection", cluster.GetDeletionProtection())
 
+	mw := flattenElasticsearchMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -418,6 +449,11 @@ func prepareCreateElasticsearchRequest(d *schema.ResourceData, meta *Config) (*e
 		return nil, fmt.Errorf("Error while expanding network id on Elasticsearch Cluster create: %s", err)
 	}
 
+	mntWindow, err := expandElasticsearchMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding maintenance window on Elasticsearch Cluster create: %s", err)
+	}
+
 	req := &elasticsearch.CreateClusterRequest{
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -434,6 +470,7 @@ func prepareCreateElasticsearchRequest(d *schema.ResourceData, meta *Config) (*e
 		SecurityGroupIds:   securityGroupIds,
 		ServiceAccountId:   d.Get("service_account_id").(string),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  mntWindow,
 	}
 
 	return req, nil
@@ -638,6 +675,18 @@ func updateElasticsearchClusterParams(d *schema.ResourceData, meta interface{}) 
 			}
 		}
 
+	}
+
+	if d.HasChange("maintenance_window") {
+		mw, err := expandElasticsearchMaintenanceWindow(d)
+		if err != nil {
+			return err
+		}
+
+		req.MaintenanceWindow = mw
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
+
+		changed = append(changed, "maintenance_window")
 	}
 
 	if len(changed) == 0 {

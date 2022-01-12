@@ -347,7 +347,7 @@ func mapElasticsearchHostNames(actual []*elasticsearch.Host, state Elasticsearch
 	return result
 }
 
-func elasticseachHostDiffCustomize(ctx context.Context, rdiff *schema.ResourceDiff, _ interface{}) error {
+func elasticsearchHostDiffCustomize(ctx context.Context, rdiff *schema.ResourceDiff, _ interface{}) error {
 	os, ns := rdiff.GetChange("host")
 
 	oldHosts, _ := expandElasticsearchHosts(os)
@@ -400,4 +400,73 @@ func elasticsearchHostFQDNHash(v interface{}) int {
 		return hashcode.String(n.(string))
 	}
 	return 0
+}
+
+func parseElasticsearchWeekDay(wd string) (elasticsearch.WeeklyMaintenanceWindow_WeekDay, error) {
+	val, ok := elasticsearch.WeeklyMaintenanceWindow_WeekDay_value[wd]
+	// do not allow WEEK_DAY_UNSPECIFIED
+	if !ok || val == 0 {
+		return elasticsearch.WeeklyMaintenanceWindow_WEEK_DAY_UNSPECIFIED,
+			fmt.Errorf("value for 'day' should be one of %s, not `%s`",
+				getJoinedKeys(getEnumValueMapKeysExt(elasticsearch.WeeklyMaintenanceWindow_WeekDay_value, true)), wd)
+	}
+
+	return elasticsearch.WeeklyMaintenanceWindow_WeekDay(val), nil
+}
+
+func expandElasticsearchMaintenanceWindow(d *schema.ResourceData) (*elasticsearch.MaintenanceWindow, error) {
+	mwType, ok := d.GetOk("maintenance_window.0.type")
+	if !ok {
+		return nil, nil
+	}
+
+	result := &elasticsearch.MaintenanceWindow{}
+
+	switch mwType {
+	case "ANYTIME":
+		timeSet := false
+		if _, ok := d.GetOk("maintenance_window.0.day"); ok {
+			timeSet = true
+		}
+		if _, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			timeSet = true
+		}
+		if timeSet {
+			return nil, fmt.Errorf("with ANYTIME type of maintenance window both DAY and HOUR should be omitted")
+		}
+		result.SetAnytime(&elasticsearch.AnytimeMaintenanceWindow{})
+
+	case "WEEKLY":
+		weekly := &elasticsearch.WeeklyMaintenanceWindow{}
+		if val, ok := d.GetOk("maintenance_window.0.day"); ok {
+			var err error
+			weekly.Day, err = parseElasticsearchWeekDay(val.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+		if v, ok := d.GetOk("maintenance_window.0.hour"); ok {
+			weekly.Hour = int64(v.(int))
+		}
+
+		result.SetWeeklyMaintenanceWindow(weekly)
+	}
+
+	return result, nil
+}
+
+func flattenElasticsearchMaintenanceWindow(mw *elasticsearch.MaintenanceWindow) []map[string]interface{} {
+	result := map[string]interface{}{}
+
+	if val := mw.GetAnytime(); val != nil {
+		result["type"] = "ANYTIME"
+	}
+
+	if val := mw.GetWeeklyMaintenanceWindow(); val != nil {
+		result["type"] = "WEEKLY"
+		result["day"] = val.Day.String()
+		result["hour"] = val.Hour
+	}
+
+	return []map[string]interface{}{result}
 }

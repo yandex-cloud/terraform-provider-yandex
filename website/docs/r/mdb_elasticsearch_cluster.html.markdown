@@ -43,6 +43,9 @@ resource "yandex_mdb_elasticsearch_cluster" "foo" {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 
+  maintenance_window {
+    type = "ANYTIME"
+  }
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -220,6 +223,12 @@ The `host` block supports:
   be a part of the network to which the cluster belongs.
 
 * `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+* `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
+* `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
 
 ## Attributes Reference
 

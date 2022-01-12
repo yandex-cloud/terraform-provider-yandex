@@ -86,3 +86,9 @@ The `host` block supports:
 * `zone` - The availability zone where the Elasticsearch host will be created.
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation.
+
+The `maintenance_window` block supports:
+
+* `type` - Type of a maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour need to be specified with the weekly window.
+* `hour` - Hour of the day in UTC time zone (1-24) for a maintenance window if the window type is weekly.
+* `day` - Day of the week for a maintenance window if the window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.

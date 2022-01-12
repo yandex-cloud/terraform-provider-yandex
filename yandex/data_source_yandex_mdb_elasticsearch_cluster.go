@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
 
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -219,6 +220,27 @@ func dataSourceYandexMDBElasticsearchCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -242,6 +264,18 @@ func dataSourceYandexMDBElasticsearchClusterRead(d *schema.ResourceData, meta in
 		}
 
 		d.Set("cluster_id", clusterID)
+	}
+
+	cluster, err := config.sdk.MDB().ElasticSearch().Cluster().Get(ctx, &elasticsearch.GetClusterRequest{
+		ClusterId: clusterID,
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
+	}
+
+	mw := flattenElasticsearchMaintenanceWindow(cluster.MaintenanceWindow)
+	if err := d.Set("maintenance_window", mw); err != nil {
+		return err
 	}
 
 	d.SetId(clusterID)
