@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -922,8 +923,10 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	log.Printf("[DEBUG] Sending Kafka cluster update request: %+v", req)
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Kafka().Cluster().Update(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending Kafka cluster update request: %+v", req)
+		return config.sdk.MDB().Kafka().Cluster().Update(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1087,13 +1090,15 @@ func updateKafkaClusterUsers(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deleteKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, userName string) error {
-	log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, d.Id())
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().User().Delete(ctx, &kafka.DeleteUserRequest{
-			ClusterId: d.Id(),
-			UserName:  userName,
-		}),
-	)
+	req := &kafka.DeleteUserRequest{
+		ClusterId: d.Id(),
+		UserName:  userName,
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Deleting Kafka user %q within cluster %q", userName, d.Id())
+		return config.sdk.MDB().Kafka().User().Delete(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete user from Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1111,11 +1116,11 @@ func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 		ClusterId: d.Id(),
 		UserSpec:  userSpec,
 	}
-	log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, req)
 
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().User().Create(ctx, req),
-	)
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Creating Kafka user %q: %+v", userSpec.Name, req)
+		return config.sdk.MDB().Kafka().User().Create(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create user in Kafka Cluster %q: %s", d.Id(), err)
 	}
@@ -1172,10 +1177,10 @@ func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceDat
 }
 
 func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, req *kafka.UpdateUserRequest) error {
-	log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Kafka().User().Update(ctx, req),
-	)
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
+		return config.sdk.MDB().Kafka().User().Update(ctx, req)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in Kafka Cluster %q: %s", d.Id(), err)
 	}

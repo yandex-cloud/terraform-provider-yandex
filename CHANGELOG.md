@@ -5,6 +5,9 @@ FEATURES:
 * managed-kubernetes: add `container_runtime` attribute to `yandex_kubernetes_node_group` resource and data source
 * managed-elasticsearch: add `maintenance_window` section in `yandex_mdb_elasticsearch_cluster` resource and data source
 
+BUG FIXES:
+* mdb: fix error when simultaneously deleting `yandex_mdb_kafka_topic` resource and modifying `yandex_mdb_kafka_cluster` resource
+
 ## 0.69.0 (December 27, 2021)
 FEATURES:
 * **New Data Source:** `yandex_cdn_origin_group`
