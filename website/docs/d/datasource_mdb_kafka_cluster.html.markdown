@@ -53,6 +53,7 @@ exported:
 * `host` - A host of the Kafka cluster. The structure is documented below.
 * `security_group_ids` - A list of security groups IDs of the Kafka cluster.
 * `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
+* `maintenance_window` - Maintenance window settings of the Kafka cluster. The structure is documented below.
 
 The `config` block supports:
 
@@ -131,3 +132,9 @@ The `host` block supports:
 * `health` - Health of the host.
 * `subnet_id` - The ID of the subnet, to which the host belongs.
 * `assign_public_ip` - The flag that defines whether a public IP address is assigned to the node.
+
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`.
+* `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+* `hour` - Hour of the day in UTC (in `HH` format). Value is between 1 and 24.

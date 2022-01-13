@@ -8,6 +8,9 @@ FEATURES:
 BUG FIXES:
 * mdb: fix error when simultaneously deleting `yandex_mdb_kafka_topic` resource and modifying `yandex_mdb_kafka_cluster` resource
 
+ENHANCEMENTS:
+* mdb: add `maintenance_window` section in `yandex_mdb_kafka_cluster` resource and data source
+
 ## 0.69.0 (December 27, 2021)
 FEATURES:
 * **New Data Source:** `yandex_cdn_origin_group`

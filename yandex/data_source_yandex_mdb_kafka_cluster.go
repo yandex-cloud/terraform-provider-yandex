@@ -104,6 +104,26 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -189,6 +209,14 @@ func dataSourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	maintenanceWindow, err := flattenKafkaMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+		return err
+	}
 
 	d.SetId(cluster.Id)
 	return nil

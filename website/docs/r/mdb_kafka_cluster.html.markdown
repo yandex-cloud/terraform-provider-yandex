@@ -205,11 +205,23 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
+* `maintenance_window` - (Optional) Maintenance policy of the Kafka cluster. The structure is documented below.
+
 ~> **Note:** Historically, `topic` blocks of the `yandex_mdb_kafka_cluster` resource were used to manage topics of the Kafka cluster.
 However, this approach has a number of disadvantages. In particular, when adding and removing topics from the tf recipe,
 terraform generates a diff that misleads the user about the planned changes. Also, this approach turned out to be
 inconvenient when managing topics through the Kafka Admin API. Therefore, topic management through a separate resource
 type `yandex_mdb_kafka_topic` was implemented and is now recommended.
+
+- - -
+
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
+* `day` - (Optional) Day of the week (in `DDD` format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+
+* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 1 and 24.
 
 - - -
 

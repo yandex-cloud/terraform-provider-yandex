@@ -173,6 +173,13 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 		"security_group_ids": []interface{}{"security-group-x", "security-group-y"},
 		"host_group_ids":     []interface{}{"hg1", "hg2", "hg3"},
+		"maintenance_window": []interface{}{
+			map[string]interface{}{
+				"type": "WEEKLY",
+				"day":  "WED",
+				"hour": 2,
+			},
+		},
 		"topic": []interface{}{
 			map[string]interface{}{
 				"name":               "raw_events",
@@ -340,6 +347,14 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
 		HostGroupIds:     []string{"hg2", "hg1", "hg3"},
+		MaintenanceWindow: &kafka.MaintenanceWindow{
+			Policy: &kafka.MaintenanceWindow_WeeklyMaintenanceWindow{
+				WeeklyMaintenanceWindow: &kafka.WeeklyMaintenanceWindow{
+					Day:  kafka.WeeklyMaintenanceWindow_WED,
+					Hour: 2,
+				},
+			},
+		},
 	}
 
 	assert.Equal(t, expected, req)
@@ -615,6 +630,11 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 		"security_group_ids": []interface{}{"security-group-x", "security-group-y"},
 		"host_group_ids":     []interface{}{"hg1", "hg2", "hg3"},
+		"maintenance_window": []interface{}{
+			map[string]interface{}{
+				"type": "ANYTIME",
+			},
+		},
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
 
@@ -664,6 +684,11 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			},
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
+		MaintenanceWindow: &kafka.MaintenanceWindow{
+			Policy: &kafka.MaintenanceWindow_Anytime{
+				Anytime: &kafka.AnytimeMaintenanceWindow{},
+			},
+		},
 		UpdateMask: &field_mask.FieldMask{Paths: []string{
 			"config_spec.brokers_count",
 			"config_spec.kafka.kafka_config_2_8.auto_create_topics_enable",
@@ -691,6 +716,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"config_spec.zookeeper.resources.resource_preset_id",
 			"description",
 			"labels",
+			"maintenance_window",
 			"name",
 			"security_group_ids",
 		}},

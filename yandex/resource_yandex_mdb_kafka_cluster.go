@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -134,6 +135,31 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
+			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: kafkaMaintenanceWindowSchemaValidateFunc,
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -601,6 +627,11 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 		return nil, fmt.Errorf("Error while expanding network id on Kafka Cluster create: %s", err)
 	}
 
+	maintenanceWindow, err := expandKafkaMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding maintenance window settings on Kafka Cluster create: %s", err)
+	}
+
 	req := kafka.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -615,6 +646,7 @@ func prepareKafkaCreateRequest(d *schema.ResourceData, meta *Config) (*kafka.Cre
 		SecurityGroupIds:   securityGroupIds,
 		HostGroupIds:       hostGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  maintenanceWindow,
 	}
 	return &req, nil
 }
@@ -702,6 +734,14 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	maintenanceWindow, err := flattenKafkaMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+		return err
+	}
 
 	return d.Set("labels", cluster.Labels)
 }
@@ -833,6 +873,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"labels":                 "labels",
 	"security_group_ids":     "security_group_ids",
 	"deletion_protection":    "deletion_protection",
+	"maintenance_window":     "maintenance_window",
 	"config.0.zones":         "config_spec.zone_id",
 	"config.0.version":       "config_spec.version",
 	"config.0.brokers_count": "config_spec.brokers_count",
@@ -871,6 +912,11 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 		return nil, fmt.Errorf("error expanding configSpec while updating Kafka cluster: %s", err)
 	}
 
+	maintenanceWindow, err := expandKafkaMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding maintenance window settings while updating Kafka cluster: %s", err)
+	}
+
 	req := &kafka.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
@@ -879,6 +925,7 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 		ConfigSpec:         configSpec,
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  maintenanceWindow,
 	}
 	return req, nil
 }

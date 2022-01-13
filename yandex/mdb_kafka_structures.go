@@ -978,3 +978,76 @@ func expandKafkaTopic(spec map[string]interface{}, version string) (*kafka.Topic
 	}
 	return topic, nil
 }
+
+func kafkaMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {
+	dayString := v.(string)
+	day, ok := kafka.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+	if !ok || day == 0 {
+		es = append(es, fmt.Errorf(`expected %s value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"). Current value is %v`, k, v))
+		return
+	}
+
+	return
+}
+
+func flattenKafkaMaintenanceWindow(mw *kafka.MaintenanceWindow) ([]interface{}, error) {
+	maintenanceWindow := map[string]interface{}{}
+	if mw != nil {
+		switch p := mw.GetPolicy().(type) {
+		case *kafka.MaintenanceWindow_Anytime:
+			maintenanceWindow["type"] = "ANYTIME"
+		case *kafka.MaintenanceWindow_WeeklyMaintenanceWindow:
+			maintenanceWindow["type"] = "WEEKLY"
+			maintenanceWindow["hour"] = p.WeeklyMaintenanceWindow.Hour
+			maintenanceWindow["day"] = kafka.WeeklyMaintenanceWindow_WeekDay_name[int32(p.WeeklyMaintenanceWindow.GetDay())]
+		default:
+			return nil, fmt.Errorf("unsupported Kafka maintenance policy type")
+		}
+	}
+
+	return []interface{}{maintenanceWindow}, nil
+}
+
+func expandKafkaMaintenanceWindow(d *schema.ResourceData) (*kafka.MaintenanceWindow, error) {
+	if _, ok := d.GetOk("maintenance_window"); !ok {
+		return nil, nil
+	}
+
+	out := &kafka.MaintenanceWindow{}
+	typeMW, _ := d.GetOk("maintenance_window.0.type")
+	if typeMW == "ANYTIME" {
+		if hour, ok := d.GetOk("maintenance_window.0.hour"); ok && hour != "" {
+			return nil, fmt.Errorf("hour should not be set, when using ANYTIME")
+		}
+		if day, ok := d.GetOk("maintenance_window.0.day"); ok && day != "" {
+			return nil, fmt.Errorf("day should not be set, when using ANYTIME")
+		}
+		out.Policy = &kafka.MaintenanceWindow_Anytime{
+			Anytime: &kafka.AnytimeMaintenanceWindow{},
+		}
+	} else if typeMW == "WEEKLY" {
+		hourInterface, ok := d.GetOk("maintenance_window.0.hour")
+		if !ok {
+			return nil, fmt.Errorf("hour should be set when using WEEKLY maintenance")
+		}
+		hour := hourInterface.(int)
+
+		dayString := d.Get("maintenance_window.0.day").(string)
+
+		day, ok := kafka.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+		if !ok || day == 0 {
+			return nil, fmt.Errorf(`day value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")`)
+		}
+
+		out.Policy = &kafka.MaintenanceWindow_WeeklyMaintenanceWindow{
+			WeeklyMaintenanceWindow: &kafka.WeeklyMaintenanceWindow{
+				Hour: int64(hour),
+				Day:  kafka.WeeklyMaintenanceWindow_WeekDay(day),
+			},
+		}
+	} else {
+		return nil, fmt.Errorf("maintenance_window.0.type should be ANYTIME or WEEKLY")
+	}
+
+	return out, nil
+}
