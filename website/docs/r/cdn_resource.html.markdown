@@ -69,9 +69,9 @@ Resource block supports following options:
 
 * `gzip_on` - GZip compression at CDN servers reduces file size by 70% and can be as high as 90%.
 
-* `redirect_http_to_https` - set up a redirect from HTTPS to HTTP.
+* `redirect_http_to_https` - set up a redirect from HTTP to HTTPS.
 
-* `redirect_https_to_http` - set up a redirect from HTTP to HTTPS.
+* `redirect_https_to_http` - set up a redirect from HTTPS to HTTP.
 
 * `custom_host_header` - custom value for the Host header. Your server must be able to process requests with the chosen header.
 
