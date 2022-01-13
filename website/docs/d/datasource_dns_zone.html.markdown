@@ -24,7 +24,12 @@ output "zone" {
 
 ## Argument Reference
 
-* `dns_zone_id` - (Required) The ID of the DNS Zone.
+* `dns_zone_id` - (Optional) The ID of the DNS Zone.
+* `name` - (Optional) - Name of the DNS Zone.
+
+~> **NOTE:** One of `dns_zone_id` or `name` should be specified.
+
+* `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 
 ## Attributes Reference
 

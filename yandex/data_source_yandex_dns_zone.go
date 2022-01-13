@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexDnsZone() *schema.Resource {
@@ -22,20 +23,23 @@ func dataSourceYandexDnsZone() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"dns_zone_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
-			"zone": {
+			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
 			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
-			"name": {
+			"zone": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -78,9 +82,19 @@ func dataSourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error
 	config := meta.(*Config)
 	sdk := getSDK(config)
 
+	err := checkOneOf(d, "dns_zone_id", "name")
+	if err != nil {
+		return err
+	}
+
 	id := d.Get("dns_zone_id").(string)
-	if id == "" {
-		return fmt.Errorf("dns_zone_id should be provided")
+	_, zoneNameOk := d.GetOk("name")
+
+	if zoneNameOk {
+		id, err = resolveObjectID(config.Context(), config, d, sdkresolvers.DNSZoneResolver)
+		if err != nil {
+			return fmt.Errorf("failed to resolve data source dns zone by name: %v", err)
+		}
 	}
 
 	dnsZone, err := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{

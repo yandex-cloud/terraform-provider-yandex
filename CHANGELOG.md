@@ -4,6 +4,7 @@ FEATURES:
 * **New Resource:** `yandex_datatransfer_transfer`
 * managed-kubernetes: add `container_runtime` attribute to `yandex_kubernetes_node_group` resource and data source
 * managed-elasticsearch: add `maintenance_window` section in `yandex_mdb_elasticsearch_cluster` resource and data source
+* dns: support for resolving by name in `yandex_dns_zone` data source
 
 BUG FIXES:
 * mdb: fix error when simultaneously deleting `yandex_mdb_kafka_topic` resource and modifying `yandex_mdb_kafka_cluster` resource
