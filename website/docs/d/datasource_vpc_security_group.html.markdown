@@ -60,6 +60,6 @@ The `ingress` and `egress` block supports:
 * `to_port` - Maximum port number.
 * `port` - Port number (if applied to a single port).
 * `security_group_id` - Target security group ID for this rule.
-* `predefined_target` - Special-purpose targets such as "self_security_group". [See docs](https://cloud.yandex.ru/docs/vpc/concepts/security-groups) for possible options.
+* `predefined_target` - Special-purpose targets. `self_security_group` refers to this particular security group. `loadbalancer_healthchecks` represents [loadbalancer health check nodes](https://cloud.yandex.com/docs/network-load-balancer/concepts/health-check).
 * `v4_cidr_blocks` - The blocks of  IPv4 addresses for this rule.
 * `v6_cidr_blocks` - The blocks of  IPv6 addresses for this rule.
