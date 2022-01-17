@@ -1,4 +1,6 @@
-## 0.70.0 (Unreleased)
+## 0.71.0 (Unreleased)
+
+## 0.70.0 (January 17, 2022)
 FEATURES:
 * **New Resource:** `yandex_datatransfer_endpoint`
 * **New Resource:** `yandex_datatransfer_transfer`
