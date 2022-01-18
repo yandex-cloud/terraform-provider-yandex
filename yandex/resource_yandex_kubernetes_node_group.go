@@ -236,19 +236,22 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"min": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: false,
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     false,
+										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"max": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: false,
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     false,
+										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"initial": {
-										Type:     schema.TypeInt,
-										Required: true,
-										ForceNew: false,
+										Type:         schema.TypeInt,
+										Required:     true,
+										ForceNew:     false,
+										ValidateFunc: validation.IntAtLeast(0),
 									},
 								},
 							},
@@ -616,23 +619,12 @@ func getNodeGroupScalePolicy(d *schema.ResourceData) (*k8s.ScalePolicy, error) {
 		}
 		return nil, fmt.Errorf("no size has been specified for a node group with a fixed scale policy")
 	default: // okAuto
-		var min, max, initial interface{}
-		var ok bool
-		if min, ok = d.GetOk("scale_policy.0.auto_scale.0.min"); !ok {
-			return nil, fmt.Errorf("no min size has been specified for a node group with an auto scale policy")
-		}
-		if max, ok = d.GetOk("scale_policy.0.auto_scale.0.max"); !ok {
-			return nil, fmt.Errorf("no max size has been specified for a node group with an auto scale policy")
-		}
-		if initial, ok = d.GetOk("scale_policy.0.auto_scale.0.initial"); !ok {
-			return nil, fmt.Errorf("no initial size has been specified for a node group with an auto scale policy")
-		}
 		return &k8s.ScalePolicy{
 			ScaleType: &k8s.ScalePolicy_AutoScale_{
 				AutoScale: &k8s.ScalePolicy_AutoScale{
-					MinSize:     int64(min.(int)),
-					MaxSize:     int64(max.(int)),
-					InitialSize: int64(initial.(int)),
+					MinSize:     int64(d.Get("scale_policy.0.auto_scale.0.min").(int)),
+					MaxSize:     int64(d.Get("scale_policy.0.auto_scale.0.max").(int)),
+					InitialSize: int64(d.Get("scale_policy.0.auto_scale.0.initial").(int)),
 				},
 			},
 		}, nil

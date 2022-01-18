@@ -1,4 +1,6 @@
 ## 0.71.0 (Unreleased)
+ENHANCEMENTS:
+* allow `initial` of `0` for `yandex_kubernetes_node_group` `auto_scale` policy.
 
 ## 0.70.0 (January 17, 2022)
 FEATURES:
