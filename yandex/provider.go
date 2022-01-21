@@ -194,6 +194,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_vpc_subnet":                                       dataSourceYandexVPCSubnet(),
 			"yandex_ydb_database_dedicated":                           dataSourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                          dataSourceYandexYDBDatabaseServerless(),
+			"yandex_yds_serverless":                                   dataSourceYandexYDSServerless(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -274,6 +275,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_vpc_subnet":                                   resourceYandexVPCSubnet(),
 			"yandex_ydb_database_dedicated":                       resourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                      resourceYandexYDBDatabaseServerless(),
+			"yandex_yds_serverless":                               resourceYandexYDSServerless(),
 		},
 	}
 
