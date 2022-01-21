@@ -335,7 +335,7 @@ func TestAccALBBackendGroup_streamBackend(t *testing.T) {
 
 	BGResource := albBackendGroupInfo()
 	BGResource.IsStreamBackend = true
-	BGResource.IsGRPCCheck = true
+	BGResource.IsHTTPCheck = true
 
 	var bg apploadbalancer.BackendGroup
 	backendPath := ""
@@ -360,7 +360,7 @@ func TestAccALBBackendGroup_streamBackend(t *testing.T) {
 						albBGResource, "stream_backend", "healthcheck.*.interval", albDefaultInterval, &backendPath,
 					),
 					testExistsElementWithAttrValue(
-						albBGResource, "stream_backend", "healthcheck.*.grpc_healthcheck.0.service_name", albDefaultServiceName, &backendPath,
+						albBGResource, "stream_backend", "healthcheck.*.http_healthcheck.0.host", albDefaultHost, &backendPath,
 					),
 				),
 			},

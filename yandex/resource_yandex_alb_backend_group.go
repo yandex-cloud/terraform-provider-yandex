@@ -69,6 +69,7 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"weight": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
@@ -106,6 +107,7 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"weight": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
@@ -139,6 +141,7 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"weight": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  1,
 						},
 						"port": {
 							Type:         schema.TypeInt,
