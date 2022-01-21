@@ -31,7 +31,7 @@ require (
 	github.com/yandex-cloud/go-genproto v0.0.0-20211216135636-408eeddbd93e
 	github.com/yandex-cloud/go-sdk v0.0.0-20211216140256-cebf209f4dc0
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20220121103726-1ca8c739f62a
-	github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.1
+	github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.2
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.7.2
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect

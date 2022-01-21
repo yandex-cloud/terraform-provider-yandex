@@ -2,31 +2,50 @@ package yandex
 
 import (
 	"context"
-	"log"
-
-	"github.com/ydb-platform/ydb-go-persqueue-sdk/session"
-	"github.com/ydb-platform/ydb-go-sdk/v3/credentials"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/ydb-platform/ydb-go-persqueue-sdk/controlplane"
 )
 
 func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Println(d.Get("token"))
-	client, err := controlplane.NewControlPlaneClient(ctx, session.Options{
-		Credentials: credentials.NewAccessTokenCredentials(d.Get("token").(string)),
-	})
+	config := meta.(*Config)
+
+	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
 				Severity: diag.Error,
-				Summary:  "failed to initialize yds-controlplane client",
+				Summary:  "failed to initialize yds control plane client",
 				Detail:   err.Error(),
 			},
 		}
 	}
-	_ = client
+	defer func() {
+		_ = client.Close()
+	}()
+
+	// TODO(shmel1k@): remove copypaste.
+	description, err := client.DescribeTopic(ctx, d.Get("stream_name").(string))
+	if err != nil {
+		return diag.Diagnostics{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to describe stream",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	err = flattenYDSDescription(d, description)
+	if err != nil {
+		return diag.Diagnostics{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to flatten stream description",
+				Detail:   err.Error(),
+			},
+		}
+	}
 
 	return nil
 }
