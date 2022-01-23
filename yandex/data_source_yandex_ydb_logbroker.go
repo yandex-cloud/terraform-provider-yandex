@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,10 +28,15 @@ func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta i
 	// TODO(shmel1k@): remove copypaste.
 	description, err := client.DescribeTopic(ctx, d.Get("stream_name").(string))
 	if err != nil {
+		if strings.Contains(err.Error(), "does not exist") {
+			d.MarkNewResource()
+			// TODO(shmel1k@): handle carefully
+			return nil
+		}
 		return diag.Diagnostics{
 			{
 				Severity: diag.Error,
-				Summary:  "failed to describe stream",
+				Summary:  "datasource: failed to describe stream",
 				Detail:   err.Error(),
 			},
 		}

@@ -931,8 +931,8 @@ github.com/yandex-cloud/go-sdk v0.0.0-20211216140256-cebf209f4dc0/go.mod h1:n2sd
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20211103074319-526e57659e16/go.mod h1:cc138nptTn9eKptCQl/grxP6pBKpo/bnXDiOxuVZtps=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20220121103726-1ca8c739f62a h1:Iderh7+hQYMvCKvHMBI/UXYcJt+Cs+s3B7iWGIx/E2k=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20220121103726-1ca8c739f62a/go.mod h1:cc138nptTn9eKptCQl/grxP6pBKpo/bnXDiOxuVZtps=
-github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.2 h1:0oO35VihvXI/sf4n/c17bBZQia0hNvXAbht9qWwYbJg=
-github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.2/go.mod h1:BiG6g01GG9xXVuVwLJxyTHMWBDrDGjQPR26KQqL7NYk=
+github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.4 h1:KquE8xAfljDMOr/JpQVbxViujz9lwPosMmAzXHzuK2A=
+github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.4/go.mod h1:BiG6g01GG9xXVuVwLJxyTHMWBDrDGjQPR26KQqL7NYk=
 github.com/ydb-platform/ydb-go-sdk/v3 v3.7.2 h1:J572WGlnh/iOanYcrRGuLsQRfRLwRBopLJsMCmVJjMg=
 github.com/ydb-platform/ydb-go-sdk/v3 v3.7.2/go.mod h1:NnsM1NmIW2gKKqJTBMyVLPzaPOvjF0YdvZFdoyyfRMY=
 github.com/yeya24/promlinter v0.1.0 h1:goWULN0jH5Yajmu/K+v1xCqIREeB+48OiJ2uu2ssc7U=

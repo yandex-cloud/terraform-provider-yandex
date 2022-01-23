@@ -18,16 +18,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	ydsCodecGZIP = "gzip"
+	ydsCodecRaw  = "raw"
+	ydsCodecZSTD = "zstd"
+)
+
 var (
 	ydsAllowedCodecs = []string{
-		"gzip",
-		"raw",
-		"zstd",
+		ydsCodecGZIP,
+		ydsCodecRaw,
+		ydsCodecZSTD,
 	}
+
 	ydsCodecNameToCodec = map[string]Ydb_PersQueue_V1.Codec{
-		"raw":  Ydb_PersQueue_V1.Codec_CODEC_RAW,
-		"gzip": Ydb_PersQueue_V1.Codec_CODEC_GZIP,
-		"zstd": Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
+		ydsCodecRaw:  Ydb_PersQueue_V1.Codec_CODEC_RAW,
+		ydsCodecGZIP: Ydb_PersQueue_V1.Codec_CODEC_GZIP,
+		ydsCodecZSTD: Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
 	}
 )
 
@@ -73,8 +80,8 @@ func resourceYandexYDSServerlessCreate(ctx context.Context, d *schema.ResourceDa
 				// TODO(shmel1k@): add mapping.
 				Ydb_PersQueue_V1.Codec_CODEC_GZIP,
 			},
-			PartitionsCount:   2,
-			RetentionPeriodMs: 100000000,
+			PartitionsCount:   int32(d.Get("partitions_count").(int)),
+			RetentionPeriodMs: int64(d.Get("retention_period_ms").(int)),
 			SupportedFormat:   Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
 		},
 	})
@@ -96,7 +103,25 @@ func resourceYandexYDSServerlessCreate(ctx context.Context, d *schema.ResourceDa
 func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.DescribeTopicResult) error {
 	_ = d.Set("stream_name", desc.Self.Name)
 	_ = d.Set("partitions_count", desc.Settings.PartitionsCount)
-	_ = d.Set("supported_codecs", desc.Settings.SupportedCodecs)
+	_ = d.Set("retention_period_ms", desc.Settings.RetentionPeriodMs)
+
+	supportedCodecs := make([]string, 0, len(desc.Settings.SupportedCodecs))
+	for _, v := range desc.Settings.SupportedCodecs {
+		switch v {
+		case Ydb_PersQueue_V1.Codec_CODEC_RAW:
+			supportedCodecs = append(supportedCodecs, ydsCodecRaw)
+		case Ydb_PersQueue_V1.Codec_CODEC_ZSTD:
+			supportedCodecs = append(supportedCodecs, ydsCodecZSTD)
+		case Ydb_PersQueue_V1.Codec_CODEC_GZIP:
+			supportedCodecs = append(supportedCodecs, ydsCodecGZIP)
+		}
+	}
+
+	err := d.Set("supported_codecs", supportedCodecs)
+	if err != nil {
+		return err
+	}
+
 	return d.Set("database_endpoint", d.Get("database_endpoint").(string)) // TODO(shmel1k@): remove probably.
 }
 
@@ -119,10 +144,14 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 
 	description, err := client.DescribeTopic(ctx, d.Get("stream_name").(string))
 	if err != nil {
+		if strings.Contains(err.Error(), "does not exist") {
+			d.SetId("") // NOTE(shmel1k@): marking as non-existing resource.
+			return nil
+		}
 		return diag.Diagnostics{
 			{
 				Severity: diag.Error,
-				Summary:  "failed to describe stream",
+				Summary:  "resource: failed to describe stream",
 				Detail:   err.Error(),
 			},
 		}
@@ -142,11 +171,10 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func needYandexYDSUpdate(d *schema.ResourceData) bool {
-	return d.HasChanges("partitions_count", "supported_codecs")
-}
-
-func mergeYDSSettings(d *schema.ResourceData, settings *Ydb_PersQueue_V1.TopicSettings) *Ydb_PersQueue_V1.TopicSettings {
+func mergeYDSSettings(
+	d *schema.ResourceData,
+	settings *Ydb_PersQueue_V1.TopicSettings,
+) *Ydb_PersQueue_V1.TopicSettings {
 	if d.HasChange("partitions_count") {
 		settings.PartitionsCount = int32(d.Get("partitions_count").(int))
 	}
@@ -160,10 +188,14 @@ func mergeYDSSettings(d *schema.ResourceData, settings *Ydb_PersQueue_V1.TopicSe
 				// TODO(shmel1k@): add validation of unsupported codecs. Use default if unknown is found.
 				panic(fmt.Sprintf("Unsupported codec %q found after validation", cc))
 			}
-			updatedCodecs = append(updatedCodecs)
+			updatedCodecs = append(updatedCodecs, cc)
 		}
 		settings.SupportedCodecs = updatedCodecs
 	}
+	if d.HasChange("retention_period_ms") {
+		settings.RetentionPeriodMs = int64(d.Get("retention_period_ms").(int))
+	}
+
 	return settings
 }
 
@@ -213,15 +245,39 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 }
 
 func resourceYandexYDSServerlessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if !needYandexYDSUpdate(d) {
-		return nil
-	}
-
 	config := meta.(*Config)
 	return performYandexYDSUpdate(ctx, d, config)
 }
 
 func resourceYandexYDSServerlessDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*Config)
+	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+	if err != nil {
+		return diag.Diagnostics{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to initialize yds control plane client",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	defer func() {
+		_ = client.Close()
+	}()
+
+	streamName := d.Get("stream_name").(string)
+	err = client.DropTopic(ctx, &Ydb_PersQueue_V1.DropTopicRequest{
+		Path: streamName,
+	})
+	if err != nil {
+		return diag.Diagnostics{
+			{
+				Severity: diag.Error,
+				Summary:  "failed to delete stream",
+				Detail:   err.Error(),
+			},
+		}
+	}
 	return nil
 }
 
