@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_Operations"
 
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_PersQueue_V1"
@@ -171,6 +173,76 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
+func mergeYDSReadRulesSettings(
+	d *schema.ResourceData,
+	readRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
+) (
+	consumersForUpdate []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
+) {
+	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(readRules))
+	for i := 0; i < len(readRules); i++ {
+		rules[readRules[i].ConsumerName] = readRules[i]
+	}
+
+	// TODO(shmel1k@): add tests.
+	consumers := d.Get("consumers").([]interface{})
+	for _, v := range consumers {
+		hasDiff := false
+		consumer := v.(map[string]interface{})
+		consumerName, ok := consumer["name"].(string)
+		if !ok {
+			// TODO(shmel1k@): think about error.
+			continue
+		}
+		supportedCodecs, ok := consumer["supported_codecs"].([]string)
+		if !ok {
+			// TODO(shmel1k@): think about error.
+			continue
+		}
+		startingMessageTs, ok := consumer["starting_message_timestamp_ms"].(int)
+		if !ok {
+			continue
+		}
+		serviceType, ok := consumer["service_type"].(string)
+		if !ok {
+			continue
+		}
+
+		r := rules[consumerName]
+		if r.ServiceType != serviceType {
+			hasDiff = true
+			r.ServiceType = serviceType
+		}
+		if r.StartingMessageTimestampMs != int64(startingMessageTs) {
+			hasDiff = true
+			r.StartingMessageTimestampMs = int64(startingMessageTs)
+		}
+
+		newCodecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
+		for _, codec := range supportedCodecs {
+			c := ydsCodecNameToCodec[codec]
+			hasCodec := false
+			for _, cc := range r.SupportedCodecs {
+				if c == cc {
+					hasCodec = true
+					break
+				}
+			}
+			if !hasCodec {
+				hasDiff = true
+			}
+			newCodecs = append(newCodecs, c)
+		}
+		r.SupportedCodecs = newCodecs
+
+		if hasDiff {
+			consumersForUpdate = append(consumersForUpdate, r)
+		}
+	}
+
+	return
+}
+
 func mergeYDSSettings(
 	d *schema.ResourceData,
 	settings *Ydb_PersQueue_V1.TopicSettings,
@@ -194,6 +266,9 @@ func mergeYDSSettings(
 	}
 	if d.HasChange("retention_period_ms") {
 		settings.RetentionPeriodMs = int64(d.Get("retention_period_ms").(int))
+	}
+	if d.HasChange("consumers") {
+		settings.ReadRules = mergeYDSReadRulesSettings(d, settings.ReadRules)
 	}
 
 	return settings
@@ -323,6 +398,35 @@ func resourceYandexYDSServerless() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1000 * 60 * 60 * 24, // 1 day
+			},
+			"consumers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validation.NoZeroValues,
+						},
+						"supported_codecs": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Schema{
+								// TODO(shmel1k@): add validation.
+								Type: schema.TypeString,
+							},
+						},
+						"starting_message_timestamp_ms": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"service_type": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 		},
 	}
