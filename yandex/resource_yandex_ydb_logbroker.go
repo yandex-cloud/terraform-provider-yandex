@@ -38,6 +38,12 @@ var (
 		ydsCodecGZIP: Ydb_PersQueue_V1.Codec_CODEC_GZIP,
 		ydsCodecZSTD: Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
 	}
+
+	ydsCodecToCodecName = map[Ydb_PersQueue_V1.Codec]string{
+		Ydb_PersQueue_V1.Codec_CODEC_RAW:  ydsCodecRaw,
+		Ydb_PersQueue_V1.Codec_CODEC_GZIP: ydsCodecGZIP,
+		Ydb_PersQueue_V1.Codec_CODEC_ZSTD: ydsCodecZSTD,
+	}
 )
 
 func createYDSServerlessClient(ctx context.Context, databaseEndpoint string, config *Config) (controlplane.ControlPlane, error) {
@@ -119,7 +125,28 @@ func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.Descri
 		}
 	}
 
-	err := d.Set("supported_codecs", supportedCodecs)
+	rules := make([]map[string]interface{}, 0, len(desc.Settings.ReadRules))
+	for _, r := range desc.Settings.ReadRules {
+		var codecs []string
+		for _, codec := range r.SupportedCodecs {
+			if c, ok := ydsCodecToCodecName[codec]; ok {
+				codecs = append(codecs, c)
+			}
+		}
+		rules = append(rules, map[string]interface{}{
+			"name":                          r.ConsumerName,
+			"starting_message_timestamp_ms": r.StartingMessageTimestampMs,
+			"supported_codecs":              codecs,
+			"service_type":                  r.ServiceType,
+		})
+	}
+
+	err := d.Set("consumers", rules)
+	if err != nil {
+		return fmt.Errorf("failed to set consumers %+v: %s", rules, err)
+	}
+
+	err = d.Set("supported_codecs", supportedCodecs)
 	if err != nil {
 		return err
 	}
@@ -174,27 +201,25 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 }
 
 func mergeYDSReadRulesSettings(
-	d *schema.ResourceData,
-	readRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
-) (
-	consumersForUpdate []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
+	consumers []interface{},
+	readRules *[]*Ydb_PersQueue_V1.TopicSettings_ReadRule,
 ) {
-	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(readRules))
-	for i := 0; i < len(readRules); i++ {
-		rules[readRules[i].ConsumerName] = readRules[i]
+	// TODO(shmel1k@): tests.
+	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(*readRules))
+	for i := 0; i < len(*readRules); i++ {
+		rules[(*readRules)[i].ConsumerName] = (*readRules)[i]
 	}
 
 	// TODO(shmel1k@): add tests.
-	consumers := d.Get("consumers").([]interface{})
 	for _, v := range consumers {
-		hasDiff := false
 		consumer := v.(map[string]interface{})
+		// TODO(shmel1k@): think about fields to add.
 		consumerName, ok := consumer["name"].(string)
 		if !ok {
 			// TODO(shmel1k@): think about error.
 			continue
 		}
-		supportedCodecs, ok := consumer["supported_codecs"].([]string)
+		supportedCodecs, ok := consumer["supported_codecs"].([]interface{})
 		if !ok {
 			// TODO(shmel1k@): think about error.
 			continue
@@ -208,39 +233,38 @@ func mergeYDSReadRulesSettings(
 			continue
 		}
 
-		r := rules[consumerName]
+		r, ok := rules[consumerName]
+		if !ok {
+			// NOTE(shmel1k@): topic was deleted by someone.
+			codecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
+			for _, c := range supportedCodecs {
+				codec := c.(string)
+				codecs = append(codecs, ydsCodecNameToCodec[codec])
+			}
+			*readRules = append(*readRules, &Ydb_PersQueue_V1.TopicSettings_ReadRule{
+				ConsumerName:               consumerName,
+				SupportedFormat:            Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
+				ServiceType:                serviceType,
+				StartingMessageTimestampMs: int64(startingMessageTs),
+				SupportedCodecs:            codecs,
+			})
+			continue
+		}
+
 		if r.ServiceType != serviceType {
-			hasDiff = true
 			r.ServiceType = serviceType
 		}
 		if r.StartingMessageTimestampMs != int64(startingMessageTs) {
-			hasDiff = true
 			r.StartingMessageTimestampMs = int64(startingMessageTs)
 		}
 
 		newCodecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 		for _, codec := range supportedCodecs {
-			c := ydsCodecNameToCodec[codec]
-			hasCodec := false
-			for _, cc := range r.SupportedCodecs {
-				if c == cc {
-					hasCodec = true
-					break
-				}
-			}
-			if !hasCodec {
-				hasDiff = true
-			}
+			c := ydsCodecNameToCodec[codec.(string)]
 			newCodecs = append(newCodecs, c)
 		}
 		r.SupportedCodecs = newCodecs
-
-		if hasDiff {
-			consumersForUpdate = append(consumersForUpdate, r)
-		}
 	}
-
-	return
 }
 
 func mergeYDSSettings(
@@ -267,8 +291,9 @@ func mergeYDSSettings(
 	if d.HasChange("retention_period_ms") {
 		settings.RetentionPeriodMs = int64(d.Get("retention_period_ms").(int))
 	}
+
 	if d.HasChange("consumers") {
-		settings.ReadRules = mergeYDSReadRulesSettings(d, settings.ReadRules)
+		mergeYDSReadRulesSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
 	}
 
 	return settings
@@ -300,6 +325,7 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 			},
 		}
 	}
+
 	newSettings := mergeYDSSettings(d, desc.GetSettings())
 
 	err = client.AlterTopic(ctx, &Ydb_PersQueue_V1.AlterTopicRequest{
