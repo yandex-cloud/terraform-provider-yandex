@@ -27,12 +27,10 @@ func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta i
 		_ = client.Close()
 	}()
 
-	// TODO(shmel1k@): remove copypaste.
 	description, err := client.DescribeTopic(ctx, d.Get("stream_name").(string))
 	if err != nil {
 		if strings.Contains(err.Error(), "does not exist") {
-			d.MarkNewResource()
-			// TODO(shmel1k@): handle carefully
+			d.SetId("")
 			return nil
 		}
 		return diag.Diagnostics{
@@ -80,8 +78,8 @@ func dataSourceYandexYDSServerless() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
-					// TODO(shmel1k@): add validation.
-					Type: schema.TypeString,
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
 				},
 			},
 			"retention_period_ms": {
@@ -103,8 +101,8 @@ func dataSourceYandexYDSServerless() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
-								// TODO(shmel1k@): add validation.
-								Type: schema.TypeString,
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
 							},
 						},
 						"starting_message_timestamp_ms": {

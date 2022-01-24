@@ -203,12 +203,14 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 func mergeYDSReadRulesSettings(
 	consumers []interface{},
 	readRules *[]*Ydb_PersQueue_V1.TopicSettings_ReadRule,
-) {
+) (consumersForDeletion []string) {
 	// TODO(shmel1k@): tests.
 	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(*readRules))
 	for i := 0; i < len(*readRules); i++ {
 		rules[(*readRules)[i].ConsumerName] = (*readRules)[i]
 	}
+
+	consumersMap := make(map[string]struct{})
 
 	// TODO(shmel1k@): add tests.
 	for _, v := range consumers {
@@ -219,6 +221,9 @@ func mergeYDSReadRulesSettings(
 			// TODO(shmel1k@): think about error.
 			continue
 		}
+
+		consumersMap[consumerName] = struct{}{}
+
 		supportedCodecs, ok := consumer["supported_codecs"].([]interface{})
 		if !ok {
 			// TODO(shmel1k@): think about error.
@@ -226,20 +231,22 @@ func mergeYDSReadRulesSettings(
 		}
 		startingMessageTs, ok := consumer["starting_message_timestamp_ms"].(int)
 		if !ok {
+			// TODO(shmel1k@): think about error.
 			continue
 		}
 		serviceType, ok := consumer["service_type"].(string)
 		if !ok {
+			// TODO(shmel1k@): think about error.
 			continue
 		}
 
 		r, ok := rules[consumerName]
 		if !ok {
-			// NOTE(shmel1k@): topic was deleted by someone.
+			// NOTE(shmel1k@): stream was deleted by someone outside terraform.
 			codecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 			for _, c := range supportedCodecs {
 				codec := c.(string)
-				codecs = append(codecs, ydsCodecNameToCodec[codec])
+				codecs = append(codecs, ydsCodecNameToCodec[strings.ToLower(codec)])
 			}
 			*readRules = append(*readRules, &Ydb_PersQueue_V1.TopicSettings_ReadRule{
 				ConsumerName:               consumerName,
@@ -260,17 +267,23 @@ func mergeYDSReadRulesSettings(
 
 		newCodecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 		for _, codec := range supportedCodecs {
-			c := ydsCodecNameToCodec[codec.(string)]
+			c := ydsCodecNameToCodec[strings.ToLower(codec.(string))]
 			newCodecs = append(newCodecs, c)
 		}
 		r.SupportedCodecs = newCodecs
 	}
+	for c := range rules {
+		if _, ok := consumersMap[c]; !ok {
+			consumersForDeletion = append(consumersForDeletion, c)
+		}
+	}
+	return
 }
 
 func mergeYDSSettings(
 	d *schema.ResourceData,
 	settings *Ydb_PersQueue_V1.TopicSettings,
-) *Ydb_PersQueue_V1.TopicSettings {
+) (*Ydb_PersQueue_V1.TopicSettings, []string) {
 	if d.HasChange("partitions_count") {
 		settings.PartitionsCount = int32(d.Get("partitions_count").(int))
 	}
@@ -292,11 +305,12 @@ func mergeYDSSettings(
 		settings.RetentionPeriodMs = int64(d.Get("retention_period_ms").(int))
 	}
 
+	var consumersForDeletion []string
 	if d.HasChange("consumers") {
-		mergeYDSReadRulesSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
+		consumersForDeletion = mergeYDSReadRulesSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
 	}
 
-	return settings
+	return settings, consumersForDeletion
 }
 
 func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
@@ -326,7 +340,7 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 		}
 	}
 
-	newSettings := mergeYDSSettings(d, desc.GetSettings())
+	newSettings, consumersForDeletion := mergeYDSSettings(d, desc.GetSettings())
 
 	err = client.AlterTopic(ctx, &Ydb_PersQueue_V1.AlterTopicRequest{
 		Path:     streamName,
@@ -342,7 +356,22 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 		}
 	}
 
-	return nil
+	var diagnostics diag.Diagnostics
+	for _, v := range consumersForDeletion {
+		err = client.RemoveReadRule(ctx, &Ydb_PersQueue_V1.RemoveReadRuleRequest{
+			Path:         streamName,
+			ConsumerName: v,
+		})
+		if err != nil {
+			diagnostics = append(diagnostics, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("failed to delete consumer from %q", streamName),
+				Detail:   err.Error(),
+			})
+		}
+	}
+
+	return diagnostics
 }
 
 func resourceYandexYDSServerlessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -416,8 +445,8 @@ func resourceYandexYDSServerless() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
-					// TODO(shmel1k@): add validation.
-					Type: schema.TypeString,
+					Type:         schema.TypeString,
+					ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
 				},
 			},
 			"retention_period_ms": {
@@ -439,8 +468,8 @@ func resourceYandexYDSServerless() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Schema{
-								// TODO(shmel1k@): add validation.
-								Type: schema.TypeString,
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
 							},
 						},
 						"starting_message_timestamp_ms": {
