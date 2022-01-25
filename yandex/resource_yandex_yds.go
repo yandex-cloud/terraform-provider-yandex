@@ -331,6 +331,15 @@ func mergeYDBStreamSettings(
 }
 
 func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
+	if d.Get("strict_mode").(bool) {
+		return diag.Diagnostics{
+			{
+				Severity: diag.Warning,
+				Summary:  fmt.Sprintf("Stream %q won't be updated due to strict mode", d.Get("stream_name").(string)),
+			},
+		}
+	}
+
 	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
