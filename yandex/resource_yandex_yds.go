@@ -26,11 +26,21 @@ const (
 	ydbStreamCodecZSTD = "zstd"
 )
 
+const (
+	ydbStreamDefaultPartitionsCount   = 2
+	ydbStreamDefaultRetentionPeriod   = 1000 * 60 * 60 * 24 // 1 day
+	ydbStreamDefaultStrictModeEnabled = false
+)
+
 var (
 	ydbStreamAllowedCodecs = []string{
 		ydbStreamCodecGZIP,
 		ydbStreamCodecRAW,
 		ydbStreamCodecZSTD,
+	}
+
+	ydbStreamDefaultCodecs = []Ydb_PersQueue_V1.Codec{
+		Ydb_PersQueue_V1.Codec_CODEC_RAW,
 	}
 
 	ydbStreamCodecNameToCodec = map[string]Ydb_PersQueue_V1.Codec{
@@ -80,14 +90,21 @@ func resourceYDBStreamCreate(ctx context.Context, d *schema.ResourceData, meta i
 		_ = client.Close()
 	}()
 
+	var supportedCodecs []Ydb_PersQueue_V1.Codec
+	if gotCodecs, ok := d.GetOk("supported_codecs"); !ok {
+		supportedCodecs = ydbStreamDefaultCodecs
+	} else {
+		for _, c := range gotCodecs.([]interface{}) {
+			cod := c.(string)
+			supportedCodecs = append(supportedCodecs, ydbStreamCodecNameToCodec[cod])
+		}
+	}
+
 	err = client.CreateTopic(ctx, &Ydb_PersQueue_V1.CreateTopicRequest{
 		Path:            d.Get("stream_name").(string),
 		OperationParams: &Ydb_Operations.OperationParams{},
 		Settings: &Ydb_PersQueue_V1.TopicSettings{
-			SupportedCodecs: []Ydb_PersQueue_V1.Codec{
-				// TODO(shmel1k@): add mapping.
-				Ydb_PersQueue_V1.Codec_CODEC_GZIP,
-			},
+			SupportedCodecs:   supportedCodecs,
 			PartitionsCount:   int32(d.Get("partitions_count").(int)),
 			RetentionPeriodMs: int64(d.Get("retention_period_ms").(int)),
 			SupportedFormat:   Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
@@ -440,6 +457,7 @@ func resourceYandexYDBStream() *schema.Resource {
 			"partitions_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Default:  ydbStreamDefaultPartitionsCount,
 			},
 			"supported_codecs": {
 				Type:     schema.TypeList,
@@ -452,12 +470,12 @@ func resourceYandexYDBStream() *schema.Resource {
 			"retention_period_ms": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1000 * 60 * 60 * 24, // 1 day
+				Default:  ydbStreamDefaultRetentionPeriod,
 			},
 			"strict_mode": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
+				Default:     ydbStreamDefaultStrictModeEnabled,
 				Description: "", // TODO(shmel1k@): add description for every parameter.
 			},
 			"consumers": {
@@ -484,7 +502,7 @@ func resourceYandexYDBStream() *schema.Resource {
 						},
 						"service_type": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 						},
 					},
 				},
