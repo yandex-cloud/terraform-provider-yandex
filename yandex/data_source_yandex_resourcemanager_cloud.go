@@ -32,6 +32,25 @@ func dataSourceYandexResourceManagerCloud() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"folders": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"folder_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -59,6 +78,15 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 		CloudId: cloudID,
 	})
 
+	req := &resourcemanager.ListFoldersRequest{CloudId: cloudID}
+	it := config.sdk.ResourceManager().Folder().FolderIterator(ctx, req)
+	var folders []map[string]string
+	for it.Next() {
+		id := it.Value().GetId()
+		name := it.Value().Name
+		folders = append(folders, map[string]string{"name": name, "folder_id": id})
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to resolve data source cloud by id: %v", err)
 	}
@@ -67,6 +95,7 @@ func dataSourceYandexResourceManagerCloudRead(d *schema.ResourceData, meta inter
 	d.Set("name", cloud.Name)
 	d.Set("description", cloud.Description)
 	d.Set("created_at", getTimestamp(cloud.CreatedAt))
+	d.Set("folders", folders)
 	d.SetId(cloud.Id)
 
 	return nil
