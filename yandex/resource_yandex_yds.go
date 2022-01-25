@@ -21,32 +21,32 @@ import (
 )
 
 const (
-	ydsCodecGZIP = "gzip"
-	ydsCodecRaw  = "raw"
-	ydsCodecZSTD = "zstd"
+	ydbStreamCodecGZIP = "gzip"
+	ydbStreamCodecRAW  = "raw"
+	ydbStreamCodecZSTD = "zstd"
 )
 
 var (
-	ydsAllowedCodecs = []string{
-		ydsCodecGZIP,
-		ydsCodecRaw,
-		ydsCodecZSTD,
+	ydbStreamAllowedCodecs = []string{
+		ydbStreamCodecGZIP,
+		ydbStreamCodecRAW,
+		ydbStreamCodecZSTD,
 	}
 
-	ydsCodecNameToCodec = map[string]Ydb_PersQueue_V1.Codec{
-		ydsCodecRaw:  Ydb_PersQueue_V1.Codec_CODEC_RAW,
-		ydsCodecGZIP: Ydb_PersQueue_V1.Codec_CODEC_GZIP,
-		ydsCodecZSTD: Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
+	ydbStreamCodecNameToCodec = map[string]Ydb_PersQueue_V1.Codec{
+		ydbStreamCodecRAW:  Ydb_PersQueue_V1.Codec_CODEC_RAW,
+		ydbStreamCodecGZIP: Ydb_PersQueue_V1.Codec_CODEC_GZIP,
+		ydbStreamCodecZSTD: Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
 	}
 
-	ydsCodecToCodecName = map[Ydb_PersQueue_V1.Codec]string{
-		Ydb_PersQueue_V1.Codec_CODEC_RAW:  ydsCodecRaw,
-		Ydb_PersQueue_V1.Codec_CODEC_GZIP: ydsCodecGZIP,
-		Ydb_PersQueue_V1.Codec_CODEC_ZSTD: ydsCodecZSTD,
+	ydbStreamCodecToCodecName = map[Ydb_PersQueue_V1.Codec]string{
+		Ydb_PersQueue_V1.Codec_CODEC_RAW:  ydbStreamCodecRAW,
+		Ydb_PersQueue_V1.Codec_CODEC_GZIP: ydbStreamCodecGZIP,
+		Ydb_PersQueue_V1.Codec_CODEC_ZSTD: ydbStreamCodecZSTD,
 	}
 )
 
-func createYDSServerlessClient(ctx context.Context, databaseEndpoint string, config *Config) (controlplane.ControlPlane, error) {
+func createYDBStreamClient(ctx context.Context, databaseEndpoint string, config *Config) (controlplane.ControlPlane, error) {
 	endpoint, databasePath, useTLS, err := parseYandexYDBDatabaseEndpoint(databaseEndpoint)
 	if err != nil {
 		return nil, err
@@ -64,9 +64,9 @@ func createYDSServerlessClient(ctx context.Context, databaseEndpoint string, con
 	return controlplane.NewControlPlaneClient(ctx, opts)
 }
 
-func resourceYandexYDSServerlessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYDBStreamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -108,7 +108,7 @@ func resourceYandexYDSServerlessCreate(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.DescribeTopicResult) error {
+func flattenYDBStreamDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.DescribeTopicResult) error {
 	_ = d.Set("stream_name", desc.Self.Name)
 	_ = d.Set("partitions_count", desc.Settings.PartitionsCount)
 	_ = d.Set("retention_period_ms", desc.Settings.RetentionPeriodMs)
@@ -117,11 +117,11 @@ func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.Descri
 	for _, v := range desc.Settings.SupportedCodecs {
 		switch v {
 		case Ydb_PersQueue_V1.Codec_CODEC_RAW:
-			supportedCodecs = append(supportedCodecs, ydsCodecRaw)
+			supportedCodecs = append(supportedCodecs, ydbStreamCodecRAW)
 		case Ydb_PersQueue_V1.Codec_CODEC_ZSTD:
-			supportedCodecs = append(supportedCodecs, ydsCodecZSTD)
+			supportedCodecs = append(supportedCodecs, ydbStreamCodecZSTD)
 		case Ydb_PersQueue_V1.Codec_CODEC_GZIP:
-			supportedCodecs = append(supportedCodecs, ydsCodecGZIP)
+			supportedCodecs = append(supportedCodecs, ydbStreamCodecGZIP)
 		}
 	}
 
@@ -129,7 +129,7 @@ func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.Descri
 	for _, r := range desc.Settings.ReadRules {
 		var codecs []string
 		for _, codec := range r.SupportedCodecs {
-			if c, ok := ydsCodecToCodecName[codec]; ok {
+			if c, ok := ydbStreamCodecToCodecName[codec]; ok {
 				codecs = append(codecs, c)
 			}
 		}
@@ -154,10 +154,10 @@ func flattenYDSDescription(d *schema.ResourceData, desc *Ydb_PersQueue_V1.Descri
 	return d.Set("database_endpoint", d.Get("database_endpoint").(string)) // TODO(shmel1k@): remove probably.
 }
 
-func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYDBStreamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -186,7 +186,7 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	err = flattenYDSDescription(d, description)
+	err = flattenYDBStreamDescription(d, description)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -200,7 +200,7 @@ func resourceYandexYDSServerlessRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func mergeYDSReadRulesSettings(
+func mergeYDBStreamConsumerSettings(
 	consumers []interface{},
 	readRules *[]*Ydb_PersQueue_V1.TopicSettings_ReadRule,
 ) (consumersForDeletion []string) {
@@ -246,7 +246,7 @@ func mergeYDSReadRulesSettings(
 			codecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 			for _, c := range supportedCodecs {
 				codec := c.(string)
-				codecs = append(codecs, ydsCodecNameToCodec[strings.ToLower(codec)])
+				codecs = append(codecs, ydbStreamCodecNameToCodec[strings.ToLower(codec)])
 			}
 			*readRules = append(*readRules, &Ydb_PersQueue_V1.TopicSettings_ReadRule{
 				ConsumerName:               consumerName,
@@ -267,7 +267,7 @@ func mergeYDSReadRulesSettings(
 
 		newCodecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 		for _, codec := range supportedCodecs {
-			c := ydsCodecNameToCodec[strings.ToLower(codec.(string))]
+			c := ydbStreamCodecNameToCodec[strings.ToLower(codec.(string))]
 			newCodecs = append(newCodecs, c)
 		}
 		r.SupportedCodecs = newCodecs
@@ -280,7 +280,7 @@ func mergeYDSReadRulesSettings(
 	return
 }
 
-func mergeYDSSettings(
+func mergeYDBStreamSettings(
 	d *schema.ResourceData,
 	settings *Ydb_PersQueue_V1.TopicSettings,
 ) (*Ydb_PersQueue_V1.TopicSettings, []string) {
@@ -292,7 +292,7 @@ func mergeYDSSettings(
 		updatedCodecs := make([]Ydb_PersQueue_V1.Codec, 0, len(codecs))
 
 		for _, c := range codecs {
-			cc, ok := ydsCodecNameToCodec[strings.ToLower(c.(string))]
+			cc, ok := ydbStreamCodecNameToCodec[strings.ToLower(c.(string))]
 			if !ok {
 				// TODO(shmel1k@): add validation of unsupported codecs. Use default if unknown is found.
 				panic(fmt.Sprintf("Unsupported codec %q found after validation", cc))
@@ -307,14 +307,14 @@ func mergeYDSSettings(
 
 	var consumersForDeletion []string
 	if d.HasChange("consumers") {
-		consumersForDeletion = mergeYDSReadRulesSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
+		consumersForDeletion = mergeYDBStreamConsumerSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
 	}
 
 	return settings, consumersForDeletion
 }
 
-func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
-	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
+	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -340,7 +340,7 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 		}
 	}
 
-	newSettings, consumersForDeletion := mergeYDSSettings(d, desc.GetSettings())
+	newSettings, consumersForDeletion := mergeYDBStreamSettings(d, desc.GetSettings())
 
 	err = client.AlterTopic(ctx, &Ydb_PersQueue_V1.AlterTopicRequest{
 		Path:     streamName,
@@ -374,14 +374,14 @@ func performYandexYDSUpdate(ctx context.Context, d *schema.ResourceData, config 
 	return diagnostics
 }
 
-func resourceYandexYDSServerlessUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	return performYandexYDSUpdate(ctx, d, config)
+	return performYandexYDBStreamUpdate(ctx, d, config)
 }
 
-func resourceYandexYDSServerlessDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceYandexYDBStreamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -411,12 +411,12 @@ func resourceYandexYDSServerlessDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceYandexYDSServerless() *schema.Resource {
+func resourceYandexYDBStream() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceYandexYDSServerlessCreate,
-		ReadContext:   resourceYandexYDSServerlessRead,
-		UpdateContext: resourceYandexYDSServerlessUpdate,
-		DeleteContext: resourceYandexYDSServerlessDelete,
+		CreateContext: resourceYDBStreamCreate,
+		ReadContext:   resourceYDBStreamRead,
+		UpdateContext: resourceYandexYDBStreamUpdate,
+		DeleteContext: resourceYandexYDBStreamDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -446,13 +446,19 @@ func resourceYandexYDSServerless() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
+					ValidateFunc: validation.StringInSlice(ydbStreamAllowedCodecs, false),
 				},
 			},
 			"retention_period_ms": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1000 * 60 * 60 * 24, // 1 day
+			},
+			"strict_mode": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "", // TODO(shmel1k@): add description for every parameter.
 			},
 			"consumers": {
 				Type:     schema.TypeList,
@@ -469,7 +475,7 @@ func resourceYandexYDSServerless() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
+								ValidateFunc: validation.StringInSlice(ydbStreamAllowedCodecs, false),
 							},
 						},
 						"starting_message_timestamp_ms": {

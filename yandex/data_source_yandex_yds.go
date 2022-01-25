@@ -10,10 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceYDBStreamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	client, err := createYDSServerlessClient(ctx, d.Get("database_endpoint").(string), config)
+	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -42,7 +42,7 @@ func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	err = flattenYDSDescription(d, description)
+	err = flattenYDBStreamDescription(d, description)
 	if err != nil {
 		return diag.Diagnostics{
 			{
@@ -56,9 +56,9 @@ func dataSourceYandexYDSRead(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func dataSourceYandexYDSServerless() *schema.Resource {
+func dataSourceYandexYDBStream() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceYandexYDSRead,
+		ReadContext: dataSourceYDBStreamRead,
 
 		SchemaVersion: 0,
 		Schema: map[string]*schema.Schema{
@@ -79,7 +79,7 @@ func dataSourceYandexYDSServerless() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
+					ValidateFunc: validation.StringInSlice(ydbStreamAllowedCodecs, false),
 				},
 			},
 			"retention_period_ms": {
@@ -102,7 +102,7 @@ func dataSourceYandexYDSServerless() *schema.Resource {
 							Optional: true,
 							Elem: &schema.Schema{
 								Type:         schema.TypeString,
-								ValidateFunc: validation.StringInSlice(ydsAllowedCodecs, false),
+								ValidateFunc: validation.StringInSlice(ydbStreamAllowedCodecs, false),
 							},
 						},
 						"starting_message_timestamp_ms": {
