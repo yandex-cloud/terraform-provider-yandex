@@ -199,6 +199,85 @@ func TestMergeYDBStreamConsumerSettings(t *testing.T) {
 				},
 			},
 		},
+		{
+			testName: "non-empty config consumers without settings",
+			consumers: []interface{}{
+				map[string]interface{}{
+					"name": "consumer_name",
+				},
+				map[string]interface{}{
+					"name": "consumer_name_2",
+				},
+			},
+			readRules: nil,
+			expectedReadRules: []*Ydb_PersQueue_V1.TopicSettings_ReadRule{
+				{
+					ConsumerName:    "consumer_name",
+					SupportedCodecs: ydbStreamDefaultCodecs,
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
+				},
+				{
+					ConsumerName:    "consumer_name_2",
+					SupportedCodecs: ydbStreamDefaultCodecs,
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
+				},
+			},
+		},
+		{
+			testName: "consumers with different settings",
+			consumers: []interface{}{
+				map[string]interface{}{
+					"name": "consumer_name",
+					"supported_codecs": []interface{}{
+						ydbStreamCodecRAW,
+					},
+					"service_type": "some_service_type",
+				},
+				map[string]interface{}{
+					"name": "consumer_name_2",
+					"supported_codecs": []interface{}{
+						ydbStreamCodecGZIP,
+					},
+					"service_type": "another_service_type",
+				},
+			},
+			readRules: []*Ydb_PersQueue_V1.TopicSettings_ReadRule{
+				{
+					ConsumerName: "consumer_name",
+					SupportedCodecs: []Ydb_PersQueue_V1.Codec{
+						Ydb_PersQueue_V1.Codec_CODEC_GZIP,
+					},
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_UNSPECIFIED,
+					ServiceType:     "some_service_type_1",
+				},
+				{
+					ConsumerName: "consumer_name_2",
+					SupportedCodecs: []Ydb_PersQueue_V1.Codec{
+						Ydb_PersQueue_V1.Codec_CODEC_RAW,
+					},
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
+					ServiceType:     "another_service_type_2",
+				},
+			},
+			expectedReadRules: []*Ydb_PersQueue_V1.TopicSettings_ReadRule{
+				{
+					ConsumerName: "consumer_name",
+					SupportedCodecs: []Ydb_PersQueue_V1.Codec{
+						Ydb_PersQueue_V1.Codec_CODEC_RAW,
+					},
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_UNSPECIFIED,
+					ServiceType:     "some_service_type",
+				},
+				{
+					ConsumerName: "consumer_name_2",
+					SupportedCodecs: []Ydb_PersQueue_V1.Codec{
+						Ydb_PersQueue_V1.Codec_CODEC_GZIP,
+					},
+					SupportedFormat: Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
+					ServiceType:     "another_service_type",
+				},
+			},
+		},
 	}
 
 	for _, v := range testData {

@@ -289,6 +289,9 @@ func mergeYDBStreamConsumerSettings(
 			c := ydbStreamCodecNameToCodec[strings.ToLower(codec.(string))]
 			newCodecs = append(newCodecs, c)
 		}
+		if len(newCodecs) != 0 {
+			r.SupportedCodecs = newCodecs
+		}
 		newReadRules = append(newReadRules, r)
 	}
 	// NOTE(shmel1k@): TMP: do not delete consumers
