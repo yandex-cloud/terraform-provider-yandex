@@ -89,6 +89,18 @@ func sweepDataprocClusterOnce(conf *Config, id string) error {
 	return handleSweepOperation(ctx, conf, op, err)
 }
 
+func TestIsVersionPrefix(t *testing.T) {
+	assert.True(t, isVersionPrefix("1", "1.2.3"))
+	assert.True(t, isVersionPrefix("1", "1.2"))
+	assert.True(t, isVersionPrefix("1.2", "1.2"))
+	assert.True(t, isVersionPrefix("1.2.3", "1.2.3"))
+	assert.False(t, isVersionPrefix("1.2.3", "1.2.4"))
+	assert.False(t, isVersionPrefix("1.3.3", "1.2.3"))
+	assert.False(t, isVersionPrefix("1.3", "1.2.3"))
+	assert.False(t, isVersionPrefix("2", "1.2.3"))
+	assert.False(t, isVersionPrefix("2.4.4.5", "1.2.3"))
+}
+
 func TestExpandDataprocClusterConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"folder_id":   "",

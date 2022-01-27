@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -18,6 +19,20 @@ const (
 	yandexDataprocClusterDeleteTimeout = 60 * time.Minute
 	yandexDataprocClusterUpdateTimeout = 60 * time.Minute
 )
+
+func isVersionPrefix(prefix string, version string) bool {
+	prefixParts := strings.Split(prefix, ".")
+	versionParts := strings.Split(version, ".")
+	if len(prefixParts) > len(versionParts) {
+		return false
+	}
+	for i, value := range prefixParts {
+		if value != versionParts[i] {
+			return false
+		}
+	}
+	return true
+}
 
 func resourceYandexDataprocCluster() *schema.Resource {
 	return &schema.Resource{
@@ -196,6 +211,9 @@ func resourceYandexDataprocCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							ForceNew: true,
+							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+								return isVersionPrefix(new, old)
+							},
 						},
 					},
 				},

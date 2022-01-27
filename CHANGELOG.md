@@ -1,6 +1,7 @@
 ## 0.71.0 (Unreleased)
 ENHANCEMENTS:
 * allow `initial` of `0` for `yandex_kubernetes_node_group` `auto_scale` policy.
+* dataproc: now cluster version specified in create cluster request is treated as a semantic version prefix. So specified version `2.0` may lead to creation of cluster version `2.0.30` and this will not be considered a change in terraform state.
 
 BUG FIXES:
 * alb: fix behavior of attribute `weight` in `http_backend` and `grpc_backend` and `stream_backend` in `yandex_alb_backend_group` resource

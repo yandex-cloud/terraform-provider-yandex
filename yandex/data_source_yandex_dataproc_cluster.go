@@ -12,6 +12,8 @@ import (
 func dataSourceYandexDataprocCluster() *schema.Resource {
 	dataSource := convertResourceToDataSource(resourceYandexDataprocCluster())
 	dataSource.Schema["name"].Optional = true
+	dataSource.Schema["cluster_config"].Elem.(*schema.Resource).Schema["version_id"].Optional = true
+
 	dataSource.Schema["cluster_id"] = &schema.Schema{
 		Type:     schema.TypeString,
 		Computed: true,
