@@ -27,20 +27,21 @@ const (
 )
 
 const (
-	ydbStreamDefaultPartitionsCount   = 2
-	ydbStreamDefaultRetentionPeriod   = 1000 * 60 * 60 * 24 // 1 day
-	ydbStreamDefaultStrictModeEnabled = false
+	ydbStreamDefaultPartitionsCount = 2
+	ydbStreamDefaultRetentionPeriod = 1000 * 60 * 60 * 24 // 1 day
 )
 
 var (
 	ydbStreamAllowedCodecs = []string{
-		ydbStreamCodecGZIP,
 		ydbStreamCodecRAW,
+		ydbStreamCodecGZIP,
 		ydbStreamCodecZSTD,
 	}
 
 	ydbStreamDefaultCodecs = []Ydb_PersQueue_V1.Codec{
 		Ydb_PersQueue_V1.Codec_CODEC_RAW,
+		Ydb_PersQueue_V1.Codec_CODEC_GZIP,
+		Ydb_PersQueue_V1.Codec_CODEC_ZSTD,
 	}
 
 	ydbStreamCodecNameToCodec = map[string]Ydb_PersQueue_V1.Codec{
@@ -219,17 +220,19 @@ func resourceYDBStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 
 func mergeYDBStreamConsumerSettings(
 	consumers []interface{},
-	readRules *[]*Ydb_PersQueue_V1.TopicSettings_ReadRule,
-) (consumersForDeletion []string) {
+	readRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
+) (newReadRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule, consumersForDeletion []string) {
 	// TODO(shmel1k@): tests.
-	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(*readRules))
-	for i := 0; i < len(*readRules); i++ {
-		rules[(*readRules)[i].ConsumerName] = (*readRules)[i]
+	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(readRules))
+	for i := 0; i < len(readRules); i++ {
+		rules[readRules[i].ConsumerName] = readRules[i]
+	}
+
+	if len(consumers) == 0 {
+		return readRules, nil
 	}
 
 	consumersMap := make(map[string]struct{})
-
-	// TODO(shmel1k@): add tests.
 	for _, v := range consumers {
 		consumer := v.(map[string]interface{})
 		// TODO(shmel1k@): think about fields to add.
@@ -243,29 +246,28 @@ func mergeYDBStreamConsumerSettings(
 
 		supportedCodecs, ok := consumer["supported_codecs"].([]interface{})
 		if !ok {
-			// TODO(shmel1k@): think about error.
-			continue
+			for _, vv := range ydbStreamAllowedCodecs {
+				supportedCodecs = append(supportedCodecs, vv)
+			}
 		}
 		startingMessageTs, ok := consumer["starting_message_timestamp_ms"].(int)
 		if !ok {
-			// TODO(shmel1k@): think about error.
-			continue
+			startingMessageTs = 0
 		}
 		serviceType, ok := consumer["service_type"].(string)
 		if !ok {
-			// TODO(shmel1k@): think about error.
-			continue
+			serviceType = ""
 		}
 
 		r, ok := rules[consumerName]
 		if !ok {
-			// NOTE(shmel1k@): stream was deleted by someone outside terraform.
+			// NOTE(shmel1k@): stream was deleted by someone outside terraform or does not exist.
 			codecs := make([]Ydb_PersQueue_V1.Codec, 0, len(supportedCodecs))
 			for _, c := range supportedCodecs {
 				codec := c.(string)
 				codecs = append(codecs, ydbStreamCodecNameToCodec[strings.ToLower(codec)])
 			}
-			*readRules = append(*readRules, &Ydb_PersQueue_V1.TopicSettings_ReadRule{
+			newReadRules = append(newReadRules, &Ydb_PersQueue_V1.TopicSettings_ReadRule{
 				ConsumerName:               consumerName,
 				SupportedFormat:            Ydb_PersQueue_V1.TopicSettings_FORMAT_BASE,
 				ServiceType:                serviceType,
@@ -287,13 +289,14 @@ func mergeYDBStreamConsumerSettings(
 			c := ydbStreamCodecNameToCodec[strings.ToLower(codec.(string))]
 			newCodecs = append(newCodecs, c)
 		}
-		r.SupportedCodecs = newCodecs
+		newReadRules = append(newReadRules, r)
 	}
-	for c := range rules {
-		if _, ok := consumersMap[c]; !ok {
-			consumersForDeletion = append(consumersForDeletion, c)
-		}
-	}
+	// NOTE(shmel1k@): TMP: do not delete consumers
+	// 	for c := range rules {
+	// 		if _, ok := consumersMap[c]; !ok {
+	// 			consumersForDeletion = append(consumersForDeletion, c)
+	// 		}
+	// 	}
 	return
 }
 
@@ -324,22 +327,13 @@ func mergeYDBStreamSettings(
 
 	var consumersForDeletion []string
 	if d.HasChange("consumers") {
-		consumersForDeletion = mergeYDBStreamConsumerSettings(d.Get("consumers").([]interface{}), &settings.ReadRules)
+		settings.ReadRules, consumersForDeletion = mergeYDBStreamConsumerSettings(d.Get("consumers").([]interface{}), settings.ReadRules)
 	}
 
 	return settings, consumersForDeletion
 }
 
 func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
-	if d.Get("strict_mode").(bool) {
-		return diag.Diagnostics{
-			{
-				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("Stream %q won't be updated due to strict mode", d.Get("stream_name").(string)),
-			},
-		}
-	}
-
 	client, err := createYDBStreamClient(ctx, d.Get("database_endpoint").(string), config)
 	if err != nil {
 		return diag.Diagnostics{
@@ -481,12 +475,6 @@ func resourceYandexYDBStream() *schema.Resource {
 				Optional: true,
 				Default:  ydbStreamDefaultRetentionPeriod,
 			},
-			"strict_mode": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     ydbStreamDefaultStrictModeEnabled,
-				Description: "", // TODO(shmel1k@): add description for every parameter.
-			},
 			"consumers": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -507,7 +495,7 @@ func resourceYandexYDBStream() *schema.Resource {
 						},
 						"starting_message_timestamp_ms": {
 							Type:     schema.TypeInt,
-							Optional: true,
+							Computed: true,
 						},
 						"service_type": {
 							Type:     schema.TypeString,
