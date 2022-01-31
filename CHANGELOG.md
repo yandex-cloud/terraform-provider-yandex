@@ -2,6 +2,7 @@
 ENHANCEMENTS:
 * allow `initial` of `0` for `yandex_kubernetes_node_group` `auto_scale` policy.
 * dataproc: now cluster version specified in create cluster request is treated as a semantic version prefix. So specified version `2.0` may lead to creation of cluster version `2.0.30` and this will not be considered a change in terraform state.
+* add `host_group_ids` attribute in `yandex_mdb_sqlserver_cluster` resource and data source
 
 BUG FIXES:
 * alb: fix behavior of attribute `weight` in `http_backend` and `grpc_backend` and `stream_backend` in `yandex_alb_backend_group` resource
@@ -88,7 +89,6 @@ BUG FIXES:
 ## 0.65.0 (October 14, 2021)
 FEATURES:
 * mdb: support Schema Registry in `yandex_mdb_kafka_cluster`
-* resourcemanager: data source `yandex_resourcemanager_cloud` now provides `folders` attribute
 
 FEATURES:
 * **New Resource:** `yandex_kms_symmetric_key_iam_binding`

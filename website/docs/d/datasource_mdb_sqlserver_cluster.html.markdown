@@ -54,6 +54,7 @@ exported:
 * `host` - A host of the SQLServer cluster. The structure is documented below.
 * `sqlserver_config` - SQLServer cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
+* `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
 
 The `resources` block supports:
 
