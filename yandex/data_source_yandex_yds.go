@@ -30,6 +30,7 @@ func dataSourceYDBStreamRead(ctx context.Context, d *schema.ResourceData, meta i
 	description, err := client.DescribeTopic(ctx, d.Get("stream_name").(string))
 	if err != nil {
 		if strings.Contains(err.Error(), "does not exist") {
+			// NOTE(shmel1k@): stream was deleted outside of terraform.
 			d.SetId("")
 			return nil
 		}

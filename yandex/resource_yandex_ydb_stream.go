@@ -221,7 +221,7 @@ func resourceYDBStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 func mergeYDBStreamConsumerSettings(
 	consumers []interface{},
 	readRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule,
-) (newReadRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule, consumersForDeletion []string) {
+) (newReadRules []*Ydb_PersQueue_V1.TopicSettings_ReadRule) {
 	// TODO(shmel1k@): tests.
 	rules := make(map[string]*Ydb_PersQueue_V1.TopicSettings_ReadRule, len(readRules))
 	for i := 0; i < len(readRules); i++ {
@@ -229,7 +229,7 @@ func mergeYDBStreamConsumerSettings(
 	}
 
 	if len(consumers) == 0 {
-		return readRules, nil
+		return readRules
 	}
 
 	consumersMap := make(map[string]struct{})
@@ -294,19 +294,13 @@ func mergeYDBStreamConsumerSettings(
 		}
 		newReadRules = append(newReadRules, r)
 	}
-	// NOTE(shmel1k@): TMP: do not delete consumers
-	// 	for c := range rules {
-	// 		if _, ok := consumersMap[c]; !ok {
-	// 			consumersForDeletion = append(consumersForDeletion, c)
-	// 		}
-	// 	}
 	return
 }
 
 func mergeYDBStreamSettings(
 	d *schema.ResourceData,
 	settings *Ydb_PersQueue_V1.TopicSettings,
-) (*Ydb_PersQueue_V1.TopicSettings, []string) {
+) *Ydb_PersQueue_V1.TopicSettings {
 	if d.HasChange("partitions_count") {
 		settings.PartitionsCount = int32(d.Get("partitions_count").(int))
 	}
@@ -328,12 +322,11 @@ func mergeYDBStreamSettings(
 		settings.RetentionPeriodMs = int64(d.Get("retention_period_ms").(int))
 	}
 
-	var consumersForDeletion []string
 	if d.HasChange("consumers") {
-		settings.ReadRules, consumersForDeletion = mergeYDBStreamConsumerSettings(d.Get("consumers").([]interface{}), settings.ReadRules)
+		settings.ReadRules = mergeYDBStreamConsumerSettings(d.Get("consumers").([]interface{}), settings.ReadRules)
 	}
 
-	return settings, consumersForDeletion
+	return settings
 }
 
 func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, config *Config) diag.Diagnostics {
@@ -363,7 +356,7 @@ func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, c
 		}
 	}
 
-	newSettings, consumersForDeletion := mergeYDBStreamSettings(d, desc.GetSettings())
+	newSettings := mergeYDBStreamSettings(d, desc.GetSettings())
 
 	err = client.AlterTopic(ctx, &Ydb_PersQueue_V1.AlterTopicRequest{
 		Path:     streamName,
@@ -378,23 +371,7 @@ func performYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, c
 			},
 		}
 	}
-
-	var diagnostics diag.Diagnostics
-	for _, v := range consumersForDeletion {
-		err = client.RemoveReadRule(ctx, &Ydb_PersQueue_V1.RemoveReadRuleRequest{
-			Path:         streamName,
-			ConsumerName: v,
-		})
-		if err != nil {
-			diagnostics = append(diagnostics, diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  fmt.Sprintf("failed to delete consumer from %q", streamName),
-				Detail:   err.Error(),
-			})
-		}
-	}
-
-	return diagnostics
+	return nil
 }
 
 func resourceYandexYDBStreamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

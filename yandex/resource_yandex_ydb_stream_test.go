@@ -1,17 +1,18 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"reflect"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_PersQueue_V1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 const (
@@ -21,86 +22,185 @@ const (
 func init() {
 	resource.AddTestSweepers("yandex_ydb_stream", &resource.Sweeper{
 		Name: "yandex_ydb_stream",
-		F:    testSweepYandexYDBStream,
+		F:    testSweepYDBDatabaseServerless, // NOTE(shmel1k@): all streams are stored in ydb databases.
 	})
 }
 
-func testSweepYandexYDBStream(_ string) error {
-	// NOTE(shmel1k@): destroy databases for stream.
-	conf, err := configForSweepers()
+func testGetYDBStreamByID(config *Config, databaseEndpoint, streamName string) (*Ydb_PersQueue_V1.TopicSettings, error) {
+	client, err := createYDBStreamClient(context.Background(), databaseEndpoint, config)
 	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
+		return nil, err
+	}
+	defer func() {
+		_ = client.Close()
+	}()
+
+	result, err := client.DescribeTopic(context.Background(), streamName)
+	if err != nil {
+		return nil, err
 	}
 
-	_ = conf
-
-	return nil
+	return result.GetSettings(), nil
 }
 
-func testGetYDBStreamByID(config *Config, ydbEndpoint, streamID string) error {
-	return nil
-}
-
-func testYandexYDBStreamExists(streamName string) resource.TestCheckFunc {
+func testYandexYDBStreamExists(resourceName, streamName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[streamName]
+		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("not found resource %s", streamName)
+			return fmt.Errorf("not found resource %s", resourceName)
 		}
 
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("ID is not set for resource %+v", rs)
 		}
 
-		// config := testAccProvider.Meta().(*Config)
+		if !strings.HasSuffix(rs.Primary.ID, streamName) {
+			return fmt.Errorf("got primary id %q without streamName %q", rs.Primary.ID, streamName)
+		}
 
-		//found, err := testGetYDBStreamByID(config, "", rs.Primary.ID)
-		//if err != nil {
-		//	return err
-		//}
+		config := testAccProvider.Meta().(*Config)
 
-		return nil
+		ctx := context.Background()
+
+		client, err := createYDBStreamClient(ctx, rs.Primary.Attributes["database_endpoint"], config)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = client.Close()
+		}()
+
+		_, err = client.DescribeTopic(ctx, streamName)
+		return err
 	}
 }
 
-func basicYandexYDBStreamTestStep(streamName string) resource.TestStep {
+func testYandexYDBStreamBasic(databaseName, streamName string) string {
+	return fmt.Sprintf(`
+resource "yandex_ydb_database_serverless" "test-ydb-database" {
+  name = "%s"
+}
+
+resource "yandex_ydb_stream" "test-ydb-stream" {
+  stream_name = "%s"
+  database_endpoint = "${yandex_ydb_serverless.test-ydb-database.id}"
+}
+`, databaseName, streamName)
+}
+
+type testYandexYDBStreamParams struct {
+	streamName        string
+	partitionsCount   int
+	retentionPeriodMS int
+	supportedCodecs   []string
+}
+
+func (t *testYandexYDBStreamParams) formatCodecs() string {
+	return strings.Join(t.supportedCodecs, "\n")
+}
+
+func testYandexYDBStreamFull(ydbDatabaseName string, params testYandexYDBStreamParams) string {
+	return fmt.Sprintf(`
+resource "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
+  name = "%s",
+}
+
+resource "yandex_ydb_stream" "test-ydb-stream" {
+  database_endpoint = "${yandex_ydb_database_serverless.test-ydb-database-serverless.ydb_full_endpoint}"
+  name = "%s"
+  partitions_count = %d
+  supported_codecs = [
+    %s
+  ]
+  retention_period_ms = %d
+}
+`, ydbDatabaseName, params.streamName, params.partitionsCount, params.formatCodecs(), params.retentionPeriodMS)
+}
+
+func basicYandexYDBStreamTestStep(ydbDatabaseName, streamName string) resource.TestStep {
 	return resource.TestStep{
-		Config: testYandexYDBStreamBasic(streamName),
+		Config: testYandexYDBStreamBasic(ydbDatabaseName, streamName),
 		Check: resource.ComposeTestCheckFunc(
-			testYandexYDBStreamExists(streamName),
+			testYandexYDBStreamExists(ydbDatabaseStreamResource, streamName),
+			resource.TestCheckResourceAttr(ydbDatabaseStreamResource, "name", streamName),
+			testAccCheckCreatedAtAttr(ydbDatabaseStreamResource),
 		),
 	}
 }
 
-func testYandexYDBStreamBasic(name string) string {
-	return fmt.Sprintf(`
-resource "yandex_ydb_stream" "test-ydb-stream" {
-  name = "%s"
-}
-`, name)
+func testYandexYDBStreamDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_ydb_stream" {
+			continue
+		}
+
+		_, err := testGetYDBStreamByID(
+			config,
+			rs.Primary.Attributes["database_endpoint"],
+			rs.Primary.Attributes["stream_name"],
+		)
+		if err == nil {
+			return fmt.Errorf("YDB Stream still exists")
+		}
+	}
+
+	return nil
 }
 
 func TestAccYandexYDBStream_basic(t *testing.T) {
-	var database ydb.Database
-	databaseName := acctest.RandomWithPrefix("tf-ydb-database-stream")
-	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-stream-desc")
-	labelKey := acctest.RandomWithPrefix("tf-ydb-database-stream-label")
-	labelValue := acctest.RandomWithPrefix("tf-ydb-database-stream-label-value")
-
+	streamName := acctest.RandomWithPrefix("tf-ydb-stream-stream")
+	databaseName := acctest.RandomWithPrefix("tf-ydb-stream-database")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testYandexYDBDatabaseServerlessDestroy,
+		CheckDestroy: testYandexYDBStreamDestroy,
 		Steps: []resource.TestStep{
-			basicYandexYDBDatabaseServerlessTestStep(databaseName, databaseDesc, labelKey, labelValue, &database),
+			basicYandexYDBStreamTestStep(databaseName, streamName),
 		},
 	})
 }
 
 func TestAccYandexYDBStream_update(t *testing.T) {
-}
+	streamName := acctest.RandomWithPrefix("tf-ydb-stream-stream")
+	databaseName := acctest.RandomWithPrefix("tf-ydb-stream-database")
 
-func TestAccYandexYDBStream_full(t *testing.T) {
+	testConfigFn := func(params testYandexYDBStreamParams) resource.TestStep {
+		return resource.TestStep{
+			Config: testYandexYDBStreamFull(databaseName, params),
+			Check: resource.ComposeTestCheckFunc(
+				testYandexYDBStreamExists(ydbDatabaseStreamResource, params.streamName),
+				resource.TestCheckResourceAttr(ydbDatabaseStreamResource, "name", params.streamName),
+				resource.TestCheckResourceAttr(ydbDatabaseStreamResource, "partitions_count", strconv.Itoa(params.partitionsCount)),
+				resource.TestCheckResourceAttrSet(ydbDatabaseStreamResource, "supported_codecs"),
+				resource.TestCheckResourceAttr(ydbDatabaseStreamResource, "retention_period_ms", strconv.Itoa(params.retentionPeriodMS)),
+			),
+		}
+	}
+
+	beforeParams := testYandexYDBStreamParams{
+		streamName:        streamName,
+		partitionsCount:   2,
+		retentionPeriodMS: 1000 * 60 * 60, // NOTE(shmel1k@): 1 hour
+		supportedCodecs:   ydbStreamAllowedCodecs,
+	}
+	afterParams := testYandexYDBStreamParams{
+		streamName:        streamName,
+		partitionsCount:   4,
+		retentionPeriodMS: 1000 * 60 * 60 * 4, // NOTE(shmel1k@): 4 hours.
+		supportedCodecs:   ydbStreamAllowedCodecs,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexYDBStreamDestroy,
+		Steps: []resource.TestStep{
+			testConfigFn(beforeParams),
+			testConfigFn(afterParams),
+		},
+	})
 }
 
 func TestMergeYDBStreamConsumerSettings(t *testing.T) {
@@ -135,7 +235,6 @@ func TestMergeYDBStreamConsumerSettings(t *testing.T) {
 					SupportedCodecs: ydbStreamDefaultCodecs,
 				},
 			},
-			expectedConsumersForDeletion: nil,
 		},
 		{
 			testName: "non-empty config consumers with empty config consumers",
@@ -283,12 +382,9 @@ func TestMergeYDBStreamConsumerSettings(t *testing.T) {
 	for _, v := range testData {
 		v := v
 		t.Run(v.testName, func(t *testing.T) {
-			newReadRules, got := mergeYDBStreamConsumerSettings(v.consumers, v.readRules)
+			newReadRules := mergeYDBStreamConsumerSettings(v.consumers, v.readRules)
 			if !reflect.DeepEqual(newReadRules, v.expectedReadRules) {
 				t.Errorf("got readrules %+v\nexpected %+v", newReadRules, v.expectedReadRules)
-			}
-			if !reflect.DeepEqual(got, v.expectedConsumersForDeletion) {
-				t.Errorf("got consumers %v\nexpected %v", got, v.expectedConsumersForDeletion)
 			}
 		})
 	}
