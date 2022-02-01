@@ -6,6 +6,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * alb: fix behavior of attribute `weight` in `http_backend` and `grpc_backend` and `stream_backend` in `yandex_alb_backend_group` resource
+* datatransfer: make `yandex_datatransfer_transfer` importable in accordance with the documentation
 
 ## 0.70.0 (January 17, 2022)
 FEATURES:
