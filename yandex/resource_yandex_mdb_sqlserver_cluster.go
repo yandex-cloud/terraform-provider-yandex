@@ -157,6 +157,14 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 					},
 				},
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -293,6 +301,8 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
+	hostGroupIds := expandHostGroupIds(d.Get("host_group_ids"))
+
 	dbs := expandSQLServerDatabaseSpecs(d)
 
 	configSpec := &sqlserver.ConfigSpec{
@@ -324,6 +334,7 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 		Labels:             labels,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		HostGroupIds:       hostGroupIds,
 	}
 	return &req, nil
 }
@@ -377,6 +388,9 @@ func resourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 	if err = d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 

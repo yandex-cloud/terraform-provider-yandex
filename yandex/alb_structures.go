@@ -3,6 +3,7 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -1471,12 +1472,13 @@ func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 		}
 
 		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
+		weight := getWeight(b.GetBackendWeight())
 
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
 			"http2":                 b.UseHttp2,
-			"weight":                int(b.BackendWeight.Value),
+			"weight":                weight,
 			"tls":                   flTls,
 			"load_balancing_config": flLoadBalancingConfig,
 			"healthcheck":           flHealthchecks,
@@ -1516,11 +1518,12 @@ func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, er
 		}
 
 		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
+		weight := getWeight(b.GetBackendWeight())
 
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
-			"weight":                int(b.BackendWeight.Value),
+			"weight":                weight,
 			"tls":                   flTls,
 			"load_balancing_config": flLoadBalancingConfig,
 			"healthcheck":           flHealthchecks,
@@ -1533,6 +1536,13 @@ func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, er
 	}
 
 	return result, nil
+}
+
+func getWeight(weight *wrapperspb.Int64Value) int {
+	if weight == nil {
+		return 1
+	}
+	return int(weight.Value)
 }
 
 func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {
@@ -1559,11 +1569,12 @@ func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, erro
 			}
 		}
 		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
+		weight := getWeight(b.GetBackendWeight())
 
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
-			"weight":                int(b.BackendWeight.Value),
+			"weight":                weight,
 			"tls":                   flTls,
 			"load_balancing_config": flLoadBalancingConfig,
 			"healthcheck":           flHealthchecks,

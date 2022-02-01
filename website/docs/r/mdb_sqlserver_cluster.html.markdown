@@ -46,17 +46,16 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   database {
     name = "db_name_a"
   }
-    database {
+  database {
     name = "db_name"
   }
-    database {
+  database {
     name = "db_name_b"
   }
 
   user {
     name     = "bob"
     password = "mysecurepassword"
-
   }
 
   user {
@@ -93,6 +92,7 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   }
 
   security_group_ids = [yandex_vpc_security_group.test-sg-x.id]
+  host_group_ids = [ "host_group_1", "host_group_2" ]
 }
 
 resource "yandex_vpc_network" "foo" {}
@@ -159,6 +159,8 @@ The following arguments are supported:
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
+* `host_group_ids` - (Optional) A list of IDs of the host groups hosting VMs of the cluster.
 
 - - -
 

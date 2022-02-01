@@ -160,7 +160,7 @@ func TestAccDataSourceALBBackendGroup_fullWithStreamBackend(t *testing.T) {
 				Config: testALBBackendGroupConfig_basic(BGResource),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
-					testAccCheckALBBackendGroupValues(&bg, false, false, false),
+					testAccCheckALBBackendGroupValues(&bg, false, false, true),
 					testExistsFirstElementWithAttr(
 						albBgDataSourceResource, "stream_backend", "tls", &backendPath,
 					),

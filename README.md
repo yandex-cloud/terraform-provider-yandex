@@ -29,6 +29,18 @@ $ make build
 Using the provider
 ----------------------
 If you're building the provider, follow the instructions to [install it as a plugin.](https://www.terraform.io/docs/plugins/basics.html#installing-plugins) After placing it into your plugins directory,  run `terraform init` to initialize it. Documentation about the provider specific configuration options can be found on the [provider's website](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs).
+An example of using an installed provider from local directory: 
+
+Write following config into  `~/.terraformrc`
+```
+provider_installation {
+   dev_overrides {
+    "yandex-cloud/yandex" = "/path/to/local/provider"
+  }
+
+   direct {}
+ }
+```
 
 Developing the Provider
 ---------------------------

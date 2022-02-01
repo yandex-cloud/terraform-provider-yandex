@@ -110,6 +110,12 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 					},
 				},
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 			"host": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -258,6 +264,10 @@ func dataSourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interf
 		return err
 	}
 	if err = d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 

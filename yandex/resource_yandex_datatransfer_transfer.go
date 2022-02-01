@@ -25,6 +25,10 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 		Update: resourceYandexDatatransferTransferUpdate,
 		Delete: resourceYandexDatatransferTransferDeactivateAndDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{

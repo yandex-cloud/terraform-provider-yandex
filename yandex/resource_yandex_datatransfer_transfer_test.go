@@ -92,6 +92,33 @@ func sweepDataTransferEndpointOnce(config *Config, endpointID string) error {
 	return handleSweepOperation(ctx, config, deleteOperation, err)
 }
 
+func dataTransferSourceEndpointImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            sourceEndpointResourceName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: []string{"settings.0.postgres_source.0.password"},
+	}
+}
+
+func dataTransferTargetEndpointImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            targetEndpointResourceName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: []string{"settings.0.postgres_target.0.password"},
+	}
+}
+
+func dataTransferTransferImportStep() resource.TestStep {
+	return resource.TestStep{
+		ResourceName:            transferResourceName,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: []string{"source_id", "target_id"},
+	}
+}
+
 // Test that a DataTransfer Transfer can be created, updated and destroyed along with the endpoints
 func TestAccDataTransferTransfer_full(t *testing.T) {
 	t.Parallel()
@@ -154,6 +181,9 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
 				),
 			},
+			dataTransferSourceEndpointImportStep(),
+			dataTransferTargetEndpointImportStep(),
+			dataTransferTransferImportStep(),
 		},
 	})
 }

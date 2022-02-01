@@ -28,8 +28,8 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20211216135636-408eeddbd93e
-	github.com/yandex-cloud/go-sdk v0.0.0-20211216140256-cebf209f4dc0
+	github.com/yandex-cloud/go-genproto v0.0.0-20220117194255-1a7520fa72ab
+	github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20220121103726-1ca8c739f62a
 	github.com/ydb-platform/ydb-go-persqueue-sdk v0.0.4
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.7.2

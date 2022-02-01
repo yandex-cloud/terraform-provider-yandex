@@ -52,6 +52,8 @@ type resourceALBLoadBalancerInfo struct {
 
 	BalancerName         string
 	RouterName           string
+	BackendGroupName     string
+	TargetGroupName      string
 	ListenerName         string
 	BalancerDescription  string
 	AllowHTTP10          string
@@ -75,6 +77,8 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		BalancerName:         acctest.RandomWithPrefix("tf-load-balancer"),
 		RouterName:           acctest.RandomWithPrefix("tf-router"),
+		BackendGroupName:     acctest.RandomWithPrefix("tf-bg"),
+		TargetGroupName:      acctest.RandomWithPrefix("tf-tg"),
 		ListenerName:         acctest.RandomWithPrefix("tf-listener"),
 		BalancerDescription:  acctest.RandomWithPrefix("tf-load-balancer-description"),
 		AllowHTTP10:          albDefaultAllowHTTP10,
@@ -345,7 +349,34 @@ data "yandex_alb_load_balancer" "test-alb-ds" {
 resource "yandex_alb_http_router" "test-router" {
   name        = "{{.RouterName}}"
 }
+{{ if .IsStreamHandler }}
+resource "yandex_alb_backend_group" "test-bg" {
+  name        = "{{.BackendGroupName}}"
+  stream_backend {
+    name             = "test-stream-backend"
+    port             = 8080
+    target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    load_balancing_config {
+      panic_threshold                = "50"
+      locality_aware_routing_percent = "35"
+      strict_locality                = "true"
+    }
+    healthcheck {
+      timeout  = "10s"
+      interval = "10s"
+      http_healthcheck {
+        host  = "tf-test-host"
+        path  = "tf-test-path"
+        http2 = "true"
+      }
+    }
+  }
+}
 
+resource "yandex_alb_target_group" "test-target-group" {
+  name        = "{{.TargetGroupName}}"
+}
+{{ end }}
 resource "yandex_alb_load_balancer" "test-balancer" {
   name        = "{{.BalancerName}}"
   description = "{{.BalancerDescription}}"
@@ -399,7 +430,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
     stream {
       {{if .IsStreamHandler}}
       handler {
-        backend_group_id = "ds760hlsaj9kj4p01uc7"
+        backend_group_id = yandex_alb_backend_group.test-bg.id
       }
       {{end}}
     }
@@ -422,7 +453,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         {{end}}
         {{if .IsStreamHandler}}
         stream_handler {
-          backend_group_id = "ds760hlsaj9kj4p01uc7"
+          backend_group_id = yandex_alb_backend_group.test-bg.id
         }
         {{end}}
         certificate_ids = ["{{.CertificateID}}"]
