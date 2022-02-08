@@ -39,4 +39,3 @@ The following attributes are returned:
 * `name` - Name of the cloud.
 * `description` - Description of the cloud.
 * `created_at` - Cloud creation timestamp.
-* `folders` - List of folders in the cloud
