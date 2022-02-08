@@ -23,7 +23,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   subnet_ids  = ["${yandex_vpc_subnet.foo.id}"]
 
   config {
-    version          = "2.6"
+    version          = "2.8"
     brokers_count    = 1
     zones            = ["ru-central1-a"]
     assign_public_ip = false
@@ -94,7 +94,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   subnet_ids  = ["${yandex_vpc_subnet.foo.id}", "${yandex_vpc_subnet.bar.id}", "${yandex_vpc_subnet.baz.id}"]
 
   config {
-    version          = "2.6"
+    version          = "2.8"
     brokers_count    = 2
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
     assign_public_ip = true
