@@ -111,7 +111,7 @@ func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	topicSpec, err := buildKafkaTopicSpec(d, version)
+	topicSpec, err := buildKafkaTopicSpec(d, "", version)
 	if err != nil {
 		return err
 	}
@@ -156,40 +156,40 @@ func getKafkaVersion(ctx context.Context, d *schema.ResourceData, config *Config
 	return cluster.GetConfig().GetVersion(), nil
 }
 
-func buildKafkaTopicSpec(d *schema.ResourceData, version string) (*kafka.TopicSpec, error) {
-	topicName := d.Get("name").(string)
-	topicSpec := &kafka.TopicSpec{
-		Name:              topicName,
-		Partitions:        &wrappers.Int64Value{Value: int64(d.Get("partitions").(int))},
-		ReplicationFactor: &wrappers.Int64Value{Value: int64(d.Get("replication_factor").(int))},
+func buildKafkaTopicSpec(d *schema.ResourceData, prefixKey string, version string) (*kafka.TopicSpec, error) {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
 	}
 
-	if v, ok := d.GetOk("topic_config"); ok {
-		configList := v.([]interface{})
-		if len(configList) > 0 && configList[0] != nil {
-			topicConfig := configList[0].(map[string]interface{})
-			switch version {
-			case "2.8":
-				cfg, err := expandKafkaTopicConfig2_8(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topicSpec.SetTopicConfig_2_8(cfg)
-			case "2.6":
-				cfg, err := expandKafkaTopicConfig2_6(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topicSpec.SetTopicConfig_2_6(cfg)
-			case "2.1":
-				cfg, err := expandKafkaTopicConfig2_1(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topicSpec.SetTopicConfig_2_1(cfg)
-			default:
-				return nil, fmt.Errorf("unable to serialize topic config for kafka of version %v", version)
+	topicName := d.Get(key("name")).(string)
+	topicSpec := &kafka.TopicSpec{
+		Name:              topicName,
+		Partitions:        &wrappers.Int64Value{Value: int64(d.Get(key("partitions")).(int))},
+		ReplicationFactor: &wrappers.Int64Value{Value: int64(d.Get(key("replication_factor")).(int))},
+	}
+
+	if _, ok := d.GetOk(key("topic_config.0")); ok {
+		switch version {
+		case "2.8":
+			cfg, err := expandKafkaTopicConfig2_8(d, key("topic_config.0."))
+			if err != nil {
+				return nil, err
 			}
+			topicSpec.SetTopicConfig_2_8(cfg)
+		case "2.6":
+			cfg, err := expandKafkaTopicConfig2_6(d, key("topic_config.0."))
+			if err != nil {
+				return nil, err
+			}
+			topicSpec.SetTopicConfig_2_6(cfg)
+		case "2.1":
+			cfg, err := expandKafkaTopicConfig2_1(d, key("topic_config.0."))
+			if err != nil {
+				return nil, err
+			}
+			topicSpec.SetTopicConfig_2_1(cfg)
+		default:
+			return nil, fmt.Errorf("unable to serialize topic config for kafka of version %v", version)
 		}
 	}
 
@@ -251,7 +251,7 @@ func resourceYandexMDBKafkaTopicUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	topicSpec, err := buildKafkaTopicSpec(d, version)
+	topicSpec, err := buildKafkaTopicSpec(d, "", version)
 	if err != nil {
 		return err
 	}

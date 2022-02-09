@@ -21,7 +21,7 @@ const (
 	kafkaClusterResourceName = "yandex_mdb_kafka_cluster.foo"
 )
 
-func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
+func TestNoCrashOnNilKafkaTopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -30,7 +30,7 @@ func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "2.8")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "2.8")
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -40,6 +40,64 @@ func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
 		Partitions:        &wrappers.Int64Value{Value: 12},
 		ReplicationFactor: &wrappers.Int64Value{Value: 3},
 		TopicConfig:       nil,
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
+func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "2.8")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig:       nil,
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
+func TestNoCrashOnNotFulledKafkaTopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{
+				"cleanup_policy": "CLEANUP_POLICY_COMPACT_AND_DELETE",
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "2.8")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
+			TopicConfig_2_8: &kafka.TopicConfig2_8{
+				CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
+			},
+		},
 	}
 
 	assert.Equal(t, expected, topicSpec)
@@ -70,7 +128,7 @@ func TestBuildKafkaTopicSpec(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "2.8")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "2.8")
 	if err != nil {
 		require.NoError(t, err)
 	}

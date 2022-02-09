@@ -241,8 +241,8 @@ type TopicConfig struct {
 	Preallocate        *wrappers.BoolValue
 }
 
-func parseIntTopicConfigParam(config map[string]interface{}, paramName string, retErr *error) *wrappers.Int64Value {
-	paramValue, ok := config[paramName]
+func parseIntTopicConfigParam(d *schema.ResourceData, paramPath string, retErr *error) *wrappers.Int64Value {
+	paramValue, ok := d.GetOk(paramPath)
 	if !ok {
 		return nil
 	}
@@ -260,10 +260,13 @@ func parseIntTopicConfigParam(config map[string]interface{}, paramName string, r
 	return &wrappers.Int64Value{Value: i}
 }
 
-func parseKafkaTopicConfig(config map[string]interface{}) (*TopicConfig, error) {
-	res := &TopicConfig{}
+func parseKafkaTopicConfig(d *schema.ResourceData, topicConfigPrefix string) (*TopicConfig, error) {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", topicConfigPrefix, key)
+	}
 
-	if cleanupPolicy := config["cleanup_policy"].(string); cleanupPolicy != "" {
+	res := &TopicConfig{}
+	if cleanupPolicy := d.Get(key("cleanup_policy")).(string); cleanupPolicy != "" {
 		_, err := parseKafkaTopicCleanupPolicy(cleanupPolicy)
 		if err != nil {
 			return nil, err
@@ -271,7 +274,7 @@ func parseKafkaTopicConfig(config map[string]interface{}) (*TopicConfig, error) 
 		res.CleanupPolicy = cleanupPolicy
 	}
 
-	if compressionType := config["compression_type"].(string); compressionType != "" {
+	if compressionType := d.Get(key("compression_type")).(string); compressionType != "" {
 		value, err := parseKafkaCompression(compressionType)
 		if err != nil {
 			return nil, err
@@ -280,19 +283,19 @@ func parseKafkaTopicConfig(config map[string]interface{}) (*TopicConfig, error) 
 	}
 
 	var retErr error
-	res.DeleteRetentionMs = parseIntTopicConfigParam(config, "delete_retention_ms", &retErr)
-	res.FileDeleteDelayMs = parseIntTopicConfigParam(config, "file_delete_delay_ms", &retErr)
-	res.FlushMessages = parseIntTopicConfigParam(config, "flush_messages", &retErr)
-	res.FlushMs = parseIntTopicConfigParam(config, "flush_ms", &retErr)
-	res.MinCompactionLagMs = parseIntTopicConfigParam(config, "min_compaction_lag_ms", &retErr)
-	res.RetentionBytes = parseIntTopicConfigParam(config, "retention_bytes", &retErr)
-	res.RetentionMs = parseIntTopicConfigParam(config, "retention_ms", &retErr)
-	res.MaxMessageBytes = parseIntTopicConfigParam(config, "max_message_bytes", &retErr)
-	res.MinInsyncReplicas = parseIntTopicConfigParam(config, "min_insync_replicas", &retErr)
-	res.SegmentBytes = parseIntTopicConfigParam(config, "segment_bytes", &retErr)
+	res.DeleteRetentionMs = parseIntTopicConfigParam(d, key("delete_retention_ms"), &retErr)
+	res.FileDeleteDelayMs = parseIntTopicConfigParam(d, key("file_delete_delay_ms"), &retErr)
+	res.FlushMessages = parseIntTopicConfigParam(d, key("flush_messages"), &retErr)
+	res.FlushMs = parseIntTopicConfigParam(d, key("flush_ms"), &retErr)
+	res.MinCompactionLagMs = parseIntTopicConfigParam(d, key("min_compaction_lag_ms"), &retErr)
+	res.RetentionBytes = parseIntTopicConfigParam(d, key("retention_bytes"), &retErr)
+	res.RetentionMs = parseIntTopicConfigParam(d, key("retention_ms"), &retErr)
+	res.MaxMessageBytes = parseIntTopicConfigParam(d, key("max_message_bytes"), &retErr)
+	res.MinInsyncReplicas = parseIntTopicConfigParam(d, key("min_insync_replicas"), &retErr)
+	res.SegmentBytes = parseIntTopicConfigParam(d, key("segment_bytes"), &retErr)
 
-	if v, ok := config["preallocate"]; ok {
-		res.Preallocate = &wrappers.BoolValue{Value: v.(bool)}
+	if preallocateRaw, ok := d.GetOk(key("preallocate")); ok {
+		res.Preallocate = &wrappers.BoolValue{Value: preallocateRaw.(bool)}
 	}
 
 	if retErr != nil {
@@ -302,8 +305,8 @@ func parseKafkaTopicConfig(config map[string]interface{}) (*TopicConfig, error) 
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_6(config map[string]interface{}) (*kafka.TopicConfig2_6, error) {
-	topicConfig, err := parseKafkaTopicConfig(config)
+func expandKafkaTopicConfig2_6(d *schema.ResourceData, topicConfigPath string) (*kafka.TopicConfig2_6, error) {
+	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPath)
 	if err != nil {
 		return nil, err
 	}
@@ -326,8 +329,8 @@ func expandKafkaTopicConfig2_6(config map[string]interface{}) (*kafka.TopicConfi
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_1(config map[string]interface{}) (*kafka.TopicConfig2_1, error) {
-	topicConfig, err := parseKafkaTopicConfig(config)
+func expandKafkaTopicConfig2_1(d *schema.ResourceData, topicConfigPath string) (*kafka.TopicConfig2_1, error) {
+	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPath)
 	if err != nil {
 		return nil, err
 	}
@@ -350,8 +353,8 @@ func expandKafkaTopicConfig2_1(config map[string]interface{}) (*kafka.TopicConfi
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_8(config map[string]interface{}) (*kafka.TopicConfig2_8, error) {
-	topicConfig, err := parseKafkaTopicConfig(config)
+func expandKafkaTopicConfig2_8(d *schema.ResourceData, topicConfigPrefix string) (*kafka.TopicConfig2_8, error) {
+	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -446,8 +449,8 @@ func expandKafkaTopics(d *schema.ResourceData) ([]*kafka.TopicSpec, error) {
 	}
 	topics := d.Get("topic").([]interface{})
 
-	for _, topic := range topics {
-		topicSpec, err := expandKafkaTopic(topic.(map[string]interface{}), version.(string))
+	for idx := range topics {
+		topicSpec, err := buildKafkaTopicSpec(d, fmt.Sprintf("topic.%d.", idx), version.(string))
 		if err != nil {
 			return nil, err
 		}
@@ -897,22 +900,28 @@ func kafkaUsersDiff(currUsers []*kafka.User, targetUsers []*kafka.UserSpec) ([]s
 	return toDel, toAdd
 }
 
-func diffByEntityKey(d *schema.ResourceData, path, indexKey string) map[string][]map[string]interface{} {
-	result := map[string][]map[string]interface{}{}
+type entityDiff struct {
+	OldEntityKey string
+	OldEntity    map[string]interface{}
+	NewEntityKey string
+	NewEntity    map[string]interface{}
+}
+
+func diffByEntityKey(d *schema.ResourceData, path, indexKey string) map[string]entityDiff {
+	result := map[string]entityDiff{}
 	for i := 0; ; i++ {
-		oldEntityI, newEntityI := d.GetChange(fmt.Sprintf("%s.%d", path, i))
+		key := fmt.Sprintf("%s.%d", path, i)
+		oldEntityI, newEntityI := d.GetChange(key)
 		empty := true
 
 		oldEntity := oldEntityI.(map[string]interface{})
 		oldEntityKey, ok := oldEntity[indexKey].(string)
 		if ok {
 			empty = false
-			pair, ok := result[oldEntityKey]
-			if !ok {
-				pair = make([]map[string]interface{}, 2)
-				result[oldEntityKey] = pair
-			}
-			pair[0] = oldEntity
+			diffEntity := result[oldEntityKey]
+			diffEntity.OldEntity = oldEntity
+			diffEntity.OldEntityKey = key
+			result[oldEntityKey] = diffEntity
 		}
 
 		newEntity := newEntityI.(map[string]interface{})
@@ -920,12 +929,10 @@ func diffByEntityKey(d *schema.ResourceData, path, indexKey string) map[string][
 		if ok {
 			empty = false
 			if newEntityKey != "" {
-				pair, ok := result[newEntityKey]
-				if !ok {
-					pair = make([]map[string]interface{}, 2)
-					result[newEntityKey] = pair
-				}
-				pair[1] = newEntity
+				diffEntity := result[newEntityKey]
+				diffEntity.NewEntity = newEntity
+				diffEntity.NewEntityKey = key
+				result[newEntityKey] = diffEntity
 			}
 		}
 
@@ -934,49 +941,6 @@ func diffByEntityKey(d *schema.ResourceData, path, indexKey string) map[string][
 		}
 	}
 	return result
-}
-
-func expandKafkaTopic(spec map[string]interface{}, version string) (*kafka.TopicSpec, error) {
-	topic := &kafka.TopicSpec{}
-
-	if v, ok := spec["name"]; ok {
-		topic.Name = v.(string)
-	}
-	if v, ok := spec["partitions"]; ok {
-		topic.Partitions = &wrappers.Int64Value{Value: int64(v.(int))}
-	}
-	if v, ok := spec["replication_factor"]; ok {
-		topic.ReplicationFactor = &wrappers.Int64Value{Value: int64(v.(int))}
-	}
-	if v, ok := spec["topic_config"]; ok {
-		configList := v.([]interface{})
-		if len(configList) > 0 && configList[0] != nil {
-			topicConfig := configList[0].(map[string]interface{})
-			switch version {
-			case "2.6":
-				cfg, err := expandKafkaTopicConfig2_6(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topic.SetTopicConfig_2_6(cfg)
-			case "2.1":
-				cfg, err := expandKafkaTopicConfig2_1(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topic.SetTopicConfig_2_1(cfg)
-			case "2.8":
-				cfg, err := expandKafkaTopicConfig2_8(topicConfig)
-				if err != nil {
-					return nil, err
-				}
-				topic.SetTopicConfig_2_8(cfg)
-			default:
-				return nil, fmt.Errorf("specified version %v of Kafka is not supported", version)
-			}
-		}
-	}
-	return topic, nil
 }
 
 func kafkaMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {

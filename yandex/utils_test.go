@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -10,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,6 +22,29 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
+
+func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
+	diffAttributes map[string]*terraform.ResourceAttrDiff) *schema.ResourceData {
+
+	t.Helper()
+	ctx := context.Background()
+	internalMap := schema.InternalMap(schemaObject)
+
+	emptyState := terraform.NewInstanceStateShimmedFromValue(cty.ObjectVal(map[string]cty.Value{}), 1)
+	initialDiff, err := internalMap.Diff(ctx, emptyState.DeepCopy(), terraform.NewResourceConfigRaw(rawInitialState), nil, nil, true)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	targetDiff := &terraform.InstanceDiff{Attributes: diffAttributes}
+
+	resourceData, err := internalMap.Data(emptyState.MergeDiff(initialDiff), targetDiff)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	return resourceData
+}
 
 func TestJoinedStrings(t *testing.T) {
 	testKeys := []string{"key1", "key2", "key3"}

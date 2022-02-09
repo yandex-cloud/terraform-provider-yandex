@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -17,7 +18,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const kfResource = "yandex_mdb_kafka_cluster.foo"
@@ -574,6 +577,44 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 	}, req.TopicSpecs[0])
 }
 
+func TestPrepareKafkaCreateRequestWhenTopicConfigHasNotAllFieldsShouldConvertItProperly(t *testing.T) {
+	raw := map[string]interface{}{
+		"config": []interface{}{
+			map[string]interface{}{
+				"version": "2.6",
+			},
+		},
+		"topic": []interface{}{
+			map[string]interface{}{
+				"name":               "raw_events",
+				"partitions":         12,
+				"replication_factor": 1,
+				"topic_config": []interface{}{
+					map[string]interface{}{
+						"cleanup_policy": "CLEANUP_POLICY_COMPACT_AND_DELETE",
+					},
+				},
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaCluster().Schema, raw)
+
+	config := &Config{FolderID: "folder-777"}
+	req, err := prepareKafkaCreateRequest(resourceData, config)
+	require.NoError(t, err)
+
+	assert.Equal(t, &kafka.TopicSpec{
+		Name:              "raw_events",
+		Partitions:        &wrappers.Int64Value{Value: int64(12)},
+		ReplicationFactor: &wrappers.Int64Value{Value: int64(1)},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_2_6{
+			TopicConfig_2_6: &kafka.TopicConfig2_6{
+				CleanupPolicy: kafka.TopicConfig2_6_CLEANUP_POLICY_COMPACT_AND_DELETE,
+			},
+		},
+	}, req.TopicSpecs[0])
+}
+
 func TestKafkaClusterUpdateRequest(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":        "new-name",
@@ -723,6 +764,84 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, req)
+}
+
+func TestUpdateKafkaClusterTopics(t *testing.T) {
+	rawInitial := map[string]interface{}{
+		"config": []interface{}{
+			map[string]interface{}{"version": "2.8"},
+		},
+		"topic": []interface{}{
+			map[string]interface{}{"name": "deletedTopic"},
+			map[string]interface{}{
+				"name":       "sameTopic",
+				"partitions": 1,
+			},
+			map[string]interface{}{
+				"name":               "updatedTopic",
+				"partitions":         1,
+				"replication_factor": 3,
+				"topic_config": []interface{}{
+					map[string]interface{}{
+						"cleanup_policy": "CLEANUP_POLICY_COMPACT_AND_DELETE",
+					},
+				},
+			},
+		},
+	}
+	diffAttributes := map[string]*terraform.ResourceAttrDiff{
+		"topic.#":                               {New: "3"},
+		"topic.0.name":                          {New: "sameTopic"},
+		"topic.0.partitions":                    {New: "1"},
+		"topic.1.name":                          {New: "updatedTopic"},
+		"topic.1.partitions":                    {New: "2"},
+		"topic.1.replication_factor":            {New: "3"},
+		"topic.1.topic_config.#":                {New: "1"},
+		"topic.1.topic_config.0.cleanup_policy": {New: "CLEANUP_POLICY_COMPACT"},
+		"topic.2.name":                          {New: "newTopic"},
+		"topic.2.partitions":                    {New: "2"},
+		"topic.2.replication_factor":            {New: "3"},
+		"topic.2.topic_config.#":                {New: "1"},
+		"topic.2.topic_config.0.cleanup_policy": {New: "CLEANUP_POLICY_COMPACT_AND_DELETE"},
+	}
+	resourceData := CreateResourceData(t, resourceYandexMDBKafkaCluster().Schema, rawInitial, diffAttributes)
+
+	ctrl := gomock.NewController(t)
+	topicModifier := mocks.NewMockKafkaTopicModifier(ctrl)
+	topicModifier.EXPECT().DeleteKafkaTopic(gomock.Any(), resourceData, "deletedTopic").Return(nil).Times(1)
+	topicModifier.EXPECT().CreateKafkaTopic(gomock.Any(), resourceData, gomock.Any()).DoAndReturn(
+		func(ctx context.Context, d *schema.ResourceData, topicSpec *kafka.TopicSpec) error {
+			require.Equal(t, (&kafka.TopicSpec{
+				Name:              "newTopic",
+				Partitions:        &wrapperspb.Int64Value{Value: 2},
+				ReplicationFactor: &wrapperspb.Int64Value{Value: 3},
+				TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
+					TopicConfig_2_8: &kafka.TopicConfig2_8{
+						CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
+					},
+				},
+			}).String(), topicSpec.String())
+			return nil
+		}).Return(nil).Times(1)
+	topicModifier.EXPECT().UpdateKafkaTopic(gomock.Any(), resourceData, gomock.Any(), gomock.Any()).DoAndReturn(
+		func(ctx context.Context, d *schema.ResourceData, topicSpec *kafka.TopicSpec, paths []string) error {
+			require.Equal(t, []string{"topic_spec.partitions", "topic_spec.topic_config_2_8.cleanup_policy"}, paths)
+			require.Equal(t, (&kafka.TopicSpec{
+				Name:              "updatedTopic",
+				Partitions:        &wrapperspb.Int64Value{Value: 2},
+				ReplicationFactor: &wrapperspb.Int64Value{Value: 3},
+				TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
+					TopicConfig_2_8: &kafka.TopicConfig2_8{
+						CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT,
+					},
+				},
+			}).String(), topicSpec.String())
+			return nil
+		}).Times(1)
+
+	err := updateKafkaClusterTopics(resourceData, topicModifier)
+
+	require.NoError(t, err)
 }
 
 // Test that a Kafka Cluster can be created, updated and destroyed in single zone mode

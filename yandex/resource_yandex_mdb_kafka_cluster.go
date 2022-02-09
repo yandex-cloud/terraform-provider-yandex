@@ -756,7 +756,8 @@ func resourceYandexMDBKafkaClusterUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("topic") {
-		if err := updateKafkaClusterTopics(d, meta); err != nil {
+		topicModifier := NewKafkaTopicManager(meta.(*Config))
+		if err := updateKafkaClusterTopics(d, topicModifier); err != nil {
 			return err
 		}
 	}
@@ -986,8 +987,7 @@ func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
+func updateKafkaClusterTopics(d *schema.ResourceData, topicModifier KafkaTopicModifier) error {
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
@@ -999,36 +999,33 @@ func updateKafkaClusterTopics(d *schema.ResourceData, meta interface{}) error {
 
 	diffByTopicName := diffByEntityKey(d, "topic", "name")
 	for topicName, topicDiff := range diffByTopicName {
-		oldTopic := topicDiff[0]
-		newTopic := topicDiff[1]
-
-		if oldTopic == nil {
-			topicSpec, err := expandKafkaTopic(newTopic, version)
+		if topicDiff.OldEntity == nil {
+			topicSpec, err := buildKafkaTopicSpec(d, fmt.Sprintf("%s.", topicDiff.NewEntityKey), version)
 			if err != nil {
 				return err
 			}
 			log.Printf("[DEBUG] Creating topic %+v", topicSpec)
-			if err := createKafkaTopic(ctx, config, d, topicSpec); err != nil {
+			if err := topicModifier.CreateKafkaTopic(ctx, d, topicSpec); err != nil {
 				return err
 			}
 			continue
 		}
 
-		if newTopic == nil {
+		if topicDiff.NewEntity == nil {
 			log.Printf("[DEBUG] Topic %s is to be deleted", topicName)
-			if err := deleteKafkaTopic(ctx, config, d, topicName); err != nil {
+			if err := topicModifier.DeleteKafkaTopic(ctx, d, topicName); err != nil {
 				return err
 			}
 			continue
 		}
 
-		if !reflect.DeepEqual(oldTopic, newTopic) {
-			topicSpec, err := expandKafkaTopic(newTopic, version)
+		if !reflect.DeepEqual(topicDiff.OldEntity, topicDiff.NewEntity) {
+			topicSpec, err := buildKafkaTopicSpec(d, fmt.Sprintf("%s.", topicDiff.NewEntityKey), version)
 			if err != nil {
 				return err
 			}
-			paths := kafkaTopicUpdateMask(oldTopic, newTopic, getSuffixVerion(d))
-			if err := updateKafkaTopic(ctx, config, d, topicSpec, paths); err != nil {
+			paths := kafkaTopicUpdateMask(topicDiff.OldEntity, topicDiff.NewEntity, getSuffixVerion(d))
+			if err := topicModifier.UpdateKafkaTopic(ctx, d, topicSpec, paths); err != nil {
 				return err
 			}
 		}
