@@ -341,6 +341,38 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 	}
 
 	switch ver := cfgVer.(string); ver {
+	case "5.0-enterprise":
+		{
+			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
+				MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
+					Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
+						Resources: &res,
+					},
+					Mongos: &mongodb.MongodbSpec5_0Enterprise_Mongos{
+						Resources: &res,
+					},
+					Mongocfg: &mongodb.MongodbSpec5_0Enterprise_MongoCfg{
+						Resources: &res,
+					},
+				},
+			}
+		}
+	case "4.4-enterprise":
+		{
+			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
+				MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
+					Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
+						Resources: &res,
+					},
+					Mongos: &mongodb.MongodbSpec4_4Enterprise_Mongos{
+						Resources: &res,
+					},
+					Mongocfg: &mongodb.MongodbSpec4_4Enterprise_MongoCfg{
+						Resources: &res,
+					},
+				},
+			}
+		}
 	case "5.0":
 		{
 			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_5_0{
@@ -750,6 +782,42 @@ func extractMongodbResources(version string, mongo *mongodb.ClusterConfig) ([]ma
 	}
 
 	switch version {
+	case "5.0-enterprise":
+		{
+			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
+			d := mongocfg.Mongod
+			if d != nil {
+				return flattenMongoDBResources(d.Resources)
+			}
+
+			s := mongocfg.Mongos
+			if s != nil {
+				return flattenMongoDBResources(s.Resources)
+			}
+
+			cfg := mongocfg.Mongocfg
+			if cfg != nil {
+				return flattenMongoDBResources(cfg.Resources)
+			}
+		}
+	case "4.4-enterprise":
+		{
+			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+			d := mongocfg.Mongod
+			if d != nil {
+				return flattenMongoDBResources(d.Resources)
+			}
+
+			s := mongocfg.Mongos
+			if s != nil {
+				return flattenMongoDBResources(s.Resources)
+			}
+
+			cfg := mongocfg.Mongocfg
+			if cfg != nil {
+				return flattenMongoDBResources(cfg.Resources)
+			}
+		}
 	case "5.0":
 		{
 			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
@@ -896,6 +964,23 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	switch d.Get("cluster_config.0.version").(string) {
+	case "5.0-enterprise":
+		{
+			req := &mongodb.UpdateClusterRequest{
+				ClusterId:   d.Id(),
+				Description: d.Get("description").(string),
+				Labels:      labels,
+				Name:        d.Get("name").(string),
+				ConfigSpec: &mongodb.ConfigSpec{
+					Version:           d.Get("cluster_config.0.version").(string),
+					MongodbSpec:       expandMongoDBSpec5_0Enterprise(d),
+					BackupWindowStart: expandMongoDBBackupWindowStart(d),
+					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
+				},
+				SecurityGroupIds: securityGroupIds,
+			}
+			return req, nil
+		}
 	case "5.0":
 		{
 			req := &mongodb.UpdateClusterRequest{
@@ -906,6 +991,23 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 				ConfigSpec: &mongodb.ConfigSpec{
 					Version:           d.Get("cluster_config.0.version").(string),
 					MongodbSpec:       expandMongoDBSpec5_0(d),
+					BackupWindowStart: expandMongoDBBackupWindowStart(d),
+					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
+				},
+				SecurityGroupIds: securityGroupIds,
+			}
+			return req, nil
+		}
+	case "4.4-enterprise":
+		{
+			req := &mongodb.UpdateClusterRequest{
+				ClusterId:   d.Id(),
+				Description: d.Get("description").(string),
+				Labels:      labels,
+				Name:        d.Get("name").(string),
+				ConfigSpec: &mongodb.ConfigSpec{
+					Version:           d.Get("cluster_config.0.version").(string),
+					MongodbSpec:       expandMongoDBSpec4_4Enterprise(d),
 					BackupWindowStart: expandMongoDBBackupWindowStart(d),
 					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
 				},
@@ -983,7 +1085,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		}
 	default:
 		{
-			return nil, fmt.Errorf("wrong MongoDB version: required either 5.0, 4.4, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
+			return nil, fmt.Errorf("wrong MongoDB version: required either 5.0, 5.0-enterprise, 4.4, 4.4-enterprise, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
 		}
 	}
 }
@@ -1019,6 +1121,14 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 
 	if d.HasChange("resources") {
 		switch d.Get("cluster_config.0.version").(string) {
+		case "5.0-enterprise":
+			{
+				updatePath = append(updatePath, "config_spec.mongodb_spec_5_0_enterprise")
+			}
+		case "4.4-enterprise":
+			{
+				updatePath = append(updatePath, "config_spec.mongodb_spec_4_4_enterprise")
+			}
 		case "5.0":
 			{
 				updatePath = append(updatePath, "config_spec.mongodb_spec_5_0")
@@ -1041,7 +1151,7 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 			}
 		default:
 			{
-				return fmt.Errorf("wrong MongoDB version: required either 5.0, 4.4, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
+				return fmt.Errorf("wrong MongoDB version: required either 5.0, 5.0-enterprise, 4.4, 4.4-enterprise, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
 			}
 		}
 

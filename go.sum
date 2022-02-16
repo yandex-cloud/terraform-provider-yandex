@@ -928,6 +928,8 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yandex-cloud/go-genproto v0.0.0-20220103131830-606f7219d930/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-genproto v0.0.0-20220117194255-1a7520fa72ab h1:4BkPudmlRTy2BGx5pWW7qbHqoflsa0kzk6L6oGaWqw8=
 github.com/yandex-cloud/go-genproto v0.0.0-20220117194255-1a7520fa72ab/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20220208101049-5fe07c6c9eae h1:O4Pwjpq8CDyK0Smx8F0J+iJl0roXme/b49KuPQMRejc=
+github.com/yandex-cloud/go-genproto v0.0.0-20220208101049-5fe07c6c9eae/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334 h1:sBaFh/pSsfqA02umfrMdsUBxRVkh9zGyx7dUz//lFdo=
 github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334/go.mod h1:QuG5YD5OfsxgwezWGH8m6NF8WrB/jccMzJ/D+UF8Ymg=
 github.com/yeya24/promlinter v0.1.0 h1:goWULN0jH5Yajmu/K+v1xCqIREeB+48OiJ2uu2ssc7U=

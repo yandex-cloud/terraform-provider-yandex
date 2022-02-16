@@ -286,6 +286,72 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 		ver := r.Config.Version
 		res := r.Config.Mongodb
 		switch ver {
+		case "5.0-enterprise":
+			{
+				mongo := res.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
+				d := mongo.Mongod
+				if d != nil {
+					rs := d.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				s := mongo.Mongos
+				if s != nil {
+					rs := s.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				cfg := mongo.Mongocfg
+				if cfg != nil {
+					rs := cfg.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+			}
+		case "4.4-enterprise":
+			{
+				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+				d := mongo.Mongod
+				if d != nil {
+					rs := d.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				s := mongo.Mongos
+				if s != nil {
+					rs := s.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				cfg := mongo.Mongocfg
+				if cfg != nil {
+					rs := cfg.Resources
+					err := supportTestResources(resourcePresetID, diskSize, rs)
+
+					if err != nil {
+						return err
+					}
+				}
+			}
 		case "5.0":
 			{
 				mongo := res.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0

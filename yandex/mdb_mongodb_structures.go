@@ -349,6 +349,18 @@ func expandMongoDBBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay
 
 //the following expansion works only because sharded mongodb is not supported
 
+func expandMongoDBSpec5_0Enterprise(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_5_0Enterprise {
+	return &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
+		MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
+			Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
+				Resources: expandMongoDBResources(d),
+			},
+			Mongos:   &mongodb.MongodbSpec5_0Enterprise_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec5_0Enterprise_MongoCfg{},
+		},
+	}
+}
+
 func expandMongoDBSpec5_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_5_0 {
 	return &mongodb.ConfigSpec_MongodbSpec_5_0{
 		MongodbSpec_5_0: &mongodb.MongodbSpec5_0{
@@ -357,6 +369,18 @@ func expandMongoDBSpec5_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpe
 			},
 			Mongos:   &mongodb.MongodbSpec5_0_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec5_0_MongoCfg{},
+		},
+	}
+}
+
+func expandMongoDBSpec4_4Enterprise(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_4_4Enterprise {
+	return &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
+		MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
+			Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
+				Resources: expandMongoDBResources(d),
+			},
+			Mongos:   &mongodb.MongodbSpec4_4Enterprise_Mongos{},
+			Mongocfg: &mongodb.MongodbSpec4_4Enterprise_MongoCfg{},
 		},
 	}
 }

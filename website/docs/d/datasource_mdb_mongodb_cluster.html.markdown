@@ -75,7 +75,7 @@ The `host` block supports:
 
 The `cluster_config` block supports:
 
-* `version` - Version of MongoDB (either 5.0, 4.4, 4.2, 4.0 or 3.6).
+* `version` - Version of MongoDB (either 5.0, 5.0-enterprise, 4.4, 4.4-enterprise, 4.2, 4.0 or 3.6).
 * `feature_compatibility_version` - Feature compatibility version of MongoDB.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to MongoDB cluster. The structure is documented below.

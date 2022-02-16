@@ -1,5 +1,9 @@
 ## 0.72.0 (Unreleased)
 
+FEATURES:
+* mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`
+
+
 ## 0.71.0 (February 08, 2021)
 ENHANCEMENTS:
 * allow `initial` of `0` for `yandex_kubernetes_node_group` `auto_scale` policy.
