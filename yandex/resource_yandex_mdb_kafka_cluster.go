@@ -192,7 +192,6 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: true,
 			},
 			"unmanaged_topics": {
 				Type:     schema.TypeBool,
@@ -869,15 +868,16 @@ func listKafkaHosts(ctx context.Context, config *Config, id string) ([]*kafka.Ho
 }
 
 var mdbKafkaUpdateFieldsMap = map[string]string{
-	"name":                   "name",
-	"description":            "description",
-	"labels":                 "labels",
-	"security_group_ids":     "security_group_ids",
-	"deletion_protection":    "deletion_protection",
-	"maintenance_window":     "maintenance_window",
-	"config.0.zones":         "config_spec.zone_id",
-	"config.0.version":       "config_spec.version",
-	"config.0.brokers_count": "config_spec.brokers_count",
+	"name":                      "name",
+	"description":               "description",
+	"labels":                    "labels",
+	"security_group_ids":        "security_group_ids",
+	"deletion_protection":       "deletion_protection",
+	"maintenance_window":        "maintenance_window",
+	"config.0.zones":            "config_spec.zone_id",
+	"config.0.version":          "config_spec.version",
+	"config.0.brokers_count":    "config_spec.brokers_count",
+	"config.0.assign_public_ip": "config_spec.assign_public_ip",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
 	"config.0.kafka.0.resources.0.disk_type_id":                       "config_spec.kafka.resources.disk_type_id",
 	"config.0.kafka.0.resources.0.disk_size":                          "config_spec.kafka.resources.disk_size",

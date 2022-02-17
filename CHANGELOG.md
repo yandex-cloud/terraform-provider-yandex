@@ -4,6 +4,7 @@ ENHANCEMENTS:
 
 FEATURES:
 * mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`
+* kafka: support change `assign_public_ip` flag in Kafka clusters
 
 
 ## 0.71.0 (February 08, 2021)
