@@ -18,8 +18,9 @@ const (
 )
 
 const (
-	cdnSSLCertificateTypeLE = "lets_encrypt_gcore"
-	cdnSSLCertificateTypeCM = "certificate_manager"
+	cdnSSLCertificateTypeNotUsed = "not_used"
+	cdnSSLCertificateTypeLE      = "lets_encrypt_gcore"
+	cdnSSLCertificateTypeCM      = "certificate_manager"
 )
 
 const (
@@ -82,20 +83,14 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 			"ssl_certificate": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice(
-								[]string{
-									"not_in_use",
-									cdnSSLCertificateTypeCM,
-									cdnSSLCertificateTypeLE,
-								},
-								false,
-							),
+							Type:         schema.TypeString,
+							Required:     true,
+							ValidateFunc: validateResourceSSLCertTypeFunc(),
 						},
 						"status": {
 							Type:     schema.TypeString,
@@ -284,6 +279,17 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 			},
 		},
 	}
+}
+
+func validateResourceSSLCertTypeFunc() schema.SchemaValidateFunc {
+	return validation.StringInSlice(
+		[]string{
+			cdnSSLCertificateTypeNotUsed,
+			cdnSSLCertificateTypeCM,
+			cdnSSLCertificateTypeLE,
+		},
+		false,
+	)
 }
 
 func resourceYandexCDNResource() *schema.Resource {
@@ -619,59 +625,6 @@ func prepareCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 	return nil
 }
 
-func prepareCDNResourceSSLCertificate(d *schema.ResourceData) *cdn.SSLCertificate {
-	if certificate := expandCDNCertificate(d); certificate != nil {
-		return certificate
-	}
-
-	return nil
-}
-
-func expandCDNCertificate(d *schema.ResourceData) *cdn.SSLCertificate {
-	_, ok := d.GetOk("ssl_certificate")
-	if !ok {
-		log.Printf("[DEBUG] empty cdn resource certificate value")
-		return nil
-	}
-
-	certType, ok := d.GetOk("type")
-	if !ok {
-		return nil
-	}
-
-	result := &cdn.SSLCertificate{}
-
-	switch certType.(string) {
-	case cdnSSLCertificateTypeLE:
-		result.Type = cdn.SSLCertificateType_LETS_ENCRYPT_GCORE
-	case cdnSSLCertificateTypeCM:
-		result.Type = cdn.SSLCertificateType_CM
-	default:
-		return nil
-	}
-
-	if certStatus, ok := d.GetOk("status"); ok {
-		switch certStatus {
-		case cdnSSLCertificateStatusCreating:
-			result.Status = cdn.SSLCertificateStatus_CREATING
-		case cdnSSLCertificateStatusReady:
-			result.Status = cdn.SSLCertificateStatus_READY
-		}
-	}
-
-	if certID, ok := d.GetOk("certificate_manager_id"); ok {
-		result.Data = &cdn.SSLCertificateData{
-			SslCertificateDataVariant: &cdn.SSLCertificateData_Cm{
-				Cm: &cdn.SSLCertificateCMData{
-					Id: certID.(string),
-				},
-			},
-		}
-	}
-
-	return result
-}
-
 func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData, meta *Config) (*cdn.CreateResourceRequest, error) {
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
@@ -709,43 +662,16 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 		return nil, nil
 	}
 
-	prepareSecondaryHostnames := func() *cdn.SecondaryHostnames {
-		result := &cdn.SecondaryHostnames{}
-
-		hostsSet := d.Get("secondary_hostnames").(*schema.Set)
-
-		for _, hostName := range hostsSet.List() {
-			result.Values = append(result.Values, hostName.(string))
-		}
-
-		if len(result.Values) > 0 {
-			return result
-		}
-
-		return nil
-	}
-
 	originVariant, err := prepareResourceOriginVariant()
 	if err != nil {
 		return nil, err
-	}
-
-	var targetCert *cdn.SSLTargetCertificate
-	if sslCert := prepareCDNResourceSSLCertificate(d); sslCert != nil {
-		targetCert := &cdn.SSLTargetCertificate{
-			Type: sslCert.Type,
-		}
-
-		if sslCert.Type == cdn.SSLCertificateType_CM {
-			targetCert.Data = sslCert.Data
-		}
 	}
 
 	result := &cdn.CreateResourceRequest{
 		FolderId: folderID,
 		Cname:    d.Get("cname").(string),
 
-		SecondaryHostnames: prepareSecondaryHostnames(),
+		SecondaryHostnames: prepareCDNResourceSecondaryHostnames(d),
 
 		Origin: originVariant,
 
@@ -753,18 +679,17 @@ func prepareCDNCreateResourceRequest(ctx context.Context, d *schema.ResourceData
 			Value: d.Get("active").(bool),
 		},
 
-		Options:        prepareCDNResourceOptions(d),
-		SslCertificate: targetCert,
+		Options: prepareCDNResourceOptions(d),
 	}
 
-	if v, ok := d.GetOk("origin_protocol"); ok {
-		switch v.(string) {
-		case "http":
-			result.OriginProtocol = cdn.OriginProtocol_HTTP
-		case "https":
-			result.OriginProtocol = cdn.OriginProtocol_HTTPS
-		case "match":
-			result.OriginProtocol = cdn.OriginProtocol_MATCH
+	if _, ok := d.GetOk("origin_protocol"); ok {
+		result.OriginProtocol = prepareCDNResourceOriginProtocol(d)
+	}
+
+	if _, ok := d.GetOk("ssl_certificate"); ok {
+		var err error
+		if result.SslCertificate, err = prepareCDNResourceNewSSLCertificate(d); err != nil {
+			return nil, err
 		}
 	}
 
@@ -809,14 +734,14 @@ func resourceYandexCDNResourceCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error while requesting API to create CDN Resource: %s", err)
 	}
 
-	if _, err := operation.Response(); err != nil {
+	if _, err = operation.Response(); err != nil {
 		return err
 	}
 
 	return resourceYandexCDNResourceRead(d, meta)
 }
 
-func flattenYandexCDNResourceOptions(d *schema.ResourceData, options *cdn.ResourceOptions) []map[string]interface{} {
+func flattenYandexCDNResourceOptions(options *cdn.ResourceOptions) []map[string]interface{} {
 	if options == nil {
 		log.Printf("[DEBUG] empty cdn resource options set")
 		return nil
@@ -931,43 +856,105 @@ func flattenYandexCDNResourceOptions(d *schema.ResourceData, options *cdn.Resour
 func flattenYandexCDNResource(d *schema.ResourceData, resource *cdn.Resource) error {
 	d.SetId(resource.Id)
 
-	d.Set("folder_id", resource.FolderId)
-	d.Set("cname", resource.Cname)
+	_ = d.Set("folder_id", resource.FolderId)
+	_ = d.Set("cname", resource.Cname)
 
-	d.Set("created_at", getTimestamp(resource.CreatedAt))
-	d.Set("updated_at", getTimestamp(resource.UpdatedAt))
+	_ = d.Set("created_at", getTimestamp(resource.CreatedAt))
+	_ = d.Set("updated_at", getTimestamp(resource.UpdatedAt))
 
-	d.Set("active", resource.Active)
+	_ = d.Set("active", resource.Active)
 
-	var secondaryHostnames []interface{}
-	for i := range resource.SecondaryHostnames {
-		secondaryHostnames = append(secondaryHostnames, resource.SecondaryHostnames[i])
+	if err := flattenYandexCDNResourceSecondaryNames(d, resource.SecondaryHostnames); err != nil {
+		return err
 	}
 
-	if len(secondaryHostnames) > 0 {
-		d.Set("secondary_hostnames", secondaryHostnames)
+	flattenYandexCDNResourceOriginGroup(d, resource)
+
+	if err := flattenYandexCDNResourceOriginProtocol(d, resource.OriginProtocol); err != nil {
+		return err
 	}
 
+	if err := flattenYandexCDNResourceSSLCertificate(d, resource.SslCertificate); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func flattenYandexCDNResourceSecondaryNames(d *schema.ResourceData, secondaryHostnames []string) error {
+	if len(secondaryHostnames) == 0 {
+		return nil
+	}
+
+	var result []interface{}
+	for i := range secondaryHostnames {
+		result = append(result, secondaryHostnames[i])
+	}
+
+	return d.Set("secondary_hostnames", result)
+}
+
+func flattenYandexCDNResourceOriginGroup(d *schema.ResourceData, resource *cdn.Resource) {
 	if _, ok := d.GetOk("origin_group_name"); ok {
-		d.Set("origin_group_name", resource.OriginGroupName)
+		_ = d.Set("origin_group_name", resource.OriginGroupName)
 	}
 
 	if _, ok := d.GetOk("origin_group_id"); ok {
-		d.Set("origin_group_id", resource.OriginGroupId)
+		_ = d.Set("origin_group_id", resource.OriginGroupId)
 	}
+}
 
-	switch resource.OriginProtocol {
+func flattenYandexCDNResourceOriginProtocol(d *schema.ResourceData, protocol cdn.OriginProtocol) error {
+	switch protocol {
 	case cdn.OriginProtocol_HTTP:
-		d.Set("origin_protocol", "http")
+		_ = d.Set("origin_protocol", "http")
 	case cdn.OriginProtocol_HTTPS:
-		d.Set("origin_protocol", "https")
+		_ = d.Set("origin_protocol", "https")
 	case cdn.OriginProtocol_MATCH:
-		d.Set("origin_protocol", "match")
+		_ = d.Set("origin_protocol", "match")
+	default:
+		return fmt.Errorf("unexpected origin protocol value in API response")
+	}
+	return nil
+}
+
+func flattenYandexCDNResourceSSLCertificate(d *schema.ResourceData, cert *cdn.SSLCertificate) error {
+	if cert == nil {
+		return nil
 	}
 
-	// TODO: ssh certificate.
+	result := make(map[string]interface{})
 
-	return nil
+	var typeStr string
+	switch cert.Type {
+	case cdn.SSLCertificateType_DONT_USE:
+		typeStr = cdnSSLCertificateTypeNotUsed
+	case cdn.SSLCertificateType_LETS_ENCRYPT_GCORE:
+		typeStr = cdnSSLCertificateTypeLE
+	case cdn.SSLCertificateType_CM:
+		typeStr = cdnSSLCertificateTypeCM
+	default:
+		return fmt.Errorf("unexpected ssl certificate type in API response")
+	}
+	result["type"] = typeStr
+
+	var statusStr string
+	switch cert.Status {
+	case cdn.SSLCertificateStatus_READY:
+		statusStr = cdnSSLCertificateStatusReady
+	case cdn.SSLCertificateStatus_CREATING:
+		statusStr = cdnSSLCertificateStatusCreating
+	}
+	result["status"] = statusStr
+
+	if cert.Type == cdn.SSLCertificateType_CM {
+		if cert.Data == nil || cert.Data.GetCm() == nil {
+			return fmt.Errorf("certificate manager data is absent in API response")
+		}
+		result["certificate_manager_id"] = cert.Data.GetCm().GetId()
+	}
+
+	return d.Set("ssl_certificate", []interface{}{result})
 }
 
 func resourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) error {
@@ -981,18 +968,17 @@ func resourceYandexCDNResourceRead(d *schema.ResourceData, meta interface{}) err
 	resource, err := config.sdk.CDN().Resource().Get(ctx, &cdn.GetResourceRequest{
 		ResourceId: d.Id(),
 	})
-
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("cdn resource %q", d.Id()))
 	}
 
 	log.Printf("[DEBUG] Completed Reading CDN Resource %q", d.Id())
 
-	if err := flattenYandexCDNResource(d, resource); err != nil {
+	if err = flattenYandexCDNResource(d, resource); err != nil {
 		return err
 	}
 
-	if err := d.Set("options", flattenYandexCDNResourceOptions(d, resource.Options)); err != nil {
+	if err = d.Set("options", flattenYandexCDNResourceOptions(resource.Options)); err != nil {
 		return err
 	}
 
@@ -1033,29 +1019,11 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChange("secondary_hostnames") {
-		var hostNames []string
-		hostsSet := d.Get("secondary_hostnames").(*schema.Set)
-
-		for _, hostName := range hostsSet.List() {
-			hostNames = append(hostNames, hostName.(string))
-		}
-
-		request.SecondaryHostnames = &cdn.SecondaryHostnames{
-			Values: hostNames,
-		}
+		request.SecondaryHostnames = prepareCDNResourceSecondaryHostnames(d)
 	}
 
 	if d.HasChange("origin_protocol") {
-		switch d.Get("origin_protocol").(string) {
-		case "http":
-			request.OriginProtocol = cdn.OriginProtocol_HTTP
-		case "https":
-			request.OriginProtocol = cdn.OriginProtocol_HTTPS
-		case "match":
-			request.OriginProtocol = cdn.OriginProtocol_MATCH
-		default:
-			request.OriginProtocol = cdn.OriginProtocol_ORIGIN_PROTOCOL_UNSPECIFIED
-		}
+		request.OriginProtocol = prepareCDNResourceOriginProtocol(d)
 	}
 
 	if d.HasChange("active") {
@@ -1064,7 +1032,12 @@ func prepareCDNUpdateResourceRequest(ctx context.Context, d *schema.ResourceData
 		}
 	}
 
-	// TODO: implement sslcertificate
+	if d.HasChange("ssl_certificate") {
+		var err error
+		if request.SslCertificate, err = prepareCDNResourceNewSSLCertificate(d); err != nil {
+			return nil, err
+		}
+	}
 
 	if d.HasChange("options") {
 		request.Options = prepareCDNResourceOptions(d)

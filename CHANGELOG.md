@@ -1,4 +1,6 @@
 ## 0.72.0 (Unreleased)
+ENHANCEMENTS:
+* add `ssl_certificate` attribute in `yandex_cdn_resource` resource and data source
 
 FEATURES:
 * mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`

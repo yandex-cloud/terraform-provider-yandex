@@ -23,7 +23,7 @@ func TestAccDataSourceCDNResource_byID(t *testing.T) {
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCustomCDNResourceConfig(groupName, cname, true),
+				Config: testAccDataSourceCustomCDNResourceConfig(groupName, cname, "", true),
 				Check:  testAccCheckCDNResource(folderID, cname),
 			},
 		},
@@ -39,14 +39,24 @@ func TestAccDataSourceCDNResource_byName(t *testing.T) {
 	)
 	folderID := getExampleFolderID()
 
+	sslCert := `
+ssl_certificate {
+	type = "not_used"
+}
+`
+	testCheckFunc := resource.ComposeTestCheckFunc(
+		testAccCheckCDNResource(folderID, cname),
+		resource.TestCheckResourceAttr("data.yandex_cdn_resource.cdn_resource_ds", "ssl_certificate.0.type", "not_used"),
+	)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckCDNResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCustomCDNResourceConfig(groupName, cname, false),
-				Check:  testAccCheckCDNResource(folderID, cname),
+				Config: testAccDataSourceCustomCDNResourceConfig(groupName, cname, sslCert, false),
+				Check:  testCheckFunc,
 			},
 		},
 	})
@@ -65,9 +75,8 @@ func testAccCheckCDNResource(folderID, cname string) resource.TestCheckFunc {
 	)
 }
 
-// TODO: ssl certificates.
 // TODO: resource options.
-func testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname string) string {
+func testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname, sslCert string) string {
 	return fmt.Sprintf(`
 resource "yandex_cdn_origin_group" "cdn_group" {
 	name     = "%s"
@@ -85,17 +94,19 @@ resource "yandex_cdn_resource" "foo" {
 	origin_protocol = "https"
 
 	origin_group_name = yandex_cdn_origin_group.cdn_group.name
+
+	%s
 }
 
-`, groupName, cname)
+`, groupName, cname, sslCert)
 }
 
-func testAccDataSourceCustomCDNResourceConfig(groupName, cname string, useID bool) string {
+func testAccDataSourceCustomCDNResourceConfig(groupName, cname, sslCert string, useID bool) string {
 	if useID {
-		return testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname) + cdnResourceDataByIDConfig
+		return testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname, sslCert) + cdnResourceDataByIDConfig
 	}
 
-	return testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname) + cdnResourceDataByNameConfig
+	return testAccDataSourceCustomCDNResourceResourceConfig(groupName, cname, sslCert) + cdnResourceDataByNameConfig
 }
 
 const cdnResourceDataByIDConfig = `

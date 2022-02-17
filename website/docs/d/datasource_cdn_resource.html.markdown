@@ -37,9 +37,11 @@ The following arguments are supported:
 
 * `secondary_hostnames` (Optional) - list of secondary hostname strings.
 
+* `ssl_certificate` (Optional) - SSL certificate of CDN resource.
+
 ---
 
-Resource block supports following options:
+Resource options block supports following options:
 
 * `disable_cache` - setup a cache status.
 
