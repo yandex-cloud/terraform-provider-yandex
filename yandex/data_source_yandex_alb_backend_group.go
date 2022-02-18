@@ -47,7 +47,7 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 			},
 
 			"http_backend": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				Computed:      true,
 				Optional:      true,
 				ConflictsWith: []string{"grpc_backend", "stream_backend"},
@@ -69,7 +69,7 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 							Computed:     true,
 						},
 						"load_balancing_config": dataSourceLoadBalancingConfig(),
-						"healthcheck":           dataSourceHealthcheck(),
+						"healthcheck":           dataSourceHealthCheck(),
 						"tls":                   dataSourceTLS(),
 						"target_group_ids": {
 							Type:     schema.TypeList,
@@ -85,10 +85,9 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceALBBackendGroupBackendHash,
 			},
 			"stream_backend": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				Computed:      true,
 				Optional:      true,
 				ConflictsWith: []string{"grpc_backend", "http_backend"},
@@ -110,7 +109,7 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 							Computed:     true,
 						},
 						"load_balancing_config": dataSourceLoadBalancingConfig(),
-						"healthcheck":           dataSourceHealthcheck(),
+						"healthcheck":           dataSourceHealthCheck(),
 						"tls":                   dataSourceTLS(),
 						"target_group_ids": {
 							Type:     schema.TypeList,
@@ -121,10 +120,9 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceALBBackendGroupBackendHash,
 			},
 			"grpc_backend": {
-				Type:          schema.TypeSet,
+				Type:          schema.TypeList,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"http_backend", "stream_backend"},
@@ -146,7 +144,7 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 							Computed:     true,
 						},
 						"load_balancing_config": dataSourceLoadBalancingConfig(),
-						"healthcheck":           dataSourceHealthcheck(),
+						"healthcheck":           dataSourceHealthCheck(),
 						"tls":                   dataSourceTLS(),
 						"target_group_ids": {
 							Type:     schema.TypeList,
@@ -157,7 +155,6 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 						},
 					},
 				},
-				Set: resourceALBBackendGroupBackendHash,
 			},
 
 			"created_at": {
@@ -198,9 +195,9 @@ func dataSourceLoadBalancingConfig() *schema.Schema {
 	}
 }
 
-func dataSourceHealthcheck() *schema.Schema {
+func dataSourceHealthCheck() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
+		Type:     schema.TypeList,
 		MaxItems: 1,
 		Optional: true,
 		Computed: true,
@@ -296,7 +293,6 @@ func dataSourceHealthcheck() *schema.Schema {
 				},
 			},
 		},
-		Set: resourceALBBackendGroupHealthcheckHash,
 	}
 }
 func dataSourceTLS() *schema.Schema {

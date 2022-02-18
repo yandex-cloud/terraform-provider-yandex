@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/fatih/structs"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -12,7 +13,17 @@ import (
 )
 
 const albDefaultSni = "tf-test-tls"
-const albDefaultValidationContext = "tf-test-validation-context"
+const albDefaultValidationContext = `-----BEGIN CERTIFICATE-----
+MIIBpzCCAVGgAwIBAgIJAMttzZ34ksJIMA0GCSqGSIb3DQEBCwUAMC8xLTArBgNV
+BAMMJGVkYmY4NzlhLWJmMDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTAeFw0yMDAy
+MTgxMjAyMTFaFw0yMDAzMTkxMjAyMTFaMC8xLTArBgNVBAMMJGVkYmY4NzlhLWJm
+MDEtNGI5Yi05YjBmLTgyNDhiZWE3OTZiMTBcMA0GCSqGSIb3DQEBAQUAA0sAMEgC
+QQDyxRijt3T5/HpPkFmo4DmrPEL3IHbqMedSwmcvYjEhex43qGLsAXC17e7tKpQE
+VDYmdvJCE6T7AfezNWLc95JRAgMBAAGjUDBOMB0GA1UdDgQWBBRIq4vrr+4b//NF
+PR2lXBPTWewVYDAfBgNVHSMEGDAWgBRIq4vrr+4b//NFPR2lXBPTWewVYDAMBgNV
+HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA0EARRiU9hEq7k9Sa2tbPF7lI9xxknjZ
+D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
+-----END CERTIFICATE-----`
 const albDefaultBackendWeight = "1"
 const albDefaultPanicThreshold = "50"
 const albDefaultLocalityPercent = "35"
@@ -512,7 +523,9 @@ resource "yandex_alb_backend_group" "test-bg" {
       {{ if not .IsEmptyTLS }}
       sni = "{{.TlsSni}}"
       validation_context {
-        trusted_ca_bytes = "{{.TlsValidationContext}}"
+        trusted_ca_bytes = <<EOF
+{{.TlsValidationContext}}
+EOF
       }
       {{end}}
     }
@@ -564,7 +577,9 @@ resource "yandex_alb_backend_group" "test-bg" {
       {{ if not .IsEmptyTLS }}
       sni = "{{.TlsSni}}"
       validation_context {
-        trusted_ca_bytes = "{{.TlsValidationContext}}"
+        trusted_ca_bytes = <<EOF
+{{.TlsValidationContext}}
+EOF
       }
       {{end}}
     }
@@ -614,7 +629,9 @@ resource "yandex_alb_backend_group" "test-bg" {
     tls {
       sni = "{{.TlsSni}}"
       validation_context {
-        trusted_ca_bytes = "{{.TlsValidationContext}}"
+        trusted_ca_bytes = <<EOF
+{{.TlsValidationContext}}
+EOF
       }
     }
     load_balancing_config {
@@ -708,6 +725,37 @@ func testAccCheckALBBackendGroupValues(bg *apploadbalancer.BackendGroup, expecte
 
 		return nil
 	}
+}
+
+func testAccCheckALBBackendGroupGRPCBackend(bg *apploadbalancer.BackendGroup, expectedTrustedCaBytes string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		backends := bg.GetGrpc().GetBackends()
+		if len(backends) == 0 {
+			return fmt.Errorf("invalid absence of grpc backend in Application Backend Group %s", bg.GetName())
+		}
+		return checkALBBackendGroupTrustedCaBytes(backends[0].GetTls(), expectedTrustedCaBytes)
+	}
+}
+
+func testAccCheckALBBackendGroupHTTPBackend(bg *apploadbalancer.BackendGroup, expectedTrustedCaBytes string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		backends := bg.GetHttp().GetBackends()
+		if len(backends) == 0 {
+			return fmt.Errorf("invalid absence of http backend in Application Backend Group %s", bg.GetName())
+		}
+		return checkALBBackendGroupTrustedCaBytes(backends[0].GetTls(), expectedTrustedCaBytes)
+	}
+}
+
+func checkALBBackendGroupTrustedCaBytes(tls *apploadbalancer.BackendTls, expectedTrustedCaBytes string) error {
+	if tls == nil {
+		return fmt.Errorf("invalid absence of backend TLS in Application Backend Group")
+	}
+	if bytes := strings.TrimSpace(tls.GetValidationContext().GetTrustedCaBytes()); bytes != expectedTrustedCaBytes {
+		return fmt.Errorf("expected %s but %s was found in trusted ca bytes in Application Backend Group", expectedTrustedCaBytes, bytes)
+	}
+
+	return nil
 }
 
 func testAccCheckALBVirtualHostValues(vh *apploadbalancer.VirtualHost, expectedHttpRoute, expectedGrpcRoute bool) resource.TestCheckFunc {

@@ -76,7 +76,7 @@ func TestAccDataSourceALBBackendGroup_byName(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceALBBackendGroup_fullWithHttpBackend(t *testing.T) {
+func TestAccDataSourceALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()

@@ -1,11 +1,15 @@
 ## 0.72.0 (Unreleased)
 ENHANCEMENTS:
 * add `ssl_certificate` attribute in `yandex_cdn_resource` resource and data source
+* alb: change `http_backend` and `grpc_backend` and `stream_backend` and `healthcheck` attribute types from Set to List in `yandex_alb_backend_group` resource
 
 FEATURES:
 * mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`
 * kafka: support change `assign_public_ip` flag in Kafka clusters
 
+BUG FIXES:
+* alb: fix behavior of attribute `validation_context` of `tls` entity in `yandex_alb_backend_group` resource
+* alb: fix behavior of `send` and `receive` attributes of `stream_healthcheck` entity in `yandex_alb_backend_group` resource
 
 ## 0.71.0 (February 08, 2021)
 ENHANCEMENTS:

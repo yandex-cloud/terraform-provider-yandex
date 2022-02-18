@@ -165,13 +165,14 @@ func TestAccALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
 					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testAccCheckALBBackendGroupHTTPBackend(&bg, albDefaultValidationContext),
 					testExistsFirstElementWithAttr(
 						albBGResource, "http_backend", "name", &backendPath,
 					),
 					testExistsElementWithAttrValue(
 						albBGResource, "http_backend", "tls.0.sni", albDefaultSni, &backendPath,
 					),
-					testExistsElementWithAttrValue(
+					testExistsElementWithAttrTrimmedValue(
 						albBGResource, "http_backend", "tls.0.validation_context.0.trusted_ca_bytes", albDefaultValidationContext, &backendPath,
 					),
 					testExistsElementWithAttrValue(
@@ -215,13 +216,14 @@ func TestAccALBBackendGroup_fullWithGRPCBackend(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckALBBackendGroupExists(albBGResource, &bg),
 					testAccCheckALBBackendGroupValues(&bg, false, true, false),
+					testAccCheckALBBackendGroupGRPCBackend(&bg, albDefaultValidationContext),
 					testExistsFirstElementWithAttr(
 						albBGResource, "grpc_backend", "name", &backendPath,
 					),
 					testExistsElementWithAttrValue(
 						albBGResource, "grpc_backend", "tls.0.sni", albDefaultSni, &backendPath,
 					),
-					testExistsElementWithAttrValue(
+					testExistsElementWithAttrTrimmedValue(
 						albBGResource, "grpc_backend", "tls.0.validation_context.0.trusted_ca_bytes", albDefaultValidationContext, &backendPath,
 					),
 					testExistsElementWithAttrValue(
@@ -246,7 +248,7 @@ func TestAccALBBackendGroup_fullWithGRPCBackend(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_httpBackendWithHttpHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
@@ -291,7 +293,7 @@ func TestAccALBBackendGroup_httpBackendWithHttpHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_httpBackendWithGRPCHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_httpBackendWithGRPCHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
@@ -369,7 +371,7 @@ func TestAccALBBackendGroup_streamBackend(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_httpBackendWithStreamHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
@@ -411,7 +413,7 @@ func TestAccALBBackendGroup_httpBackendWithStreamHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_grpcBackendWithHttpHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
@@ -456,7 +458,7 @@ func TestAccALBBackendGroup_grpcBackendWithHttpHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_grpcBackendWithGRPCHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_grpcBackendWithGRPCHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()
@@ -495,7 +497,7 @@ func TestAccALBBackendGroup_grpcBackendWithGRPCHealthcheck(t *testing.T) {
 	})
 }
 
-func TestAccALBBackendGroup_grpcBackendWithStreamHealthcheck(t *testing.T) {
+func TestAccALBBackendGroup_grpcBackendWithStreamHealthCheck(t *testing.T) {
 	t.Parallel()
 
 	BGResource := albBackendGroupInfo()

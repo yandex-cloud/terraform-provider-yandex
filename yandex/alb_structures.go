@@ -31,40 +31,6 @@ func resourceALBAllocationPolicyLocationHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceALBBackendGroupBackendHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-
-	if v, ok := m["name"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["port"]; ok {
-		fmt.Fprintf(&buf, "%d-", v.(int))
-	}
-
-	return hashcode.String(buf.String())
-}
-
-func resourceALBBackendGroupHealthcheckHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-
-	if v, ok := m["timeout"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["interval"]; ok {
-		fmt.Fprintf(&buf, "%s-", v.(string))
-	}
-
-	if v, ok := m["healthcheck_port"]; ok {
-		fmt.Fprintf(&buf, "%d-", v.(int))
-	}
-
-	return hashcode.String(buf.String())
-}
-
 func expandALBStringListFromSchemaSet(v interface{}) ([]string, error) {
 	var m []string
 	if v == nil {
@@ -88,13 +54,11 @@ func expandALBInt64ListFromList(v interface{}) ([]int64, error) {
 }
 
 func expandALBHeaderModification(d *schema.ResourceData, key string) ([]*apploadbalancer.HeaderModification, error) {
-	size := d.Get(key + ".#").(int)
-	modifications := make([]*apploadbalancer.HeaderModification, size)
+	var modifications []*apploadbalancer.HeaderModification
 
-	for i := 0; i < size; i++ {
-		currentKey := fmt.Sprintf(key+".%d.", i)
+	for _, currentKey := range IterateKeys(d, key) {
 		modification := expandALBModification(d, currentKey)
-		modifications[i] = modification
+		modifications = append(modifications, modification)
 	}
 
 	return modifications, nil
@@ -445,12 +409,8 @@ func expandALBLocation(config map[string]interface{}) (*apploadbalancer.Location
 func expandALBListeners(d *schema.ResourceData) ([]*apploadbalancer.ListenerSpec, error) {
 	var listeners []*apploadbalancer.ListenerSpec
 
-	key := "listener"
-	size := d.Get(key + ".#").(int)
-
-	for i := 0; i < size; i++ {
-		currentKey := fmt.Sprintf(key+".%d.", i)
-		lis, err := expandALBListener(d, currentKey)
+	for _, key := range IterateKeys(d, "listener") {
+		lis, err := expandALBListener(d, key)
 		if err != nil {
 			return nil, err
 		}
@@ -717,16 +677,12 @@ func expandALBEndpointAddresses(v interface{}) []*apploadbalancer.AddressSpec {
 
 func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackendGroup, error) {
 	var backends []*apploadbalancer.HttpBackend
-	backendSet := d.Get("http_backend").(*schema.Set)
 
-	for _, b := range backendSet.List() {
-		backendConfig := b.(map[string]interface{})
-
-		backend, err := expandALBHTTPBackend(backendConfig)
+	for _, key := range IterateKeys(d, "http_backend") {
+		backend, err := expandALBHTTPBackend(d, key)
 		if err != nil {
 			return nil, err
 		}
-
 		backends = append(backends, backend)
 	}
 
@@ -735,91 +691,87 @@ func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackend
 
 func expandALBStreamBackends(d *schema.ResourceData) (*apploadbalancer.StreamBackendGroup, error) {
 	var backends []*apploadbalancer.StreamBackend
-	backendSet := d.Get("stream_backend").(*schema.Set)
 
-	for _, b := range backendSet.List() {
-		backendConfig := b.(map[string]interface{})
-
-		backend, err := expandALBStreamBackend(backendConfig)
+	for _, key := range IterateKeys(d, "stream_backend") {
+		backend, err := expandALBStreamBackend(d, key)
 		if err != nil {
 			return nil, err
 		}
-
 		backends = append(backends, backend)
 	}
 
 	return &apploadbalancer.StreamBackendGroup{Backends: backends}, nil
 }
 
-func expandALBStreamBackend(config map[string]interface{}) (*apploadbalancer.StreamBackend, error) {
+func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalancer.StreamBackend, error) {
 	backend := &apploadbalancer.StreamBackend{}
 
-	if v, ok := config["name"]; ok {
-		backend.Name = v.(string)
+	if v, ok := d.GetOk(key + "name"); ok {
+		backend.SetName(v.(string))
 	}
 
-	if v, ok := config["port"]; ok {
-		backend.Port = int64(v.(int))
+	if v, ok := d.GetOk(key + "port"); ok {
+		backend.SetPort(int64(v.(int)))
 	}
 
-	if v, ok := config["weight"]; ok {
-		backend.BackendWeight = &wrappers.Int64Value{
+	if v, ok := d.GetOk(key + "weight"); ok {
+		backend.SetBackendWeight(&wrappers.Int64Value{
 			Value: int64(v.(int)),
-		}
+		})
 	}
 
-	if v, ok := config["healthcheck"]; ok {
-		backend.Healthchecks = expandHealthChecks(v)
+	if _, ok := d.GetOk(key + "healthcheck"); ok {
+		backend.SetHealthchecks(expandHealthChecks(d, key))
 	}
 
-	if v, ok := config["tls"]; ok && len(v.([]interface{})) > 0 {
-		backend.Tls = expandALBTls(v)
+	if v, ok := d.GetOk(key + "tls"); ok && len(v.([]interface{})) == 1 {
+		backend.SetTls(expandALBTls(d, key))
 	}
 
-	if v, ok := config["load_balancing_config"]; ok && len(v.([]interface{})) > 0 {
-		backend.LoadBalancingConfig = expandALBLoadBalancingConfig(v)
+	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
+		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
 	}
 
-	if v, ok := config["target_group_ids"]; ok {
+	if v, ok := d.GetOk(key + "target_group_ids"); ok {
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
 	}
 	return backend, nil
 }
 
-func expandALBHTTPBackend(config map[string]interface{}) (*apploadbalancer.HttpBackend, error) {
+func expandALBHTTPBackend(d *schema.ResourceData, key string) (*apploadbalancer.HttpBackend, error) {
 	backend := &apploadbalancer.HttpBackend{}
 
-	if v, ok := config["name"]; ok {
-		backend.Name = v.(string)
+	if v, ok := d.GetOk(key + "name"); ok {
+		backend.SetName(v.(string))
 	}
 
-	if v, ok := config["port"]; ok {
-		backend.Port = int64(v.(int))
+	if v, ok := d.GetOk(key + "port"); ok {
+		backend.SetPort(int64(v.(int)))
 	}
 
-	if v, ok := config["http2"]; ok {
-		backend.UseHttp2 = v.(bool)
+	if v, ok := d.GetOk(key + "http2"); ok {
+		backend.SetUseHttp2(v.(bool))
 	}
 
-	if v, ok := config["weight"]; ok {
-		backend.BackendWeight = &wrappers.Int64Value{
+	if v, ok := d.GetOk(key + "weight"); ok {
+		backend.SetBackendWeight(&wrappers.Int64Value{
 			Value: int64(v.(int)),
-		}
+		})
 	}
 
-	if v, ok := config["healthcheck"]; ok {
-		backend.Healthchecks = expandHealthChecks(v)
+	if _, ok := d.GetOk(key + "healthcheck"); ok {
+		backend.SetHealthchecks(expandHealthChecks(d, key))
 	}
 
-	if v, ok := config["tls"]; ok && len(v.([]interface{})) > 0 {
-		backend.Tls = expandALBTls(v)
+	if v, ok := d.GetOk(key + "tls"); ok && len(v.([]interface{})) == 1 {
+		backend.SetTls(expandALBTls(d, key))
 	}
 
-	if v, ok := config["load_balancing_config"]; ok && len(v.([]interface{})) > 0 {
-		backend.LoadBalancingConfig = expandALBLoadBalancingConfig(v)
+	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
+		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
 	}
 
-	if v, ok := config["target_group_ids"]; ok {
+	if v, ok := d.GetOk(key + "target_group_ids"); ok {
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
 	}
 	return backend, nil
@@ -840,165 +792,163 @@ func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingC
 	albConfig := &apploadbalancer.LoadBalancingConfig{}
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["strict_locality"]; ok {
-		albConfig.StrictLocality = val.(bool)
+		albConfig.SetStrictLocality(val.(bool))
 	}
 
 	if val, ok := config["locality_aware_routing_percent"]; ok {
-		albConfig.LocalityAwareRoutingPercent = int64(val.(int))
+		albConfig.SetLocalityAwareRoutingPercent(int64(val.(int)))
 	}
 
 	if val, ok := config["panic_threshold"]; ok {
-		albConfig.PanicThreshold = int64(val.(int))
+		albConfig.SetPanicThreshold(int64(val.(int)))
 	}
 	return albConfig
 }
 
-func expandHealthChecks(v interface{}) []*apploadbalancer.HealthCheck {
-	var healthchecks []*apploadbalancer.HealthCheck
+func expandHealthChecks(d *schema.ResourceData, key string) []*apploadbalancer.HealthCheck {
+	var healthChecks []*apploadbalancer.HealthCheck
 
-	if v != nil {
-		healthchecksSet := v.(*schema.Set)
-
-		for _, h := range healthchecksSet.List() {
-			healthcheck := &apploadbalancer.HealthCheck{}
-			config := h.(map[string]interface{})
-
-			if val, ok := config["timeout"]; ok {
-				d, err := parseDuration(val.(string))
-				if err == nil {
-					healthcheck.Timeout = d
-				}
-			}
-
-			if val, ok := config["interval"]; ok {
-				d, err := parseDuration(val.(string))
-				if err == nil {
-					healthcheck.Interval = d
-				}
-			}
-
-			if val, ok := config["stream_healthcheck"]; ok {
-				stream := val.([]interface{})
-				if len(stream) > 0 {
-					healthcheck.SetStream(expandALBStreamHealthcheck(stream[0]))
-				}
-			}
-
-			if val, ok := config["http_healthcheck"]; ok {
-				http := val.([]interface{})
-				if len(http) > 0 {
-					healthcheck.SetHttp(expandALBHTTPHealthcheck(http[0]))
-				}
-			}
-
-			if val, ok := config["grpc_healthcheck"]; ok {
-				grpc := val.([]interface{})
-				if len(grpc) > 0 {
-					healthcheck.SetGrpc(expandALBGRPCHealthcheck(grpc[0]))
-				}
-			}
-
-			if val, ok := config["healthy_threshold"]; ok {
-				healthcheck.HealthyThreshold = int64(val.(int))
-			}
-
-			if val, ok := config["unhealthy_threshold"]; ok {
-				healthcheck.UnhealthyThreshold = int64(val.(int))
-			}
-
-			if val, ok := config["healthcheck_port"]; ok {
-				healthcheck.HealthcheckPort = int64(val.(int))
-			}
-
-			if val, ok := config["interval_jitter_percent"]; ok {
-				healthcheck.IntervalJitterPercent = val.(float64)
-			}
-
-			healthchecks = append(healthchecks, healthcheck)
-		}
+	for _, currentKey := range IterateKeys(d, key+"healthcheck") {
+		healthCheck := expandHealthCheck(d, currentKey)
+		healthChecks = append(healthChecks, healthCheck)
 	}
-	return healthchecks
+	return healthChecks
 }
 
-func expandALBHTTPHealthcheck(v interface{}) *apploadbalancer.HealthCheck_HttpHealthCheck {
-	healthcheck := &apploadbalancer.HealthCheck_HttpHealthCheck{}
+func expandHealthCheck(d *schema.ResourceData, key string) *apploadbalancer.HealthCheck {
+	healthCheck := &apploadbalancer.HealthCheck{}
+
+	if val, ok := d.GetOk(key + "timeout"); ok {
+		duration, err := parseDuration(val.(string))
+		if err == nil {
+			healthCheck.SetTimeout(duration)
+		}
+	}
+
+	if val, ok := d.GetOk(key + "interval"); ok {
+		duration, err := parseDuration(val.(string))
+		if err == nil {
+			healthCheck.SetInterval(duration)
+		}
+	}
+
+	if val, ok := d.GetOk(key + "stream_healthcheck"); ok {
+		stream := val.([]interface{})
+		if len(stream) > 0 {
+			healthCheck.SetStream(expandALBStreamHealthCheck(stream[0]))
+		}
+	}
+
+	if val, ok := d.GetOk(key + "http_healthcheck"); ok {
+		http := val.([]interface{})
+		if len(http) > 0 {
+			healthCheck.SetHttp(expandALBHTTPHealthCheck(http[0]))
+		}
+	}
+
+	if val, ok := d.GetOk(key + "grpc_healthcheck"); ok {
+		grpc := val.([]interface{})
+		if len(grpc) > 0 {
+			healthCheck.SetGrpc(expandALBGRPCHealthCheck(grpc[0]))
+		}
+	}
+
+	if val, ok := d.GetOk(key + "healthy_threshold"); ok {
+		healthCheck.SetHealthyThreshold(int64(val.(int)))
+	}
+
+	if val, ok := d.GetOk(key + "unhealthy_threshold"); ok {
+		healthCheck.SetUnhealthyThreshold(int64(val.(int)))
+	}
+
+	if val, ok := d.GetOk(key + "healthcheck_port"); ok {
+		healthCheck.SetHealthcheckPort(int64(val.(int)))
+	}
+
+	if val, ok := d.GetOk(key + "interval_jitter_percent"); ok {
+		healthCheck.SetIntervalJitterPercent(val.(float64))
+	}
+
+	return healthCheck
+}
+
+func expandALBHTTPHealthCheck(v interface{}) *apploadbalancer.HealthCheck_HttpHealthCheck {
+	healthCheck := &apploadbalancer.HealthCheck_HttpHealthCheck{}
 	config := v.(map[string]interface{})
 
 	if val, ok := config["host"]; ok {
-		healthcheck.Host = val.(string)
+		healthCheck.SetHost(val.(string))
 	}
 
 	if val, ok := config["path"]; ok {
-		healthcheck.Path = val.(string)
+		healthCheck.SetPath(val.(string))
 	}
 
 	if val, ok := config["http2"]; ok {
-		healthcheck.UseHttp2 = val.(bool)
+		healthCheck.SetUseHttp2(val.(bool))
 	}
 
-	return healthcheck
+	return healthCheck
 }
 
-func expandALBGRPCHealthcheck(v interface{}) *apploadbalancer.HealthCheck_GrpcHealthCheck {
-	healthcheck := &apploadbalancer.HealthCheck_GrpcHealthCheck{}
+func expandALBGRPCHealthCheck(v interface{}) *apploadbalancer.HealthCheck_GrpcHealthCheck {
+	healthCheck := &apploadbalancer.HealthCheck_GrpcHealthCheck{}
 	config := v.(map[string]interface{})
 
 	if val, ok := config["service_name"]; ok {
-		healthcheck.ServiceName = val.(string)
+		healthCheck.SetServiceName(val.(string))
 	}
 
-	return healthcheck
+	return healthCheck
 }
 
-func expandALBStreamHealthcheck(v interface{}) *apploadbalancer.HealthCheck_StreamHealthCheck {
-	healthcheck := &apploadbalancer.HealthCheck_StreamHealthCheck{}
+func expandALBStreamHealthCheck(v interface{}) *apploadbalancer.HealthCheck_StreamHealthCheck {
+	healthCheck := &apploadbalancer.HealthCheck_StreamHealthCheck{}
 	config := v.(map[string]interface{})
 
 	if val, ok := config["receive"]; ok {
 		payload := &apploadbalancer.Payload{}
 		payload.SetText(val.(string))
-		healthcheck.Receive = payload
+		healthCheck.SetReceive(payload)
 	}
 
 	if val, ok := config["send"]; ok {
 		payload := &apploadbalancer.Payload{}
 		payload.SetText(val.(string))
-		healthcheck.Send = payload
+		healthCheck.SetSend(payload)
 	}
-	return healthcheck
+	return healthCheck
 }
 
-func expandALBTls(v interface{}) *apploadbalancer.BackendTls {
+func expandALBTls(d *schema.ResourceData, key string) *apploadbalancer.BackendTls {
 	tls := &apploadbalancer.BackendTls{}
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["sni"]; ok {
-		tls.Sni = val.(string)
-	}
-	if ctx, ok := config["validation_context"]; ok {
-		list := ctx.([]interface{})
-		if len(list) > 0 {
+	// there will be only one tls
+	for _, tlsKey := range IterateKeys(d, key+"tls") {
+		if val, ok := d.GetOk(tlsKey + "sni"); ok {
+			tls.SetSni(val.(string))
+		}
+		if _, ok := d.GetOk(tlsKey + "validation_context"); ok {
 			context := &apploadbalancer.ValidationContext{}
-			if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_bytes"]; ok {
-				context.SetTrustedCaBytes(val.(string))
-			}
-			if val, ok := ctx.([]interface{})[0].(map[string]interface{})["trusted_ca_id"]; ok {
-				context.SetTrustedCaId(val.(string))
+			// there will be only one validation context
+			for _, contextKey := range IterateKeys(d, tlsKey+"validation_context") {
+				if val, ok := d.GetOk(contextKey + "trusted_ca_bytes"); ok {
+					context.SetTrustedCaBytes(val.(string))
+				}
+				if val, ok := d.GetOk(contextKey + "trusted_ca_id"); ok {
+					context.SetTrustedCaId(val.(string))
+				}
 			}
 			tls.SetValidationContext(context)
 		}
 	}
-
 	return tls
 }
 
 func expandALBGRPCBackends(d *schema.ResourceData) (*apploadbalancer.GrpcBackendGroup, error) {
 	var backends []*apploadbalancer.GrpcBackend
-	backendSet := d.Get("grpc_backend").(*schema.Set)
 
-	for _, b := range backendSet.List() {
-		backendConfig := b.(map[string]interface{})
-
-		backend, err := expandALBGRPCBackend(backendConfig)
+	for _, key := range IterateKeys(d, "grpc_backend") {
+		backend, err := expandALBGRPCBackend(d, key)
 		if err != nil {
 			return nil, err
 		}
@@ -1009,49 +959,55 @@ func expandALBGRPCBackends(d *schema.ResourceData) (*apploadbalancer.GrpcBackend
 	return &apploadbalancer.GrpcBackendGroup{Backends: backends}, nil
 }
 
-func expandALBGRPCBackend(config map[string]interface{}) (*apploadbalancer.GrpcBackend, error) {
+func expandALBGRPCBackend(d *schema.ResourceData, key string) (*apploadbalancer.GrpcBackend, error) {
 	backend := &apploadbalancer.GrpcBackend{}
 
-	if v, ok := config["name"]; ok {
-		backend.Name = v.(string)
+	if v, ok := d.GetOk(key + "name"); ok {
+		backend.SetName(v.(string))
 	}
-	if v, ok := config["port"]; ok {
-		backend.Port = int64(v.(int))
-	}
-
-	if v, ok := config["tls"]; ok && len(v.([]interface{})) > 0 {
-		backend.Tls = expandALBTls(v)
+	if v, ok := d.GetOk(key + "port"); ok {
+		backend.SetPort(int64(v.(int)))
 	}
 
-	if v, ok := config["load_balancing_config"]; ok && len(v.([]interface{})) > 0 {
-		backend.LoadBalancingConfig = expandALBLoadBalancingConfig(v)
+	if v, ok := d.GetOk(key + "tls"); ok && len(v.([]interface{})) == 1 {
+		backend.SetTls(expandALBTls(d, key))
 	}
 
-	if v, ok := config["healthcheck"]; ok {
-		backend.Healthchecks = expandHealthChecks(v)
+	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
+		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
 	}
 
-	if v, ok := config["weight"]; ok {
-		backend.BackendWeight = &wrappers.Int64Value{
+	if _, ok := d.GetOk(key + "healthcheck"); ok {
+		backend.SetHealthchecks(expandHealthChecks(d, key))
+	}
+
+	if v, ok := d.GetOk(key + "weight"); ok {
+		backend.SetBackendWeight(&wrappers.Int64Value{
 			Value: int64(v.(int)),
-		}
+		})
 	}
 
-	if v, ok := config["target_group_ids"]; ok {
+	if v, ok := d.GetOk(key + "target_group_ids"); ok {
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
 	}
 	return backend, nil
 }
 
+func IterateKeys(d *schema.ResourceData, key string) []string {
+	size := d.Get(key + ".#").(int)
+	var keys []string
+	for i := 0; i < size; i++ {
+		currentKey := fmt.Sprintf(key+".%d.", i)
+		keys = append(keys, currentKey)
+	}
+	return keys
+}
+
 func expandALBTargets(d *schema.ResourceData) ([]*apploadbalancer.Target, error) {
 	var targets []*apploadbalancer.Target
 
-	key := "target"
-	size := d.Get(key + ".#").(int)
-
-	for i := 0; i < size; i++ {
-		currentKey := fmt.Sprintf(key+".%d.", i)
-		target, err := expandALBTarget(d, currentKey)
+	for _, key := range IterateKeys(d, "target") {
+		target, err := expandALBTarget(d, key)
 		if err != nil {
 			return nil, err
 		}
@@ -1072,7 +1028,7 @@ func expandALBTarget(d *schema.ResourceData, key string) (*apploadbalancer.Targe
 	}
 
 	if gotSubnet {
-		target.SubnetId = subnet.(string)
+		target.SetSubnetId(subnet.(string))
 	}
 	if v, ok := d.GetOk(key + "ip_address"); ok {
 		target.SetIpAddress(v.(string))
@@ -1447,92 +1403,81 @@ func flattenALBAllocationPolicy(alb *apploadbalancer.LoadBalancer) ([]map[string
 	}, nil
 }
 
-func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {
-	result := &schema.Set{F: resourceALBBackendGroupBackendHash}
+func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, error) {
+	var result []interface{}
 
 	for _, b := range bg.GetHttp().Backends {
-		var flTls []map[string]interface{}
-		if tls := b.GetTls(); tls != nil {
-			flTls = []map[string]interface{}{
-				{
-					"sni":                tls.Sni,
-					"validation_context": tls.ValidationContext,
-				},
-			}
-		}
-		var flLoadBalancingConfig []map[string]interface{}
-		if lbConfig := b.GetLoadBalancingConfig(); lbConfig != nil {
-			flLoadBalancingConfig = []map[string]interface{}{
-				{
-					"panic_threshold":                lbConfig.PanicThreshold,
-					"locality_aware_routing_percent": lbConfig.LocalityAwareRoutingPercent,
-					"strict_locality":                lbConfig.StrictLocality,
-				},
-			}
-		}
-
-		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
-		weight := getWeight(b.GetBackendWeight())
-
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
 			"http2":                 b.UseHttp2,
-			"weight":                weight,
-			"tls":                   flTls,
-			"load_balancing_config": flLoadBalancingConfig,
-			"healthcheck":           flHealthchecks,
+			"weight":                getWeight(b.GetBackendWeight()),
+			"tls":                   flattenALBBackendTLS(b.GetTls()),
+			"load_balancing_config": flattenALBLoadBalancingConfig(b.GetLoadBalancingConfig()),
+			"healthcheck":           flattenALBHealthChecks(b.GetHealthchecks()),
 		}
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.HttpBackend_TargetGroups:
 			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
 		}
-		result.Add(flBackend)
+		result = append(result, flBackend)
 	}
 
 	return result, nil
 }
 
-func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {
-	result := &schema.Set{F: resourceALBBackendGroupBackendHash}
+func flattenALBBackendTLS(tls *apploadbalancer.BackendTls) []map[string]interface{} {
+	if tls == nil {
+		return []map[string]interface{}{}
+	}
+	return []map[string]interface{}{{
+		"sni":                tls.Sni,
+		"validation_context": flattenALBValidationContext(tls.ValidationContext),
+	}}
+}
+
+func flattenALBLoadBalancingConfig(lbConfig *apploadbalancer.LoadBalancingConfig) []map[string]interface{} {
+	if lbConfig == nil {
+		return []map[string]interface{}{}
+	}
+	return []map[string]interface{}{{
+		"panic_threshold":                lbConfig.PanicThreshold,
+		"locality_aware_routing_percent": lbConfig.LocalityAwareRoutingPercent,
+		"strict_locality":                lbConfig.StrictLocality,
+	}}
+}
+
+func flattenALBValidationContext(context *apploadbalancer.ValidationContext) []interface{} {
+	if context == nil {
+		return []interface{}{}
+	}
+	flContext := map[string]interface{}{}
+	switch context.GetTrustedCa().(type) {
+	case *apploadbalancer.ValidationContext_TrustedCaBytes:
+		flContext["trusted_ca_bytes"] = context.GetTrustedCaBytes()
+	case *apploadbalancer.ValidationContext_TrustedCaId:
+		flContext["trusted_ca_id"] = context.GetTrustedCaId()
+	}
+	return []interface{}{flContext}
+}
+
+func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, error) {
+	var result []interface{}
 
 	for _, b := range bg.GetStream().Backends {
-		var flTls []map[string]interface{}
-		if tls := b.GetTls(); tls != nil {
-			flTls = []map[string]interface{}{
-				{
-					"sni":                tls.Sni,
-					"validation_context": tls.ValidationContext,
-				},
-			}
-		}
-		var flLoadBalancingConfig []map[string]interface{}
-		if lbConfig := b.GetLoadBalancingConfig(); lbConfig != nil {
-			flLoadBalancingConfig = []map[string]interface{}{
-				{
-					"panic_threshold":                lbConfig.PanicThreshold,
-					"locality_aware_routing_percent": lbConfig.LocalityAwareRoutingPercent,
-					"strict_locality":                lbConfig.StrictLocality,
-				},
-			}
-		}
-
-		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
-		weight := getWeight(b.GetBackendWeight())
-
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
-			"weight":                weight,
-			"tls":                   flTls,
-			"load_balancing_config": flLoadBalancingConfig,
-			"healthcheck":           flHealthchecks,
+			"weight":                getWeight(b.GetBackendWeight()),
+			"tls":                   flattenALBBackendTLS(b.GetTls()),
+			"load_balancing_config": flattenALBLoadBalancingConfig(b.GetLoadBalancingConfig()),
+			"healthcheck":           flattenALBHealthChecks(b.GetHealthchecks()),
 		}
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.StreamBackend_TargetGroups:
 			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
 		}
-		result.Add(flBackend)
+		result = append(result, flBackend)
 	}
 
 	return result, nil
@@ -1545,56 +1490,34 @@ func getWeight(weight *wrapperspb.Int64Value) int {
 	return int(weight.Value)
 }
 
-func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) (*schema.Set, error) {
-	result := &schema.Set{F: resourceALBBackendGroupBackendHash}
+func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, error) {
+	var result []interface{}
 
 	for _, b := range bg.GetGrpc().Backends {
-		var flTls []map[string]interface{}
-		if tls := b.GetTls(); tls != nil {
-			flTls = []map[string]interface{}{
-				{
-					"sni":                tls.Sni,
-					"validation_context": tls.ValidationContext,
-				},
-			}
-		}
-		var flLoadBalancingConfig []map[string]interface{}
-		if lbConfig := b.GetLoadBalancingConfig(); lbConfig != nil {
-			flLoadBalancingConfig = []map[string]interface{}{
-				{
-					"panic_threshold":                lbConfig.PanicThreshold,
-					"locality_aware_routing_percent": lbConfig.LocalityAwareRoutingPercent,
-					"strict_locality":                lbConfig.StrictLocality,
-				},
-			}
-		}
-		flHealthchecks := flattenALBHealthchecks(b.GetHealthchecks())
-		weight := getWeight(b.GetBackendWeight())
-
 		flBackend := map[string]interface{}{
 			"name":                  b.Name,
 			"port":                  int(b.Port),
-			"weight":                weight,
-			"tls":                   flTls,
-			"load_balancing_config": flLoadBalancingConfig,
-			"healthcheck":           flHealthchecks,
+			"weight":                getWeight(b.GetBackendWeight()),
+			"tls":                   flattenALBBackendTLS(b.GetTls()),
+			"load_balancing_config": flattenALBLoadBalancingConfig(b.GetLoadBalancingConfig()),
+			"healthcheck":           flattenALBHealthChecks(b.GetHealthchecks()),
 		}
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.GrpcBackend_TargetGroups:
 			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
 		}
-		result.Add(flBackend)
+		result = append(result, flBackend)
 	}
 
 	return result, nil
 }
 
-func flattenALBHealthchecks(healthchecks []*apploadbalancer.HealthCheck) interface{} {
-	flHealthchecks := &schema.Set{F: resourceALBBackendGroupHealthcheckHash}
-	if len(healthchecks) > 0 {
-		check := healthchecks[0]
+func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) interface{} {
+	var result []interface{}
+	if len(healthChecks) > 0 {
+		check := healthChecks[0]
 
-		flHealthcheck := map[string]interface{}{
+		flHealthCheck := map[string]interface{}{
 			"timeout":                 formatDuration(check.Timeout),
 			"interval":                formatDuration(check.Interval),
 			"interval_jitter_percent": check.IntervalJitterPercent,
@@ -1605,7 +1528,7 @@ func flattenALBHealthchecks(healthchecks []*apploadbalancer.HealthCheck) interfa
 		switch check.GetHealthcheck().(type) {
 		case *apploadbalancer.HealthCheck_Http:
 			http := check.GetHttp()
-			flHealthcheck["http_healthcheck"] = []map[string]interface{}{
+			flHealthCheck["http_healthcheck"] = []map[string]interface{}{
 				{
 					"host":  http.Host,
 					"path":  http.Path,
@@ -1613,25 +1536,25 @@ func flattenALBHealthchecks(healthchecks []*apploadbalancer.HealthCheck) interfa
 				},
 			}
 		case *apploadbalancer.HealthCheck_Grpc:
-			flHealthcheck["grpc_healthcheck"] = []map[string]interface{}{
+			flHealthCheck["grpc_healthcheck"] = []map[string]interface{}{
 				{
 					"service_name": check.GetGrpc().ServiceName,
 				},
 			}
 		case *apploadbalancer.HealthCheck_Stream:
 			stream := check.GetStream()
-			flHealthcheck["stream_healthcheck"] = []map[string]interface{}{
+			flHealthCheck["stream_healthcheck"] = []map[string]interface{}{
 				{
-					"receive": stream.Receive.String(),
-					"send":    stream.Send.String(),
+					"receive": stream.Receive.GetText(),
+					"send":    stream.Send.GetText(),
 				},
 			}
 		}
 
-		flHealthchecks.Add(flHealthcheck)
+		result = append(result, flHealthCheck)
 	}
 
-	return flHealthchecks
+	return result
 }
 
 func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {

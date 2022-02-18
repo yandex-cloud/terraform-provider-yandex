@@ -217,6 +217,38 @@ func testAccCheckResourceIDField(resourceName string, idFieldName string) resour
 		return nil
 	}
 }
+func testExistsElementWithAttrTrimmedValue(resourceName, path, field, value string, fullPath *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ms := s.RootModule()
+		rs, ok := ms.Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s in %s", resourceName, ms.Path)
+		}
+
+		is := rs.Primary
+		if is == nil {
+			return fmt.Errorf("No primary instance: %s in %s", resourceName, ms.Path)
+		}
+
+		reStr := fmt.Sprintf(`(%s\.\d+)\.%s`, path, field)
+		re, err := regexp.Compile(reStr)
+		if err != nil {
+			return err
+		}
+		for k, v := range is.Attributes {
+			trimmedValue := strings.TrimSpace(v)
+			if re.MatchString(k) && trimmedValue == value {
+				sm := re.FindStringSubmatch(k)
+				*fullPath = sm[1]
+				return nil
+			}
+		}
+
+		return fmt.Errorf(
+			"Can't find key %s.*.%s in resource: %s with value %s", path, field, resourceName, value,
+		)
+	}
+}
 
 func testExistsElementWithAttrValue(resourceName, path, field, value string, fullPath *string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -230,10 +262,10 @@ func testExistsElementWithAttrValue(resourceName, path, field, value string, ful
 		if is == nil {
 			return fmt.Errorf("No primary instance: %s in %s", resourceName, ms.Path)
 		}
+		reStr := fmt.Sprintf(`(%s\.\d+)\.%s`, path, field)
+		re := regexp.MustCompile(reStr)
 
 		for k, v := range is.Attributes {
-			reStr := fmt.Sprintf(`(%s\.\d+)\.%s`, path, field)
-			re := regexp.MustCompile(reStr)
 			if re.MatchString(k) && v == value {
 				sm := re.FindStringSubmatch(k)
 				*fullPath = sm[1]
