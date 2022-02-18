@@ -202,6 +202,143 @@ resource "yandex_vpc_subnet" "bar" {
 }
 ```
 
+
+Example of creating a MySQL Cluster with different backup priorities. Backup will be created from nb-2, if it's not master. na-2 will be used as a backup source as a last resort.
+
+```hcl
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "db_name"
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  user {
+    name     = "user_name"
+    password = "your_password"
+    permission {
+      database_name = "db_name"
+      roles         = ["ALL"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-1"
+    backup_priority = 5
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-2"
+    backup_priority = 10
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
+
+Example of creating a MySQL Cluster with different host priorities. During failover master will be set to nb-2
+
+```hcl
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "test"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+
+  database {
+    name = "db_name"
+  }
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "SAT"
+    hour = 12
+  }
+
+  user {
+    name     = "user_name"
+    password = "your_password"
+    permission {
+      database_name = "db_name"
+      roles         = ["ALL"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    name      = "na-1"
+    subnet_id = yandex_vpc_subnet.foo.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-1"
+    priority        = 5
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+  host {
+    zone            = "ru-central1-b"
+    name            = "nb-2"
+    priority        = 10
+    subnet_id       = yandex_vpc_subnet.bar.id
+  }
+}
+
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+```
+
 Example of creating a Single Node MySQL with user params.
 
 ```hcl
@@ -420,6 +557,10 @@ The `host` block supports:
 * `replication_source` - (Computed) Host replication source (fqdn), when replication_source is empty then host is in HA group.
 
 * `replication_source_name` - (Optional) Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.
+
+* `priority` - (Optional) Host master promotion priority. Value is between 0 and 100, default is 0.
+
+* `backup_priority` - (Optional) Host backup priority. Value is between 0 and 100, default is 0.
 
 The `access` block supports:
 If not specified then does not make any changes.  

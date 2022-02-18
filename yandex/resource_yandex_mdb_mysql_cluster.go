@@ -208,6 +208,14 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"backup_priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -1161,12 +1169,20 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 				if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
 					maskPaths = append(maskPaths, "assign_public_ip")
 				}
+				if hostInfo.oldBackupPriority != hostInfo.newBackupPriority {
+					maskPaths = append(maskPaths, "backup_priority")
+				}
+				if hostInfo.oldPriority != hostInfo.newPriority {
+					maskPaths = append(maskPaths, "priority")
+				}
 				if len(maskPaths) > 0 {
 					log.Printf("[DEBUG] Updating host (change paths: %v)", maskPaths)
 					if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
 						HostName:          hostInfo.fqdn,
 						ReplicationSource: hostInfo.newReplicationSource,
 						AssignPublicIp:    hostInfo.newAssignPublicIP,
+						BackupPriority:    hostInfo.newBackupPriority,
+						Priority:          hostInfo.newPriority,
 						UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
 					}); err != nil {
 						return err
@@ -1221,6 +1237,8 @@ func createMysqlClusterHosts(ctx context.Context, config *Config, d *schema.Reso
 			ZoneId:         newHostInfo.zone,
 			SubnetId:       newHostInfo.subnetID,
 			AssignPublicIp: newHostInfo.newAssignPublicIP,
+			BackupPriority: newHostInfo.newBackupPriority,
+			Priority:       newHostInfo.newPriority,
 		})
 	}
 

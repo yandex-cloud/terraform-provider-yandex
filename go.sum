@@ -932,6 +932,8 @@ github.com/yandex-cloud/go-genproto v0.0.0-20220208101049-5fe07c6c9eae h1:O4Pwjp
 github.com/yandex-cloud/go-genproto v0.0.0-20220208101049-5fe07c6c9eae/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334 h1:sBaFh/pSsfqA02umfrMdsUBxRVkh9zGyx7dUz//lFdo=
 github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334/go.mod h1:QuG5YD5OfsxgwezWGH8m6NF8WrB/jccMzJ/D+UF8Ymg=
+github.com/yandex-cloud/go-sdk v0.0.0-20220208102059-0836222dd206 h1:D60v51R27nPqg4SOKgjrlQcJXf8MllWgjQCKOQdGJ88=
+github.com/yandex-cloud/go-sdk v0.0.0-20220208102059-0836222dd206/go.mod h1:W7Pww2y8fZceFRUCLJSg6D8ewuxQe2yKiA4ImhVMZOs=
 github.com/yeya24/promlinter v0.1.0 h1:goWULN0jH5Yajmu/K+v1xCqIREeB+48OiJ2uu2ssc7U=
 github.com/yeya24/promlinter v0.1.0/go.mod h1:rs5vtZzeBHqqMwXqFScncpCF6u06lezhZepno9AB1Oc=
 github.com/yudai/gojsondiff v1.0.0/go.mod h1:AY32+k2cwILAkW1fbgxQ5mUmMiZFgLIV+FBNExI05xg=

@@ -295,6 +295,28 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
+			// Change backup priority for 2 hosts
+			{
+				Config: testAccMDBMysqlClusterWithBackupPriorities(mysqlName, mysqlDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.backup_priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.backup_priority", "10"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
+			// Change host priority for 2 hosts
+			{
+				Config: testAccMDBMysqlClusterWithPriorities(mysqlName, mysqlDesc2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
+					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.priority", "5"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.priority", "10"),
+				),
+			},
+			mdbMysqlClusterImportStep(mysqlResource),
 		},
 	})
 }
@@ -1136,6 +1158,184 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     subnet_id               = yandex_vpc_subnet.foo_a.id
     name                    = "nd"
     replication_source_name = "nb"
+  }
+
+  security_group_ids = [yandex_vpc_security_group.sg-y.id]
+}
+`, name, desc)
+}
+
+func testAccMDBMysqlClusterWithBackupPriorities(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+  deletion_protection = false
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  database {
+    name = "new_testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
+    }
+  }
+
+  user {
+    name     = "mary"
+    password = "password"
+
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+
+    permission {
+      database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
+    name      = "na"
+  }
+
+  host {
+    zone            = "ru-central1-c"
+    subnet_id       = yandex_vpc_subnet.foo_c.id
+    name            = "nb"
+    backup_priority = 5
+  }
+
+  host {
+    zone             = "ru-central1-b"
+    subnet_id        = yandex_vpc_subnet.foo_b.id
+    name             = "nc"
+    assign_public_ip = true
+  }
+
+  host {
+    zone            = "ru-central1-a"
+    subnet_id       = yandex_vpc_subnet.foo_a.id
+    name            = "nd"
+    backup_priority = 10
+  }
+
+  security_group_ids = [yandex_vpc_security_group.sg-y.id]
+}
+`, name, desc)
+}
+
+func testAccMDBMysqlClusterWithPriorities(name, desc string) string {
+	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_mdb_mysql_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.foo.id
+  version     = "8.0"
+  deletion_protection = false
+
+  labels = {
+    new_key = "new_value"
+  }
+
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 24
+  }
+
+  backup_window_start {
+    hours   = 5
+    minutes = 44
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  database {
+    name = "new_testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "DROP", "DELETE"]
+    }
+  }
+
+  user {
+    name     = "mary"
+    password = "password"
+
+    permission {
+      database_name = "testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+
+    permission {
+      database_name = "new_testdb"
+      roles         = ["ALL", "INSERT"]
+    }
+  }
+
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
+    name      = "na"
+  }
+
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
+    name      = "nb"
+    priority  = 5
+  }
+
+  host {
+    zone             = "ru-central1-b"
+    subnet_id        = yandex_vpc_subnet.foo_b.id
+    name             = "nc"
+    assign_public_ip = true
+  }
+
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
+    name      = "nd"
+    priority  = 10
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-y.id]

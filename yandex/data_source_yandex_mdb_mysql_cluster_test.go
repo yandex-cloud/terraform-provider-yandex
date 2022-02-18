@@ -187,6 +187,14 @@ func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, reso
 				"host.0.replication_source",
 			},
 			{
+				"host.0.priority",
+				"host.0.priority",
+			},
+			{
+				"host.0.backup_priority",
+				"host.0.backup_priority",
+			},
+			{
 				"security_group_ids.#",
 				"security_group_ids.#",
 			},

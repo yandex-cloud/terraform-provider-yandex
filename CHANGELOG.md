@@ -2,6 +2,7 @@
 ENHANCEMENTS:
 * add `ssl_certificate` attribute in `yandex_cdn_resource` resource and data source
 * alb: change `http_backend` and `grpc_backend` and `stream_backend` and `healthcheck` attribute types from Set to List in `yandex_alb_backend_group` resource
+* mdb: add `priority` and `backup_priority` attributes to `host` entity in `yandex_mdb_mysql_cluster` resource and data source
 
 FEATURES:
 * mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`

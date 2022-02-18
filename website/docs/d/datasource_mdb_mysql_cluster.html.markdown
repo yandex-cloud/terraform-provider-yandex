@@ -108,6 +108,8 @@ The `host` block supports:
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation. Changing this parameter for an existing host is not supported at the moment
 * `replication_source` - Host replication source (fqdn), case when replication_source is empty then host in HA group.
+* `priority` - Host master promotion priority. Value is between 0 and 100, default is 0. 
+* `backup_priority` - Host backup priority. Value is between 0 and 100, default is 0. 
 
 The `access` block supports:
 

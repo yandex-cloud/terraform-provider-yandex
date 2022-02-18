@@ -31,7 +31,7 @@ require (
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20220208101049-5fe07c6c9eae
-	github.com/yandex-cloud/go-sdk v0.0.0-20220103132525-c9df73a52334
+	github.com/yandex-cloud/go-sdk v0.0.0-20220208102059-0836222dd206
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb

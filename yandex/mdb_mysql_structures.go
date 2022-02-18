@@ -283,10 +283,14 @@ type myHostInfo struct {
 	oldAssignPublicIP        bool
 	oldReplicationSource     string
 	oldReplicationSourceName string
+	oldPriority              int64
+	oldBackupPriority        int64
 
 	newAssignPublicIP        bool
 	newReplicationSource     string
 	newReplicationSourceName string
+	newPriority              int64
+	newBackupPriority        int64
 
 	// inTargetSet is true when host is present in target set (and shouldn't be removed)
 	inTargetSet bool
@@ -299,6 +303,8 @@ type MySQLHostSpec struct {
 	Fqdn                  string
 	Name                  string
 	ReplicationSourceName string
+	Priority              int64
+	BackupPriority        int64
 }
 
 func expandMysqlHostSpec(d *schema.ResourceData) ([]*mysql.HostSpec, error) {
@@ -347,6 +353,14 @@ func expandMysqlHost(config map[string]interface{}) (*mysql.HostSpec, error) {
 		hostSpec.AssignPublicIp = v.(bool)
 	}
 
+	if v, ok := config["backup_priority"]; ok {
+		hostSpec.BackupPriority = int64(v.(int))
+	}
+
+	if v, ok := config["priority"]; ok {
+		hostSpec.Priority = int64(v.(int))
+	}
+
 	return hostSpec, nil
 }
 
@@ -364,6 +378,12 @@ func expandEnrichedMySQLHost(config map[string]interface{}) (*MySQLHostSpec, err
 	}
 	if v, ok := config["replication_source_name"]; ok {
 		mysqlHostSpec.ReplicationSourceName = v.(string)
+	}
+	if v, ok := config["priority"]; ok {
+		mysqlHostSpec.Priority = int64(v.(int))
+	}
+	if v, ok := config["backup_priority"]; ok {
+		mysqlHostSpec.BackupPriority = int64(v.(int))
 	}
 	return mysqlHostSpec, nil
 }
@@ -522,6 +542,9 @@ func loadNewMySQLHostsInfo(newHosts []interface{}) (hostsInfo []*myHostInfo, err
 			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
 			rowNumber:                i,
 			newReplicationSourceName: hni.Get("replication_source_name").Str(),
+			// because hni.Get("priority").Int64() results to 0
+			newPriority:       int64(hni.Get("priority").Int()),
+			newBackupPriority: int64(hni.Get("backup_priority").Int()),
 		})
 
 	}
@@ -577,6 +600,14 @@ func compareMySQLNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHostIn
 		compareWeight++
 	}
 
+	if existsHostInfo.oldBackupPriority == newHostInfo.newBackupPriority {
+		compareWeight++
+	}
+
+	if existsHostInfo.oldPriority == newHostInfo.newPriority {
+		compareWeight++
+	}
+
 	return compareWeight
 }
 
@@ -587,6 +618,14 @@ func matchesMySQLNoNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHost
 	}
 
 	if existsHostInfo.oldAssignPublicIP != newHostInfo.newAssignPublicIP {
+		return false
+	}
+
+	if existsHostInfo.oldBackupPriority != newHostInfo.newBackupPriority {
+		return false
+	}
+
+	if existsHostInfo.oldPriority != newHostInfo.newPriority {
 		return false
 	}
 
@@ -722,6 +761,8 @@ func loadExistingMySQLHostsInfo(currentHosts []*mysql.Host, oldHosts []interface
 			subnetID:             h.SubnetId,
 			oldAssignPublicIP:    h.AssignPublicIp,
 			oldReplicationSource: h.ReplicationSource,
+			oldPriority:          h.Priority,
+			oldBackupPriority:    h.BackupPriority,
 
 			rowNumber: i,
 		}
@@ -795,6 +836,8 @@ func compareMySQLHostsInfo(d *schema.ResourceData, currentHosts []*mysql.Host, i
 				existHostInfo.rowNumber = newHostInfo.rowNumber
 				existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
 				existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
+				existHostInfo.newPriority = newHostInfo.newPriority
+				existHostInfo.newBackupPriority = newHostInfo.newBackupPriority
 				existHostInfo.inTargetSet = true
 				nameToHost[existHostInfo.name] = existHostInfo.fqdn
 			}
@@ -888,6 +931,8 @@ func flattenMySQLHostsFromHostInfo(hostsInfo map[string]*myHostInfo, isDataSourc
 		m["assign_public_ip"] = hostInfo.oldAssignPublicIP
 		m["fqdn"] = hostInfo.fqdn
 		m["replication_source"] = hostInfo.oldReplicationSource
+		m["priority"] = hostInfo.oldPriority
+		m["backup_priority"] = hostInfo.oldBackupPriority
 		if !isDataSource {
 			m["name"] = hostInfo.name
 			m["replication_source_name"] = hostInfo.oldReplicationSourceName

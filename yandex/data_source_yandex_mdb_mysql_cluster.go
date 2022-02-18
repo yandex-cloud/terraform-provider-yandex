@@ -198,6 +198,14 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"backup_priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 					},
 				},
 			},

@@ -1139,21 +1139,21 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-	zone      		 = "ru-central1-a"
-	name      		 = "na"
+    zone      		 = "ru-central1-a"
+    name      		 = "na"
     subnet_id 		 = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
-	assign_public_ip = true
+    assign_public_ip = true
   }
   host {
-	zone                    = "ru-central1-b"
-	name                    = "nb"
-	replication_source_name = "nc"
+    zone                    = "ru-central1-b"
+    name                    = "nb"
+    replication_source_name = "nc"
     subnet_id               = "${yandex_vpc_subnet.mdb-pg-test-subnet-b.id}"
   }
   host {
-	zone      = "ru-central1-c"
-	name      = "nc"
-	priority  = 2
+    zone      = "ru-central1-c"
+    name      = "nc"
+    priority  = 2
     subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-c.id}"
   }
 
@@ -1233,21 +1233,21 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-	zone      = "ru-central1-a"
-	name      = "na"
+    zone      = "ru-central1-a"
+    name      = "na"
     subnet_id = "${yandex_vpc_subnet.mdb-pg-test-subnet-a.id}"
-	priority  = 1
+    priority  = 1
   }
   host {
-	zone                    = "ru-central1-b"
-	name                    = "nb"
-	replication_source_name = "na"
+    zone                    = "ru-central1-b"
+    name                    = "nb"
+    replication_source_name = "na"
     subnet_id               = "${yandex_vpc_subnet.mdb-pg-test-subnet-b.id}"
   }
   host {
-	zone      		 = "ru-central1-c"
-	name      		 = "nc"
-	assign_public_ip = true
+    zone      		 = "ru-central1-c"
+    name      		 = "nc"
+    assign_public_ip = true
     subnet_id 		 = "${yandex_vpc_subnet.mdb-pg-test-subnet-c.id}"
   }
 
