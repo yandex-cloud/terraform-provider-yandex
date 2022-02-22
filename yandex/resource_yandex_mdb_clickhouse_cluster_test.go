@@ -21,6 +21,7 @@ import (
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
+const chResourceKeeper = "yandex_mdb_clickhouse_cluster.keeper"
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
@@ -306,6 +307,42 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 	})
 }
 
+// Test that a Keeper-based ClickHouse Cluster can be created and destroyed
+func TestAccMDBClickHouseCluster_keeper(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-keeper")
+	chDesc := "ClickHouse Cluster Keeper Test"
+	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			// Enable embedded_keeper
+			{
+				Config: testAccMDBClickHouseClusterConfigEmbeddedKeeper(chName, chDesc, bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResourceKeeper, &r, 1),
+					resource.TestCheckResourceAttr(chResourceKeeper, "name", chName),
+					resource.TestCheckResourceAttr(chResourceKeeper, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResourceKeeper, "description", chDesc),
+					resource.TestCheckResourceAttrSet(chResourceKeeper, "host.0.fqdn"),
+					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
+					testAccCheckMDBClickHouseClusterHasUsers(chResourceKeeper, map[string][]string{}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
+					testAccCheckMDBClickHouseClusterHasDatabases(chResourceKeeper, []string{}),
+					testAccCheckCreatedAtAttr(chResourceKeeper)),
+			},
+			mdbClickHouseClusterImportStep(chResourceKeeper),
+		},
+	})
+}
+
 // Test that a sharded ClickHouse Cluster can be created, updated and destroyed
 func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	t.Parallel()
@@ -320,7 +357,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
@@ -381,7 +418,7 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
@@ -2365,6 +2402,45 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   cloud_storage {
     enabled = true
   }
+}
+`, name, desc)
+}
+
+func testAccMDBClickHouseClusterConfigEmbeddedKeeper(name, desc, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "keeper" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
+  name        = "%s"
+  description = "%s"
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+  sql_user_management     = true
+  sql_database_management = true
+  embedded_keeper = true
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc)
 }

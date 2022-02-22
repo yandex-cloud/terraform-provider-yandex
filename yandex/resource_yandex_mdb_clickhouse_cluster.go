@@ -653,6 +653,12 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"embedded_keeper": {
+				Type:     schema.TypeBool,
+				ForceNew: true,
+				Optional: true,
+				Computed: true,
+			},
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -871,6 +877,10 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		configSpec.SetSqlDatabaseManagement(&wrappers.BoolValue{Value: val.(bool)})
 	}
 
+	if val, ok := d.GetOk("embedded_keeper"); ok {
+		configSpec.SetEmbeddedKeeper(&wrappers.BoolValue{Value: val.(bool)})
+	}
+
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
@@ -1052,16 +1062,9 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("description", cluster.Description)
 	d.Set("version", cluster.Config.Version)
-	if cluster.Config.SqlUserManagement != nil {
-		d.Set("sql_user_management", cluster.Config.SqlUserManagement.Value)
-	} else {
-		d.Set("sql_user_management", false)
-	}
-	if cluster.Config.SqlDatabaseManagement != nil {
-		d.Set("sql_database_management", cluster.Config.SqlDatabaseManagement.Value)
-	} else {
-		d.Set("sql_database_management", false)
-	}
+	d.Set("sql_user_management", cluster.Config.GetSqlUserManagement().GetValue())
+	d.Set("sql_database_management", cluster.Config.GetSqlDatabaseManagement().GetValue())
+	d.Set("embedded_keeper", cluster.Config.GetEmbeddedKeeper().GetValue())
 	d.Set("service_account_id", cluster.ServiceAccountId)
 	d.Set("deletion_protection", cluster.DeletionProtection)
 

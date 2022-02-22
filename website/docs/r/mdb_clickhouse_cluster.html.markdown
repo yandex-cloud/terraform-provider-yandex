@@ -468,6 +468,8 @@ The following arguments are supported:
 
 * `sql_database_management` - (Optional, ForceNew) Grants `admin` user database management permission.
 
+* `embedded_keeper` - (Optional, ForceNew) Whether to use ClickHouse Keeper as a coordination system and place it on the same hosts with ClickHouse. If not, it's used ZooKeeper with placement on separate hosts.
+
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 * `copy_schema_on_new_hosts` - (Optional) Whether to copy schema on new ClickHouse hosts.

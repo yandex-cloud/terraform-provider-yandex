@@ -576,6 +576,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"embedded_keeper": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Computed: true,
