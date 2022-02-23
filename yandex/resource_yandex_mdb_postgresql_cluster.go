@@ -174,6 +174,11 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"serverless": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
 								},
 							},
 						},
