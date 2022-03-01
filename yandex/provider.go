@@ -256,6 +256,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_organizationmanager_organization_iam_binding": resourceYandexOrganizationManagerOrganizationIAMBinding(),
 			"yandex_organizationmanager_organization_iam_member":  resourceYandexOrganizationManagerOrganizationIAMMember(),
 			"yandex_organizationmanager_saml_federation":          resourceYandexOrganizationManagerSamlFederation(),
+			"yandex_resourcemanager_cloud":                        resourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_cloud_iam_binding":            resourceYandexResourceManagerCloudIAMBinding(),
 			"yandex_resourcemanager_cloud_iam_member":             resourceYandexResourceManagerCloudIAMMember(),
 			"yandex_resourcemanager_folder":                       resourceYandexResourceManagerFolder(),

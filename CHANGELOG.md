@@ -9,6 +9,7 @@ ENHANCEMENTS:
 FEATURES:
 * mdb: support MongoDB enterprise 4.4 and 5.0 in `yandex_mdb_mongodb_cluster`
 * kafka: support change `assign_public_ip` flag in Kafka clusters
+* resource-manager: add `yandex_resourcemanager_cloud` resource.
 
 BUG FIXES:
 * alb: fix behavior of attribute `validation_context` of `tls` entity in `yandex_alb_backend_group` resource
