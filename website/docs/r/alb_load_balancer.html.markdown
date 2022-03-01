@@ -128,7 +128,7 @@ The `external_ipv4_address` block supports:
 
 ---
 
-The `external_ipv4_address` block supports:
+The `internal_ipv4_address` block supports:
 
 * `address` - (Optional) Provided by the client or computed automatically.
 

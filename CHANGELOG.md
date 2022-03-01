@@ -14,6 +14,7 @@ FEATURES:
 BUG FIXES:
 * alb: fix behavior of attribute `validation_context` of `tls` entity in `yandex_alb_backend_group` resource
 * alb: fix behavior of `send` and `receive` attributes of `stream_healthcheck` entity in `yandex_alb_backend_group` resource
+* docs: Fixed few minor inaccuracies of `yandex_alb_load_balancer` resource
 
 ## 0.71.0 (February 08, 2021)
 ENHANCEMENTS:
