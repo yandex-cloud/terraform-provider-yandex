@@ -211,6 +211,7 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 
 	out["data_lens"] = a.DataLens
 	out["web_sql"] = a.WebSql
+	out["serverless"] = a.Serverless
 
 	return []interface{}{out}, nil
 }
@@ -1187,6 +1188,10 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 
 	if v, ok := d.GetOk("config.0.access.0.web_sql"); ok {
 		out.WebSql = v.(bool)
+	}
+
+	if v, ok := d.GetOk("config.0.access.0.serverless"); ok {
+		out.Serverless = v.(bool)
 	}
 
 	return out

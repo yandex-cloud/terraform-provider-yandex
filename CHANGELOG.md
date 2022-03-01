@@ -1,5 +1,6 @@
 ## 0.72.0 (Unreleased)
 ENHANCEMENTS:
+* mdb: add `serverless` attribute to `access` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * add `ssl_certificate` attribute in `yandex_cdn_resource` resource and data source
 * alb: change `http_backend` and `grpc_backend` and `stream_backend` and `healthcheck` attribute types from Set to List in `yandex_alb_backend_group` resource
 * mdb: add `priority` and `backup_priority` attributes to `host` entity in `yandex_mdb_mysql_cluster` resource and data source
