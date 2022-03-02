@@ -1,4 +1,6 @@
-## 0.72.0 (Unreleased)
+## 0.73.0 (Unreleased)
+
+## 0.72.0 (March 02, 2022)
 ENHANCEMENTS:
 * mdb: add `serverless` attribute to `access` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * add `ssl_certificate` attribute in `yandex_cdn_resource` resource and data source
