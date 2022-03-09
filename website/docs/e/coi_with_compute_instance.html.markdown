@@ -178,7 +178,7 @@ resource "yandex_compute_instance_group" "ig-with-coi" {
   instance_template {
     platform_id = "standard-v1"
     resources {
-      memory = 1
+      memory = 2
       cores  = 1
     }
     boot_disk {

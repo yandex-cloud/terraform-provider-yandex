@@ -22,7 +22,7 @@ resource "yandex_compute_instance_group" "group1" {
   instance_template {
     platform_id = "standard-v1"
     resources {
-      memory = 1
+      memory = 2
       cores  = 2
     }
     boot_disk {
