@@ -375,8 +375,25 @@ func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceYandexComputeDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	// TODO: We need API to lookup Disk Usages to Attach/Detach disk properly before delete
-	// if disks are attached, they must be detached before the disk can be deleted
+	disk, err := config.sdk.Compute().Disk().Get(config.Context(), &compute.GetDiskRequest{
+		DiskId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Disk %q", d.Get("name").(string)))
+	}
+
+	for _, instanceID := range disk.GetInstanceIds() {
+		req := &compute.DetachInstanceDiskRequest{
+			InstanceId: instanceID,
+			Disk: &compute.DetachInstanceDiskRequest_DiskId{
+				DiskId: disk.Id,
+			},
+		}
+		if err := makeDetachDiskRequest(req, meta); err != nil {
+			return err
+		}
+		log.Printf("[DEBUG] Successfully detached disk %s from instance %s", disk.Id, instanceID)
+	}
 
 	log.Printf("[DEBUG] Deleting Disk %q", d.Id())
 

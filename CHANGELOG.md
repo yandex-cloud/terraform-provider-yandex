@@ -1,4 +1,7 @@
 ## 0.73.0 (Unreleased)
+BUG FIXES:
+* compute: avoid unnecessary start/stop operations for instance while updating secondary disk configuration
+* compute: detach secondary disk from instance before deleting
 
 ## 0.72.0 (March 02, 2022)
 ENHANCEMENTS:

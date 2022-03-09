@@ -411,6 +411,40 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_attachedDiskDelete(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var diskName = fmt.Sprintf("disk-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_delAttachedDisk(diskName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAttachedDisks(&instance, diskName),
+				),
+			},
+			// check attaching
+			{
+				Config: testAccComputeInstance_delAttachedDisk("", instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceAttachedDisks(&instance),
+				),
+			},
+		},
+	})
+
+}
+
 func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 	t.Parallel()
 
@@ -1079,6 +1113,41 @@ func testAccCheckComputeInstanceDisk(instance *compute.Instance, diskName string
 		}
 
 		return fmt.Errorf("Disk not found: %s", diskName)
+	}
+}
+
+func testAccCheckComputeInstanceAttachedDisks(instance *compute.Instance, diskNames ...string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		instanceDiskIDs := make(map[string]struct{})
+		for _, disk := range instance.SecondaryDisks {
+			instanceDiskIDs[disk.DiskId] = struct{}{}
+		}
+
+		for i := 0; i < len(diskNames); i++ {
+			diskResolver := sdkresolvers.DiskResolver(diskNames[i], sdkresolvers.FolderID(config.FolderID))
+			if err := config.sdk.Resolve(context.Background(), diskResolver); err != nil {
+				return fmt.Errorf("Error while resolve disk name to ID: %s", err)
+			}
+
+			diskID := diskResolver.ID()
+			if _, ok := instanceDiskIDs[diskID]; !ok {
+				return fmt.Errorf("Disk %s is expected to be attached", diskID)
+			}
+
+			delete(instanceDiskIDs, diskID)
+		}
+
+		if len(instanceDiskIDs) > 0 {
+			extraDiskIDs := make([]string, 0, len(instanceDiskIDs))
+			for extraDiskID := range instanceDiskIDs {
+				extraDiskIDs = append(extraDiskIDs, extraDiskID)
+			}
+			return fmt.Errorf("Instance contains more disks that expected: %s", extraDiskIDs)
+		}
+
+		return nil
 	}
 }
 
@@ -2608,6 +2677,63 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, diskType)
+}
+
+func testAccComputeInstance_delAttachedDisk(disk, instance string) string {
+	var diskSpec, secDiskSpec string
+	if disk != "" {
+		diskSpec = fmt.Sprintf(`
+resource "yandex_compute_disk" "foobar" {
+  name     = "%s"
+  size     = 10
+  zone     = "ru-central1-a"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+}`, disk)
+		secDiskSpec = `
+  secondary_disk {
+    disk_id = "${yandex_compute_disk.foobar.id}"
+  }`
+	}
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+%s
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%s"
+  zone = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+%s
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, diskSpec, instance, secDiskSpec)
 }
 
 //nolint:unused
