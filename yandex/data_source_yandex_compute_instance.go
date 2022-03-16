@@ -326,7 +326,32 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"placement_group_id": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+						},
+						"host_affinity_rules": {
+							Type:       schema.TypeList,
+							Computed:   true,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"op": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Required: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
 						},
 					},
 				},

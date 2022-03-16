@@ -655,12 +655,36 @@ func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.Scheduling
 func expandInstancePlacementPolicy(d *schema.ResourceData) (*compute.PlacementPolicy, error) {
 	sp := d.Get("placement_policy").([]interface{})
 	var placementPolicy *compute.PlacementPolicy
-	if len(sp) != 0 {
-		placementPolicy = &compute.PlacementPolicy{
-			PlacementGroupId: d.Get("placement_policy.0.placement_group_id").(string),
-		}
+	if len(sp) == 0 {
+		return placementPolicy, nil
+	}
+
+	ruleSpecs := d.Get("placement_policy.0.host_affinity_rules").([]interface{})
+	placementPolicy = &compute.PlacementPolicy{
+		PlacementGroupId:  d.Get("placement_policy.0.placement_group_id").(string),
+		HostAffinityRules: expandHostAffinityRulesSpec(ruleSpecs),
 	}
 	return placementPolicy, nil
+}
+
+func expandHostAffinityRulesSpec(ruleSpecs []interface{}) []*compute.PlacementPolicy_HostAffinityRule {
+	rulesCount := len(ruleSpecs)
+	hostAffinityRules := make([]*compute.PlacementPolicy_HostAffinityRule, rulesCount)
+	for i := 0; i < rulesCount; i++ {
+		ruleSpec := ruleSpecs[i].(map[string]interface{})
+		operator := compute.PlacementPolicy_HostAffinityRule_Operator_value[ruleSpec["op"].(string)]
+
+		var values []string
+		for _, value := range ruleSpec["values"].([]interface{}) {
+			values = append(values, value.(string))
+		}
+		hostAffinityRules[i] = &compute.PlacementPolicy_HostAffinityRule{
+			Key:    ruleSpec["key"].(string),
+			Op:     compute.PlacementPolicy_HostAffinityRule_Operator(operator),
+			Values: values,
+		}
+	}
+	return hostAffinityRules
 }
 
 func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
@@ -674,8 +698,17 @@ func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]i
 
 func flattenInstancePlacementPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
 	placementPolicy := make([]map[string]interface{}, 0, 1)
+	var affinityRules []interface{}
+	for _, rule := range instance.PlacementPolicy.HostAffinityRules {
+		affinityRules = append(affinityRules, map[string]interface{}{
+			"key":    rule.Key,
+			"op":     rule.Op.String(),
+			"values": rule.Values,
+		})
+	}
 	placementMap := map[string]interface{}{
-		"placement_group_id": instance.PlacementPolicy.PlacementGroupId,
+		"placement_group_id":  instance.PlacementPolicy.PlacementGroupId,
+		"host_affinity_rules": affinityRules,
 	}
 	placementPolicy = append(placementPolicy, placementMap)
 	return placementPolicy, nil

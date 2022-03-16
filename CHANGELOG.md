@@ -1,4 +1,7 @@
 ## 0.73.0 (Unreleased)
+ENHANCEMENTS:
+* compute: add `host_affinity_rules` attribute to `placement_policy` in `yandex_compute_instance` resource and data source
+
 BUG FIXES:
 * compute: avoid unnecessary start/stop operations for instance while updating secondary disk configuration
 * compute: detach secondary disk from instance before deleting

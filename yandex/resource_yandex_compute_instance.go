@@ -457,7 +457,35 @@ func resourceYandexComputeInstance() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"placement_group_id": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+						},
+						"host_affinity_rules": {
+							Type:       schema.TypeList,
+							Computed:   true,
+							Optional:   true,
+							ConfigMode: schema.SchemaConfigModeAttr,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"op": {
+										Type:     schema.TypeString,
+										Required: true,
+										ValidateFunc: validation.StringInSlice(
+											generateHostAffinityRuleOperators(), false),
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Required: true,
+										MinItems: 1,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
@@ -753,15 +781,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		req := &compute.UpdateInstanceRequest{
-			InstanceId: d.Id(),
-			PlacementPolicy: &compute.PlacementPolicy{
-				PlacementGroupId: d.Get("placement_policy.0.placement_group_id").(string),
-			},
-			UpdateMask: &field_mask.FieldMask{
-				Paths: []string{"placement_policy.placement_group_id"},
-			},
-		}
+		req := prepareUpdateInstanceRequestOnPlacementChange(d)
 
 		err := makeInstanceUpdateRequest(req, d, meta)
 		if err != nil {
@@ -1435,4 +1455,35 @@ func differentRecordSpec(r1, r2 *compute.DnsRecordSpec) bool {
 		r1.GetDnsZoneId() != r2.GetDnsZoneId() ||
 		r1.GetTtl() != r2.GetTtl() ||
 		r1.GetPtr() != r2.GetPtr()
+}
+
+func generateHostAffinityRuleOperators() []string {
+	operators := make([]string, 0, len(compute.PlacementPolicy_HostAffinityRule_Operator_value))
+	for operatorName := range compute.PlacementPolicy_HostAffinityRule_Operator_value {
+		operators = append(operators, operatorName)
+	}
+	return operators
+}
+
+func prepareUpdateInstanceRequestOnPlacementChange(d *schema.ResourceData) *compute.UpdateInstanceRequest {
+	var paths []string
+	var placementPolicy compute.PlacementPolicy
+	if d.HasChange("placement_policy.0.placement_group_id") {
+		placementPolicy.PlacementGroupId = d.Get("placement_policy.0.placement_group_id").(string)
+		paths = append(paths, "placement_policy.placement_group_id")
+	}
+
+	if d.HasChange("placement_policy.0.host_affinity_rules") {
+		rules := d.Get("placement_policy.0.host_affinity_rules").([]interface{})
+		placementPolicy.HostAffinityRules = expandHostAffinityRulesSpec(rules)
+		paths = append(paths, "placement_policy.host_affinity_rules")
+	}
+
+	return &compute.UpdateInstanceRequest{
+		InstanceId:      d.Id(),
+		PlacementPolicy: &placementPolicy,
+		UpdateMask: &field_mask.FieldMask{
+			Paths: paths,
+		},
+	}
 }

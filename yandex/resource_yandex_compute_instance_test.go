@@ -4,13 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -995,6 +999,192 @@ func TestAccComputeInstance_nat(t *testing.T) {
 			// add two specific addresses
 			testStep(true, reservedAddress2, true, reservedAddress1),
 			computeInstanceImportStep(),
+		},
+	})
+}
+
+func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
+	rawInstanceID := "test-instance-id"
+	rawInstance := map[string]interface{}{
+		"name":        "test-instance",
+		"description": "test instance",
+		"zone":        "ru-central1-c",
+		"platform_id": "standard-v2",
+
+		"resources": []interface{}{
+			map[string]interface{}{
+				"cores":  2,
+				"memory": 2,
+			},
+		},
+
+		"boot_disk": []interface{}{
+			map[string]interface{}{
+				"disk_id": "test-disk-id",
+			},
+		},
+		"network_interface": []interface{}{
+			map[string]interface{}{
+				"subnet_id": "test-subnet-id",
+			},
+		},
+	}
+
+	instanceResourceWithPlacement := func(placement []interface{}) *schema.ResourceData {
+		rawInstance["placement_policy"] = placement
+		return schema.TestResourceDataRaw(t, resourceYandexComputeInstance().Schema, rawInstance)
+	}
+
+	cc := []struct {
+		name            string
+		placementPolicy []interface{}
+		expected        *compute.UpdateInstanceRequest
+	}{
+		{
+			name: "update host affinity rules only",
+			placementPolicy: []interface{}{
+				map[string]interface{}{
+					"host_affinity_rules": []interface{}{
+						map[string]interface{}{
+							"key": "yc.hostGroupId",
+							"op":  "IN",
+							"values": []interface{}{
+								"test-hostgroup-id",
+							},
+						},
+					},
+				},
+			},
+			expected: &compute.UpdateInstanceRequest{
+				InstanceId: rawInstanceID,
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{"placement_policy.host_affinity_rules"},
+				},
+				PlacementPolicy: &compute.PlacementPolicy{
+					HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
+						{
+							Key:    "yc.hostGroupId",
+							Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+							Values: []string{"test-hostgroup-id"},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "update placement group id only",
+			placementPolicy: []interface{}{
+				map[string]interface{}{
+					"placement_group_id": "placement-group-id",
+				},
+			},
+			expected: &compute.UpdateInstanceRequest{
+				InstanceId: rawInstanceID,
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{"placement_policy.placement_group_id"},
+				},
+				PlacementPolicy: &compute.PlacementPolicy{
+					PlacementGroupId: "placement-group-id",
+				},
+			},
+		},
+		{
+			name: "update placement group id and affinity rules",
+			placementPolicy: []interface{}{
+				map[string]interface{}{
+					"placement_group_id": "placement-group-id",
+					"host_affinity_rules": []interface{}{
+						map[string]interface{}{
+							"key": "yc.hostGroupId",
+							"op":  "IN",
+							"values": []interface{}{
+								"test-hostgroup-id",
+							},
+						},
+					},
+				},
+			},
+			expected: &compute.UpdateInstanceRequest{
+				InstanceId: rawInstanceID,
+				UpdateMask: &field_mask.FieldMask{
+					Paths: []string{
+						"placement_policy.placement_group_id",
+						"placement_policy.host_affinity_rules",
+					},
+				},
+				PlacementPolicy: &compute.PlacementPolicy{
+					PlacementGroupId: "placement-group-id",
+					HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
+						{
+							Key:    "yc.hostGroupId",
+							Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+							Values: []string{"test-hostgroup-id"},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, c := range cc {
+		t.Run(c.name, func(t *testing.T) {
+			resourceData := instanceResourceWithPlacement(c.placementPolicy)
+			resourceData.SetId(rawInstanceID)
+
+			req := prepareUpdateInstanceRequestOnPlacementChange(resourceData)
+			assert.Equal(t, c.expected, req)
+		})
+	}
+}
+
+func TestAccComputeInstance_placement_host_rules(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	var hostID = os.Getenv("COMPUTE_HOST_ID")
+	var hostGroupID = os.Getenv("COMPUTE_HOST_GROUP_ID")
+	if hostID == "" || hostGroupID == "" {
+		t.Skip("Required vars COMPUTE_HOST_ID and COMPUTE_HOST_GROUP_ID are not set.")
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_basic(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_placement_host(instanceName, hostID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostId": hostID}),
+				),
+			},
+			{
+				Config: testAccComputeInstance_placement_hostgroup(instanceName, hostGroupID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostGroupId": hostGroupID}),
+				),
+			},
+			{
+				Config: testAccComputeInstance_placement_empty(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasAffinityRules(&instance, nil),
+				),
+			},
 		},
 	})
 }
@@ -3380,4 +3570,112 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, nat1, addressStr1, nat2, addressStr2)
+}
+
+func testAccComputeInstance_placement_host(instance, hostID string) string {
+	return testAccComputeInstance_placement_host_rules(instance, "yc.hostId", hostID)
+}
+
+func testAccComputeInstance_placement_hostgroup(instance, hostGroupID string) string {
+	return testAccComputeInstance_placement_host_rules(instance, "yc.hostGroupId", hostGroupID)
+}
+
+func testAccComputeInstance_placement_empty(instance string) string {
+	return testAccComputeInstance_placement_host_rules(instance)
+}
+
+func testAccComputeInstance_placement_host_rules(instance string, ruleOpts ...string) string {
+	var placement string
+	if ruleOpts == nil {
+		placement = `
+  placement_policy {
+    host_affinity_rules = []
+  }
+`
+	} else {
+		key := ruleOpts[0]
+		value := ruleOpts[1]
+		placement = fmt.Sprintf(`
+  placement_policy {
+    host_affinity_rules {
+        key = "%s"
+        op = "IN"
+        values = ["%s"]
+    }
+  }
+`, key, value)
+	}
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  platform_id = "standard-v2"
+  zone        = "ru-central1-b"
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+
+%s
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance, placement)
+}
+
+func testAccCheckComputeInstanceHasAffinityRules(instance *compute.Instance, ruleParams map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		placement := instance.PlacementPolicy
+		if placement.HostAffinityRules == nil && len(ruleParams) == 0 {
+			return nil
+		}
+
+		if placement.HostAffinityRules != nil && len(ruleParams) != len(placement.HostAffinityRules) {
+			return fmt.Errorf("wrong host affinity rules count")
+		}
+
+		for _, rule := range placement.HostAffinityRules {
+			if _, ok := ruleParams[rule.Key]; !ok {
+				return fmt.Errorf("unexpected rule key: %s", rule.Key)
+			}
+
+			if len(rule.Values) != 1 || ruleParams[rule.Key] != rule.Values[0] {
+				return fmt.Errorf("unexpected rule value: %s", rule.Values[0])
+			}
+		}
+		return nil
+	}
 }

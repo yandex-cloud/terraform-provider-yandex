@@ -533,3 +533,97 @@ func TestExpandComputePrimaryV4AddressSpec(t *testing.T) {
 		})
 	}
 }
+
+func TestExpandHostAffinityRuleSpec(t *testing.T) {
+	tests := []struct {
+		name string
+		data []interface{}
+		spec []*compute.PlacementPolicy_HostAffinityRule
+	}{
+		{
+			name: "empty rule set",
+			data: []interface{}{},
+			spec: []*compute.PlacementPolicy_HostAffinityRule{},
+		},
+		{
+			name: "rule with host ID",
+			data: []interface{}{
+				map[string]interface{}{
+					"key": "yc.hostId",
+					"op":  "IN",
+					"values": []interface{}{
+						"host-id",
+					},
+				},
+			},
+			spec: []*compute.PlacementPolicy_HostAffinityRule{
+				{
+					Key:    "yc.hostId",
+					Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+					Values: []string{"host-id"},
+				},
+			},
+		},
+		{
+			name: "rule with host group ID",
+			data: []interface{}{
+				map[string]interface{}{
+					"key": "yc.hostGroupId",
+					"op":  "IN",
+					"values": []interface{}{
+						"host-group-id-1",
+						"host-group-id-2",
+					},
+				},
+			},
+			spec: []*compute.PlacementPolicy_HostAffinityRule{
+				{
+					Key:    "yc.hostGroupId",
+					Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+					Values: []string{"host-group-id-1", "host-group-id-2"},
+				},
+			},
+		},
+		{
+			name: "rules with host and group ID",
+			data: []interface{}{
+				map[string]interface{}{
+					"key": "yc.hostId",
+					"op":  "IN",
+					"values": []interface{}{
+						"host-id",
+					},
+				},
+				map[string]interface{}{
+					"key": "yc.hostGroupId",
+					"op":  "IN",
+					"values": []interface{}{
+						"host-group-id-1",
+						"host-group-id-2",
+					},
+				},
+			},
+			spec: []*compute.PlacementPolicy_HostAffinityRule{
+				{
+					Key:    "yc.hostId",
+					Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+					Values: []string{"host-id"},
+				},
+				{
+					Key:    "yc.hostGroupId",
+					Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+					Values: []string{"host-group-id-1", "host-group-id-2"},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec := expandHostAffinityRulesSpec(tt.data)
+			if !reflect.DeepEqual(tt.spec, spec) {
+				t.Errorf("%v not equals to %v", tt.spec, spec)
+			}
+		})
+	}
+}
