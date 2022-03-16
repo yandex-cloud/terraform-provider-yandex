@@ -1133,11 +1133,12 @@ func expandDataprocSubclusterSpec(element interface{}) *dataproc.CreateSubcluste
 	resourcesSpec := subclusterSpec["resources"].([]interface{})[0]
 
 	subcluster := &dataproc.CreateSubclusterConfigSpec{
-		Role:       dataproc.Role(roleID),
-		Name:       subclusterSpec["name"].(string),
-		SubnetId:   subclusterSpec["subnet_id"].(string),
-		HostsCount: int64(subclusterSpec["hosts_count"].(int)),
-		Resources:  expandDataprocResources(resourcesSpec),
+		Role:           dataproc.Role(roleID),
+		Name:           subclusterSpec["name"].(string),
+		SubnetId:       subclusterSpec["subnet_id"].(string),
+		HostsCount:     int64(subclusterSpec["hosts_count"].(int)),
+		Resources:      expandDataprocResources(resourcesSpec),
+		AssignPublicIp: subclusterSpec["assign_public_ip"].(bool),
 	}
 	if v, ok := subclusterSpec["autoscaling_config"]; ok {
 		autoscalingConfigs := v.([]interface{})
@@ -1248,12 +1249,13 @@ func flattenDataprocSubclusters(subclusters []*dataproc.Subcluster) []interface{
 
 func flattenDataprocSubcluster(subcluster *dataproc.Subcluster) map[string]interface{} {
 	result := map[string]interface{}{
-		"id":          subcluster.Id,
-		"name":        subcluster.Name,
-		"role":        subcluster.Role.String(),
-		"resources":   flattenDataprocResources(subcluster.Resources),
-		"subnet_id":   subcluster.SubnetId,
-		"hosts_count": subcluster.HostsCount,
+		"id":               subcluster.Id,
+		"name":             subcluster.Name,
+		"role":             subcluster.Role.String(),
+		"resources":        flattenDataprocResources(subcluster.Resources),
+		"subnet_id":        subcluster.SubnetId,
+		"hosts_count":      subcluster.HostsCount,
+		"assign_public_ip": subcluster.AssignPublicIp,
 	}
 	if subcluster.AutoscalingConfig != nil {
 		result["autoscaling_config"] = flattenDataprocAutoscalingConfig(subcluster.AutoscalingConfig)

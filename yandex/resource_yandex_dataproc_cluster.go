@@ -170,6 +170,13 @@ func resourceYandexDataprocCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+
+									"assign_public_ip": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										ForceNew: true,
+										Default:  false,
+									},
 								},
 							},
 						},

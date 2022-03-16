@@ -5,6 +5,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * compute: avoid unnecessary start/stop operations for instance while updating secondary disk configuration
 * compute: detach secondary disk from instance before deleting
+* dataproc: add `assign_public_ip` attribute to `subcluster_spec` entity. If set to `true` then public ip addresses will be assigned to hosts of the subcluster
 
 ## 0.72.0 (March 02, 2022)
 ENHANCEMENTS:

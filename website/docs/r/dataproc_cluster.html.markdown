@@ -191,6 +191,7 @@ The `subcluster_spec` block supports:
 * `resources` - (Required) Resources allocated to each host of the Data Proc subcluster. The structure is documented below.
 * `subnet_id` - (Required) The ID of the subnet, to which hosts of the subcluster belong. Subnets of all the subclusters must belong to the same VPC network.
 * `hosts_count` - (Required) Number of hosts within Data Proc subcluster.
+* `assign_public_ip` - (Optional) If true then assign public IP addresses to the hosts of the subclusters.
 * `autoscaling_config` - (Optional) Autoscaling configuration for compute subclusters.
 
 ---
