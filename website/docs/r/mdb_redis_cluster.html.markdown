@@ -136,7 +136,9 @@ The following arguments are supported:
 
 * `sharded` - (Optional) Redis Cluster mode enabled/disabled.
 
-* `tls_enabled` - (Optional) tls support mode enabled/disabled.
+* `tls_enabled` - (Optional) TLS support mode enabled/disabled.
+
+* `persistence_mode` - (Optional) Persistence mode.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 

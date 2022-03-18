@@ -7,6 +7,9 @@ BUG FIXES:
 * compute: detach secondary disk from instance before deleting
 * dataproc: add `assign_public_ip` attribute to `subcluster_spec` entity. If set to `true` then public ip addresses will be assigned to hosts of the subcluster
 
+FEATURES:
+* mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
+
 ## 0.72.0 (March 02, 2022)
 ENHANCEMENTS:
 * mdb: add `serverless` attribute to `access` entity in `yandex_mdb_postgresql_cluster` resource and data source

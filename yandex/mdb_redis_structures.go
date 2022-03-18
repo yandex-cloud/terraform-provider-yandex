@@ -375,6 +375,20 @@ func parseRedisEnv(e string) (redis.Cluster_Environment, error) {
 	return redis.Cluster_Environment(v), nil
 }
 
+func parsePersistenceMode(p interface{}) (redis.Cluster_PersistenceMode, error) {
+	e := p.(string)
+	if e == "" {
+		return redis.Cluster_ON, nil
+	}
+
+	v, ok := redis.Cluster_PersistenceMode_value[e]
+	if !ok {
+		return 0, fmt.Errorf("value for 'persistence_mode' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(redis.Cluster_PersistenceMode_value)), e)
+	}
+	return redis.Cluster_PersistenceMode(v), nil
+}
+
 func parseRedisMaxmemoryPolicy5_0(s string) (config.RedisConfig5_0_MaxmemoryPolicy, error) {
 	v, ok := config.RedisConfig5_0_MaxmemoryPolicy_value[s]
 	if !ok {

@@ -173,6 +173,12 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+			"persistence_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validateParsableValue(parsePersistenceMode),
+			},
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -259,6 +265,7 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 	}
 
 	d.SetId(md.ClusterId)
+	log.Printf("[DEBUG] Created Redis Cluster %q", md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
@@ -329,6 +336,11 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		return nil, fmt.Errorf("Error while expanding network id on Redis Cluster create: %s", err)
 	}
 
+	persistenceMode, err := parsePersistenceMode(d.Get("persistence_mode"))
+	if err != nil {
+		return nil, fmt.Errorf("Error resolving persistence_mode while creating Redis Cluster: %s", err)
+	}
+
 	req := redis.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -340,6 +352,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		Labels:             labels,
 		Sharded:            d.Get("sharded").(bool),
 		TlsEnabled:         &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
+		PersistenceMode:    persistenceMode,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
@@ -374,6 +387,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
 	d.Set("tls_enabled", cluster.TlsEnabled)
+	d.Set("persistence_mode", cluster.GetPersistenceMode().String())
 
 	resources, err := flattenRedisResources(cluster.Config.Resources)
 	if err != nil {
@@ -444,7 +458,9 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
 	}
 
-	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") || d.HasChange("config") || d.HasChange("security_group_ids") || d.HasChange("deletion_protection") {
+	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") ||
+		d.HasChange("config") || d.HasChange("security_group_ids") || d.HasChange("deletion_protection") ||
+		d.HasChange("persistence_mode") {
 		if err := updateRedisClusterParams(d, meta); err != nil {
 			return err
 		}
@@ -472,6 +488,20 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("name") {
 		req.Name = d.Get("name").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
+
+		onDone = append(onDone, func() {
+
+		})
+	}
+
+	if d.HasChange("persistence_mode") {
+		mode, err := parsePersistenceMode(d.Get("persistence_mode"))
+		if err != nil {
+			return err
+		}
+
+		req.PersistenceMode = mode
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "persistence_mode")
 
 		onDone = append(onDone, func() {
 

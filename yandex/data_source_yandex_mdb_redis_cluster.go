@@ -136,6 +136,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"persistence_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -238,6 +242,10 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
 	d.Set("tls_enabled", cluster.TlsEnabled)
+	err = d.Set("persistence_mode", cluster.GetPersistenceMode().String())
+	if err != nil {
+		return err
+	}
 
 	conf := extractRedisConfig(cluster.Config)
 	err = d.Set("config", []map[string]interface{}{

@@ -50,7 +50,8 @@ exported:
 * `resources` - Resources allocated to hosts of the Redis cluster. The structure is documented below.
 * `host` - A host of the Redis cluster. The structure is documented below.
 * `sharded` - Redis Cluster mode enabled/disabled.
-* `tls_enabled` - tls support mode enabled/disabled.
+* `tls_enabled` - TLS support mode enabled/disabled.
+* `persistence_mode` - Persistence mode. 
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `config` block supports:

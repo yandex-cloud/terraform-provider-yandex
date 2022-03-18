@@ -58,6 +58,9 @@ The following arguments are supported:
 * `tls_enabled` - Whether TLS is enabled for the Yandex Database serverless cluster.
   Useful for SDK configuration.
 
+* `persistence_mode` - Persistence mode of the Yandex Database cluster.
+  Useful for SDK configuration.
+
 * `created_at` - The Yandex Database serverless cluster creation timestamp.
 
 * `status` - Status of the Yandex Database serverless cluster.
