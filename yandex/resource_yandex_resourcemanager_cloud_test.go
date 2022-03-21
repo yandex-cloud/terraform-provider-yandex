@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -37,6 +38,12 @@ func sweepCloudOnce(conf *Config, id string) error {
 }
 
 func testSweepClouds(_ string) error {
+	if os.Getenv("YC_ENABLE_CLOUD_SWEEPING") != "1" {
+		return nil
+	}
+
+	fmt.Println("Sweeping Clouds")
+
 	conf, err := configForSweepers()
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
