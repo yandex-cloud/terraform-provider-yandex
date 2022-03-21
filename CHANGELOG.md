@@ -9,6 +9,7 @@ BUG FIXES:
 
 FEATURES:
 * mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
+* kafka: support connector resource and data source in Kafka clusters
 
 ## 0.72.0 (March 02, 2022)
 ENHANCEMENTS:
