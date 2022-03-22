@@ -59,8 +59,7 @@ The following arguments are supported:
 
 The `external_ipv4_address` block supports:
 
-* `address` - (Optional) - Desired IP.
-* `zone_id` - (Optional)  - Zone for allocating address.
+* `zone_id` - Zone for allocating address.
 * `ddos_protection_provider` - (Optional) Enable DDOS protection. Possible values are: "qrator"
 * `outgoing_smtp_capability` - (Optional) Wanted outgoing smtp capability.
 
@@ -72,6 +71,7 @@ The `external_ipv4_address` block supports:
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
+* `address` - Allocated IP address.
 * `created_at` - Creation timestamp of the key.
 * `reserved` - `false` means that address is ephemeral.
 * `used` - `true` if address is used.

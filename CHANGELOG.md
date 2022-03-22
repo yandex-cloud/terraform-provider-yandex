@@ -6,7 +6,8 @@ BUG FIXES:
 * compute: avoid unnecessary start/stop operations for instance while updating secondary disk configuration
 * compute: detach secondary disk from instance before deleting
 * dataproc: add `assign_public_ip` attribute to `subcluster_spec` entity. If set to `true` then public ip addresses will be assigned to hosts of the subcluster
-* docs: fixed expored attributes for `yandex_vpc_network` resource
+* docs: fixed exported attributes for `yandex_vpc_network` datasource
+* docs: fixed `yandex_vpc_address` resource documentation
 
 FEATURES:
 * mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
