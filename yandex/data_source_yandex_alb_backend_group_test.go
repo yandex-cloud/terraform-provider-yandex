@@ -141,6 +141,55 @@ func TestAccDataSourceALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceALBBackendGroup_fullWithHTTPBackendForStorageBucket(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsDataSource = true
+	BGResource.IsHTTPBackend = true
+	BGResource.IsStorageBackend = true
+	BGResource.StorageBackendBucket = "test-tf-bucket"
+
+	backendPath := ""
+	var bg apploadbalancer.BackendGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testExistsFirstElementWithAttr(
+						albBgDataSourceResource, "http_backend", "tls", &backendPath,
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "tls.0.sni", func(value string) error {
+							tlsSni := bg.GetHttp().GetBackends()[0].Tls.Sni
+							if value != tlsSni {
+								return fmt.Errorf("BackendGroup's http backend's tls sni doesnt't match. %s != %s", value, tlsSni)
+							}
+							return nil
+						},
+					),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &backendPath, "storage_bucket", func(value string) error {
+							bucket := bg.GetHttp().GetBackends()[0].GetStorageBucket().GetBucket()
+							if value != bucket {
+								return fmt.Errorf("BackendGroup's http backend's storage bucket doesnt't match. %s != %s", value, bucket)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceALBBackendGroup_fullWithStreamBackend(t *testing.T) {
 	t.Parallel()
 

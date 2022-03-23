@@ -171,14 +171,15 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 }
 
 type resourceALBBackendGroupInfo struct {
-	IsHTTPBackend   bool
-	IsGRPCBackend   bool
-	IsStreamBackend bool
-	IsHTTPCheck     bool
-	IsGRPCCheck     bool
-	IsStreamCheck   bool
-	IsDataSource    bool
-	IsEmptyTLS      bool
+	IsHTTPBackend    bool
+	IsGRPCBackend    bool
+	IsStreamBackend  bool
+	IsHTTPCheck      bool
+	IsGRPCCheck      bool
+	IsStreamCheck    bool
+	IsDataSource     bool
+	IsEmptyTLS       bool
+	IsStorageBackend bool
 
 	BaseTemplate string
 
@@ -201,6 +202,7 @@ type resourceALBBackendGroupInfo struct {
 	Port                 string
 	Receive              string
 	Send                 string
+	StorageBackendBucket string
 }
 
 func albBackendGroupInfo() resourceALBBackendGroupInfo {
@@ -213,6 +215,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		IsStreamCheck:        false,
 		IsDataSource:         false,
 		IsEmptyTLS:           false,
+		IsStorageBackend:     false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		TGName:               acctest.RandomWithPrefix("tf-tg"),
 		BGName:               acctest.RandomWithPrefix("tf-bg"),
@@ -518,7 +521,11 @@ resource "yandex_alb_backend_group" "test-bg" {
     name             = "test-http-backend"
     weight           = {{.BackendWeight}}
     port             = {{.Port}}
+    {{ if .IsStorageBackend }}
+    storage_bucket = "{{.StorageBackendBucket}}"
+    {{ else }}
     target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
+    {{ end }}
     tls {
       {{ if not .IsEmptyTLS }}
       sni = "{{.TlsSni}}"

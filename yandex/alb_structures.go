@@ -735,6 +735,7 @@ func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalance
 	if v, ok := d.GetOk(key + "target_group_ids"); ok {
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
 	}
+
 	return backend, nil
 }
 
@@ -771,8 +772,24 @@ func expandALBHTTPBackend(d *schema.ResourceData, key string) (*apploadbalancer.
 		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
 	}
 
-	if v, ok := d.GetOk(key + "target_group_ids"); ok {
+	var (
+		haveTargetGroups  = false
+		haveStorageBucket = false
+	)
+	if v, ok := d.GetOk(key + "target_group_ids"); ok && len(v.([]interface{})) > 0 {
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
+		haveTargetGroups = true
+	}
+	if v, ok := d.GetOk(key + "storage_bucket"); ok {
+		backend.SetStorageBucket(expandALBStorageBucket(v))
+		haveStorageBucket = backend.GetStorageBucket() != nil
+	}
+
+	switch {
+	case !haveTargetGroups && !haveStorageBucket:
+		return nil, fmt.Errorf("Either target_group_ids or storage_bucket should be specified for http backend")
+	case haveTargetGroups && haveStorageBucket:
+		return nil, fmt.Errorf("Cannot specify both target_group_ids and storage_bucket for http backend")
 	}
 	return backend, nil
 }
@@ -786,6 +803,16 @@ func expandALBTargetGroupIds(v interface{}) *apploadbalancer.TargetGroupsBackend
 	}
 
 	return &apploadbalancer.TargetGroupsBackend{TargetGroupIds: l}
+}
+
+func expandALBStorageBucket(v interface{}) *apploadbalancer.StorageBucketBackend {
+	bucket := v.(string)
+	if len(bucket) == 0 {
+		return nil
+	}
+	return &apploadbalancer.StorageBucketBackend{
+		Bucket: bucket,
+	}
 }
 
 func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingConfig {
@@ -1419,6 +1446,8 @@ func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, er
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.HttpBackend_TargetGroups:
 			flBackend["target_group_ids"] = b.GetTargetGroups().TargetGroupIds
+		case *apploadbalancer.HttpBackend_StorageBucket:
+			flBackend["storage_bucket"] = b.GetStorageBucket().GetBucket()
 		}
 		result = append(result, flBackend)
 	}

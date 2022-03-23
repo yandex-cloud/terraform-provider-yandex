@@ -79,12 +79,18 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 						"load_balancing_config": loadBalancingConfig(),
 						"healthcheck":           healthCheck(),
 						"tls":                   tlsBackend(),
+						// List of ID's of target groups that belong to the backend.
 						"target_group_ids": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						// A resource for Object Storage bucket used as a backend
+						"storage_bucket": {
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"http2": {
 							Type:     schema.TypeBool,

@@ -74,9 +74,16 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 						"target_group_ids": {
 							Type:     schema.TypeList,
 							Computed: true,
+							Optional: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
+						},
+						// A resource for Object Storage bucket used as a backend
+						"storage_bucket": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
 						},
 						"http2": {
 							Type:     schema.TypeBool,
