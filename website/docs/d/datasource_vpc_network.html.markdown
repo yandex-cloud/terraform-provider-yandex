@@ -34,6 +34,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `subnet_ids` - List of subnet ids.
 * `description` - Description of the network.
 * `labels` - Labels assigned to this network.
 * `default_security_group_id` - ID of default Security Group of this network.
