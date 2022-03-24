@@ -674,6 +674,10 @@ or:
 
 * `innodb_flush_log_at_trx_commit` integer
 
+* `innodb_ft_max_token_size` integer
+
+* `innodb_ft_min_token_size` integer
+
 * `innodb_io_capacity` integer
 
 * `innodb_io_capacity_max` integer
@@ -685,6 +689,10 @@ or:
 * `innodb_log_file_size` integer
 
 * `innodb_numa_interleave` boolean
+
+* `innodb_online_alter_log_max_size` integer
+
+* `innodb_page_size` integer (create-only option)
 
 * `innodb_print_all_deadlocks` boolean
 
@@ -698,9 +706,21 @@ or:
 
 * `innodb_write_io_threads` integer
 
+* `interactive_timeout` integer
+
 * `join_buffer_size` integer
 
+* `log_slow_rate_limit` intger
+
+* `log_slow_rate_type` one of:
+   - 0: "SESSION"
+   - 1: "QUERY"
+
+* `log_slow_sp_statements` boolean
+
 * `long_query_time` float
+
+* `lower_case_table_names` boolean (create-only option)
 
 * `max_allowed_packet` integer
 
@@ -708,9 +728,19 @@ or:
 
 * `max_heap_table_size` integer
 
+* `mdb_offline_mode_disable_lag` integer
+
+* `mdb_offline_mode_enable_lag` integer
+
+* `mdb_preserve_binlog_bytes` integer
+
+* `mdb_priority_choice_max_lag` integer
+
 * `net_read_timeout` integer
 
 * `net_write_timeout` integer
+
+* `range_optimizer_max_mem_size` integer
 
 * `regexp_time_limit` integer
 
@@ -720,6 +750,10 @@ or:
   - 0: "SLAVE_PARALLEL_TYPE_UNSPECIFIED"
   - 1: "DATABASE"
   - 2: "LOGICAL_CLOCK"
+
+* `slow_query_log` boolean
+
+* `slow_query_log_always_write_time` float
 
 * `slave_parallel_workers` integer
 
@@ -744,6 +778,8 @@ or:
   - 1: "READ_COMMITTED"
   - 2: "REPEATABLE_READ"
   - 3: "SERIALIZABLE"
+
+* `wait_timeout` integer
 
 ### MysqlConfig 5.7
 * `audit_log` boolean
@@ -788,6 +824,10 @@ or:
 
 * `innodb_flush_log_at_trx_commit` integer
 
+* `innodb_ft_max_token_size` integer
+
+* `innodb_ft_min_token_size` integer
+
 * `innodb_io_capacity` integer
 
 * `innodb_io_capacity_max` integer
@@ -799,6 +839,10 @@ or:
 * `innodb_log_file_size` integer
 
 * `innodb_numa_interleave` boolean
+
+* `innodb_online_alter_log_max_size` integer
+
+* `innodb_page_size` integer (create-only option)
 
 * `innodb_print_all_deadlocks` boolean
 
@@ -812,9 +856,21 @@ or:
 
 * `innodb_write_io_threads` integer
 
+* `interactive_timeout` integer
+
 * `join_buffer_size` integer
 
+* `log_slow_rate_limit` integer
+
+* `log_slow_rate_type` one of:
+   - 0: "SESSION"
+   - 1: "QUERY"
+
+* `log_slow_sp_statements` boolean
+
 * `long_query_time` float
+
+* `lower_case_table_names` boolean (create-only option)
 
 * `max_allowed_packet` integer
 
@@ -822,16 +878,32 @@ or:
 
 * `max_heap_table_size` integer
 
+* `mdb_offline_mode_disable_lag` integer
+
+* `mdb_offline_mode_enable_lag` integer
+
+* `mdb_preserve_binlog_bytes` integer
+
+* `mdb_priority_choice_max_lag` integer
+
 * `net_read_timeout` integer
 
 * `net_write_timeout` integer
 
+* `range_optimizer_max_mem_size` integer
+
 * `rpl_semi_sync_master_wait_for_slave_count` integer
+
+* `show_compatibility_56` boolean
 
 * `slave_parallel_type` one of:
   - 0: "SLAVE_PARALLEL_TYPE_UNSPECIFIED"
   - 1: "DATABASE"
   - 2: "LOGICAL_CLOCK"
+
+* `slow_query_log` boolean
+
+* `slow_query_log_always_write_time` float
 
 * `slave_parallel_workers` integer
 
