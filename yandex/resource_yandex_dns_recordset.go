@@ -64,7 +64,7 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 				MaxItems: 100,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
-					ValidateFunc: validation.StringLenBetween(1, 255),
+					ValidateFunc: validation.StringLenBetween(1, 1024),
 				},
 				Set:              schema.HashString,
 				DiffSuppressFunc: dataDiffSuppressFunc,
