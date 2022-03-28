@@ -1,4 +1,5 @@
-## 0.73.0 (Unreleased)
+## 0.74.0 (Unreleased)
+## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:
 * compute: add `host_affinity_rules` attribute to `placement_policy` in `yandex_compute_instance` resource and data source
 * alb: support `storage_bucket` as a target in `yandex_alb_backend_group` resource and data source
@@ -9,6 +10,7 @@ BUG FIXES:
 * dataproc: add `assign_public_ip` attribute to `subcluster_spec` entity. If set to `true` then public ip addresses will be assigned to hosts of the subcluster
 * docs: fixed exported attributes for `yandex_vpc_network` datasource
 * docs: fixed `yandex_vpc_address` resource documentation
+* dns: fixed `yandex_dns_recordset` resource record data length restriction
 
 FEATURES:
 * mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
