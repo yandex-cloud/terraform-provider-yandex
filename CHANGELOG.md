@@ -1,4 +1,11 @@
 ## 0.74.0 (Unreleased)
+ENHANCEMENTS:
+
+BUG FIXES:
+* postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name
+
+FEATURES:
+
 ## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:
 * compute: add `host_affinity_rules` attribute to `placement_policy` in `yandex_compute_instance` resource and data source
@@ -11,7 +18,6 @@ BUG FIXES:
 * docs: fixed exported attributes for `yandex_vpc_network` datasource
 * docs: fixed `yandex_vpc_address` resource documentation
 * dns: fixed `yandex_dns_recordset` resource record data length restriction
-* postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name
 
 FEATURES:
 * mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
