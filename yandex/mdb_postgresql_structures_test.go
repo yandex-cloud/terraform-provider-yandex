@@ -3,36 +3,36 @@ package yandex
 import "testing"
 
 func TestComparePGNoNamedHostInfo(t *testing.T) {
-	if comparePGNoNamedHostInfo(&pgHostInfo{
+	if !matchesPGNoNamedHostInfo(&pgHostInfo{
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z11", subnetID: "sn11",
-	}, map[string]struct{}{}) != 1 {
-		t.Error("Compare host with equal zone and subnetID should return 1")
+	}) {
+		t.Error("Hosts with equal zone and subnetID should match")
 	}
 
-	if comparePGNoNamedHostInfo(&pgHostInfo{
+	if matchesPGNoNamedHostInfo(&pgHostInfo{
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z12", subnetID: "sn11",
-	}, map[string]struct{}{}) != 0 {
-		t.Error("Compare host with not equal zone and equal subnetID should return 0")
+	}) {
+		t.Error("Host with not equal zone and equal subnetID should not match")
 	}
 
-	if comparePGNoNamedHostInfo(&pgHostInfo{
+	if matchesPGNoNamedHostInfo(&pgHostInfo{
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z11", subnetID: "sn12",
-	}, map[string]struct{}{}) != 0 {
-		t.Error("Compare host with equal zone and not equal subnetID should return 0")
+	}) {
+		t.Error("Host with equal zone and not equal subnetID should not match")
 	}
 
-	if comparePGNoNamedHostInfo(&pgHostInfo{
+	if !matchesPGNoNamedHostInfo(&pgHostInfo{
 		zone: "z11", subnetID: "sn11", fqdn: "fq11",
 	}, &pgHostInfo{
 		zone: "z11", subnetID: "",
-	}, map[string]struct{}{}) != 1 {
-		t.Error("Compare host with equal zone and empty new subnetID should return 1")
+	}) {
+		t.Error("Host with equal zone and empty new subnetID should match")
 	}
 }
 

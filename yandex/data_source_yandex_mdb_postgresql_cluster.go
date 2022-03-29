@@ -384,10 +384,13 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	hs, _, err := flattenPGHosts(d, hosts, true)
+
+	orderedHostInfos, err := flattenPGHostsInfo(d, hosts)
 	if err != nil {
 		return err
 	}
+
+	hs := flattenPGHostsFromHostInfos(orderedHostInfos, true)
 	if err := d.Set("host", hs); err != nil {
 		return err
 	}

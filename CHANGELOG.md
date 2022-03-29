@@ -11,6 +11,7 @@ BUG FIXES:
 * docs: fixed exported attributes for `yandex_vpc_network` datasource
 * docs: fixed `yandex_vpc_address` resource documentation
 * dns: fixed `yandex_dns_recordset` resource record data length restriction
+* postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name
 
 FEATURES:
 * mdb: support `persistence_mode` in `yandex_mdb_redis_cluster`
