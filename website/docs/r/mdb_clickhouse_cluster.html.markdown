@@ -159,7 +159,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     quota {
       interval_duration = 79800000
       queries           = 50000
-      error             = 5000
+      errors            = 5000
     }
   }
 
@@ -248,7 +248,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     quota {
       interval_duration = 79800000
       queries           = 50000
-      error             = 5000
+      errors            = 5000
     }
   }
 
@@ -355,7 +355,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     quota {
       interval_duration = 79800000
       queries           = 50000
-      error             = 5000
+      errors            = 5000
     }
   }
 
