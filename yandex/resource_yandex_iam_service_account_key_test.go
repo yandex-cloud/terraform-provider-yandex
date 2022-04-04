@@ -26,7 +26,7 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccServiceAccountKeyConfig(accountName, accountDesc),
+				Config: testAccServiceAccountKeyConfig(accountName, accountDesc, "description for test"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckServiceAccountKeyExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
@@ -34,6 +34,12 @@ func TestAccServiceAccountKey_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_key"),
 					testAccCheckCreatedAtAttr(resourceName),
+				),
+			},
+			{
+				Config: testAccServiceAccountKeyConfig(accountName, accountDesc, "updated description"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "description", "updated description"),
 				),
 			},
 		},
@@ -108,7 +114,7 @@ func testAccCheckServiceAccountKeyExists(r string) resource.TestCheckFunc {
 	}
 }
 
-func testAccServiceAccountKeyConfig(name, desc string) string {
+func testAccServiceAccountKeyConfig(name, desc, keyDesc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
   name        = "%s"
@@ -117,9 +123,9 @@ resource "yandex_iam_service_account" "acceptance" {
 
 resource "yandex_iam_service_account_key" "acceptance" {
   service_account_id = "${yandex_iam_service_account.acceptance.id}"
-  description        = "description for test"
+  description        = "%s"
 }
-`, name, desc)
+`, name, desc, keyDesc)
 }
 
 func testAccServiceAccountKeyConfigEncrypted(name, desc, key string) string {

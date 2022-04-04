@@ -1,5 +1,6 @@
 ## 0.74.0 (Unreleased)
 ENHANCEMENTS:
+* iam: support for changing description of `yandex_iam_service_account_key` without recreation
 
 BUG FIXES:
 * postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name

@@ -5,15 +5,16 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/encryption"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 func resourceYandexIAMServiceAccountKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexIAMServiceAccountKeyCreate,
 		Read:   resourceYandexIAMServiceAccountKeyRead,
+		Update: resourceYandexIAMServiceAccountKeyUpdate,
 		Delete: resourceYandexIAMServiceAccountKeyDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -23,12 +24,9 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// There is no Update method for IAM Authorized Key resource,
-			// so "description" attr set as 'ForceNew:true'
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"format": {
@@ -156,6 +154,36 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 	d.Set("public_key", key.PublicKey)
 
 	return nil
+}
+
+func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	req := &iam.UpdateKeyRequest{
+		KeyId:       d.Id(),
+		Description: d.Get("description").(string),
+	}
+
+	var updatedFields []string
+	fields := []string{"description"}
+	for _, field := range fields {
+		if d.HasChange(field) {
+			updatedFields = append(updatedFields, field)
+		}
+	}
+
+	if len(updatedFields) != 0 {
+		req.UpdateMask = &field_mask.FieldMask{Paths: updatedFields}
+		_, err := config.sdk.IAM().Key().Update(ctx, req)
+		if err != nil {
+			return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
+		}
+	}
+
+	return resourceYandexIAMServiceAccountKeyRead(d, meta)
 }
 
 func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
