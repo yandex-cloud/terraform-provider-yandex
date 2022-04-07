@@ -1189,6 +1189,48 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_move(t *testing.T) {
+	t.Parallel()
+
+	targetFolderID := os.Getenv("COMPUTE_TARGET_FOLDER")
+	sourceFolderID := os.Getenv("YC_FOLDER_ID")
+	if targetFolderID == "" {
+		t.Skip("Required var COMPUTE_TARGET_FOLDER is not set.")
+	}
+
+	instanceName := fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+	var instance, instanceNew compute.Instance
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_with_folder(instanceName, "", false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_with_folder(instanceName, targetFolderID, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_compute_instance.foobar", "folder_id", targetFolderID),
+					resource.TestCheckResourceAttrPtr("yandex_compute_instance.foobar", "id", &instance.Id),
+				),
+			},
+			{
+				Config: testAccComputeInstance_with_folder(instanceName, sourceFolderID, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_compute_instance.foobar", "folder_id", sourceFolderID),
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instanceNew),
+					testAccCheckComputeInstancesNotEqual(&instance, &instanceNew),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1572,6 +1614,15 @@ func testAccCheckComputeInstanceHasNoNatAddress(instance *compute.Instance) reso
 			}
 		}
 
+		return nil
+	}
+}
+
+func testAccCheckComputeInstancesNotEqual(instanceOld, instanceNew *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instanceOld.Id == instanceNew.Id {
+			return fmt.Errorf("Instance was not changed.")
+		}
 		return nil
 	}
 }
@@ -3678,4 +3729,62 @@ func testAccCheckComputeInstanceHasAffinityRules(instance *compute.Instance, rul
 		}
 		return nil
 	}
+}
+
+func testAccComputeInstance_with_folder(instance string, folderID string, allowRecreate bool) string {
+	var folderAttr string
+	if folderID != "" {
+		folderAttr = fmt.Sprintf(`  folder_id = "%s"`, folderID)
+	}
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_with_folder"
+  platform_id = "standard-v2"
+  zone        = "ru-central1-a"
+  %s
+
+  allow_recreate            = %t
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    auto_delete = false
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance, folderAttr, allowRecreate)
 }

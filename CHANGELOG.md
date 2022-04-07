@@ -6,6 +6,7 @@ BUG FIXES:
 * postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name
 
 FEATURES:
+* compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.
 
 ## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:

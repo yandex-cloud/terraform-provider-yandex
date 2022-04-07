@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
@@ -201,6 +202,48 @@ func TestAccComputeDisk_deleteDetach(t *testing.T) {
 	})
 }
 
+func TestAccComputeDisk_move(t *testing.T) {
+	t.Parallel()
+
+	targetFolderID := os.Getenv("COMPUTE_TARGET_FOLDER")
+	sourceFolderID := os.Getenv("YC_FOLDER_ID")
+	if targetFolderID == "" {
+		t.Skip("Required var COMPUTE_TARGET_FOLDER is not set.")
+	}
+
+	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	var disk, diskNew compute.Disk
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeDiskDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeDisk_basic(diskName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeDiskExists("yandex_compute_disk.foobar", &disk),
+				),
+			},
+			{
+				Config: testAccComputeDisk_with_folder(diskName, targetFolderID, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_compute_disk.foobar", "folder_id", targetFolderID),
+					resource.TestCheckResourceAttrPtr("yandex_compute_disk.foobar", "id", &disk.Id),
+				),
+			},
+			{
+				Config: testAccComputeDisk_with_folder(diskName, sourceFolderID, true),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_compute_disk.foobar", "folder_id", sourceFolderID),
+					testAccCheckComputeDiskExists("yandex_compute_disk.foobar", &diskNew),
+					testAccCheckComputeDisksNotEqual(&disk, &diskNew),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeDiskDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -265,6 +308,15 @@ func testAccCheckComputeDiskHasLabel(disk *compute.Disk, key, value string) reso
 	}
 }
 
+func testAccCheckComputeDisksNotEqual(diskOld, diskNew *compute.Disk) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if diskOld.Id == diskNew.Id {
+			return fmt.Errorf("Disk was not changed.")
+		}
+		return nil
+	}
+}
+
 //revive:disable:var-naming
 func testAccComputeDisk_basic(diskName string) string {
 	return fmt.Sprintf(`
@@ -283,6 +335,27 @@ resource "yandex_compute_disk" "foobar" {
   }
 }
 `, diskName)
+}
+
+func testAccComputeDisk_with_folder(diskName string, folderId string, allowRecreate bool) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_disk" "foobar" {
+  name     = "%s"
+  image_id = "${data.yandex_compute_image.ubuntu.id}"
+  size     = 4
+  type     = "network-hdd"
+  folder_id = "%s"
+  allow_recreate = %t
+
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+`, diskName, folderId, allowRecreate)
 }
 
 func testAccComputeDisk_timeout() string {

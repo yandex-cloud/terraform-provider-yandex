@@ -21,6 +21,7 @@ const (
 	yandexComputeInstanceDefaultTimeout       = 5 * time.Minute
 	yandexComputeInstanceDiskOperationTimeout = 1 * time.Minute
 	yandexComputeInstanceDeallocationTimeout  = 15 * time.Second
+	yandexComputeInstanceMoveTimeout          = 1 * time.Minute
 )
 
 func resourceYandexComputeInstance() *schema.Resource {
@@ -350,7 +351,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"labels": {
@@ -389,6 +389,11 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"allow_stopping_for_update": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+
+			"allow_recreate": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -675,6 +680,43 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	d.Partial(true)
+
+	folderPropName := "folder_id"
+	if d.HasChange(folderPropName) {
+		if !d.Get("allow_recreate").(bool) {
+			if !d.Get("allow_stopping_for_update").(bool) {
+				return fmt.Errorf("Moving operation requires instance to be stopped. " +
+					"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
+			}
+
+			if instance.Status != compute.Instance_STOPPED {
+				if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
+					return err
+				}
+			}
+
+			req := &compute.MoveInstanceRequest{
+				InstanceId:          d.Id(),
+				DestinationFolderId: d.Get(folderPropName).(string),
+			}
+
+			if err := makeInstanceMoveRequest(req, d, meta); err != nil {
+				return err
+			}
+
+			if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {
+				return err
+			}
+
+		} else {
+			if err := resourceYandexComputeInstanceDelete(d, meta); err != nil {
+				return err
+			}
+			if err := resourceYandexComputeInstanceCreate(d, meta); err != nil {
+				return err
+			}
+		}
+	}
 
 	labelPropName := "labels"
 	if d.HasChange(labelPropName) {
@@ -1445,6 +1487,25 @@ func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, meta interfac
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), req.GetInstanceId(), err)
+	}
+
+	return nil
+}
+
+func makeInstanceMoveRequest(req *compute.MoveInstanceRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceMoveTimeout)
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().Move(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to move Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error moving Instance %q: %s", d.Id(), err)
 	}
 
 	return nil

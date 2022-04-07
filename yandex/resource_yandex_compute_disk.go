@@ -14,7 +14,10 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
 
-const yandexComputeDiskDefaultTimeout = 5 * time.Minute
+const (
+	yandexComputeDiskDefaultTimeout = 5 * time.Minute
+	yandexComputeDiskMoveTimeout    = 1 * time.Minute
+)
 
 func resourceYandexComputeDisk() *schema.Resource {
 	return &schema.Resource{
@@ -52,7 +55,6 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"labels": {
@@ -133,6 +135,11 @@ func resourceYandexComputeDisk() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+
+			"allow_recreate": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 		},
 	}
@@ -274,6 +281,27 @@ func resourceYandexComputeDiskRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceYandexComputeDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
+
+	folderPropName := "folder_id"
+	if d.HasChange(folderPropName) {
+		if !d.Get("allow_recreate").(bool) {
+			req := &compute.MoveDiskRequest{
+				DiskId:              d.Id(),
+				DestinationFolderId: d.Get(folderPropName).(string),
+			}
+
+			if err := makeDiskMoveRequest(req, d, meta); err != nil {
+				return err
+			}
+		} else {
+			if err := resourceYandexComputeDiskDelete(d, meta); err != nil {
+				return err
+			}
+			if err := resourceYandexComputeDiskCreate(d, meta); err != nil {
+				return err
+			}
+		}
+	}
 
 	labelPropName := "labels"
 	if d.HasChange(labelPropName) {
@@ -437,6 +465,25 @@ func makeDiskUpdateRequest(req *compute.UpdateDiskRequest, d *schema.ResourceDat
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error updating Disk %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeDiskMoveRequest(req *compute.MoveDiskRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeDiskMoveTimeout)
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Disk().Move(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to move Disk %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error moving Disk %q: %s", d.Id(), err)
 	}
 
 	return nil
