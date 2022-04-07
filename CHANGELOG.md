@@ -9,6 +9,7 @@ BUG FIXES:
 
 FEATURES:
 * compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.
+* mdb: new mysql configuration options added
 
 ## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:
