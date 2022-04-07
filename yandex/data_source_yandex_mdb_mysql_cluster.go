@@ -134,7 +134,7 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 							},
 						},
 						"global_permissions": {
-							Type: schema.TypeList,
+							Type: schema.TypeSet,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -284,6 +284,26 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
+			},
+			"performance_diagnostics": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"sessions_sampling_interval": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"statements_sampling_interval": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
 			},
 		},
 	}

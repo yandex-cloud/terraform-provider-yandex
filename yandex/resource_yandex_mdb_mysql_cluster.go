@@ -127,7 +127,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 							},
 						},
 						"global_permissions": {
-							Type: schema.TypeList,
+							Type: schema.TypeSet,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -362,6 +362,29 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"performance_diagnostics": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"sessions_sampling_interval": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"statements_sampling_interval": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -528,10 +551,11 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 
 	version := d.Get("version").(string)
 	configSpec := &mysql.ConfigSpec{
-		Version:           version,
-		Resources:         resources,
-		BackupWindowStart: backupWindowStart,
-		Access:            expandMySQLAccess(d),
+		Version:                version,
+		Resources:              resources,
+		BackupWindowStart:      backupWindowStart,
+		Access:                 expandMySQLAccess(d),
+		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
 	}
 
 	_, err = expandMySQLConfigSpecSettings(d, configSpec)
@@ -690,6 +714,15 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	perfDiag, err := flattenMyPerformanceDiagnostics(cluster.Config.PerformanceDiagnostics)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("performance_diagnostics", perfDiag); err != nil {
+		return err
+	}
+
 	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
 
@@ -729,16 +762,17 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 }
 
 var mdbMysqlUpdateFieldsMap = map[string]string{
-	"name":                "name",
-	"description":         "description",
-	"labels":              "labels",
-	"access":              "config_spec.access",
-	"security_group_ids":  "security_group_ids",
-	"backup_window_start": "config_spec.backup_window_start",
-	"resources":           "config_spec.resources",
-	"version":             "config_spec.version",
-	"maintenance_window":  "maintenance_window",
-	"deletion_protection": "deletion_protection",
+	"name":                    "name",
+	"description":             "description",
+	"labels":                  "labels",
+	"access":                  "config_spec.access",
+	"backup_window_start":     "config_spec.backup_window_start",
+	"resources":               "config_spec.resources",
+	"version":                 "config_spec.version",
+	"performance_diagnostics": "config_spec.performance_diagnostics",
+	"security_group_ids":      "security_group_ids",
+	"maintenance_window":      "maintenance_window",
+	"deletion_protection":     "deletion_protection",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -751,10 +785,11 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	resources := expandMysqlResources(d)
 	backupWindowStart := expandMysqlBackupWindowStart(d)
 	req.ConfigSpec = &mysql.ConfigSpec{
-		Resources:         resources,
-		Version:           d.Get("version").(string),
-		BackupWindowStart: backupWindowStart,
-		Access:            expandMySQLAccess(d),
+		Resources:              resources,
+		Version:                d.Get("version").(string),
+		BackupWindowStart:      backupWindowStart,
+		Access:                 expandMySQLAccess(d),
+		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
 	}
 
 	updateFieldConfigName, err := expandMySQLConfigSpecSettings(d, req.ConfigSpec)

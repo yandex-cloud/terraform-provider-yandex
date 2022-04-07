@@ -56,6 +56,7 @@ exported:
 * `mysql_config` - MySQL cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `maintenance_window` - Maintenance window settings of the MySQL cluster. The structure is documented below.
+* `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
 
 The `resources` block supports:
 
@@ -121,3 +122,9 @@ The `maintenance_window` block supports:
 * `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`.
 * `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
 * `hour` - Hour of the day in UTC (in `HH` format). Value is between 1 and 24.
+
+The `performance_diagnostics` block supports:
+
+* `enabled` - Enable performance diagnostics
+* `sessions_sampling_interval` - Interval (in seconds) for my_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
+* `statements_sampling_interval` - Interval (in seconds) for my_stat_statements sampling Acceptable values are 1 to 86400, inclusive.

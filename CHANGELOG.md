@@ -1,9 +1,11 @@
 ## 0.74.0 (Unreleased)
 ENHANCEMENTS:
 * iam: support for changing description of `yandex_iam_service_account_key` without recreation
+* mdb: add `performance_diagnostics` section in `yandex_mdb_mysql_cluster` resource and data source
+* mdb: change attribute `yandex_mdb_mysql_cluster.user.global_permissions` type from List to Set
 
 BUG FIXES:
-* postgresql: fix unpredicatable behaviour when changing `assign_public_ip` without name
+* postgresql: fix unpredictable behaviour when changing `assign_public_ip` without name
 
 FEATURES:
 * compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.

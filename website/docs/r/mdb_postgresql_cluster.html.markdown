@@ -467,7 +467,7 @@ The `config` block supports:
 
 * `access` - (Optional) Access policy to the PostgreSQL cluster. The structure is documented below.
 
-* `performance_diagnostics` - (Optional) Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-postgresql/grpc/cluster_service#PerformanceDiagnostics)
+* `performance_diagnostics` - (Optional) Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
 
 * `autofailover` - (Optional) Configuration setting which enables/disables autofailover in cluster.
 
@@ -537,7 +537,7 @@ The `permission` block supports:
 * `database_name` - (Required) The name of the database that the permission grants access to.
 
 The `settings` block supports:
-Full description https://cloud.yandex.com/docs/managed-postgresql/grpc/user_service#UserSettings  
+Full description https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/grpc/user_service#UserSettings1  
 
 * `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. 
 * * 0: "unspecified"

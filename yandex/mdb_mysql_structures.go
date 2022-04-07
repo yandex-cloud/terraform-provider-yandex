@@ -107,7 +107,11 @@ func expandMysqlUser(u map[string]interface{}, existsUser *mysql.User) (user *my
 	}
 
 	if v, ok := u["global_permissions"]; ok && v != nil {
-		list := v.([]interface{})
+		var list []interface{}
+		list, ok = v.([]interface{}) // old schema used List instead of Set. Keep List as fallback
+		if !ok {
+			list = v.(*schema.Set).List()
+		}
 		if len(list) != 0 {
 			gPermission, err := expandMysqlUserGlobalPermissions(list)
 			if err != nil {
@@ -1454,6 +1458,43 @@ func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.Con
 	}
 
 	return updateFieldConfigName, nil
+}
+
+func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDiagnostics {
+
+	if _, ok := d.GetOkExists("performance_diagnostics"); !ok {
+		return nil
+	}
+
+	out := &mysql.PerformanceDiagnostics{}
+
+	if v, ok := d.GetOk("performance_diagnostics.0.enabled"); ok {
+		out.Enabled = v.(bool)
+	}
+
+	if v, ok := d.GetOk("performance_diagnostics.0.sessions_sampling_interval"); ok {
+		out.SessionsSamplingInterval = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("performance_diagnostics.0.statements_sampling_interval"); ok {
+		out.StatementsSamplingInterval = int64(v.(int))
+	}
+
+	return out
+}
+
+func flattenMyPerformanceDiagnostics(p *mysql.PerformanceDiagnostics) ([]interface{}, error) {
+	if p == nil {
+		return nil, nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["enabled"] = p.Enabled
+	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
+	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
+
+	return []interface{}{out}, nil
 }
 
 const defaultSQLModes = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"

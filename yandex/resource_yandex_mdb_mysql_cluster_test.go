@@ -138,6 +138,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "12"),
+					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -571,6 +572,45 @@ func testAccCheckMDBMysqlClusterContainsLabel(resource *mysql.Cluster, key strin
 	}
 }
 
+func testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(r string, enabled bool, sessionSamplingInterval int, statementSamplingInterval int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.MDB().MySQL().Cluster().Get(context.Background(), &mysql.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Config.PerformanceDiagnostics.Enabled != enabled {
+			return fmt.Errorf("Cluster.Config.PerformanceDiagnostics.Enabled must be %t, current %v",
+				enabled, found.Config.PerformanceDiagnostics.Enabled)
+		}
+
+		if found.Config.PerformanceDiagnostics.SessionsSamplingInterval != int64(sessionSamplingInterval) {
+			return fmt.Errorf("Cluster.Config.PerformanceDiagnostics.SessionsSamplingInterval must be %d, current %v",
+				sessionSamplingInterval, found.Config.PerformanceDiagnostics.SessionsSamplingInterval)
+		}
+
+		if found.Config.PerformanceDiagnostics.StatementsSamplingInterval != int64(statementSamplingInterval) {
+			return fmt.Errorf("Cluster.Config.PerformanceDiagnostics.SessionsSamplingInterval must be %d, current %v",
+				statementSamplingInterval, found.Config.PerformanceDiagnostics.StatementsSamplingInterval)
+		}
+
+		return nil
+	}
+}
+
 // TODO: add more zones when v2 platform becomes available.
 const mysqlVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
@@ -680,6 +720,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
   deletion_protection = %t
+
+  performance_diagnostics {
+    enabled                      = true
+    sessions_sampling_interval   = 300
+    statements_sampling_interval = 400
+  }
 }
 `, name, desc, environment, deletionProtection)
 }
