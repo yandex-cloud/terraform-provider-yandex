@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -23,6 +24,7 @@ const providerDefaultValuePlaintext = false
 const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
 var testAccProviders map[string]*schema.Provider
+var testAccProviderFactories map[string]func() (*schema.Provider, error)
 
 // WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
 // testAccCheck***Destroy functions tend to use static testAccProvider
@@ -32,7 +34,6 @@ var testAccProvider *schema.Provider
 
 var testAccEnvVars = []string{
 	"YC_FOLDER_ID",
-	"YC_CLOUD_ID",
 	"YC_ZONE",
 	"YC_TOKEN",
 	"YC_LOGIN",
@@ -57,6 +58,11 @@ func init() {
 	testAccProvider = Provider()
 	testAccProviders = map[string]*schema.Provider{
 		"yandex": testAccProvider,
+	}
+	testAccProviderFactories = map[string]func() (*schema.Provider, error){
+		"yandex": func() (*schema.Provider, error) {
+			return testAccProvider, nil
+		},
 	}
 
 	testAccProviderEmptyFolder = map[string]*schema.Provider{
@@ -262,10 +268,20 @@ func setTestIDs() error {
 	// setup example ID values for test cases
 	testCloudID = os.Getenv("YC_CLOUD_ID")
 	testOrganizationID = os.Getenv("YC_ORGANIZATION_ID")
-	testCloudName = getCloudNameByID(sdk, testCloudID)
 
 	testFolderID = os.Getenv("YC_FOLDER_ID")
-	testFolderName = getFolderNameByID(sdk, testFolderID)
+	folder := getFolderByID(sdk, testFolderID)
+	if folder != nil {
+		testFolderName = folder.Name
+		if testCloudID == "" {
+			testCloudID = folder.CloudId
+		} else if testCloudID != folder.CloudId {
+			return fmt.Errorf("Invalid cloud id: %s != %s", testCloudID, folder.CloudId)
+		}
+	} else {
+		testFolderName = "no folder name detected"
+	}
+	testCloudName = getCloudNameByID(sdk, testCloudID)
 
 	testUserLogin1 = os.Getenv("YC_LOGIN")
 	testUserLogin2 = os.Getenv("YC_LOGIN_2")
@@ -292,7 +308,7 @@ func getCloudNameByID(sdk *ycsdk.SDK, cloudID string) string {
 	return cloud.Name
 }
 
-func getFolderNameByID(sdk *ycsdk.SDK, folderID string) string {
+func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
 	folder, err := sdk.ResourceManager().Folder().Get(context.Background(), &resourcemanager.GetFolderRequest{
 		FolderId: folderID,
 	})
@@ -301,9 +317,9 @@ func getFolderNameByID(sdk *ycsdk.SDK, folderID string) string {
 		if reqID, ok := isRequestIDPresent(err); ok {
 			log.Printf("[DEBUG] request ID is %s\n", reqID)
 		}
-		return "no folder name detected"
+		return nil
 	}
-	return folder.Name
+	return folder
 }
 
 func loginToUserID(sdk *ycsdk.SDK, loginName string) (userID string) {

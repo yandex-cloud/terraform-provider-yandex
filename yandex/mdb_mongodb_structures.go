@@ -3,6 +3,10 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"reflect"
+	"strings"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 
@@ -10,6 +14,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	mongo_config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config"
 )
 
 type mongodbConfig struct {
@@ -353,12 +358,35 @@ func expandMongoDBSpec5_0Enterprise(d *schema.ResourceData) *mongodb.ConfigSpec_
 	return &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
 		MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
 			Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
+				Config:    expandMongodConfig5_0Enterprise(d),
 				Resources: expandMongoDBResources(d),
 			},
 			Mongos:   &mongodb.MongodbSpec5_0Enterprise_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec5_0Enterprise_MongoCfg{},
 		},
 	}
+}
+
+func expandMongodConfig5_0Enterprise(d *schema.ResourceData) *mongo_config.MongodConfig5_0Enterprise {
+	cfg := mongo_config.MongodConfig5_0Enterprise{}
+
+	audit_log := mongo_config.MongodConfig5_0Enterprise_AuditLog{}
+	if filter := d.Get("cluster_config.0.mongod.0.audit_log.0.filter"); filter != nil {
+		audit_log.SetFilter(filter.(string))
+	}
+	// Note: right now runtime_configuration unsupported, so we should comment this block
+	//if rt := d.Get("cluster_config.0.mongod.0.audit_log.0.runtime_configuration"); rt != nil {
+	//	audit_log.SetRuntimeConfiguration(&wrappers.BoolValue{Value: rt.(bool)})
+	//}
+	cfg.SetAuditLog(&audit_log)
+
+	set_paramenter := mongo_config.MongodConfig5_0Enterprise_SetParameter{}
+	if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
+		set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
+	}
+	cfg.SetSetParameter(&set_paramenter)
+
+	return &cfg
 }
 
 func expandMongoDBSpec5_0(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_5_0 {
@@ -377,12 +405,31 @@ func expandMongoDBSpec4_4Enterprise(d *schema.ResourceData) *mongodb.ConfigSpec_
 	return &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
 		MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
 			Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
+				Config:    expandMongodConfig4_4Enterprise(d),
 				Resources: expandMongoDBResources(d),
 			},
 			Mongos:   &mongodb.MongodbSpec4_4Enterprise_Mongos{},
 			Mongocfg: &mongodb.MongodbSpec4_4Enterprise_MongoCfg{},
 		},
 	}
+}
+
+func expandMongodConfig4_4Enterprise(d *schema.ResourceData) *mongo_config.MongodConfig4_4Enterprise {
+	cfg := mongo_config.MongodConfig4_4Enterprise{}
+
+	audit_log := mongo_config.MongodConfig4_4Enterprise_AuditLog{}
+	if filter := d.Get("cluster_config.0.mongod.0.audit_log.0.filter"); filter != nil {
+		audit_log.SetFilter(filter.(string))
+	}
+	cfg.SetAuditLog(&audit_log)
+
+	set_paramenter := mongo_config.MongodConfig4_4Enterprise_SetParameter{}
+	if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
+		set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
+	}
+	cfg.SetSetParameter(&set_paramenter)
+
+	return &cfg
 }
 
 func expandMongoDBSpec4_4(d *schema.ResourceData) *mongodb.ConfigSpec_MongodbSpec_4_4 {
@@ -455,4 +502,29 @@ func mongodbDatabasesDiff(currDBs []*mongodb.Database, targetDBs []*mongodb.Data
 	}
 
 	return toDel, toAdd
+}
+
+func checkSupportedVersion(version string) error {
+	supportedVersions := map[string]bool{
+		"5.0-enterprise": true,
+		"4.4-enterprise": true,
+		"5.0":            true,
+		"4.4":            true,
+		"4.2":            true,
+		"4.0":            true,
+		"3.6":            true,
+	}
+
+	_, ok := supportedVersions[version]
+	if !ok {
+		expected := reflect.ValueOf(supportedVersions).MapKeys()
+		return fmt.Errorf("Wrong MongoDB version: required either %v, got %s", expected, version)
+	}
+	return nil
+}
+
+func flattendVersion(version string) string {
+	result := strings.Replace(version, ".", "_", -1)
+	result = strings.Replace(result, "-", "_", -1)
+	return result
 }

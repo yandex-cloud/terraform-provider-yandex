@@ -348,7 +348,7 @@ func dataSourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	resources, err := extractMongodbResources(cluster.Config.Version, cluster.Config)
+	resources, err := extractMongodbResources(cluster.Config)
 	if err != nil {
 		return err
 	}

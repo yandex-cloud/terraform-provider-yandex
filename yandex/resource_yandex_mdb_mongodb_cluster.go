@@ -220,6 +220,48 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 								},
 							},
 						},
+						"mongod": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"audit_log": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"filter": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"runtime_configuration": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"set_parameter": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"audit_authorization_success": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -346,6 +388,7 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
 				MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
 					Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
+						Config:    expandMongodConfig5_0Enterprise(d),
 						Resources: &res,
 					},
 					Mongos: &mongodb.MongodbSpec5_0Enterprise_Mongos{
@@ -362,6 +405,7 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
 				MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
 					Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
+						Config:    expandMongodConfig4_4Enterprise(d),
 						Resources: &res,
 					},
 					Mongos: &mongodb.MongodbSpec4_4Enterprise_Mongos{
@@ -608,11 +652,12 @@ func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
 
-	ver := cluster.Config.Version
+	resources, err := extractMongodbResources(cluster.Config)
+	if err != nil {
+		return err
+	}
 
-	mongo := cluster.Config
-
-	resources, err := extractMongodbResources(ver, mongo)
+	mongod_config, err := extractMongodConfig(cluster.Config)
 	if err != nil {
 		return err
 	}
@@ -661,6 +706,7 @@ func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{
 					"data_lens": conf.access.DataLens,
 				},
 			},
+			"mongod": mongod_config,
 		},
 	})
 
@@ -776,12 +822,12 @@ func resourceYandexMDBMongodbClusterDelete(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func extractMongodbResources(version string, mongo *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+func extractMongodbResources(mongo *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
 	if mongo == nil {
 		return nil, nil
 	}
 
-	switch version {
+	switch mongo.Version {
 	case "5.0-enterprise":
 		{
 			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
@@ -911,6 +957,96 @@ func extractMongodbResources(version string, mongo *mongodb.ClusterConfig) ([]ma
 	}
 
 	return nil, fmt.Errorf("unexpected error during resources extraction")
+}
+
+func extractMongodConfig(mongo *mongodb.ClusterConfig) ([]interface{}, error) {
+	if mongo == nil {
+		return nil, nil
+	}
+
+	switch mongo.Version {
+	case "5.0-enterprise":
+		{
+			mongod := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongod
+			if mongod != nil {
+				user_config := mongod.GetConfig().GetUserConfig()
+				default_config := mongod.GetConfig().GetDefaultConfig()
+
+				result := map[string]interface{}{}
+
+				if audit_log := user_config.GetAuditLog(); audit_log != nil {
+					audit_log_data := map[string]interface{}{}
+					if audit_log.GetFilter() != default_config.GetAuditLog().GetFilter() {
+						audit_log_data["filter"] = audit_log.GetFilter()
+					}
+					if audit_log.GetRuntimeConfiguration() != nil {
+						audit_log_data["runtime_configuration"] = audit_log.GetRuntimeConfiguration().GetValue()
+					}
+					result["audit_log"] = []map[string]interface{}{audit_log_data}
+				}
+				if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
+					set_parameter_data := map[string]interface{}{}
+					if set_parameter.GetAuditAuthorizationSuccess() != nil {
+						set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
+					}
+					result["set_parameter"] = []map[string]interface{}{set_parameter_data}
+				}
+
+				return []interface{}{result}, nil
+			}
+			return []interface{}{}, nil
+		}
+	case "4.4-enterprise":
+		{
+			mongod := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongod
+			if mongod != nil {
+				user_config := mongod.GetConfig().GetUserConfig()
+				default_config := mongod.GetConfig().GetDefaultConfig()
+
+				result := map[string]interface{}{}
+
+				if audit_log := user_config.GetAuditLog(); audit_log != nil {
+					audit_log_data := map[string]interface{}{}
+					if audit_log.GetFilter() != default_config.GetAuditLog().GetFilter() {
+						audit_log_data["filter"] = audit_log.GetFilter()
+					}
+					result["audit_log"] = []map[string]interface{}{audit_log_data}
+				}
+				if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
+					set_parameter_data := map[string]interface{}{}
+					if set_parameter.GetAuditAuthorizationSuccess() != nil {
+						set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
+					}
+					result["set_parameter"] = []map[string]interface{}{set_parameter_data}
+				}
+
+				return []interface{}{result}, nil
+			}
+			return []interface{}{}, nil
+		}
+	case "5.0":
+		{
+			return []interface{}{}, nil
+		}
+	case "4.4":
+		{
+			return []interface{}{}, nil
+		}
+	case "4.2":
+		{
+			return []interface{}{}, nil
+		}
+	case "4.0":
+		{
+			return []interface{}{}, nil
+		}
+	case "3.6":
+		{
+			return []interface{}{}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unexpected error during mongod config extraction")
 }
 
 func listMongodbUsers(ctx context.Context, config *Config, id string) ([]*mongodb.User, error) {
@@ -1119,41 +1255,15 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		}
 	}
 
+	version := d.Get("cluster_config.0.version").(string)
+	err = checkSupportedVersion(version)
+	if err != nil {
+		return err
+	}
+
 	if d.HasChange("resources") {
-		switch d.Get("cluster_config.0.version").(string) {
-		case "5.0-enterprise":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_5_0_enterprise")
-			}
-		case "4.4-enterprise":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_4_4_enterprise")
-			}
-		case "5.0":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_5_0")
-			}
-		case "4.4":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_4_4")
-			}
-		case "4.2":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_4_2")
-			}
-		case "4.0":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_4_0")
-			}
-		case "3.6":
-			{
-				updatePath = append(updatePath, "config_spec.mongodb_spec_3_6")
-			}
-		default:
-			{
-				return fmt.Errorf("wrong MongoDB version: required either 5.0, 5.0-enterprise, 4.4, 4.4-enterprise, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
-			}
-		}
+		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
+		updatePath = append(updatePath, resourcesSpecPath)
 
 		if d.HasChange("resources.0.disk_size") {
 			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_size")
@@ -1175,6 +1285,11 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 
 			})
 		}
+	}
+
+	if d.HasChange("cluster_config.0.mongod") {
+		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.config", flattendVersion(version))
+		updatePath = append(updatePath, configSpecPath)
 	}
 
 	if d.HasChange("maintenance_window") {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -12,18 +14,56 @@ import (
 func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 	t.Parallel()
 
-	mongodbName := acctest.RandomWithPrefix("ds-mongodb-by-name")
+	clusterName := acctest.RandomWithPrefix("test-acc-ds-mongodb-by-name")
+	configData := map[string]interface{}{
+		"ClusterName": clusterName,
+		"Environment": "PRESTABLE",
+		"Lables":      map[string]string{"test_key": "test_value"},
+		"BackupWindow": map[string]int64{
+			"hours":   3,
+			"minutes": 4,
+		},
+		"Version":   "4.2",
+		"Databases": []string{"testdb"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "john",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "testdb",
+					},
+				},
+			},
+		},
+		"Resources": mongodb.Resources{
+			ResourcePresetId: "s2.micro",
+			DiskSize:         16,
+			DiskTypeId:       "network-hdd",
+		},
+		"Hosts": []map[string]interface{}{
+			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
+			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+		},
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "WEEKLY",
+			"Day":  "FRI",
+			"Hour": 20,
+		},
+		"DeletionProtection": false,
+	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBMongoDBClusterDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckMDBMongoDBClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBMongoDBClusterConfig(mongodbName),
+				Config: makeConfig(t, &configData, nil) + mdbMongoDBClusterByNameConfig,
 				Check: testAccDataSourceMDBMongoDBClusterCheck(
 					"data.yandex_mdb_mongodb_cluster.bar",
-					"yandex_mdb_mongodb_cluster.foo", mongodbName),
+					"yandex_mdb_mongodb_cluster.foo", clusterName),
 			},
 		},
 	})
@@ -113,7 +153,3 @@ data "yandex_mdb_mongodb_cluster" "bar" {
   name = "${yandex_mdb_mongodb_cluster.foo.name}"
 }
 `
-
-func testAccDataSourceMDBMongoDBClusterConfig(mongodbName string) string {
-	return testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false) + mdbMongoDBClusterByNameConfig
-}

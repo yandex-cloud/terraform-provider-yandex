@@ -114,6 +114,8 @@ The `cluster_config` block supports:
 
 * `access` - (Optional) Shows whether cluster has access to data lens. The structure is documented below.
 
+* `mongod` - (Optional) Configuration of the mongod service. The structure is documented below.
+
 The `backup_window_start` block supports:
 
 * `hours` - (Optional) The hour at which backup will be started.
@@ -177,6 +179,29 @@ The `maintenance_window` block supports:
 * `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
 * `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
 * `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+The `mongod` block supports:
+
+* `audit_log` - (Optional) A set of audit log settings 
+  (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option). 
+  The structure is documented below. Available only in enterprise edition.
+
+* `set_parameter` - (Optional) A set of MongoDB Server Parameters 
+  (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option). 
+  The structure is documented below.
+
+The `audit_log` block supports:
+
+* `filter` - (Optional) Configuration of the audit log filter in JSON format.
+  For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter)
+  description in the official documentation. Available only in enterprise edition.
+
+The `set_parameter` block supports:
+
+* `audit_authorization_success` - (Optional) Enables the auditing of authorization successes. Can be either true or false.
+  For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess)
+  description in the official documentation. Available only in enterprise edition.
+
 
 ## Attributes Reference
 

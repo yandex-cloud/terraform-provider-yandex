@@ -1,12 +1,14 @@
 package yandex
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
+	"text/template"
 
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -19,6 +21,18 @@ import (
 )
 
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
+
+var s2Micro16hdd = mongodb.Resources{
+	ResourcePresetId: "s2.micro",
+	DiskSize:         toBytes(16),
+	DiskTypeId:       "network-hdd",
+}
+
+var s2Small26hdd = mongodb.Resources{
+	ResourcePresetId: "s2.small",
+	DiskSize:         toBytes(26),
+	DiskTypeId:       "network-hdd",
+}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_mongodb_cluster", &resource.Sweeper{
@@ -89,30 +103,71 @@ func mdbMongoDBClusterImportStep() resource.TestStep {
 	}
 }
 
+func create4_2ConfigData() map[string]interface{} {
+	return map[string]interface{}{
+		"Version":     "4.2",
+		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Environment": "PRESTABLE",
+		"Lables":      map[string]string{"test_key": "test_value"},
+		"BackupWindow": map[string]int64{
+			"hours":   3,
+			"minutes": 4,
+		},
+		"Databases": []string{"testdb"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "john",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "testdb",
+					},
+				},
+			},
+		},
+		"Resources": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         s2Micro16hdd.DiskSize >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"Hosts": []map[string]interface{}{
+			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
+			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+		},
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "WEEKLY",
+			"Day":  "FRI",
+			"Hour": 20,
+		},
+		"DeletionProtection": true,
+	}
+}
+
 // Test that a MongoDB Cluster can be created, updated and destroyed
-func TestAccMDBMongoDBCluster_full(t *testing.T) {
+func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 	t.Parallel()
 
+	configData := create4_2ConfigData()
+	clusterName := configData["ClusterName"].(string)
+
 	var r mongodb.Cluster
-	mongodbName := acctest.RandomWithPrefix("tf-mongodb")
-	mongodbNameChanged := mongodbName + "-changed"
-	mongodbDesc := "Updated MongDB cluster"
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckVPCNetworkDestroy,
 		Steps: []resource.TestStep{
 			// Create MongoDB Cluster
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", true),
+				Config: makeConfig(t, &configData, nil),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
-					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbName),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					testAccCheckMDBMongoDBClusterHasConfig(&r, "4.2"),
-					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
+					testAccCheckMDBMongoDBClusterHasConfig(&r, configData["Version"].(string)),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "test_key", "test_value"),
@@ -127,7 +182,7 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Config: makeConfig(t, &configData, &map[string]interface{}{"DeletionProtection": false}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
@@ -136,7 +191,9 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			// check 'deletion_protection'
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", true),
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DeletionProtection": true,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
@@ -145,12 +202,17 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			// trigger deletion by changing environment
 			{
-				Config:      testAccMDBMongoDBClusterConfigMain(mongodbName, "PRODUCTION", true),
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Environment": "PRODUCTION",
+				}),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBMongoDBClusterConfigMain(mongodbName, "PRESTABLE", false),
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Environment":        "PRESTABLE",
+					"DeletionProtection": false,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
@@ -158,12 +220,31 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			},
 			mdbMongoDBClusterImportStep(),
 			{
-				Config: testAccMDBMongoDBClusterConfigRoles(mongodbName),
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"MaintenanceWindow": map[string]interface{}{"Type": "ANYTIME"},
+					"SecurityGroupIds": []string{
+						"${yandex_vpc_security_group.sg-x.id}",
+						"${yandex_vpc_security_group.sg-y.id}",
+					},
+					"Users": []*mongodb.UserSpec{
+						{
+							Name:     "john",
+							Password: "password",
+							Permissions: []*mongodb.Permission{
+								{
+									DatabaseName: "admin",
+									Roles:        []string{"mdbMonitor"},
+								},
+							},
+						},
+					},
+					"DeletionProtection": nil,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
-					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbName),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.micro", 17179869184),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
@@ -173,15 +254,60 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 			},
 			mdbMongoDBClusterImportStep(),
 			{
-				Config: testAccMDBMongoDBClusterConfigUpdated(mongodbNameChanged, mongodbDesc),
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ClusterName":        clusterName + "-changed",
+					"ClusterDescription": "Updated MongDB cluster",
+					"Lables":             map[string]string{"new_key": "new_value"},
+					"Databases":          []string{"testdb", "newdb"},
+					"Users": []*mongodb.UserSpec{
+						{
+							Name:     "john",
+							Password: "password",
+							Permissions: []*mongodb.Permission{
+								{
+									DatabaseName: "admin",
+									Roles:        []string{"mdbMonitor"},
+								},
+							},
+						},
+						{
+							Name:     "mary",
+							Password: "qwerty123",
+							Permissions: []*mongodb.Permission{
+								{
+									DatabaseName: "newdb",
+								},
+								{
+									DatabaseName: "admin",
+									Roles:        []string{"mdbMonitor"},
+								},
+							},
+						},
+					},
+					"Resources": &mongodb.Resources{
+						ResourcePresetId: s2Small26hdd.ResourcePresetId,
+						DiskSize:         s2Small26hdd.DiskSize >> 30,
+						DiskTypeId:       s2Small26hdd.DiskTypeId,
+					},
+					"Hosts": []map[string]interface{}{
+						{"ZoneId": "ru-central1-c", "SubnetId": "${yandex_vpc_subnet.baz.id}"},
+						{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+					},
+					"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-y.id}"},
+					"MaintenanceWindow": map[string]interface{}{
+						"Type": "WEEKLY",
+						"Day":  "FRI",
+						"Hour": 20,
+					},
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
-					resource.TestCheckResourceAttr(mongodbResource, "name", mongodbNameChanged),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName+"-changed"),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mongodbResource, "description", mongodbDesc),
+					resource.TestCheckResourceAttr(mongodbResource, "description", "Updated MongDB cluster"),
 					resource.TestCheckResourceAttrSet(mongodbResource, "host.0.name"),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBMongoDBClusterHasResources(&r, "s2.small", 27917287424),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Small26hdd}),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"admin"}, "mary": {"newdb", "admin"}}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb", "newdb"}),
 					testAccCheckCreatedAtAttr(mongodbResource),
@@ -189,6 +315,155 @@ func TestAccMDBMongoDBCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+
+func create5_0_enterpriseConfigData() map[string]interface{} {
+	return map[string]interface{}{
+		"Version":     "5.0-enterprise",
+		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Environment": "PRESTABLE",
+		"Lables":      map[string]string{"test_key": "test_value"},
+		"BackupWindow": map[string]int64{
+			"hours":   3,
+			"minutes": 4,
+		},
+		"Mongod": map[string]interface{}{
+			"AuditLog": map[string]interface{}{
+				"Filter": "{ \"atype\": { \"$in\": [ \"createCollection\", \"dropCollection\" ] } }",
+			},
+			"SetParameter": map[string]interface{}{
+				"AuditAuthorizationSuccess": true,
+			},
+		},
+		"Databases": []string{"testdb"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "john",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "testdb",
+					},
+				},
+			},
+		},
+		"Resources": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         s2Micro16hdd.DiskSize >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"Hosts": []map[string]interface{}{
+			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
+			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+		},
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "WEEKLY",
+			"Day":  "FRI",
+			"Hour": 20,
+		},
+		"DeletionProtection": true,
+	}
+}
+
+// Test that a MongoDB Cluster can be created, updated and destroyed
+func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0_enterpriseConfigData()
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+	auditLogFilter := ((configData["Mongod"].(map[string]interface{}))["AuditLog"].(map[string]interface{}))["Filter"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasConfig(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources":                 &s2Micro16hdd,
+						"AuditLogFilter":            auditLogFilter,
+						"AuditAuthorizationSuccess": true,
+					}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBMongoDBClusterContainsLabel(&testCluster, "test_key", "test_value"),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.audit_log.0.filter", auditLogFilter),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Uncheck deletion_protection
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DeletionProtection": false,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update: remove filter and uncheck AuditAuthorizationSuccess
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Mongod": map[string]interface{}{
+						"AuditLog": map[string]interface{}{
+							"Filter": "{}",
+						},
+						"SetParameter": map[string]interface{}{
+							"AuditAuthorizationSuccess": false,
+						},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasConfig(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources":                 &s2Micro16hdd,
+						"AuditLogFilter":            "{}",
+						"AuditAuthorizationSuccess": false,
+					}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBMongoDBClusterContainsLabel(&testCluster, "test_key", "test_value"),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.audit_log.0.filter", "{}"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "false"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -269,40 +544,55 @@ func testAccCheckMDBMongoDBClusterHasConfig(r *mongodb.Cluster, version string) 
 	}
 }
 
-func supportTestResources(resourcePresetID string, diskSize int64, rs *mongodb.Resources) error {
-	if rs.ResourcePresetId != resourcePresetID {
-		return fmt.Errorf("Expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
+func supportTestResources(actual *mongodb.Resources, expected *mongodb.Resources) error {
+	if actual.ResourcePresetId != expected.ResourcePresetId {
+		return fmt.Errorf("Expected resource preset id '%s', got '%s'",
+			expected.ResourcePresetId, actual.ResourcePresetId)
 	}
-	if rs.DiskSize != diskSize {
-		return fmt.Errorf("Expected size '%d', got '%d'", diskSize, rs.DiskSize)
+	if actual.DiskSize != expected.DiskSize {
+		return fmt.Errorf("Expected size '%d', got '%d'", expected.DiskSize, actual.DiskSize)
+	}
+
+	if actual.DiskTypeId != expected.DiskTypeId {
+		return fmt.Errorf("Expected disk type id '%s', got '%s'", expected.DiskTypeId, actual.DiskTypeId)
 	}
 
 	return nil
 }
 
-func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePresetID string, diskSize int64) resource.TestCheckFunc {
+func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map[string]interface{}) resource.TestCheckFunc {
 	//TODO for future updates: test for different resources (mongod, mongos and mongocfg)
+	expectedResources := expected["Resources"].(*mongodb.Resources)
 	return func(s *terraform.State) error {
-		ver := r.Config.Version
-		res := r.Config.Mongodb
-		switch ver {
+		switch r.Config.Version {
 		case "5.0-enterprise":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
-
+					err := supportTestResources(d.Resources, expectedResources)
 					if err != nil {
 						return err
+					}
+					if expectedValue, ok := expected["AuditLogFilter"]; ok {
+						actual := d.Config.UserConfig.AuditLog.Filter
+						expected := expectedValue.(string)
+						if actual != expected {
+							return fmt.Errorf("Expected audit log filter '%s', got '%s'", expected, actual)
+						}
+					}
+					if expectedValue, ok := expected["AuditAuthorizationSuccess"]; ok {
+						expected := expectedValue.(bool)
+						actual := d.Config.UserConfig.SetParameter.AuditAuthorizationSuccess.Value
+						if actual != expected {
+							return fmt.Errorf("Expected audit_authorization_success '%t', got '%t'", expected, actual)
+						}
 					}
 				}
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -311,8 +601,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -321,11 +610,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "4.4-enterprise":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -334,8 +622,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -344,8 +631,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -354,11 +640,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "5.0":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -367,8 +652,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -377,8 +661,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -387,11 +670,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "4.4":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -400,8 +682,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -410,8 +691,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -420,11 +700,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "4.2":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -433,8 +712,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -443,8 +721,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -453,11 +730,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "4.0":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -466,8 +742,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -476,8 +751,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -486,11 +760,10 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 			}
 		case "3.6":
 			{
-				mongo := res.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
 				d := mongo.Mongod
 				if d != nil {
-					rs := d.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(d.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -499,8 +772,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				s := mongo.Mongos
 				if s != nil {
-					rs := s.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(s.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -509,8 +781,7 @@ func testAccCheckMDBMongoDBClusterHasResources(r *mongodb.Cluster, resourcePrese
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					rs := cfg.Resources
-					err := supportTestResources(resourcePresetID, diskSize, rs)
+					err := supportTestResources(cfg.Resources, expectedResources)
 
 					if err != nil {
 						return err
@@ -681,198 +952,125 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
-func testAccMDBMongoDBClusterConfigMain(name, environment string, deletionProtection bool) string {
-	return fmt.Sprintf(mongodbVPCDependencies+`
+const resourceYandexMdbMongodbClusterTemplateText = mongodbVPCDependencies + `
 resource "yandex_mdb_mongodb_cluster" "foo" {
-  name        = "%s"
-  environment = "%s"
+  name        = "{{.ClusterName}}"
+{{- if .ClusterDescription}}
+  description = "{{.ClusterDescription}}"
+{{- end}}
+  environment = "{{.Environment}}"
   network_id  = "${yandex_vpc_network.foo.id}"
 
-  cluster_config {
-    version = "4.2"
-    feature_compatibility_version = "4.2"
-    backup_window_start {
-      hours = 3
-      minutes = 4
-    }
-  }
-
+{{if .Lables}}
   labels = {
-    test_key = "test_value"
+{{- range $key, $value := .Lables}}
+    {{ $key }} = "{{ $value }}"
+{{- end}}
   }
-
-  database {
-    name = "testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-    }
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_size          = 16
-    disk_type_id       = "network-hdd"
-  }
-
-  host {
-    zone_id   = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
-  }
-
-  host {
-    zone_id   = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.bar.id}"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
-
-  maintenance_window {
-    type = "WEEKLY"
-    day  = "FRI"
-    hour = 20
-  }
-  
-  deletion_protection = %t
-}
-`, name, environment, deletionProtection)
-}
-
-func testAccMDBMongoDBClusterConfigRoles(name string) string {
-	return fmt.Sprintf(mongodbVPCDependencies+`
-resource "yandex_mdb_mongodb_cluster" "foo" {
-  name        = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
+{{end}}
 
   cluster_config {
-    version = "4.2"
-    feature_compatibility_version = "4.2"
+    version = "{{.Version}}"
+    feature_compatibility_version = "{{dropSuffix .Version "-enterprise"}}"
     backup_window_start {
-      hours = 3
-      minutes = 4
+      hours = {{.BackupWindow.hours}}
+      minutes = {{.BackupWindow.minutes}}
     }
+{{if .Mongod}}
+    mongod {
+{{if .Mongod.AuditLog}}
+      audit_log {
+        filter = "{{escapeQuotations .Mongod.AuditLog.Filter}}"
+      }
+      set_parameter {
+        audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
+      }
+{{end}}
+    }
+{{end}}
   }
 
-  labels = {
-    test_key = "test_value"
-  }
-
+{{range $i, $r := .Databases}}
   database {
-    name = "testdb"
+    name = "{{.}}"
   }
+{{- end}}
 
+{{range $i, $r := .Users}}
   user {
-    name     = "john"
-    password = "password"
+    name     = "{{$r.Name}}"
+    password = "{{$r.Password}}"
+{{range $ii, $rr := $r.Permissions}}
     permission {
-      database_name = "admin"
-      roles         = ["mdbMonitor"]
+      database_name = "{{$rr.DatabaseName}}"
+      {{if $rr.Roles -}}
+      roles = [{{range $iii, $rrr := $rr.Roles}}{{if $iii}}, {{end}}"{{.}}"{{end}}]
+      {{- end}}
     }
+{{- end}}
   }
+{{- end}}
 
   resources {
-    resource_preset_id = "s2.micro"
-    disk_size          = 16
-    disk_type_id       = "network-hdd"
+    resource_preset_id = "{{.Resources.ResourcePresetId}}"
+    disk_size          = {{.Resources.DiskSize}}
+    disk_type_id       = "{{.Resources.DiskTypeId}}"
   }
 
+{{range $i, $r := .Hosts}}
   host {
-    zone_id   = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
+    zone_id   = "{{$r.ZoneId}}"
+    subnet_id = "{{$r.SubnetId}}"
   }
+{{end}}
 
-  host {
-    zone_id   = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.bar.id}"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
+  security_group_ids = [{{range $i, $r := .SecurityGroupIds}}{{if $i}}, {{end}}"{{.}}"{{end}}]
 
   maintenance_window {
-    type = "ANYTIME"
+    type = "{{.MaintenanceWindow.Type}}"
+    {{with .MaintenanceWindow.Day}}day  = "{{.}}"{{end}}
+    {{with .MaintenanceWindow.Hour}}hour = {{.}}{{end}}
   }
+
+  {{if isNotNil .DeletionProtection}}deletion_protection = {{.DeletionProtection}}{{end}}
 }
-`, name)
+`
+
+func makeConfigFromTemplateText(t *testing.T, templateText string, data *map[string]interface{}, patch *map[string]interface{}) string {
+	if patch != nil {
+		for k, v := range *patch {
+			if v != nil {
+				(*data)[k] = v
+			} else {
+				delete(*data, k)
+			}
+		}
+	}
+
+	tmpl, err := template.New("config").Funcs(template.FuncMap{
+		"isNotNil":         func(v interface{}) bool { return v != nil },
+		"escapeQuotations": func(v string) string { return strings.Replace(v, "\"", "\\\"", -1) },
+		"dropSuffix": func(v string, suffix string) string {
+			if strings.HasSuffix(v, suffix) {
+				return v[0 : len(v)-len(suffix)]
+			}
+			return v
+		},
+	}).Parse(templateText)
+	if err != nil {
+		t.Fatal(err)
+		return ""
+	}
+	buf := &bytes.Buffer{}
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		t.Fatal(err)
+		return ""
+	}
+	result := buf.String()
+	return result
 }
 
-func testAccMDBMongoDBClusterConfigUpdated(name, desc string) string {
-	return fmt.Sprintf(mongodbVPCDependencies+`
-resource "yandex_mdb_mongodb_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
-
-  labels = {
-    new_key = "new_value"
-  }
-
-  cluster_config {
-    version = "4.2"
-    feature_compatibility_version = "4.2"
-    backup_window_start {
-      hours = 3
-      minutes = 4
-    }
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "newdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "admin"
-      roles         = ["mdbMonitor"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "qwerty123"
-    permission {
-      database_name = "newdb"
-    }
-    permission {
-      database_name = "admin"
-      roles         = ["mdbMonitor"]
-    }
-  }
-
-  resources {
-    resource_preset_id = "s2.small"
-    disk_size          = 26
-    disk_type_id       = "network-hdd"
-  }
-
-  host {
-    zone_id   = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.baz.id}"
-  }
-
-  host {
-    zone_id   = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.bar.id}"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
-
-  maintenance_window {
-    type = "WEEKLY"
-    day  = "FRI"
-    hour = 20
-  }
-}
-`, name, desc)
+func makeConfig(t *testing.T, data *map[string]interface{}, patch *map[string]interface{}) string {
+	return makeConfigFromTemplateText(t, resourceYandexMdbMongodbClusterTemplateText, data, patch)
 }
