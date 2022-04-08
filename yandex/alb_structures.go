@@ -736,6 +736,10 @@ func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalance
 		backend.SetTargetGroups(expandALBTargetGroupIds(v))
 	}
 
+	if v, ok := d.GetOk(key + "enable_proxy_protocol"); ok {
+		backend.SetEnableProxyProtocol(v.(bool))
+	}
+
 	return backend, nil
 }
 
@@ -1501,6 +1505,7 @@ func flattenALBStreamBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, 
 			"tls":                   flattenALBBackendTLS(b.GetTls()),
 			"load_balancing_config": flattenALBLoadBalancingConfig(b.GetLoadBalancingConfig()),
 			"healthcheck":           flattenALBHealthChecks(b.GetHealthchecks()),
+			"enable_proxy_protocol": b.GetEnableProxyProtocol(),
 		}
 		switch b.GetBackendType().(type) {
 		case *apploadbalancer.StreamBackend_TargetGroups:

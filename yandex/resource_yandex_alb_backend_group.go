@@ -129,6 +129,11 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"enable_proxy_protocol": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},

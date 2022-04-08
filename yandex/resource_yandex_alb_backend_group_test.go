@@ -364,6 +364,53 @@ func TestAccALBBackendGroup_streamBackend(t *testing.T) {
 					testExistsElementWithAttrValue(
 						albBGResource, "stream_backend", "healthcheck.*.http_healthcheck.0.host", albDefaultHost, &backendPath,
 					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "enable_proxy_protocol", albDefaultProxyProtocol, &backendPath,
+					),
+				),
+			},
+			albBackendGroupImportStep(),
+		},
+	})
+}
+
+func TestAccALBBackendGroup_streamBackendWithProxyProtocol(t *testing.T) {
+	t.Parallel()
+
+	proxyProtocol := "true"
+	BGResource := albBackendGroupInfo()
+	BGResource.IsStreamBackend = true
+	BGResource.IsHTTPCheck = true
+	BGResource.ProxyProtocol = proxyProtocol
+
+	var bg apploadbalancer.BackendGroup
+	backendPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBBackendGroupExists(albBGResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, false, false, true),
+					testExistsFirstElementWithAttr(
+						albBGResource, "stream_backend", "name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.timeout", albDefaultTimeout, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.interval", albDefaultInterval, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "healthcheck.*.http_healthcheck.0.host", albDefaultHost, &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "stream_backend", "enable_proxy_protocol", proxyProtocol, &backendPath,
+					),
 				),
 			},
 			albBackendGroupImportStep(),

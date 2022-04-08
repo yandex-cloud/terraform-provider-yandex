@@ -47,6 +47,7 @@ const albDefaultAutoHostRewrite = "true"
 const albDefaultAllowHTTP10 = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
+const albDefaultProxyProtocol = "false"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener   bool
@@ -202,6 +203,7 @@ type resourceALBBackendGroupInfo struct {
 	Port                 string
 	Receive              string
 	Send                 string
+	ProxyProtocol        string
 	StorageBackendBucket string
 }
 
@@ -235,6 +237,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		Port:                 albDefaultPort,
 		Receive:              albDefaultReceive,
 		Send:                 albDefaultSend,
+		ProxyProtocol:        albDefaultProxyProtocol,
 	}
 
 	return res
@@ -353,7 +356,6 @@ resource "yandex_alb_target_group" "test-target-group" {
 {{.BaseTemplate}}
 `
 
-// TODO(liubaleks): use terraform to create backend group
 const albLoadBalancerConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_load_balancer" "test-alb-ds" {
@@ -579,6 +581,7 @@ EOF
     name             = "test-stream-backend"
     weight           = {{.BackendWeight}}
     port             = {{.Port}}
+    enable_proxy_protocol = {{.ProxyProtocol}}
     target_group_ids = ["${yandex_alb_target_group.test-target-group.id}"]
     tls {
       {{ if not .IsEmptyTLS }}

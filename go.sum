@@ -925,12 +925,8 @@ github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6e
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778/go.mod h1:2MuV+tbUrU1zIOPMxZ5EncGwgmMJsa+9ucAQZXxsObs=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
-github.com/yandex-cloud/go-genproto v0.0.0-20220307143823-ae6fd1037836 h1:mLK730w6t0psyVVdUoAa7yNGFhNfwVPQPutS5sGxWVM=
-github.com/yandex-cloud/go-genproto v0.0.0-20220307143823-ae6fd1037836/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-genproto v0.0.0-20220328110913-e8ae5588d009 h1:UXQZnwY97mHqyEfJAiX1Qit6ZeklmEQ4jVFBh2eL+OU=
 github.com/yandex-cloud/go-genproto v0.0.0-20220328110913-e8ae5588d009/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-sdk v0.0.0-20220307144046-5eb2045b0e5f h1:TWUFCSTEZyaxtUoiwnyG2k6tZp48OoadksEsxwsQKsQ=
-github.com/yandex-cloud/go-sdk v0.0.0-20220307144046-5eb2045b0e5f/go.mod h1:rSjUYwLzjkioFBE3hG0+4W8X3NpFmLh0wL+aWcyRKiM=
 github.com/yandex-cloud/go-sdk v0.0.0-20220328111420-78536ffddb8f h1:cQLuRqI290IygXrsUcwNoLkI5DfnEhzoDGj9lzZ+YdY=
 github.com/yandex-cloud/go-sdk v0.0.0-20220328111420-78536ffddb8f/go.mod h1:lcTBYY/5POG7GbjDLTowDoZjmd/NseYNCdC1OiGzRQU=
 github.com/yeya24/promlinter v0.1.0 h1:goWULN0jH5Yajmu/K+v1xCqIREeB+48OiJ2uu2ssc7U=

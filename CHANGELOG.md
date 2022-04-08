@@ -3,6 +3,7 @@ ENHANCEMENTS:
 * iam: support for changing description of `yandex_iam_service_account_key` without recreation
 * mdb: add `performance_diagnostics` section in `yandex_mdb_mysql_cluster` resource and data source
 * mdb: change attribute `yandex_mdb_mysql_cluster.user.global_permissions` type from List to Set
+* alb: add `enable_proxy_protocol` attribute to `stream_backend` entity in `yandex_alb_backend_group` resource and data source
 
 BUG FIXES:
 * postgresql: fix unpredictable behaviour when changing `assign_public_ip` without name
