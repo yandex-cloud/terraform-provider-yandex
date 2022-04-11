@@ -32,6 +32,8 @@ resource "yandex_compute_instance" "default" {
 
   network_interface {
     subnet_id = "${yandex_vpc_subnet.foo.id}"
+    nat = true
+    security_group_ids = [ yandex_vpc_security_group.security_group1.id ]
   }
 
   metadata = {
@@ -45,6 +47,49 @@ resource "yandex_vpc_network" "foo" {}
 resource "yandex_vpc_subnet" "foo" {
   zone       = "ru-central1-a"
   network_id = "${yandex_vpc_network.foo.id}"
+}
+
+resource "yandex_iam_service_account" "savpcsg" {                       
+  name = "savpcsg"                                                      
+}                                                                       
+                                                                        
+resource "yandex_resourcemanager_folder_iam_binding" "editor" {         
+  folder_id = var.yc_folder_id                                    
+  role      = "editor"                                                  
+  members = [                                                           
+    "serviceAccount:${yandex_iam_service_account.savpcsg.id}"           
+  ]                                                                     
+  depends_on = [                                                        
+    yandex_iam_service_account.savpcsg,                                 
+  ]                                                                     
+}
+
+resource "yandex_vpc_security_group" "security_group1" {                
+  name        = "Security Group 1"                                      
+  description = "Our Security Group"              
+  network_id  = yandex_vpc_network.foo.id                           
+  depends_on = [                                                        
+    yandex_iam_service_account.savpcsg,                                 
+    yandex_resourcemanager_folder_iam_binding.editor,                   
+    yandex_vpc_network.foo,                                         
+    yandex_vpc_subnet.foo,                            
+  ]                                                                     
+                                                                        
+  ingress {                                                             
+    protocol       = "TCP"                                              
+    description    = "SSH"                                              
+    port           = 22                                                 
+    v4_cidr_blocks = ["0.0.0.0/0"]                                      
+  }                                                                     
+                                                                        
+  egress {                                                              
+                                                                        
+    protocol       = "ANY"                                              
+    description    = "Outbound unrestricted"                            
+    v4_cidr_blocks = ["0.0.0.0/0"]                                      
+    port           = -1                                                 
+  }                                                                     
+                                                                        
 }
 ```
 
