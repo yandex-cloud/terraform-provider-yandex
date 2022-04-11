@@ -93,6 +93,31 @@ resource "yandex_vpc_security_group" "security_group1" {
                                                                         
 }
 ```
+```
+#Sample cloudinit/meta.txt
+users:
+  - name: user1
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    homedir: /opt/user1
+    ssh-authorized-keys:
+      - ssh-rsa .... <comment>
+
+packages:
+  - tmux
+  - rsync
+
+package_upgrade: true
+package_reboot_if_required: true
+timezone: 'Asia/Tokyo'
+
+runcmd:
+  - echo PermitRootLogin No >> /etc/ssh/sshd_config && sshd -t &&  systemctl restart sshd
+  - echo -e "net.core.rmem_max=4194304\nnet.core.wmem_max=1048576" > /etc/sysctl.d/mynetwork.conf
+  - sysctl -p /etc/sysctl.d/mynetwork.conf
+  - chown -R user1:user1 /opt/user1
+```
 
 ## Argument Reference
 
