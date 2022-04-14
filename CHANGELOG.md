@@ -7,6 +7,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * postgresql: fix unpredictable behaviour when changing `assign_public_ip` without name
+* storage: fix not saving bucket's `policy` to tfstate
 
 FEATURES:
 * compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.

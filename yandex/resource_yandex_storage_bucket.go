@@ -550,36 +550,33 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("bucket_domain_name", domainName)
 
 	// Read the policy
-	if _, ok := d.GetOk("policy"); ok {
-
-		pol, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3Client.GetBucketPolicy(&s3.GetBucketPolicyInput{
-				Bucket: aws.String(d.Id()),
-			})
+	pol, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketPolicy(&s3.GetBucketPolicyInput{
+			Bucket: aws.String(d.Id()),
 		})
-		log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
-		if err != nil {
-			if isAWSErr(err, "NoSuchBucketPolicy", "") {
-				if err := d.Set("policy", ""); err != nil {
-					return fmt.Errorf("error setting policy: %s", err)
-				}
-			} else {
-				return fmt.Errorf("error getting current policy: %s", err)
+	})
+	log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
+	if err != nil {
+		if isAWSErr(err, "NoSuchBucketPolicy", "") {
+			if err := d.Set("policy", ""); err != nil {
+				return fmt.Errorf("error setting policy: %s", err)
 			}
 		} else {
-			v := pol.(*s3.GetBucketPolicyOutput).Policy
-			if v == nil {
-				if err := d.Set("policy", ""); err != nil {
-					return fmt.Errorf("error setting policy: %s", err)
-				}
-			} else {
-				policy, err := NormalizeJsonString(aws.StringValue(v))
-				if err != nil {
-					return fmt.Errorf("policy contains an invalid JSON: %s", err)
-				}
-				if err := d.Set("policy", policy); err != nil {
-					return fmt.Errorf("error setting policy: %s", err)
-				}
+			return fmt.Errorf("error getting current policy: %s", err)
+		}
+	} else {
+		v := pol.(*s3.GetBucketPolicyOutput).Policy
+		if v == nil {
+			if err := d.Set("policy", ""); err != nil {
+				return fmt.Errorf("error setting policy: %s", err)
+			}
+		} else {
+			policy, err := NormalizeJsonString(aws.StringValue(v))
+			if err != nil {
+				return fmt.Errorf("policy contains an invalid JSON: %s", err)
+			}
+			if err := d.Set("policy", policy); err != nil {
+				return fmt.Errorf("error setting policy: %s", err)
 			}
 		}
 	}
