@@ -18,6 +18,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 )
 
+const chVersion = "22.3"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -970,7 +971,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "%s"
-  version        = "21.8"
+  version        = "%s"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1192,7 +1193,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   deletion_protection = %t
 }
-`, name, desc, environment, deletionProtection)
+`, name, desc, environment, chVersion, deletionProtection)
 }
 
 func testAccMDBClickHouseClusterConfigUpdated(name, desc, bucket string, randInt int) string {
@@ -1201,7 +1202,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
-  version        = "21.8"
+  version        = "%s"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
 
@@ -1577,7 +1578,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     enabled = true
   }
 }
-`, name, desc)
+`, name, desc, chVersion)
 }
 
 func testAccMDBClickHouseClusterConfigHA(name, desc, bucket string, randInt int) string {
@@ -1586,7 +1587,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
   description              = "%s"
   environment              = "PRESTABLE"
-  version                  = "21.8"
+  version                  = "%s"
   network_id               = "${yandex_vpc_network.mdb-ch-test-net.id}"
   copy_schema_on_new_hosts = true
 
@@ -1899,7 +1900,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     enabled = true
   }
 }
-`, name, desc)
+`, name, desc, chVersion)
 }
 
 func testAccMDBClickHouseClusterConfigSharded(name, desc, bucket string, randInt int) string {
@@ -2270,7 +2271,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   environment             = "PRESTABLE"
   network_id              = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password          = "strong_password"
-  version                 = "21.8"
+  version                 = "%s"
 
   labels = {
     test_key = "test_value"
@@ -2403,7 +2404,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
     enabled = true
   }
 }
-`, name, desc)
+`, name, desc, chVersion)
 }
 
 func testAccMDBClickHouseClusterConfigEmbeddedKeeper(name, desc, bucket string, randInt int) string {
