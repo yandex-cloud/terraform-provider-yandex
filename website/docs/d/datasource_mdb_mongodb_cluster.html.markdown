@@ -79,6 +79,7 @@ The `cluster_config` block supports:
 * `feature_compatibility_version` - Feature compatibility version of MongoDB.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to MongoDB cluster. The structure is documented below.
+* `mongod` - (Optional) Configuration of the mongod service. The structure is documented below.
 
 The `backup_window_start` block supports:
 
@@ -108,3 +109,66 @@ The `maintenance_window` block supports:
 * `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
 * `hour` - Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
 * `day` - Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+
+The `mongod` block supports:
+
+* `security` - (Optional) A set of MongoDB Security settings
+  (see the [security](https://www.mongodb.com/docs/manual/reference/configuration-options/#security-options) option).
+  The structure is documented below. Available only in enterprise edition.
+
+* `audit_log` - (Optional) A set of audit log settings
+  (see the [auditLog](https://www.mongodb.com/docs/manual/reference/configuration-options/#auditlog-options) option).
+  The structure is documented below. Available only in enterprise edition.
+
+* `set_parameter` - (Optional) A set of MongoDB Server Parameters
+  (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option).
+  The structure is documented below.
+
+
+The `security` block supports:
+
+* `enable_encryption` - (Optional) Enables the encryption for the WiredTiger storage engine. Can be either true or false.
+  For more information see [security.enableEncryption](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.enableEncryption)
+  description in the official documentation. Available only in enterprise edition.
+
+* `kmip` - (Optional) Configuration of the third party key management appliance via the Key Management Interoperability Protocol (KMIP)
+  (see [Encryption tutorial](https://www.mongodb.com/docs/rapid/tutorial/configure-encryption) ). Requires `enable_encryption` to be true.
+  The structure is documented below. Available only in enterprise edition.
+
+
+The `audit_log` block supports:
+
+* `filter` - (Optional) Configuration of the audit log filter in JSON format.
+  For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter)
+  description in the official documentation. Available only in enterprise edition.
+
+
+The `set_parameter` block supports:
+
+* `audit_authorization_success` - (Optional) Enables the auditing of authorization successes. Can be either true or false.
+  For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess)
+  description in the official documentation. Available only in enterprise edition.
+
+
+The `kmip` block supports:
+
+* `server_name` - (Required) Hostname or IP address of the KMIP server to connect to.
+  For more information see [security.kmip.serverName](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverName)
+  description in the official documentation.
+
+* `port` - (Optional) Port number to use to communicate with the KMIP server. Default: 5696
+  For more information see [security.kmip.port](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.port)
+  description in the official documentation.
+
+* `server_ca` - (Required) Path to CA File. Used for validating secure client connection to KMIP server.
+  For more information see [security.kmip.serverCAFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.serverCAFile)
+  description in the official documentation.
+
+* `client_certificate` - (Required) String containing the client certificate used for authenticating MongoDB to the KMIP server.
+  For more information see [security.kmip.clientCertificateFile](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.clientCertificateFile)
+  description in the official documentation.
+
+* `key_identifier` - (Optional) Unique KMIP identifier for an existing key within the KMIP server.
+  For more information see [security.kmip.keyIdentifier](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.keyIdentifier)
+  description in the official documentation.

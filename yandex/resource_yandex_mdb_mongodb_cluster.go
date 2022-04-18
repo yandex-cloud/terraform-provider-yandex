@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -13,25 +14,19 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 )
 
-const (
-	yandexMDBMongodbClusterDefaultTimeout = 30 * time.Minute
-	yandexMDBMongodbClusterUpdateTimeout  = 60 * time.Minute
-)
-
 func resourceYandexMDBMongodbCluster() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexMDBMongodbClusterCreate,
-		Read:   resourceYandexMDBMongodbClusterRead,
-		Update: resourceYandexMDBMongodbClusterUpdate,
-		Delete: resourceYandexMDBMongodbClusterDelete,
+		CreateContext: resourceYandexMDBMongodbClusterCreate,
+		ReadContext:   resourceYandexMDBMongodbClusterRead,
+		UpdateContext: resourceYandexMDBMongodbClusterUpdate,
+		DeleteContext: resourceYandexMDBMongodbClusterDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(yandexMDBMongodbClusterDefaultTimeout),
-			Update: schema.DefaultTimeout(yandexMDBMongodbClusterUpdateTimeout),
-			Delete: schema.DefaultTimeout(yandexMDBMongodbClusterDefaultTimeout),
+			Update:  schema.DefaultTimeout(60 * time.Minute),
+			Default: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		SchemaVersion: 0,
@@ -259,6 +254,50 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 											},
 										},
 									},
+									"security": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enable_encryption": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+												"kmip": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Optional: true,
+													Computed: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"server_name": {
+																Type:     schema.TypeString,
+																Optional: true,
+															},
+															"port": {
+																Type:     schema.TypeInt,
+																Optional: true,
+															},
+															"server_ca": {
+																Type:     schema.TypeString,
+																Optional: true,
+															},
+															"client_certificate": {
+																Type:     schema.TypeString,
+																Optional: true,
+															},
+															"key_identifier": {
+																Type:     schema.TypeString,
+																Optional: true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -360,14 +399,11 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		return nil, fmt.Errorf("error resolving environment while creating Mongodb Cluster: %s", err)
 	}
 
-	res := mongodb.Resources{
-		DiskSize:         toBytes(d.Get("resources.0.disk_size").(int)),
-		ResourcePresetId: d.Get("resources.0.resource_preset_id").(string),
-		DiskTypeId:       d.Get("resources.0.disk_type_id").(string),
+	version, err := extractVersion(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding labels on Mongodb Cluster create: %s", err)
 	}
-
-	cfgVer := d.Get("cluster_config.0.version")
-	configSpec := &mongodb.ConfigSpec{Version: cfgVer.(string), FeatureCompatibilityVersion: cfgVer.(string)}
+	configSpec := &mongodb.ConfigSpec{Version: version, FeatureCompatibilityVersion: version}
 	if cfgCompVer := d.Get("cluster_config.0.feature_compatibility_version"); cfgCompVer != nil {
 		configSpec.FeatureCompatibilityVersion = cfgCompVer.(string)
 	}
@@ -382,122 +418,8 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		}
 	}
 
-	switch ver := cfgVer.(string); ver {
-	case "5.0-enterprise":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
-				MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
-					Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
-						Config:    expandMongodConfig5_0Enterprise(d),
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec5_0Enterprise_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec5_0Enterprise_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "4.4-enterprise":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
-				MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
-					Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
-						Config:    expandMongodConfig4_4Enterprise(d),
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec4_4Enterprise_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec4_4Enterprise_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "5.0":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_5_0{
-				MongodbSpec_5_0: &mongodb.MongodbSpec5_0{
-					Mongod: &mongodb.MongodbSpec5_0_Mongod{
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec5_0_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec5_0_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "4.4":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_4{
-				MongodbSpec_4_4: &mongodb.MongodbSpec4_4{
-					Mongod: &mongodb.MongodbSpec4_4_Mongod{
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec4_4_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec4_4_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "4.2":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_2{
-				MongodbSpec_4_2: &mongodb.MongodbSpec4_2{
-					Mongod: &mongodb.MongodbSpec4_2_Mongod{
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec4_2_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec4_2_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "4.0":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_4_0{
-				MongodbSpec_4_0: &mongodb.MongodbSpec4_0{
-					Mongod: &mongodb.MongodbSpec4_0_Mongod{
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec4_0_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec4_0_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	case "3.6":
-		{
-			configSpec.MongodbSpec = &mongodb.ConfigSpec_MongodbSpec_3_6{
-				MongodbSpec_3_6: &mongodb.MongodbSpec3_6{
-					Mongod: &mongodb.MongodbSpec3_6_Mongod{
-						Resources: &res,
-					},
-					Mongos: &mongodb.MongodbSpec3_6_Mongos{
-						Resources: &res,
-					},
-					Mongocfg: &mongodb.MongodbSpec3_6_MongoCfg{
-						Resources: &res,
-					},
-				},
-			}
-		}
-	}
+	mongodbSpecHelper := GetMongodbSpecHelper(version)
+	configSpec.MongodbSpec = mongodbSpecHelper.Expand(d)
 
 	hosts, err := expandMongoDBHosts(d)
 	if err != nil {
@@ -538,56 +460,52 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 	return &req, nil
 }
 
-func resourceYandexMDBMongodbClusterCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-
 	req, err := prepareCreateMongodbRequest(d, config)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutCreate))
-	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Create(ctx, req))
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create Mongodb Cluster: %s", err)
+		return diag.Errorf("error while requesting API to create Mongodb Cluster: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("error while get Mongodb create operation metadata: %s", err)
+		return diag.Errorf("error while get Mongodb create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*mongodb.CreateClusterMetadata)
 	if !ok {
-		return fmt.Errorf("could not get Cluster ID from create operation metadata")
+		return diag.Errorf("could not get Cluster ID from create operation metadata")
 	}
 
 	d.SetId(md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while waiting for operation to create Mongodb Cluster: %s", err)
+		return diag.Errorf("error while waiting for operation to create Mongodb Cluster: %s", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Mongodb Cluster creation failed: %s", err)
+		return diag.Errorf("Mongodb Cluster creation failed: %s", err)
 	}
 
 	mw, err := expandMongoDBMaintenanceWindow(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if mw != nil {
 		err = updateMongoDBMaintenanceWindow(ctx, config, d, mw)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceYandexMDBMongodbClusterRead(d, meta)
+	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
 }
 
 func updateMongoDBMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *mongodb.MaintenanceWindow) error {
@@ -609,7 +527,7 @@ func updateMongoDBMaintenanceWindow(ctx context.Context, config *Config, d *sche
 }
 
 func listMongodbHosts(ctx context.Context, config *Config, d *schema.ResourceData) ([]*mongodb.Host, error) {
-	hosts := []*mongodb.Host{}
+	var hosts []*mongodb.Host
 	pageToken := ""
 	for {
 		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(ctx, &mongodb.ListClusterHostsRequest{
@@ -629,124 +547,128 @@ func listMongodbHosts(ctx context.Context, config *Config, d *schema.ResourceDat
 	return hosts, nil
 }
 
-func resourceYandexMDBMongodbClusterRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
-	defer cancel()
-
 	cluster, err := config.sdk.MDB().MongoDB().Cluster().Get(ctx, &mongodb.GetClusterRequest{
 		ClusterId: d.Id(),
 	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string))))
 	}
 
-	d.Set("created_at", getTimestamp(cluster.CreatedAt))
-	d.Set("name", cluster.Name)
-	d.Set("folder_id", cluster.FolderId)
-	d.Set("network_id", cluster.NetworkId)
-	d.Set("environment", cluster.GetEnvironment().String())
-	d.Set("health", cluster.GetHealth().String())
-	d.Set("status", cluster.GetStatus().String())
-	d.Set("description", cluster.Description)
-	d.Set("sharded", cluster.Sharded)
+	if err := d.Set("created_at", getTimestamp(cluster.CreatedAt)); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("name", cluster.Name); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("folder_id", cluster.FolderId); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("network_id", cluster.NetworkId); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("environment", cluster.GetEnvironment().String()); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("health", cluster.GetHealth().String()); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("status", cluster.GetStatus().String()); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("description", cluster.Description); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("sharded", cluster.Sharded); err != nil {
+		return diag.FromErr(err)
+	}
 
-	resources, err := extractMongodbResources(cluster.Config)
+	mongodbSpecHelper := GetMongodbSpecHelper(cluster.Config.Version)
+	flattenResources, err := mongodbSpecHelper.FlattenResources(cluster.Config)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
+	}
+	if err := d.Set("resources", flattenResources); err != nil {
+		return diag.FromErr(err)
 	}
 
-	mongod_config, err := extractMongodConfig(cluster.Config)
+	expandUsers, err := expandMongoDBUserSpecs(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
+	passwords := mongodbUsersPasswords(expandUsers)
 
-	if err := d.Set("resources", resources); err != nil {
-		return err
-	}
-
-	dUsers, err := expandMongoDBUserSpecs(d)
+	clusterUsers, err := listMongodbUsers(ctx, config, d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
-	passwords := mongodbUsersPasswords(dUsers)
 
-	usrs, err := listMongodbUsers(ctx, config, d.Id())
+	flattenUsers := flattenMongoDBUsers(clusterUsers, passwords)
+
+	if err := d.Set("user", flattenUsers); err != nil {
+		return diag.FromErr(err)
+	}
+
+	clusterDatabases, err := listMongodbDatabases(ctx, config, d.Id())
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	us := flattenMongoDBUsers(usrs, passwords)
+	flattenDatabases := flattenMongoDBDatabases(clusterDatabases)
 
-	if err := d.Set("user", us); err != nil {
-		return err
+	if err := d.Set("database", flattenDatabases); err != nil {
+		return diag.FromErr(err)
 	}
 
-	dbases, err := listMongodbDatabases(ctx, config, d.Id())
+	flattenClusterConfig, err := flattenMongoDBClusterConfig(cluster.Config, d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	dbs := flattenMongoDBDatabases(dbases)
-
-	if err := d.Set("database", dbs); err != nil {
-		return err
+	if err := d.Set("cluster_config", flattenClusterConfig); err != nil {
+		return diag.FromErr(err)
 	}
 
-	conf := extractMongoDBConfig(cluster.Config)
-
-	err = d.Set("cluster_config", []map[string]interface{}{
-		{
-			"backup_window_start":           []*map[string]interface{}{conf.backupWindowStart},
-			"feature_compatibility_version": conf.featureCompatibilityVersion,
-			"version":                       conf.version,
-			"access": []interface{}{
-				map[string]interface{}{
-					"data_lens": conf.access.DataLens,
-				},
-			},
-			"mongod": mongod_config,
-		},
-	})
-
+	clusterHosts, err := listMongodbHosts(ctx, config, d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	hosts, err := listMongodbHosts(ctx, config, d)
+	expandHosts, err := expandMongoDBHosts(d)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	dHosts, err := expandMongoDBHosts(d)
+	hosts := sortMongoDBHosts(clusterHosts, expandHosts)
+
+	flattenHosts, err := flattenMongoDBHosts(hosts)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	hosts = sortMongoDBHosts(hosts, dHosts)
-
-	hs, err := flattenMongoDBHosts(hosts)
-	if err != nil {
-		return err
-	}
-
-	if err := d.Set("host", hs); err != nil {
-		return err
+	if err := d.Set("host", flattenHosts); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	mw := flattenMongoDBMaintenanceWindow(cluster.MaintenanceWindow)
 	if err := d.Set("maintenance_window", mw); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	d.Set("deletion_protection", cluster.DeletionProtection)
+	if err := d.Set("deletion_protection", cluster.DeletionProtection); err != nil {
+		return diag.FromErr(err)
+	}
 
-	return d.Set("labels", cluster.Labels)
+	if err := d.Set("labels", cluster.Labels); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return nil
 }
 
 func sortMongoDBHosts(hosts []*mongodb.Host, specs []*mongodb.HostSpec) []*mongodb.Host {
@@ -762,36 +684,36 @@ func sortMongoDBHosts(hosts []*mongodb.Host, specs []*mongodb.HostSpec) []*mongo
 	return hosts
 }
 
-func resourceYandexMDBMongodbClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBMongodbClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(true)
 
-	if err := updateMongodbClusterParams(d, meta); err != nil {
-		return err
+	if err := updateMongodbClusterParams(ctx, d, meta); err != nil {
+		return diag.FromErr(err)
 	}
 
 	if d.HasChange("database") {
-		if err := updateMongodbClusterDatabases(d, meta); err != nil {
-			return err
+		if err := updateMongodbClusterDatabases(ctx, d, meta); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("user") {
-		if err := updateMongodbClusterUsers(d, meta); err != nil {
-			return err
+		if err := updateMongodbClusterUsers(ctx, d, meta); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("host") {
-		if err := updateMongoDBClusterHosts(d, meta); err != nil {
-			return err
+		if err := updateMongoDBClusterHosts(ctx, d, meta); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	d.Partial(false)
-	return resourceYandexMDBMongodbClusterRead(d, meta)
+	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
 }
 
-func resourceYandexMDBMongodbClusterDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBMongodbClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
 	log.Printf("[DEBUG] Deleting Mongodb Cluster %q", d.Id())
@@ -800,257 +722,27 @@ func resourceYandexMDBMongodbClusterDelete(d *schema.ResourceData, meta interfac
 		ClusterId: d.Id(),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutDelete))
-	defer cancel()
-
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Delete(ctx, req))
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Mongodb Cluster %q", d.Get("name").(string)))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Mongodb Cluster %q", d.Get("name").(string))))
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	_, err = op.Response()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting Mongodb Cluster %q", d.Id())
 	return nil
 }
 
-func extractMongodbResources(mongo *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
-	if mongo == nil {
-		return nil, nil
-	}
-
-	switch mongo.Version {
-	case "5.0-enterprise":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "4.4-enterprise":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "5.0":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "4.4":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "4.2":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "4.0":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	case "3.6":
-		{
-			mongocfg := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
-			d := mongocfg.Mongod
-			if d != nil {
-				return flattenMongoDBResources(d.Resources)
-			}
-
-			s := mongocfg.Mongos
-			if s != nil {
-				return flattenMongoDBResources(s.Resources)
-			}
-
-			cfg := mongocfg.Mongocfg
-			if cfg != nil {
-				return flattenMongoDBResources(cfg.Resources)
-			}
-		}
-	}
-
-	return nil, fmt.Errorf("unexpected error during resources extraction")
-}
-
-func extractMongodConfig(mongo *mongodb.ClusterConfig) ([]interface{}, error) {
-	if mongo == nil {
-		return nil, nil
-	}
-
-	switch mongo.Version {
-	case "5.0-enterprise":
-		{
-			mongod := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongod
-			if mongod != nil {
-				user_config := mongod.GetConfig().GetUserConfig()
-				default_config := mongod.GetConfig().GetDefaultConfig()
-
-				result := map[string]interface{}{}
-
-				if audit_log := user_config.GetAuditLog(); audit_log != nil {
-					audit_log_data := map[string]interface{}{}
-					if audit_log.GetFilter() != default_config.GetAuditLog().GetFilter() {
-						audit_log_data["filter"] = audit_log.GetFilter()
-					}
-					if audit_log.GetRuntimeConfiguration() != nil {
-						audit_log_data["runtime_configuration"] = audit_log.GetRuntimeConfiguration().GetValue()
-					}
-					result["audit_log"] = []map[string]interface{}{audit_log_data}
-				}
-				if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
-					set_parameter_data := map[string]interface{}{}
-					if set_parameter.GetAuditAuthorizationSuccess() != nil {
-						set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
-					}
-					result["set_parameter"] = []map[string]interface{}{set_parameter_data}
-				}
-
-				return []interface{}{result}, nil
-			}
-			return []interface{}{}, nil
-		}
-	case "4.4-enterprise":
-		{
-			mongod := mongo.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongod
-			if mongod != nil {
-				user_config := mongod.GetConfig().GetUserConfig()
-				default_config := mongod.GetConfig().GetDefaultConfig()
-
-				result := map[string]interface{}{}
-
-				if audit_log := user_config.GetAuditLog(); audit_log != nil {
-					audit_log_data := map[string]interface{}{}
-					if audit_log.GetFilter() != default_config.GetAuditLog().GetFilter() {
-						audit_log_data["filter"] = audit_log.GetFilter()
-					}
-					result["audit_log"] = []map[string]interface{}{audit_log_data}
-				}
-				if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
-					set_parameter_data := map[string]interface{}{}
-					if set_parameter.GetAuditAuthorizationSuccess() != nil {
-						set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
-					}
-					result["set_parameter"] = []map[string]interface{}{set_parameter_data}
-				}
-
-				return []interface{}{result}, nil
-			}
-			return []interface{}{}, nil
-		}
-	case "5.0":
-		{
-			return []interface{}{}, nil
-		}
-	case "4.4":
-		{
-			return []interface{}{}, nil
-		}
-	case "4.2":
-		{
-			return []interface{}{}, nil
-		}
-	case "4.0":
-		{
-			return []interface{}{}, nil
-		}
-	case "3.6":
-		{
-			return []interface{}{}, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unexpected error during mongod config extraction")
-}
-
 func listMongodbUsers(ctx context.Context, config *Config, id string) ([]*mongodb.User, error) {
-	users := []*mongodb.User{}
+	var users []*mongodb.User
 	pageToken := ""
 	for {
 		resp, err := config.sdk.MDB().MongoDB().User().List(ctx, &mongodb.ListUsersRequest{
@@ -1071,7 +763,7 @@ func listMongodbUsers(ctx context.Context, config *Config, id string) ([]*mongod
 }
 
 func listMongodbDatabases(ctx context.Context, config *Config, id string) ([]*mongodb.Database, error) {
-	dbs := []*mongodb.Database{}
+	var dbs []*mongodb.Database
 	pageToken := ""
 	for {
 		resp, err := config.sdk.MDB().MongoDB().Database().List(ctx, &mongodb.ListDatabasesRequest{
@@ -1097,133 +789,25 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		return nil, fmt.Errorf("error expanding labels while updating MongoDB cluster: %s", err)
 	}
 
-	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
-
-	switch d.Get("cluster_config.0.version").(string) {
-	case "5.0-enterprise":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec5_0Enterprise(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "5.0":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec5_0(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "4.4-enterprise":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec4_4Enterprise(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "4.4":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec4_4(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "4.2":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec4_2(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "4.0":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec4_0(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	case "3.6":
-		{
-			req := &mongodb.UpdateClusterRequest{
-				ClusterId:   d.Id(),
-				Description: d.Get("description").(string),
-				Labels:      labels,
-				Name:        d.Get("name").(string),
-				ConfigSpec: &mongodb.ConfigSpec{
-					Version:           d.Get("cluster_config.0.version").(string),
-					MongodbSpec:       expandMongoDBSpec3_6(d),
-					BackupWindowStart: expandMongoDBBackupWindowStart(d),
-					Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
-				},
-				SecurityGroupIds: securityGroupIds,
-			}
-			return req, nil
-		}
-	default:
-		{
-			return nil, fmt.Errorf("wrong MongoDB version: required either 5.0, 5.0-enterprise, 4.4, 4.4-enterprise, 4.2, 4.0 or 3.6, got %s", d.Get("cluster_config.version"))
-		}
+	version, err := extractVersion(d)
+	if err != nil {
+		return nil, err
 	}
+	mongodbSpecHelper := GetMongodbSpecHelper(version)
+	req := &mongodb.UpdateClusterRequest{
+		ClusterId:   d.Id(),
+		Description: d.Get("description").(string),
+		Labels:      labels,
+		Name:        d.Get("name").(string),
+		ConfigSpec: &mongodb.ConfigSpec{
+			Version:           version,
+			MongodbSpec:       mongodbSpecHelper.Expand(d),
+			BackupWindowStart: expandMongoDBBackupWindowStart(d),
+			Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
+		},
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+	}
+	return req, nil
 }
 
 var mdbMongodbUpdateFieldsMap = map[string]string{
@@ -1237,26 +821,21 @@ var mdbMongodbUpdateFieldsMap = map[string]string{
 	"name":                                 "name",
 }
 
-func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error {
+func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	req, err := getMongoDBClusterUpdateRequest(d)
 	if err != nil {
 		return err
 	}
 
-	onDone := []func(){}
-	updatePath := []string{}
+	var updatePath []string
 	for field, path := range mdbMongodbUpdateFieldsMap {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, path)
-			onDone = append(onDone, func() {
-
-			})
 		}
 	}
 
-	version := d.Get("cluster_config.0.version").(string)
-	err = checkSupportedVersion(version)
+	version, err := extractVersion(d)
 	if err != nil {
 		return err
 	}
@@ -1264,27 +843,6 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 	if d.HasChange("resources") {
 		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
 		updatePath = append(updatePath, resourcesSpecPath)
-
-		if d.HasChange("resources.0.disk_size") {
-			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_size")
-			onDone = append(onDone, func() {
-
-			})
-		}
-
-		if d.HasChange("resources.0.disk_type_id") {
-			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.disk_type_id")
-			onDone = append(onDone, func() {
-
-			})
-		}
-
-		if d.HasChange("resources.0.resource_preset_id") {
-			//updatePath = append(updatePath, "config_spec.mongodb_spec.resources.resource_preset_id")
-			onDone = append(onDone, func() {
-
-			})
-		}
 	}
 
 	if d.HasChange("cluster_config.0.mongod") {
@@ -1299,10 +857,6 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		}
 		req.MaintenanceWindow = mw
 		updatePath = append(updatePath, "maintenance_window")
-
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("deletion_protection") {
@@ -1314,8 +868,6 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Update(ctx, req))
 	if err != nil {
@@ -1327,16 +879,11 @@ func updateMongodbClusterParams(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("error while updating MongoDB Cluster %q: %s", d.Id(), err)
 	}
 
-	for _, f := range onDone {
-		f()
-	}
 	return nil
 }
 
-func updateMongodbClusterDatabases(d *schema.ResourceData, meta interface{}) error {
+func updateMongodbClusterDatabases(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
-	defer cancel()
 
 	currDBs, err := listMongodbDatabases(ctx, config, d.Id())
 	if err != nil {
@@ -1366,10 +913,8 @@ func updateMongodbClusterDatabases(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func updateMongodbClusterUsers(d *schema.ResourceData, meta interface{}) error {
+func updateMongodbClusterUsers(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
-	defer cancel()
 	currUsers, err := listMongodbUsers(ctx, config, d.Id())
 	if err != nil {
 		return err
@@ -1405,10 +950,8 @@ func updateMongodbClusterUsers(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func updateMongoDBClusterHosts(d *schema.ResourceData, meta interface{}) error {
+func updateMongoDBClusterHosts(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
-	defer cancel()
 
 	currHosts, err := listMongodbHosts(ctx, config, d)
 	if err != nil {
@@ -1607,7 +1150,7 @@ func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec
 func mongodbUsersDiff(currUsers []*mongodb.User, targetUsers []*mongodb.UserSpec) ([]string, []*mongodb.UserSpec) {
 	m := map[string]bool{}
 	toDelete := map[string]bool{}
-	toAdd := []*mongodb.UserSpec{}
+	var toAdd []*mongodb.UserSpec
 
 	for _, u := range currUsers {
 		toDelete[u.Name] = true
@@ -1621,7 +1164,7 @@ func mongodbUsersDiff(currUsers []*mongodb.User, targetUsers []*mongodb.UserSpec
 		}
 	}
 
-	toDel := []string{}
+	var toDel []string
 	for u := range toDelete {
 		toDel = append(toDel, u)
 	}
@@ -1630,7 +1173,7 @@ func mongodbUsersDiff(currUsers []*mongodb.User, targetUsers []*mongodb.UserSpec
 }
 
 func mongodbChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*mongodb.UserSpec {
-	result := []*mongodb.UserSpec{}
+	var result []*mongodb.UserSpec
 	m := map[string]*mongodb.UserSpec{}
 	for _, spec := range oldSpecs.List() {
 		user := expandMongoDBUser(spec.(map[string]interface{}))

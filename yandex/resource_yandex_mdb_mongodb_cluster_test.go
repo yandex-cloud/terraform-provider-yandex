@@ -9,18 +9,201 @@ import (
 	"strings"
 	"testing"
 	"text/template"
-
-	"google.golang.org/genproto/protobuf/field_mask"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 )
 
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
+
+const mongodbVPCDependencies = `
+resource "yandex_vpc_network" "foo" {}
+
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "baz" {
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+
+resource "yandex_vpc_security_group" "sg-x" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "sg-y" {
+  network_id     = "${yandex_vpc_network.foo.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+`
+
+const resourceYandexMdbMongodbClusterTemplateText = mongodbVPCDependencies + `
+resource "yandex_mdb_mongodb_cluster" "foo" {
+  name        = "{{.ClusterName}}"
+{{- if .ClusterDescription}}
+  description = "{{.ClusterDescription}}"
+{{- end}}
+  environment = "{{.Environment}}"
+  network_id  = "${yandex_vpc_network.foo.id}"
+
+{{if .Lables}}
+  labels = {
+{{- range $key, $value := .Lables}}
+    {{ $key }} = "{{ $value }}"
+{{- end}}
+  }
+{{end}}
+
+  cluster_config {
+    version = "{{.Version}}"
+    feature_compatibility_version = "{{dropSuffix .Version "-enterprise"}}"
+    backup_window_start {
+      hours = {{.BackupWindow.hours}}
+      minutes = {{.BackupWindow.minutes}}
+    }
+{{if .Mongod}}
+    mongod {
+{{if .Mongod.AuditLog}}
+      audit_log {
+        filter = "{{escapeQuotations .Mongod.AuditLog.Filter}}"
+      }
+      set_parameter {
+        audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
+      }
+{{end}}
+    }
+{{end}}
+  }
+
+{{range $i, $r := .Databases}}
+  database {
+    name = "{{.}}"
+  }
+{{- end}}
+
+{{range $i, $r := .Users}}
+  user {
+    name     = "{{$r.Name}}"
+    password = "{{$r.Password}}"
+{{range $ii, $rr := $r.Permissions}}
+    permission {
+      database_name = "{{$rr.DatabaseName}}"
+      {{if $rr.Roles -}}
+      roles = [{{range $iii, $rrr := $rr.Roles}}{{if $iii}}, {{end}}"{{.}}"{{end}}]
+      {{- end}}
+    }
+{{- end}}
+  }
+{{- end}}
+
+  resources {
+    resource_preset_id = "{{.Resources.ResourcePresetId}}"
+    disk_size          = {{.Resources.DiskSize}}
+    disk_type_id       = "{{.Resources.DiskTypeId}}"
+  }
+
+{{range $i, $r := .Hosts}}
+  host {
+    zone_id   = "{{$r.ZoneId}}"
+    subnet_id = "{{$r.SubnetId}}"
+  }
+{{end}}
+
+  security_group_ids = [{{range $i, $r := .SecurityGroupIds}}{{if $i}}, {{end}}"{{.}}"{{end}}]
+
+  maintenance_window {
+    type = "{{.MaintenanceWindow.Type}}"
+    {{with .MaintenanceWindow.Day}}day  = "{{.}}"{{end}}
+    {{with .MaintenanceWindow.Hour}}hour = {{.}}{{end}}
+  }
+
+  {{if isNotNil .DeletionProtection}}deletion_protection = {{.DeletionProtection}}{{end}}
+}
+`
+
+func makeConfigFromTemplateText(t *testing.T, templateText string, data *map[string]interface{}, patch *map[string]interface{}) string {
+	if patch != nil {
+		for k, v := range *patch {
+			if v != nil {
+				(*data)[k] = v
+			} else {
+				delete(*data, k)
+			}
+		}
+	}
+
+	tmpl, err := template.New("config").Funcs(template.FuncMap{
+		"isNotNil":         func(v interface{}) bool { return v != nil },
+		"escapeQuotations": func(v string) string { return strings.Replace(v, "\"", "\\\"", -1) },
+		"dropSuffix": func(v string, suffix string) string {
+			if strings.HasSuffix(v, suffix) {
+				return v[0 : len(v)-len(suffix)]
+			}
+			return v
+		},
+	}).Parse(templateText)
+	if err != nil {
+		t.Fatal(err)
+		return ""
+	}
+	buf := &bytes.Buffer{}
+	err = tmpl.Execute(buf, data)
+	if err != nil {
+		t.Fatal(err)
+		return ""
+	}
+	result := buf.String()
+	return result
+}
+
+func makeConfig(t *testing.T, data *map[string]interface{}, patch *map[string]interface{}) string {
+	return makeConfigFromTemplateText(t, resourceYandexMdbMongodbClusterTemplateText, data, patch)
+}
 
 var s2Micro16hdd = mongodb.Resources{
 	ResourcePresetId: "s2.micro",
@@ -70,7 +253,7 @@ func sweepMDBMongoDBCluster(conf *Config, id string) bool {
 }
 
 func sweepMDBMongoDBClusterOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexMDBMongodbClusterDefaultTimeout)
+	ctx, cancel := conf.ContextWithTimeout(*schema.DefaultTimeout(30 * time.Minute))
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
@@ -166,7 +349,7 @@ func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					testAccCheckMDBMongoDBClusterHasConfig(&r, configData["Version"].(string)),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
 					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
@@ -398,7 +581,7 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					testAccCheckMDBMongoDBClusterHasConfig(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
 						"Resources":                 &s2Micro16hdd,
 						"AuditLogFilter":            auditLogFilter,
@@ -445,7 +628,7 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
-					testAccCheckMDBMongoDBClusterHasConfig(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
 						"Resources":                 &s2Micro16hdd,
 						"AuditLogFilter":            "{}",
@@ -515,6 +698,7 @@ func testAccCheckMDBMongoDBClusterExists(n string, r *mongodb.Cluster, hosts int
 			return fmt.Errorf("MongoDB Cluster not found")
 		}
 
+		//goland:noinspection GoVetCopyLock (this comment suppress warning in Idea IDE about coping sync.Mutex)
 		*r = *found
 
 		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
@@ -533,11 +717,10 @@ func testAccCheckMDBMongoDBClusterExists(n string, r *mongodb.Cluster, hosts int
 	}
 }
 
-func testAccCheckMDBMongoDBClusterHasConfig(r *mongodb.Cluster, version string) resource.TestCheckFunc {
+func testAccCheckMDBMongoDBClusterHasRightVersion(r *mongodb.Cluster, version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		c := extractMongoDBConfig(r.Config)
-		if c.version != version {
-			return fmt.Errorf("Expected version '%s', got '%s'", version, c.version)
+		if r.Config.Version != version {
+			return fmt.Errorf("Expected version '%s', got '%s'", version, r.Config.Version)
 		}
 
 		return nil
@@ -838,7 +1021,7 @@ func testAccCheckMDBMongoDBClusterHasUsers(r string, perms map[string][]string) 
 				return fmt.Errorf("Unexpected user: %s", u.Name)
 			}
 
-			ups := []string{}
+			var ups []string
 			for _, p := range u.Permissions {
 				ups = append(ups, p.DatabaseName)
 			}
@@ -874,7 +1057,7 @@ func testAccCheckMDBMongoDBClusterHasDatabases(r string, databases []string) res
 		if err != nil {
 			return err
 		}
-		dbs := []string{}
+		var dbs []string
 		for _, d := range resp.Databases {
 			dbs = append(dbs, d.Name)
 		}
@@ -891,186 +1074,4 @@ func testAccCheckMDBMongoDBClusterHasDatabases(r string, databases []string) res
 
 		return nil
 	}
-}
-
-const mongodbVPCDependencies = `
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
-  network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.3.0.0/24"]
-}
-
-resource "yandex_vpc_security_group" "sg-x" {
-  network_id     = "${yandex_vpc_network.foo.id}"
-  ingress {
-    protocol          = "ANY"
-    description       = "Allow incoming traffic from members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol          = "ANY"
-    description       = "Allow outgoing traffic to members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-}
-
-resource "yandex_vpc_security_group" "sg-y" {
-  network_id     = "${yandex_vpc_network.foo.id}"
-  
-  ingress {
-    protocol          = "ANY"
-    description       = "Allow incoming traffic from members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol          = "ANY"
-    description       = "Allow outgoing traffic to members of the same security group"
-    from_port         = 0
-    to_port           = 65535
-    v4_cidr_blocks    = ["0.0.0.0/0"]
-  }
-}
-`
-
-const resourceYandexMdbMongodbClusterTemplateText = mongodbVPCDependencies + `
-resource "yandex_mdb_mongodb_cluster" "foo" {
-  name        = "{{.ClusterName}}"
-{{- if .ClusterDescription}}
-  description = "{{.ClusterDescription}}"
-{{- end}}
-  environment = "{{.Environment}}"
-  network_id  = "${yandex_vpc_network.foo.id}"
-
-{{if .Lables}}
-  labels = {
-{{- range $key, $value := .Lables}}
-    {{ $key }} = "{{ $value }}"
-{{- end}}
-  }
-{{end}}
-
-  cluster_config {
-    version = "{{.Version}}"
-    feature_compatibility_version = "{{dropSuffix .Version "-enterprise"}}"
-    backup_window_start {
-      hours = {{.BackupWindow.hours}}
-      minutes = {{.BackupWindow.minutes}}
-    }
-{{if .Mongod}}
-    mongod {
-{{if .Mongod.AuditLog}}
-      audit_log {
-        filter = "{{escapeQuotations .Mongod.AuditLog.Filter}}"
-      }
-      set_parameter {
-        audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
-      }
-{{end}}
-    }
-{{end}}
-  }
-
-{{range $i, $r := .Databases}}
-  database {
-    name = "{{.}}"
-  }
-{{- end}}
-
-{{range $i, $r := .Users}}
-  user {
-    name     = "{{$r.Name}}"
-    password = "{{$r.Password}}"
-{{range $ii, $rr := $r.Permissions}}
-    permission {
-      database_name = "{{$rr.DatabaseName}}"
-      {{if $rr.Roles -}}
-      roles = [{{range $iii, $rrr := $rr.Roles}}{{if $iii}}, {{end}}"{{.}}"{{end}}]
-      {{- end}}
-    }
-{{- end}}
-  }
-{{- end}}
-
-  resources {
-    resource_preset_id = "{{.Resources.ResourcePresetId}}"
-    disk_size          = {{.Resources.DiskSize}}
-    disk_type_id       = "{{.Resources.DiskTypeId}}"
-  }
-
-{{range $i, $r := .Hosts}}
-  host {
-    zone_id   = "{{$r.ZoneId}}"
-    subnet_id = "{{$r.SubnetId}}"
-  }
-{{end}}
-
-  security_group_ids = [{{range $i, $r := .SecurityGroupIds}}{{if $i}}, {{end}}"{{.}}"{{end}}]
-
-  maintenance_window {
-    type = "{{.MaintenanceWindow.Type}}"
-    {{with .MaintenanceWindow.Day}}day  = "{{.}}"{{end}}
-    {{with .MaintenanceWindow.Hour}}hour = {{.}}{{end}}
-  }
-
-  {{if isNotNil .DeletionProtection}}deletion_protection = {{.DeletionProtection}}{{end}}
-}
-`
-
-func makeConfigFromTemplateText(t *testing.T, templateText string, data *map[string]interface{}, patch *map[string]interface{}) string {
-	if patch != nil {
-		for k, v := range *patch {
-			if v != nil {
-				(*data)[k] = v
-			} else {
-				delete(*data, k)
-			}
-		}
-	}
-
-	tmpl, err := template.New("config").Funcs(template.FuncMap{
-		"isNotNil":         func(v interface{}) bool { return v != nil },
-		"escapeQuotations": func(v string) string { return strings.Replace(v, "\"", "\\\"", -1) },
-		"dropSuffix": func(v string, suffix string) string {
-			if strings.HasSuffix(v, suffix) {
-				return v[0 : len(v)-len(suffix)]
-			}
-			return v
-		},
-	}).Parse(templateText)
-	if err != nil {
-		t.Fatal(err)
-		return ""
-	}
-	buf := &bytes.Buffer{}
-	err = tmpl.Execute(buf, data)
-	if err != nil {
-		t.Fatal(err)
-		return ""
-	}
-	result := buf.String()
-	return result
-}
-
-func makeConfig(t *testing.T, data *map[string]interface{}, patch *map[string]interface{}) string {
-	return makeConfigFromTemplateText(t, resourceYandexMdbMongodbClusterTemplateText, data, patch)
 }
