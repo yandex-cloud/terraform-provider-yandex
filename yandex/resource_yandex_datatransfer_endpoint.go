@@ -1,15 +1,15 @@
+// Code generated with gentf. DO NOT EDIT.
 package yandex
 
 import (
-	"fmt"
-	"log"
+	fmt "fmt"
+	log "log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
-
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	grpc "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 func resourceYandexDatatransferEndpoint() *schema.Resource {
@@ -26,42 +26,363 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"author": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
-
 			"folder_id": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
-
 			"labels": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+
 				Set:      schema.HashString,
 				Optional: true,
+				Computed: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
-
 			"settings": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"mongo_source": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"collections": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"collection_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"database_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connection_options": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"auth_source": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"mdb_cluster_id": {
+																Type:          schema.TypeString,
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.mongo_source.0.connection.0.connection_options.0.on_premise"},
+															},
+															"on_premise": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"hosts": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"replica_set": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"tls_mode": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"disabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.mongo_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"},
+																					},
+																					"enabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"ca_certificate": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																							},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.mongo_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"},
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.mongo_source.0.connection.0.connection_options.0.mdb_cluster_id"},
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"excluded_collections": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"collection_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"database_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"secondary_preferred_mode": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
+						"mongo_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cleanup_policy": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseDatatransferEndpointCleanupPolicy),
+										Computed:     true,
+									},
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connection_options": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"auth_source": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"mdb_cluster_id": {
+																Type:          schema.TypeString,
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.on_premise"},
+															},
+															"on_premise": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"hosts": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Schema{
+																				Type: schema.TypeString,
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"replica_set": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"tls_mode": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"disabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"},
+																					},
+																					"enabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"ca_certificate": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																							},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"},
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.mongo_target.0.connection.0.connection_options.0.mdb_cluster_id"},
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"database": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
 						"mysql_source": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
@@ -75,40 +396,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 												"mdb_cluster_id": {
 													Type:          schema.TypeString,
 													Optional:      true,
-													ConflictsWith: []string{"settings.mysql_source.connection.on_premise"},
+													ConflictsWith: []string{"settings.0.mysql_source.0.connection.0.on_premise"},
 												},
-
 												"on_premise": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"ca_certificate": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-
 															"hosts": {
 																Type: schema.TypeList,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
+																Computed: true,
 															},
-
 															"port": {
 																Type:     schema.TypeInt,
 																Optional: true,
+																Computed: true,
 															},
-
 															"subnet_id": {
 																Type:     schema.TypeString,
 																Optional: true,
+																Computed: true,
 															},
-
 															"tls_mode": {
 																Type:     schema.TypeList,
-																Computed: true,
 																MaxItems: 1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -119,9 +433,8 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																				Schema: map[string]*schema.Schema{},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.mysql_source.connection.on_premise.tls_mode.enabled"},
+																			ConflictsWith: []string{"settings.0.mysql_source.0.connection.0.on_premise.0.tls_mode.0.enabled"},
 																		},
-
 																		"enabled": {
 																			Type:     schema.TypeList,
 																			MaxItems: 1,
@@ -130,76 +443,77 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																					"ca_certificate": {
 																						Type:     schema.TypeString,
 																						Optional: true,
+																						Computed: true,
 																					},
 																				},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.mysql_source.connection.on_premise.tls_mode.disabled"},
+																			ConflictsWith: []string{"settings.0.mysql_source.0.connection.0.on_premise.0.tls_mode.0.disabled"},
 																		},
 																	},
 																},
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.mysql_source.connection.mdb_cluster_id"},
+													ConflictsWith: []string{"settings.0.mysql_source.0.connection.0.mdb_cluster_id"},
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"database": {
 										Type:     schema.TypeString,
 										Optional: true,
-									},
-
-									"exclude_tables_regex": {
-										Type:     schema.TypeList,
 										Computed: true,
+									},
+									"exclude_tables_regex": {
+										Type: schema.TypeList,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 										Optional: true,
+										Computed: true,
 									},
 									"include_tables_regex": {
-										Type:     schema.TypeList,
-										Computed: true,
+										Type: schema.TypeList,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"object_transfer_settings": {
 										Type:     schema.TypeList,
-										Computed: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"routine": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"trigger": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"view": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"password": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -209,26 +523,40 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													Sensitive: true,
 													Type:      schema.TypeString,
 													Optional:  true,
+													Computed:  true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"service_database": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"timezone": {
 										Type:     schema.TypeString,
-										Computed: true,
 										Optional: true,
+										Computed: true,
 									},
-
 									"user": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.postgres_source", "settings.mysql_target", "settings.postgres_target"},
+							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mysql_target": {
 							Type:     schema.TypeList,
@@ -243,40 +571,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 												"mdb_cluster_id": {
 													Type:          schema.TypeString,
 													Optional:      true,
-													ConflictsWith: []string{"settings.mysql_target.connection.on_premise"},
+													ConflictsWith: []string{"settings.0.mysql_target.0.connection.0.on_premise"},
 												},
-
 												"on_premise": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"ca_certificate": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-
 															"hosts": {
 																Type: schema.TypeList,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
+																Computed: true,
 															},
-
 															"port": {
 																Type:     schema.TypeInt,
 																Optional: true,
+																Computed: true,
 															},
-
 															"subnet_id": {
 																Type:     schema.TypeString,
 																Optional: true,
+																Computed: true,
 															},
-
 															"tls_mode": {
 																Type:     schema.TypeList,
-																Computed: true,
 																MaxItems: 1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -287,9 +608,8 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																				Schema: map[string]*schema.Schema{},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.mysql_target.connection.on_premise.tls_mode.enabled"},
+																			ConflictsWith: []string{"settings.0.mysql_target.0.connection.0.on_premise.0.tls_mode.0.enabled"},
 																		},
-
 																		"enabled": {
 																			Type:     schema.TypeList,
 																			MaxItems: 1,
@@ -298,31 +618,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																					"ca_certificate": {
 																						Type:     schema.TypeString,
 																						Optional: true,
+																						Computed: true,
 																					},
 																				},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.mysql_target.connection.on_premise.tls_mode.disabled"},
+																			ConflictsWith: []string{"settings.0.mysql_target.0.connection.0.on_premise.0.tls_mode.0.disabled"},
 																		},
 																	},
 																},
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.mysql_target.connection.mdb_cluster_id"},
+													ConflictsWith: []string{"settings.0.mysql_target.0.connection.0.mdb_cluster_id"},
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"database": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
-
 									"password": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -332,51 +654,51 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													Sensitive: true,
 													Type:      schema.TypeString,
 													Optional:  true,
+													Computed:  true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
-									"service_schema": {
-										Type:     schema.TypeString,
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"skip_constraint_checks": {
 										Type:     schema.TypeBool,
 										Optional: true,
+										Computed: true,
 									},
-
 									"sql_mode": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
-
 									"timezone": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
-
 									"user": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.mysql_source", "settings.postgres_source", "settings.postgres_target"},
+							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"postgres_source": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"collapse_inherit_table": {
-										Type:     schema.TypeBool,
-										Optional: true,
-									},
-
 									"connection": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -385,40 +707,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 												"mdb_cluster_id": {
 													Type:          schema.TypeString,
 													Optional:      true,
-													ConflictsWith: []string{"settings.postgres_source.connection.on_premise"},
+													ConflictsWith: []string{"settings.0.postgres_source.0.connection.0.on_premise"},
 												},
-
 												"on_premise": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"ca_certificate": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-
 															"hosts": {
 																Type: schema.TypeList,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
+																Computed: true,
 															},
-
 															"port": {
 																Type:     schema.TypeInt,
 																Optional: true,
+																Computed: true,
 															},
-
 															"subnet_id": {
 																Type:     schema.TypeString,
 																Optional: true,
+																Computed: true,
 															},
-
 															"tls_mode": {
 																Type:     schema.TypeList,
-																Computed: true,
 																MaxItems: 1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -429,9 +744,8 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																				Schema: map[string]*schema.Schema{},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.postgres_source.connection.on_premise.tls_mode.enabled"},
+																			ConflictsWith: []string{"settings.0.postgres_source.0.connection.0.on_premise.0.tls_mode.0.enabled"},
 																		},
-
 																		"enabled": {
 																			Type:     schema.TypeList,
 																			MaxItems: 1,
@@ -440,153 +754,161 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																					"ca_certificate": {
 																						Type:     schema.TypeString,
 																						Optional: true,
+																						Computed: true,
 																					},
 																				},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.postgres_source.connection.on_premise.tls_mode.disabled"},
+																			ConflictsWith: []string{"settings.0.postgres_source.0.connection.0.on_premise.0.tls_mode.0.disabled"},
 																		},
 																	},
 																},
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.postgres_source.connection.mdb_cluster_id"},
+													ConflictsWith: []string{"settings.0.postgres_source.0.connection.0.mdb_cluster_id"},
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"database": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
-
 									"exclude_tables": {
 										Type: schema.TypeList,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"include_tables": {
 										Type: schema.TypeList,
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"object_transfer_settings": {
 										Type:     schema.TypeList,
-										Computed: true,
 										MaxItems: 1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"cast": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"collation": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"constraint": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"default_values": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"fk_constraint": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"function": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"index": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
+												"materialized_view": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
+												},
 												"policy": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"primary_key": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"rule": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"sequence": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"sequence_owned_by": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"table": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"trigger": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"type": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
-
 												"view": {
 													Type:         schema.TypeString,
 													Optional:     true,
-													ValidateFunc: validateParsableValue(parseEndpointObjectTransferStage),
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"password": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -596,32 +918,40 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													Sensitive: true,
 													Type:      schema.TypeString,
 													Optional:  true,
+													Computed:  true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
 									"service_schema": {
 										Type:     schema.TypeString,
-										Computed: true,
 										Optional: true,
+										Computed: true,
 									},
-
 									"slot_gigabyte_lag_limit": {
 										Type:     schema.TypeInt,
-										Computed: true,
 										Optional: true,
+										Computed: true,
 									},
-
 									"user": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.mysql_source", "settings.mysql_target", "settings.postgres_target"},
+							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target"},
 						},
 						"postgres_target": {
 							Type:     schema.TypeList,
@@ -636,40 +966,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 												"mdb_cluster_id": {
 													Type:          schema.TypeString,
 													Optional:      true,
-													ConflictsWith: []string{"settings.postgres_target.connection.on_premise"},
+													ConflictsWith: []string{"settings.0.postgres_target.0.connection.0.on_premise"},
 												},
-
 												"on_premise": {
 													Type:     schema.TypeList,
 													MaxItems: 1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
-															"ca_certificate": {
-																Type:     schema.TypeString,
-																Optional: true,
-															},
-
 															"hosts": {
 																Type: schema.TypeList,
 																Elem: &schema.Schema{
 																	Type: schema.TypeString,
 																},
 																Optional: true,
+																Computed: true,
 															},
-
 															"port": {
 																Type:     schema.TypeInt,
 																Optional: true,
+																Computed: true,
 															},
-
 															"subnet_id": {
 																Type:     schema.TypeString,
 																Optional: true,
+																Computed: true,
 															},
-
 															"tls_mode": {
 																Type:     schema.TypeList,
-																Computed: true,
 																MaxItems: 1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
@@ -680,9 +1003,8 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																				Schema: map[string]*schema.Schema{},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.postgres_target.connection.on_premise.tls_mode.enabled"},
+																			ConflictsWith: []string{"settings.0.postgres_target.0.connection.0.on_premise.0.tls_mode.0.enabled"},
 																		},
-
 																		"enabled": {
 																			Type:     schema.TypeList,
 																			MaxItems: 1,
@@ -691,31 +1013,33 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																					"ca_certificate": {
 																						Type:     schema.TypeString,
 																						Optional: true,
+																						Computed: true,
 																					},
 																				},
 																			},
 																			Optional:      true,
-																			ConflictsWith: []string{"settings.postgres_target.connection.on_premise.tls_mode.disabled"},
+																			ConflictsWith: []string{"settings.0.postgres_target.0.connection.0.on_premise.0.tls_mode.0.disabled"},
 																		},
 																	},
 																},
 																Optional: true,
+																Computed: true,
 															},
 														},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.postgres_target.connection.mdb_cluster_id"},
+													ConflictsWith: []string{"settings.0.postgres_target.0.connection.0.mdb_cluster_id"},
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
 									"database": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
-
 									"password": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -725,24 +1049,35 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													Sensitive: true,
 													Type:      schema.TypeString,
 													Optional:  true,
+													Computed:  true,
 												},
 											},
 										},
 										Optional: true,
+										Computed: true,
 									},
-
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
 									"user": {
 										Type:     schema.TypeString,
 										Optional: true,
+										Computed: true,
 									},
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.mysql_source", "settings.postgres_source", "settings.mysql_target"},
+							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source"},
 						},
 					},
 				},
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -759,7 +1094,7 @@ func prepareCreateDatatransferEndpointRequest(d *schema.ResourceData, config *Co
 		return nil, err
 	}
 
-	settings, err := expandEndpointSettings(d)
+	settings, err := expandDatatransferEndpointSettings(d)
 	if err != nil {
 		return nil, err
 	}
@@ -834,7 +1169,7 @@ func resourceYandexDatatransferEndpointRead(d *schema.ResourceData, meta interfa
 		return handleNotFoundError(err, d, fmt.Sprintf("endpoint %q", d.Id()))
 	}
 
-	settings, err := flattenDatatransferSettings(d, resp.GetSettings())
+	settings, err := flattenDatatransferEndpointSettings(d, resp.GetSettings())
 	if err != nil {
 		return err
 	}
@@ -873,7 +1208,7 @@ func resourceYandexDatatransferEndpointUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	settings, err := expandEndpointSettings(d)
+	settings, err := expandDatatransferEndpointSettings(d)
 	if err != nil {
 		return err
 	}
@@ -886,7 +1221,7 @@ func resourceYandexDatatransferEndpointUpdate(d *schema.ResourceData, meta inter
 		Settings:    settings,
 	}
 
-	updatePath := generateFieldMasks(d, resourceYandexDatatransferEndpointUpdateFieldsMap)
+	updatePath := generateEndpointFieldMasks(d, datatransferUpdateEndpointRequestFieldsRoot)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
 	md := new(metadata.MD)
@@ -936,69 +1271,775 @@ func resourceYandexDatatransferEndpointDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-var resourceYandexDatatransferEndpointUpdateFieldsMap = map[string]string{
-	"name":        "name",
-	"description": "description",
-	"labels":      "labels",
-	"settings.0.mysql_source.0.connection.0.mdb_cluster_id":                                      "settings.mysql_source.connection.mdb_cluster_id",
-	"settings.0.mysql_source.0.connection.0.on_premise.0.hosts":                                  "settings.mysql_source.connection.on_premise.hosts",
-	"settings.0.mysql_source.0.connection.0.on_premise.0.port":                                   "settings.mysql_source.connection.on_premise.port",
-	"settings.0.mysql_source.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate":    "settings.mysql_source.connection.on_premise.tls_mode.enabled.ca_certificate",
-	"settings.0.mysql_source.0.connection.0.on_premise.0.subnet_id":                              "settings.mysql_source.connection.on_premise.subnet_id",
-	"settings.0.mysql_source.0.database":                                                         "settings.mysql_source.database",
-	"settings.0.mysql_source.0.user":                                                             "settings.mysql_source.user",
-	"settings.0.mysql_source.0.password.0.raw":                                                   "settings.mysql_source.password.raw",
-	"settings.0.mysql_source.0.include_tables_regex":                                             "settings.mysql_source.include_tables_regex",
-	"settings.0.mysql_source.0.exclude_tables_regex":                                             "settings.mysql_source.exclude_tables_regex",
-	"settings.0.mysql_source.0.timezone":                                                         "settings.mysql_source.timezone",
-	"settings.0.mysql_source.0.object_transfer_settings.0.view":                                  "settings.mysql_source.object_transfer_settings.view",
-	"settings.0.mysql_source.0.object_transfer_settings.0.routine":                               "settings.mysql_source.object_transfer_settings.routine",
-	"settings.0.mysql_source.0.object_transfer_settings.0.trigger":                               "settings.mysql_source.object_transfer_settings.trigger",
-	"settings.0.mysql_target.0.connection.0.mdb_cluster_id":                                      "settings.mysql_target.connection.mdb_cluster_id",
-	"settings.0.mysql_target.0.connection.0.on_premise.0.hosts":                                  "settings.mysql_target.connection.on_premise.hosts",
-	"settings.0.mysql_target.0.connection.0.on_premise.0.port":                                   "settings.mysql_target.connection.on_premise.port",
-	"settings.0.mysql_target.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate":    "settings.mysql_target.connection.on_premise.tls_mode.enabled.ca_certificate",
-	"settings.0.mysql_target.0.connection.0.on_premise.0.subnet_id":                              "settings.mysql_target.connection.on_premise.subnet_id",
-	"settings.0.mysql_target.0.database":                                                         "settings.mysql_target.database",
-	"settings.0.mysql_target.0.user":                                                             "settings.mysql_target.user",
-	"settings.0.mysql_target.0.password.0.raw":                                                   "settings.mysql_target.password.raw",
-	"settings.0.mysql_target.0.sql_mode":                                                         "settings.mysql_target.sql_mode",
-	"settings.0.mysql_target.0.skip_constraint_checks":                                           "settings.mysql_target.skip_constraint_checks",
-	"settings.0.mysql_target.0.timezone":                                                         "settings.mysql_target.timezone",
-	"settings.0.postgres_source.0.connection.0.mdb_cluster_id":                                   "settings.postgres_source.connection.mdb_cluster_id",
-	"settings.0.postgres_source.0.connection.0.on_premise.0.hosts":                               "settings.postgres_source.connection.on_premise.hosts",
-	"settings.0.postgres_source.0.connection.0.on_premise.0.port":                                "settings.postgres_source.connection.on_premise.port",
-	"settings.0.postgres_source.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate": "settings.postgres_source.connection.on_premise.tls_mode.enabled.ca_certificate",
-	"settings.0.postgres_source.0.connection.0.on_premise.0.subnet_id":                           "settings.postgres_source.connection.on_premise.subnet_id",
-	"settings.0.postgres_source.0.database":                                                      "settings.postgres_source.database",
-	"settings.0.postgres_source.0.user":                                                          "settings.postgres_source.user",
-	"settings.0.postgres_source.0.password.0.raw":                                                "settings.postgres_source.password.raw",
-	"settings.0.postgres_source.0.include_tables":                                                "settings.postgres_source.include_tables",
-	"settings.0.postgres_source.0.exclude_tables":                                                "settings.postgres_source.exclude_tables",
-	"settings.0.postgres_source.0.slot_gigabyte_lag_limit":                                       "settings.postgres_source.slot_byte_lag_limit",
-	"settings.0.postgres_source.0.service_schema":                                                "settings.postgres_source.service_schema",
-	"settings.0.postgres_source.0.object_transfer_settings.0.sequence":                           "settings.postgres_source.object_transfer_settings.sequence",
-	"settings.0.postgres_source.0.object_transfer_settings.0.sequence_owned_by":                  "settings.postgres_source.object_transfer_settings.sequence_owned_by",
-	"settings.0.postgres_source.0.object_transfer_settings.0.table":                              "settings.postgres_source.object_transfer_settings.table",
-	"settings.0.postgres_source.0.object_transfer_settings.0.primary_key":                        "settings.postgres_source.object_transfer_settings.primary_key",
-	"settings.0.postgres_source.0.object_transfer_settings.0.fk_constraint":                      "settings.postgres_source.object_transfer_settings.fk_constraint",
-	"settings.0.postgres_source.0.object_transfer_settings.0.default_values":                     "settings.postgres_source.object_transfer_settings.default_values",
-	"settings.0.postgres_source.0.object_transfer_settings.0.constraint":                         "settings.postgres_source.object_transfer_settings.constraint",
-	"settings.0.postgres_source.0.object_transfer_settings.0.index":                              "settings.postgres_source.object_transfer_settings.index",
-	"settings.0.postgres_source.0.object_transfer_settings.0.view":                               "settings.postgres_source.object_transfer_settings.view",
-	"settings.0.postgres_source.0.object_transfer_settings.0.function":                           "settings.postgres_source.object_transfer_settings.function",
-	"settings.0.postgres_source.0.object_transfer_settings.0.trigger":                            "settings.postgres_source.object_transfer_settings.trigger",
-	"settings.0.postgres_source.0.object_transfer_settings.0.type":                               "settings.postgres_source.object_transfer_settings.type",
-	"settings.0.postgres_source.0.object_transfer_settings.0.rule":                               "settings.postgres_source.object_transfer_settings.rule",
-	"settings.0.postgres_source.0.object_transfer_settings.0.collation":                          "settings.postgres_source.object_transfer_settings.collation",
-	"settings.0.postgres_source.0.object_transfer_settings.0.policy":                             "settings.postgres_source.object_transfer_settings.policy",
-	"settings.0.postgres_source.0.object_transfer_settings.0.cast":                               "settings.postgres_source.object_transfer_settings.cast",
-	"settings.0.postgres_target.0.connection.0.mdb_cluster_id":                                   "settings.postgres_target.connection.mdb_cluster_id",
-	"settings.0.postgres_target.0.connection.0.on_premise.0.hosts":                               "settings.postgres_target.connection.on_premise.hosts",
-	"settings.0.postgres_target.0.connection.0.on_premise.0.port":                                "settings.postgres_target.connection.on_premise.port",
-	"settings.0.postgres_target.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate": "settings.postgres_target.connection.on_premise.tls_mode.enabled.ca_certificate",
-	"settings.0.postgres_target.0.connection.0.on_premise.0.subnet_id":                           "settings.postgres_target.connection.on_premise.subnet_id",
-	"settings.0.postgres_target.0.database":                                                      "settings.postgres_target.database",
-	"settings.0.postgres_target.0.user":                                                          "settings.postgres_target.user",
-	"settings.0.postgres_target.0.password.0.raw":                                                "settings.postgres_target.password.raw",
+var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
+	protobufFieldName:      "",
+	terraformAttributeName: "",
+	children: []*fieldTreeNode{
+		{
+			protobufFieldName:      "name",
+			terraformAttributeName: "name",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "description",
+			terraformAttributeName: "description",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "labels",
+			terraformAttributeName: "labels",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "settings",
+			terraformAttributeName: "settings",
+			children: []*fieldTreeNode{
+				{
+					protobufFieldName:      "mysql_source",
+					terraformAttributeName: "mysql_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "mdb_cluster_id",
+									terraformAttributeName: "mdb_cluster_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "hosts",
+											terraformAttributeName: "hosts",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "port",
+											terraformAttributeName: "port",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "service_database",
+							terraformAttributeName: "service_database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "user",
+							terraformAttributeName: "user",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "password",
+							terraformAttributeName: "password",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "raw",
+									terraformAttributeName: "raw",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "include_tables_regex",
+							terraformAttributeName: "include_tables_regex",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "exclude_tables_regex",
+							terraformAttributeName: "exclude_tables_regex",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "timezone",
+							terraformAttributeName: "timezone",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "object_transfer_settings",
+							terraformAttributeName: "object_transfer_settings",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "view",
+									terraformAttributeName: "view",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "routine",
+									terraformAttributeName: "routine",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "trigger",
+									terraformAttributeName: "trigger",
+									children:               nil,
+								},
+							},
+						},
+					},
+				},
+				{
+					protobufFieldName:      "postgres_source",
+					terraformAttributeName: "postgres_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "mdb_cluster_id",
+									terraformAttributeName: "mdb_cluster_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "hosts",
+											terraformAttributeName: "hosts",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "port",
+											terraformAttributeName: "port",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "user",
+							terraformAttributeName: "user",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "password",
+							terraformAttributeName: "password",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "raw",
+									terraformAttributeName: "raw",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "include_tables",
+							terraformAttributeName: "include_tables",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "exclude_tables",
+							terraformAttributeName: "exclude_tables",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "slot_byte_lag_limit",
+							terraformAttributeName: "slot_gigabyte_lag_limit",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "service_schema",
+							terraformAttributeName: "service_schema",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "object_transfer_settings",
+							terraformAttributeName: "object_transfer_settings",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "sequence",
+									terraformAttributeName: "sequence",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "sequence_owned_by",
+									terraformAttributeName: "sequence_owned_by",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "table",
+									terraformAttributeName: "table",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "primary_key",
+									terraformAttributeName: "primary_key",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "fk_constraint",
+									terraformAttributeName: "fk_constraint",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "default_values",
+									terraformAttributeName: "default_values",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "constraint",
+									terraformAttributeName: "constraint",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "index",
+									terraformAttributeName: "index",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "view",
+									terraformAttributeName: "view",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "function",
+									terraformAttributeName: "function",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "trigger",
+									terraformAttributeName: "trigger",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "type",
+									terraformAttributeName: "type",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "rule",
+									terraformAttributeName: "rule",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "collation",
+									terraformAttributeName: "collation",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "policy",
+									terraformAttributeName: "policy",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "cast",
+									terraformAttributeName: "cast",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "materialized_view",
+									terraformAttributeName: "materialized_view",
+									children:               nil,
+								},
+							},
+						},
+					},
+				},
+				{
+					protobufFieldName:      "mongo_source",
+					terraformAttributeName: "mongo_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "connection_options",
+									terraformAttributeName: "connection_options",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "mdb_cluster_id",
+											terraformAttributeName: "mdb_cluster_id",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "on_premise",
+											terraformAttributeName: "on_premise",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "hosts",
+													terraformAttributeName: "hosts",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "port",
+													terraformAttributeName: "port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "tls_mode",
+													terraformAttributeName: "tls_mode",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "disabled",
+															terraformAttributeName: "disabled",
+															children:               nil,
+														},
+														{
+															protobufFieldName:      "enabled",
+															terraformAttributeName: "enabled",
+															children: []*fieldTreeNode{
+																{
+																	protobufFieldName:      "ca_certificate",
+																	terraformAttributeName: "ca_certificate",
+																	children:               nil,
+																},
+															},
+														},
+													},
+												},
+												{
+													protobufFieldName:      "replica_set",
+													terraformAttributeName: "replica_set",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "auth_source",
+											terraformAttributeName: "auth_source",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "collections",
+							terraformAttributeName: "collections",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "excluded_collections",
+							terraformAttributeName: "excluded_collections",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "secondary_preferred_mode",
+							terraformAttributeName: "secondary_preferred_mode",
+							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "mysql_target",
+					terraformAttributeName: "mysql_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "mdb_cluster_id",
+									terraformAttributeName: "mdb_cluster_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "hosts",
+											terraformAttributeName: "hosts",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "port",
+											terraformAttributeName: "port",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "user",
+							terraformAttributeName: "user",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "password",
+							terraformAttributeName: "password",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "raw",
+									terraformAttributeName: "raw",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "sql_mode",
+							terraformAttributeName: "sql_mode",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "skip_constraint_checks",
+							terraformAttributeName: "skip_constraint_checks",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "timezone",
+							terraformAttributeName: "timezone",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "cleanup_policy",
+							terraformAttributeName: "cleanup_policy",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "service_database",
+							terraformAttributeName: "service_database",
+							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "postgres_target",
+					terraformAttributeName: "postgres_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "mdb_cluster_id",
+									terraformAttributeName: "mdb_cluster_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "hosts",
+											terraformAttributeName: "hosts",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "port",
+											terraformAttributeName: "port",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "user",
+							terraformAttributeName: "user",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "password",
+							terraformAttributeName: "password",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "raw",
+									terraformAttributeName: "raw",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "cleanup_policy",
+							terraformAttributeName: "cleanup_policy",
+							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "mongo_target",
+					terraformAttributeName: "mongo_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "connection_options",
+									terraformAttributeName: "connection_options",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "mdb_cluster_id",
+											terraformAttributeName: "mdb_cluster_id",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "on_premise",
+											terraformAttributeName: "on_premise",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "hosts",
+													terraformAttributeName: "hosts",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "port",
+													terraformAttributeName: "port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "tls_mode",
+													terraformAttributeName: "tls_mode",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "disabled",
+															terraformAttributeName: "disabled",
+															children:               nil,
+														},
+														{
+															protobufFieldName:      "enabled",
+															terraformAttributeName: "enabled",
+															children: []*fieldTreeNode{
+																{
+																	protobufFieldName:      "ca_certificate",
+																	terraformAttributeName: "ca_certificate",
+																	children:               nil,
+																},
+															},
+														},
+													},
+												},
+												{
+													protobufFieldName:      "replica_set",
+													terraformAttributeName: "replica_set",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "auth_source",
+											terraformAttributeName: "auth_source",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "cleanup_policy",
+							terraformAttributeName: "cleanup_policy",
+							children:               nil,
+						},
+					},
+				},
+			},
+		},
+	},
 }

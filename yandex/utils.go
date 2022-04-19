@@ -819,6 +819,55 @@ func generateFieldMasks(d *schema.ResourceData, fieldsMap map[string]string) []s
 	return res
 }
 
+type fieldTreeNode struct {
+	protobufFieldName      string
+	terraformAttributeName string
+	children               []*fieldTreeNode
+}
+
+func generateEndpointFieldMasks(d *schema.ResourceData, fieldTreeRoot *fieldTreeNode) []string {
+	var fieldMasks []string
+	for _, node := range fieldTreeRoot.children {
+		fieldMasks = append(fieldMasks, generateEndpointFieldMasksForPath(d, node, "", "")...)
+	}
+	return fieldMasks
+}
+
+func generateEndpointFieldMasksForPath(d *schema.ResourceData, node *fieldTreeNode, terraformPathPrefix, protobufPathPrefix string) []string {
+	terraformAttributePath := terraformPathPrefix + node.terraformAttributeName
+	protobufFieldPath := protobufPathPrefix + node.protobufFieldName
+
+	if !d.HasChange(terraformAttributePath) {
+		return nil // No changes => empty field mask
+	}
+	// There's a change at terraformAttributePath. Try to refine it by recursing into the attribute
+
+	if node.children == nil {
+		// It's either a repeated field of any kind or it's a singular primitive (i.e. non-message) field.
+		// Either way, there's nothing to recurse into. Just return the node path
+		return []string{protobufFieldPath}
+	}
+
+	// The node is a singular message field.
+	// Check if the count has changed (0->1 or 1->0). If so, then the entire field has changed, and there is no need to recurse
+	countChanged := d.HasChange(terraformAttributePath + ".#")
+	if countChanged {
+		return []string{protobufFieldPath}
+	}
+
+	// The count has not changed, but the field has. Try recursing into the message to find out precisely which attributes that have changed
+	var nestedChanges []string
+	for _, nestedNode := range node.children {
+		nestedChanges = append(nestedChanges, generateEndpointFieldMasksForPath(d, nestedNode, terraformAttributePath+".0.", protobufFieldPath+".")...)
+	}
+	if len(nestedChanges) != 0 {
+		return nestedChanges
+	}
+
+	// No nested changes found, but the current node somehow has changes. Return the current path in that case
+	return []string{protobufFieldPath}
+}
+
 func splitFieldPath(path string) []string {
 	newPath := strings.ReplaceAll(path, ".0", "__0")
 	var sb strings.Builder
