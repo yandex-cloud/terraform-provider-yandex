@@ -1,4 +1,6 @@
-## 0.74.0 (Unreleased)
+## 0.75.0 (Unreleased)
+
+## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:
 * iam: support for changing description of `yandex_iam_service_account_key` without recreation
 * mdb: add `performance_diagnostics` section in `yandex_mdb_mysql_cluster` resource and data source
