@@ -10,9 +10,8 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
@@ -442,6 +441,13 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -545,6 +551,10 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
+		return err
+	}
 
 	return d.Set("database", flattenPGDatabases(databases))
 }
@@ -664,6 +674,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		NetworkId:        createClusterRequest.NetworkId,
 		FolderId:         createClusterRequest.FolderId,
 		SecurityGroupIds: createClusterRequest.SecurityGroupIds,
+		HostGroupIds:     createClusterRequest.HostGroupIds,
 	}))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster from backup %v: %s", backupID, err)
@@ -745,6 +756,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+	hostGroupIds := expandHostGroupIds(d.Get("host_group_ids"))
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
@@ -764,6 +776,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		HostSpecs:          hostSpecs,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		HostGroupIds:       hostGroupIds,
 	}
 
 	return req, nil
@@ -928,6 +941,9 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
+	if d.HasChange("host_group_ids") {
+		return nil, updateFieldConfigName, fmt.Errorf("host_group_ids change is not supported yet")
+	}
 
 	maintenanceWindow, err := expandPGMaintenanceWindow(d)
 	if err != nil {

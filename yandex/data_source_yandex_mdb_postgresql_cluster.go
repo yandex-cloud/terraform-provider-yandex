@@ -342,6 +342,12 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -430,6 +436,10 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	}
 
 	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+		return err
+	}
+
+	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 

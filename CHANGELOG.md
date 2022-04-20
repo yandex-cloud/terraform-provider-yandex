@@ -15,6 +15,8 @@ FEATURES:
 * compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.
 * mdb: new mysql configuration options added
 * mdb: support audit log (filter, audit_authorization_success) and security (enable, kmip) settings in `yandex_mdb_mongodb_cluster`
+* add `host_group_ids` attribute in `yandex_mdb_mysql_cluster` resource and data source
+* add `host_group_ids` attribute in `yandex_mdb_postgresql_cluster` resource and data source
 
 ## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:

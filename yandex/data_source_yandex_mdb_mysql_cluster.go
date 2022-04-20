@@ -305,6 +305,12 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"host_group_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -444,6 +450,10 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+
+	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
+		return err
+	}
 
 	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.SetId(clusterID)
