@@ -162,12 +162,98 @@ All of the attrubutes are optional and should be either "BEFORE_DATA", "AFTER_DA
 
 ---
 
+The `mongo_source` block supports:
+* `connection` - (Required) Connection settings. The structure is documented below.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `subnet_id` - (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `collections` - (Optional) The list of the MongoDB collections that should be transferred. If omitted, all available collections will be transferred. The structure of the list item is documented below.
+* `excluded_collections` - (Optional) The list of the MongoDB collections that should not be transferred.
+* `secondary_preferred_mode` - (Optional) whether the secondary server should be preferred to the primary when copying data.
+
+The `mongo_target` block supports:
+* `connection` - (Required) Connection settings. The structure is documented below.
+* `cleanup_policy` - (Optional) How to clean collections when activating the transfer. One of "DISABLED", "DROP" or "TRUNCATE".
+* `database` - (Optional) If not empty, then all the data will be written to the database with the specified name; otherwise the database name is the same as in the source endpoint.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `subnet_id` - (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+
+The `connection` block supports exactly one of the following attributes:
+* `connection_options` (Required) Connection options. The structure is documented below.
+
+The `connection_options` block supports the following attributes:
+* `mdb_cluster_id` - (Optional) Identifier of the Managed MongoDB cluster.
+* `on_premise` - (Optional) Connection settings of the on-premise MongoDB server.
+* `auth_source` - (Required) Name of the database associated with the credentials.
+* `user` - (Required) User for database access.
+* `password` - (Required) Password for the database access. This is a block with a single field named `raw` which should contain the password.
+
+The `on_premise` block supports the following attributes:
+* `hosts` - (Required) Host names of the replica set.
+* `port` - (Required) TCP Port number.
+* `replica_set` - (Optional) Replica set name.
+* `tls_mode` - (Optional) TLS settings for the server connection. Empty implies plaintext connection. The structure is documented below.
+
+The `collections` block supports the following attributes:
+* `database_name` - (Required) Database name.
+* `collection_name` - (Required) Collection name.
+
+---
+
+The `clickhouse_source` block supports:
+* `connection` - (Required) Connection settings. The structure is documented below.
+* `exclude_tables` - (Optional) The list of tables that should not be transferred.
+* `include_tables` - (Optional) The list of tables that should be transferred. Leave empty if all tables should be transferred.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `subnet_id` - (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+
+The `clickhouse_target` block supports:
+* `connection` - (Required) Connection settings. The structure is documented below.
+* `cleanup_policy` - (Optional) How to clean collections when activating the transfer. One of "CLICKHOUSE_CLEANUP_POLICY_DISABLED" or "CLICKHOUSE_CLEANUP_POLICY_DROP".
+* `clickhouse_cluster_name` - (Optional) Name of the ClickHouse cluster. For managed ClickHouse clusters defaults to managed cluster ID.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `subnet_id` - (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `alt_names` - (Optional) Table renaming rules. The structure is documented below.
+* `sharding` - (Optional) Shard selection rules for the data being transferred. The structure is documented below.
+
+The `connection` block supports the following attributes:
+* `connection_options` (Required) Connection options. The structure is documented below.
+
+The `connection_options` block supports the following attributes:
+* `mdb_cluster_id` - (Optional) Identifier of the Managed ClickHouse cluster.
+* `on_premise` - (Optional) Connection settings of the on-premise ClickHouse server.
+* `database` - (Required) Database name.
+* `user` - (Required) User for database access.
+* `password` - (Required) Password for the database access. This is a block with a single field named `raw` which should contain the password.
+
+The `on_premise` block supports the following attributes:
+* `http_port` - (Required) TCP port number for the HTTP interface of the ClickHouse server.
+* `native_port` - (Required) TCP port number for the native interface of the ClickHouse server.
+* `shards` - (Required) The list of ClickHouse shards. The structure is documented below.
+* `tls_mode` - (Optional) TLS settings for the server connection. Empty implies plaintext connection. The structure is documented below.
+
+The `shards` block supports the following attributes:
+* `name` - (Required) Arbitrary shard name. This name may be used in `sharding` block to specify custom sharding rules.
+* `hosts` - (Required) List of ClickHouse server host names.
+
+The `sharding` block supports exactly one of the following attributes:
+* `column_value_hash` - Shard data by the hash value of the specified column. The structure is documented below.
+* `transfer_id` - Shard data by ID of the transfer.
+
+The `column_value_hash` block supports:
+* `column_name` - The name of the column to calculate hash from.
+
+---
+
 The `tls_mode` block supports exactly one of the following attributes:
 * `disabled` - Empty block designating that the connection is not secured, i.e. plaintext connection.
 * `enabled` - If this attribute is not an empty block, then TLS is used for the server connection. The structure is documented below.
 
 The `enabled` block supports:
 * `ca_certificate` - (Optional) X.509 certificate of the certificate authority which issued the server's certificate, in PEM format. If empty, the server's certificate must be signed by a well-known CA.
+
+The `alt_names` block supports:
+* `from_name`
+* `to_name`
 
 ## Attributes Reference
 

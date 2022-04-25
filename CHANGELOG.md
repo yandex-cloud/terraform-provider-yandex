@@ -1,4 +1,6 @@
 ## 0.75.0 (Unreleased)
+FEATURES:
+* datatransfer: add ClickHouse endpoint into `yandex_datatransfer_endpoint` resource
 
 ## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:
@@ -10,6 +12,7 @@ ENHANCEMENTS:
 BUG FIXES:
 * postgresql: fix unpredictable behaviour when changing `assign_public_ip` without name
 * storage: fix not saving bucket's `policy` to tfstate
+* datatransfer: allow updating `tls_mode` attribute of `yandex_datatransfer_endpoint` resource from `enabled` to `disabled` value
 
 FEATURES:
 * compute: changing `folder_id` attribute leads to move operation for `yandex_compute_instance` and `yandex_compute_disk` resources if `allow_recreate` flag is set to false (or not set). Otherwise, resource will be recreated.
@@ -17,6 +20,7 @@ FEATURES:
 * mdb: support audit log (filter, audit_authorization_success) and security (enable, kmip) settings in `yandex_mdb_mongodb_cluster`
 * add `host_group_ids` attribute in `yandex_mdb_mysql_cluster` resource and data source
 * add `host_group_ids` attribute in `yandex_mdb_postgresql_cluster` resource and data source
+* datatransfer: add MongoDB endpoint into `yandex_datatransfer_endpoint` resource
 
 ## 0.73.0 (March 28, 2022)
 ENHANCEMENTS:

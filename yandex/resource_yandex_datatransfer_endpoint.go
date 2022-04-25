@@ -57,6 +57,386 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"clickhouse_source": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connection_options": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"database": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"mdb_cluster_id": {
+																Type:          schema.TypeString,
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise"},
+															},
+															"on_premise": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"http_port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"native_port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"shards": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"hosts": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																					"name": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"tls_mode": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"disabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"},
+																					},
+																					"enabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"ca_certificate": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																							},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"},
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.clickhouse_source.0.connection.0.connection_options.0.mdb_cluster_id"},
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"exclude_tables": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"include_tables": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
+						"clickhouse_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"alt_names": {
+										Type: schema.TypeList,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"from_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"to_name": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"cleanup_policy": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseDatatransferEndpointClickhouseCleanupPolicy),
+										Computed:     true,
+									},
+									"clickhouse_cluster_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"connection_options": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"database": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"mdb_cluster_id": {
+																Type:          schema.TypeString,
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise"},
+															},
+															"on_premise": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"http_port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"native_port": {
+																			Type:     schema.TypeInt,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"shards": {
+																			Type: schema.TypeList,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"hosts": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Schema{
+																							Type: schema.TypeString,
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																					"name": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"tls_mode": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"disabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"},
+																					},
+																					"enabled": {
+																						Type:     schema.TypeList,
+																						MaxItems: 1,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"ca_certificate": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																							},
+																						},
+																						Optional:      true,
+																						ConflictsWith: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"},
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional:      true,
+																ConflictsWith: []string{"settings.0.clickhouse_target.0.connection.0.connection_options.0.mdb_cluster_id"},
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"sharding": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"column_value_hash": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"column_name": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.transfer_id"},
+												},
+												"transfer_id": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.column_value_hash"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
 						"mongo_source": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
@@ -234,7 +614,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mongo_target": {
 							Type:     schema.TypeList,
@@ -381,7 +761,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mysql_source": {
 							Type:     schema.TypeList,
@@ -556,7 +936,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mysql_target": {
 							Type:     schema.TypeList,
@@ -692,7 +1072,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"postgres_source": {
 							Type:     schema.TypeList,
@@ -951,7 +1331,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target"},
 						},
 						"postgres_target": {
 							Type:     schema.TypeList,
@@ -1072,7 +1452,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source"},
 						},
 					},
 				},
@@ -1731,6 +2111,113 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 					},
 				},
 				{
+					protobufFieldName:      "clickhouse_source",
+					terraformAttributeName: "clickhouse_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "connection_options",
+									terraformAttributeName: "connection_options",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "mdb_cluster_id",
+											terraformAttributeName: "mdb_cluster_id",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "on_premise",
+											terraformAttributeName: "on_premise",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "shards",
+													terraformAttributeName: "shards",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "http_port",
+													terraformAttributeName: "http_port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "native_port",
+													terraformAttributeName: "native_port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "tls_mode",
+													terraformAttributeName: "tls_mode",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "disabled",
+															terraformAttributeName: "disabled",
+															children:               nil,
+														},
+														{
+															protobufFieldName:      "enabled",
+															terraformAttributeName: "enabled",
+															children: []*fieldTreeNode{
+																{
+																	protobufFieldName:      "ca_certificate",
+																	terraformAttributeName: "ca_certificate",
+																	children:               nil,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "database",
+											terraformAttributeName: "database",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "include_tables",
+							terraformAttributeName: "include_tables",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "exclude_tables",
+							terraformAttributeName: "exclude_tables",
+							children:               nil,
+						},
+					},
+				},
+				{
 					protobufFieldName:      "mysql_target",
 					terraformAttributeName: "mysql_target",
 					children: []*fieldTreeNode{
@@ -1921,6 +2408,156 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 								{
 									protobufFieldName:      "raw",
 									terraformAttributeName: "raw",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "cleanup_policy",
+							terraformAttributeName: "cleanup_policy",
+							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "clickhouse_target",
+					terraformAttributeName: "clickhouse_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "connection_options",
+									terraformAttributeName: "connection_options",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "mdb_cluster_id",
+											terraformAttributeName: "mdb_cluster_id",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "on_premise",
+											terraformAttributeName: "on_premise",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "shards",
+													terraformAttributeName: "shards",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "http_port",
+													terraformAttributeName: "http_port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "native_port",
+													terraformAttributeName: "native_port",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "tls_mode",
+													terraformAttributeName: "tls_mode",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "disabled",
+															terraformAttributeName: "disabled",
+															children:               nil,
+														},
+														{
+															protobufFieldName:      "enabled",
+															terraformAttributeName: "enabled",
+															children: []*fieldTreeNode{
+																{
+																	protobufFieldName:      "ca_certificate",
+																	terraformAttributeName: "ca_certificate",
+																	children:               nil,
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "database",
+											terraformAttributeName: "database",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "clickhouse_cluster_name",
+							terraformAttributeName: "clickhouse_cluster_name",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "alt_names",
+							terraformAttributeName: "alt_names",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "sharding",
+							terraformAttributeName: "sharding",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "column_value_hash",
+									terraformAttributeName: "column_value_hash",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "column_name",
+											terraformAttributeName: "column_name",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "custom_mapping",
+									terraformAttributeName: "custom_mapping",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "column_name",
+											terraformAttributeName: "column_name",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "mapping",
+											terraformAttributeName: "mapping",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "transfer_id",
+									terraformAttributeName: "transfer_id",
 									children:               nil,
 								},
 							},

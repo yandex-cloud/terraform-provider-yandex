@@ -14,6 +14,24 @@ import (
 func expandDatatransferEndpointSettings(d *schema.ResourceData) (*datatransfer.EndpointSettings, error) {
 	val := new(datatransfer.EndpointSettings)
 
+	if _, ok := d.GetOk("settings.0.clickhouse_source"); ok {
+		clickhouseSource, err := expandDatatransferEndpointSettingsClickhouseSource(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetClickhouseSource(clickhouseSource)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target"); ok {
+		clickhouseTarget, err := expandDatatransferEndpointSettingsClickhouseTarget(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetClickhouseTarget(clickhouseTarget)
+	}
+
 	if _, ok := d.GetOk("settings.0.mongo_source"); ok {
 		mongoSource, err := expandDatatransferEndpointSettingsMongoSource(d)
 		if err != nil {
@@ -1255,12 +1273,505 @@ func expandDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resource
 	return val, nil
 }
 
+func expandDatatransferEndpointSettingsClickhouseTarget(d *schema.ResourceData) (*endpoint.ClickhouseTarget, error) {
+	val := new(endpoint.ClickhouseTarget)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.alt_names"); ok {
+		altNames, err := expandDatatransferEndpointSettingsClickhouseTargetAltNamesSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAltNames(altNames)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.cleanup_policy"); ok {
+		vv, err := parseDatatransferEndpointClickhouseCleanupPolicy(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCleanupPolicy(vv)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.clickhouse_cluster_name"); ok {
+		val.SetClickhouseClusterName(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection"); ok {
+		connection, err := expandDatatransferEndpointSettingsClickhouseTargetConnection(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnection(connection)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding"); ok {
+		sharding, err := expandDatatransferEndpointSettingsClickhouseTargetSharding(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSharding(sharding)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetSharding(d *schema.ResourceData) (*endpoint.ClickhouseSharding, error) {
+	val := new(endpoint.ClickhouseSharding)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.column_value_hash"); ok {
+		columnValueHash, err := expandDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHash(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetColumnValueHash(columnValueHash)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.transfer_id"); ok {
+		transferId, err := expandDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTransferId(transferId)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHash(d *schema.ResourceData) (*endpoint.ClickhouseSharding_ColumnValueHash, error) {
+	val := new(endpoint.ClickhouseSharding_ColumnValueHash)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.column_value_hash.0.column_name"); ok {
+		val.SetColumnName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnection(d *schema.ResourceData) (*endpoint.ClickhouseConnection, error) {
+	val := new(endpoint.ClickhouseConnection)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options"); ok {
+		connectionOptions, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptions(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnectionOptions(connectionOptions)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptions(d *schema.ResourceData) (*endpoint.ClickhouseConnectionOptions, error) {
+	val := new(endpoint.ClickhouseConnectionOptions)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.database"); ok {
+		val.SetDatabase(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.mdb_cluster_id"); ok {
+		val.SetMdbClusterId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise"); ok {
+		onPremise, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremise(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetOnPremise(onPremise)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.password"); ok {
+		password, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPassword(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPassword(password)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.user"); ok {
+		val.SetUser(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsPassword(d *schema.ResourceData) (*endpoint.Secret, error) {
+	val := new(endpoint.Secret)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.password.0.raw"); ok {
+		val.SetRaw(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremise(d *schema.ResourceData) (*endpoint.OnPremiseClickhouse, error) {
+	val := new(endpoint.OnPremiseClickhouse)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.http_port"); ok {
+		val.SetHttpPort(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.native_port"); ok {
+		val.SetNativePort(int64(v.(int)))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards"); ok {
+		shards, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShardsSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetShards(shards)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode"); ok {
+		tlsMode, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsMode(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTlsMode(tlsMode)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsMode(d *schema.ResourceData) (*endpoint.TLSMode, error) {
+	val := new(endpoint.TLSMode)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"); ok {
+		disabled, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeDisabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDisabled(disabled)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"); ok {
+		enabled, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetEnabled(enabled)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabled(d *schema.ResourceData) (*endpoint.TLSConfig, error) {
+	val := new(endpoint.TLSConfig)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate"); ok {
+		val.SetCaCertificate(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeDisabled(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShardsSlice(d *schema.ResourceData) ([]*endpoint.ClickhouseShard, error) {
+	count := d.Get("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.#").(int)
+	slice := make([]*endpoint.ClickhouseShard, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShards(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShards(d *schema.ResourceData, indexes ...interface{}) (*endpoint.ClickhouseShard, error) {
+	val := new(endpoint.ClickhouseShard)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.%d.hosts", indexes...)); ok {
+		val.SetHosts(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.connection.0.connection_options.0.on_premise.0.shards.%d.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetAltNamesSlice(d *schema.ResourceData) ([]*endpoint.AltName, error) {
+	count := d.Get("settings.0.clickhouse_target.0.alt_names.#").(int)
+	slice := make([]*endpoint.AltName, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsClickhouseTargetAltNames(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetAltNames(d *schema.ResourceData, indexes ...interface{}) (*endpoint.AltName, error) {
+	val := new(endpoint.AltName)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.alt_names.%d.from_name", indexes...)); ok {
+		val.SetFromName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.alt_names.%d.to_name", indexes...)); ok {
+		val.SetToName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSource(d *schema.ResourceData) (*endpoint.ClickhouseSource, error) {
+	val := new(endpoint.ClickhouseSource)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection"); ok {
+		connection, err := expandDatatransferEndpointSettingsClickhouseSourceConnection(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnection(connection)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.exclude_tables"); ok {
+		val.SetExcludeTables(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.include_tables"); ok {
+		val.SetIncludeTables(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnection(d *schema.ResourceData) (*endpoint.ClickhouseConnection, error) {
+	val := new(endpoint.ClickhouseConnection)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options"); ok {
+		connectionOptions, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptions(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnectionOptions(connectionOptions)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptions(d *schema.ResourceData) (*endpoint.ClickhouseConnectionOptions, error) {
+	val := new(endpoint.ClickhouseConnectionOptions)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.database"); ok {
+		val.SetDatabase(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.mdb_cluster_id"); ok {
+		val.SetMdbClusterId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise"); ok {
+		onPremise, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremise(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetOnPremise(onPremise)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.password"); ok {
+		password, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPassword(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPassword(password)
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.user"); ok {
+		val.SetUser(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsPassword(d *schema.ResourceData) (*endpoint.Secret, error) {
+	val := new(endpoint.Secret)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.password.0.raw"); ok {
+		val.SetRaw(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremise(d *schema.ResourceData) (*endpoint.OnPremiseClickhouse, error) {
+	val := new(endpoint.OnPremiseClickhouse)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.http_port"); ok {
+		val.SetHttpPort(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.native_port"); ok {
+		val.SetNativePort(int64(v.(int)))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.shards"); ok {
+		shards, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShardsSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetShards(shards)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode"); ok {
+		tlsMode, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsMode(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTlsMode(tlsMode)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsMode(d *schema.ResourceData) (*endpoint.TLSMode, error) {
+	val := new(endpoint.TLSMode)
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.disabled"); ok {
+		disabled, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeDisabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDisabled(disabled)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled"); ok {
+		enabled, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetEnabled(enabled)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabled(d *schema.ResourceData) (*endpoint.TLSConfig, error) {
+	val := new(endpoint.TLSConfig)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate"); ok {
+		val.SetCaCertificate(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeDisabled(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShardsSlice(d *schema.ResourceData) ([]*endpoint.ClickhouseShard, error) {
+	count := d.Get("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.shards.#").(int)
+	slice := make([]*endpoint.ClickhouseShard, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShards(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShards(d *schema.ResourceData, indexes ...interface{}) (*endpoint.ClickhouseShard, error) {
+	val := new(endpoint.ClickhouseShard)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.shards.%d.hosts", indexes...)); ok {
+		val.SetHosts(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_source.0.connection.0.connection_options.0.on_premise.0.shards.%d.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	return val, nil
+}
+
 func flattenDatatransferEndpointSettings(d *schema.ResourceData, v *datatransfer.EndpointSettings) ([]map[string]interface{}, error) {
 	if v == nil {
 		return nil, nil
 	}
 
 	m := make(map[string]interface{})
+
+	clickhouseSource, err := flattenDatatransferEndpointSettingsClickhouseSource(d, v.GetClickhouseSource())
+	if err != nil {
+		return nil, err
+	}
+	m["clickhouse_source"] = clickhouseSource
+
+	clickhouseTarget, err := flattenDatatransferEndpointSettingsClickhouseTarget(d, v.GetClickhouseTarget())
+	if err != nil {
+		return nil, err
+	}
+	m["clickhouse_target"] = clickhouseTarget
 
 	mongoSource, err := flattenDatatransferEndpointSettingsMongoSource(d, v.GetMongoSource())
 	if err != nil {
@@ -2096,6 +2607,408 @@ func flattenDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resourc
 
 	m["collection_name"] = v.GetCollectionName()
 	m["database_name"] = v.GetDatabaseName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTarget(d *schema.ResourceData, v *endpoint.ClickhouseTarget) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	altNames, err := flattenDatatransferEndpointSettingsClickhouseTargetAltNamesSlice(d, v.GetAltNames())
+	if err != nil {
+		return nil, err
+	}
+	m["alt_names"] = altNames
+	m["cleanup_policy"] = v.GetCleanupPolicy().String()
+	m["clickhouse_cluster_name"] = v.GetClickhouseClusterName()
+
+	connection, err := flattenDatatransferEndpointSettingsClickhouseTargetConnection(d, v.GetConnection())
+	if err != nil {
+		return nil, err
+	}
+	m["connection"] = connection
+	m["security_groups"] = v.GetSecurityGroups()
+
+	sharding, err := flattenDatatransferEndpointSettingsClickhouseTargetSharding(d, v.GetSharding())
+	if err != nil {
+		return nil, err
+	}
+	m["sharding"] = sharding
+	m["subnet_id"] = v.GetSubnetId()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetSharding(d *schema.ResourceData, v *endpoint.ClickhouseSharding) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	columnValueHash, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHash(d, v.GetColumnValueHash())
+	if err != nil {
+		return nil, err
+	}
+	m["column_value_hash"] = columnValueHash
+
+	transferId, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d, v.GetTransferId())
+	if err != nil {
+		return nil, err
+	}
+	m["transfer_id"] = transferId
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingColumnValueHash(d *schema.ResourceData, v *endpoint.ClickhouseSharding_ColumnValueHash) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["column_name"] = v.GetColumnName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnection(d *schema.ResourceData, v *endpoint.ClickhouseConnection) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	connectionOptions, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptions(d, v.GetConnectionOptions())
+	if err != nil {
+		return nil, err
+	}
+	m["connection_options"] = connectionOptions
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptions(d *schema.ResourceData, v *endpoint.ClickhouseConnectionOptions) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["database"] = v.GetDatabase()
+	m["mdb_cluster_id"] = v.GetMdbClusterId()
+
+	onPremise, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremise(d, v.GetOnPremise())
+	if err != nil {
+		return nil, err
+	}
+	m["on_premise"] = onPremise
+	if password, ok := d.GetOk("settings.0.clickhouse_target.0.connection.0.connection_options.0.password.0.raw"); ok {
+		m["password"] = []map[string]interface{}{{"raw": password}}
+	}
+	m["user"] = v.GetUser()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremise(d *schema.ResourceData, v *endpoint.OnPremiseClickhouse) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["http_port"] = v.GetHttpPort()
+	m["native_port"] = v.GetNativePort()
+
+	shards, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShardsSlice(d, v.GetShards())
+	if err != nil {
+		return nil, err
+	}
+	m["shards"] = shards
+
+	tlsMode, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsMode(d, v.GetTlsMode())
+	if err != nil {
+		return nil, err
+	}
+	m["tls_mode"] = tlsMode
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsMode(d *schema.ResourceData, v *endpoint.TLSMode) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	disabled, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeDisabled(d, v.GetDisabled())
+	if err != nil {
+		return nil, err
+	}
+	m["disabled"] = disabled
+
+	enabled, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabled(d, v.GetEnabled())
+	if err != nil {
+		return nil, err
+	}
+	m["enabled"] = enabled
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeEnabled(d *schema.ResourceData, v *endpoint.TLSConfig) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["ca_certificate"] = v.GetCaCertificate()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseTlsModeDisabled(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShardsSlice(d *schema.ResourceData, v []*endpoint.ClickhouseShard) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShards(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetConnectionConnectionOptionsOnPremiseShards(d *schema.ResourceData, v *endpoint.ClickhouseShard) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["hosts"] = v.GetHosts()
+	m["name"] = v.GetName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetAltNamesSlice(d *schema.ResourceData, v []*endpoint.AltName) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsClickhouseTargetAltNames(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetAltNames(d *schema.ResourceData, v *endpoint.AltName) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["from_name"] = v.GetFromName()
+	m["to_name"] = v.GetToName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSource(d *schema.ResourceData, v *endpoint.ClickhouseSource) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	connection, err := flattenDatatransferEndpointSettingsClickhouseSourceConnection(d, v.GetConnection())
+	if err != nil {
+		return nil, err
+	}
+	m["connection"] = connection
+	m["exclude_tables"] = v.GetExcludeTables()
+	m["include_tables"] = v.GetIncludeTables()
+	m["security_groups"] = v.GetSecurityGroups()
+	m["subnet_id"] = v.GetSubnetId()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnection(d *schema.ResourceData, v *endpoint.ClickhouseConnection) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	connectionOptions, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptions(d, v.GetConnectionOptions())
+	if err != nil {
+		return nil, err
+	}
+	m["connection_options"] = connectionOptions
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptions(d *schema.ResourceData, v *endpoint.ClickhouseConnectionOptions) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["database"] = v.GetDatabase()
+	m["mdb_cluster_id"] = v.GetMdbClusterId()
+
+	onPremise, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremise(d, v.GetOnPremise())
+	if err != nil {
+		return nil, err
+	}
+	m["on_premise"] = onPremise
+	if password, ok := d.GetOk("settings.0.clickhouse_source.0.connection.0.connection_options.0.password.0.raw"); ok {
+		m["password"] = []map[string]interface{}{{"raw": password}}
+	}
+	m["user"] = v.GetUser()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremise(d *schema.ResourceData, v *endpoint.OnPremiseClickhouse) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["http_port"] = v.GetHttpPort()
+	m["native_port"] = v.GetNativePort()
+
+	shards, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShardsSlice(d, v.GetShards())
+	if err != nil {
+		return nil, err
+	}
+	m["shards"] = shards
+
+	tlsMode, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsMode(d, v.GetTlsMode())
+	if err != nil {
+		return nil, err
+	}
+	m["tls_mode"] = tlsMode
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsMode(d *schema.ResourceData, v *endpoint.TLSMode) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	disabled, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeDisabled(d, v.GetDisabled())
+	if err != nil {
+		return nil, err
+	}
+	m["disabled"] = disabled
+
+	enabled, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabled(d, v.GetEnabled())
+	if err != nil {
+		return nil, err
+	}
+	m["enabled"] = enabled
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeEnabled(d *schema.ResourceData, v *endpoint.TLSConfig) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["ca_certificate"] = v.GetCaCertificate()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseTlsModeDisabled(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShardsSlice(d *schema.ResourceData, v []*endpoint.ClickhouseShard) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShards(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseSourceConnectionConnectionOptionsOnPremiseShards(d *schema.ResourceData, v *endpoint.ClickhouseShard) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["hosts"] = v.GetHosts()
+	m["name"] = v.GetName()
 
 	return []map[string]interface{}{m}, nil
 }
