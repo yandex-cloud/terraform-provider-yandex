@@ -28,7 +28,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   zone_id            = "ru-central1-a"
   subnet_id          = yandex_vpc_subnet.foo.id
   assign_public_ip   = true
-  version            = "6.17"
+  version            = "6.19"
   master_host_count  = 2
   segment_host_count = 5
   segment_in_host    = 1
@@ -102,7 +102,7 @@ The following arguments are supported:
 
 * `environment` - (Required) Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 
-* `version` - (Required) Version of the Greenplum cluster. (6.17)
+* `version` - (Required) Version of the Greenplum cluster. (6.19)
 
 
 * `master_host_count` - (Required) Number of hosts in master subcluster (1 or 2).
