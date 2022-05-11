@@ -122,7 +122,6 @@ func TestBuildKafkaTopicSpec(t *testing.T) {
 				"retention_ms":          8,
 				"segment_bytes":         9,
 				"max_message_bytes":     16777216,
-				"preallocate":           "true",
 			},
 		},
 	}
@@ -151,7 +150,6 @@ func TestBuildKafkaTopicSpec(t *testing.T) {
 				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
 				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
 				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
-				Preallocate:        &wrappers.BoolValue{Value: true},
 			},
 		},
 	}

@@ -150,7 +150,6 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 								"log_retention_minutes":           6,
 								"log_retention_ms":                7,
 								"log_segment_bytes":               8,
-								"log_preallocate":                 true,
 								"socket_send_buffer_bytes":        9,
 								"socket_receive_buffer_bytes":     10,
 								"auto_create_topics_enable":       true,
@@ -202,7 +201,6 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						"retention_ms":          8,
 						"segment_bytes":         9,
 						"max_message_bytes":     16777216,
-						"preallocate":           "true",
 					},
 				},
 			},
@@ -275,7 +273,6 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
 						LogRetentionMs:              &wrappers.Int64Value{Value: 7},
 						LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
-						LogPreallocate:              &wrappers.BoolValue{Value: true},
 						SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
 						SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
 						AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
@@ -312,7 +309,6 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
 						SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
 						MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
-						Preallocate:        &wrappers.BoolValue{Value: true},
 					},
 				},
 			},
@@ -381,7 +377,6 @@ func TestExpandKafka21ClusterConfig(t *testing.T) {
 								"log_retention_minutes":           6,
 								"log_retention_ms":                7,
 								"log_segment_bytes":               8,
-								"log_preallocate":                 true,
 								"socket_send_buffer_bytes":        9,
 								"socket_receive_buffer_bytes":     10,
 								"auto_create_topics_enable":       true,
@@ -412,7 +407,6 @@ func TestExpandKafka21ClusterConfig(t *testing.T) {
 						"retention_ms":          8,
 						"segment_bytes":         9,
 						"max_message_bytes":     16777216,
-						"preallocate":           "true",
 					},
 				},
 			},
@@ -437,7 +431,6 @@ func TestExpandKafka21ClusterConfig(t *testing.T) {
 			LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
 			LogRetentionMs:              &wrappers.Int64Value{Value: 7},
 			LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
-			LogPreallocate:              &wrappers.BoolValue{Value: true},
 			SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
 			SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
 			AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
@@ -464,7 +457,6 @@ func TestExpandKafka21ClusterConfig(t *testing.T) {
 				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
 				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
 				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
-				Preallocate:        &wrappers.BoolValue{Value: true},
 			},
 		},
 	}, req.TopicSpecs[0])
@@ -488,7 +480,6 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 								"log_retention_minutes":           6,
 								"log_retention_ms":                7,
 								"log_segment_bytes":               8,
-								"log_preallocate":                 true,
 								"socket_send_buffer_bytes":        9,
 								"socket_receive_buffer_bytes":     10,
 								"auto_create_topics_enable":       true,
@@ -519,7 +510,6 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 						"retention_ms":          8,
 						"segment_bytes":         9,
 						"max_message_bytes":     16777216,
-						"preallocate":           "true",
 					},
 				},
 			},
@@ -544,7 +534,6 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 			LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
 			LogRetentionMs:              &wrappers.Int64Value{Value: 7},
 			LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
-			LogPreallocate:              &wrappers.BoolValue{Value: true},
 			SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
 			SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
 			AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
@@ -571,7 +560,6 @@ func TestExpandKafka26ClusterConfig(t *testing.T) {
 				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
 				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
 				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
-				Preallocate:        &wrappers.BoolValue{Value: true},
 			},
 		},
 	}, req.TopicSpecs[0])
@@ -645,7 +633,6 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 								"log_retention_minutes":           6,
 								"log_retention_ms":                7,
 								"log_segment_bytes":               8,
-								"log_preallocate":                 true,
 								"socket_send_buffer_bytes":        9,
 								"socket_receive_buffer_bytes":     10,
 								"auto_create_topics_enable":       true,
@@ -707,7 +694,6 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 						LogRetentionMinutes:         &wrappers.Int64Value{Value: 6},
 						LogRetentionMs:              &wrappers.Int64Value{Value: 7},
 						LogSegmentBytes:             &wrappers.Int64Value{Value: 8},
-						LogPreallocate:              &wrappers.BoolValue{Value: true},
 						SocketSendBufferBytes:       &wrappers.Int64Value{Value: 9},
 						SocketReceiveBufferBytes:    &wrappers.Int64Value{Value: 10},
 						AutoCreateTopicsEnable:      &wrappers.BoolValue{Value: true},
@@ -738,7 +724,6 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"config_spec.kafka.kafka_config_2_8.log_flush_interval_messages",
 			"config_spec.kafka.kafka_config_2_8.log_flush_interval_ms",
 			"config_spec.kafka.kafka_config_2_8.log_flush_scheduler_interval_ms",
-			"config_spec.kafka.kafka_config_2_8.log_preallocate",
 			"config_spec.kafka.kafka_config_2_8.log_retention_bytes",
 			"config_spec.kafka.kafka_config_2_8.log_retention_hours",
 			"config_spec.kafka.kafka_config_2_8.log_retention_minutes",
@@ -881,7 +866,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 						SegmentBytes:    &wrappers.Int64Value{Value: 134217728},
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
-					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -900,7 +884,6 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
-					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{
 						CleanupPolicy:   kafka.TopicConfig2_8_CLEANUP_POLICY_DELETE,
 						MaxMessageBytes: &wrappers.Int64Value{Value: 33554432},
@@ -945,8 +928,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}, Preallocate: &wrappers.BoolValue{Value: true}}),
-					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -968,7 +950,6 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
-					testAccCheckMDBKafkaClusterLogPreallocate(&r, true),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -1056,7 +1037,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		kafka_config {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
-		  log_preallocate     		 = true
 		}
 	  }
 	}
@@ -1138,7 +1118,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 				compression_type    	   = "COMPRESSION_TYPE_ZSTD"
 				log_retention_bytes 	   = 2147483648
 				log_segment_bytes   	   = 268435456
-				log_preallocate     	   = true
 			}
 		}
 	}
@@ -1234,15 +1213,16 @@ func testAccCheckMDBKafkaClusterLogSegmentBytes(r *kafka.Cluster, value int64) r
 	}
 }
 
-func testAccCheckMDBKafkaClusterLogPreallocate(r *kafka.Cluster, value bool) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		v := r.Config.Kafka.GetKafkaConfig_2_8().LogPreallocate
-		if v.GetValue() != value {
-			return fmt.Errorf("incorrect log_preallocate value: expected '%v' but found '%v'", value, v.GetValue())
-		}
-		return nil
-	}
-}
+/// TODO uncomment after fix bug https://issues.apache.org/jira/browse/KAFKA-13664
+//func testAccCheckMDBKafkaClusterLogPreallocate(r *kafka.Cluster, value bool) resource.TestCheckFunc {
+//	return func(s *terraform.State) error {
+//		v := r.Config.Kafka.GetKafkaConfig_2_8().LogPreallocate
+//		if v.GetValue() != value {
+//			return fmt.Errorf("incorrect log_preallocate value: expected '%v' but found '%v'", value, v.GetValue())
+//		}
+//		return nil
+//	}
+//}
 
 func testAccCheckMDBKafkaConfigKafkaHasResources(r *kafka.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -1453,7 +1433,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		kafka_config {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
-		  log_preallocate     		 = true
 		}
 	  }
 	}
@@ -1466,7 +1445,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  topic_config {
 		max_message_bytes = 16777216
 		segment_bytes     = 134217728
-		preallocate       = true
 	  }
 	}
 
@@ -1535,7 +1513,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 2147483648
 		  log_segment_bytes   		 = 268435456
-		  log_preallocate     		 = true
 		}
 	  }
 	}
@@ -1547,7 +1524,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  topic_config {
 		max_message_bytes = 33554432
 		segment_bytes     = 268435456
-		preallocate       = false
 		retention_bytes   = 1073741824
 	  }
 	}
