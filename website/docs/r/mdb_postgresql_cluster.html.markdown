@@ -306,7 +306,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   folder_id   = "b1g24daaaddddffma52u"
 
   config {
-    version = "13"
+    version = "14"
     resources {
       resource_preset_id = "s2.micro"
       disk_size          = 10
@@ -463,7 +463,7 @@ The `config` block supports:
 
 * `resources` - (Required) Resources allocated to hosts of the PostgreSQL cluster. The structure is documented below.
 
-* `version` - (Required) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13)
+* `version` - (Required) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 14)
 
 * `access` - (Optional) Access policy to the PostgreSQL cluster. The structure is documented below.
 
@@ -642,9 +642,10 @@ $ terraform import yandex_mdb_postgresql_cluster.foo cluster_id
 ```
 
 
-## postresql config
+## PostgreSQL cluster settings
 
-More information about config:  
+More information about config:
+* https://cloud.yandex.com/docs/managed-postgresql/concepts/settings-list
 * https://www.postgresql.org/docs/current/runtime-config-connection.html
 * https://www.postgresql.org/docs/current/runtime-config-resource.html
 * https://www.postgresql.org/docs/current/runtime-config-wal.html
@@ -655,1446 +656,139 @@ More information about config:
 * https://www.postgresql.org/docs/current/runtime-config-locks.html
 * https://www.postgresql.org/docs/current/runtime-config-compatible.html
 
-
-* `shared_preload_libraries` override if not set. One of:
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
-* * "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * NO value
-
-Other are not owweride if not set.
-
-### Postgresql 13 config
-* `archive_timeout` integer
-
-* `array_nulls` boolean
-
-* `auto_explain_log_analyze` boolean
-
-* `auto_explain_log_buffers` boolean
-
-* `auto_explain_log_min_duration` integer
-
-* `auto_explain_log_nested_statements` boolean
-
-* `auto_explain_log_timing` boolean
-
-* `auto_explain_log_triggers` boolean
-
-* `auto_explain_log_verbose` boolean
-
-* `auto_explain_sample_rate` float
-
-* `autovacuum_analyze_scale_factor` float
-
-* `autovacuum_max_workers` integer
-
-* `autovacuum_naptime` integer
-
-* `autovacuum_vacuum_cost_delay` integer
-
-* `autovacuum_vacuum_cost_limit` integer
-
-* `autovacuum_vacuum_insert_scale_factor` float
-
-* `autovacuum_vacuum_insert_threshold` integer
-
-* `autovacuum_vacuum_scale_factor` float
-
-* `autovacuum_work_mem` integer
-
-* `backend_flush_after` integer
-
-* `backslash_quote` one of:
-  - 0: "BACKSLASH_QUOTE_UNSPECIFIED"
-  - 1: "BACKSLASH_QUOTE"
-  - 2: "BACKSLASH_QUOTE_ON"
-  - 3: "BACKSLASH_QUOTE_OFF"
-  - 4: "BACKSLASH_QUOTE_SAFE_ENCODING"
-
-* `bgwriter_delay` integer
-
-* `bgwriter_flush_after` integer
-
-* `bgwriter_lru_maxpages` integer
-
-* `bgwriter_lru_multiplier` float
-
-* `bytea_output` one of:
-  - 0: "BYTEA_OUTPUT_UNSPECIFIED"
-  - 1: "BYTEA_OUTPUT_HEX"
-  - 2: "BYTEA_OUTPUT_ESCAPED"
-
-* `checkpoint_completion_target` float
-
-* `checkpoint_flush_after` integer
-
-* `checkpoint_timeout` integer
-
-* `client_min_messages` one of:
-  - 0: "LOG_LEVEL_UNSPECIFIED"
-  - 1: "LOG_LEVEL_DEBUG5"
-  - 2: "LOG_LEVEL_DEBUG4"
-  - 3: "LOG_LEVEL_DEBUG3"
-  - 4: "LOG_LEVEL_DEBUG2"
-  - 5: "LOG_LEVEL_DEBUG1"
-  - 6: "LOG_LEVEL_LOG"
-  - 7: "LOG_LEVEL_NOTICE"
-  - 8: "LOG_LEVEL_WARNING"
-  - 9: "LOG_LEVEL_ERROR"
-  - 10: "LOG_LEVEL_FATAL"
-  - 11: "LOG_LEVEL_PANIC"
-
-* `constraint_exclusion` one of:
-  - 0: "CONSTRAINT_EXCLUSION_UNSPECIFIED"
-  - 1: "CONSTRAINT_EXCLUSION_ON"
-  - 2: "CONSTRAINT_EXCLUSION_OFF"
-  - 3: "CONSTRAINT_EXCLUSION_PARTITION"
-
-* `cursor_tuple_fraction` float
-
-* `deadlock_timeout` integer
-
-* `default_statistics_target` integer
-
-* `default_transaction_isolation` one of:
-  - 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
-  - 1: "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-  - 2: "TRANSACTION_ISOLATION_READ_COMMITTED"
-  - 3: "TRANSACTION_ISOLATION_REPEATABLE_READ"
-  - 4: "TRANSACTION_ISOLATION_SERIALIZABLE"
-
-* `default_transaction_read_only` boolean
-
-* `default_with_oids` boolean
-
-* `effective_cache_size` integer
-
-* `effective_io_concurrency` integer
-
-* `enable_bitmapscan` boolean
-
-* `enable_hashagg` boolean
-
-* `enable_hashjoin` boolean
-
-* `enable_incremental_sort` boolean
-
-* `enable_indexonlyscan` boolean
-
-* `enable_indexscan` boolean
-
-* `enable_material` boolean
-
-* `enable_mergejoin` boolean
-
-* `enable_nestloop` boolean
-
-* `enable_parallel_append` boolean
-
-* `enable_parallel_hash` boolean
-
-* `enable_partition_pruning` boolean
-
-* `enable_partitionwise_aggregate` boolean
-
-* `enable_partitionwise_join` boolean
-
-* `enable_seqscan` boolean
-
-* `enable_sort` boolean
-
-* `enable_tidscan` boolean
-
-* `escape_string_warning` boolean
-
-* `exit_on_error` boolean
-
-* `force_parallel_mode` one of:
-  - 0: "FORCE_PARALLEL_MODE_UNSPECIFIED"
-  - 1: "FORCE_PARALLEL_MODE_ON"
-  - 2: "FORCE_PARALLEL_MODE_OFF"
-  - 3: "FORCE_PARALLEL_MODE_REGRESS"
-
-* `from_collapse_limit` integer
-
-* `gin_pending_list_limit` integer
-
-* `hash_mem_multiplier` float
-
-* `idle_in_transaction_session_timeout` integer
-
-* `jit` boolean
-
-* `join_collapse_limit` integer
-
-* `lo_compat_privileges` boolean
-
-* `lock_timeout` integer
-
-* `log_checkpoints` boolean
-
-* `log_connections` boolean
-
-* `log_disconnections` boolean
-
-* `log_duration` boolean
-
-* `log_error_verbosity` one of:
-  - 0: "LOG_ERROR_VERBOSITY_UNSPECIFIED"
-  - 1: "LOG_ERROR_VERBOSITY_TERSE"
-  - 2: "LOG_ERROR_VERBOSITY_DEFAULT"
-  - 3: "LOG_ERROR_VERBOSITY_VERBOSE"
-
-* `log_lock_waits` boolean
-
-* `log_min_duration_sample` integer
-
-* `log_min_duration_statement` integer
-
-* `log_min_error_statement` one of:
-  - 0: "LOG_LEVEL_UNSPECIFIED"
-  - 1: "LOG_LEVEL_DEBUG5"
-  - 2: "LOG_LEVEL_DEBUG4"
-  - 3: "LOG_LEVEL_DEBUG3"
-  - 4: "LOG_LEVEL_DEBUG2"
-  - 5: "LOG_LEVEL_DEBUG1"
-  - 6: "LOG_LEVEL_LOG"
-  - 7: "LOG_LEVEL_NOTICE"
-  - 8: "LOG_LEVEL_WARNING"
-  - 9: "LOG_LEVEL_ERROR"
-  - 10: "LOG_LEVEL_FATAL"
-  - 11: "LOG_LEVEL_PANIC"
-
-* `log_min_messages` one of:
-  - 0: "LOG_LEVEL_UNSPECIFIED"
-  - 1: "LOG_LEVEL_DEBUG5"
-  - 2: "LOG_LEVEL_DEBUG4"
-  - 3: "LOG_LEVEL_DEBUG3"
-  - 4: "LOG_LEVEL_DEBUG2"
-  - 5: "LOG_LEVEL_DEBUG1"
-  - 6: "LOG_LEVEL_LOG"
-  - 7: "LOG_LEVEL_NOTICE"
-  - 8: "LOG_LEVEL_WARNING"
-  - 9: "LOG_LEVEL_ERROR"
-  - 10: "LOG_LEVEL_FATAL"
-  - 11: "LOG_LEVEL_PANIC"
-
-* `log_parameter_max_length` integer
-
-* `log_parameter_max_length_on_error` integer
-
-* `log_statement` one of:
-  - 0: "LOG_STATEMENT_UNSPECIFIED"
-  - 1: "LOG_STATEMENT_NONE"
-  - 2: "LOG_STATEMENT_DDL"
-  - 3: "LOG_STATEMENT_MOD"
-  - 4: "LOG_STATEMENT_ALL"
-
-* `log_statement_sample_rate` float
-
-* `log_temp_files` integer
-
-* `log_transaction_sample_rate` float
-
-* `logical_decoding_work_mem` integer
-
-* `maintenance_io_concurrency` integer
-
-* `maintenance_work_mem` integer
-
-* `max_connections` integer
-
-* `max_locks_per_transaction` integer
-
-* `max_parallel_maintenance_workers` integer
-
-* `max_parallel_workers` integer
-
-* `max_parallel_workers_per_gather` integer
-
-* `max_pred_locks_per_transaction` integer
-
-* `max_prepared_transactions` integer
-
-* `max_slot_wal_keep_size` integer
-
-* `max_standby_streaming_delay` integer
-
-* `max_wal_size` integer
-
-* `max_worker_processes` integer
-
-* `min_wal_size` integer
-
-* `old_snapshot_threshold` integer
-
-* `operator_precedence_warning` boolean
-
-* `parallel_leader_participation` boolean
-
-* `pg_hint_plan_debug_print` one of:
-  - 0: "PG_HINT_PLAN_DEBUG_PRINT_UNSPECIFIED"
-  - 1: "PG_HINT_PLAN_DEBUG_PRINT_OFF"
-  - 2: "PG_HINT_PLAN_DEBUG_PRINT_ON"
-  - 3: "PG_HINT_PLAN_DEBUG_PRINT_DETAILED"
-  - 4: "PG_HINT_PLAN_DEBUG_PRINT_VERBOSE"
-
-* `pg_hint_plan_enable_hint` boolean
-
-* `pg_hint_plan_enable_hint_table` boolean
-
-* `pg_hint_plan_message_level` one of:
-  - 0: "LOG_LEVEL_UNSPECIFIED"
-  - 1: "LOG_LEVEL_DEBUG5"
-  - 2: "LOG_LEVEL_DEBUG4"
-  - 3: "LOG_LEVEL_DEBUG3"
-  - 4: "LOG_LEVEL_DEBUG2"
-  - 5: "LOG_LEVEL_DEBUG1"
-  - 6: "LOG_LEVEL_LOG"
-  - 7: "LOG_LEVEL_NOTICE"
-  - 8: "LOG_LEVEL_WARNING"
-  - 9: "LOG_LEVEL_ERROR"
-  - 10: "LOG_LEVEL_FATAL"
-  - 11: "LOG_LEVEL_PANIC"
-
-* `plan_cache_mode` one of:
-  - 0: "PLAN_CACHE_MODE_UNSPECIFIED"
-  - 1: "PLAN_CACHE_MODE_AUTO"
-  - 2: "PLAN_CACHE_MODE_FORCE_CUSTOM_PLAN"
-  - 3: "PLAN_CACHE_MODE_FORCE_GENERIC_PLAN"
-
-* `quote_all_identifiers` boolean
-
-* `random_page_cost` float
-
-* `row_security` boolean
-
-* `search_path` text
-
-* `seq_page_cost` float
-
-* `shared_buffers` integer
-
-* `standard_conforming_strings` boolean
-
-* `statement_timeout` integer
-
-* `synchronize_seqscans` boolean
-
-* `synchronous_commit` one of:
-  - 0: "SYNCHRONOUS_COMMIT_UNSPECIFIED"
-  - 1: "SYNCHRONOUS_COMMIT_ON"
-  - 2: "SYNCHRONOUS_COMMIT_OFF"
-  - 3: "SYNCHRONOUS_COMMIT_LOCAL"
-  - 4: "SYNCHRONOUS_COMMIT_REMOTE_WRITE"
-  - 5: "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
-
-* `temp_buffers` integer
-
-* `temp_file_limit` integer
-
-* `timezone` text
-
-* `track_activity_query_size` integer
-
-* `transform_null_equals` boolean
-
-* `vacuum_cleanup_index_scale_factor` float
-
-* `vacuum_cost_delay` integer
-
-* `vacuum_cost_limit` integer
-
-* `vacuum_cost_page_dirty` integer
-
-* `vacuum_cost_page_hit` integer
-
-* `vacuum_cost_page_miss` integer
-
-* `wal_keep_size` integer
-
-* `wal_level` one of:
-  - 0: "WAL_LEVEL_UNSPECIFIED"
-  - 1: "WAL_LEVEL_REPLICA"
-  - 2: "WAL_LEVEL_LOGICAL"
-
-* `work_mem` integer
-
-* `xmlbinary` one of:
-  - 0: "XML_BINARY_UNSPECIFIED"
-  - 1: "XML_BINARY_BASE64"
-  - 2: "XML_BINARY_HEX"
-
-* `xmloption` one of:
-  - 0: "XML_OPTION_UNSPECIFIED"
-  - 1: "XML_OPTION_DOCUMENT"
-  - 2: "XML_OPTION_CONTENT"
-
-### Postgresql 12 config
-
-* `archive_timeout` integer
-
-* `array_nulls` boolean
-
-* `auto_explain_log_analyze` boolean
-
-* `auto_explain_log_buffers` boolean
-
-* `auto_explain_log_min_duration` integer
-
-* `auto_explain_log_nested_statements` boolean
-
-* `auto_explain_log_timing` boolean
-
-* `auto_explain_log_triggers` boolean
-
-* `auto_explain_log_verbose` boolean
-
-* `auto_explain_sample_rate` float
-
-* `autovacuum_analyze_scale_factor` float
-
-* `autovacuum_max_workers` integer
-
-* `autovacuum_naptime` integer
-
-* `autovacuum_vacuum_cost_delay` integer
-
-* `autovacuum_vacuum_cost_limit` integer
-
-* `autovacuum_vacuum_scale_factor` float
-
-* `autovacuum_work_mem` integer
-
-* `backend_flush_after` integer
-
-* `backslash_quote` one of:
-* * 0: "BACKSLASH_QUOTE_UNSPECIFIED"
-* * 1: "BACKSLASH_QUOTE"
-* * 2: "BACKSLASH_QUOTE_ON"
-* * 3: "BACKSLASH_QUOTE_OFF"
-* * 4: "BACKSLASH_QUOTE_SAFE_ENCODING"
-
-
-* `bgwriter_delay` integer
-
-* `bgwriter_flush_after` integer
-
-* `bgwriter_lru_maxpages` integer
-
-* `bgwriter_lru_multiplier` float
-
-* `bytea_output` one of:
-* * 0: "BYTEA_OUTPUT_UNSPECIFIED"
-* * 1: "BYTEA_OUTPUT_HEX"
-* * 2: "BYTEA_OUTPUT_ESCAPED"
-
-
-* `checkpoint_completion_target` float
-
-* `checkpoint_flush_after` integer
-
-* `checkpoint_timeout` integer
-
-* `client_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `constraint_exclusion` one of:
-* * 0: "CONSTRAINT_EXCLUSION_UNSPECIFIED"
-* * 1: "CONSTRAINT_EXCLUSION_ON"
-* * 2: "CONSTRAINT_EXCLUSION_OFF"
-* * 3: "CONSTRAINT_EXCLUSION_PARTITION"
-
-
-* `cursor_tuple_fraction` float
-
-* `deadlock_timeout` integer
-
-* `default_statistics_target` integer
-
-* `default_transaction_isolation` one of:
-* * 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
-* * 1: "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-* * 2: "TRANSACTION_ISOLATION_READ_COMMITTED"
-* * 3: "TRANSACTION_ISOLATION_REPEATABLE_READ"
-* * 4: "TRANSACTION_ISOLATION_SERIALIZABLE"
-
-
-* `default_transaction_read_only` boolean
-
-* `default_with_oids` boolean
-
-* `effective_cache_size` integer
-
-* `effective_io_concurrency` integer
-
-* `enable_bitmapscan` boolean
-
-* `enable_hashagg` boolean
-
-* `enable_hashjoin` boolean
-
-* `enable_indexonlyscan` boolean
-
-* `enable_indexscan` boolean
-
-* `enable_material` boolean
-
-* `enable_mergejoin` boolean
-
-* `enable_nestloop` boolean
-
-* `enable_parallel_append` boolean
-
-* `enable_parallel_hash` boolean
-
-* `enable_partition_pruning` boolean
-
-* `enable_partitionwise_aggregate` boolean
-
-* `enable_partitionwise_join` boolean
-
-* `enable_seqscan` boolean
-
-* `enable_sort` boolean
-
-* `enable_tidscan` boolean
-
-* `escape_string_warning` boolean
-
-* `exit_on_error` boolean
-
-* `force_parallel_mode` one of:
-* * 0: "FORCE_PARALLEL_MODE_UNSPECIFIED"
-* * 1: "FORCE_PARALLEL_MODE_ON"
-* * 2: "FORCE_PARALLEL_MODE_OFF"
-* * 3: "FORCE_PARALLEL_MODE_REGRESS"
-
-
-* `from_collapse_limit` integer
-
-* `gin_pending_list_limit` integer
-
-* `idle_in_transaction_session_timeout` integer
-
-* `jit` boolean
-
-* `join_collapse_limit` integer
-
-* `lo_compat_privileges` boolean
-
-* `lock_timeout` integer
-
-* `log_checkpoints` boolean
-
-* `log_connections` boolean
-
-* `log_disconnections` boolean
-
-* `log_duration` boolean
-
-* `log_error_verbosity` one of:
-* * 0: "LOG_ERROR_VERBOSITY_UNSPECIFIED"
-* * 1: "LOG_ERROR_VERBOSITY_TERSE"
-* * 2: "LOG_ERROR_VERBOSITY_DEFAULT"
-* * 3: "LOG_ERROR_VERBOSITY_VERBOSE"
-
-
-* `log_lock_waits` boolean
-
-* `log_min_duration_statement` integer
-
-* `log_min_error_statement` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_statement` one of:
-* * 0: "LOG_STATEMENT_UNSPECIFIED"
-* * 1: "LOG_STATEMENT_NONE"
-* * 2: "LOG_STATEMENT_DDL"
-* * 3: "LOG_STATEMENT_MOD"
-* * 4: "LOG_STATEMENT_ALL"
-
-
-* `log_temp_files` integer
-
-* `log_transaction_sample_rate` float
-
-* `maintenance_work_mem` integer
-
-* `max_connections` integer
-
-* `max_locks_per_transaction` integer
-
-* `max_parallel_maintenance_workers` integer
-
-* `max_parallel_workers` integer
-
-* `max_parallel_workers_per_gather` integer
-
-* `max_pred_locks_per_transaction` integer
-
-* `max_prepared_transactions` integer
-
-* `max_standby_streaming_delay` integer
-
-* `max_wal_size` integer
-
-* `max_worker_processes` integer
-
-* `min_wal_size` integer
-
-* `old_snapshot_threshold` integer
-
-* `operator_precedence_warning` boolean
-
-* `parallel_leader_participation` boolean
-
-* `pg_hint_plan_debug_print` one of:
-* * 0: "PG_HINT_PLAN_DEBUG_PRINT_UNSPECIFIED"
-* * 1: "PG_HINT_PLAN_DEBUG_PRINT_OFF"
-* * 2: "PG_HINT_PLAN_DEBUG_PRINT_ON"
-* * 3: "PG_HINT_PLAN_DEBUG_PRINT_DETAILED"
-* * 4: "PG_HINT_PLAN_DEBUG_PRINT_VERBOSE"
-
-
-* `pg_hint_plan_enable_hint` boolean
-
-* `pg_hint_plan_enable_hint_table` boolean
-
-* `pg_hint_plan_message_level` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `plan_cache_mode` one of:
-* * 0: "PLAN_CACHE_MODE_UNSPECIFIED"
-* * 1: "PLAN_CACHE_MODE_AUTO"
-* * 2: "PLAN_CACHE_MODE_FORCE_CUSTOM_PLAN"
-* * 3: "PLAN_CACHE_MODE_FORCE_GENERIC_PLAN"
-
-
-* `quote_all_identifiers` boolean
-
-* `random_page_cost` float
-
-* `row_security` boolean
-
-* `search_path` text
-
-* `seq_page_cost` float
-
-* `shared_buffers` integer
-
-* `shared_preload_libraries` override if not set. One of:
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
-* * "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * NO value
-
-
-* `standard_conforming_strings` boolean
-
-* `statement_timeout` integer
-
-* `synchronize_seqscans` boolean
-
-* `synchronous_commit` one of:
-* * 0: "SYNCHRONOUS_COMMIT_UNSPECIFIED"
-* * 1: "SYNCHRONOUS_COMMIT_ON"
-* * 2: "SYNCHRONOUS_COMMIT_OFF"
-* * 3: "SYNCHRONOUS_COMMIT_LOCAL"
-* * 4: "SYNCHRONOUS_COMMIT_REMOTE_WRITE"
-* * 5: "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
-
-
-* `temp_buffers` integer
-
-* `temp_file_limit` integer
-
-* `timezone` text
-
-* `track_activity_query_size` integer
-
-* `transform_null_equals` boolean
-
-* `vacuum_cleanup_index_scale_factor` float
-
-* `vacuum_cost_delay` integer
-
-* `vacuum_cost_limit` integer
-
-* `vacuum_cost_page_dirty` integer
-
-* `vacuum_cost_page_hit` integer
-
-* `vacuum_cost_page_miss` integer
-
-* `wal_level` one of:
-* * 0: "WAL_LEVEL_UNSPECIFIED"
-* * 1: "WAL_LEVEL_REPLICA"
-* * 2: "WAL_LEVEL_LOGICAL"
-
-
-* `work_mem` integer
-
-* `xmlbinary` one of:
-* * 0: "XML_BINARY_UNSPECIFIED"
-* * 1: "XML_BINARY_BASE64"
-* * 2: "XML_BINARY_HEX"
-
-
-* `xmloption` one of:
-* * 0: "XML_OPTION_UNSPECIFIED"
-* * 1: "XML_OPTION_DOCUMENT"
-* * 2: "XML_OPTION_CONTENT"
-
-
-### Postgresql 11 config
-
-* `archive_timeout` integer
-
-* `array_nulls` boolean
-
-* `auto_explain_log_analyze` boolean
-
-* `auto_explain_log_buffers` boolean
-
-* `auto_explain_log_min_duration` integer
-
-* `auto_explain_log_nested_statements` boolean
-
-* `auto_explain_log_timing` boolean
-
-* `auto_explain_log_triggers` boolean
-
-* `auto_explain_log_verbose` boolean
-
-* `auto_explain_sample_rate` float
-
-* `autovacuum_analyze_scale_factor` float
-
-* `autovacuum_max_workers` integer
-
-* `autovacuum_naptime` integer
-
-* `autovacuum_vacuum_cost_delay` integer
-
-* `autovacuum_vacuum_cost_limit` integer
-
-* `autovacuum_vacuum_scale_factor` float
-
-* `autovacuum_work_mem` integer
-
-* `backend_flush_after` integer
-
-* `backslash_quote` one of:
-* * 0: "BACKSLASH_QUOTE_UNSPECIFIED"
-* * 1: "BACKSLASH_QUOTE"
-* * 2: "BACKSLASH_QUOTE_ON"
-* * 3: "BACKSLASH_QUOTE_OFF"
-* * 4: "BACKSLASH_QUOTE_SAFE_ENCODING"
-
-
-* `bgwriter_delay` integer
-
-* `bgwriter_flush_after` integer
-
-* `bgwriter_lru_maxpages` integer
-
-* `bgwriter_lru_multiplier` float
-
-* `bytea_output` one of:
-* * 0: "BYTEA_OUTPUT_UNSPECIFIED"
-* * 1: "BYTEA_OUTPUT_HEX"
-* * 2: "BYTEA_OUTPUT_ESCAPED"
-
-
-* `checkpoint_completion_target` float
-
-* `checkpoint_flush_after` integer
-
-* `checkpoint_timeout` integer
-
-* `client_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `constraint_exclusion` one of:
-* * 0: "CONSTRAINT_EXCLUSION_UNSPECIFIED"
-* * 1: "CONSTRAINT_EXCLUSION_ON"
-* * 2: "CONSTRAINT_EXCLUSION_OFF"
-* * 3: "CONSTRAINT_EXCLUSION_PARTITION"
-
-
-* `cursor_tuple_fraction` float
-
-* `deadlock_timeout` integer
-
-* `default_statistics_target` integer
-
-* `default_transaction_isolation` one of:
-* * 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
-* * 1: "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-* * 2: "TRANSACTION_ISOLATION_READ_COMMITTED"
-* * 3: "TRANSACTION_ISOLATION_REPEATABLE_READ"
-* * 4: "TRANSACTION_ISOLATION_SERIALIZABLE"
-
-
-* `default_transaction_read_only` boolean
-
-* `default_with_oids` boolean
-
-* `effective_cache_size` integer
-
-* `effective_io_concurrency` integer
-
-* `enable_bitmapscan` boolean
-
-* `enable_hashagg` boolean
-
-* `enable_hashjoin` boolean
-
-* `enable_indexonlyscan` boolean
-
-* `enable_indexscan` boolean
-
-* `enable_material` boolean
-
-* `enable_mergejoin` boolean
-
-* `enable_nestloop` boolean
-
-* `enable_parallel_append` boolean
-
-* `enable_parallel_hash` boolean
-
-* `enable_partition_pruning` boolean
-
-* `enable_partitionwise_aggregate` boolean
-
-* `enable_partitionwise_join` boolean
-
-* `enable_seqscan` boolean
-
-* `enable_sort` boolean
-
-* `enable_tidscan` boolean
-
-* `escape_string_warning` boolean
-
-* `exit_on_error` boolean
-
-* `force_parallel_mode` one of:
-* * 0: "FORCE_PARALLEL_MODE_UNSPECIFIED"
-* * 1: "FORCE_PARALLEL_MODE_ON"
-* * 2: "FORCE_PARALLEL_MODE_OFF"
-* * 3: "FORCE_PARALLEL_MODE_REGRESS"
-
-
-* `from_collapse_limit` integer
-
-* `gin_pending_list_limit` integer
-
-* `idle_in_transaction_session_timeout` integer
-
-* `jit` boolean
-
-* `join_collapse_limit` integer
-
-* `lo_compat_privileges` boolean
-
-* `lock_timeout` integer
-
-* `log_checkpoints` boolean
-
-* `log_connections` boolean
-
-* `log_disconnections` boolean
-
-* `log_duration` boolean
-
-* `log_error_verbosity` one of:
-* * 0: "LOG_ERROR_VERBOSITY_UNSPECIFIED"
-* * 1: "LOG_ERROR_VERBOSITY_TERSE"
-* * 2: "LOG_ERROR_VERBOSITY_DEFAULT"
-* * 3: "LOG_ERROR_VERBOSITY_VERBOSE"
-
-
-* `log_lock_waits` boolean
-
-* `log_min_duration_statement` integer
-
-* `log_min_error_statement` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_statement` one of:
-* * 0: "LOG_STATEMENT_UNSPECIFIED"
-* * 1: "LOG_STATEMENT_NONE"
-* * 2: "LOG_STATEMENT_DDL"
-* * 3: "LOG_STATEMENT_MOD"
-* * 4: "LOG_STATEMENT_ALL"
-
-
-* `log_temp_files` integer
-
-* `maintenance_work_mem` integer
-
-* `max_connections` integer
-
-* `max_locks_per_transaction` integer
-
-* `max_parallel_maintenance_workers` integer
-
-* `max_parallel_workers` integer
-
-* `max_parallel_workers_per_gather` integer
-
-* `max_pred_locks_per_transaction` integer
-
-* `max_prepared_transactions` integer
-
-* `max_standby_streaming_delay` integer
-
-* `max_wal_size` integer
-
-* `max_worker_processes` integer
-
-* `min_wal_size` integer
-
-* `old_snapshot_threshold` integer
-
-* `operator_precedence_warning` boolean
-
-* `parallel_leader_participation` boolean
-
-* `pg_hint_plan_debug_print` one of:
-* * 0: "PG_HINT_PLAN_DEBUG_PRINT_UNSPECIFIED"
-* * 1: "PG_HINT_PLAN_DEBUG_PRINT_OFF"
-* * 2: "PG_HINT_PLAN_DEBUG_PRINT_ON"
-* * 3: "PG_HINT_PLAN_DEBUG_PRINT_DETAILED"
-* * 4: "PG_HINT_PLAN_DEBUG_PRINT_VERBOSE"
-
-
-* `pg_hint_plan_enable_hint` boolean
-
-* `pg_hint_plan_enable_hint_table` boolean
-
-* `pg_hint_plan_message_level` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `quote_all_identifiers` boolean
-
-* `random_page_cost` float
-
-* `row_security` boolean
-
-* `search_path` text
-
-* `seq_page_cost` float
-
-* `shared_buffers` integer
-
-* `shared_preload_libraries` override if not set. One of:
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
-* * "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * NO value
-
-
-* `standard_conforming_strings` boolean
-
-* `statement_timeout` integer
-
-* `synchronize_seqscans` boolean
-
-* `synchronous_commit` one of:
-* * 0: "SYNCHRONOUS_COMMIT_UNSPECIFIED"
-* * 1: "SYNCHRONOUS_COMMIT_ON"
-* * 2: "SYNCHRONOUS_COMMIT_OFF"
-* * 3: "SYNCHRONOUS_COMMIT_LOCAL"
-* * 4: "SYNCHRONOUS_COMMIT_REMOTE_WRITE"
-* * 5: "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
-
-
-* `temp_buffers` integer
-
-* `temp_file_limit` integer
-
-* `timezone` text
-
-* `track_activity_query_size` integer
-
-* `transform_null_equals` boolean
-
-* `vacuum_cleanup_index_scale_factor` float
-
-* `vacuum_cost_delay` integer
-
-* `vacuum_cost_limit` integer
-
-* `vacuum_cost_page_dirty` integer
-
-* `vacuum_cost_page_hit` integer
-
-* `vacuum_cost_page_miss` integer
-
-* `wal_level` one of:
-* * 0: "WAL_LEVEL_UNSPECIFIED"
-* * 1: "WAL_LEVEL_REPLICA"
-* * 2: "WAL_LEVEL_LOGICAL"
-
-
-* `work_mem` integer
-
-* `xmlbinary` one of:
-* * 0: "XML_BINARY_UNSPECIFIED"
-* * 1: "XML_BINARY_BASE64"
-* * 2: "XML_BINARY_HEX"
-
-
-* `xmloption` one of:
-* * 0: "XML_OPTION_UNSPECIFIED"
-* * 1: "XML_OPTION_DOCUMENT"
-* * 2: "XML_OPTION_CONTENT"
-
-### Postgresql 10 config
-
-* `archive_timeout` integer
-
-* `array_nulls` boolean
-
-* `auto_explain_log_analyze` boolean
-
-* `auto_explain_log_buffers` boolean
-
-* `auto_explain_log_min_duration` integer
-
-* `auto_explain_log_nested_statements` boolean
-
-* `auto_explain_log_timing` boolean
-
-* `auto_explain_log_triggers` boolean
-
-* `auto_explain_log_verbose` boolean
-
-* `auto_explain_sample_rate` float
-
-* `autovacuum_analyze_scale_factor` float
-
-* `autovacuum_max_workers` integer
-
-* `autovacuum_naptime` integer
-
-* `autovacuum_vacuum_cost_delay` integer
-
-* `autovacuum_vacuum_cost_limit` integer
-
-* `autovacuum_vacuum_scale_factor` float
-
-* `autovacuum_work_mem` integer
-
-* `backend_flush_after` integer
-
-* `backslash_quote` one of:
-* * 0: "BACKSLASH_QUOTE_UNSPECIFIED"
-* * 1: "BACKSLASH_QUOTE"
-* * 2: "BACKSLASH_QUOTE_ON"
-* * 3: "BACKSLASH_QUOTE_OFF"
-* * 4: "BACKSLASH_QUOTE_SAFE_ENCODING"
-
-
-* `bgwriter_delay` integer
-
-* `bgwriter_flush_after` integer
-
-* `bgwriter_lru_maxpages` integer
-
-* `bgwriter_lru_multiplier` float
-
-* `bytea_output` one of:
-* * 0: "BYTEA_OUTPUT_UNSPECIFIED"
-* * 1: "BYTEA_OUTPUT_HEX"
-* * 2: "BYTEA_OUTPUT_ESCAPED"
-
-
-* `checkpoint_completion_target` float
-
-* `checkpoint_flush_after` integer
-
-* `checkpoint_timeout` integer
-
-* `client_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `constraint_exclusion` one of:
-* * 0: "CONSTRAINT_EXCLUSION_UNSPECIFIED"
-* * 1: "CONSTRAINT_EXCLUSION_ON"
-* * 2: "CONSTRAINT_EXCLUSION_OFF"
-* * 3: "CONSTRAINT_EXCLUSION_PARTITION"
-
-
-* `cursor_tuple_fraction` float
-
-* `deadlock_timeout` integer
-
-* `default_statistics_target` integer
-
-* `default_transaction_isolation` one of:
-* * 0: "TRANSACTION_ISOLATION_UNSPECIFIED"
-* * 1: "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-* * 2: "TRANSACTION_ISOLATION_READ_COMMITTED"
-* * 3: "TRANSACTION_ISOLATION_REPEATABLE_READ"
-* * 4: "TRANSACTION_ISOLATION_SERIALIZABLE"
-
-
-* `default_transaction_read_only` boolean
-
-* `default_with_oids` boolean
-
-* `effective_cache_size` integer
-
-* `effective_io_concurrency` integer
-
-* `enable_bitmapscan` boolean
-
-* `enable_hashagg` boolean
-
-* `enable_hashjoin` boolean
-
-* `enable_indexonlyscan` boolean
-
-* `enable_indexscan` boolean
-
-* `enable_material` boolean
-
-* `enable_mergejoin` boolean
-
-* `enable_nestloop` boolean
-
-* `enable_seqscan` boolean
-
-* `enable_sort` boolean
-
-* `enable_tidscan` boolean
-
-* `escape_string_warning` boolean
-
-* `exit_on_error` boolean
-
-* `force_parallel_mode` one of:
-* * 0: "FORCE_PARALLEL_MODE_UNSPECIFIED"
-* * 1: "FORCE_PARALLEL_MODE_ON"
-* * 2: "FORCE_PARALLEL_MODE_OFF"
-* * 3: "FORCE_PARALLEL_MODE_REGRESS"
-
-
-* `from_collapse_limit` integer
-
-* `gin_pending_list_limit` integer
-
-* `idle_in_transaction_session_timeout` integer
-
-* `join_collapse_limit` integer
-
-* `lo_compat_privileges` boolean
-
-* `lock_timeout` integer
-
-* `log_checkpoints` boolean
-
-* `log_connections` boolean
-
-* `log_disconnections` boolean
-
-* `log_duration` boolean
-
-* `log_error_verbosity` one of:
-* * 0: "LOG_ERROR_VERBOSITY_UNSPECIFIED"
-* * 1: "LOG_ERROR_VERBOSITY_TERSE"
-* * 2: "LOG_ERROR_VERBOSITY_DEFAULT"
-* * 3: "LOG_ERROR_VERBOSITY_VERBOSE"
-
-
-* `log_lock_waits` boolean
-
-* `log_min_duration_statement` integer
-
-* `log_min_error_statement` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_min_messages` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `log_statement` one of:
-* * 0: "LOG_STATEMENT_UNSPECIFIED"
-* * 1: "LOG_STATEMENT_NONE"
-* * 2: "LOG_STATEMENT_DDL"
-* * 3: "LOG_STATEMENT_MOD"
-* * 4: "LOG_STATEMENT_ALL"
-
-
-* `log_temp_files` integer
-
-* `maintenance_work_mem` integer
-
-* `max_connections` integer
-
-* `max_locks_per_transaction` integer
-
-* `max_parallel_workers` integer
-
-* `max_parallel_workers_per_gather` integer
-
-* `max_pred_locks_per_transaction` integer
-
-* `max_prepared_transactions` integer
-
-* `max_standby_streaming_delay` integer
-
-* `max_wal_size` integer
-
-* `max_worker_processes` integer
-
-* `min_wal_size` integer
-
-* `old_snapshot_threshold` integer
-
-* `operator_precedence_warning` boolean
-
-* `pg_hint_plan_debug_print` one of:
-* * 0: "PG_HINT_PLAN_DEBUG_PRINT_UNSPECIFIED"
-* * 1: "PG_HINT_PLAN_DEBUG_PRINT_OFF"
-* * 2: "PG_HINT_PLAN_DEBUG_PRINT_ON"
-* * 3: "PG_HINT_PLAN_DEBUG_PRINT_DETAILED"
-* * 4: "PG_HINT_PLAN_DEBUG_PRINT_VERBOSE"
-
-
-* `pg_hint_plan_enable_hint` boolean
-
-* `pg_hint_plan_enable_hint_table` boolean
-
-* `pg_hint_plan_message_level` one of:
-* * 0: "LOG_LEVEL_UNSPECIFIED"
-* * 1: "LOG_LEVEL_DEBUG5"
-* * 2: "LOG_LEVEL_DEBUG4"
-* * 3: "LOG_LEVEL_DEBUG3"
-* * 4: "LOG_LEVEL_DEBUG2"
-* * 5: "LOG_LEVEL_DEBUG1"
-* * 6: "LOG_LEVEL_LOG"
-* * 7: "LOG_LEVEL_NOTICE"
-* * 8: "LOG_LEVEL_WARNING"
-* * 9: "LOG_LEVEL_ERROR"
-* * 10: "LOG_LEVEL_FATAL"
-* * 11: "LOG_LEVEL_PANIC"
-
-
-* `quote_all_identifiers` boolean
-
-* `random_page_cost` float
-
-* `replacement_sort_tuples` integer
-
-* `row_security` boolean
-
-* `search_path` text
-
-* `seq_page_cost` float
-
-* `shared_buffers` integer
-
-* `shared_preload_libraries` override if not set. One of:
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"
-* * "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-* * NO value
-
-
-* `standard_conforming_strings` boolean
-
-* `statement_timeout` integer
-
-* `synchronize_seqscans` boolean
-
-* `synchronous_commit` one of:
-* * 0: "SYNCHRONOUS_COMMIT_UNSPECIFIED"
-* * 1: "SYNCHRONOUS_COMMIT_ON"
-* * 2: "SYNCHRONOUS_COMMIT_OFF"
-* * 3: "SYNCHRONOUS_COMMIT_LOCAL"
-* * 4: "SYNCHRONOUS_COMMIT_REMOTE_WRITE"
-* * 5: "SYNCHRONOUS_COMMIT_REMOTE_APPLY"
-
-
-* `temp_buffers` integer
-
-* `temp_file_limit` integer
-
-* `timezone` text
-
-* `track_activity_query_size` integer
-
-* `transform_null_equals` boolean
-
-* `vacuum_cost_delay` integer
-
-* `vacuum_cost_limit` integer
-
-* `vacuum_cost_page_dirty` integer
-
-* `vacuum_cost_page_hit` integer
-
-* `vacuum_cost_page_miss` integer
-
-* `wal_level` one of:
-* * 0: "WAL_LEVEL_UNSPECIFIED"
-* * 1: "WAL_LEVEL_REPLICA"
-* * 2: "WAL_LEVEL_LOGICAL"
-
-
-* `work_mem` integer
-
-* `xmlbinary` one of:
-* * 0: "XML_BINARY_UNSPECIFIED"
-* * 1: "XML_BINARY_BASE64"
-* * 2: "XML_BINARY_HEX"
-
-
-* `xmloption` one of:
-* * 0: "XML_OPTION_UNSPECIFIED"
-* * 1: "XML_OPTION_DOCUMENT"
-* * 2: "XML_OPTION_CONTENT"
+| Setting name and type \ PostgreSQL version | 10 | 11 | 12 | 13 | 14 |
+| ------------------------------------------ | -- | -- | -- | -- | -- |
+| archive_timeout : integer | supported | supported | supported | supported | supported |
+| array_nulls : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_analyze : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_buffers : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_min_duration : integer | supported | supported | supported | supported | supported |
+| auto_explain_log_nested_statements : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_timing : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_triggers : boolean | supported | supported | supported | supported | supported |
+| auto_explain_log_verbose : boolean | supported | supported | supported | supported | supported |
+| auto_explain_sample_rate : float | supported | supported | supported | supported | supported |
+| autovacuum_analyze_scale_factor : float | supported | supported | supported | supported | supported |
+| autovacuum_max_workers : integer | supported | supported | supported | supported | supported |
+| autovacuum_naptime : integer | supported | supported | supported | supported | supported |
+| autovacuum_vacuum_cost_delay : integer | supported | supported | supported | supported | supported |
+| autovacuum_vacuum_cost_limit : integer | supported | supported | supported | supported | supported |
+| autovacuum_vacuum_insert_scale_factor : float | - | - | - | supported | supported |
+| autovacuum_vacuum_insert_threshold : integer | - | - | - | supported | supported |
+| autovacuum_vacuum_scale_factor : float | supported | supported | supported | supported | supported |
+| autovacuum_work_mem : integer | supported | supported | supported | supported | supported |
+| backend_flush_after : integer | supported | supported | supported | supported | supported |
+| backslash_quote : one of<br>  - 0: "BACKSLASH_QUOTE_UNSPECIFIED"<br>  - 1: "BACKSLASH_QUOTE"<br>  - 2: "BACKSLASH_QUOTE_ON"<br>  - 3: "BACKSLASH_QUOTE_OFF"<br>  - 4: "BACKSLASH_QUOTE_SAFE_ENCODING" | supported | supported | supported | supported | supported |
+| bgwriter_delay : integer | supported | supported | supported | supported | supported |
+| bgwriter_flush_after : integer | supported | supported | supported | supported | supported |
+| bgwriter_lru_maxpages : integer | supported | supported | supported | supported | supported |
+| bgwriter_lru_multiplier : float | supported | supported | supported | supported | supported |
+| bytea_output : one of<br>  - 0: "BYTEA_OUTPUT_UNSPECIFIED"<br>  - 1: "BYTEA_OUTPUT_HEX"<br>  - 2: "BYTEA_OUTPUT_ESCAPED" | supported | supported | supported | supported | supported |
+| checkpoint_completion_target : float | supported | supported | supported | supported | supported |
+| checkpoint_flush_after : integer | supported | supported | supported | supported | supported |
+| checkpoint_timeout : integer | supported | supported | supported | supported | supported |
+| client_min_messages : one of<br>  - 0: "LOG_LEVEL_UNSPECIFIED"<br>  - 1: "LOG_LEVEL_DEBUG5"<br>  - 2: "LOG_LEVEL_DEBUG4"<br>  - 3: "LOG_LEVEL_DEBUG3"<br>  - 4: "LOG_LEVEL_DEBUG2"<br>  - 5: "LOG_LEVEL_DEBUG1"<br>  - 6: "LOG_LEVEL_LOG"<br>  - 7: "LOG_LEVEL_NOTICE"<br>  - 8: "LOG_LEVEL_WARNING"<br>  - 9: "LOG_LEVEL_ERROR"<br>  - 10: "LOG_LEVEL_FATAL"<br>  - 11: "LOG_LEVEL_PANIC" | supported | supported | supported | supported | supported |
+| constraint_exclusion : one of<br>  - 0: "CONSTRAINT_EXCLUSION_UNSPECIFIED"<br>  - 1: "CONSTRAINT_EXCLUSION_ON"<br>  - 2: "CONSTRAINT_EXCLUSION_OFF"<br>  - 3: "CONSTRAINT_EXCLUSION_PARTITION" | supported | supported | supported | supported | supported |
+| cursor_tuple_fraction : float | supported | supported | supported | supported | supported |
+| deadlock_timeout : integer | supported | supported | supported | supported | supported |
+| default_statistics_target : integer | supported | supported | supported | supported | supported |
+| default_transaction_isolation : one of<br>  - 0: "TRANSACTION_ISOLATION_UNSPECIFIED"<br>  - 1: "TRANSACTION_ISOLATION_READ_UNCOMMITTED"<br>  - 2: "TRANSACTION_ISOLATION_READ_COMMITTED"<br>  - 3: "TRANSACTION_ISOLATION_REPEATABLE_READ"<br>  - 4: "TRANSACTION_ISOLATION_SERIALIZABLE" | supported | supported | supported | supported | supported |
+| default_transaction_read_only : boolean | supported | supported | supported | supported | supported |
+| default_with_oids : boolean | supported | supported | supported | supported | supported |
+| effective_cache_size : integer | supported | supported | supported | supported | supported |
+| effective_io_concurrency : integer | supported | supported | supported | supported | supported |
+| enable_bitmapscan : boolean | supported | supported | supported | supported | supported |
+| enable_hashagg : boolean | supported | supported | supported | supported | supported |
+| enable_hashjoin : boolean | supported | supported | supported | supported | supported |
+| enable_incremental_sort : boolean | - | - | - | supported | supported |
+| enable_indexonlyscan : boolean | supported | supported | supported | supported | supported |
+| enable_indexscan : boolean | supported | supported | supported | supported | supported |
+| enable_material : boolean | supported | supported | supported | supported | supported |
+| enable_mergejoin : boolean | supported | supported | supported | supported | supported |
+| enable_nestloop : boolean | supported | supported | supported | supported | supported |
+| enable_parallel_append : boolean | - | supported | supported | supported | supported |
+| enable_parallel_hash : boolean | - | supported | supported | supported | supported |
+| enable_partition_pruning : boolean | - | supported | supported | supported | supported |
+| enable_partitionwise_aggregate : boolean | - | supported | supported | supported | supported |
+| enable_partitionwise_join : boolean | - | supported | supported | supported | supported |
+| enable_seqscan : boolean | supported | supported | supported | supported | supported |
+| enable_sort : boolean | supported | supported | supported | supported | supported |
+| enable_tidscan : boolean | supported | supported | supported | supported | supported |
+| escape_string_warning : boolean | supported | supported | supported | supported | supported |
+| exit_on_error : boolean | supported | supported | supported | supported | supported |
+| force_parallel_mode : one of<br>  - 0: "FORCE_PARALLEL_MODE_UNSPECIFIED"<br>  - 1: "FORCE_PARALLEL_MODE_ON"<br>  - 2: "FORCE_PARALLEL_MODE_OFF"<br>  - 3: "FORCE_PARALLEL_MODE_REGRESS" | supported | supported | supported | supported | supported |
+| from_collapse_limit : integer | supported | supported | supported | supported | supported |
+| gin_pending_list_limit : integer | supported | supported | supported | supported | supported |
+| hash_mem_multiplier : float | - | - | - | supported | supported |
+| idle_in_transaction_session_timeout : integer | supported | supported | supported | supported | supported |
+| jit : boolean | - | supported | supported | supported | supported |
+| join_collapse_limit : integer | supported | supported | supported | supported | supported |
+| lo_compat_privileges : boolean | supported | supported | supported | supported | supported |
+| lock_timeout : integer | supported | supported | supported | supported | supported |
+| log_checkpoints : boolean | supported | supported | supported | supported | supported |
+| log_connections : boolean | supported | supported | supported | supported | supported |
+| log_disconnections : boolean | supported | supported | supported | supported | supported |
+| log_duration : boolean | supported | supported | supported | supported | supported |
+| log_error_verbosity : one of<br>  - 0: "LOG_ERROR_VERBOSITY_UNSPECIFIED"<br>  - 1: "LOG_ERROR_VERBOSITY_TERSE"<br>  - 2: "LOG_ERROR_VERBOSITY_DEFAULT"<br>  - 3: "LOG_ERROR_VERBOSITY_VERBOSE" | supported | supported | supported | supported | supported |
+| log_lock_waits : boolean | supported | supported | supported | supported | supported |
+| log_min_duration_sample : integer | - | - | - | supported | supported |
+| log_min_duration_statement : integer | supported | supported | supported | supported | supported |
+| log_min_error_statement : one of<br>  - 0: "LOG_LEVEL_UNSPECIFIED"<br>  - 1: "LOG_LEVEL_DEBUG5"<br>  - 2: "LOG_LEVEL_DEBUG4"<br>  - 3: "LOG_LEVEL_DEBUG3"<br>  - 4: "LOG_LEVEL_DEBUG2"<br>  - 5: "LOG_LEVEL_DEBUG1"<br>  - 6: "LOG_LEVEL_LOG"<br>  - 7: "LOG_LEVEL_NOTICE"<br>  - 8: "LOG_LEVEL_WARNING"<br>  - 9: "LOG_LEVEL_ERROR"<br>  - 10: "LOG_LEVEL_FATAL"<br>  - 11: "LOG_LEVEL_PANIC" | supported | supported | supported | supported | supported |
+| log_min_messages : one of<br>  - 0: "LOG_LEVEL_UNSPECIFIED"<br>  - 1: "LOG_LEVEL_DEBUG5"<br>  - 2: "LOG_LEVEL_DEBUG4"<br>  - 3: "LOG_LEVEL_DEBUG3"<br>  - 4: "LOG_LEVEL_DEBUG2"<br>  - 5: "LOG_LEVEL_DEBUG1"<br>  - 6: "LOG_LEVEL_LOG"<br>  - 7: "LOG_LEVEL_NOTICE"<br>  - 8: "LOG_LEVEL_WARNING"<br>  - 9: "LOG_LEVEL_ERROR"<br>  - 10: "LOG_LEVEL_FATAL"<br>  - 11: "LOG_LEVEL_PANIC" | supported | supported | supported | supported | supported |
+| log_parameter_max_length : integer | - | - | - | supported | supported |
+| log_parameter_max_length_on_error : integer | - | - | - | supported | supported |
+| log_statement : one of<br>  - 0: "LOG_STATEMENT_UNSPECIFIED"<br>  - 1: "LOG_STATEMENT_NONE"<br>  - 2: "LOG_STATEMENT_DDL"<br>  - 3: "LOG_STATEMENT_MOD"<br>  - 4: "LOG_STATEMENT_ALL" | supported | supported | supported | supported | supported |
+| log_statement_sample_rate : float | - | - | - | supported | supported |
+| log_temp_files : integer | supported | supported | supported | supported | supported |
+| log_transaction_sample_rate : float | - | - | supported | supported | supported |
+| logical_decoding_work_mem : integer | - | - | - | supported | supported |
+| maintenance_io_concurrency : integer | - | - | - | supported | supported |
+| maintenance_work_mem : integer | supported | supported | supported | supported | supported |
+| max_connections : integer | supported | supported | supported | supported | supported |
+| max_locks_per_transaction : integer | supported | supported | supported | supported | supported |
+| max_parallel_maintenance_workers : integer | - | supported | supported | supported | supported |
+| max_parallel_workers : integer | supported | supported | supported | supported | supported |
+| max_parallel_workers_per_gather : integer | supported | supported | supported | supported | supported |
+| max_pred_locks_per_transaction : integer | supported | supported | supported | supported | supported |
+| max_prepared_transactions : integer | supported | supported | supported | supported | supported |
+| max_slot_wal_keep_size : integer | - | - | - | supported | supported |
+| max_standby_streaming_delay : integer | supported | supported | supported | supported | supported |
+| max_wal_size : integer | supported | supported | supported | supported | supported |
+| max_worker_processes : integer | supported | supported | supported | supported | supported |
+| min_wal_size : integer | supported | supported | supported | supported | supported |
+| old_snapshot_threshold : integer | supported | supported | supported | supported | supported |
+| operator_precedence_warning : boolean | supported | supported | supported | supported | supported |
+| parallel_leader_participation : boolean | - | supported | supported | supported | supported |
+| pg_hint_plan_debug_print : one of<br>  - 0: "PG_HINT_PLAN_DEBUG_PRINT_UNSPECIFIED"<br>  - 1: "PG_HINT_PLAN_DEBUG_PRINT_OFF"<br>  - 2: "PG_HINT_PLAN_DEBUG_PRINT_ON"<br>  - 3: "PG_HINT_PLAN_DEBUG_PRINT_DETAILED"<br>  - 4: "PG_HINT_PLAN_DEBUG_PRINT_VERBOSE" | supported | supported | supported | supported | supported |
+| pg_hint_plan_enable_hint : boolean | supported | supported | supported | supported | supported |
+| pg_hint_plan_enable_hint_table : boolean | supported | supported | supported | supported | supported |
+| pg_hint_plan_message_level : one of<br>  - 0: "LOG_LEVEL_UNSPECIFIED"<br>  - 1: "LOG_LEVEL_DEBUG5"<br>  - 2: "LOG_LEVEL_DEBUG4"<br>  - 3: "LOG_LEVEL_DEBUG3"<br>  - 4: "LOG_LEVEL_DEBUG2"<br>  - 5: "LOG_LEVEL_DEBUG1"<br>  - 6: "LOG_LEVEL_LOG"<br>  - 7: "LOG_LEVEL_NOTICE"<br>  - 8: "LOG_LEVEL_WARNING"<br>  - 9: "LOG_LEVEL_ERROR"<br>  - 10: "LOG_LEVEL_FATAL"<br>  - 11: "LOG_LEVEL_PANIC" | supported | supported | supported | supported | supported |
+| plan_cache_mode : one of<br>  - 0: "PLAN_CACHE_MODE_UNSPECIFIED"<br>  - 1: "PLAN_CACHE_MODE_AUTO"<br>  - 2: "PLAN_CACHE_MODE_FORCE_CUSTOM_PLAN"<br>  - 3: "PLAN_CACHE_MODE_FORCE_GENERIC_PLAN" | - | - | supported | supported | supported |
+| quote_all_identifiers : boolean | supported | supported | supported | supported | supported |
+| random_page_cost : float | supported | supported | supported | supported | supported |
+| replacement_sort_tuples : integer | supported | - | - | - | - |
+| row_security : boolean | supported | supported | supported | supported | supported |
+| search_path : text | supported | supported | supported | supported | supported |
+| seq_page_cost : float | supported | supported | supported | supported | supported |
+| shared_buffers : integer | supported | supported | supported | supported | supported |
+| shared_preload_libraries : override if not set. one of<br> - "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN<br> - "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"<br> - "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN"<br> - "SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"<br> - NO value | supported | supported | supported | supported | supported |
+| standard_conforming_strings : boolean | supported | supported | supported | supported | supported |
+| statement_timeout : integer | supported | supported | supported | supported | supported |
+| synchronize_seqscans : boolean | supported | supported | supported | supported | supported |
+| synchronous_commit : one of<br>  - 0: "SYNCHRONOUS_COMMIT_UNSPECIFIED"<br>  - 1: "SYNCHRONOUS_COMMIT_ON"<br>  - 2: "SYNCHRONOUS_COMMIT_OFF"<br>  - 3: "SYNCHRONOUS_COMMIT_LOCAL"<br>  - 4: "SYNCHRONOUS_COMMIT_REMOTE_WRITE"<br>  - 5: "SYNCHRONOUS_COMMIT_REMOTE_APPLY" | supported | supported | supported | supported | supported |
+| temp_buffers : integer | supported | supported | supported | supported | supported |
+| temp_file_limit : integer | supported | supported | supported | supported | supported |
+| timezone : text | supported | supported | supported | supported | supported |
+| track_activity_query_size : integer | supported | supported | supported | supported | supported |
+| transform_null_equals : boolean | supported | supported | supported | supported | supported |
+| vacuum_cleanup_index_scale_factor : float | - | supported | supported | supported | - |
+| vacuum_cost_delay : integer | supported | supported | supported | supported | supported |
+| vacuum_cost_limit : integer | supported | supported | supported | supported | supported |
+| vacuum_cost_page_dirty : integer | supported | supported | supported | supported | supported |
+| vacuum_cost_page_hit : integer | supported | supported | supported | supported | supported |
+| vacuum_cost_page_miss : integer | supported | supported | supported | supported | supported |
+| wal_keep_size : integer | - | - | - | supported | supported |
+| wal_level : one of<br>  - 0: "WAL_LEVEL_UNSPECIFIED"<br>  - 1: "WAL_LEVEL_REPLICA"<br>  - 2: "WAL_LEVEL_LOGICAL" | supported | supported | supported | supported | supported |
+| work_mem : integer | supported | supported | supported | supported | supported |
+| xmlbinary : one of<br>  - 0: "XML_BINARY_UNSPECIFIED"<br>  - 1: "XML_BINARY_BASE64"<br>  - 2: "XML_BINARY_HEX" | supported | supported | supported | supported | supported |
+| xmloption : one of<br>  - 0: "XML_OPTION_UNSPECIFIED"<br>  - 1: "XML_OPTION_DOCUMENT"<br>  - 2: "XML_OPTION_CONTENT" | supported | supported | supported | supported | supported |

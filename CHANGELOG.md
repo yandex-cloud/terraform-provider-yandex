@@ -2,6 +2,9 @@
 FEATURES:
 * datatransfer: add ClickHouse endpoint into `yandex_datatransfer_endpoint` resource
 
+BUG FIXES:
+* postgresql: fix bug with applying cluster's settings in PostgreSQL 14
+
 ## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:
 * iam: support for changing description of `yandex_iam_service_account_key` without recreation
