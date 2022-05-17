@@ -4,6 +4,7 @@ FEATURES:
 
 BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14
+* iam: return error when access bindings not applied
 
 ## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:

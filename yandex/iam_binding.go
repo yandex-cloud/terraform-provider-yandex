@@ -98,9 +98,7 @@ func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.
 		p, err := updater.GetResourceIamPolicy()
 		if err != nil {
 			if isStatusWithCode(err, codes.NotFound) {
-				log.Printf("[DEBUG]: Binding for role %q not found for non-existent resource %s, removing from state file.", role, updater.DescribeResource())
-				d.SetId("")
-				return nil
+				return fmt.Errorf("Binding for role %q not found for non-existent resource %s.", role, updater.DescribeResource())
 			}
 
 			return err
@@ -125,9 +123,7 @@ func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.
 		}
 
 		if len(mBindings) == 0 {
-			log.Printf("[DEBUG]: Binding for role %q not found in policy for %s, removing from state file.", role, updater.DescribeResource())
-			d.SetId("")
-			return nil
+			return fmt.Errorf("Binding for role %q not found in policy for %s.", role, updater.DescribeResource())
 		}
 
 		if err := d.Set("members", roleToMembersList(role, mBindings)); err != nil {
