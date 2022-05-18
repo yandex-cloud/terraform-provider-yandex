@@ -190,6 +190,42 @@ func TestAccDataSourceALBBackendGroup_fullWithHTTPBackendForStorageBucket(t *tes
 	})
 }
 
+func TestAccDataSourceALBBackendGroup_withSessionAffinityHeader(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsDataSource = true
+	BGResource.IsHTTPBackend = true
+	BGResource.UseHeaderAffinity = true
+
+	affinityPath := "session_affinity"
+	var bg apploadbalancer.BackendGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceALBBackendGroupExists(albBgDataSourceResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testCheckResourceSubAttrFn(
+						albBgDataSourceResource, &affinityPath, "0.header.0.header_name", func(value string) error {
+							hdrName := bg.GetHttp().GetHeader().GetHeaderName()
+							if value != hdrName {
+								return fmt.Errorf("BackendGroup's http backend's header affinity doesnt't match. %s != %s", value, hdrName)
+							}
+							return nil
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceALBBackendGroup_fullWithStreamBackend(t *testing.T) {
 	t.Parallel()
 

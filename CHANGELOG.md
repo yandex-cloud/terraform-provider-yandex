@@ -1,6 +1,7 @@
 ## 0.75.0 (Unreleased)
 FEATURES:
 * datatransfer: add ClickHouse endpoint into `yandex_datatransfer_endpoint` resource
+* alb: support `session_affinity` attribute in `yandex_alb_backend_group` resource and data source.
 
 BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14

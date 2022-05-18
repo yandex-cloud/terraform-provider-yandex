@@ -48,6 +48,7 @@ const albDefaultAllowHTTP10 = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
 const albDefaultProxyProtocol = "false"
+const albDefaultHeaderAffinity = "x-some-header"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener   bool
@@ -172,15 +173,16 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 }
 
 type resourceALBBackendGroupInfo struct {
-	IsHTTPBackend    bool
-	IsGRPCBackend    bool
-	IsStreamBackend  bool
-	IsHTTPCheck      bool
-	IsGRPCCheck      bool
-	IsStreamCheck    bool
-	IsDataSource     bool
-	IsEmptyTLS       bool
-	IsStorageBackend bool
+	IsHTTPBackend     bool
+	IsGRPCBackend     bool
+	IsStreamBackend   bool
+	IsHTTPCheck       bool
+	IsGRPCCheck       bool
+	IsStreamCheck     bool
+	IsDataSource      bool
+	IsEmptyTLS        bool
+	IsStorageBackend  bool
+	UseHeaderAffinity bool
 
 	BaseTemplate string
 
@@ -218,6 +220,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		IsDataSource:         false,
 		IsEmptyTLS:           false,
 		IsStorageBackend:     false,
+		UseHeaderAffinity:    false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		TGName:               acctest.RandomWithPrefix("tf-tg"),
 		BGName:               acctest.RandomWithPrefix("tf-bg"),
@@ -519,6 +522,15 @@ resource "yandex_alb_backend_group" "test-bg" {
     empty-label = ""
   }
   {{ if .IsHTTPBackend }}
+
+  {{ if .UseHeaderAffinity }}
+  session_affinity {
+    header {
+      header_name = "x-some-header"
+    }
+  }
+  {{ end }}
+
   http_backend {
     name             = "test-http-backend"
     weight           = {{.BackendWeight}}

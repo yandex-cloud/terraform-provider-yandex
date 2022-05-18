@@ -686,7 +686,120 @@ func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackend
 		backends = append(backends, backend)
 	}
 
-	return &apploadbalancer.HttpBackendGroup{Backends: backends}, nil
+	affinity, err := expandALBHTTPSessionAffinity(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding session affinity while creating ALB Backend Group: %w", err)
+	}
+
+	return &apploadbalancer.HttpBackendGroup{
+		Backends:        backends,
+		SessionAffinity: affinity,
+	}, nil
+}
+
+func expandALBHTTPSessionAffinity(d *schema.ResourceData) (apploadbalancer.HttpBackendGroup_SessionAffinity, error) {
+	if _, ok := d.GetOk("session_affinity.0.connection"); ok {
+		conn := &apploadbalancer.ConnectionSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.connection.0.source_ip"); ok {
+			conn.SourceIp = v.(bool)
+		}
+		return &apploadbalancer.HttpBackendGroup_Connection{
+			Connection: conn,
+		}, nil
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.header"); ok {
+		header := &apploadbalancer.HeaderSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.header.0.header_name"); ok {
+			header.HeaderName = v.(string)
+		}
+		return &apploadbalancer.HttpBackendGroup_Header{
+			Header: header,
+		}, nil
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.cookie"); ok {
+		cookie := &apploadbalancer.CookieSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.cookie.0.name"); ok {
+			cookie.Name = v.(string)
+		}
+
+		if v, ok := d.GetOk("session_affinity.0.cookie.0.ttl"); ok {
+			ttl, err := parseDuration(v.(string))
+			if err != nil {
+				return nil, fmt.Errorf("failed to read cookie ttl value: %v", err)
+			}
+			cookie.Ttl = ttl
+		}
+		return &apploadbalancer.HttpBackendGroup_Cookie{
+			Cookie: cookie,
+		}, nil
+	}
+
+	return nil, nil
+}
+
+func expandALBGRPCSessionAffinity(d *schema.ResourceData) (apploadbalancer.GrpcBackendGroup_SessionAffinity, error) {
+	if _, ok := d.GetOk("session_affinity.0.connection"); ok {
+		conn := &apploadbalancer.ConnectionSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.connection.0.source_ip"); ok {
+			conn.SourceIp = v.(bool)
+		}
+		return &apploadbalancer.GrpcBackendGroup_Connection{
+			Connection: conn,
+		}, nil
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.header"); ok {
+		header := &apploadbalancer.HeaderSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.header.0.header_name"); ok {
+			header.HeaderName = v.(string)
+		}
+		return &apploadbalancer.GrpcBackendGroup_Header{
+			Header: header,
+		}, nil
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.cookie"); ok {
+		cookie := &apploadbalancer.CookieSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.cookie.0.name"); ok {
+			cookie.Name = v.(string)
+		}
+		return &apploadbalancer.GrpcBackendGroup_Cookie{
+			Cookie: cookie,
+		}, nil
+	}
+
+	return nil, nil
+}
+
+func expandALBStreamSessionAffinity(d *schema.ResourceData) (apploadbalancer.StreamBackendGroup_SessionAffinity, error) {
+	if _, ok := d.GetOk("session_affinity.0.header"); ok {
+		return nil, fmt.Errorf("Header affinity is not supported for stream backend group")
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.cookie"); ok {
+		return nil, fmt.Errorf("Cookie affinity is not supported for stream backend group")
+	}
+
+	if _, ok := d.GetOk("session_affinity.0.connection"); ok {
+		conn := &apploadbalancer.ConnectionSessionAffinity{}
+
+		if v, ok := d.GetOk("session_affinity.0.connection.0.source_ip"); ok {
+			conn.SourceIp = v.(bool)
+		}
+		return &apploadbalancer.StreamBackendGroup_Connection{
+			Connection: conn,
+		}, nil
+	}
+
+	return nil, nil
 }
 
 func expandALBStreamBackends(d *schema.ResourceData) (*apploadbalancer.StreamBackendGroup, error) {
@@ -700,7 +813,15 @@ func expandALBStreamBackends(d *schema.ResourceData) (*apploadbalancer.StreamBac
 		backends = append(backends, backend)
 	}
 
-	return &apploadbalancer.StreamBackendGroup{Backends: backends}, nil
+	affinity, err := expandALBStreamSessionAffinity(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding session affinity while creating ALB Backend Group: %w", err)
+	}
+
+	return &apploadbalancer.StreamBackendGroup{
+		Backends:        backends,
+		SessionAffinity: affinity,
+	}, nil
 }
 
 func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalancer.StreamBackend, error) {
@@ -987,7 +1108,15 @@ func expandALBGRPCBackends(d *schema.ResourceData) (*apploadbalancer.GrpcBackend
 		backends = append(backends, backend)
 	}
 
-	return &apploadbalancer.GrpcBackendGroup{Backends: backends}, nil
+	affinity, err := expandALBGRPCSessionAffinity(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding session affinity while creating ALB Backend Group: %w", err)
+	}
+
+	return &apploadbalancer.GrpcBackendGroup{
+		Backends:        backends,
+		SessionAffinity: affinity,
+	}, nil
 }
 
 func expandALBGRPCBackend(d *schema.ResourceData, key string) (*apploadbalancer.GrpcBackend, error) {
@@ -1432,6 +1561,91 @@ func flattenALBAllocationPolicy(alb *apploadbalancer.LoadBalancer) ([]map[string
 	return []map[string]interface{}{
 		{"location": result},
 	}, nil
+}
+
+func flattenALBHTTPSessionAffinity(bg *apploadbalancer.HttpBackendGroup) ([]interface{}, error) {
+	var affinityMap map[string]interface{}
+
+	switch {
+	case bg.GetHeader() != nil:
+		affinityMap = map[string]interface{}{
+			"header": []interface{}{
+				map[string]interface{}{
+					"header_name": bg.GetHeader().GetHeaderName(),
+				},
+			},
+		}
+	case bg.GetConnection() != nil:
+		affinityMap = map[string]interface{}{
+			"connection": []interface{}{
+				map[string]interface{}{
+					"source_ip": bg.GetConnection().GetSourceIp(),
+				},
+			},
+		}
+	case bg.GetCookie() != nil:
+		affinityMap = map[string]interface{}{
+			"cookie": []interface{}{
+				map[string]interface{}{
+					"name": bg.GetCookie().GetName(),
+					"ttl":  formatDuration(bg.GetCookie().GetTtl()),
+				},
+			},
+		}
+	default:
+		return nil, nil
+	}
+	return []interface{}{affinityMap}, nil
+}
+
+func flattenALBGRPCSessionAffinity(bg *apploadbalancer.GrpcBackendGroup) ([]interface{}, error) {
+	var affinityMap map[string]interface{}
+
+	switch {
+	case bg.GetHeader() != nil:
+		affinityMap = map[string]interface{}{
+			"header": []interface{}{
+				map[string]interface{}{
+					"header_name": bg.GetHeader().GetHeaderName(),
+				},
+			},
+		}
+	case bg.GetConnection() != nil:
+		affinityMap = map[string]interface{}{
+			"connection": []interface{}{
+				map[string]interface{}{
+					"source_ip": bg.GetConnection().GetSourceIp(),
+				},
+			},
+		}
+	case bg.GetCookie() != nil:
+		affinityMap = map[string]interface{}{
+			"cookie": []interface{}{
+				map[string]interface{}{
+					"name": bg.GetCookie().GetName(),
+					"ttl":  formatDuration(bg.GetCookie().GetTtl()),
+				},
+			},
+		}
+	default:
+		return nil, nil
+	}
+	return []interface{}{affinityMap}, nil
+}
+
+func flattenALBStreamSessionAffinity(bg *apploadbalancer.StreamBackendGroup) ([]interface{}, error) {
+	if conn := bg.GetConnection(); conn != nil {
+		affinityMap := map[string]interface{}{
+			"connection": []interface{}{
+				map[string]interface{}{
+					"source_ip": bg.GetConnection().GetSourceIp(),
+				},
+			},
+		}
+		return []interface{}{affinityMap}, nil
+	}
+
+	return nil, nil
 }
 
 func flattenALBHTTPBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, error) {

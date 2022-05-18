@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"log"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const albBGResource = "yandex_alb_backend_group.test-bg"
@@ -24,6 +29,531 @@ func init() {
 		Dependencies: []string{
 			"yandex_alb_http_router",
 		},
+	})
+}
+
+func makeCookie(name string) interface{} {
+	return map[string]interface{}{
+		"cookie": []interface{}{
+			map[string]interface{}{
+				"name": name,
+				"ttl":  formatDuration(durationpb.New(1 * time.Minute)),
+			},
+		},
+	}
+}
+
+func makeHeader(name string) interface{} {
+	return map[string]interface{}{
+		"header": []interface{}{
+			map[string]interface{}{
+				"header_name": name,
+			},
+		},
+	}
+}
+
+func makeConn(ip bool) interface{} {
+	return map[string]interface{}{
+		"connection": []interface{}{
+			map[string]interface{}{
+				"source_ip": ip,
+			},
+		},
+	}
+}
+
+func TestUnitALBBackendGroupFlatternSessionAffinity(t *testing.T) {
+	t.Parallel()
+
+	affinityMap, err := flattenALBHTTPSessionAffinity(&apploadbalancer.HttpBackendGroup{})
+	require.NoError(t, err)
+	assert.Empty(t, affinityMap)
+
+	const (
+		headerName = "x-some-header"
+		cookieName = "some-cookie"
+	)
+	t.Run("http-header-affinity", func(t *testing.T) {
+		bg := &apploadbalancer.HttpBackendGroup{
+			SessionAffinity: &apploadbalancer.HttpBackendGroup_Header{
+				Header: &apploadbalancer.HeaderSessionAffinity{
+					HeaderName: headerName,
+				},
+			},
+		}
+		affinityMap, err = flattenALBHTTPSessionAffinity(bg)
+		require.NoError(t, err)
+		assert.EqualValues(t, []interface{}{makeHeader(headerName)}, affinityMap)
+	})
+
+	t.Run("http-cookie-affinity", func(t *testing.T) {
+		bg := &apploadbalancer.HttpBackendGroup{
+			SessionAffinity: &apploadbalancer.HttpBackendGroup_Cookie{
+				Cookie: &apploadbalancer.CookieSessionAffinity{
+					Name: cookieName,
+					Ttl:  durationpb.New(1 * time.Minute),
+				},
+			},
+		}
+		affinityMap, err = flattenALBHTTPSessionAffinity(bg)
+		require.NoError(t, err)
+		assert.EqualValues(t, []interface{}{makeCookie(cookieName)}, affinityMap)
+	})
+
+	t.Run("grpc-header-affinity", func(t *testing.T) {
+		bg := &apploadbalancer.GrpcBackendGroup{
+			SessionAffinity: &apploadbalancer.GrpcBackendGroup_Header{
+				Header: &apploadbalancer.HeaderSessionAffinity{
+					HeaderName: headerName,
+				},
+			},
+		}
+		affinityMap, err = flattenALBGRPCSessionAffinity(bg)
+		require.NoError(t, err)
+		assert.EqualValues(t, []interface{}{makeHeader(headerName)}, affinityMap)
+	})
+
+	t.Run("grpc-cookie-affinity", func(t *testing.T) {
+		bg := &apploadbalancer.GrpcBackendGroup{
+			SessionAffinity: &apploadbalancer.GrpcBackendGroup_Cookie{
+				Cookie: &apploadbalancer.CookieSessionAffinity{
+					Name: cookieName,
+					Ttl:  durationpb.New(1 * time.Minute),
+				},
+			},
+		}
+		affinityMap, err = flattenALBGRPCSessionAffinity(bg)
+		require.NoError(t, err)
+		assert.EqualValues(t, []interface{}{makeCookie(cookieName)}, affinityMap)
+	})
+
+	t.Run("stream-connection-affinity", func(t *testing.T) {
+		bg := &apploadbalancer.StreamBackendGroup{
+			SessionAffinity: &apploadbalancer.StreamBackendGroup_Connection{
+				Connection: &apploadbalancer.ConnectionSessionAffinity{
+					SourceIp: true,
+				},
+			},
+		}
+		affinityMap, err = flattenALBStreamSessionAffinity(bg)
+		require.NoError(t, err)
+		assert.EqualValues(t, []interface{}{makeConn(true)}, affinityMap)
+	})
+}
+
+func TestUnitALBBackendGroupCreateFromResource(t *testing.T) {
+	t.Parallel()
+
+	bgResource := resourceYandexALBBackendGroup()
+
+	makeBackend := func() interface{} {
+		return []interface{}{
+			map[string]interface{}{
+				"name":             "backend1",
+				"port":             8080,
+				"target_group_ids": []interface{}{"tg1"},
+			},
+		}
+	}
+
+	t.Run("http-backend-group-cookie", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeCookie("cook-name"),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetCookie())
+		assert.Equal(t, 1*time.Minute, req.GetHttp().GetCookie().GetTtl().AsDuration())
+	})
+
+	t.Run("http-backend-group-header-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetHeader())
+		assert.Equal(t, "hdr-name", req.GetHttp().GetHeader().GetHeaderName())
+	})
+
+	t.Run("http-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetConnection())
+		assert.True(t, req.GetHttp().GetConnection().GetSourceIp())
+	})
+
+	t.Run("grpc-backend-group-cookie", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeCookie("cook-name"),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetCookie())
+	})
+
+	t.Run("grpc-backend-group-header-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetHeader())
+		assert.Equal(t, "hdr-name", req.GetGrpc().GetHeader().GetHeaderName())
+	})
+
+	t.Run("grpc-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetConnection())
+		assert.True(t, req.GetGrpc().GetConnection().GetSourceIp())
+	})
+
+	t.Run("stream-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"stream_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "test-folder")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetStream())
+		assert.NotNil(t, req.GetStream().GetConnection())
+		assert.True(t, req.GetStream().GetConnection().GetSourceIp())
+	})
+
+	t.Run("stream-backend-group-header-affinity-err", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"stream_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		_, err := buildALBBackendGroupCreateRequest(resourceData, "test-folder")
+		require.Error(t, err)
+	})
+}
+
+func TestUnitALBBackendGroupUpdateFromResource(t *testing.T) {
+	t.Parallel()
+
+	bgResource := resourceYandexALBBackendGroup()
+
+	makeCookie := func(name string) interface{} {
+		return map[string]interface{}{
+			"cookie": []interface{}{
+				map[string]interface{}{
+					"name": name,
+				},
+			},
+		}
+	}
+
+	makeHeader := func(name string) interface{} {
+		return map[string]interface{}{
+			"header": []interface{}{
+				map[string]interface{}{
+					"header_name": name,
+				},
+			},
+		}
+	}
+
+	makeConn := func(ip bool) interface{} {
+		return map[string]interface{}{
+			"connection": []interface{}{
+				map[string]interface{}{
+					"source_ip": ip,
+				},
+			},
+		}
+	}
+
+	makeBackend := func() interface{} {
+		return []interface{}{
+			map[string]interface{}{
+				"name":             "backend1",
+				"port":             8080,
+				"target_group_ids": []interface{}{"tg1"},
+			},
+		}
+	}
+
+	t.Run("http-backend-group-cookie", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeCookie("cook-name"),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetCookie())
+	})
+
+	t.Run("http-backend-group-header-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetHeader())
+		assert.Equal(t, "hdr-name", req.GetHttp().GetHeader().GetHeaderName())
+	})
+
+	t.Run("http-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"http_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetHttp())
+		assert.NotNil(t, req.GetHttp().GetConnection())
+		assert.True(t, req.GetHttp().GetConnection().GetSourceIp())
+	})
+
+	t.Run("grpc-backend-group-cookie", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeCookie("cook-name"),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetCookie())
+	})
+
+	t.Run("grpc-backend-group-header-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetHeader())
+		assert.Equal(t, "hdr-name", req.GetGrpc().GetHeader().GetHeaderName())
+	})
+
+	t.Run("grpc-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"grpc_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetGrpc())
+		assert.NotNil(t, req.GetGrpc().GetConnection())
+		assert.True(t, req.GetGrpc().GetConnection().GetSourceIp())
+	})
+
+	t.Run("stream-backend-group-connection-affinity", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeConn(true),
+			},
+			"stream_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		req, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetBackendGroupId(), "bgid")
+		assert.Equal(t, req.GetName(), "bg-name")
+		assert.NotNil(t, req.GetStream())
+		assert.NotNil(t, req.GetStream().GetConnection())
+		assert.True(t, req.GetStream().GetConnection().GetSourceIp())
+	})
+
+	t.Run("stream-backend-group-header-affinity-err", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "bgid",
+			"name": "bg-name",
+			"session_affinity": []interface{}{
+				makeHeader("hdr-name"),
+			},
+			"stream_backend": makeBackend(),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+
+		resourceData.SetId("bgid")
+
+		_, err := buildALBBackendGroupUpdateRequest(resourceData)
+		require.Error(t, err)
 	})
 }
 
@@ -138,6 +668,40 @@ func TestAccALBBackendGroup_fullWithEmptyTLS(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albBGResource, "http_backend", "load_balancing_config.0.panic_threshold", albDefaultPanicThreshold, &backendPath,
+					),
+				),
+			},
+			albBackendGroupImportStep(),
+		},
+	})
+}
+
+func TestAccALBBackendGroup_sessionAffinityHeader(t *testing.T) {
+	t.Parallel()
+
+	BGResource := albBackendGroupInfo()
+	BGResource.IsHTTPBackend = true
+	BGResource.UseHeaderAffinity = true
+
+	var bg apploadbalancer.BackendGroup
+	backendPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBBackendGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBBackendGroupConfig_basic(BGResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBBackendGroupExists(albBGResource, &bg),
+					testAccCheckALBBackendGroupValues(&bg, true, false, false),
+					testAccCheckALBBackendGroupHTTPBackend(&bg, albDefaultValidationContext),
+					testExistsFirstElementWithAttr(
+						albBGResource, "http_backend", "name", &backendPath,
+					),
+					testExistsElementWithAttrValue(
+						albBGResource, "session_affinity", "header.0.header_name", albDefaultHeaderAffinity, &backendPath,
 					),
 				),
 			},

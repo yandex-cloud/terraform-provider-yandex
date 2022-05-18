@@ -56,6 +56,8 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"session_affinity": sessionAffinity(),
+
 			"http_backend": {
 				Type:          schema.TypeList,
 				Optional:      true,
@@ -174,6 +176,74 @@ func resourceYandexALBBackendGroup() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func sessionAffinity() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"connection": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"source_ip": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Description: "Use source IP address",
+							},
+						},
+					},
+					Optional:    true,
+					Description: "IP address affinity",
+				},
+
+				"cookie": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:         schema.TypeString,
+								Required:     true,
+								ValidateFunc: validation.StringLenBetween(1, 256),
+								Description:  "Name of the HTTP cookie",
+							},
+
+							"ttl": {
+								Type:             schema.TypeString,
+								Optional:         true,
+								Description:      "TTL for the cookie (if not set, session cookie will be used)",
+								DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
+							},
+						},
+					},
+					Optional:    true,
+					Description: "Cookie affinity",
+				},
+
+				"header": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"header_name": {
+								Type:         schema.TypeString,
+								Required:     true,
+								ValidateFunc: validation.StringLenBetween(1, 256),
+								Description:  "The name of the request header that will be used",
+							},
+						},
+					},
+					Optional:    true,
+					Description: "Request header affinity",
+				},
 			},
 		},
 	}
@@ -326,23 +396,14 @@ func tlsBackend() *schema.Schema {
 	}
 }
 
-func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Creating Application Backend Group %q", d.Id())
-
-	config := meta.(*Config)
-
+func buildALBBackendGroupCreateRequest(d *schema.ResourceData, folderID string) (*apploadbalancer.CreateBackendGroupRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Application Backend Group: %w", err)
+		return nil, fmt.Errorf("Error expanding labels while creating Application Backend Group: %w", err)
 	}
 
-	folderID, err := getFolderID(d, config)
-	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating Application Backend Group: %w", err)
-	}
-
-	req := apploadbalancer.CreateBackendGroupRequest{
+	req := &apploadbalancer.CreateBackendGroupRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -353,31 +414,51 @@ func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{
 	if ok {
 		backend, err := expandALBHTTPBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
 		}
 		req.SetHttp(backend)
 	}
+
 	_, ok = d.GetOk("grpc_backend")
 	if ok {
 		backend, err := expandALBGRPCBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}
 		req.SetGrpc(backend)
 	}
+
 	_, ok = d.GetOk("stream_backend")
 	if ok {
 		backend, err := expandALBStreamBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
 		}
 		req.SetStream(backend)
+	}
+
+	return req, nil
+}
+
+func resourceYandexALBBackendGroupCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating Application Backend Group %q", d.Id())
+
+	config := meta.(*Config)
+
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating Application Backend Group: %w", err)
+	}
+
+	req, err := buildALBBackendGroupCreateRequest(d, folderID)
+	if err != nil {
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().BackendGroup().Create(ctx, &req))
+	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().BackendGroup().Create(ctx, req))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Backend Group: %w", err)
 	}
@@ -436,12 +517,26 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 		if err := d.Set("http_backend", backends); err != nil {
 			return err
 		}
+		affinity, err := flattenALBHTTPSessionAffinity(bg.GetHttp())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
+			return err
+		}
 	case *apploadbalancer.BackendGroup_Grpc:
 		backends, err := flattenALBGRPCBackends(bg)
 		if err != nil {
 			return err
 		}
 		if err := d.Set("grpc_backend", backends); err != nil {
+			return err
+		}
+		affinity, err := flattenALBGRPCSessionAffinity(bg.GetGrpc())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
 			return err
 		}
 	case *apploadbalancer.BackendGroup_Stream:
@@ -452,19 +547,23 @@ func resourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{})
 		if err := d.Set("stream_backend", backends); err != nil {
 			return err
 		}
+		affinity, err := flattenALBStreamSessionAffinity(bg.GetStream())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
+			return err
+		}
 	}
 
 	log.Printf("[DEBUG] Finished reading Application Backend Group %q", d.Id())
 	return d.Set("labels", bg.Labels)
 }
 
-func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating Application Backend Group %q", d.Id())
-	config := meta.(*Config)
-
+func buildALBBackendGroupUpdateRequest(d *schema.ResourceData) (*apploadbalancer.UpdateBackendGroupRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req := &apploadbalancer.UpdateBackendGroupRequest{
@@ -478,7 +577,7 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 	if ok {
 		backend, err := expandALBHTTPBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding http backends while creating Application Backend Group: %w", err)
 		}
 		req.SetHttp(backend)
 	}
@@ -486,18 +585,30 @@ func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{
 	if ok {
 		backend, err := expandALBGRPCBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding grpc backends while creating Application Backend Group: %w", err)
 		}
 		req.SetGrpc(backend)
 	}
 
 	_, ok = d.GetOk("stream_backend")
 	if ok {
-		_, err := expandALBGRPCBackends(d)
+		backend, err := expandALBStreamBackends(d)
 		if err != nil {
-			return fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
+			return nil, fmt.Errorf("Error expanding stream backends while creating Application Backend Group: %w", err)
 		}
-		//req.SetStream(backend)
+		req.SetStream(backend)
+	}
+
+	return req, nil
+}
+
+func resourceYandexALBBackendGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Updating Application Backend Group %q", d.Id())
+	config := meta.(*Config)
+
+	req, err := buildALBBackendGroupUpdateRequest(d)
+	if err != nil {
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

@@ -46,6 +46,8 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 				Computed: true,
 			},
 
+			"session_affinity": dataSourceSessionAffinity(),
+
 			"http_backend": {
 				Type:          schema.TypeList,
 				Computed:      true,
@@ -172,6 +174,77 @@ func dataSourceYandexALBBackendGroup() *schema.Resource {
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func dataSourceSessionAffinity() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"connection": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"source_ip": {
+								Type:        schema.TypeBool,
+								Optional:    true,
+								Computed:    true,
+								Description: "Use source IP address",
+							},
+						},
+					},
+					Optional:    true,
+					Computed:    true,
+					Description: "IP address affinity",
+				},
+
+				"cookie": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: "Name of the HTTP cookie",
+							},
+
+							"ttl": {
+								Type:        schema.TypeString,
+								Optional:    true,
+								Computed:    true,
+								Description: "TTL for the cookie (if not set, session cookie will be used)",
+							},
+						},
+					},
+					Optional:    true,
+					Computed:    true,
+					Description: "Cookie affinity",
+				},
+
+				"header": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"header_name": {
+								Type:        schema.TypeString,
+								Computed:    true,
+								Description: "The name of the request header that will be used",
+							},
+						},
+					},
+					Optional:    true,
+					Computed:    true,
+					Description: "Request header affinity",
+				},
 			},
 		},
 	}
@@ -386,6 +459,14 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 		if err := d.Set("http_backend", backends); err != nil {
 			return err
 		}
+
+		affinity, err := flattenALBHTTPSessionAffinity(bg.GetHttp())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
+			return err
+		}
 	case *apploadbalancer.BackendGroup_Grpc:
 		backends, err := flattenALBGRPCBackends(bg)
 		if err != nil {
@@ -394,12 +475,26 @@ func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{
 		if err := d.Set("grpc_backend", backends); err != nil {
 			return err
 		}
+		affinity, err := flattenALBGRPCSessionAffinity(bg.GetGrpc())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
+			return err
+		}
 	case *apploadbalancer.BackendGroup_Stream:
 		backends, err := flattenALBStreamBackends(bg)
 		if err != nil {
 			return err
 		}
 		if err := d.Set("stream_backend", backends); err != nil {
+			return err
+		}
+		affinity, err := flattenALBStreamSessionAffinity(bg.GetStream())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("session_affinity", affinity); err != nil {
 			return err
 		}
 	}
