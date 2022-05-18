@@ -556,15 +556,8 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		})
 	})
 	log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
-	if err != nil {
-		if isAWSErr(err, "NoSuchBucketPolicy", "") {
-			if err := d.Set("policy", ""); err != nil {
-				return fmt.Errorf("error setting policy: %s", err)
-			}
-		} else {
-			return fmt.Errorf("error getting current policy: %s", err)
-		}
-	} else {
+	switch {
+	case err == nil:
 		v := pol.(*s3.GetBucketPolicyOutput).Policy
 		if v == nil {
 			if err := d.Set("policy", ""); err != nil {
@@ -579,6 +572,13 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("error setting policy: %s", err)
 			}
 		}
+	case isAWSErr(err, "NoSuchBucketPolicy", ""):
+		d.Set("policy", "")
+	case isAWSErr(err, "AccessDenied", ""):
+		log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) Policy: %s", d.Id(), err)
+		d.Set("policy", nil)
+	default:
+		return fmt.Errorf("error getting current policy: %s", err)
 	}
 
 	corsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
