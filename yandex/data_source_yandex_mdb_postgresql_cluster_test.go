@@ -131,30 +131,6 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"created_at",
 			},
 			{
-				"database.#",
-				"database.#",
-			},
-			{
-				"database.0.extension.#",
-				"database.0.extension.#",
-			},
-			{
-				"database.0.lc_collate",
-				"database.0.lc_collate",
-			},
-			{
-				"database.0.lc_type",
-				"database.0.lc_type",
-			},
-			{
-				"database.0.name",
-				"database.0.name",
-			},
-			{
-				"database.0.owner",
-				"database.0.owner",
-			},
-			{
 				"description",
 				"description",
 			},
@@ -217,30 +193,6 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 			{
 				"status",
 				"status",
-			},
-			{
-				"user.#",
-				"user.#",
-			},
-			{
-				"user.0.grants.#",
-				"user.0.grants.#",
-			},
-			{
-				"user.0.login",
-				"user.0.login",
-			},
-			{
-				"user.0.name",
-				"user.0.name",
-			},
-			{
-				"user.0.permission.#",
-				"user.0.permission.#",
-			},
-			{
-				"user.0.permission.0.database_name",
-				"user.0.permission.0.database_name",
 			},
 			{
 				"security_group_ids.#",
@@ -285,8 +237,6 @@ func testAccDataSourceMDBPGClusterCheck(datasourceName string, resourceName stri
 		resource.TestCheckResourceAttr(datasourceName, "description", desc),
 		resource.TestCheckResourceAttr(datasourceName, "environment", env),
 		resource.TestCheckResourceAttr(datasourceName, "labels.test_key", "test_value"),
-		resource.TestCheckResourceAttr(datasourceName, "user.#", "1"),
-		resource.TestCheckResourceAttr(datasourceName, "database.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "config.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "config.0.access.#", "1"),
@@ -301,13 +251,13 @@ func testAccDataSourceMDBPGClusterCheck(datasourceName string, resourceName stri
 
 const mdbPGClusterByIDConfig = `
 data "yandex_mdb_postgresql_cluster" "bar" {
-  cluster_id = "${yandex_mdb_postgresql_cluster.foo.id}"
+  cluster_id = yandex_mdb_postgresql_cluster.foo.id
 }
 `
 
 const mdbPGClusterByNameConfig = `
 data "yandex_mdb_postgresql_cluster" "bar" {
-  name = "${yandex_mdb_postgresql_cluster.foo.name}"
+  name = yandex_mdb_postgresql_cluster.foo.name
 }
 `
 

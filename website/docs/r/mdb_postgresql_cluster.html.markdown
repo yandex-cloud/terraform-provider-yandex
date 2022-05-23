@@ -45,24 +45,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     hour = 12
   }
 
-  database {
-    name  = "db_name"
-    owner = "user_name"
-  }
-
-  user {
-    name       = "user_name"
-    password   = "your_password"
-    conn_limit = 50
-    permission {
-      database_name = "db_name"
-    }
-    settings = {
-      default_transaction_isolation = "read committed"
-      log_min_duration_statement    = 5000
-    }
-  }
-
   host {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo.id
@@ -97,19 +79,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   maintenance_window {
     type = "ANYTIME"
-  }
-
-  database {
-    name  = "db_name"
-    owner = "user_name"
-  }
-
-  user {
-    name     = "user_name"
-    password = "password"
-    permission {
-      database_name = "db_name"
-    }
   }
 
   host {
@@ -160,13 +129,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     }
 
   }
-  user {
-    name     = "alice"
-    password = "mysecurepassword"
-    permission {
-      database_name = "testdb"
-    }
-  }
 
   host {
     zone      = "ru-central1-a"
@@ -189,11 +151,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     zone      = "ru-central1-c"
     name      = "host_name_c_2"
     subnet_id = yandex_vpc_subnet.c.id
-  }
-
-  database {
-    owner = "alice"
-    name  = "testdb"
   }
 }
 
@@ -249,24 +206,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     }
   }
 
-  database {
-    name  = "db_name"
-    owner = "user_name"
-  }
-
-  user {
-    name       = "user_name"
-    password   = "your_password"
-    conn_limit = 50
-    permission {
-      database_name = "db_name"
-    }
-    settings = {
-      default_transaction_isolation = "read committed"
-      log_min_duration_statement    = 5000
-    }
-  }
-
   host {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo.id
@@ -282,159 +221,19 @@ resource "yandex_vpc_subnet" "foo" {
 }
 ```
 
-Example of creating a High-Availability (HA) PostgreSQL cluster with multiple databases and users.
-```hcl
-resource "random_password" "passwords" {
-  count   = 2
-  length  = 16
-  special = true
-}
-
-output "db_instance_alice_password" {
-  value = random_password.passwords[0].result
-}
-
-output "db_instance_bob_password" {
-  value = random_password.passwords[1].result
-}
-
-resource "yandex_mdb_postgresql_cluster" "foo" {
-  name        = "ha_mdu_backup"
-  description = "Example of multiple databases and users"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  folder_id   = "b1g24daaaddddffma52u"
-
-  config {
-    version = "14"
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 10
-      disk_type_id       = "network-ssd"
-    }
-
-    access {
-      web_sql = true
-    }
-
-    postgresql_config = {
-      max_connections                   = 395
-      enable_parallel_hash              = true
-      vacuum_cleanup_index_scale_factor = 0.2
-      autovacuum_vacuum_scale_factor    = 0.32
-      default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
-      shared_preload_libraries          = "SHARED_PRELOAD_LIBRARIES_AUTO_EXPLAIN,SHARED_PRELOAD_LIBRARIES_PG_HINT_PLAN"
-    }
-
-    pooler_config {
-      pool_discard = true
-      pooling_mode = "SESSION"
-    }
-  }
-
-  user {
-    name       = "alice"
-    password   = random_password.passwords[0].result
-    conn_limit = 10
-    permission {
-      database_name = "testdb"
-    }
-    permission {
-      database_name = "testdb1"
-    }
-    permission {
-      database_name = "testdb2"
-    }
-  }
-
-  user {
-    name     = "bob"
-    password = random_password.passwords[1].result
-    permission {
-      database_name = "testdb2"
-    }
-    permission {
-      database_name = "testdb1"
-    }
-  }
-  user {
-    name     = "chuck"
-    password = "123456789"
-    permission {
-      database_name = "testdb"
-    }
-    grants = ["bob", "alice"]
-  }
-
-  host {
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.b.id
-  }
-  host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.a.id
-  }
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.c.id
-  }
-
-  database {
-    owner = "alice"
-    name  = "testdb"
-  }
-  database {
-    owner = "alice"
-    name  = "testdb2"
-  }
-  database {
-    owner = "bob"
-    name  = "testdb1"
-    extension {
-      name = "postgis"
-    }
-  }
-}
-
-resource "yandex_vpc_network" "foo" {}
-
-resource "yandex_vpc_subnet" "a" {
-  name           = "mysubnet-a"
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-resource "yandex_vpc_subnet" "b" {
-  name           = "mysubnet-b"
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-resource "yandex_vpc_subnet" "c" {
-  name           = "mysubnet-c"
-  zone           = "ru-central1-c"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.3.0.0/24"]
-}
-```
-
 ## Argument Reference
 
 The following arguments are supported:
 
-* `config` - (Required) Configuration of the PostgreSQL cluster. The structure is documented below.
+* `name` - (Required) Name of the PostgreSQL cluster. Provided by the client when the cluster is created.
 
-* `database` - (Required) A database of the PostgreSQL cluster. The structure is documented below.
+* `config` - (Required) Configuration of the PostgreSQL cluster. The structure is documented below.
 
 * `environment` - (Required) Deployment environment of the PostgreSQL cluster.
 
 * `host` - (Required) A host of the PostgreSQL cluster. The structure is documented below.
 
-* `name` - (Required) Name of the PostgreSQL cluster. Provided by the client when the cluster is created.
-
 * `network_id` - (Required) ID of the network, to which the PostgreSQL cluster belongs.
-
-* `user` - (Required) A user of the PostgreSQL cluster. The structure is documented below.
 
 - - -
 
@@ -516,74 +315,11 @@ The `performance_diagnostics` block supports:
 
 * `statements_sampling_interval` - Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
 
-The `user` block supports:
+* `user` - (Deprecated) To manage users, please switch to using a separate resource type `yandex_mdb_postgresql_user`.
 
-* `name` - (Required) The name of the user.
+* `database` - (Deprecated) To manage databases, please switch to using a separate resource type `yandex_mdb_postgresql_database`.
 
-* `password` - (Required) The password of the user.
-
-* `grants` - (Optional) List of the user's grants.
-
-* `login` - (Optional) User's ability to login.
-
-* `permission` - (Optional) Set of permissions granted to the user. The structure is documented below.
-
-* `conn_limit` - (Optional) The maximum number of connections per user. (Default 50)
-
-* `settings` - (Optional) Map of user settings. List of settings is documented below.
-
-The `permission` block supports:
-
-* `database_name` - (Required) The name of the database that the permission grants access to.
-
-The `settings` block supports:
-Full description https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/grpc/user_service#UserSettings1  
-
-* `default_transaction_isolation` - defines the default isolation level to be set for all new SQL transactions. 
-* * 0: "unspecified"
-* * 1: "read uncommitted"
-* * 2: "read committed"
-* * 3: "repeatable read"
-* * 4: "serializable"
-
-* `lock_timeout` - The maximum time (in milliseconds) for any statement to wait for acquiring a lock on an table, index, row or other database object (default 0)
-
-* `log_min_duration_statement` - This setting controls logging of the duration of statements. (default -1 disables logging of the duration of statements.)
-
-* `synchronous_commit` - This setting defines whether DBMS will commit transaction in a synchronous way.
-* * 0: "unspecified"
-* * 1: "on"
-* * 2: "off"
-* * 3: "local"
-* * 4: "remote write"
-* * 5: "remote apply"
-
-* `temp_file_limit` - The maximum storage space size (in kilobytes) that a single process can use to create temporary files.
-
-* `log_statement` - This setting specifies which SQL statements should be logged (on the user level).
-* * 0: "unspecified"
-* * 1: "none"
-* * 2: "ddl"
-* * 3: "mod"
-* * 4: "all"
-
-The `database` block supports:
-
-* `name` - (Required) The name of the database.
-
-* `owner` - (Required) Name of the user assigned as the owner of the database. Forbidden to change in an existing database.
-
-* `extension` - (Optional) Set of database extensions. The structure is documented below
-
-* `lc_collate` - (Optional) POSIX locale for string sorting order. Forbidden to change in an existing database.
-
-* `lc_type` - (Optional) POSIX locale for character classification. Forbidden to change in an existing database.
-
-The `extension` block supports:
-
-* `name` - (Required) Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
-
-* `version` - (Optional) Version of the extension.
+~> **Note:** Historically, `user` and `database` blocks of the `yandex_mdb_postgresql_cluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the only possible way to manage databases and users is using `yandex_mdb_postgresql_user` and  `yandex_mdb_postgresql_database` resources.
 
 The `host` block supports:
 

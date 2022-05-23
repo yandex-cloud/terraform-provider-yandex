@@ -49,8 +49,6 @@ exported:
 * `health` - Aggregated health of the cluster.
 * `status` - Status of the cluster.
 * `config` - Configuration of the PostgreSQL cluster. The structure is documented below.
-* `user` - A user of the PostgreSQL cluster. The structure is documented below.
-* `database` - A database of the PostgreSQL cluster. The structure is documented below.
 * `host` - A host of the PostgreSQL cluster. The structure is documented below.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `maintenance_window` - Maintenance window settings of the PostgreSQL cluster. The structure is documented below.
@@ -95,33 +93,6 @@ The `performance_diagnostics` block supports:
 * `enabled` - Flag, when true, performance diagnostics is enabled
 * `sessions_sampling_interval` - Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
 * `statements_sampling_interval` - Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
-
-The `user` block supports:
-
-* `name` - The name of the user.
-* `password` - The password of the user.
-* `permission` - Set of permissions granted to the user. The structure is documented below.
-* `login` - User's ability to login.
-* `grants` - List of the user's grants.
-* `conn_limit` - The maximum number of connections per user.
-* `settings` - Map of user settings.
-
-The `permission` block supports:
-
-* `database_name` - The name of the database that the permission grants access to.
-
-The `database` block supports:
-
-* `name` - The name of the database.
-* `owner` - Name of the user assigned as the owner of the database.
-* `lc_collate` - POSIX locale for string sorting order. Forbidden to change in an existing database.
-* `lc_type` - POSIX locale for character classification. Forbidden to change in an existing database.
-* `extension` - Set of database extensions. The structure is documented below
-
-The `extension` block supports:
-
-* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
-* `version` - Version of the extension.
 
 The `host` block supports:
 

@@ -2,11 +2,18 @@
 FEATURES:
 * datatransfer: add ClickHouse endpoint into `yandex_datatransfer_endpoint` resource
 * alb: support `session_affinity` attribute in `yandex_alb_backend_group` resource and data source.
+* **New Resource:** `yandex_mdb_postgresql_database`
+* **New Resource:** `yandex_mdb_postgresql_user`
+* **New Data Source:** `yandex_mdb_postgresql_database`
+* **New Data Source:** `yandex_mdb_postgresql_user`
 
 BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14
 * iam: return error when access bindings not applied
 * storage: fix bug of wrong handling permission error denied on reading policy
+
+WARNING:
+* postgresql: `database` and `user` sections for `yandex_mdb_postgresql_cluster` are now deprecated
 
 ## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:

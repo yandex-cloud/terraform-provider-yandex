@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,9 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -74,32 +71,6 @@ func resourceYandexMDBKafkaTopic() *schema.Resource {
 	}
 }
 
-func retryConflictingOperation(ctx context.Context, config *Config, action func() (*operation.Operation, error)) (*sdkoperation.Operation, error) {
-	for {
-		op, err := config.sdk.WrapOperation(action())
-		if err == nil {
-			return op, nil
-		}
-
-		st := status.Convert(err)
-		submatch := regexp.MustCompile(`conflicting operation "(.+)" detected`).FindStringSubmatch(st.Message())
-		if len(submatch) < 1 {
-			return op, err
-		}
-
-		operationID := submatch[1]
-		log.Printf("[DEBUG] Waiting for conflicting operation %q to complete", operationID)
-		req := &operation.GetOperationRequest{OperationId: operationID}
-		op, err = config.sdk.WrapOperation(config.sdk.Operation().Get(ctx, req))
-		if err != nil {
-			return nil, err
-		}
-
-		_ = op.Wait(ctx)
-		log.Printf("[DEBUG] Conflicting operation %q has completed. Going to retry initial action.", operationID)
-	}
-}
-
 func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -129,7 +100,7 @@ func resourceYandexMDBKafkaTopicCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error while requesting API to create Kafka topic: %s", err)
 	}
 
-	topicID := fmt.Sprintf("%s:%s", req.ClusterId, req.TopicSpec.Name)
+	topicID := constructResourceId(req.ClusterId, req.TopicSpec.Name)
 	d.SetId(topicID)
 
 	err = op.Wait(ctx)

@@ -17,6 +17,10 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 )
 
+const (
+	pgResource = "yandex_mdb_postgresql_cluster.foo"
+)
+
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{
 		Name: "yandex_mdb_postgresql_cluster",
@@ -57,6 +61,7 @@ func sweepMDBPostgreSQLClusterOnce(conf *Config, id string) error {
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+
 	op, err := conf.sdk.MDB().PostgreSQL().Cluster().Update(ctx, &postgresql.UpdateClusterRequest{
 		ClusterId:          id,
 		DeletionProtection: false,
@@ -79,7 +84,8 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"user",                           // passwords are not returned
+			"user", // passwords are not returned
+			"database",
 			"health",                         // volatile value
 			"host.0.name",                    // not returned
 			"host.1.name",                    // not returned
@@ -622,24 +628,26 @@ func testAccCheckPostgresqlConfigUpdate(r string) resource.TestCheckFunc {
 			return err
 		}
 
-		if cluster.Config.GetPostgresqlConfig_12().UserConfig.MaxConnections.GetValue() != 395 {
+		userConfig := cluster.Config.GetPostgresqlConfig_12().UserConfig
+
+		if userConfig.MaxConnections.GetValue() != 395 {
 			return fmt.Errorf("Field 'config.postgresql_config.max_connections' wasn`t changed for with value 395. Current value is %v",
-				cluster.Config.GetPostgresqlConfig_12().UserConfig.MaxConnections.GetValue())
+				userConfig.MaxConnections.GetValue())
 		}
 
-		if !cluster.Config.GetPostgresqlConfig_12().UserConfig.EnableParallelHash.GetValue() {
+		if !userConfig.EnableParallelHash.GetValue() {
 			return fmt.Errorf("Field 'config.postgresql_config.enable_parallel_hash' wasn`t changed for with value true. Current value is %v",
-				cluster.Config.GetPostgresqlConfig_12().UserConfig.EnableParallelHash.GetValue())
+				userConfig.EnableParallelHash.GetValue())
 		}
 
-		if cluster.Config.GetPostgresqlConfig_12().UserConfig.VacuumCleanupIndexScaleFactor.GetValue() != 0.2 {
+		if userConfig.VacuumCleanupIndexScaleFactor.GetValue() != 0.2 {
 			return fmt.Errorf("Field 'config.postgresql_config.vacuum_cleanup_index_scale_factor' wasn`t changed for with value 0.2. Current value is %v",
-				cluster.Config.GetPostgresqlConfig_12().UserConfig.VacuumCleanupIndexScaleFactor.GetValue())
+				userConfig.VacuumCleanupIndexScaleFactor.GetValue())
 		}
 
-		if cluster.Config.GetPostgresqlConfig_12().UserConfig.DefaultTransactionIsolation != 1 {
+		if userConfig.DefaultTransactionIsolation != 1 {
 			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v",
-				cluster.Config.GetPostgresqlConfig_12().UserConfig.DefaultTransactionIsolation)
+				userConfig.DefaultTransactionIsolation)
 		}
 
 		return nil
@@ -1033,7 +1041,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 `, name, desc)
 }
 
-func testAccMDBPGClusterConfigHABasic(name, hosts string) string {
+func testAccMDBPGClusterConfigHABasicConfig(name, hosts string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
   name        = "%s"
@@ -1056,28 +1064,13 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
     }
   }
 
-  user {
-    name     = "alice"
-    password = "mysecurepassword"
-
-    permission {
-      database_name = "testdb"
-    }
-  }
-
-  database {
-    owner      = "alice"
-    name       = "testdb"
-    lc_collate = "en_US.UTF-8"
-    lc_type    = "en_US.UTF-8"
-  }
   %s
 }
 `, name, hosts)
 }
 
 func testAccMDBPGClusterConfigHA(name string) string {
-	return testAccMDBPGClusterConfigHABasic(name, `
+	return testAccMDBPGClusterConfigHABasicConfig(name, `
 	host {
 		zone             = "ru-central1-a"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
@@ -1095,7 +1088,7 @@ func testAccMDBPGClusterConfigHA(name string) string {
 }
 
 func testAccMDBPGClusterConfigHAChangePublicIP(name string) string {
-	return testAccMDBPGClusterConfigHABasic(name, `
+	return testAccMDBPGClusterConfigHABasicConfig(name, `
 	host {
 		zone             = "ru-central1-a"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
@@ -1139,57 +1132,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
     }
   }
 
-  user {
-    name     = "alice"
-    password = "mysecurepassword"
-
-    permission {
-      database_name = "testdb"
-    }
-
-    permission {
-      database_name = "newdb"
-    }
-  }
-
-  user {
-    name     = "bob"
-    password = "anothersecurepassword"
-
-    permission {
-      database_name = "newdb"
-    }
-
-    permission {
-      database_name = "fornewuserdb"
-    }
-  
-    settings = {
-    default_transaction_isolation = "read uncommitted"
-    log_min_duration_statement    = -1
-    }
-  }
-
 %s
-
-  database {
-    owner      = "alice"
-    name       = "testdb"
-    lc_collate = "en_US.UTF-8"
-    lc_type    = "en_US.UTF-8"
-  }
-
-  database {
-    owner = "alice"
-    name  = "newdb"
-  }
-
-   database {
-    owner = "bob"
-    name  = "fornewuserdb"
-  }
-
-  security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
 `, name, hosts)
 }

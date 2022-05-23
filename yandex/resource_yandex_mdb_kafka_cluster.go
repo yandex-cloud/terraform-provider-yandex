@@ -84,7 +84,7 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Type:       schema.TypeList,
 				Optional:   true,
 				Elem:       resourceYandexMDBKafkaClusterTopicBlock(),
-				Deprecated: "to manage topics, please switch to using a separate resource type yandex_mdb_kafka_topic",
+				Deprecated: useResourceInstead("topic", "yandex_mdb_kafka_topic"),
 			},
 			"user": {
 				Type:     schema.TypeSet,

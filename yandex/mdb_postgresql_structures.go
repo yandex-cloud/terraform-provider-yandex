@@ -254,25 +254,16 @@ func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
 
 func flattenPGUser(u *postgresql.User,
 	fieldsInfo *objectFieldsInfo, knownDefault map[string]struct{}) (map[string]interface{}, error) {
-
-	m := map[string]interface{}{}
-	m["name"] = u.Name
-	m["login"] = u.GetLogin().GetValue()
-
-	permissions, err := flattenPGUserPermissions(u.Permissions)
-	if err != nil {
-		return nil, err
-	}
-	m["permission"] = permissions
-
-	m["grants"] = u.Grants
-
-	m["conn_limit"] = u.ConnLimit
-
 	settings, err := flattenResourceGenerateMapS(u.Settings, false, fieldsInfo, false, true, knownDefault)
 	if err != nil {
 		return nil, err
 	}
+	m := map[string]interface{}{}
+	m["name"] = u.Name
+	m["login"] = u.GetLogin().GetValue()
+	m["permission"] = flattenPGUserPermissions(u.Permissions)
+	m["grants"] = u.Grants
+	m["conn_limit"] = u.ConnLimit
 	m["settings"] = settings
 
 	return m, nil
@@ -295,7 +286,7 @@ func pgUserPermissionHash(v interface{}) int {
 	return 0
 }
 
-func flattenPGUserPermissions(ps []*postgresql.Permission) (*schema.Set, error) {
+func flattenPGUserPermissions(ps []*postgresql.Permission) *schema.Set {
 	out := schema.NewSet(pgUserPermissionHash, nil)
 
 	for _, p := range ps {
@@ -306,7 +297,7 @@ func flattenPGUserPermissions(ps []*postgresql.Permission) (*schema.Set, error) 
 		out.Add(op)
 	}
 
-	return out, nil
+	return out
 }
 
 type pgHostInfo struct {
@@ -1117,18 +1108,13 @@ func expandPGDatabase(m map[string]interface{}) (*postgresql.DatabaseSpec, error
 
 	if v, ok := m["extension"]; ok {
 		es := v.(*schema.Set).List()
-		extensions, err := expandPGExtensions(es)
-		if err != nil {
-			return nil, err
-		}
-
-		out.Extensions = extensions
+		out.Extensions = expandPGExtensions(es)
 	}
 
 	return out, nil
 }
 
-func expandPGExtensions(es []interface{}) ([]*postgresql.Extension, error) {
+func expandPGExtensions(es []interface{}) []*postgresql.Extension {
 	out := []*postgresql.Extension{}
 
 	for _, e := range es {
@@ -1146,7 +1132,7 @@ func expandPGExtensions(es []interface{}) ([]*postgresql.Extension, error) {
 		out = append(out, extension)
 	}
 
-	return out, nil
+	return out
 }
 
 func expandPGBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {

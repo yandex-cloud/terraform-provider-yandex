@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -57,292 +58,25 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"version": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"resources": {
-							Type:     schema.TypeList,
-							Required: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"resource_preset_id": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"disk_size": {
-										Type:     schema.TypeInt,
-										Required: true,
-									},
-									"disk_type_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"autofailover": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
-						},
-						"pooler_config": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"pooling_mode": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"pool_discard": {
-										Type:     schema.TypeBool,
-										Optional: true,
-									},
-								},
-							},
-						},
-						"backup_window_start": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"hours": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Default:      0,
-										ValidateFunc: validation.IntBetween(0, 23),
-									},
-									"minutes": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										Default:      0,
-										ValidateFunc: validation.IntBetween(0, 59),
-									},
-								},
-							},
-						},
-						"backup_retain_period_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-						"performance_diagnostics": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Computed: true,
-									},
-									"sessions_sampling_interval": {
-										Type:     schema.TypeInt,
-										Required: true,
-									},
-									"statements_sampling_interval": {
-										Type:     schema.TypeInt,
-										Required: true,
-									},
-								},
-							},
-						},
-						"access": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Optional: true,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"data_lens": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
-									"web_sql": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Computed: true,
-									},
-									"serverless": {
-										Type:     schema.TypeBool,
-										Optional: true,
-										Default:  false,
-									},
-								},
-							},
-						},
-						"postgresql_config": {
-							Type:             schema.TypeMap,
-							Optional:         true,
-							Computed:         true,
-							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
-							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
+				Elem:     resourceYandexMDBPostgreSQLClusterConfig(),
 			},
 			"database": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"owner": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"lc_collate": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "C",
-						},
-						"lc_type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "C",
-						},
-						"extension": {
-							Type:     schema.TypeSet,
-							Set:      pgExtensionHash,
-							Optional: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"version": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-								},
-							},
-						},
-					},
-				},
+				Type:       schema.TypeList,
+				Optional:   true,
+				Elem:       resourceYandexMDBPostgreSQLClusterDatabaseBlock(),
+				Deprecated: useResourceInstead("database", "yandex_mdb_postgresql_database"),
 			},
 			"user": {
-				Type:     schema.TypeList,
-				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"password": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
-						},
-						"login": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  true,
-						},
-						"grants": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"permission": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Set:      pgUserPermissionHash,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"database_name": {
-										Type:     schema.TypeString,
-										Required: true,
-									},
-								},
-							},
-						},
-						"conn_limit": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-						"settings": {
-							Type:             schema.TypeMap,
-							Optional:         true,
-							Computed:         true,
-							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
-							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
-						},
-					},
-				},
+				Type:       schema.TypeList,
+				Optional:   true,
+				Elem:       resourceYandexMDBPostgreSQLClusterUserBlock(),
+				Deprecated: useResourceInstead("user", "yandex_mdb_postgresql_user"),
 			},
 			"host": {
 				Type:     schema.TypeList,
 				MinItems: 1,
 				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"zone": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"assign_public_ip": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-						},
-						"fqdn": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"role": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"replication_source": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"priority": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Computed: true,
-						},
-						"replication_source_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-					},
-				},
+				Elem:     resourceYandexMDBPostgreSQLClusterHost(),
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
@@ -390,51 +124,14 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				MaxItems: 1,
 				Optional: true,
 				ForceNew: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"backup_id": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"time_inclusive": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							ForceNew: true,
-						},
-						"time": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ForceNew:     true,
-							ValidateFunc: stringToTimeValidateFunc,
-						},
-					},
-				},
+				Elem:     resourceYandexMDBPostgreSQLClusterRestoreBlock(),
 			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:         schema.TypeString,
-							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
-							Required:     true,
-						},
-						"day": {
-							Type:         schema.TypeString,
-							ValidateFunc: pgMaintenanceWindowSchemaValidateFunc,
-							Optional:     true,
-						},
-						"hour": {
-							Type:         schema.TypeInt,
-							ValidateFunc: validation.IntBetween(1, 24),
-							Optional:     true,
-						},
-					},
-				},
+				Elem:     resourceYandexMDBPostgreSQLClusterMaintenanceWindow(),
 			},
 			"deletion_protection": {
 				Type:     schema.TypeBool,
@@ -447,6 +144,336 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"version": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"resources": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_preset_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"disk_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"autofailover": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"pooler_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pooling_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"pool_discard": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"backup_window_start": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hours": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 23),
+						},
+						"minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 59),
+						},
+					},
+				},
+			},
+			"backup_retain_period_days": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"performance_diagnostics": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"sessions_sampling_interval": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"statements_sampling_interval": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
+			},
+			"access": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"serverless": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
+			"postgresql_config": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterDatabaseBlock() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"lc_collate": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "C",
+			},
+			"lc_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "C",
+			},
+			"extension": {
+				Type:     schema.TypeSet,
+				Set:      pgExtensionHash,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"version": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterUserBlock() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"password": {
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
+			},
+			"login": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"grants": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"permission": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Set:      pgUserPermissionHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"database_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"conn_limit": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"settings": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"zone": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"subnet_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"assign_public_ip": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"fqdn": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"role": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"replication_source": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"priority": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"replication_source_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterRestoreBlock() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"backup_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"time_inclusive": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"time": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: stringToTimeValidateFunc,
+			},
+		},
+	}
+}
+
+func resourceYandexMDBPostgreSQLClusterMaintenanceWindow() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:         schema.TypeString,
+				ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+				Required:     true,
+			},
+			"day": {
+				Type:         schema.TypeString,
+				ValidateFunc: pgMaintenanceWindowSchemaValidateFunc,
+				Optional:     true,
+			},
+			"hour": {
+				Type:         schema.TypeInt,
+				ValidateFunc: validation.IntBetween(1, 24),
+				Optional:     true,
 			},
 		},
 	}
@@ -487,23 +514,52 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	userSpecs, err := expandPGUserSpecs(d)
-	if err != nil {
-		return err
-	}
-	passwords := pgUsersPasswords(userSpecs)
-	users, err := listPGUsers(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-	sortPGUsers(users, userSpecs)
+	stateDatabases := d.Get("database").([]interface{})
+	if len(stateDatabases) == 0 {
+		if err := d.Set("database", []map[string]interface{}{}); err != nil {
+			return err
+		}
+	} else {
+		databases, err := listPGDatabases(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
 
-	fUsers, err := flattenPGUsers(users, passwords, mdbPGUserSettingsFieldsInfo)
-	if err != nil {
-		return err
+		databaseSpecs, err := expandPGDatabaseSpecs(d)
+		if err != nil {
+			return err
+		}
+		sortPGDatabases(databases, databaseSpecs)
+
+		if err := d.Set("database", flattenPGDatabases(databases)); err != nil {
+			return err
+		}
 	}
-	if err := d.Set("user", fUsers); err != nil {
-		return err
+
+	stateUsers := d.Get("user").([]interface{})
+	if len(stateUsers) == 0 {
+		if err := d.Set("user", []map[string]interface{}{}); err != nil {
+			return err
+		}
+	} else {
+		userSpecs, err := expandPGUserSpecs(d)
+		if err != nil {
+			return err
+		}
+		passwords := pgUsersPasswords(userSpecs)
+		users, err := listPGUsers(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
+		sortPGUsers(users, userSpecs)
+
+		fUsers, err := flattenPGUsers(users, passwords, mdbPGUserSettingsFieldsInfo)
+		if err != nil {
+			return err
+		}
+		if err := d.Set("user", fUsers); err != nil {
+			return err
+		}
 	}
 
 	hosts, err := listPGHosts(ctx, config, d.Id())
@@ -535,28 +591,19 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	databases, err := listPGDatabases(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-
-	databaseSpecs, err := expandPGDatabaseSpecs(d)
-	if err != nil {
-		return err
-	}
-	sortPGDatabases(databases, databaseSpecs)
-
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
-	d.Set("deletion_protection", cluster.DeletionProtection)
+	if err = d.Set("deletion_protection", cluster.DeletionProtection); err != nil {
+		return err
+	}
 
 	if err = d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
 		return err
 	}
 
-	return d.Set("database", flattenPGDatabases(databases))
+	return nil
 }
 
 func sortPGUsers(users []*postgresql.User, specs []*postgresql.UserSpec) {
@@ -584,20 +631,23 @@ func sortPGDatabases(databases []*postgresql.Database, specs []*postgresql.Datab
 func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	req, err := prepareCreatePostgreSQLRequest(d, config)
+	request, err := prepareCreatePostgreSQLRequest(d, config)
 
 	if err != nil {
 		return err
 	}
 
 	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
-		return resourceYandexMDBPostgreSQLClusterRestore(d, meta, req, backupID.(string))
+		return resourceYandexMDBPostgreSQLClusterRestore(d, meta, request, backupID.(string))
 	}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Create(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster create request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().Create(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster: %s", err)
 	}
@@ -658,8 +708,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
-
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Restore(ctx, &postgresql.RestoreClusterRequest{
+	request := &postgresql.RestoreClusterRequest{
 		BackupId: backupID,
 		Time: &timestamp.Timestamp{
 			Seconds: timeBackup.Unix(),
@@ -675,7 +724,13 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		FolderId:         createClusterRequest.FolderId,
 		SecurityGroupIds: createClusterRequest.SecurityGroupIds,
 		HostGroupIds:     createClusterRequest.HostGroupIds,
-	}))
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster restore request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().Restore(ctx, request)
+	})
+
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create PostgreSQL Cluster from backup %v: %s", backupID, err)
 	}
@@ -793,7 +848,7 @@ func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error 
 		return nil
 	}
 	updatePath := []string{"maintenance_window"}
-	req := &postgresql.UpdateClusterRequest{
+	request := &postgresql.UpdateClusterRequest{
 		ClusterId:         d.Id(),
 		MaintenanceWindow: maintenanceWindow,
 		UpdateMask:        &field_mask.FieldMask{Paths: updatePath},
@@ -803,7 +858,11 @@ func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster update request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, request)
+	})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster after creation %q: %s", d.Id(), err)
 	}
@@ -828,19 +887,21 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	if d.HasChange("user") {
+	stateUser := d.Get("user").([]interface{})
+	if d.HasChange("user") && len(stateUser) > 0 {
 		if err := updatePGClusterUsersAdd(d, meta); err != nil {
 			return err
 		}
 	}
 
-	if d.HasChange("database") {
+	stateDatabase := d.Get("database").([]interface{})
+	if d.HasChange("database") && len(stateDatabase) > 0 {
 		if err := updatePGClusterDatabases(d, meta); err != nil {
 			return err
 		}
 	}
 
-	if d.HasChange("user") {
+	if d.HasChange("user") && len(stateUser) > 0 {
 		if err := updatePGClusterUsersUpdateAndDrop(d, meta); err != nil {
 			return err
 		}
@@ -865,7 +926,7 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 }
 
 func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
-	req, updateFieldConfigName, err := getPGClusterUpdateRequest(d)
+	request, updateFieldConfigName, err := getPGClusterUpdateRequest(d)
 	if err != nil {
 		return err
 	}
@@ -906,13 +967,17 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
+	request.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
 
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster update request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().Update(ctx, request)
+	})
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
@@ -950,7 +1015,7 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 		return nil, updateFieldConfigName, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
 	}
 
-	req := &postgresql.UpdateClusterRequest{
+	return &postgresql.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
@@ -959,9 +1024,7 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 		MaintenanceWindow:  maintenanceWindow,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-	}
-
-	return req, updateFieldConfigName, nil
+	}, updateFieldConfigName, nil
 }
 
 func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
@@ -1249,14 +1312,17 @@ func resourceYandexMDBPostgreSQLClusterDelete(d *schema.ResourceData, meta inter
 
 	log.Printf("[DEBUG] Deleting PostgreSQL Cluster %q", d.Id())
 
-	req := &postgresql.DeleteClusterRequest{
+	request := &postgresql.DeleteClusterRequest{
 		ClusterId: d.Id(),
 	}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster delete request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().Delete(ctx, request)
+	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("PostgreSQL Cluster %q", d.Id()))
 	}
@@ -1520,12 +1586,14 @@ func listPGDatabases(ctx context.Context, config *Config, id string) ([]*postgre
 }
 
 func addPGHost(ctx context.Context, config *Config, d *schema.ResourceData, host *postgresql.HostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, &postgresql.AddClusterHostsRequest{
-			ClusterId: d.Id(),
-			HostSpecs: []*postgresql.HostSpec{host},
-		}),
-	)
+	request := &postgresql.AddClusterHostsRequest{
+		ClusterId: d.Id(),
+		HostSpecs: []*postgresql.HostSpec{host},
+	}
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster add hosts request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().AddHosts(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to create host for PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1543,12 +1611,14 @@ func addPGHost(ctx context.Context, config *Config, d *schema.ResourceData, host
 }
 
 func deletePGHost(ctx context.Context, config *Config, d *schema.ResourceData, name string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, &postgresql.DeleteClusterHostsRequest{
-			ClusterId: d.Id(),
-			HostNames: []string{name},
-		}),
-	)
+	request := &postgresql.DeleteClusterHostsRequest{
+		ClusterId: d.Id(),
+		HostNames: []string{name},
+	}
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster delete hosts request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().DeleteHosts(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to delete host from PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
@@ -1566,12 +1636,14 @@ func deletePGHost(ctx context.Context, config *Config, d *schema.ResourceData, n
 }
 
 func startPGFailover(ctx context.Context, config *Config, d *schema.ResourceData, hostName string) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Cluster().StartFailover(ctx, &postgresql.StartClusterFailoverRequest{
-			ClusterId: d.Id(),
-			HostName:  hostName,
-		}),
-	)
+	request := &postgresql.StartClusterFailoverRequest{
+		ClusterId: d.Id(),
+		HostName:  hostName,
+	}
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster start failover request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().StartFailover(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to start failover host in PostgreSQL Cluster %q - host %v: %s", d.Id(), hostName, err)
 	}
@@ -1589,12 +1661,14 @@ func startPGFailover(ctx context.Context, config *Config, d *schema.ResourceData
 }
 
 func updatePGHost(ctx context.Context, config *Config, d *schema.ResourceData, host *postgresql.UpdateHostSpec) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, &postgresql.UpdateClusterHostsRequest{
-			ClusterId:       d.Id(),
-			UpdateHostSpecs: []*postgresql.UpdateHostSpec{host},
-		}),
-	)
+	request := &postgresql.UpdateClusterHostsRequest{
+		ClusterId:       d.Id(),
+		UpdateHostSpecs: []*postgresql.UpdateHostSpec{host},
+	}
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending PostgreSQL cluster update hosts request: %+v", request)
+		return config.sdk.MDB().PostgreSQL().Cluster().UpdateHosts(ctx, request)
+	})
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update host for PostgreSQL Cluster %q - host %v: %s", d.Id(), host.HostName, err)
 	}
@@ -1658,13 +1732,14 @@ func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if cluster.FolderId != folderID {
-
-		op, err := config.sdk.WrapOperation(
-			config.sdk.MDB().PostgreSQL().Cluster().Move(ctx, &postgresql.MoveClusterRequest{
-				ClusterId:           d.Id(),
-				DestinationFolderId: folderID.(string),
-			}),
-		)
+		request := &postgresql.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending PostgreSQL cluster move request: %+v", request)
+			return config.sdk.MDB().PostgreSQL().Cluster().Move(ctx, request)
+		})
 		if err != nil {
 			return fmt.Errorf("error while requesting API to move PostgreSQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
 		}

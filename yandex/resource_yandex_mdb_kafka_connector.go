@@ -144,7 +144,7 @@ func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("error while requesting API to create Kafka connector: %s", err)
 	}
 
-	conectorName := fmt.Sprintf("%s:%s", req.ClusterId, req.ConnectorSpec.Name)
+	conectorName := constructResourceId(req.ClusterId, req.ConnectorSpec.Name)
 	d.SetId(conectorName)
 
 	err = op.Wait(ctx)

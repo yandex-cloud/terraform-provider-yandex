@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"regexp"
 	"sort"
 	"strings"
 	"text/template"
@@ -26,8 +27,10 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -221,6 +224,37 @@ func createTemporaryStaticAccessKey(roleID string, config *Config) (accessKey, s
 		deleteSa()
 	}
 	return
+}
+
+func retryConflictingOperation(ctx context.Context, config *Config, action func() (*operation.Operation, error)) (*sdkoperation.Operation, error) {
+	for {
+		op, err := config.sdk.WrapOperation(action())
+		if err == nil {
+			return op, nil
+		}
+
+		operationID := ""
+		message := status.Convert(err).Message()
+		submatchGoApi := regexp.MustCompile(`conflicting operation "(.+)" detected`).FindStringSubmatch(message)
+		submatchPyApi := regexp.MustCompile(`Conflicting operation (.+) detected`).FindStringSubmatch(message)
+		if len(submatchGoApi) > 0 {
+			operationID = submatchGoApi[1]
+		} else if len(submatchPyApi) > 0 {
+			operationID = submatchPyApi[1]
+		} else {
+			return op, err
+		}
+
+		log.Printf("[DEBUG] Waiting for conflicting operation %q to complete", operationID)
+		req := &operation.GetOperationRequest{OperationId: operationID}
+		op, err = config.sdk.WrapOperation(config.sdk.Operation().Get(ctx, req))
+		if err != nil {
+			return nil, err
+		}
+
+		_ = op.Wait(ctx)
+		log.Printf("[DEBUG] Conflicting operation %q has completed. Going to retry initial action.", operationID)
+	}
 }
 
 func handleNotFoundError(err error, d *schema.ResourceData, resourceName string) error {
@@ -757,6 +791,10 @@ func fieldDeprecatedForAnother(deprecatedFieldName string, newFieldName string) 
 	return fmt.Sprintf("The '%s' field has been deprecated. Please use '%s' instead.", deprecatedFieldName, newFieldName)
 }
 
+func useResourceInstead(deprecatedFieldName string, newResource string) string {
+	return fmt.Sprintf("to manage %ss, please switch to using a separate resource type %s", deprecatedFieldName, newResource)
+}
+
 func getSDK(config *Config) *ycsdk.SDK {
 	return config.sdk
 }
@@ -881,4 +919,19 @@ func splitFieldPath(path string) []string {
 		paths = append(paths, sb.String())
 	}
 	return paths
+}
+
+func constructResourceId(clusterID string, resourceName string) string {
+	return fmt.Sprintf("%s:%s", clusterID, resourceName)
+}
+
+func deconstructResourceId(resourceID string) (string, string, error) {
+	parts := strings.SplitN(resourceID, ":", 2)
+	if len(parts) != 2 {
+		return "", "", fmt.Errorf("invalid resource id format: %q", resourceID)
+	}
+
+	clusterID := parts[0]
+	resourceName := parts[1]
+	return clusterID, resourceName, nil
 }

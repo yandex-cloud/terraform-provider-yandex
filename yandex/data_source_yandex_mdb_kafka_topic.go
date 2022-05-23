@@ -1,8 +1,6 @@
 package yandex
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -19,7 +17,7 @@ func dataSourceYandexMDBKafkaTopic() *schema.Resource {
 func dataSourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) error {
 	clusterID := d.Get("cluster_id").(string)
 	topicName := d.Get("name").(string)
-	topicID := fmt.Sprintf("%s:%s", clusterID, topicName)
+	topicID := constructResourceId(clusterID, topicName)
 	d.SetId(topicID)
 	return resourceYandexMDBKafkaTopicRead(d, meta)
 }
