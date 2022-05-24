@@ -82,6 +82,7 @@ func mdbMysqlClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
+			"database",                       // not returned
 			"user",                           // not returned
 			"health",                         // volatile value
 			"host",                           // the order of hosts differs
@@ -125,7 +126,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
-					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb"}),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 17179869184),
@@ -194,7 +195,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
-					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
+					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
 						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
@@ -219,62 +220,55 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
 				),
 			},
-			mdbMysqlClusterImportStep(mysqlResource),
+		},
+	},
+	)
+}
+
+func TestAccMDBMySQLClusterHA_update(t *testing.T) {
+	t.Parallel()
+
+	var cluster mysql.Cluster
+	mysqlName := acctest.RandomWithPrefix("tf-mysql")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBMysqlClusterDestroy,
+		Steps: []resource.TestStep{
 			//Add new host
 			{
-				Config: testAccMDBMysqlClusterHA(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterHA(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
+
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.fqdn"),
-					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
-						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
-						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
-					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
-					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
-					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(mysqlResource),
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
-					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
-
-					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
 			//Add new host 2 cc
 			{
-				Config: testAccMDBMysqlClusterHA2(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterHA2(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
+
+					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.zone", "ru-central1-c"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.zone", "ru-central1-c"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-b"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-a"),
-					testAccCheckMDBMysqlClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
-					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
-						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
-						"mary": {MockPermission{"testdb", []string{"ALL", "INSERT"}}, MockPermission{"new_testdb", []string{"ALL", "INSERT"}}}}),
-					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 25769803776),
-					testAccCheckMDBMysqlClusterHasBackupWindow(&cluster, 5, 44),
-					testAccCheckMDBMysqlClusterContainsLabel(&cluster, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(mysqlResource),
-					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
-					resource.TestCheckResourceAttr(mysqlResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
 			// Configure cascade replica
 			{
-				Config: testAccMDBMysqlClusterHANamedWithCascade(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterHANamedWithCascade(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
@@ -287,7 +281,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			mdbMysqlClusterImportStep(mysqlResource),
 			// Change public IP for 2 hosts
 			{
-				Config: testAccMDBMysqlClusterHANamedChangePublicIP(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterHANamedChangePublicIP(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
@@ -298,7 +292,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			mdbMysqlClusterImportStep(mysqlResource),
 			// Change backup priority for 2 hosts
 			{
-				Config: testAccMDBMysqlClusterWithBackupPriorities(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterWithBackupPriorities(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
@@ -309,7 +303,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			mdbMysqlClusterImportStep(mysqlResource),
 			// Change host priority for 2 hosts
 			{
-				Config: testAccMDBMysqlClusterWithPriorities(mysqlName, mysqlDesc2),
+				Config: testAccMDBMysqlClusterWithPriorities(mysqlName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
@@ -319,7 +313,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
 		},
-	})
+	},
+	)
 }
 
 func testAccCheckMDBMysqlClusterDestroy(state *terraform.State) error {
@@ -385,7 +380,7 @@ func testAccCheckMDBMySQLClusterExists(resource string, cluster *mysql.Cluster) 
 	}
 }
 
-func testAccCheckMDBMysqlClusterHasDatabases(resource string, databases []string) resource.TestCheckFunc {
+func testAccCheckMDBMySQLClusterHasDatabases(resource string, databases []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resource]
 		if !ok {
@@ -617,24 +612,24 @@ resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo_c" {
   zone           = "ru-central1-c"
-  network_id     = "${yandex_vpc_network.foo.id}"
+  network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "foo_b" {
   zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.foo.id}"
+  network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.4.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "foo_a" {
   zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.foo.id}"
+  network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
 
 resource "yandex_vpc_security_group" "sg-x" {
-  network_id     = "${yandex_vpc_network.foo.id}"
+  network_id     = yandex_vpc_network.foo.id
   ingress {
     protocol          = "ANY"
     description       = "Allow incoming traffic from members of the same security group"
@@ -652,7 +647,7 @@ resource "yandex_vpc_security_group" "sg-x" {
 }
 
 resource "yandex_vpc_security_group" "sg-y" {
-  network_id     = "${yandex_vpc_network.foo.id}"
+  network_id     = yandex_vpc_network.foo.id
   
   ingress {
     protocol          = "ANY"
@@ -677,7 +672,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
   description = "%s"
   environment = "%s"
-  network_id  = "${yandex_vpc_network.foo.id}"
+  network_id  = yandex_vpc_network.foo.id
   version     = "5.7"
   labels = {
     test_key = "test_value"
@@ -715,10 +710,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo_c.id}"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+  security_group_ids = [yandex_vpc_security_group.sg-x.id]
   deletion_protection = %t
 
   performance_diagnostics {
@@ -736,7 +731,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
   description = "%s"
   environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
+  network_id  = yandex_vpc_network.foo.id
   version     = "8.0"
   labels = {
     test_key = "test_value"
@@ -768,10 +763,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo_c.id}"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
-  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+  security_group_ids = [yandex_vpc_security_group.sg-x.id]
 }
 `, name, desc)
 }
@@ -868,155 +863,34 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 `, name, desc)
 }
 
-func testAccMDBMysqlClusterHA(name, desc string) string {
+func testAccMDBMysqlClusterHABasic(name, hosts string) string {
 	return fmt.Sprintf(mysqlVPCDependencies+`
 resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = "${yandex_vpc_network.foo.id}"
-  version     = "8.0"
-
-  maintenance_window {
-    type = "ANYTIME"
-  }
-
-  labels = {
-    new_key = "new_value"
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 24
-  }
-
-  backup_window_start {
-    hours   = 5
-    minutes = 44
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.foo_c.id}"
-    
-    assign_public_ip = true
-  }
-
-  host {
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.foo_b.id}"
-  }
-
-  host {
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.foo_a.id}"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
-}
-`, name, desc)
-}
-
-func testAccMDBMysqlClusterHA2(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
+  description = "MySQL High Availability Cluster Terraform Test"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.foo.id
   version     = "8.0"
 
-  labels = {
-    new_key = "new_value"
-  }
-
   resources {
     resource_preset_id = "s2.micro"
     disk_type_id       = "network-ssd"
     disk_size          = 24
   }
+ 
+  %s
+}
+`, name, hosts)
+}
 
-  backup_window_start {
-    hours   = 5
-    minutes = 44
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
+func testAccMDBMysqlClusterHA(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
   host {
     zone      = "ru-central1-c"
     subnet_id = yandex_vpc_subnet.foo_c.id
-
+    
     assign_public_ip = true
   }
-
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
- }
 
   host {
     zone      = "ru-central1-b"
@@ -1027,69 +901,37 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo_a.id
   }
-
-  security_group_ids = [yandex_vpc_security_group.sg-y.id]
-}
-`, name, desc)
+`)
 }
 
-func testAccMDBMysqlClusterHANamedWithCascade(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  version     = "8.0"
-  deletion_protection = false
+func testAccMDBMysqlClusterHA2(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
 
-  labels = {
-    new_key = "new_value"
+    assign_public_ip = true
   }
 
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 24
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
-  backup_window_start {
-    hours   = 5
-    minutes = 44
+  host {
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.foo_b.id
   }
 
-  database {
-    name = "testdb"
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
   }
+`)
+}
 
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
+func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
   host {
     zone             = "ru-central1-c"
     subnet_id        = yandex_vpc_subnet.foo_c.id
@@ -1116,69 +958,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name                    = "nd"
     replication_source_name = "nb"
   }
-
-  security_group_ids = [yandex_vpc_security_group.sg-y.id]
-}
-`, name, desc)
+`)
 }
 
-func testAccMDBMysqlClusterHANamedChangePublicIP(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  version     = "8.0"
-  deletion_protection = false
-
-  labels = {
-    new_key = "new_value"
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 24
-  }
-
-  backup_window_start {
-    hours   = 5
-    minutes = 44
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
+func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
   host {
     zone             = "ru-central1-c"
     subnet_id        = yandex_vpc_subnet.foo_c.id
@@ -1193,10 +977,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.foo_b.id
-    name      = "nc"
-	assign_public_ip        = true
+    zone             = "ru-central1-b"
+    subnet_id        = yandex_vpc_subnet.foo_b.id
+    name             = "nc"
+	  assign_public_ip = true
   }
 
   host {
@@ -1205,69 +989,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name                    = "nd"
     replication_source_name = "nb"
   }
-
-  security_group_ids = [yandex_vpc_security_group.sg-y.id]
-}
-`, name, desc)
+`)
 }
 
-func testAccMDBMysqlClusterWithBackupPriorities(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  version     = "8.0"
-  deletion_protection = false
-
-  labels = {
-    new_key = "new_value"
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 24
-  }
-
-  backup_window_start {
-    hours   = 5
-    minutes = 44
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
+func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
   host {
     zone      = "ru-central1-c"
     subnet_id = yandex_vpc_subnet.foo_c.id
@@ -1294,69 +1020,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name            = "nd"
     backup_priority = 10
   }
-
-  security_group_ids = [yandex_vpc_security_group.sg-y.id]
-}
-`, name, desc)
+`)
 }
 
-func testAccMDBMysqlClusterWithPriorities(name, desc string) string {
-	return fmt.Sprintf(mysqlVPCDependencies+`
-resource "yandex_mdb_mysql_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "PRESTABLE"
-  network_id  = yandex_vpc_network.foo.id
-  version     = "8.0"
-  deletion_protection = false
-
-  labels = {
-    new_key = "new_value"
-  }
-
-  resources {
-    resource_preset_id = "s2.micro"
-    disk_type_id       = "network-ssd"
-    disk_size          = 24
-  }
-
-  backup_window_start {
-    hours   = 5
-    minutes = 44
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  database {
-    name = "new_testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "DROP", "DELETE"]
-    }
-  }
-
-  user {
-    name     = "mary"
-    password = "password"
-
-    permission {
-      database_name = "testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-
-    permission {
-      database_name = "new_testdb"
-      roles         = ["ALL", "INSERT"]
-    }
-  }
-
+func testAccMDBMysqlClusterWithPriorities(name string) string {
+	return testAccMDBMysqlClusterHABasic(name, `
   host {
     zone      = "ru-central1-c"
     subnet_id = yandex_vpc_subnet.foo_c.id
@@ -1383,8 +1051,5 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     name      = "nd"
     priority  = 10
   }
-
-  security_group_ids = [yandex_vpc_security_group.sg-y.id]
-}
-`, name, desc)
+`)
 }

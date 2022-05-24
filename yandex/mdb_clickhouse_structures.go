@@ -683,15 +683,6 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	return config, nil
 }
 
-func expandEnum(keyName string, value string, enumValues map[string]int32) (*int32, error) {
-	if val, ok := enumValues[value]; ok {
-		return &val, nil
-	} else {
-		return nil, fmt.Errorf("value for '%s' must be one of %s, not `%s`",
-			keyName, getJoinedKeys(getEnumValueMapKeys(enumValues)), value)
-	}
-}
-
 func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_Kafka, error) {
 	config := &clickhouseConfig.ClickhouseConfig_Kafka{}
 

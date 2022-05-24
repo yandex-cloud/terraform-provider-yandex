@@ -154,6 +154,25 @@ func expandMysqlUser(u map[string]interface{}, existsUser *mysql.User) (user *my
 	return user, isDiff, nil
 }
 
+func expandMySQLConnectionLimits(conLimitMap map[string]interface{}) *mysql.ConnectionLimits {
+	connectionLimits := &mysql.ConnectionLimits{}
+
+	if v, ok := conLimitMap["max_questions_per_hour"]; ok && (v.(int)) > -1 {
+		connectionLimits.MaxQuestionsPerHour = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := conLimitMap["max_updates_per_hour"]; ok && (v.(int)) > -1 {
+		connectionLimits.MaxUpdatesPerHour = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := conLimitMap["max_connections_per_hour"]; ok && (v.(int)) > -1 {
+		connectionLimits.MaxConnectionsPerHour = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := conLimitMap["max_user_connections"]; ok && (v.(int)) > -1 {
+		connectionLimits.MaxUserConnections = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return connectionLimits
+}
+
 func expandMysqlUserGlobalPermissions(ps []interface{}) ([]mysql.GlobalPermission, error) {
 	result := []mysql.GlobalPermission{}
 

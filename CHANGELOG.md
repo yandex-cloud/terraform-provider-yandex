@@ -4,8 +4,12 @@ FEATURES:
 * alb: support `session_affinity` attribute in `yandex_alb_backend_group` resource and data source.
 * **New Resource:** `yandex_mdb_postgresql_database`
 * **New Resource:** `yandex_mdb_postgresql_user`
+* **New Resource:** `yandex_mdb_mysql_database`
+* **New Resource:** `yandex_mdb_mysql_user`
 * **New Data Source:** `yandex_mdb_postgresql_database`
 * **New Data Source:** `yandex_mdb_postgresql_user`
+* **New Data Source:** `yandex_mdb_mysql_database`
+* **New Data Source:** `yandex_mdb_mysql_user`
 
 BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14
@@ -14,6 +18,7 @@ BUG FIXES:
 
 WARNING:
 * postgresql: `database` and `user` sections for `yandex_mdb_postgresql_cluster` are now deprecated
+* mysql: `database` and `user` sections for `yandex_mdb_mysql_cluster` are now deprecated
 
 ## 0.74.0 (April 19, 2022)
 ENHANCEMENTS:

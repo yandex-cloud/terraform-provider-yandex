@@ -36,23 +36,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   }
 
-  access {
-    web_sql = true
-  }
-
-  database {
-    name = "db_name"
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
-  }
-
   host {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo.id
@@ -83,23 +66,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
   maintenance_window {
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
   }
 
   host {
@@ -143,23 +113,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
   maintenance_window {
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
   }
 
   host {
@@ -218,23 +175,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
   maintenance_window {
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
   }
 
   host {
@@ -286,23 +230,10 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
   maintenance_window {
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
   }
 
   host {
@@ -354,29 +285,8 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
   maintenance_window {
     type = "ANYTIME"
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
-
-    connection_limits {
-      max_questions_per_hour = 10
-    }
-
-    global_permissions = ["REPLICATION_SLAVE", "PROCESS"]
-
-    authentication_plugin = "CACHING_SHA2_PASSWORD"
   }
 
   host {
@@ -414,19 +324,6 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     disk_size          = 16
   }
 
-  database {
-    name = "db_name"
-  }
-
-  user {
-    name     = "user_name"
-    password = "your_password"
-    permission {
-      database_name = "db_name"
-      roles         = ["ALL"]
-    }
-  }
-
   host {
     zone      = "ru-central1-a"
     subnet_id = yandex_vpc_subnet.foo.id
@@ -457,9 +354,9 @@ The following arguments are supported:
 
 * `resources` - (Required) Resources allocated to hosts of the MySQL cluster. The structure is documented below.
 
-* `user` - (Required) A user of the MySQL cluster. The structure is documented below.
+* `user` - (Deprecated) To manage users, please switch to using a separate resource type `yandex_mdb_mysql_user`.
 
-* `database` - (Required) A database of the MySQL cluster. The structure is documented below.
+* `database` - (Deprecated) To manage databases, please switch to using a separate resource type `yandex_mdb_mysql_databases`.
 
 * `host` - (Required) A host of the MySQL cluster. The structure is documented below.
 

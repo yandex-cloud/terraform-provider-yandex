@@ -79,9 +79,10 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"database": {
-				Type:     schema.TypeSet,
-				Required: true,
-				Set:      mysqlDatabaseHash,
+				Type:       schema.TypeSet,
+				Optional:   true,
+				Set:        mysqlDatabaseHash,
+				Deprecated: useResourceInstead("database", "yandex_mdb_mysql_database"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -92,8 +93,9 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				},
 			},
 			"user": {
-				Type:     schema.TypeList,
-				Required: true,
+				Type:       schema.TypeList,
+				Optional:   true,
+				Deprecated: useResourceInstead("user", "yandex_mdb_mysql_user"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -641,35 +643,49 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	users, err := listMysqlUsers(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-	userSpecs, err := expandMySQLUsers(nil, d)
-	if err != nil {
-		return err
-	}
-	passwords := mysqlUsersPasswords(userSpecs)
+	stateUser := d.Get("user").([]interface{})
+	if len(stateUser) == 0 {
+		if err := d.Set("user", []map[string]interface{}{}); err != nil {
+			return err
+		}
+	} else {
+		users, err := listMysqlUsers(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
+		userSpecs, err := expandMySQLUsers(nil, d)
+		if err != nil {
+			return err
+		}
+		passwords := mysqlUsersPasswords(userSpecs)
 
-	fUsers, err := flattenMysqlUsers(users, passwords)
-	if err != nil {
-		return err
+		fUsers, err := flattenMysqlUsers(users, passwords)
+		if err != nil {
+			return err
+		}
+
+		sortInterfaceListByResourceData(fUsers, d, "user", "name")
+
+		if err := d.Set("user", fUsers); err != nil {
+			return err
+		}
 	}
 
-	sortInterfaceListByResourceData(fUsers, d, "user", "name")
+	stateDatabases := d.Get("database").(*schema.Set).List()
+	if len(stateDatabases) == 0 {
+		if err := d.Set("database", []map[string]interface{}{}); err != nil {
+			return err
+		}
+	} else {
+		databases, err := listMysqlDatabases(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
 
-	if err := d.Set("user", fUsers); err != nil {
-		return err
-	}
-
-	databases, err := listMysqlDatabases(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-
-	fDatabases := flattenMysqlDatabases(databases)
-	if err := d.Set("database", fDatabases); err != nil {
-		return err
+		fDatabases := flattenMysqlDatabases(databases)
+		if err := d.Set("database", fDatabases); err != nil {
+			return err
+		}
 	}
 
 	mysqlResources, err := flattenMysqlResources(cluster.GetConfig().GetResources())
@@ -753,13 +769,15 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	if d.HasChange("database") {
+	stateDatabase := d.Get("database").(*schema.Set).List()
+	if d.HasChange("database") && len(stateDatabase) > 0 {
 		if err := updateMysqlClusterDatabases(d, meta); err != nil {
 			return err
 		}
 	}
 
-	if d.HasChange("user") {
+	stateUser := d.Get("user").([]interface{})
+	if d.HasChange("user") && len(stateUser) > 0 {
 		if err := updateMysqlClusterUsers(d, meta); err != nil {
 			return err
 		}

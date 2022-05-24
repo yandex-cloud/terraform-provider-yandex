@@ -15,7 +15,8 @@ Get information about a Yandex Managed PostgreSQL user. For more information, se
 
 ```hcl
 data "yandex_mdb_postgresql_user" "foo" {
-  name = "test"
+  cluster_id = "some_cluster_id"
+  name       = "test"
 }
 
 output "permission" {
