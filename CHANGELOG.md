@@ -15,6 +15,7 @@ BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14
 * iam: return error when access bindings not applied
 * storage: fix bug of wrong handling permission error denied on reading policy
+* mdb: fix setting timeout and slowlog_max_len to 0 value in `yandex_mdb_redis_cluster`
 
 WARNING:
 * postgresql: `database` and `user` sections for `yandex_mdb_postgresql_cluster` are now deprecated

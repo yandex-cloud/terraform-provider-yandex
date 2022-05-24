@@ -110,7 +110,7 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 	}
 
 	var timeout *wrappers.Int64Value
-	if v, ok := d.GetOk("config.0.timeout"); ok {
+	if v, ok := d.GetOkExists("config.0.timeout"); ok {
 		timeout = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
@@ -125,7 +125,7 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 	}
 
 	var slowlogMaxLen *wrappers.Int64Value
-	if v, ok := d.GetOk("config.0.slowlog_max_len"); ok {
+	if v, ok := d.GetOkExists("config.0.slowlog_max_len"); ok {
 		slowlogMaxLen = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
