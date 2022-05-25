@@ -441,7 +441,6 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
-							ForceNew: true,
 						},
 					},
 				},
@@ -684,9 +683,8 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	folderPropName := "folder_id"
 	if d.HasChange(folderPropName) {
 		if !d.Get("allow_recreate").(bool) {
-			if !d.Get("allow_stopping_for_update").(bool) {
-				return fmt.Errorf("Moving operation requires instance to be stopped. " +
-					"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
+			if err := ensureAllowStoppingForUpdate(d, folderPropName); err != nil {
+				return err
 			}
 
 			if instance.Status != compute.Instance_STOPPED {
@@ -808,29 +806,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 		err := makeInstanceUpdateRequest(req, d, meta)
 		if err != nil {
-			return err
-		}
-
-	}
-
-	placementPolicyPropName := "placement_policy"
-	if d.HasChange(placementPolicyPropName) {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the `placement_policy` on an instance requires stopping it. " +
-				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
-		}
-		if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
-			return err
-		}
-
-		req := prepareUpdateInstanceRequestOnPlacementChange(d)
-
-		err := makeInstanceUpdateRequest(req, d, meta)
-		if err != nil {
-			return err
-		}
-
-		if err := makeInstanceActionRequest(instanceActionStart, d, meta); err != nil {
 			return err
 		}
 
@@ -1054,12 +1029,20 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	resourcesPropName := "resources"
 	platformIDPropName := "platform_id"
 	networkAccelerationTypePropName := "network_acceleration_type"
-	if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) || needUpdateInterfacesOnStoppedInstance {
-		if !d.Get("allow_stopping_for_update").(bool) {
-			return fmt.Errorf("Changing the `secondary_disk`, `resources`, `platform_id`, `network_acceleration_type` or `network_interfaces` on an instance requires stopping it. " +
-				"To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
+	schedulingPolicyName := "scheduling_policy"
+	placementPolicyPropName := "placement_policy"
+	properties := []string{
+		resourcesPropName,
+		platformIDPropName,
+		networkAccelerationTypePropName,
+		schedulingPolicyName,
+		placementPolicyPropName,
+	}
+	if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) ||
+		needUpdateInterfacesOnStoppedInstance || d.HasChange(schedulingPolicyName) || d.HasChange(placementPolicyPropName) {
+		if err := ensureAllowStoppingForUpdate(d, properties...); err != nil {
+			return err
 		}
-
 		if err := makeInstanceActionRequest(instanceActionStop, d, meta); err != nil {
 			return err
 		}
@@ -1067,14 +1050,14 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 		instanceStoppedAt := time.Now()
 
 		// update platform, resources and network_settings in one request
-		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) {
+		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) ||
+			d.HasChange(placementPolicyPropName) || d.HasChange(schedulingPolicyName) {
 			req := &compute.UpdateInstanceRequest{
 				InstanceId: d.Id(),
 				UpdateMask: &field_mask.FieldMask{
 					Paths: []string{},
 				},
 			}
-			onDone := []func(){}
 
 			if d.HasChange(resourcesPropName) {
 				spec, err := expandInstanceResourcesSpec(d)
@@ -1084,19 +1067,11 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 				req.ResourcesSpec = spec
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "resources_spec")
-
-				onDone = append(onDone, func() {
-
-				})
 			}
 
 			if d.HasChange(platformIDPropName) {
 				req.PlatformId = d.Get(platformIDPropName).(string)
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, platformIDPropName)
-
-				onDone = append(onDone, func() {
-
-				})
 			}
 
 			if d.HasChange(networkAccelerationTypePropName) {
@@ -1107,19 +1082,27 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 				req.NetworkSettings = networkSettings
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "network_settings")
+			}
 
-				onDone = append(onDone, func() {
+			if d.HasChange(schedulingPolicyName) {
+				schedulingPolicy, err := expandInstanceSchedulingPolicy(d)
+				if err != nil {
+					return err
+				}
 
-				})
+				req.SchedulingPolicy = schedulingPolicy
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "scheduling_policy.preemptible")
+			}
+
+			if d.HasChange(placementPolicyPropName) {
+				placementPolicy, paths := preparePlacementPolicyForUpdateRequest(d)
+				req.PlacementPolicy = placementPolicy
+				req.UpdateMask.Paths = append(req.UpdateMask.Paths, paths...)
 			}
 
 			err = makeInstanceUpdateRequest(req, d, meta)
 			if err != nil {
 				return err
-			}
-
-			for _, f := range onDone {
-				f()
 			}
 		}
 
@@ -1526,9 +1509,9 @@ func generateHostAffinityRuleOperators() []string {
 	return operators
 }
 
-func prepareUpdateInstanceRequestOnPlacementChange(d *schema.ResourceData) *compute.UpdateInstanceRequest {
-	var paths []string
+func preparePlacementPolicyForUpdateRequest(d *schema.ResourceData) (*compute.PlacementPolicy, []string) {
 	var placementPolicy compute.PlacementPolicy
+	var paths []string
 	if d.HasChange("placement_policy.0.placement_group_id") {
 		placementPolicy.PlacementGroupId = d.Get("placement_policy.0.placement_group_id").(string)
 		paths = append(paths, "placement_policy.placement_group_id")
@@ -1539,12 +1522,13 @@ func prepareUpdateInstanceRequestOnPlacementChange(d *schema.ResourceData) *comp
 		placementPolicy.HostAffinityRules = expandHostAffinityRulesSpec(rules)
 		paths = append(paths, "placement_policy.host_affinity_rules")
 	}
+	return &placementPolicy, paths
+}
 
-	return &compute.UpdateInstanceRequest{
-		InstanceId:      d.Id(),
-		PlacementPolicy: &placementPolicy,
-		UpdateMask: &field_mask.FieldMask{
-			Paths: paths,
-		},
+func ensureAllowStoppingForUpdate(d *schema.ResourceData, propNames ...string) error {
+	message := fmt.Sprintf("Changing the %s in an instance requires stopping it. ", strings.Join(propNames, ", "))
+	if !d.Get("allow_stopping_for_update").(bool) {
+		return fmt.Errorf(message + "To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 	}
+	return nil
 }

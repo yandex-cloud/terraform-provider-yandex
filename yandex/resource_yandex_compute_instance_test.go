@@ -14,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -840,12 +838,43 @@ func TestAccComputeInstance_preemptible(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_preemptible(instanceName),
+				Config: testAccComputeInstance_preemptible(instanceName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceIsPreemptible(&instance, true),
 					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstance_update_scheduling_policy(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-scheduling-policy-update-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_preemptible(instanceName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceIsPreemptible(&instance, false),
+				),
+			},
+			{
+				Config: testAccComputeInstance_preemptible(instanceName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttrPtr("yandex_compute_instance.foobar", "id", &instance.Id),
+					testAccCheckComputeInstanceIsPreemptible(&instance, true),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1038,7 +1067,8 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 	cc := []struct {
 		name            string
 		placementPolicy []interface{}
-		expected        *compute.UpdateInstanceRequest
+		expectedPolicy  *compute.PlacementPolicy
+		expectedPaths   []string
 	}{
 		{
 			name: "update host affinity rules only",
@@ -1055,18 +1085,13 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 					},
 				},
 			},
-			expected: &compute.UpdateInstanceRequest{
-				InstanceId: rawInstanceID,
-				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{"placement_policy.host_affinity_rules"},
-				},
-				PlacementPolicy: &compute.PlacementPolicy{
-					HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
-						{
-							Key:    "yc.hostGroupId",
-							Op:     compute.PlacementPolicy_HostAffinityRule_IN,
-							Values: []string{"test-hostgroup-id"},
-						},
+			expectedPaths: []string{"placement_policy.host_affinity_rules"},
+			expectedPolicy: &compute.PlacementPolicy{
+				HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
+					{
+						Key:    "yc.hostGroupId",
+						Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+						Values: []string{"test-hostgroup-id"},
 					},
 				},
 			},
@@ -1078,14 +1103,9 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 					"placement_group_id": "placement-group-id",
 				},
 			},
-			expected: &compute.UpdateInstanceRequest{
-				InstanceId: rawInstanceID,
-				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{"placement_policy.placement_group_id"},
-				},
-				PlacementPolicy: &compute.PlacementPolicy{
-					PlacementGroupId: "placement-group-id",
-				},
+			expectedPaths: []string{"placement_policy.placement_group_id"},
+			expectedPolicy: &compute.PlacementPolicy{
+				PlacementGroupId: "placement-group-id",
 			},
 		},
 		{
@@ -1104,22 +1124,17 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 					},
 				},
 			},
-			expected: &compute.UpdateInstanceRequest{
-				InstanceId: rawInstanceID,
-				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{
-						"placement_policy.placement_group_id",
-						"placement_policy.host_affinity_rules",
-					},
-				},
-				PlacementPolicy: &compute.PlacementPolicy{
-					PlacementGroupId: "placement-group-id",
-					HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
-						{
-							Key:    "yc.hostGroupId",
-							Op:     compute.PlacementPolicy_HostAffinityRule_IN,
-							Values: []string{"test-hostgroup-id"},
-						},
+			expectedPaths: []string{
+				"placement_policy.placement_group_id",
+				"placement_policy.host_affinity_rules",
+			},
+			expectedPolicy: &compute.PlacementPolicy{
+				PlacementGroupId: "placement-group-id",
+				HostAffinityRules: []*compute.PlacementPolicy_HostAffinityRule{
+					{
+						Key:    "yc.hostGroupId",
+						Op:     compute.PlacementPolicy_HostAffinityRule_IN,
+						Values: []string{"test-hostgroup-id"},
 					},
 				},
 			},
@@ -1131,8 +1146,9 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 			resourceData := instanceResourceWithPlacement(c.placementPolicy)
 			resourceData.SetId(rawInstanceID)
 
-			req := prepareUpdateInstanceRequestOnPlacementChange(resourceData)
-			assert.Equal(t, c.expected, req)
+			policy, paths := preparePlacementPolicyForUpdateRequest(resourceData)
+			assert.Equal(t, c.expectedPolicy, policy)
+			assert.Equal(t, c.expectedPaths, paths)
 		})
 	}
 }
@@ -3380,7 +3396,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance)
 }
 
-func testAccComputeInstance_preemptible(instance string) string {
+func testAccComputeInstance_preemptible(instance string, preemptible bool) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
@@ -3391,6 +3407,8 @@ resource "yandex_compute_instance" "foobar" {
   description = "testAccComputeInstance_basic"
   zone        = "ru-central1-a"
   platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
 
   resources {
     cores  = 2
@@ -3409,7 +3427,7 @@ resource "yandex_compute_instance" "foobar" {
   }
 
   scheduling_policy {
-    preemptible = true
+    preemptible = %t
   }
 }
 
@@ -3420,7 +3438,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
-`, instance)
+`, instance, preemptible)
 }
 
 func testAccComputeInstance_service_account(instance, sa string) string {
