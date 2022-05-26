@@ -34,6 +34,14 @@ func getS3Client(d *schema.ResourceData, c *Config) (*s3.S3, error) {
 	return getS3ClientByKeys(ak, sk, c)
 }
 
+type s3basicError string
+
+func (err s3basicError) Error() string {
+	return string(err)
+}
+
+const errNoAccessOrSecretKey s3basicError = "both access and secret keys should be specified"
+
 func getS3Keys(b *schema.ResourceData) (accessKey, secretKey string, err error) {
 	if b == nil {
 		return "", "", nil
@@ -50,17 +58,17 @@ func getS3Keys(b *schema.ResourceData) (accessKey, secretKey string, err error) 
 		secretKey = v.(string)
 	}
 
-	if hasAccessKey != hasSecretKey {
-		err = fmt.Errorf("both access and secret keys should be specified")
-		return
+	switch {
+	case hasAccessKey != hasSecretKey:
+		err = errNoAccessOrSecretKey
+	case hasAccessKey && (accessKey == "" || secretKey == ""):
+		err = errNoAccessOrSecretKey
+	}
+	if err != nil {
+		return "", "", err
 	}
 
-	if hasAccessKey && (accessKey == "" || secretKey == "") {
-		err = fmt.Errorf("access and secret keys should not be empty")
-		return
-	}
-
-	return
+	return accessKey, secretKey, nil
 }
 
 func newS3Client(url, accessKey, secretKey string) (*s3.S3, error) {

@@ -4,6 +4,7 @@ package yandex
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -527,6 +528,139 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_MaxSize(t *testing.T) {
+	const (
+		resourceName = "yandex_storage_bucket.test"
+		maxSize      = 1024
+	)
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketMaxSize(rInt, maxSize),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "max_size", strconv.Itoa(maxSize)),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_HTTPSConfig(t *testing.T) {
+	const resourceName = "yandex_storage_bucket.test"
+
+	externalCertificateID := os.Getenv("STORAGE_TEST_CERTIFICATE_ID")
+	if externalCertificateID == "" {
+		t.Logf("STORAGE_TEST_CERTIFICATE_ID not provided for test")
+		t.Skip()
+	}
+
+	bucketName := os.Getenv("STORAGE_CERTIFICATE_BUCKET_NAME")
+	if bucketName == "" {
+		t.Logf("STORAGE_CERTIFICATE_BUCKET_NAME not provided for test")
+		t.Skip()
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketHTTPSConfig(bucketName, externalCertificateID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "https.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "https.0.certificate_id", externalCertificateID),
+				),
+			}, {
+				Config: testAccStorageBucketWithCustomName(bucketName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "https.#", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_AnonymousAccessFlags(t *testing.T) {
+	const resourceName = "yandex_storage_bucket.test"
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketAnonymousAccessFlags(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.0.read", "true"),
+					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.0.list", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_StorageClass(t *testing.T) {
+	const resourceName = "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketDefaultStorageClassCold(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "default_storage_class", "COLD"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_FolderID(t *testing.T) {
+	const resourceName = "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+	folderID := testFolderID
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketWithFolderID(rInt, folderID),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "folder_id", folderID),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageBucket_cors_delete(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
@@ -610,42 +744,6 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", ""),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccStorageBucket_UpdateGrant(t *testing.T) {
-	resourceName := "yandex_storage_bucket.test"
-	userID := getExampleUserID2()
-	ri := acctest.RandInt()
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckStorageBucketDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccStorageBucketConfigWithGrants(ri, userID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "grant.#", "1"),
-					testAccCheckStorageBucketUpdateGrantSingle(resourceName, userID),
-				),
-			},
-			{
-				Config: testAccStorageBucketConfigWithGrantsUpdate(ri, userID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "grant.#", "2"),
-					testAccCheckStorageBucketUpdateGrantMulti(resourceName, userID),
-				),
-			},
-			{
-				Config: testAccStorageBucketBasic(ri),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "grant.#", "0"),
 				),
 			},
 		},
@@ -1115,451 +1213,506 @@ func testAccWebsiteEndpoint(randInt int) string {
 	return fmt.Sprintf("tf-test-bucket-%d.%s", randInt, WebsiteDomainURL())
 }
 
-func testAccStorageBucketConfig(randInt int) string {
-	return fmt.Sprintf(`
+func newBucketConfigBuilder(randInt int) testAccStorageBucketConfigBuilder {
+	const (
+		defaultStorageClass  = "STANDARD"
+		defaultAnonymousRead = false
+		defaultAnonymousList = false
+	)
+	return testAccStorageBucketConfigBuilder{
+		bucketRandomNumber: randInt,
+		storageClass:       defaultStorageClass,
+		anonymousRead:      defaultAnonymousRead,
+		anonymousList:      defaultAnonymousList,
+	}
+}
+
+const (
+	testAccStorageBucketConfigBuilderRoleEditor = "editor"
+	testAccStorageBucketConfigBuilderRoleAdmin  = "admin"
+)
+
+type testAccStorageBucketConfigBuilder struct {
+	bucketRandomNumber int
+	customBucketName   string
+
+	beforeBucket     []string
+	bucketStatements []string
+	afterBucket      []string
+	role             string
+
+	storageClass  string
+	anonymousRead bool
+	anonymousList bool
+}
+
+func (b testAccStorageBucketConfigBuilder) withCustomName(name string) testAccStorageBucketConfigBuilder {
+	b.customBucketName = name
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) withStorageClass(class string) testAccStorageBucketConfigBuilder {
+	b.storageClass = class
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(read, list bool) testAccStorageBucketConfigBuilder {
+	b.anonymousRead = read
+	b.anonymousList = list
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) addStatement(statement string) testAccStorageBucketConfigBuilder {
+	b.bucketStatements = append(b.bucketStatements, "\t"+statement)
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) before(statement string) testAccStorageBucketConfigBuilder {
+	b.beforeBucket = append(b.beforeBucket, statement)
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) asEditor() testAccStorageBucketConfigBuilder {
+	b.role = testAccStorageBucketConfigBuilderRoleEditor
+
+	return b
+}
+
+func (b testAccStorageBucketConfigBuilder) asAdmin() testAccStorageBucketConfigBuilder {
+	b.role = testAccStorageBucketConfigBuilderRoleAdmin
+
+	return b
+}
+
+/*
+render creates new bucket config. For visual representation, note the following
+example of how it might look after calling this method:
+
 resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
+	bucket = "tf-test-bucket-%d"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	default_storage_class = "STANDARD"
+
+	anonymous_access_flags {
+		list = false
+		read = false
+	}
+
+	{ bucket statements on each line }
 }
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+
+{ after bucket statements on each line }
+
+{ editor / admin IAM config if set }
+*/
+func (b testAccStorageBucketConfigBuilder) render() string {
+	const (
+		bucketNameTemplate = "tf-test-bucket-%d"
+		baseTemplate       = `resource "yandex_storage_bucket" "test" {
+	bucket = "%s"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key`
+		extendedTemplate = `
+	default_storage_class = %s
+
+	anonymous_access_flags {
+		list = %t
+		read = %t
+	}`
+	)
+
+	var bucketName string
+	if b.customBucketName != "" {
+		bucketName = b.customBucketName
+	} else {
+		bucketName = fmt.Sprintf(bucketNameTemplate, b.bucketRandomNumber)
+	}
+
+	var out strings.Builder
+	if len(b.beforeBucket) > 0 {
+		out.WriteString(strings.Join(b.beforeBucket, "\n"))
+		out.WriteString("\n")
+	}
+
+	out.WriteString(fmt.Sprintf(baseTemplate, bucketName))
+	out.WriteString("\n")
+
+	out.WriteString(fmt.Sprintf(
+		extendedTemplate,
+		strconv.Quote(b.storageClass),
+		b.anonymousList,
+		b.anonymousRead,
+	))
+	out.WriteString("\n")
+
+	if len(b.bucketStatements) > 0 {
+		out.WriteString(strings.Join(b.bucketStatements, "\n"))
+		out.WriteString("\n")
+	}
+
+	out.WriteString("}\n")
+
+	if len(b.afterBucket) > 0 {
+		out.WriteString(strings.Join(b.afterBucket, "\n"))
+		out.WriteString("\n")
+	}
+
+	switch b.role {
+	case testAccStorageBucketConfigBuilderRoleEditor:
+		out.WriteString(testAccCommonIamDependenciesEditorConfig(b.bucketRandomNumber))
+	case testAccStorageBucketConfigBuilderRoleAdmin:
+		out.WriteString(testAccCommonIamDependenciesAdminConfig(b.bucketRandomNumber))
+	}
+
+	return out.String()
+}
+
+func testAccStorageBucketConfig(randInt int) string {
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketAclPreConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
+	const acl = `acl = "public-read"`
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	acl = "public-read"
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketAclPostConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
+	const acl = `acl = "private"`
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	acl = "private"
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketWebsiteConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	website {
+	const website = `website {
 		index_document = "index.html"
-	}
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(website).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketWebsiteConfigWithError(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	website {
+	const website = `website {
 		index_document = "index.html"
 		error_document = "error.html"
-	}
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(website).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketWebsiteConfigWithRedirect(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  bucket = "tf-test-bucket-%[1]d"
-  acl    = "public-read"
+	const website = `website {
+		redirect_all_requests_to = "http://hashicorp.com?my=query"
+	}`
 
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  website {
-    redirect_all_requests_to = "http://hashicorp.com?my=query"
-  }
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(website).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketWebsiteConfigWithHttpsRedirect(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  bucket = "tf-test-bucket-%[1]d"
-  acl    = "public-read"
+	const website = `website {
+		redirect_all_requests_to = "https://hashicorp.com?my=query"
+	}`
 
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  website {
-    redirect_all_requests_to = "https://hashicorp.com?my=query"
-  }
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(website).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketWebsiteConfigWithRoutingRules(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  bucket = "tf-test-bucket-%[1]d"
-  acl    = "public-read"
+	const website = `website {
+		index_document = "index.html"
+		error_document = "error.html"
 
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+		routing_rules = <<EOF
+		[
+			{
+				"Condition": {
+					"KeyPrefixEquals": "docs/"
+				},
+				"Redirect": {
+					"Protocol": "http",
+					"HttpRedirectCode": "301",
+					"ReplaceKeyPrefixWith": "documents/"
+				}
+			}
+		]
+		EOF
+	}`
 
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
-
-    routing_rules = <<EOF
-[
-  {
-    "Condition": {
-      "KeyPrefixEquals": "docs/"
-    },
-    "Redirect": {
-      "Protocol": "http",
-      "HttpRedirectCode": "301",
-      "ReplaceKeyPrefixWith": "documents/"
-    }
-  }
-]
-EOF
-
-  }
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(website).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketDestroyedConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketConfigWithVersioning(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-
-  	versioning {
-    		enabled = true
-  	}
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+	const versioning = `versioning {
+		enabled = true
+	}`
+	return newBucketConfigBuilder(randInt).
+		addStatement(versioning).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketConfigWithDisableVersioning(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  	bucket = "tf-test-bucket-%[1]d"
+	const versioning = `versioning {
+		enabled = false
+	}`
 
-        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  	versioning {
-   	 	enabled = false
-  	}
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(versioning).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketConfigWithCORS(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	cors_rule {
+	const cors = `cors_rule {
 		allowed_headers = ["*"]
 		allowed_methods = ["PUT","POST"]
 		allowed_origins = ["https://www.example.com"]
 		expose_headers  = ["x-amz-server-side-encryption","ETag"]
 		max_age_seconds = 3000
-	}
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(cors).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketConfigWithCORSUpdated(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	cors_rule {
+	const cors = `cors_rule {
 		allowed_headers = ["*"]
 		allowed_methods = ["GET"]
 		allowed_origins = ["https://www.example.ru"]
 		expose_headers  = ["x-amz-server-side-encryption","ETag"]
 		max_age_seconds = 2000
-	}
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(cors).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketConfigWithCORSEmptyOrigin(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	cors_rule {
+	const cors = `cors_rule {
 		allowed_headers = ["*"]
 		allowed_methods = ["PUT","POST"]
 		allowed_origins = [""]
 		expose_headers = ["x-amz-server-side-encryption","ETag"]
 		max_age_seconds = 3000
-	}
-}
-`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(cors).
+		asEditor().
+		render()
 }
 
 func testAccStorageBucketConfigWithNamePrefix(randInt int) string {
-	return `
-resource "yandex_storage_bucket" "test" {
+	// do not use render here because it use prefix here.
+	return `resource "yandex_storage_bucket" "test" {
 	bucket_prefix = "tf-test-"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	default_storage_class = "STANDARD"
+
+	anonymous_access_flags {
+		list = false
+		read = false
+	}
 }
 ` + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
 func testAccStorageBucketConfigWithGeneratedName(randInt int) string {
-	return `
-resource "yandex_storage_bucket" "test" {
+	// do not use render here because name will be generated.
+	return `resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	default_storage_class = "STANDARD"
+
+	anonymous_access_flags {
+		list = false
+		read = false
+	}
 }
 ` + testAccCommonIamDependenciesEditorConfig(randInt)
 }
 
-func testAccStorageBucketConfigWithGrants(randInt int, userID string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-  grant {
-    id          = "%s"
-    type        = "CanonicalUser"
-    permissions = ["WRITE", "READ"]
-  }
-}
-`, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketConfigWithGrantsUpdate(randInt int, userID string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-  grant {
-    id          = "%s"
-    type        = "CanonicalUser"
-    permissions = ["READ"]
-  }
-  grant {
-    type        = "Group"
-    permissions = ["READ"]
-    uri         = "http://acs.amazonaws.com/groups/global/AllUsers"
-  }
-}
-`, randInt, userID) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
 func testAccStorageBucketConfigWithLogging(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "log_bucket" {
-  	bucket = "tf-test-bucket-%[1]d-log"
-
-        access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-        secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%[1]d"
-  	
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  	acl    = "private"
-
-	logging {
+	const stmt = `logging {
     		target_bucket = yandex_storage_bucket.log_bucket.id
 		target_prefix = "log/"
-  	}
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
+  	}`
 
-func testAccStorageBucketConfigWithLifecycle(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+	before := fmt.Sprintf(`resource "yandex_storage_bucket" "log_bucket" {
+  	bucket = "tf-test-bucket-%[1]d-log"
 
-  bucket = "tf-test-bucket-%d"
-  acl    = "private"
-
-  lifecycle_rule {
-    id      = "id1"
-    prefix  = "path1/"
-    enabled = true
-
-    expiration {
-      days = 365
-    }
-  }
-
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketConfigWithVersioningLifecycle(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-  acl    = "private"
-
-  lifecycle_rule {
-    id      = "id1"
-    prefix  = "path1/"
-    enabled = true
-
-    noncurrent_version_expiration {
-      days = 365
-    }
-
-  }
-
-  lifecycle_rule {
-    id      = "id2"
-    prefix  = "path2/"
-    enabled = false
-
-    noncurrent_version_expiration {
-      days = 365
-    }
-  }
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-
-  lifecycle_rule {
-    enabled = true
-    id      = "id1"
-
-    expiration {}
-  }
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 7
-    enabled                                = true
-    id                                     = "id1"
-  }
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_kms_symmetric_key" "key-a" {
-  name              = "%s"
-  description       = "description for key-a"
-  default_algorithm = "AES_128"
-  rotation_period   = "24h"
-
-  labels = {
-    tf-label    = "tf-label-value-a"
-    empty-label = ""
-  }
-}
-
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-  server_side_encryption_configuration {
-    rule {
-  	  apply_server_side_encryption_by_default {
-	    kms_master_key_id = yandex_kms_symmetric_key.key-a.id
-	    sse_algorithm     = "aws:kms"
-  	  }
-    }
-  }
-}
-`, keyName, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
-}
-
-func testAccStorageBucketBasic(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	bucket = "tf-test-bucket-%d"
+	default_storage_class = "STANDARD"
+
+	anonymous_access_flags {
+		list = false
+		read = false
+	}
+}`, randInt)
+
+	return newBucketConfigBuilder(randInt).
+		before(before).
+		addStatement(stmt).
+		asAdmin().
+		render()
 }
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+
+func testAccStorageBucketConfigWithLifecycle(randInt int) string {
+	const acl = `acl = "private"`
+	const stmt = `lifecycle_rule {
+		id      = "id1"
+		prefix  = "path1/"
+		enabled = true
+
+		expiration {
+			days = 365
+		}
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		addStatement(stmt).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketConfigWithVersioningLifecycle(randInt int) string {
+	const acl = `acl = "private"`
+	const lifecycle = `lifecycle_rule {
+		id      = "id1"
+		prefix  = "path1/"
+		enabled = true
+
+		noncurrent_version_expiration {
+			days = 365
+		}
+	}
+
+	lifecycle_rule {
+		id      = "id2"
+		prefix  = "path2/"
+		enabled = false
+
+		noncurrent_version_expiration {
+			days = 365
+		}
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		addStatement(lifecycle).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketConfigLifecycleRuleExpirationEmptyConfigurationBlock(randInt int) string {
+	const stmt = `lifecycle_rule {
+	enabled = true
+	id      = "id1"
+
+	expiration {}
+}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(stmt).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(randInt int) string {
+	const stmt = `lifecycle_rule {
+	abort_incomplete_multipart_upload_days = 7
+	enabled                                = true
+	id                                     = "id1"
+}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(stmt).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
+	const sse = `server_side_encryption_configuration {
+		rule {
+			apply_server_side_encryption_by_default {
+				kms_master_key_id = yandex_kms_symmetric_key.key-a.id
+				sse_algorithm     = "aws:kms"
+			}
+		}
+	}`
+
+	before := fmt.Sprintf(`resource "yandex_kms_symmetric_key" "key-a" {
+	name              = "%s"
+	description       = "description for key-a"
+	default_algorithm = "AES_128"
+	rotation_period   = "24h"
+
+	labels = {
+		tf-label    = "tf-label-value-a"
+		empty-label = ""
+	}
+}`, keyName)
+
+	return newBucketConfigBuilder(randInt).
+		before(before).
+		addStatement(sse).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketBasic(randInt int) string {
+	return newBucketConfigBuilder(randInt).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketPolicy(randInt int) string {
@@ -1591,63 +1744,73 @@ func testAccStorageBucketPolicy(randInt int) string {
 }
 
 func testAccStorageBucketConfigWithPolicy(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-  bucket = "tf-test-bucket-%d"
-  acl    = "public-read"
-  policy = %[2]s
-}
-`, randInt, strconv.Quote(testAccStorageBucketPolicy(randInt))) + testAccCommonIamDependenciesAdminConfig(randInt)
+	const acl = `acl = "public-read"`
+	policy := "policy = " + strconv.Quote(testAccStorageBucketPolicy(randInt))
+	return newBucketConfigBuilder(randInt).
+		addStatement(policy).
+		addStatement(acl).
+		asAdmin().
+		render()
 }
 
 func testAccStorageBucketConfigWithEmptyPolicy(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+	const acl = `acl = "public-read"`
 
-  bucket = "tf-test-bucket-%d"
-  acl    = "public-read"
-}
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+	return newBucketConfigBuilder(randInt).
+		addStatement(acl).
+		asAdmin().
+		render()
 }
 
-func testAccCheckStorageBucketUpdateGrantSingle(resourceName string, id string) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for _, t := range []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "2"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "READ"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.1", "WRITE"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.type", "CanonicalUser"),
-		} {
-			if err := t(s); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
+func testAccStorageBucketMaxSize(randInt int, maxSize int) string {
+	maxSizeStmt := fmt.Sprintf(`max_size = %d`, maxSize)
+
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		addStatement(maxSizeStmt).
+		render()
 }
 
-func testAccCheckStorageBucketUpdateGrantMulti(resourceName string, id string) func(s *terraform.State) error {
-	return func(s *terraform.State) error {
-		for _, t := range []resource.TestCheckFunc{
-			resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.#", "1"),
-			resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.0", "READ"),
-			resource.TestCheckResourceAttr(resourceName, "grant.1.type", "CanonicalUser"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "1"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "READ"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.type", "Group"),
-			resource.TestCheckResourceAttr(resourceName, "grant.0.uri", "http://acs.amazonaws.com/groups/global/AllUsers"),
-		} {
-			if err := t(s); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
+func testAccStorageBucketWithCustomName(name string) string {
+	return newBucketConfigBuilder(0).
+		withCustomName(name).
+		asEditor().
+		render()
+}
+
+func testAccStorageBucketHTTPSConfig(bucketName, certID string) string {
+	httpsStmt := fmt.Sprintf(`https {
+		certificate_id = "%s"
+	}`, certID)
+
+	return newBucketConfigBuilder(0).
+		withCustomName(bucketName).
+		asEditor().
+		addStatement(httpsStmt).
+		render()
+}
+
+func testAccStorageBucketDefaultStorageClassCold(randInt int) string {
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		withStorageClass("COLD").
+		render()
+}
+
+func testAccStorageBucketWithFolderID(randInt int, folderID string) string {
+	folderStmt := fmt.Sprintf("folder_id = %q", folderID)
+
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		addStatement(folderStmt).
+		render()
+}
+
+func testAccStorageBucketAnonymousAccessFlags(randInt int) string {
+	return newBucketConfigBuilder(randInt).
+		asEditor().
+		withAnonymousAccessFlags(true, true).
+		render()
 }
 
 func TestAccStorageBucket_Logging(t *testing.T) {

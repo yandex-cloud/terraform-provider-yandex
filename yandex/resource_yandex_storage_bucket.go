@@ -11,7 +11,13 @@ import (
 	"strings"
 	"time"
 
+	storagepb "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -31,7 +37,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 		Delete: resourceYandexStorageBucketDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		SchemaVersion: 0,
@@ -361,6 +367,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+
 			"server_side_encryption_configuration": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -399,8 +406,182 @@ func resourceYandexStorageBucket() *schema.Resource {
 					},
 				},
 			},
+
+			// These fields use extended API and requires IAM token
+			// to be set in order to operate.
+			"default_storage_class": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
+			"max_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
+			"anonymous_access_flags": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Set:      storageBucketS3SetFunc("list", "read"),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"list": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"read": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+
+			"https": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				MaxItems: 1,
+				Set:      storageBucketS3SetFunc("certificate_id"),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"certificate_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interface{}) error {
+	const (
+		aclOwnerFullControl = "bucket-owner-full-control"
+		aclPublicRead       = "public-read"
+		aclPublicReadWrite  = "public-read-write"
+		aclAuthRead         = "authenticated-read"
+		aclPrivate          = "private"
+	)
+
+	mapACL := func(acl string) (*storagepb.ACL, error) {
+		baseACL := &storagepb.ACL{}
+		switch acl {
+		case aclPublicRead:
+			baseACL.Grants = []*storagepb.ACL_Grant{{
+				Permission: storagepb.ACL_Grant_PERMISSION_READ,
+				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
+			}}
+		case aclPublicReadWrite:
+			baseACL.Grants = []*storagepb.ACL_Grant{{
+				Permission: storagepb.ACL_Grant_PERMISSION_READ,
+				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
+			}, {
+				Permission: storagepb.ACL_Grant_PERMISSION_READ,
+				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
+			}}
+		case aclAuthRead:
+			baseACL.Grants = []*storagepb.ACL_Grant{{
+				Permission: storagepb.ACL_Grant_PERMISSION_READ,
+				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_AUTHENTICATED_USERS,
+			}}
+		case aclPrivate,
+			aclOwnerFullControl:
+			baseACL.Grants = []*storagepb.ACL_Grant{}
+		default:
+			return nil, fmt.Errorf("predefined acl not valid: %s, allowed values are: %v", acl, []string{
+				aclOwnerFullControl, aclPublicRead, aclPublicReadWrite, aclAuthRead, aclPrivate,
+			})
+		}
+
+		return baseACL, nil
+	}
+
+	bucket := d.Get("bucket").(string)
+	folderID := d.Get("folder_id").(string)
+	acl := d.Get("acl").(string)
+
+	request := &storagepb.CreateBucketRequest{
+		Name:     bucket,
+		FolderId: folderID,
+	}
+
+	var err error
+	request.Acl, err = mapACL(acl)
+	if err != nil {
+		return fmt.Errorf("mapping acl: %w", err)
+	}
+
+	config := meta.(*Config)
+	ctx := config.Context()
+
+	log.Printf("[INFO] Creating Storage S3 bucket using sdk: %s", protojson.Format(request))
+
+	bucketAPI := config.sdk.StorageAPI().Bucket()
+	op, err := bucketAPI.Create(ctx, request)
+	err = waitOperation(ctx, config, op, err)
+	if err != nil {
+		log.Printf("[ERROR] Unable to create S3 bucket using sdk: %v", err)
+
+		return err
+	}
+
+	responseBucket := &storagepb.Bucket{}
+	err = op.GetResponse().UnmarshalTo(responseBucket)
+	if err != nil {
+		log.Printf("[ERROR] Returned message is not a bucket: %v", err)
+
+		return err
+	}
+
+	log.Printf("[INFO] Created Storage S3 bucket: %s", protojson.Format(responseBucket))
+
+	return nil
+}
+
+func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta interface{}) error {
+	bucket := d.Get("bucket").(string)
+	acl := d.Get("acl").(string)
+
+	config := meta.(*Config)
+	ctx := config.Context()
+
+	s3Client, err := getS3Client(d, config)
+	if err != nil {
+		return fmt.Errorf("error getting storage client: %s", err)
+	}
+
+	return resource.RetryContext(ctx, 5*time.Minute, func() *resource.RetryError {
+		log.Printf("[INFO] Trying to create new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
+
+		_, err := s3Client.CreateBucket(&s3.CreateBucketInput{
+			Bucket: aws.String(bucket),
+			ACL:    aws.String(acl),
+		})
+		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "OperationAborted" ||
+			awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
+			log.Printf("[WARN] Got an error while trying to create Storage S3 Bucket %s: %s", bucket, err)
+			return resource.RetryableError(
+				fmt.Errorf("error creating Storage S3 Bucket %s, retrying: %s", bucket, err))
+		}
+		if err != nil {
+			log.Printf("[ERROR] Got an error while trying to create Storage Bucket %s: %s", bucket, err)
+			return resource.NonRetryableError(err)
+		}
+
+		log.Printf("[INFO] Created new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
+		return nil
+	})
 }
 
 func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
@@ -419,34 +600,15 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	d.Set("bucket", bucket)
-	acl := d.Get("acl").(string)
 
-	config := meta.(*Config)
-	s3Client, err := getS3Client(d, config)
-	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+	var err error
+	if folderID, ok := d.Get("folder_id").(string); ok && folderID != "" {
+		err = resourceYandexStorageBucketCreateBySDK(d, meta)
+	} else {
+		err = resourceYandexStorageBucketCreateByS3Client(d, meta)
 	}
-
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		log.Printf("[DEBUG] Trying to create new Storage Bucket: %q, ACL: %q", bucket, acl)
-		_, err := s3Client.CreateBucket(&s3.CreateBucketInput{
-			Bucket: aws.String(bucket),
-			ACL:    aws.String(acl),
-		})
-		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "OperationAborted" ||
-			awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-			log.Printf("[WARN] Got an error while trying to create Storage Bucket %s: %s", bucket, err)
-			return resource.RetryableError(
-				fmt.Errorf("error creating Storage Bucket %s, retrying: %s", bucket, err))
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
-	})
-
 	if err != nil {
-		return fmt.Errorf("error creating Storage Bucket: %s", err)
+		return fmt.Errorf("error creating Storage S3 Bucket: %s", err)
 	}
 
 	d.SetId(bucket)
@@ -455,70 +617,233 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
+	err := resourceYandexStorageBucketUpdateBasic(d, meta)
+	if err != nil {
+		return err
+	}
+
+	err = resourceYandexStorageBucketUpdateExtended(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return resourceYandexStorageBucketRead(d, meta)
+}
+
+func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	s3Client, err := getS3Client(d, config)
 	if err != nil {
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
-	if d.HasChange("policy") {
-		if err := resourceYandexStorageBucketPolicyUpdate(s3Client, d); err != nil {
-			return err
+	changeHandlers := map[string]func(*s3.S3, *schema.ResourceData) error{
+		"policy":                               resourceYandexStorageBucketPolicyUpdate,
+		"cors_rule":                            resourceYandexStorageBucketCORSUpdate,
+		"website":                              resourceYandexStorageBucketWebsiteUpdate,
+		"versioning":                           resourceYandexStorageBucketVersioningUpdate,
+		"grant":                                resourceYandexStorageBucketGrantsUpdate,
+		"logging":                              resourceYandexStorageBucketLoggingUpdate,
+		"lifecycle_rule":                       resourceYandexStorageBucketLifecycleUpdate,
+		"server_side_encryption_configuration": resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate,
+		"acl":                                  resourceYandexStorageBucketACLUpdate,
+	}
+
+	for name, handler := range changeHandlers {
+		if !d.HasChange(name) {
+			continue
+		}
+
+		if name == "acl" && d.IsNewResource() {
+			continue
+		}
+
+		err := handler(s3Client, d)
+		if err != nil {
+			return fmt.Errorf("handling %s: %w", name, err)
 		}
 	}
 
-	if d.HasChange("cors_rule") {
-		if err := resourceYandexStorageBucketCORSUpdate(s3Client, d); err != nil {
-			return err
-		}
+	return nil
+}
+
+func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta interface{}) (err error) {
+	if d.Id() == "" {
+		// bucket has been deleted, skipping
+		return nil
 	}
 
-	if d.HasChange("website") {
-		if err := resourceYandexStorageBucketWebsiteUpdate(s3Client, d); err != nil {
-			return err
+	bucket := d.Get("bucket").(string)
+	bucketUpdateRequest := &storagepb.UpdateBucketRequest{
+		Name: bucket,
+	}
+	paths := make([]string, 0, 3)
+
+	handleChange := func(property string, f func(value interface{})) {
+		if !d.HasChange(property) {
+			return
 		}
+
+		log.Printf("[DEBUG] setting property %q is going to be updated", property)
+
+		value := d.Get(property)
+		f(value)
+
+		paths = append(paths, property)
 	}
 
-	if d.HasChange("versioning") {
-		if err := resourceYandexStorageBucketVersioningUpdate(s3Client, d); err != nil {
-			return err
-		}
+	changeHandlers := map[string]func(value interface{}){
+		"default_storage_class": func(value interface{}) {
+			bucketUpdateRequest.SetDefaultStorageClass(value.(string))
+		},
+		"max_size": func(value interface{}) {
+			bucketUpdateRequest.SetMaxSize(int64(value.(int)))
+		},
+		"anonymous_access_flags": func(value interface{}) {
+			list := value.(*schema.Set).List()
+			if len(list) == 0 {
+				return
+			}
+
+			accessFlags := new(storagepb.AnonymousAccessFlags)
+			flags := list[0].(map[string]interface{})
+			if val, ok := flags["list"].(bool); ok {
+				accessFlags.List = wrapperspb.Bool(val)
+			}
+			if val, ok := flags["read"].(bool); ok {
+				accessFlags.Read = wrapperspb.Bool(val)
+			}
+			if val, ok := flags["config_read"].(bool); ok {
+				accessFlags.ConfigRead = wrapperspb.Bool(val)
+			}
+
+			bucketUpdateRequest.AnonymousAccessFlags = accessFlags
+		},
 	}
 
-	if d.HasChange("acl") && !d.IsNewResource() {
-		if err := resourceYandexStorageBucketACLUpdate(s3Client, d); err != nil {
-			return err
-		}
+	for field, handler := range changeHandlers {
+		handleChange(field, handler)
 	}
 
-	if d.HasChange("grant") {
-		if err := resourceYandexStorageBucketGrantsUpdate(s3Client, d); err != nil {
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	bucketAPI := config.sdk.StorageAPI().Bucket()
+
+	if len(paths) > 0 {
+		bucketUpdateRequest.FieldMask, err = fieldmaskpb.New(bucketUpdateRequest, paths...)
+		if err != nil {
+			return fmt.Errorf("constructing field mask: %w", err)
+		}
+
+		log.Printf("[INFO] updating S3 bucket extended parameters: %s", protojson.Format(bucketUpdateRequest))
+
+		op, err := bucketAPI.Update(ctx, bucketUpdateRequest)
+		err = waitOperation(ctx, config, op, err)
+		if err != nil {
+			if handleS3BucketNotFoundError(d, err) {
+				return nil
+			}
+
+			log.Printf("[WARN] Storage api error updating S3 bucket extended parameters: %v", err)
+
 			return err
 		}
+
+		if opErr := op.GetError(); opErr != nil {
+			log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+
+			return status.Error(codes.Code(opErr.Code), opErr.Message)
+		}
+
+		log.Printf("[INFO] updated S3 bucket extended parameters: %s", protojson.Format(op.GetResponse()))
 	}
 
-	if d.HasChange("logging") {
-		if err := resourceYandexStorageBucketLoggingUpdate(s3Client, d); err != nil {
+	if !d.HasChange("https") {
+		return nil
+	}
+
+	log.Println("[DEBUG] updating S3 bucket https configuration")
+
+	list := d.Get("https").(*schema.Set).List()
+	if len(list) > 0 {
+		httpsUpdateRequest := &storagepb.SetBucketHTTPSConfigRequest{
+			Name: bucket,
+		}
+
+		params := list[0].(map[string]interface{})
+		httpsUpdateRequest.Params = &storagepb.SetBucketHTTPSConfigRequest_CertificateManager{
+			CertificateManager: &storagepb.CertificateManagerHTTPSConfigParams{
+				CertificateId: params["certificate_id"].(string),
+			},
+		}
+
+		log.Printf("[INFO] updating S3 bucket https config: %s", protojson.Format(httpsUpdateRequest))
+		op, err := bucketAPI.SetHTTPSConfig(ctx, httpsUpdateRequest)
+		err = waitOperation(ctx, config, op, err)
+		if err != nil {
+			if handleS3BucketNotFoundError(d, err) {
+				return nil
+			}
+
+			log.Printf("[WARN] Storage api updating S3 bucket https config: %v", err)
+
 			return err
 		}
-	}
 
-	if d.HasChange("lifecycle_rule") {
-		if err := resourceYandexStorageBucketLifecycleUpdate(s3Client, d); err != nil {
-			return err
+		if opErr := op.GetError(); opErr != nil {
+			log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+
+			return status.Error(codes.Code(opErr.Code), opErr.Message)
 		}
+		log.Printf("[INFO] updated S3 bucket https config: %s", protojson.Format(op.GetResponse()))
+
+		return nil
 	}
 
-	if d.HasChange("server_side_encryption_configuration") {
-		if err := resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(s3Client, d); err != nil {
-			return err
+	httpsDeleteRequest := &storagepb.DeleteBucketHTTPSConfigRequest{
+		Name: bucket,
+	}
+
+	log.Printf("[INFO] deleting S3 bucket https config: %s", protojson.Format(httpsDeleteRequest))
+	op, err := bucketAPI.DeleteHTTPSConfig(ctx, httpsDeleteRequest)
+	err = waitOperation(ctx, config, op, err)
+	if err != nil {
+		if handleS3BucketNotFoundError(d, err) {
+			return nil
 		}
+
+		log.Printf("[WARN] Storage api deleting S3 bucket https config: %v", err)
+
+		return err
 	}
 
-	return resourceYandexStorageBucketRead(d, meta)
+	if opErr := op.GetError(); opErr != nil {
+		log.Printf("[WARN] Operation ended with error: %s", protojson.Format(opErr))
+
+		return status.Error(codes.Code(opErr.Code), opErr.Message)
+	}
+	log.Printf("[INFO] deleted S3 bucket https config: %s", protojson.Format(op.GetResponse()))
+
+	return nil
 }
 
 func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
+	err := resourceYandexStorageBucketReadBasic(d, meta)
+	if err != nil {
+		return err
+	}
+
+	err = resourceYandexStorageBucketReadExtended(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	s3Client, err := getS3Client(d, config)
 
@@ -702,7 +1027,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	//Read the Grant ACL. Reset if `acl` (canned ACL) is set.
+	// Read the Grant ACL. Reset if `acl` (canned ACL) is set.
 	if acl, ok := d.GetOk("acl"); ok && acl.(string) != "private" {
 		if err := d.Set("grant", nil); err != nil {
 			return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
@@ -715,7 +1040,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 		})
 
 		if err != nil {
-			//Ignore access denied error, when reading ACL for bucket.
+			// Ignore access denied error, when reading ACL for bucket.
 			if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
 				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
 
@@ -928,6 +1253,96 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
+func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interface{}) error {
+	if d.Id() == "" {
+		// bucket has been deleted, skipping read
+		return nil
+	}
+
+	config := meta.(*Config)
+	bucketAPI := config.sdk.StorageAPI().Bucket()
+
+	name := d.Get("bucket").(string)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	log.Println("[DEBUG] Getting S3 bucket extended parameters")
+
+	bucket, err := bucketAPI.Get(ctx, &storagepb.GetBucketRequest{
+		Name: name,
+		View: storagepb.GetBucketRequest_VIEW_FULL,
+	})
+	if err != nil {
+		if handleS3BucketNotFoundError(d, err) {
+			return nil
+		}
+
+		log.Printf("[WARN] Storage api getting S3 bucket extended parameters: %v", err)
+
+		return err
+	}
+
+	log.Printf("[DEBUG] Bucket %s", protojson.Format(bucket))
+
+	d.Set("default_storage_class", bucket.GetDefaultStorageClass())
+	d.Set("folder_id", bucket.GetFolderId())
+	d.Set("max_size", bucket.GetMaxSize())
+
+	if aaf := bucket.AnonymousAccessFlags; aaf != nil {
+		flatten := map[string]interface{}{}
+		if value := aaf.List; value != nil {
+			flatten["list"] = value.Value
+		}
+		if value := aaf.Read; value != nil {
+			flatten["read"] = value.Value
+		}
+
+		result := []map[string]interface{}{flatten}
+		err = d.Set("anonymous_access_flags", result)
+		if err != nil {
+			return fmt.Errorf("setting anonymous_access_flags: %w", err)
+		}
+	}
+
+	log.Println("[DEBUG] trying to get S3 bucket https config")
+
+	https, err := bucketAPI.GetHTTPSConfig(ctx, &storagepb.GetBucketHTTPSConfigRequest{
+		Name: name,
+	})
+	switch {
+	case err == nil:
+		// continue
+	case isStatusWithCode(err, codes.NotFound),
+		isStatusWithCode(err, codes.PermissionDenied):
+		log.Printf("[INFO] Storage api got minor error getting S3 bucket https config %v", err)
+		d.Set("https", nil)
+
+		return nil
+	default:
+		log.Printf("[WARN] Storage api error getting S3 bucket https config %v", err)
+
+		return err
+	}
+
+	log.Printf("[DEBUG] S3 bucket https config: %s", protojson.Format(https))
+
+	if https.SourceType == storagepb.HTTPSConfig_SOURCE_TYPE_MANAGED_BY_CERTIFICATE_MANAGER {
+		flatten := map[string]interface{}{
+			"certificate_id": https.CertificateId,
+		}
+
+		result := []map[string]interface{}{flatten}
+
+		err = d.Set("https", result)
+		if err != nil {
+			return fmt.Errorf("updating S3 bucket https config state: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	s3Client, err := getS3Client(d, config)
@@ -1132,7 +1547,7 @@ func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceDa
 	}
 
 	if indexDocument == "" && redirectAllRequestsTo == "" {
-		return fmt.Errorf("Must specify either index_document or redirect_all_requests_to.")
+		return fmt.Errorf("must specify either index_document or redirect_all_requests_to")
 	}
 
 	websiteConfiguration := &s3.WebsiteConfiguration{}
@@ -1213,7 +1628,7 @@ func resourceYandexStorageBucketWebsiteDelete(s3Client *s3.S3, d *schema.Resourc
 	return nil
 }
 
-func websiteEndpoint(s3Client *s3.S3, d *schema.ResourceData) (*S3Website, error) {
+func websiteEndpoint(_ *s3.S3, d *schema.ResourceData) (*S3Website, error) {
 	// If the bucket doesn't have a website configuration, return an empty
 	// endpoint
 	if _, ok := d.GetOk("website"); !ok {
@@ -1500,7 +1915,8 @@ func isAWSErr(err error, code string, message string) bool {
 }
 
 func handleS3BucketNotFoundError(d *schema.ResourceData, err error) bool {
-	if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
+	if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 ||
+		isStatusWithCode(err, codes.NotFound) {
 		log.Printf("[WARN] Storage Bucket (%s) not found, error code (404)", d.Id())
 		d.SetId("")
 		return true
@@ -2061,11 +2477,31 @@ func removeNil(data map[string]interface{}) map[string]interface{} {
 	return withoutNil
 }
 
-func suppressEquivalentAwsPolicyDiffs(k, old, new string, d *schema.ResourceData) bool {
+func suppressEquivalentAwsPolicyDiffs(_, old, new string, _ *schema.ResourceData) bool {
 	equivalent, err := awspolicy.PoliciesAreEquivalent(old, new)
 	if err != nil {
 		return false
 	}
 
 	return equivalent
+}
+
+func storageBucketS3SetFunc(keys ...string) schema.SchemaSetFunc {
+	return func(v interface{}) int {
+		var buf bytes.Buffer
+		m, ok := v.(map[string]interface{})
+
+		if !ok {
+			return 0
+		}
+
+		for _, key := range keys {
+			if v, ok := m[key]; ok {
+				value := fmt.Sprintf("%v", v)
+				buf.WriteString(value + "-")
+			}
+		}
+
+		return hashcode.String(buf.String())
+	}
 }

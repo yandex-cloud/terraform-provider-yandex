@@ -12,6 +12,11 @@ Allows management of [Yandex.Cloud Storage Bucket](https://cloud.yandex.com/docs
 
 ~> **Note:** Your need to provide [static access key](https://cloud.yandex.com/docs/iam/concepts/authorization/access-key) (Access and Secret) to create storage client to work with Storage Service. To create them you need Service Account and proper permissions.
 
+-> **Note:** For extended API usage, such as setting `max_size`, `folder_id`, `anonymous_access_flags`,
+`default_storage_class` and `https` parameters for bucket, will be used default authorization method, i.e.
+`IAM` / `OAuth` token from `provider` block will be used.
+This might be a little bit confusing in cases when separate service account is used for managing buckets because
+in this case buckets will be accessed by two different accounts that might have different permissions for buckets.
 
 ## Example Usage
 
@@ -263,6 +268,61 @@ POLICY
 }
 ```
 
+### Bucket Max Size
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  max_size = 1048576
+}
+```
+
+### Bucket Folder Id
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  folder_id = "<folder_id>"
+}
+```
+
+### Bucket Anonymous Access Flags
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  anonymous_access_flags {
+    read = true
+    list = false
+  }
+}
+```
+
+### Bucket HTTPS Certificate
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  https {
+    certificate_id = "<certificate_id_from_certificate_manager>"
+  }
+}
+```
+
+### Bucket Default Storage Class
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  default_storage_class = "COLD"
+}
+```
+
 ### All settings example
 
 ```hcl
@@ -378,6 +438,21 @@ resource "yandex_storage_bucket" "all_settings" {
     target_bucket = yandex_storage_bucket.log_bucket.id
     target_prefix = "tf-logs/"
   }
+
+  max_size = 1024
+
+  folder_id = "<folder_id>"
+
+  default_storage_class = "COLD"
+
+  anonymous_access_flags {
+    read = true
+    list = true
+  }
+
+  https = {
+    certificate_id = "<certificate_id>"
+  }
 }
 ```
 
@@ -424,7 +499,6 @@ The `website` object supports the following:
 * `redirect_all_requests_to` - (Optional) A hostname to redirect all website requests for this bucket to. Hostname can optionally be prefixed with a protocol (`http://` or `https://`) to use when redirecting requests. The default is the protocol that is used in the original request.
 
 * `routing_rules` - (Optional) A json array containing [routing rules](https://cloud.yandex.com/docs/storage/s3/api-ref/hosting/upload#request-scheme) describing redirect behavior and when redirects are applied.
-
 
 The `CORS` object supports the following:
 
@@ -511,6 +585,36 @@ The `apply_server_side_encryption_by_default` object supports the following:
 * `kms_master_key_id` - (Optional) The KMS master key ID used for the SSE-KMS encryption.
 
 The `policy` object should contain the only field with the text of the policy. See [policy documentation](https://cloud.yandex.com/docs/storage/concepts/policy) for more information on policy format.
+
+Extended parameters of the bucket:
+
+-> **NOTE:** for this parameters, authorization by `IAM-token` will be used.
+
+* `folder_id` - (Optional) Allow to create bucket in different folder.
+
+-> **NOTE:** it will try to create bucket using `IAM-token`, not using `access keys`.
+
+* `max_size` - (Optional) The size of bucket, in bytes. See [size limiting](https://cloud.yandex.com/en-ru/docs/storage/operations/buckets/limit-max-volume) for more information.
+
+* `default_storage_class` - (Optional) Storage class which is used for storing objects by default.
+Available values are: "STANDARD", "COLD". Default is `"STANDARD"`.
+See [storage class](https://cloud.yandex.com/en-ru/docs/storage/concepts/storage-class) for more inforamtion.
+
+* `anonymous_access_flags` - (Optional) Provides various access to objects.
+See [bucket availability](https://cloud.yandex.com/en-ru/docs/storage/operations/buckets/bucket-availability)
+for more infomation.
+
+* `https` - (Optional) Manages https certificates for bucket. See [https](https://cloud.yandex.com/en-ru/docs/storage/operations/hosting/certificate) for more infomation.
+
+The `anonymous_access_flags` object supports the following properties:
+
+* `read` - (Optional) Allows to read objects in bucket anonymously.
+
+* `list` - (Optional) Allows to list object in bucket anonymously.
+
+The `https` object supports the following properties:
+
+* `certificate_id` — Id of the certificate in Certificate Manager, that will be used for bucket.
 
 ## Attributes Reference
 

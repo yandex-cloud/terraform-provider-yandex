@@ -13,6 +13,8 @@ FEATURES:
 * **New Data Source:** `yandex_mdb_postgresql_user`
 * **New Data Source:** `yandex_mdb_mysql_database`
 * **New Data Source:** `yandex_mdb_mysql_user`
+* storage: support `folder_id`, `max_size`, `anonymous_access_flags`, `https` and `default_storage_class` attributes in bucket.
+See `storage_bucket` documentation for important information.
 
 BUG FIXES:
 * postgresql: fix bug with applying cluster's settings in PostgreSQL 14
