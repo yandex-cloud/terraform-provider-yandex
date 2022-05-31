@@ -1,4 +1,6 @@
-## 0.75.0 (Unreleased)
+## 0.76.0 (Unreleased)
+
+## 0.75.0 (May 31, 2022)
 ENHANCEMENTS:
 * compute: support instance's scheduling policy update in-place
 
