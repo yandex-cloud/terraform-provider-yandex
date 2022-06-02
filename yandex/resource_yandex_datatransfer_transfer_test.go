@@ -142,7 +142,8 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "name", defaultTemplateParams.TargetEndpointName),
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "description", defaultTemplateParams.TargetEndpointDescription),
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.password.0.raw", defaultTemplateParams.TargetEndpointPassword),
-					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.connection.0.mdb_cluster_id", defaultTemplateParams.TargetEndpointMDBClusterID),
+					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.connection.0.on_premise.0.hosts.0", defaultTemplateParams.TargetEndpointHostName),
+					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.connection.0.on_premise.0.port", strconv.Itoa(defaultTemplateParams.TargetEndpointPort)),
 
 					resource.TestCheckResourceAttr(transferResourceName, "name", defaultTemplateParams.TransferName),
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
@@ -216,7 +217,8 @@ type dataTransferTerraformTemplateParams struct {
 	TargetEndpointName                 string
 	TargetEndpointDescription          string
 	TargetEndpointPassword             string
-	TargetEndpointMDBClusterID         string
+	TargetEndpointHostName             string
+	TargetEndpointPort                 int
 	TransferName                       string
 	TransferDescription                string
 }
@@ -231,7 +233,8 @@ var defaultTemplateParams = dataTransferTerraformTemplateParams{
 	TargetEndpointName:                 "datatransfer-dst-endpoint" + randomPostfix,
 	TargetEndpointDescription:          "dst description",
 	TargetEndpointPassword:             "dst password",
-	TargetEndpointMDBClusterID:         "dst cluster id",
+	TargetEndpointHostName:             "dst hostname",
+	TargetEndpointPort:                 5432,
 	TransferName:                       "datatransfer-transfer" + randomPostfix,
 	TransferDescription:                "transfer description",
 }
@@ -292,7 +295,12 @@ func testAccDataTransferConfigMain(templateParams dataTransferTerraformTemplateP
 		  settings {
 			postgres_target {
 			  connection {
-				mdb_cluster_id = "{{.TargetEndpointMDBClusterID}}"
+				on_premise {
+				  hosts = [
+					"{{.TargetEndpointHostName}}"
+				  ]
+				  port = {{.TargetEndpointPort}}
+				}
 			  }
 			  database = "postgres"
 			  user = "postgres"
