@@ -211,6 +211,12 @@ The `http2_options` block supports:
 
 ---
 
+The `redirects` block supports:
+
+* `http_to_https` - (Optional) If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.
+
+---
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -200,4 +200,10 @@ The `http2_options` block supports:
 
 * `max_concurrent_streams` - Maximum number of concurrent streams.
 
+The `redirects` block supports:
+
+* `http_to_https` - If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.
+
+---
+
 [Application Load Balancer]: https://cloud.yandex.com/en/docs/application-load-balancer/concepts/application-load-balancer

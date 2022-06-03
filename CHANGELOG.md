@@ -1,5 +1,6 @@
 ## 0.76.0 (Unreleased)
 * alb: `send` and `receive` attributes can be empty now in `yandex_alb_backend_group` resource and data source
+* alb: fixed `yandex_alb_load_balancer` resource and data source documentation
 
 ## 0.75.0 (May 31, 2022)
 ENHANCEMENTS:
