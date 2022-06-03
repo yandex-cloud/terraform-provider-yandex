@@ -627,3 +627,123 @@ func TestExpandHostAffinityRuleSpec(t *testing.T) {
 		})
 	}
 }
+
+func TestExpandLocalDiskSpecs(t *testing.T) {
+	tests := []struct {
+		name string
+		data []interface{}
+		spec []*compute.AttachedLocalDiskSpec
+	}{
+		{
+			name: "empty specs by default",
+			data: nil,
+			spec: nil,
+		},
+		{
+			name: "one local disk",
+			data: []interface{}{
+				map[string]interface{}{
+					"size_bytes": 1,
+				},
+			},
+			spec: []*compute.AttachedLocalDiskSpec{
+				{
+					Size: 1,
+				},
+			},
+		},
+		{
+			name: "two local disk",
+			data: []interface{}{
+				map[string]interface{}{
+					"size_bytes": 100,
+				},
+				map[string]interface{}{
+					"size_bytes": 200,
+				},
+			},
+			spec: []*compute.AttachedLocalDiskSpec{
+				{
+					Size: 100,
+				},
+				{
+					Size: 200,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec := expandLocalDiskSpecs(tt.data)
+			if !reflect.DeepEqual(tt.spec, spec) {
+				t.Errorf("%v is not equal to %v", tt.spec, spec)
+			}
+		})
+	}
+}
+
+func TestFlattenLocalDiskLocalDisks(t *testing.T) {
+	tests := []struct {
+		name     string
+		instance *compute.Instance
+		expected []interface{}
+	}{
+		{
+			name:     "no local disks",
+			instance: &compute.Instance{},
+			expected: nil,
+		},
+		{
+			name: "one local disk",
+			instance: &compute.Instance{
+				LocalDisks: []*compute.AttachedLocalDisk{
+					{
+						Size:       1,
+						DeviceName: "nvme-disk-0",
+					},
+				},
+			},
+			expected: []interface{}{
+				map[string]interface{}{
+					"size_bytes":  1,
+					"device_name": "nvme-disk-0",
+				},
+			},
+		},
+		{
+			name: "two local disks",
+			instance: &compute.Instance{
+				LocalDisks: []*compute.AttachedLocalDisk{
+					{
+						Size:       100,
+						DeviceName: "nvme-disk-0",
+					},
+					{
+						Size:       200,
+						DeviceName: "nvme-disk-1",
+					},
+				},
+			},
+			expected: []interface{}{
+				map[string]interface{}{
+					"size_bytes":  100,
+					"device_name": "nvme-disk-0",
+				},
+				map[string]interface{}{
+					"size_bytes":  200,
+					"device_name": "nvme-disk-1",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			expected := flattenLocalDisks(tt.instance)
+			if !reflect.DeepEqual(tt.expected, expected) {
+				t.Errorf("%#v is not equal to %#v", tt.expected, expected)
+			}
+		})
+	}
+}

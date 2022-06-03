@@ -97,6 +97,8 @@ The following arguments are supported:
     
 * `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software_accelerated`
 
+* `local_disk` - (Optional) List of local disks that are attached to the instance. Structure is documented below.
+
 ---
 
 The `resources` block supports:
@@ -218,6 +220,19 @@ The `placement_policy` block supports:
 
 * `placement_group_id` - (Optional) Specifies the id of the Placement Group to assign to the instance.
 
+* `host_affinity_rules` - (Optional) List of host affinity rules. The structure is documented below.
+
+The `host_affinity_rules` block supports:
+
+* `key` - (Required) Affinity label or one of reserved values - `yc.hostId`, `yc.hostGroupId`.
+
+* `op` - (Required) Affinity action. The only value supported is `IN`.
+
+* `value` - (Required) List of values (host IDs or host group IDs).
+
+The `local_disk` block supports:
+
+* `size_bytes` - (Required) Size of the disk, specified in bytes.
 
 
 ## Attributes Reference
@@ -233,6 +248,8 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - The status of this instance.
 
 * `created_at` - Creation timestamp of the instance.
+
+* `local_disk.device_name` - The name of the local disk device.
 
 ## Import
 

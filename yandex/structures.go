@@ -687,6 +687,26 @@ func expandHostAffinityRulesSpec(ruleSpecs []interface{}) []*compute.PlacementPo
 	return hostAffinityRules
 }
 
+func expandLocalDiskSpecs(disks interface{}) []*compute.AttachedLocalDiskSpec {
+	if disks == nil {
+		return nil
+	}
+
+	var localDiskSpecs []*compute.AttachedLocalDiskSpec
+	diskSpecs := disks.([]interface{})
+	if len(diskSpecs) != 0 {
+		localDiskSpecs = make([]*compute.AttachedLocalDiskSpec, 0, len(diskSpecs))
+		for _, spec := range diskSpecs {
+			diskSpec := spec.(map[string]interface{})
+			diskSize := int64(diskSpec["size_bytes"].(int))
+			localDiskSpecs = append(localDiskSpecs, &compute.AttachedLocalDiskSpec{
+				Size: diskSize,
+			})
+		}
+	}
+	return localDiskSpecs
+}
+
 func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
 	schedulingPolicy := make([]map[string]interface{}, 0, 1)
 	schedulingMap := map[string]interface{}{
@@ -1432,4 +1452,18 @@ func expandAndValidateNetworkId(d *schema.ResourceData, config *Config) (string,
 		return "", fmt.Errorf("empty network_id field")
 	}
 	return networkID, nil
+}
+
+func flattenLocalDisks(instance *compute.Instance) []interface{} {
+	if len(instance.LocalDisks) == 0 {
+		return nil
+	}
+	result := make([]interface{}, len(instance.LocalDisks))
+	for i, disk := range instance.LocalDisks {
+		result[i] = map[string]interface{}{
+			"size_bytes":  int(disk.Size),
+			"device_name": disk.DeviceName,
+		}
+	}
+	return result
 }

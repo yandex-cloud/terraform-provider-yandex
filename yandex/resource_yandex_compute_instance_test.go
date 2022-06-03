@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
@@ -1247,6 +1248,110 @@ func TestAccComputeInstance_move(t *testing.T) {
 	})
 }
 
+func TestComputeInstanceLocalDisksRequest(t *testing.T) {
+	rawInstanceID := "test-instance-id"
+	rawInstance := map[string]interface{}{
+		"name":        "test-instance",
+		"description": "test instance",
+		"zone":        "ru-central1-c",
+		"platform_id": "standard-v2",
+
+		"resources": []interface{}{
+			map[string]interface{}{
+				"cores":  2,
+				"memory": 2,
+			},
+		},
+
+		"boot_disk": []interface{}{
+			map[string]interface{}{
+				"disk_id": "test-disk-id",
+			},
+		},
+		"network_interface": []interface{}{
+			map[string]interface{}{
+				"subnet_id": "test-subnet-id",
+			},
+		},
+	}
+
+	instanceResourceWithLocalDisks := func(localDiskSpec []interface{}) *schema.ResourceData {
+		rawInstance["local_disk"] = localDiskSpec
+		return schema.TestResourceDataRaw(t, resourceYandexComputeInstance().Schema, rawInstance)
+	}
+
+	cc := []struct {
+		name           string
+		localDisksSpec []interface{}
+		expected       []*compute.AttachedLocalDiskSpec
+	}{
+		{
+			name:           "create instance without local disks",
+			localDisksSpec: []interface{}{},
+			expected:       nil,
+		},
+		{
+			name: "create instance with local disk",
+			localDisksSpec: []interface{}{
+				map[string]interface{}{
+					"size_bytes": 100,
+				},
+			},
+			expected: []*compute.AttachedLocalDiskSpec{
+				{
+					Size: 100,
+				},
+			},
+		},
+	}
+
+	for _, c := range cc {
+		t.Run(c.name, func(t *testing.T) {
+			resourceData := instanceResourceWithLocalDisks(c.localDisksSpec)
+			resourceData.SetId(rawInstanceID)
+
+			config := Config{FolderID: "folder-id"}
+			req, err := prepareCreateInstanceRequest(resourceData, &config)
+			assert.NoError(t, err)
+			assert.Equal(t, c.expected, req.LocalDiskSpecs)
+		})
+	}
+}
+
+func TestAccComputeInstance_local_disks(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	var hostGroupID = os.Getenv("COMPUTE_HOST_GROUP_ID")
+	var diskSize = os.Getenv("COMPUTE_LOCAL_DISK_SIZE")
+	if hostGroupID == "" || diskSize == "" {
+		t.Skip("Required vars COMPUTE_HOST_GROUP_ID and COMPUTE_LOCAL_DISK_SIZE are not set.")
+	}
+
+	diskSizeBytes, err := strconv.Atoi(diskSize)
+	if err != nil {
+		t.Errorf("parse disk size: %v", err)
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_local_disks(instanceName, hostGroupID, diskSizeBytes),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasLocalDisk(&instance, int64(diskSizeBytes)),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1711,6 +1816,42 @@ func testIfaceNat(iface *compute.NetworkInterface, index int, expectedNat bool, 
 		return fmt.Errorf("Unexpected nat address on the interface %d, expected = %v, actual = %v", index, expectedNatAddress, iface.PrimaryV4Address.OneToOneNat.Address)
 	}
 	return nil
+}
+
+func testAccCheckComputeInstanceHasAffinityRules(instance *compute.Instance, ruleParams map[string]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		placement := instance.PlacementPolicy
+		if placement.HostAffinityRules == nil && len(ruleParams) == 0 {
+			return nil
+		}
+
+		if placement.HostAffinityRules != nil && len(ruleParams) != len(placement.HostAffinityRules) {
+			return fmt.Errorf("wrong host affinity rules count")
+		}
+
+		for _, rule := range placement.HostAffinityRules {
+			if _, ok := ruleParams[rule.Key]; !ok {
+				return fmt.Errorf("unexpected rule key: %s", rule.Key)
+			}
+
+			if len(rule.Values) != 1 || ruleParams[rule.Key] != rule.Values[0] {
+				return fmt.Errorf("unexpected rule value: %s", rule.Values[0])
+			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceHasLocalDisk(instance *compute.Instance, localDiskSize int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if len(instance.LocalDisks) != 1 {
+			return fmt.Errorf("Unexpected number of local disks: expected 1, got %d", len(instance.LocalDisks))
+		}
+		if instance.LocalDisks[0].Size != localDiskSize {
+			return fmt.Errorf("Unexpected local disk size: expected %d, got %d", localDiskSize, instance.LocalDisks[0].Size)
+		}
+		return nil
+	}
 }
 
 //revive:disable:var-naming
@@ -3725,30 +3866,6 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance, placement)
 }
 
-func testAccCheckComputeInstanceHasAffinityRules(instance *compute.Instance, ruleParams map[string]string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		placement := instance.PlacementPolicy
-		if placement.HostAffinityRules == nil && len(ruleParams) == 0 {
-			return nil
-		}
-
-		if placement.HostAffinityRules != nil && len(ruleParams) != len(placement.HostAffinityRules) {
-			return fmt.Errorf("wrong host affinity rules count")
-		}
-
-		for _, rule := range placement.HostAffinityRules {
-			if _, ok := ruleParams[rule.Key]; !ok {
-				return fmt.Errorf("unexpected rule key: %s", rule.Key)
-			}
-
-			if len(rule.Values) != 1 || ruleParams[rule.Key] != rule.Values[0] {
-				return fmt.Errorf("unexpected rule value: %s", rule.Values[0])
-			}
-		}
-		return nil
-	}
-}
-
 func testAccComputeInstance_with_folder(instance string, folderID string, allowRecreate bool) string {
 	var folderAttr string
 	if folderID != "" {
@@ -3805,4 +3922,59 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, folderAttr, allowRecreate)
+}
+
+func testAccComputeInstance_local_disks(instance, hostGroupID string, diskSize int) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  platform_id = "standard-v2"
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  local_disk {
+    size_bytes = %d
+  }
+
+  placement_policy {
+    host_affinity_rules {
+      key = "yc.hostGroupId"
+      op = "IN"
+      values = ["%s"]
+    }
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance, diskSize, hostGroupID)
 }

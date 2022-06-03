@@ -56,6 +56,8 @@ The following arguments are supported:
 * `scheduling_policy` - Scheduling policy configuration. The structure is documented below.
 * `service_account_id` - ID of the service account authorized for this instance. 
 * `created_at` - Instance creation timestamp.
+* `placement_policy` - The placement policy configuration. The structure is documented below.
+* `local_disk` - List of local disks that are attached to the instance. Structure is documented below.
 
 ---
 
@@ -124,3 +126,19 @@ The `secondary_disk` block supports:
 The `scheduling_policy` block supports:
 
 * `preemptible` - (Optional) Specifies if the instance is preemptible. Defaults to false.
+
+The `placement_policy` block supports:
+
+* `placement_group_id` - Specifies the id of the Placement Group to assign to the instance.
+* `host_affinity_rules` - List of host affinity rules. The structure is documented below.
+
+The `host_affinity_rules` block supports:
+
+* `key` - Affinity label or one of reserved values - `yc.hostId`, `yc.hostGroupId`.
+* `op` - Affinity action. The only value supported is `IN`.
+* `value` - List of values (host IDs or host group IDs).
+
+The `local_disk` block supports:
+
+* `size_bytes` - Size of the disk, specified in bytes.
+* `device_name` - Name of the device.
