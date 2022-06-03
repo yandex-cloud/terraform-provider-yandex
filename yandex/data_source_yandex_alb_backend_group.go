@@ -380,6 +380,7 @@ func dataSourceHealthCheck() *schema.Schema {
 		},
 	}
 }
+
 func dataSourceTLS() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
@@ -417,6 +418,7 @@ func dataSourceTLS() *schema.Schema {
 		},
 	}
 }
+
 func dataSourceYandexALBBackendGroupRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx := config.Context()

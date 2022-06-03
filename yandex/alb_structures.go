@@ -984,11 +984,8 @@ func expandHealthCheck(d *schema.ResourceData, key string) *apploadbalancer.Heal
 		}
 	}
 
-	if val, ok := d.GetOk(key + "stream_healthcheck"); ok {
-		stream := val.([]interface{})
-		if len(stream) > 0 {
-			healthCheck.SetStream(expandALBStreamHealthCheck(stream[0]))
-		}
+	if _, ok := d.GetOk(key + "stream_healthcheck"); ok {
+		healthCheck.SetStream(expandALBStreamHealthCheck(d, key+"stream_healthcheck.0."))
 	}
 
 	if val, ok := d.GetOk(key + "http_healthcheck"); ok {
@@ -1054,20 +1051,25 @@ func expandALBGRPCHealthCheck(v interface{}) *apploadbalancer.HealthCheck_GrpcHe
 	return healthCheck
 }
 
-func expandALBStreamHealthCheck(v interface{}) *apploadbalancer.HealthCheck_StreamHealthCheck {
+func expandALBStreamHealthCheck(d *schema.ResourceData, key string) *apploadbalancer.HealthCheck_StreamHealthCheck {
 	healthCheck := &apploadbalancer.HealthCheck_StreamHealthCheck{}
-	config := v.(map[string]interface{})
 
-	if val, ok := config["receive"]; ok {
-		payload := &apploadbalancer.Payload{}
-		payload.SetText(val.(string))
-		healthCheck.SetReceive(payload)
+	if val, ok := d.GetOk(key + "receive"); ok {
+		receive := val.(string)
+		if receive != "" {
+			payload := &apploadbalancer.Payload{}
+			payload.SetText(receive)
+			healthCheck.SetReceive(payload)
+		}
 	}
 
-	if val, ok := config["send"]; ok {
-		payload := &apploadbalancer.Payload{}
-		payload.SetText(val.(string))
-		healthCheck.SetSend(payload)
+	if val, ok := d.GetOk(key + "send"); ok {
+		send := val.(string)
+		if send != "" {
+			payload := &apploadbalancer.Payload{}
+			payload.SetText(send)
+			healthCheck.SetSend(payload)
+		}
 	}
 	return healthCheck
 }
@@ -1760,7 +1762,7 @@ func flattenALBGRPCBackends(bg *apploadbalancer.BackendGroup) ([]interface{}, er
 	return result, nil
 }
 
-func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) interface{} {
+func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) []interface{} {
 	var result []interface{}
 	if len(healthChecks) > 0 {
 		check := healthChecks[0]
@@ -1791,12 +1793,12 @@ func flattenALBHealthChecks(healthChecks []*apploadbalancer.HealthCheck) interfa
 			}
 		case *apploadbalancer.HealthCheck_Stream:
 			stream := check.GetStream()
-			flHealthCheck["stream_healthcheck"] = []map[string]interface{}{
-				{
-					"receive": stream.Receive.GetText(),
-					"send":    stream.Send.GetText(),
-				},
+			flStreamHealthcheck := map[string]interface{}{
+				"send":    stream.GetSend().GetText(),
+				"receive": stream.GetReceive().GetText(),
 			}
+
+			flHealthCheck["stream_healthcheck"] = []map[string]interface{}{flStreamHealthcheck}
 		}
 
 		result = append(result, flHealthCheck)

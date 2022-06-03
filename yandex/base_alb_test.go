@@ -35,8 +35,8 @@ const albDefaultHTTP2 = "true"
 const albDefaultHost = "tf-test-host"
 const albDefaultPath = "tf-test-path"
 const albDefaultPort = "3"
-const albDefaultSend = "tf-test-send"
-const albDefaultReceive = "tf-test-receive"
+const albDefaultSendText = "tf-test-send"
+const albDefaultReceiveText = "tf-test-receive"
 const albDefaultDescription = "alb-bg-description"
 const albDefaultDirectResponseBody = "Not Found"
 const albDefaultDirectResponseStatus = "404"
@@ -203,8 +203,8 @@ type resourceALBBackendGroupInfo struct {
 	Host                 string
 	Path                 string
 	Port                 string
-	Receive              string
-	Send                 string
+	ReceiveText          string
+	SendText             string
 	ProxyProtocol        string
 	StorageBackendBucket string
 }
@@ -238,8 +238,8 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		Host:                 albDefaultHost,
 		Path:                 albDefaultPath,
 		Port:                 albDefaultPort,
-		Receive:              albDefaultReceive,
-		Send:                 albDefaultSend,
+		ReceiveText:          albDefaultReceiveText,
+		SendText:             albDefaultSendText,
 		ProxyProtocol:        albDefaultProxyProtocol,
 	}
 
@@ -569,8 +569,8 @@ EOF
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
       stream_healthcheck {
-        receive = "{{.Receive}}"
-        send    = "{{.Send}}"
+        receive = "{{.ReceiveText}}"
+        send    = "{{.SendText}}"
       }
     }
     {{end}}
@@ -624,8 +624,8 @@ EOF
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
       stream_healthcheck {
-        receive = "{{.Receive}}"
-        send    = "{{.Send}}"
+        receive = "{{.ReceiveText}}"
+        send    = "{{.SendText}}"
       }
     }
     {{end}}
@@ -675,8 +675,8 @@ EOF
       timeout  = "{{.Timeout}}"
       interval = "{{.Interval}}"
       stream_healthcheck {
-        receive = "{{.Receive}}"
-        send    = "{{.Send}}"
+        receive = "{{.ReceiveText}}"
+        send    = "{{.SendText}}"
       }
     }
     {{end}}

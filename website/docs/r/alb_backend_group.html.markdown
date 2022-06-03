@@ -115,8 +115,8 @@ The `healthcheck` block supports:
 
 The `stream_healthcheck` block supports:
 
-* `send` - (Optional) Message to send. If empty, it's a connect-only health check.
-* `receive` - (Optional) Text to search in reply.
+* `send` - (Optional) Message sent to targets during TCP data transfer.  If not specified, no data is sent to the target.
+* `receive` - (Optional) Data that must be contained in the messages received from targets for a successful health check. If not specified, no messages are expected from targets, and those that are received are not checked.
 
 The `http_healthcheck` block supports:
 
