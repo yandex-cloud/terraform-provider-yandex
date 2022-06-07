@@ -754,6 +754,9 @@ func TestAccALBBackendGroup_fullWithHTTPBackend(t *testing.T) {
 					testExistsElementWithAttrValue(
 						albBGResource, "http_backend", "load_balancing_config.0.panic_threshold", albDefaultPanicThreshold, &backendPath,
 					),
+					testExistsElementWithAttrValue(
+						albBGResource, "http_backend", "load_balancing_config.0.mode", albDefaultLoadBalancingMode, &backendPath,
+					),
 				),
 			},
 			albBackendGroupImportStep(),

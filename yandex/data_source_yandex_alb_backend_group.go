@@ -275,6 +275,11 @@ func dataSourceLoadBalancingConfig() *schema.Schema {
 					Optional: true,
 					Computed: true,
 				},
+				"mode": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
 			},
 		},
 	}

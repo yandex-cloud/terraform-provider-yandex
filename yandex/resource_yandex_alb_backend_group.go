@@ -270,6 +270,12 @@ func loadBalancingConfig() *schema.Schema {
 					Type:     schema.TypeBool,
 					Optional: true,
 				},
+				"mode": {
+					Type:         schema.TypeString,
+					Optional:     true,
+					Default:      "ROUND_ROBIN",
+					ValidateFunc: validation.StringInSlice([]string{"ROUND_ROBIN", "RANDOM", "LEAST_REQUEST", "MAGLEV_HASH"}, false),
+				},
 			},
 		},
 	}

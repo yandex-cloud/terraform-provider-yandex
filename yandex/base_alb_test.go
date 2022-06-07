@@ -26,6 +26,7 @@ D0M/nOBnNGaGBKG4hNAb5KMUSfrF6Jn6lp0yNIz+LNWNJQVOjZFiw2rM/g==
 -----END CERTIFICATE-----`
 const albDefaultBackendWeight = "1"
 const albDefaultPanicThreshold = "50"
+const albDefaultLoadBalancingMode = "LEAST_REQUEST"
 const albDefaultLocalityPercent = "35"
 const albDefaultTimeout = "3s"
 const albDefaultInterval = "5s"
@@ -194,6 +195,7 @@ type resourceALBBackendGroupInfo struct {
 	TlsValidationContext string
 	BackendWeight        string
 	PanicThreshold       string
+	LoadBalancingMode    string
 	LocalityPercent      string
 	StrictLocality       string
 	Timeout              string
@@ -229,6 +231,7 @@ func albBackendGroupInfo() resourceALBBackendGroupInfo {
 		TlsValidationContext: albDefaultValidationContext,
 		BackendWeight:        albDefaultBackendWeight,
 		PanicThreshold:       albDefaultPanicThreshold,
+		LoadBalancingMode:    albDefaultLoadBalancingMode,
 		LocalityPercent:      albDefaultLocalityPercent,
 		StrictLocality:       albDefaultStrictLocality,
 		Timeout:              albDefaultTimeout,
@@ -554,6 +557,7 @@ EOF
       panic_threshold                = {{.PanicThreshold}}
       locality_aware_routing_percent = {{.LocalityPercent}}
       strict_locality                = {{.StrictLocality}}
+      mode                           = "{{.LoadBalancingMode}}"
     }
     {{ if .IsGRPCCheck }}
     healthcheck {
@@ -609,6 +613,7 @@ EOF
       panic_threshold                = {{.PanicThreshold}}
       locality_aware_routing_percent = {{.LocalityPercent}}
       strict_locality                = {{.StrictLocality}}
+      mode                           = "{{.LoadBalancingMode}}"
     }
     {{ if .IsGRPCCheck }}
     healthcheck {
@@ -660,6 +665,7 @@ EOF
       panic_threshold                = {{.PanicThreshold}}
       locality_aware_routing_percent = {{.LocalityPercent}}
       strict_locality                = {{.StrictLocality}}
+      mode                           = "{{.LoadBalancingMode}}"
     }
     {{ if .IsGRPCCheck }}
     healthcheck {

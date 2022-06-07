@@ -954,6 +954,12 @@ func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingC
 	if val, ok := config["panic_threshold"]; ok {
 		albConfig.SetPanicThreshold(int64(val.(int)))
 	}
+
+	if val, ok := config["mode"]; ok {
+		modeName := strings.ToUpper(val.(string))
+		mode := apploadbalancer.LoadBalancingMode(apploadbalancer.LoadBalancingMode_value[modeName])
+		albConfig.SetMode(mode)
+	}
 	return albConfig
 }
 
@@ -1693,6 +1699,7 @@ func flattenALBLoadBalancingConfig(lbConfig *apploadbalancer.LoadBalancingConfig
 		"panic_threshold":                lbConfig.PanicThreshold,
 		"locality_aware_routing_percent": lbConfig.LocalityAwareRoutingPercent,
 		"strict_locality":                lbConfig.StrictLocality,
+		"mode":                           lbConfig.GetMode().String(),
 	}}
 }
 
