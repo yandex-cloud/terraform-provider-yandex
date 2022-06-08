@@ -1467,33 +1467,6 @@ func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_Poo
 	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
 }
 
-func mdbPGSharedPreloadLibrariesCheck(fieldsInfo *objectFieldsInfo, v interface{}) error {
-
-	s, ok := v.(string)
-	if ok {
-		if s == "" {
-			return nil
-		}
-
-		for _, sv := range strings.Split(s, ",") {
-
-			i, err := fieldsInfo.stringToInt("shared_preload_libraries", sv)
-			if err != nil {
-				return err
-			}
-			err = fieldsInfo.intCheckSetValue("shared_preload_libraries", i)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	return fmt.Errorf("mdbPGSharedPreloadLibrariesCheck: Unsupported type for value %v", v)
-}
-func mdbPGSharedPreloadLibrariesCompare(fieldsInfo *objectFieldsInfo, old, new string) bool {
-	return old == new
-}
-
 var mdbPGUserSettingsTransactionIsolationName = map[int]string{
 	int(postgresql.UserSettings_TRANSACTION_ISOLATION_UNSPECIFIED):      "unspecified",
 	int(postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED): "read uncommitted",
@@ -1527,7 +1500,6 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumHumanNames("log_statement", mdbPGUserSettingsLogStatementName,
 		postgresql.UserSettings_LogStatement_name)
 
-// TODO refactor it
 var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig14{}).
 	addType(config.PostgresqlConfig13{}).
@@ -1552,7 +1524,7 @@ var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumGeneratedNames("xmloption", config.PostgresqlConfig13_XmlOption_name).
 	addEnumGeneratedNames("backslash_quote", config.PostgresqlConfig13_BackslashQuote_name).
 	addEnumGeneratedNames("plan_cache_mode", config.PostgresqlConfig13_PlanCacheMode_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_SharedPreloadLibraries_name, mdbPGSharedPreloadLibrariesCheck, mdbPGSharedPreloadLibrariesCompare).
+	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig13_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare).
 	addEnumGeneratedNames("pg_hint_plan_debug_print", config.PostgresqlConfig13_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig13_LogLevel_name).
 	addEnumGeneratedNames("wal_level", config.PostgresqlConfig14_WalLevel_name).
@@ -1570,6 +1542,6 @@ var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumGeneratedNames("xmloption", config.PostgresqlConfig14_XmlOption_name).
 	addEnumGeneratedNames("backslash_quote", config.PostgresqlConfig14_BackslashQuote_name).
 	addEnumGeneratedNames("plan_cache_mode", config.PostgresqlConfig14_PlanCacheMode_name).
-	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_SharedPreloadLibraries_name, mdbPGSharedPreloadLibrariesCheck, mdbPGSharedPreloadLibrariesCompare).
+	addSkipEnumGeneratedNames("shared_preload_libraries", config.PostgresqlConfig14_SharedPreloadLibraries_name, defaultStringOfEnumsCheck("shared_preload_libraries"), defaultStringCompare).
 	addEnumGeneratedNames("pg_hint_plan_debug_print", config.PostgresqlConfig14_PgHintPlanDebugPrint_name).
 	addEnumGeneratedNames("pg_hint_plan_message_level", config.PostgresqlConfig14_LogLevel_name)

@@ -28,6 +28,13 @@ func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
 	return mysql.Cluster_Environment(v), nil
 }
 
+func getMySQLConfigFieldName(version string) string {
+	if version == "5.7" {
+		return "mysql_config_5_7"
+	}
+	return "mysql_config_8_0"
+}
+
 func expandMysqlDatabases(d *schema.ResourceData) ([]*mysql.DatabaseSpec, error) {
 	var result []*mysql.DatabaseSpec
 	dbs := d.Get("database").(*schema.Set).List()
@@ -1349,33 +1356,29 @@ func mysqlMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []stri
 	return
 }
 
-func flattenMySQLSettingsSQLMode57(settings map[string]string, mySQLConfig *config.MysqlConfig5_7) (map[string]string, error) {
+func convertSQLModes57ToInt32(sqlModes []config.MysqlConfig5_7_SQLMode) []int32 {
 	modes := make([]int32, 0)
-	for _, v := range mySQLConfig.SqlMode {
+	for _, v := range sqlModes {
 		modes = append(modes, int32(v))
 	}
-
-	return flattenMySQLSettingsSQLMode(settings, modes)
+	return modes
 }
 
-func flattenMySQLSettingsSQLMode80(settings map[string]string, mySQLConfig *config.MysqlConfig8_0) (map[string]string, error) {
-
+func convertSQLModes80ToInt32(sqlModes []config.MysqlConfig8_0_SQLMode) []int32 {
 	modes := make([]int32, 0)
-	for _, v := range mySQLConfig.SqlMode {
+	for _, v := range sqlModes {
 		modes = append(modes, int32(v))
 	}
-
-	return flattenMySQLSettingsSQLMode(settings, modes)
+	return modes
 }
 
 func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map[string]string, error) {
-
-	sdlMode, err := mdbMySQLSettingsFieldsInfo.intSliceToString("sql_mode", modes)
+	sqlMode, err := mdbMySQLSettingsFieldsInfo.intSliceToString("sql_mode", modes)
 	if err != nil {
 		return nil, err
 	}
 
-	if sdlMode == "" {
+	if sqlMode == "" {
 		return settings, nil
 	}
 
@@ -1383,64 +1386,64 @@ func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map
 		settings = make(map[string]string)
 	}
 
-	settings["sql_mode"] = sdlMode
+	settings["sql_mode"] = sqlMode
 
 	return settings, nil
 }
 
-func flattenMySQLSettings(c *mysql.ClusterConfig) (map[string]string, error) {
+func flattenMySQLConfig(c *mysql.ClusterConfig) (map[string]string, error) {
+	var userConfig interface{}
+	var sqlModes []int32
 
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_0); ok {
-
-		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_8_0.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		settings, err = flattenMySQLSettingsSQLMode80(settings, cf.MysqlConfig_8_0.EffectiveConfig)
-		if err != nil {
-			return nil, err
-		}
-
-		return settings, err
+		userConfig = cf.MysqlConfig_8_0.UserConfig
+		sqlModes = convertSQLModes80ToInt32(cf.MysqlConfig_8_0.EffectiveConfig.SqlMode)
 	}
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_5_7); ok {
-		settings, err := flattenResourceGenerateMapS(cf.MysqlConfig_5_7.UserConfig, false, mdbMySQLSettingsFieldsInfo, false, true, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		settings, err = flattenMySQLSettingsSQLMode57(settings, cf.MysqlConfig_5_7.EffectiveConfig)
-		if err != nil {
-			return nil, err
-		}
-
-		return settings, err
+		userConfig = cf.MysqlConfig_5_7.UserConfig
+		sqlModes = convertSQLModes57ToInt32(cf.MysqlConfig_5_7.EffectiveConfig.SqlMode)
 	}
 
-	return nil, nil
+	settings, err := flattenResourceGenerateMapS(userConfig, false, mdbMySQLSettingsFieldsInfo, false, true, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	settings, err = flattenMySQLSettingsSQLMode(settings, sqlModes)
+	if err != nil {
+		return nil, err
+	}
+
+	return settings, err
 }
 
-func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.ConfigSpec) (updateFieldConfigName string, err error) {
+func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
+	configSpec := &mysql.ConfigSpec{
+		Version:                d.Get("version").(string),
+		Resources:              expandMysqlResources(d),
+		BackupWindowStart:      expandMysqlBackupWindowStart(d),
+		Access:                 expandMySQLAccess(d),
+		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
+	}
+
+	if err := expandMySQLConfigSpecSettings(d, configSpec); err != nil {
+		return nil, err
+	}
+
+	return configSpec, nil
+}
+
+func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.ConfigSpec) error {
+	if _, ok := d.GetOkExists("mysql_config"); !ok {
+		return nil
+	}
 
 	version := configSpec.Version
-
-	path := "mysql_config"
-
-	if _, ok := d.GetOkExists(path); !ok {
-		return "", nil
+	sdlModes, err := expandMySQLSqlModes(d)
+	if err != nil {
+		return err
 	}
 
-	var sdlModes []int32
-	sqlMode, ok := d.GetOkExists(path + ".sql_mode")
-	if ok {
-		sdlModes, err = mdbMySQLSettingsFieldsInfo.stringToIntSlice("sql_mode", sqlMode.(string))
-		if err != nil {
-			return "", err
-		}
-	}
-
-	var mySQLConfig interface{}
 	if version == "5.7" {
 		cfg := &mysql.ConfigSpec_MysqlConfig_5_7{
 			MysqlConfig_5_7: &config.MysqlConfig5_7{},
@@ -1450,9 +1453,14 @@ func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.Con
 				cfg.MysqlConfig_5_7.SqlMode = append(cfg.MysqlConfig_5_7.SqlMode, config.MysqlConfig5_7_SQLMode(v))
 			}
 		}
-		mySQLConfig = cfg.MysqlConfig_5_7
 		configSpec.MysqlConfig = cfg
-		updateFieldConfigName = "mysql_config_5_7"
+
+		if err := expandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, cfg.MysqlConfig_5_7, "mysql_config.", true); err != nil {
+			return err
+		}
+
+		return nil
+
 	} else if version == "8.0" {
 		cfg := &mysql.ConfigSpec_MysqlConfig_8_0{
 			MysqlConfig_8_0: &config.MysqlConfig8_0{},
@@ -1462,21 +1470,24 @@ func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.Con
 				cfg.MysqlConfig_8_0.SqlMode = append(cfg.MysqlConfig_8_0.SqlMode, config.MysqlConfig8_0_SQLMode(v))
 			}
 		}
-		mySQLConfig = cfg.MysqlConfig_8_0
 		configSpec.MysqlConfig = cfg
-		updateFieldConfigName = "mysql_config_8_0"
 
-	} else {
-		return "", nil
+		if err := expandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, cfg.MysqlConfig_8_0, "mysql_config.", true); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	err = expandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, mySQLConfig, path+".", true)
+	return fmt.Errorf("unknown MySQL version: %s but '5.7' and '8.0' are only available", version)
+}
 
-	if err != nil {
-		return "", err
+func expandMySQLSqlModes(d *schema.ResourceData) ([]int32, error) {
+	sqlMode, ok := d.GetOkExists("mysql_config.sql_mode")
+	if ok {
+		return mdbMySQLSettingsFieldsInfo.stringToIntSlice("sql_mode", sqlMode.(string))
 	}
-
-	return updateFieldConfigName, nil
+	return []int32{}, nil
 }
 
 func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDiagnostics {
@@ -1516,8 +1527,6 @@ func flattenMyPerformanceDiagnostics(p *mysql.PerformanceDiagnostics) ([]interfa
 	return []interface{}{out}, nil
 }
 
-const defaultSQLModes = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
-
 var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().
 	addType(config.MysqlConfig8_0{}).
 	addType(config.MysqlConfig5_7{}).
@@ -1525,4 +1534,4 @@ var mdbMySQLSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumGeneratedNames("transaction_isolation", config.MysqlConfig8_0_TransactionIsolation_name).
 	addEnumGeneratedNames("binlog_row_image", config.MysqlConfig8_0_BinlogRowImage_name).
 	addEnumGeneratedNames("slave_parallel_type", config.MysqlConfig8_0_SlaveParallelType_name).
-	addSkipEnumGeneratedNamesList("sql_mode", config.MysqlConfig8_0_SQLMode_name, defaultSQLModes, "SQLMODE_UNSPECIFIED")
+	addSkipEnumGeneratedNames("sql_mode", config.MysqlConfig8_0_SQLMode_name, defaultStringOfEnumsCheck("sql_mode"), defaultStringCompare)

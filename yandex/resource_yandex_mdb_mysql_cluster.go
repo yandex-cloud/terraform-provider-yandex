@@ -535,10 +535,6 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("Error resolving environment while creating MySQL Cluster: %s", err)
 	}
 
-	resources := expandMysqlResources(d)
-
-	backupWindowStart := expandMysqlBackupWindowStart(d)
-
 	dbSpecs, err := expandMysqlDatabases(d)
 	if err != nil {
 		return nil, fmt.Errorf("error while expanding databases on Mysql Cluster create: %s", err)
@@ -559,29 +555,17 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		return nil, fmt.Errorf("error while expanding user specs on MySQL Cluster create: %s", err)
 	}
 
-	version := d.Get("version").(string)
-	configSpec := &mysql.ConfigSpec{
-		Version:                version,
-		Resources:              resources,
-		BackupWindowStart:      backupWindowStart,
-		Access:                 expandMySQLAccess(d),
-		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
-	}
-
-	_, err = expandMySQLConfigSpecSettings(d, configSpec)
+	configSpec, err := expandMySQLConfigSpec(d)
 	if err != nil {
 		return nil, err
 	}
-
-	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
-	hostGroupIds := expandHostGroupIds(d.Get("host_group_ids"))
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding network id on MySQL Cluster create: %s", err)
 	}
 
-	req := mysql.CreateClusterRequest{
+	return &mysql.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
@@ -592,11 +576,10 @@ func prepareCreateMySQLRequest(d *schema.ResourceData, meta *Config) (*mysql.Cre
 		UserSpecs:          users,
 		HostSpecs:          hostSpecs,
 		Labels:             labels,
-		SecurityGroupIds:   securityGroupIds,
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
-		HostGroupIds:       hostGroupIds,
-	}
-	return &req, nil
+		HostGroupIds:       expandHostGroupIds(d.Get("host_group_ids")),
+	}, nil
 }
 
 func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -709,7 +692,7 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	clusterConfig, err := flattenMySQLSettings(cluster.Config)
+	clusterConfig, err := flattenMySQLConfig(cluster.Config)
 	if err != nil {
 		return err
 	}
@@ -808,55 +791,20 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	req, err := getMysqlClusterUpdateRequest(d)
+	request, err := prepareMySQLClusterUpdateRequest(d)
 	if err != nil {
 		return err
 	}
 
-	resources := expandMysqlResources(d)
-	backupWindowStart := expandMysqlBackupWindowStart(d)
-	req.ConfigSpec = &mysql.ConfigSpec{
-		Resources:              resources,
-		Version:                d.Get("version").(string),
-		BackupWindowStart:      backupWindowStart,
-		Access:                 expandMySQLAccess(d),
-		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
-	}
-
-	updateFieldConfigName, err := expandMySQLConfigSpecSettings(d, req.ConfigSpec)
-	if err != nil {
-		return err
-	}
-
-	onDone := []func(){}
-	updatePath := []string{}
-	for field, path := range mdbMysqlUpdateFieldsMap {
-		if d.HasChange(field) {
-			updatePath = append(updatePath, path)
-			onDone = append(onDone, func() {
-
-			})
-		}
-	}
-
-	if d.HasChange("mysql_config") {
-		updatePath = append(updatePath, "config_spec."+updateFieldConfigName)
-		onDone = append(onDone, func() {
-
-		})
-	}
-
-	if len(updatePath) == 0 {
+	if len(request.UpdateMask.Paths) == 0 {
 		return nil
 	}
 
-	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
-
+	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Update(ctx, req))
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().MySQL().Cluster().Update(ctx, request))
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update MySQL Cluster %q: %s", d.Id(), err)
 	}
@@ -866,9 +814,6 @@ func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error while updating MySQL Cluster %q: %s", d.Id(), err)
 	}
 
-	for _, f := range onDone {
-		f()
-	}
 	return nil
 }
 
@@ -906,13 +851,12 @@ func updateMySQLClusterAfterCreate(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterRequest, error) {
+func prepareMySQLClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating MySQL cluster: %s", err)
 	}
 
-	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 	if d.HasChange("host_group_ids") {
 		return nil, fmt.Errorf("host_group_ids change is not supported yet")
 	}
@@ -922,17 +866,34 @@ func getMysqlClusterUpdateRequest(d *schema.ResourceData) (*mysql.UpdateClusterR
 		return nil, fmt.Errorf("error expanding maintenance_window while updating MySQL cluster: %s", err)
 	}
 
-	req := &mysql.UpdateClusterRequest{
+	configSpec, err := expandMySQLConfigSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding mysql_config while updating MySQL cluster: %s", err)
+	}
+
+	updatePaths := []string{}
+	for field, path := range mdbMysqlUpdateFieldsMap {
+		if d.HasChange(field) {
+			updatePaths = append(updatePaths, path)
+		}
+	}
+
+	if d.HasChange("mysql_config") {
+		version := d.Get("version").(string)
+		updatePaths = append(updatePaths, "config_spec."+getMySQLConfigFieldName(version))
+	}
+
+	return &mysql.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
-		SecurityGroupIds:   securityGroupIds,
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		MaintenanceWindow:  maintenanceWindow,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-	}
-
-	return req, nil
+		ConfigSpec:         configSpec,
+		UpdateMask:         &field_mask.FieldMask{Paths: updatePaths},
+	}, nil
 }
 
 func updateMysqlClusterDatabases(d *schema.ResourceData, meta interface{}) error {

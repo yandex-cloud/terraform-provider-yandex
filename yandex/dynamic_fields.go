@@ -361,24 +361,6 @@ func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNames(field string, valu
 	return fieldsInfo
 }
 
-func (fieldsInfo *objectFieldsInfo) addSkipEnumGeneratedNamesList(field string, values map[int32]string, defaultStringValue string, emptySliceValue string) *objectFieldsInfo {
-	def := 0
-	fieldsInfo.fieldsManual[field] = fieldManualInfo{
-		defaultStringValue: defaultStringValue,
-		emptySliceValue:    emptySliceValue,
-		isDefaultSet:       true,
-		intToString:        makeIntToString(convIValuesToI32(values), def),
-		stringToInt:        makeStringToInt(convIValuesToI32(values), &def),
-		isStringable:       true,
-		isNotNullable:      true,
-		skip:               true,
-		checkValueFunc:     defaultSliceCheckValueFunc(field),
-		compareValueFunc:   defultSliceCompareValueFunc(field),
-	}
-
-	return fieldsInfo
-}
-
 func (fieldsInfo *objectFieldsInfo) addIDefault(field string, def int) *objectFieldsInfo {
 
 	fieldsInfo.fieldsManual[field] = fieldManualInfo{defaultIntValue: &def, isDefaultSet: true}
@@ -550,40 +532,31 @@ func (fieldsInfo *objectFieldsInfo) intSliceToString(field string, values []int3
 	return result, nil
 }
 
-func defaultSliceCheckValueFunc(field string) func(fieldsInfo *objectFieldsInfo, v interface{}) error {
+func defaultStringOfEnumsCheck(fieldname string) func(*objectFieldsInfo, interface{}) error {
 	return func(fieldsInfo *objectFieldsInfo, v interface{}) error {
-		_, err := fieldsInfo.stringToIntSlice(field, v.(string))
-		return err
+		s, ok := v.(string)
+		if ok {
+			if s == "" {
+				return nil
+			}
+
+			for _, sv := range strings.Split(s, ",") {
+
+				i, err := fieldsInfo.stringToInt(fieldname, sv)
+				if err != nil {
+					return err
+				}
+				err = fieldsInfo.intCheckSetValue(fieldname, i)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		return fmt.Errorf("defaultStringOfEnumsCheck: Unsupported type for value %v", v)
 	}
 }
 
-func defultSliceCompareValueFunc(field string) func(fieldsInfo *objectFieldsInfo, old, new string) bool {
-	return func(fieldsInfo *objectFieldsInfo, old, new string) bool {
-		oldList, err := fieldsInfo.stringToIntSlice(field, old)
-		if err != nil {
-			return false
-		}
-		newList, err := fieldsInfo.stringToIntSlice(field, new)
-		if err != nil {
-			return false
-		}
-
-		oldMap := make(map[int32]struct{})
-
-		for _, value := range oldList {
-			if _, ok := oldMap[value]; !ok {
-				oldMap[value] = struct{}{}
-			}
-		}
-
-		newMap := make(map[int32]struct{})
-
-		for _, value := range newList {
-			if _, ok := newMap[value]; !ok {
-				newMap[value] = struct{}{}
-			}
-		}
-
-		return reflect.DeepEqual(oldMap, newMap)
-	}
+func defaultStringCompare(fieldsInfo *objectFieldsInfo, old, new string) bool {
+	return old == new
 }

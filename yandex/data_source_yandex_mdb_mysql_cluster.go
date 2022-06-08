@@ -422,7 +422,7 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	clusterConfig, err := flattenMySQLSettings(cluster.Config)
+	clusterConfig, err := flattenMySQLConfig(cluster.Config)
 	if err != nil {
 		return err
 	}

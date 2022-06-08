@@ -17,7 +17,7 @@ func TestFlattenMySQLSettingsEmpty(t *testing.T) {
 
 	config := &mysql.ClusterConfig{}
 
-	m, err := flattenMySQLSettings(config)
+	m, err := flattenMySQLConfig(config)
 
 	if err != nil {
 		t.Errorf("FlattenMySQLSettings fail: flatten empty error: %v", err)
@@ -52,7 +52,7 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 		},
 	}
 
-	m, err := flattenMySQLSettings(config)
+	m, err := flattenMySQLConfig(config)
 
 	if err != nil {
 		t.Errorf("FlattenMySQLSettings fail: flatten 5_7 error: %v", err)
@@ -94,7 +94,7 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 		},
 	}
 
-	m, err := flattenMySQLSettings(config)
+	m, err := flattenMySQLConfig(config)
 
 	if err != nil {
 		t.Errorf("FlattenMySQLSettings fail: flatten 8_0 error: %v", err)

@@ -139,6 +139,10 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "12"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
+					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
+
 					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
 				),
 			},
@@ -676,6 +680,11 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   version     = "5.7"
   labels = {
     test_key = "test_value"
+  }
+
+  mysql_config = {
+    sql_mode                      = "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    innodb_print_all_deadlocks    = true
   }
 
   resources {
