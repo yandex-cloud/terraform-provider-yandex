@@ -87,17 +87,10 @@ func expandALBModification(d *schema.ResourceData, key string) *apploadbalancer.
 }
 
 func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
-	routeSetRaw, ok := d.GetOk("route")
-	if !ok {
-		return nil, nil
-	}
-	routeSet := routeSetRaw.([]interface{})
-
 	var routes []*apploadbalancer.Route
-	for i, b := range routeSet {
-		routeConfig := b.(map[string]interface{})
 
-		route, err := expandALBRoute(d, fmt.Sprintf("route.%d", i), routeConfig)
+	for _, key := range IterateKeys(d, "route") {
+		route, err := expandALBRoute(d, key)
 		if err != nil {
 			return nil, err
 		}
@@ -108,23 +101,35 @@ func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
 	return routes, nil
 }
 
-func expandALBRoute(d *schema.ResourceData, path string, config map[string]interface{}) (*apploadbalancer.Route, error) {
+func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route, error) {
 	route := &apploadbalancer.Route{}
 
-	if v, ok := config["name"]; ok {
+	if v, ok := d.GetOk(path + "name"); ok {
 		route.Name = v.(string)
 	}
 
-	if _, ok := d.GetOk(path + ".http_route"); ok {
-		r, err := expandALBHTTPRoute(d, path+".http_route.0")
+	_, gotHTTPRoute := d.GetOk(path + "http_route")
+	_, gotGRPCRoute := d.GetOk(path + "grpc_route")
+
+	if gotHTTPRoute && gotGRPCRoute {
+		return nil, fmt.Errorf("Cannot specify both HTTP route and gRPC route for the route")
+	}
+	if !gotHTTPRoute && !gotGRPCRoute {
+		return nil, fmt.Errorf("Either HTTP route or gRPC route should be specified for the route")
+	}
+	if gotHTTPRoute {
+		r, err := expandALBHTTPRoute(d, path+"http_route.0.")
 		if err != nil {
 			return nil, err
 		}
 		route.SetHttp(r)
 	}
-
-	if v, ok := config["grpc_route"]; ok && len(v.([]interface{})) > 0 {
-		route.SetGrpc(expandALBGRPCRoute(d, path+".grpc_route.0", v.([]interface{})))
+	if gotGRPCRoute {
+		r, err := expandALBGRPCRoute(d, path+"grpc_route.0.")
+		if err != nil {
+			return nil, err
+		}
+		route.SetGrpc(r)
 	}
 
 	return route, nil
@@ -133,37 +138,48 @@ func expandALBRoute(d *schema.ResourceData, path string, config map[string]inter
 func expandALBHTTPRoute(d *schema.ResourceData, path string) (*apploadbalancer.HttpRoute, error) {
 	httpRoute := &apploadbalancer.HttpRoute{}
 
-	if _, ok := d.GetOk(path + ".http_match"); ok {
-		m, err := expandALBHTTPRouteMatch(d, path+".http_match.0")
+	if _, ok := d.GetOk(path + "http_match"); ok {
+		m, err := expandALBHTTPRouteMatch(d, path+"http_match.0.")
 		if err != nil {
 			return nil, err
 		}
 		httpRoute.Match = m
 	}
-	if _, ok := d.GetOk(path + ".http_route_action"); ok {
-		action, err := expandALBHTTPRouteAction(d, path+".http_route_action.0")
+
+	_, gotHTTPRouteAction := d.GetOk(path + "http_route_action")
+	_, gotRedirectAction := d.GetOk(path + "redirect_action")
+	_, gotDirectResponseAction := d.GetOk(path + "direct_response_action")
+
+	if gotHTTPRouteAction && gotRedirectAction && gotDirectResponseAction {
+		return nil, fmt.Errorf("Cannot specify HTTP route action and redirect action and direct response action for the HTTP route at the same time")
+	}
+	if !gotHTTPRouteAction && !gotRedirectAction && !gotDirectResponseAction {
+		return nil, fmt.Errorf("Either HTTP route action or redirect action or direct response action should be specified for the HTTP route")
+	}
+	if gotHTTPRouteAction {
+		action, err := expandALBHTTPRouteAction(d, path+"http_route_action.0.")
 		if err != nil {
 			return nil, err
 		}
 		httpRoute.SetRoute(action)
 	}
-	if _, ok := d.GetOk(path + ".redirect_action"); ok {
-		httpRoute.SetRedirect(expandALBRedirectAction(d, path+".redirect_action.0"))
+	if gotRedirectAction {
+		httpRoute.SetRedirect(expandALBRedirectAction(d, path+"redirect_action.0."))
 	}
-	if _, ok := d.GetOk(path + ".direct_response_action"); ok {
-		httpRoute.SetDirectResponse(expandALBDirectResponseAction(d, path+".direct_response_action.0"))
+	if gotDirectResponseAction {
+		httpRoute.SetDirectResponse(expandALBDirectResponseAction(d, path+"direct_response_action.0."))
 	}
 
 	return httpRoute, nil
 }
 
 func expandALBDirectResponseAction(d *schema.ResourceData, path string) *apploadbalancer.DirectResponseAction {
-	status := d.Get(path + ".status")
+	status := d.Get(path + "status")
 	directResponseAction := &apploadbalancer.DirectResponseAction{
 		Status: int64(status.(int)),
 	}
 
-	if body, ok := d.GetOk(path + ".body"); ok {
+	if body, ok := d.GetOk(path + "body"); ok {
 		payload := &apploadbalancer.Payload{}
 		payload.SetText(body.(string))
 		directResponseAction.Body = payload
@@ -174,7 +190,7 @@ func expandALBDirectResponseAction(d *schema.ResourceData, path string) *appload
 
 func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalancer.RedirectAction {
 	readStr := func(field string) (string, bool) {
-		s, ok := d.GetOk(path + "." + field)
+		s, ok := d.GetOk(path + field)
 		if ok {
 			return s.(string), true
 		}
@@ -192,11 +208,11 @@ func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalanc
 		redirectAction.ReplaceHost = val
 	}
 
-	if val, ok := d.GetOk(path + ".replace_port"); ok {
+	if val, ok := d.GetOk(path + "replace_port"); ok {
 		redirectAction.ReplacePort = int64(val.(int))
 	}
 
-	if val, ok := d.GetOk(path + ".remove_query"); ok {
+	if val, ok := d.GetOk(path + "remove_query"); ok {
 		redirectAction.RemoveQuery = val.(bool)
 	}
 
@@ -218,7 +234,7 @@ func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalanc
 
 func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteAction, error) {
 	readStr := func(field string) (string, bool) {
-		s, ok := d.GetOk(path + "." + field)
+		s, ok := d.GetOk(path + field)
 		if ok {
 			return s.(string), true
 		}
@@ -227,7 +243,7 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 	}
 
 	routeAction := &apploadbalancer.HttpRouteAction{
-		BackendGroupId: d.Get(path + ".backend_group_id").(string),
+		BackendGroupId: d.Get(path + "backend_group_id").(string),
 	}
 
 	if val, ok := readStr("timeout"); ok {
@@ -250,7 +266,7 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 		routeAction.PrefixRewrite = val
 	}
 
-	if val, ok := d.GetOk(path + ".upgrade_types"); ok {
+	if val, ok := d.GetOk(path + "upgrade_types"); ok {
 		upgradeTypes, err := expandALBStringListFromSchemaSet(val)
 		if err != nil {
 			return nil, err
@@ -262,40 +278,39 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 		routeAction.SetHostRewrite(val)
 	}
 
-	if val, ok := d.GetOk(path + ".auto_host_rewrite"); ok {
+	if val, ok := d.GetOk(path + "auto_host_rewrite"); ok {
 		routeAction.SetAutoHostRewrite(val.(bool))
 	}
 
 	return routeAction, nil
 }
 
-func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
+func expandALBGRPCRouteAction(d *schema.ResourceData, path string) *apploadbalancer.GrpcRouteAction {
 	routeAction := &apploadbalancer.GrpcRouteAction{}
 
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["backend_group_id"]; ok {
+	if val, ok := d.GetOk(path + "backend_group_id"); ok {
 		routeAction.BackendGroupId = val.(string)
 	}
 
-	if val, ok := config["max_timeout"]; ok {
+	if val, ok := d.GetOk(path + "max_timeout"); ok {
 		d, err := parseDuration(val.(string))
 		if err == nil {
 			routeAction.MaxTimeout = d
 		}
 	}
 
-	if val, ok := config["idle_timeout"]; ok {
+	if val, ok := d.GetOk(path + "idle_timeout"); ok {
 		d, err := parseDuration(val.(string))
 		if err == nil {
 			routeAction.IdleTimeout = d
 		}
 	}
 
-	if val, ok := config["host_rewrite"]; ok {
+	if val, ok := d.GetOk(path + "host_rewrite"); ok {
 		routeAction.SetHostRewrite(val.(string))
 	}
 
-	if val, ok := config["auto_host_rewrite"]; ok {
+	if val, ok := d.GetOk(path + "auto_host_rewrite"); ok {
 		routeAction.SetAutoHostRewrite(val.(bool))
 	}
 	return routeAction
@@ -304,11 +319,15 @@ func expandALBGRPCRouteAction(v interface{}) *apploadbalancer.GrpcRouteAction {
 func expandALBHTTPRouteMatch(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteMatch, error) {
 	httpRouteMatch := &apploadbalancer.HttpRouteMatch{}
 
-	if _, ok := d.GetOk(path + ".path"); ok {
-		httpRouteMatch.Path = expandALBStringMatch(d, path+".path.0")
+	if _, ok := d.GetOk(path + "path"); ok {
+		p, err := expandALBStringMatch(d, path+"path.0.")
+		if err != nil {
+			return nil, err
+		}
+		httpRouteMatch.SetPath(p)
 	}
 
-	if val, ok := d.GetOk(path + ".http_method"); ok {
+	if val, ok := d.GetOk(path + "http_method"); ok {
 		res, err := expandALBStringListFromSchemaSet(val)
 		if err != nil {
 			return nil, err
@@ -319,19 +338,33 @@ func expandALBHTTPRouteMatch(d *schema.ResourceData, path string) (*apploadbalan
 	return httpRouteMatch, nil
 }
 
-func expandALBGRPCRoute(d *schema.ResourceData, path string, v []interface{}) *apploadbalancer.GrpcRoute {
+func expandALBGRPCRoute(d *schema.ResourceData, path string) (*apploadbalancer.GrpcRoute, error) {
 	grpcRoute := &apploadbalancer.GrpcRoute{}
-	config := v[0].(map[string]interface{})
-	if val, ok := config["grpc_match"]; ok && len(val.([]interface{})) > 0 {
-		grpcRoute.Match = expandALBGRPCRouteMatch(d, path+".grpc_match.0", val)
+	if _, ok := d.GetOk(path + "grpc_match"); ok {
+		match, err := expandALBGRPCRouteMatch(d, path+"grpc_match.0.")
+		if err != nil {
+			return nil, err
+		}
+		grpcRoute.SetMatch(match)
 	}
-	if val, ok := config["grpc_route_action"]; ok && len(val.([]interface{})) > 0 {
-		grpcRoute.SetRoute(expandALBGRPCRouteAction(val))
+
+	_, gotGRPCRouteAction := d.GetOk(path + "grpc_route_action")
+	gRPCStatusResponseAction, gotGRPCStatusResponseAction := d.GetOk(path + "grpc_status_response_action")
+
+	if gotGRPCRouteAction && gotGRPCStatusResponseAction {
+		return nil, fmt.Errorf("Cannot specify both gRPC route action and gRPC status response action for the gRPC route")
 	}
-	if val, ok := config["grpc_status_response_action"]; ok && len(val.([]interface{})) > 0 {
-		grpcRoute.SetStatusResponse(expandALBGRPCStatusResponseAction(val))
+	if !gotGRPCRouteAction && !gotGRPCStatusResponseAction {
+		return nil, fmt.Errorf("Either gRPC route action or gRPC status response action should be specified for the gRPC route")
 	}
-	return grpcRoute
+	if gotGRPCRouteAction {
+		grpcRoute.SetRoute(expandALBGRPCRouteAction(d, path+"grpc_route_action.0."))
+	}
+	if gotGRPCStatusResponseAction {
+		grpcRoute.SetStatusResponse(expandALBGRPCStatusResponseAction(gRPCStatusResponseAction))
+	}
+
+	return grpcRoute, nil
 }
 
 func expandALBGRPCStatusResponseAction(v interface{}) *apploadbalancer.GrpcStatusResponseAction {
@@ -346,25 +379,37 @@ func expandALBGRPCStatusResponseAction(v interface{}) *apploadbalancer.GrpcStatu
 	return statusResponseAction
 }
 
-func expandALBGRPCRouteMatch(d *schema.ResourceData, path string, v interface{}) *apploadbalancer.GrpcRouteMatch {
+func expandALBGRPCRouteMatch(d *schema.ResourceData, path string) (*apploadbalancer.GrpcRouteMatch, error) {
 	grpcRouteMatch := &apploadbalancer.GrpcRouteMatch{}
-	config := v.([]interface{})[0].(map[string]interface{})
-	if val, ok := config["fqmn"]; ok && len(val.([]interface{})) > 0 {
-		grpcRouteMatch.Fqmn = expandALBStringMatch(d, path+".fqmn.0")
+	if _, ok := d.GetOk(path + "fqmn"); ok {
+		fqmn, err := expandALBStringMatch(d, path+"fqmn.0.")
+		if err != nil {
+			return nil, err
+		}
+		grpcRouteMatch.SetFqmn(fqmn)
 	}
-	return grpcRouteMatch
+	return grpcRouteMatch, nil
 }
 
-func expandALBStringMatch(d *schema.ResourceData, path string) *apploadbalancer.StringMatch {
+func expandALBStringMatch(d *schema.ResourceData, path string) (*apploadbalancer.StringMatch, error) {
 	stringMatch := &apploadbalancer.StringMatch{}
-	if val, ok := d.GetOk(path + ".exact"); ok {
-		stringMatch.SetExactMatch(val.(string))
+	exactMatch, gotExactMatch := d.GetOk(path + "exact")
+	prefixMatch, gotPrefixMatch := d.GetOk(path + "prefix")
+
+	if gotExactMatch && gotPrefixMatch {
+		return nil, fmt.Errorf("Cannot specify both exact match and prefix match for the string match")
+	}
+	if !gotExactMatch && !gotPrefixMatch {
+		return nil, fmt.Errorf("Either exact match or prefix match should be specified for the string match")
+	}
+	if gotExactMatch {
+		stringMatch.SetExactMatch(exactMatch.(string))
+	}
+	if gotPrefixMatch {
+		stringMatch.SetPrefixMatch(prefixMatch.(string))
 	}
 
-	if val, ok := d.GetOk(path + ".prefix"); ok {
-		stringMatch.SetPrefixMatch(val.(string))
-	}
-	return stringMatch
+	return stringMatch, nil
 }
 
 func expandALBAllocationPolicy(d *schema.ResourceData) (*apploadbalancer.AllocationPolicy, error) {
