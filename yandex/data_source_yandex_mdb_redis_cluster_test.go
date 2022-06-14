@@ -37,53 +37,6 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 
 	redisName := acctest.RandomWithPrefix("ds-redis-by-name")
 	redisDesc := "Redis Cluster Terraform Datasource Test"
-	tlsEnabled := false
-	persistenceMode := "ON"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, persistenceMode,
-					"6.2", false),
-				Check: testAccDataSourceMDBRedisClusterCheck(
-					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, persistenceMode),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceMDBRedis6Cluster_byID(t *testing.T) {
-	t.Parallel()
-
-	redisName := acctest.RandomWithPrefix("ds-redis-by-id")
-	redisDesc := "Redis Cluster Terraform Datasource Test"
-	persistenceMode := "OFF"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, persistenceMode,
-					"6.0", true),
-				Check: testAccDataSourceMDBRedisClusterCheck(
-					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, persistenceMode),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceMDBRedis6Cluster_byName(t *testing.T) {
-	t.Parallel()
-
-	redisName := acctest.RandomWithPrefix("ds-redis-by-name")
-	redisDesc := "Redis Cluster Terraform Datasource Test"
 	tlsEnabled := true
 	persistenceMode := "ON"
 
@@ -94,7 +47,7 @@ func TestAccDataSourceMDBRedis6Cluster_byName(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, persistenceMode,
-					"6.0", false),
+					"6.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
 					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, persistenceMode),

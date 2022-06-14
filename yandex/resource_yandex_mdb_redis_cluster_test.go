@@ -90,13 +90,13 @@ func mdbRedisClusterImportStep(name string) resource.TestStep {
 }
 
 // Test that a Redis Cluster can be created, updated and destroyed
-func TestAccMDBRedis62Cluster_full(t *testing.T) {
+func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	t.Parallel()
 
 	var r redis.Cluster
 	redisName := acctest.RandomWithPrefix("tf-redis")
-	redisDesc := "Redis Cluster Terraform Test"
-	redisDesc2 := "Redis Cluster Terraform Test Updated"
+	redisDesc := "Redis Cluster Networkssd Terraform Test"
+	redisDesc2 := "Redis Cluster Networkssd Terraform Test Updated"
 	folderID := getExampleFolderID()
 	version := "6.2"
 	baseDiskSize := 16
@@ -215,15 +215,15 @@ func TestAccMDBRedis62Cluster_full(t *testing.T) {
 	})
 }
 
-func TestAccMDBRedis6Cluster_full(t *testing.T) {
+func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	t.Parallel()
 
 	var r redis.Cluster
 	redisName := acctest.RandomWithPrefix("tf-redis")
-	redisDesc := "Redis 6 Cluster Terraform Test"
-	redisDesc2 := "Redis 6 Cluster Terraform Test Updated"
+	redisDesc := "Redis Cluster Localssd Terraform Test"
+	redisDesc2 := "Redis Cluster Localssd Terraform Test Updated"
 	folderID := getExampleFolderID()
-	version := "6.0"
+	version := "6.2"
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
 	baseFlavor := "hm1.nano"
@@ -300,14 +300,14 @@ func TestAccMDBRedis6Cluster_full(t *testing.T) {
 }
 
 // Test that a sharded Redis Cluster can be created, updated and destroyed
-func TestAccMDBRedis6Cluster_sharded(t *testing.T) {
+func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	t.Parallel()
 
 	var r redis.Cluster
 	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
 	redisDesc := "Sharded Redis Cluster Terraform Test"
 	folderID := getExampleFolderID()
-	version := "6.0"
+	version := "6.2"
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
 	tlsEnabled := false
