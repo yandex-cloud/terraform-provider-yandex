@@ -2,6 +2,8 @@ package yandex
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -10,13 +12,15 @@ import (
 )
 
 type redisConfig struct {
-	timeout              int64
-	maxmemoryPolicy      string
-	notifyKeyspaceEvents string
-	slowlogLogSlowerThan int64
-	slowlogMaxLen        int64
-	databases            int64
-	version              string
+	timeout                       int64
+	maxmemoryPolicy               string
+	notifyKeyspaceEvents          string
+	slowlogLogSlowerThan          int64
+	slowlogMaxLen                 int64
+	databases                     int64
+	version                       string
+	clientOutputBufferLimitNormal string
+	clientOutputBufferLimitPubsub string
 }
 
 // Sorts list of hosts in accordance with the order in config.
@@ -67,6 +71,15 @@ func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) (map
 	return toDelete, toAdd
 }
 
+func limitToStr(hard, soft, secs *wrappers.Int64Value) string {
+	vals := []string{
+		strconv.FormatInt(hard.GetValue(), 10),
+		strconv.FormatInt(soft.GetValue(), 10),
+		strconv.FormatInt(secs.GetValue(), 10),
+	}
+	return strings.Join(vals, " ")
+}
+
 func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res := redisConfig{
 		version: cc.Version,
@@ -80,6 +93,16 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
 		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 		res.databases = c.GetDatabases().GetValue()
+		res.clientOutputBufferLimitNormal = limitToStr(
+			c.ClientOutputBufferLimitNormal.HardLimit,
+			c.ClientOutputBufferLimitNormal.SoftLimit,
+			c.ClientOutputBufferLimitNormal.SoftSeconds,
+		)
+		res.clientOutputBufferLimitPubsub = limitToStr(
+			c.ClientOutputBufferLimitPubsub.HardLimit,
+			c.ClientOutputBufferLimitPubsub.SoftLimit,
+			c.ClientOutputBufferLimitPubsub.SoftSeconds,
+		)
 	case *redis.ClusterConfig_RedisConfig_6_0:
 		c := rc.RedisConfig_6_0.EffectiveConfig
 		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
@@ -88,6 +111,16 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
 		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 		res.databases = c.GetDatabases().GetValue()
+		res.clientOutputBufferLimitNormal = limitToStr(
+			c.ClientOutputBufferLimitNormal.HardLimit,
+			c.ClientOutputBufferLimitNormal.SoftLimit,
+			c.ClientOutputBufferLimitNormal.SoftSeconds,
+		)
+		res.clientOutputBufferLimitPubsub = limitToStr(
+			c.ClientOutputBufferLimitPubsub.HardLimit,
+			c.ClientOutputBufferLimitPubsub.SoftLimit,
+			c.ClientOutputBufferLimitPubsub.SoftSeconds,
+		)
 	case *redis.ClusterConfig_RedisConfig_6_2:
 		c := rc.RedisConfig_6_2.EffectiveConfig
 		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
@@ -96,9 +129,35 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
 		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 		res.databases = c.GetDatabases().GetValue()
+		res.clientOutputBufferLimitNormal = limitToStr(
+			c.ClientOutputBufferLimitNormal.HardLimit,
+			c.ClientOutputBufferLimitNormal.SoftLimit,
+			c.ClientOutputBufferLimitNormal.SoftSeconds,
+		)
+		res.clientOutputBufferLimitPubsub = limitToStr(
+			c.ClientOutputBufferLimitPubsub.HardLimit,
+			c.ClientOutputBufferLimitPubsub.SoftLimit,
+			c.ClientOutputBufferLimitPubsub.SoftSeconds,
+		)
 	}
 
 	return res
+}
+
+func expandLimit(limit string) ([]*wrappers.Int64Value, error) {
+	vals := strings.Split(limit, " ")
+	if len(vals) != 3 {
+		return nil, fmt.Errorf("%s should be space-separated 3-values string", limit)
+	}
+	res := []*wrappers.Int64Value{}
+	for _, val := range vals {
+		parsed, err := strconv.ParseInt(val, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, &wrappers.Int64Value{Value: parsed})
+	}
+	return res, nil
 }
 
 func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, string, error) {
@@ -138,6 +197,23 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 	if v, ok := d.GetOk("config.0.version"); ok {
 		version = v.(string)
 	}
+
+	var expandedNormal []*wrappers.Int64Value
+	var err error
+	if v, ok := d.GetOk("config.0.client_output_buffer_limit_normal"); ok {
+		expandedNormal, err = expandLimit(v.(string))
+		if err != nil {
+			return nil, "", err
+		}
+	}
+	var expandedPubsub []*wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.client_output_buffer_limit_pubsub"); ok {
+		expandedPubsub, err = expandLimit(v.(string))
+		if err != nil {
+			return nil, "", err
+		}
+	}
+
 	switch version {
 	case "5.0":
 		c := config.RedisConfig5_0{
@@ -148,10 +224,30 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 			SlowlogMaxLen:        slowlogMaxLen,
 			Databases:            databases,
 		}
+
+		if len(expandedNormal) != 0 {
+			normalLimit := &config.RedisConfig5_0_ClientOutputBufferLimit{
+				HardLimit:   expandedNormal[0],
+				SoftLimit:   expandedNormal[1],
+				SoftSeconds: expandedNormal[2],
+			}
+			c.SetClientOutputBufferLimitNormal(normalLimit)
+		}
+
+		if len(expandedPubsub) != 0 {
+			pubsubLimit := &config.RedisConfig5_0_ClientOutputBufferLimit{
+				HardLimit:   expandedPubsub[0],
+				SoftLimit:   expandedPubsub[1],
+				SoftSeconds: expandedPubsub[2],
+			}
+			c.SetClientOutputBufferLimitPubsub(pubsubLimit)
+		}
+
 		err := setMaxMemory5_0(&c, d)
 		if err != nil {
 			return nil, version, err
 		}
+
 		cs = &redis.ConfigSpec_RedisConfig_5_0{
 			RedisConfig_5_0: &c,
 		}
@@ -164,10 +260,30 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 			SlowlogMaxLen:        slowlogMaxLen,
 			Databases:            databases,
 		}
+
+		if len(expandedNormal) != 0 {
+			normalLimit := &config.RedisConfig6_0_ClientOutputBufferLimit{
+				HardLimit:   expandedNormal[0],
+				SoftLimit:   expandedNormal[1],
+				SoftSeconds: expandedNormal[2],
+			}
+			c.SetClientOutputBufferLimitNormal(normalLimit)
+		}
+
+		if len(expandedPubsub) != 0 {
+			pubsubLimit := &config.RedisConfig6_0_ClientOutputBufferLimit{
+				HardLimit:   expandedPubsub[0],
+				SoftLimit:   expandedPubsub[1],
+				SoftSeconds: expandedPubsub[2],
+			}
+			c.SetClientOutputBufferLimitPubsub(pubsubLimit)
+		}
+
 		err := setMaxMemory6_0(&c, d)
 		if err != nil {
 			return nil, version, err
 		}
+
 		cs = &redis.ConfigSpec_RedisConfig_6_0{
 			RedisConfig_6_0: &c,
 		}
@@ -180,10 +296,30 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 			SlowlogMaxLen:        slowlogMaxLen,
 			Databases:            databases,
 		}
+
+		if len(expandedNormal) != 0 {
+			normalLimit := &config.RedisConfig6_2_ClientOutputBufferLimit{
+				HardLimit:   expandedNormal[0],
+				SoftLimit:   expandedNormal[1],
+				SoftSeconds: expandedNormal[2],
+			}
+			c.SetClientOutputBufferLimitNormal(normalLimit)
+		}
+
+		if len(expandedPubsub) != 0 {
+			pubsubLimit := &config.RedisConfig6_2_ClientOutputBufferLimit{
+				HardLimit:   expandedPubsub[0],
+				SoftLimit:   expandedPubsub[1],
+				SoftSeconds: expandedPubsub[2],
+			}
+			c.SetClientOutputBufferLimitPubsub(pubsubLimit)
+		}
+
 		err := setMaxMemory6_2(&c, d)
 		if err != nil {
 			return nil, version, err
 		}
+
 		cs = &redis.ConfigSpec_RedisConfig_6_2{
 			RedisConfig_6_2: &c,
 		}

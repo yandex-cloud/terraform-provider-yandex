@@ -96,6 +96,16 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"client_output_buffer_limit_normal": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"client_output_buffer_limit_pubsub": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 						"version": {
 							Type:     schema.TypeString,
 							Required: true,
@@ -402,14 +412,16 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 	err = d.Set("config", []map[string]interface{}{
 		{
-			"timeout":                 conf.timeout,
-			"maxmemory_policy":        conf.maxmemoryPolicy,
-			"notify_keyspace_events":  conf.notifyKeyspaceEvents,
-			"slowlog_log_slower_than": conf.slowlogLogSlowerThan,
-			"slowlog_max_len":         conf.slowlogMaxLen,
-			"databases":               conf.databases,
-			"version":                 conf.version,
-			"password":                password,
+			"timeout":                           conf.timeout,
+			"maxmemory_policy":                  conf.maxmemoryPolicy,
+			"notify_keyspace_events":            conf.notifyKeyspaceEvents,
+			"slowlog_log_slower_than":           conf.slowlogLogSlowerThan,
+			"slowlog_max_len":                   conf.slowlogMaxLen,
+			"databases":                         conf.databases,
+			"version":                           conf.version,
+			"password":                          password,
+			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
+			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
 		},
 	})
 	if err != nil {
@@ -581,6 +593,8 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"slowlog_max_len",
 			"databases",
 			"version",
+			"client_output_buffer_limit_normal",
+			"client_output_buffer_limit_pubsub",
 		}
 		for _, field := range fields {
 			fullPath := "config_spec." + updateFieldConfigName + "." + field

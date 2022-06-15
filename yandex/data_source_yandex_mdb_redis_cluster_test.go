@@ -93,6 +93,8 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"config.0.notify_keyspace_events",
 			"config.0.slowlog_log_slower_than",
 			"config.0.slowlog_max_len",
+			"config.0.client_output_buffer_limit_normal",
+			"config.0.client_output_buffer_limit_pubsub",
 			"config.0.databases",
 			"config.0.version",
 			"security_group_ids",
@@ -168,9 +170,9 @@ func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnab
 	useDataID bool) string {
 	if useDataID {
 		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-			tlsEnabled, persistenceMode, version, "hm1.nano", 16, "") + mdbRedisClusterByIDConfig
+			tlsEnabled, persistenceMode, version, "hm1.nano", 16, "", "", "") + mdbRedisClusterByIDConfig
 	}
 
 	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-		tlsEnabled, persistenceMode, version, "hm1.nano", 16, "") + mdbRedisClusterByNameConfig
+		tlsEnabled, persistenceMode, version, "hm1.nano", 16, "", "", "") + mdbRedisClusterByNameConfig
 }
