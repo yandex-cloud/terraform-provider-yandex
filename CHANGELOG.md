@@ -4,6 +4,7 @@ BUG FIXES:
 * alb: fixed `yandex_alb_load_balancer` resource and data source documentation
 * alb: support `mode` attribute in `load_balancing_config` entity in `yandex_alb_backend_group` resource and data source
 * mysql: `mysql_config.sql_mode` is setting now when creating a cluster
+* mdb: fix changing `maintenance_window` only in `yandex_mdb_redis_cluster`
   
 ENHANCEMENTS:
 * alb: refactoring `yandex_alb_backend_group` resource and data source

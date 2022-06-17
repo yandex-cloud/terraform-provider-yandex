@@ -470,18 +470,12 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
 	}
 
-	if d.HasChange("name") || d.HasChange("labels") || d.HasChange("description") || d.HasChange("resources") ||
-		d.HasChange("config") || d.HasChange("security_group_ids") || d.HasChange("deletion_protection") ||
-		d.HasChange("persistence_mode") {
-		if err := updateRedisClusterParams(d, meta); err != nil {
-			return err
-		}
+	if err := updateRedisClusterParams(d, meta); err != nil {
+		return err
 	}
 
-	if d.HasChange("host") {
-		if err := updateRedisClusterHosts(d, meta); err != nil {
-			return err
-		}
+	if err := updateRedisClusterHosts(d, meta); err != nil {
+		return err
 	}
 
 	d.Partial(false)
@@ -639,6 +633,10 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		})
 	}
 
+	if len(req.UpdateMask.Paths) == 0 {
+		return nil
+	}
+
 	err := makeRedisClusterUpdateRequest(req, d, meta)
 	if err != nil {
 		return err
@@ -651,6 +649,10 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 }
 
 func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
+	if !d.HasChange("host") {
+		return nil
+	}
+
 	config := meta.(*Config)
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
