@@ -1998,7 +1998,7 @@ func listClickHouseShards(ctx context.Context, config *Config, id string) ([]*cl
 			return nil, fmt.Errorf("error while getting list of shards for '%s': %s", id, err)
 		}
 		shards = append(shards, resp.Shards...)
-		if resp.NextPageToken == "" {
+		if resp.NextPageToken == "" || resp.NextPageToken == pageToken {
 			break
 		}
 		pageToken = resp.NextPageToken
