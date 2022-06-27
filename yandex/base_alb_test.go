@@ -486,6 +486,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         handler {
           http_handler {
             http_router_id = yandex_alb_http_router.test-router.id
+            allow_http10 = true
           }
           certificate_ids = ["{{.CertificateID}}"]
         }

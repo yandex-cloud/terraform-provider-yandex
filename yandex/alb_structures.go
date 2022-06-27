@@ -57,33 +57,43 @@ func expandALBHeaderModification(d *schema.ResourceData, key string) ([]*appload
 	var modifications []*apploadbalancer.HeaderModification
 
 	for _, currentKey := range IterateKeys(d, key) {
-		modification := expandALBModification(d, currentKey)
+		modification, err := expandALBModification(d, currentKey)
+		if err != nil {
+			return nil, err
+		}
 		modifications = append(modifications, modification)
 	}
 
 	return modifications, nil
 }
 
-func expandALBModification(d *schema.ResourceData, key string) *apploadbalancer.HeaderModification {
+func expandALBModification(d *schema.ResourceData, path string) (*apploadbalancer.HeaderModification, error) {
 	modification := &apploadbalancer.HeaderModification{}
 
-	if v, ok := d.GetOk(key + "name"); ok {
+	if v, ok := d.GetOk(path + "name"); ok {
 		modification.SetName(v.(string))
 	}
 
-	if v, ok := d.GetOk(key + "replace"); ok {
-		modification.SetReplace(v.(string))
+	replace, gotReplace := d.GetOk(path + "replace")
+	remove, gotRemove := d.GetOk(path + "remove")
+	appendValue, gotAppend := d.GetOk(path + "append")
+
+	if isPlural(gotReplace, gotRemove, gotAppend) {
+		return nil, fmt.Errorf("Cannot specify more than one of replace and remove and append operation for the header modification at the same time")
+	}
+	if gotReplace {
+		modification.SetReplace(replace.(string))
 	}
 
-	if v, ok := d.GetOk(key + "append"); ok {
-		modification.SetAppend(v.(string))
+	if gotRemove {
+		modification.SetRemove(remove.(bool))
 	}
 
-	if v, ok := d.GetOk(key + "remove"); ok {
-		modification.SetRemove(v.(bool))
+	if gotAppend {
+		modification.SetAppend(appendValue.(string))
 	}
 
-	return modification
+	return modification, nil
 }
 
 func expandALBRoutes(d *schema.ResourceData) ([]*apploadbalancer.Route, error) {
@@ -111,7 +121,7 @@ func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route
 	_, gotHTTPRoute := d.GetOk(path + "http_route")
 	_, gotGRPCRoute := d.GetOk(path + "grpc_route")
 
-	if gotHTTPRoute && gotGRPCRoute {
+	if isPlural(gotHTTPRoute, gotGRPCRoute) {
 		return nil, fmt.Errorf("Cannot specify both HTTP route and gRPC route for the route")
 	}
 	if !gotHTTPRoute && !gotGRPCRoute {
@@ -150,8 +160,8 @@ func expandALBHTTPRoute(d *schema.ResourceData, path string) (*apploadbalancer.H
 	_, gotRedirectAction := d.GetOk(path + "redirect_action")
 	_, gotDirectResponseAction := d.GetOk(path + "direct_response_action")
 
-	if gotHTTPRouteAction && gotRedirectAction && gotDirectResponseAction {
-		return nil, fmt.Errorf("Cannot specify HTTP route action and redirect action and direct response action for the HTTP route at the same time")
+	if isPlural(gotHTTPRouteAction, gotRedirectAction, gotDirectResponseAction) {
+		return nil, fmt.Errorf("Cannot specify more than one of HTTP route action and redirect action and direct response action for the HTTP route at the same time")
 	}
 	if !gotHTTPRouteAction && !gotRedirectAction && !gotDirectResponseAction {
 		return nil, fmt.Errorf("Either HTTP route action or redirect action or direct response action should be specified for the HTTP route")
@@ -164,7 +174,11 @@ func expandALBHTTPRoute(d *schema.ResourceData, path string) (*apploadbalancer.H
 		httpRoute.SetRoute(action)
 	}
 	if gotRedirectAction {
-		httpRoute.SetRedirect(expandALBRedirectAction(d, path+"redirect_action.0."))
+		action, err := expandALBRedirectAction(d, path+"redirect_action.0.")
+		if err != nil {
+			return nil, err
+		}
+		httpRoute.SetRedirect(action)
 	}
 	if gotDirectResponseAction {
 		httpRoute.SetDirectResponse(expandALBDirectResponseAction(d, path+"direct_response_action.0."))
@@ -188,7 +202,7 @@ func expandALBDirectResponseAction(d *schema.ResourceData, path string) *appload
 	return directResponseAction
 }
 
-func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalancer.RedirectAction {
+func expandALBRedirectAction(d *schema.ResourceData, path string) (*apploadbalancer.RedirectAction, error) {
 	readStr := func(field string) (string, bool) {
 		s, ok := d.GetOk(path + field)
 		if ok {
@@ -216,12 +230,18 @@ func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalanc
 		redirectAction.RemoveQuery = val.(bool)
 	}
 
-	if val, ok := readStr("replace_path"); ok {
-		redirectAction.SetReplacePath(val)
+	replacePath, gotReplacePath := readStr("replace_path")
+	replacePrefix, gotReplacePrefix := readStr("replace_prefix")
+
+	if isPlural(gotReplacePrefix, gotReplacePath) {
+		return nil, fmt.Errorf("Cannot specify both replace path and replace prefix for the redirect action")
+	}
+	if gotReplacePath {
+		redirectAction.SetReplacePath(replacePath)
 	}
 
-	if val, ok := readStr("replace_prefix"); ok {
-		redirectAction.SetReplacePrefix(val)
+	if gotReplacePrefix {
+		redirectAction.SetReplacePrefix(replacePrefix)
 	}
 
 	if val, ok := readStr("response_code"); ok {
@@ -229,7 +249,7 @@ func expandALBRedirectAction(d *schema.ResourceData, path string) *apploadbalanc
 		redirectAction.ResponseCode = apploadbalancer.RedirectAction_RedirectResponseCode(code)
 	}
 
-	return redirectAction
+	return redirectAction, nil
 }
 
 func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbalancer.HttpRouteAction, error) {
@@ -273,13 +293,19 @@ func expandALBHTTPRouteAction(d *schema.ResourceData, path string) (*apploadbala
 		}
 		routeAction.UpgradeTypes = upgradeTypes
 	}
+	hostRewrite, gotHostRewrite := readStr("host_rewrite")
+	autoHostRewrite, gotAutoHostRewrite := d.GetOk(path + "auto_host_rewrite")
 
-	if val, ok := readStr("host_rewrite"); ok {
-		routeAction.SetHostRewrite(val)
+	if isPlural(gotHostRewrite, gotAutoHostRewrite) {
+		return nil, fmt.Errorf("Cannot specify both host rewrite and auto host rewrite for the HTTP route action")
 	}
 
-	if val, ok := d.GetOk(path + "auto_host_rewrite"); ok {
-		routeAction.SetAutoHostRewrite(val.(bool))
+	if gotHostRewrite {
+		routeAction.SetHostRewrite(hostRewrite)
+	}
+
+	if gotAutoHostRewrite {
+		routeAction.SetAutoHostRewrite(autoHostRewrite.(bool))
 	}
 
 	return routeAction, nil
@@ -351,7 +377,7 @@ func expandALBGRPCRoute(d *schema.ResourceData, path string) (*apploadbalancer.G
 	_, gotGRPCRouteAction := d.GetOk(path + "grpc_route_action")
 	gRPCStatusResponseAction, gotGRPCStatusResponseAction := d.GetOk(path + "grpc_status_response_action")
 
-	if gotGRPCRouteAction && gotGRPCStatusResponseAction {
+	if isPlural(gotGRPCRouteAction, gotGRPCStatusResponseAction) {
 		return nil, fmt.Errorf("Cannot specify both gRPC route action and gRPC status response action for the gRPC route")
 	}
 	if !gotGRPCRouteAction && !gotGRPCStatusResponseAction {
@@ -396,7 +422,7 @@ func expandALBStringMatch(d *schema.ResourceData, path string) (*apploadbalancer
 	exactMatch, gotExactMatch := d.GetOk(path + "exact")
 	prefixMatch, gotPrefixMatch := d.GetOk(path + "prefix")
 
-	if gotExactMatch && gotPrefixMatch {
+	if isPlural(gotExactMatch, gotPrefixMatch) {
 		return nil, fmt.Errorf("Cannot specify both exact match and prefix match for the string match")
 	}
 	if !gotExactMatch && !gotPrefixMatch {
@@ -466,258 +492,320 @@ func expandALBListeners(d *schema.ResourceData) ([]*apploadbalancer.ListenerSpec
 	return listeners, nil
 }
 
-func expandALBListener(d *schema.ResourceData, key string) (*apploadbalancer.ListenerSpec, error) {
+func isPlural(values ...bool) bool {
+	n := 0
+	for _, value := range values {
+		if value {
+			n++
+		}
+	}
+	return n > 1
+}
+
+func expandALBListener(d *schema.ResourceData, path string) (*apploadbalancer.ListenerSpec, error) {
 	listener := &apploadbalancer.ListenerSpec{}
 
-	if v, ok := d.GetOk(key + "name"); ok {
+	if v, ok := d.GetOk(path + "name"); ok {
 		listener.Name = v.(string)
 	}
 
-	if v, ok := d.GetOk(key + "endpoint"); ok {
-		listener.EndpointSpecs = expandALBEndpoints(v)
+	if _, ok := d.GetOk(path + "endpoint"); ok {
+		endpoints, err := expandALBEndpoints(d, path+"endpoint")
+		if err != nil {
+			return nil, err
+		}
+		listener.SetEndpointSpecs(endpoints)
 	}
 
-	if conf, ok := getFirstElementConfigIfExists(d, key+"http"); ok {
-		listener.SetHttp(expandALBHTTPListener(conf))
+	_, gotHTTPListener := d.GetOk(path + "http.0")
+	_, gotStreamListener := d.GetOk(path + "stream.0")
+	_, gotTLSListener := d.GetOk(path + "tls.0")
+
+	if isPlural(gotHTTPListener, gotStreamListener, gotTLSListener) {
+		return nil, fmt.Errorf("Cannot specify more than one of HTTP listener and Stream listener and TLS listener for the ALB listener at the same time")
+	}
+	if !gotHTTPListener && !gotStreamListener && !gotTLSListener {
+		return nil, fmt.Errorf("Either HTTP listener or Stream listener or TLS listener should be specified for the ALB listener")
 	}
 
-	if conf, ok := getFirstElementConfigIfExists(d, key+"tls"); ok {
-		listener.SetTls(expandALBTLSListener(conf))
+	if gotHTTPListener {
+		http, err := expandALBHTTPListener(d, path+"http.0.")
+		if err != nil {
+			return nil, err
+		}
+		listener.SetHttp(http)
 	}
 
-	if conf, ok := getFirstElementConfigIfExists(d, key+"stream"); ok {
-		listener.SetStream(expandALBStreamListener(conf))
+	if gotTLSListener {
+		tls, err := expandALBTLSListener(d, path+"tls.0.")
+		if err != nil {
+			return nil, err
+		}
+		listener.SetTls(tls)
+	}
+
+	if gotStreamListener {
+		listener.SetStream(expandALBStreamListener(d, path+"stream.0."))
 	}
 
 	return listener, nil
 }
 
-func getFirstElementConfigIfExists(d *schema.ResourceData, key string) (map[string]interface{}, bool) {
-	if v, ok := d.GetOk(key); ok {
-		arr := v.([]interface{})
-		if len(arr) > 0 {
-			var resultConfig map[string]interface{}
-			if result := arr[0]; result != nil {
-				resultConfig = result.(map[string]interface{})
-			} else {
-				resultConfig = map[string]interface{}{}
-			}
-			return resultConfig, true
-		}
-	}
-	return nil, false
-}
-
-func getFirstElementConfig(config map[string]interface{}, key string) (map[string]interface{}, bool) {
-	if v, ok := config[key]; ok {
-		switch v := v.(type) {
-		case []interface{}:
-			if len(v) > 0 {
-				var resultConfig map[string]interface{}
-				if result := v[0]; result != nil {
-					resultConfig = result.(map[string]interface{})
-				} else {
-					resultConfig = map[string]interface{}{}
-				}
-				return resultConfig, true
-			}
-		case []map[string]interface{}:
-			if len(v) > 0 {
-				if result := v[0]; result != nil {
-					return result, true
-				}
-			}
-		}
-	}
-	return nil, false
-}
-
-func expandALBTLSListener(config map[string]interface{}) *apploadbalancer.TlsListener {
+func expandALBTLSListener(d *schema.ResourceData, path string) (*apploadbalancer.TlsListener, error) {
 	tlsListener := &apploadbalancer.TlsListener{}
-	if conf, ok := getFirstElementConfig(config, "default_handler"); ok {
-		tlsListener.SetDefaultHandler(expandALBTLSHandler(conf))
+	if _, ok := d.GetOk(path + "default_handler.0"); ok {
+		handler, err := expandALBTLSHandler(d, path+"default_handler.0.")
+		if err != nil {
+			return nil, err
+		}
+		tlsListener.SetDefaultHandler(handler)
 	}
-	if v, ok := config["sni_handler"]; ok {
-		tlsListener.SniHandlers = expandALBSNIMatches(v)
+	if _, ok := d.GetOk(path + "sni_handler"); ok {
+		sniHandlers, err := expandALBSNIMatches(d, path+"sni_handler")
+		if err != nil {
+			return nil, err
+		}
+		tlsListener.SetSniHandlers(sniHandlers)
 	}
 
-	return tlsListener
+	return tlsListener, nil
 }
 
-func expandALBSNIMatches(v interface{}) []*apploadbalancer.SniMatch {
+func expandALBSNIMatch(d *schema.ResourceData, path string) (*apploadbalancer.SniMatch, error) {
+	match := &apploadbalancer.SniMatch{}
+
+	if val, ok := d.GetOk(path + "name"); ok {
+		match.Name = val.(string)
+	}
+
+	if val, ok := d.GetOk(path + "server_names"); ok {
+		if serverNames, err := expandALBStringListFromSchemaSet(val); err == nil {
+			match.ServerNames = serverNames
+		}
+	}
+
+	if _, ok := d.GetOk(path + "handler.0"); ok {
+		handler, err := expandALBTLSHandler(d, path+"handler.0.")
+		if err != nil {
+			return nil, err
+		}
+		match.SetHandler(handler)
+	}
+
+	return match, nil
+}
+
+func expandALBSNIMatches(d *schema.ResourceData, path string) ([]*apploadbalancer.SniMatch, error) {
 	var matches []*apploadbalancer.SniMatch
 
-	if v != nil {
-		matchSet := v.([]interface{})
-
-		for _, h := range matchSet {
-			match := &apploadbalancer.SniMatch{}
-			config := h.(map[string]interface{})
-
-			if val, ok := config["name"]; ok {
-				match.Name = val.(string)
-			}
-
-			if val, ok := config["server_names"]; ok {
-				if serverNames, err := expandALBStringListFromSchemaSet(val); err == nil {
-					match.ServerNames = serverNames
-				}
-			}
-
-			if val, ok := config["handler"]; ok {
-				handlerConfig := val.([]interface{})
-				if len(handlerConfig) == 1 {
-					match.Handler = expandALBTLSHandler(handlerConfig[0].(map[string]interface{}))
-				}
-			}
-
-			matches = append(matches, match)
+	for _, key := range IterateKeys(d, path) {
+		match, err := expandALBSNIMatch(d, key)
+		if err != nil {
+			return nil, err
 		}
+		matches = append(matches, match)
 	}
-	return matches
+
+	return matches, nil
 }
 
-func expandALBStreamListener(config map[string]interface{}) *apploadbalancer.StreamListener {
+func expandALBStreamListener(d *schema.ResourceData, path string) *apploadbalancer.StreamListener {
 	streamListener := &apploadbalancer.StreamListener{}
 
-	if conf, ok := getFirstElementConfig(config, "handler"); ok {
-		streamListener.Handler = expandALBStreamHandler(conf)
+	if _, ok := d.GetOk(path + "handler.0"); ok {
+		streamListener.Handler = expandALBStreamHandler(d, path+"handler.0.")
 	}
 
 	return streamListener
 }
 
-func expandALBHTTPListener(config map[string]interface{}) *apploadbalancer.HttpListener {
+func expandALBHTTPListener(d *schema.ResourceData, path string) (*apploadbalancer.HttpListener, error) {
 	httpListener := &apploadbalancer.HttpListener{}
 
-	if conf, ok := getFirstElementConfig(config, "handler"); ok {
-		httpListener.Handler = expandALBHTTPHandler(conf)
+	if _, ok := d.GetOk(path + "handler.0"); ok {
+		handler, err := expandALBHTTPHandler(d, path+"handler.0.")
+		if err != nil {
+			return nil, err
+		}
+		httpListener.SetHandler(handler)
 	}
 
-	if conf, ok := getFirstElementConfig(config, "redirects"); ok {
-		if v, ok := conf["http_to_https"]; ok {
+	if _, ok := d.GetOk(path + "redirects.0"); ok {
+		currentKey := path + "redirects.0." + "http_to_https"
+		if v, ok := d.GetOk(currentKey); ok {
 			httpListener.Redirects = &apploadbalancer.Redirects{HttpToHttps: v.(bool)}
 		}
 	}
 
-	return httpListener
+	return httpListener, nil
 }
 
-func expandALBStreamHandler(config map[string]interface{}) *apploadbalancer.StreamHandler {
+func expandALBStreamHandler(d *schema.ResourceData, path string) *apploadbalancer.StreamHandler {
 	streamHandler := &apploadbalancer.StreamHandler{}
 
-	if v, ok := config["backend_group_id"]; ok {
+	if v, ok := d.GetOk(path + "backend_group_id"); ok {
 		streamHandler.BackendGroupId = v.(string)
 	}
 
 	return streamHandler
 }
 
-func expandALBHTTPHandler(config map[string]interface{}) *apploadbalancer.HttpHandler {
+func expandALBHTTPHandler(d *schema.ResourceData, path string) (*apploadbalancer.HttpHandler, error) {
 	httpHandler := &apploadbalancer.HttpHandler{}
 
-	if v, ok := config["allow_http10"]; ok {
-		httpHandler.SetAllowHttp10(v.(bool))
-	}
-
-	if v, ok := config["http_router_id"]; ok {
+	if v, ok := d.GetOk(path + "http_router_id"); ok {
 		httpHandler.HttpRouterId = v.(string)
 	}
 
-	if conf, ok := getFirstElementConfig(config, "http2_options"); ok {
+	allowHTTP10, gotAllowHTTP10 := d.GetOk(path + "allow_http10")
+	_, gotHTTP2Options := d.GetOk(path + "http2_options.0")
+
+	if isPlural(gotAllowHTTP10, gotHTTP2Options) {
+		return nil, fmt.Errorf("Cannot specify both allow HTTP 1.0 and HTTP 2 options for the HTTP Handler")
+	}
+
+	if gotAllowHTTP10 {
+		httpHandler.SetAllowHttp10(allowHTTP10.(bool))
+	}
+
+	if gotHTTP2Options {
+		currentKey := path + "http2_options.0." + "max_concurrent_streams"
 		http2Options := &apploadbalancer.Http2Options{}
-		if val, ok := conf["max_concurrent_streams"]; ok {
+		if val, ok := d.GetOk(currentKey); ok {
 			http2Options.MaxConcurrentStreams = int64(val.(int))
 		}
 		httpHandler.SetHttp2Options(http2Options)
 	}
 
-	return httpHandler
+	return httpHandler, nil
 }
 
-func expandALBTLSHandler(config map[string]interface{}) *apploadbalancer.TlsHandler {
+func expandALBTLSHandler(d *schema.ResourceData, path string) (*apploadbalancer.TlsHandler, error) {
 	tlsHandler := &apploadbalancer.TlsHandler{}
 
-	if conf, ok := getFirstElementConfig(config, "http_handler"); ok {
-		tlsHandler.SetHttpHandler(expandALBHTTPHandler(conf))
+	_, gotHTTPHandler := d.GetOk(path + "http_handler.0")
+	_, gotStreamHandler := d.GetOk(path + "stream_handler.0")
+
+	if isPlural(gotHTTPHandler, gotStreamHandler) {
+		return nil, fmt.Errorf("Cannot specify both HTTP handler and Stream handler for the TLS Handler")
+	}
+	if !gotHTTPHandler && !gotStreamHandler {
+		return nil, fmt.Errorf("Either HTTP handler or Stream handler should be specified for the TLS Handler")
 	}
 
-	if conf, ok := getFirstElementConfig(config, "stream_handler"); ok {
-		tlsHandler.SetStreamHandler(expandALBStreamHandler(conf))
+	if gotHTTPHandler {
+		handler, err := expandALBHTTPHandler(d, path+"http_handler.0.")
+		if err != nil {
+			return nil, err
+		}
+		tlsHandler.SetHttpHandler(handler)
 	}
 
-	if v, ok := config["certificate_ids"]; ok {
+	if gotStreamHandler {
+		tlsHandler.SetStreamHandler(expandALBStreamHandler(d, path+"stream_handler.0."))
+	}
+
+	if v, ok := d.GetOk(path + "certificate_ids"); ok {
 		if certificateIDs, err := expandALBStringListFromSchemaSet(v); err == nil {
 			tlsHandler.CertificateIds = certificateIDs
 		}
 	}
 
-	return tlsHandler
+	return tlsHandler, nil
+}
+func expandALBEndpoint(d *schema.ResourceData, path string) (*apploadbalancer.EndpointSpec, error) {
+	endpoint := &apploadbalancer.EndpointSpec{}
+
+	if _, ok := d.GetOk(path + "address"); ok {
+		address, err := expandALBEndpointAddresses(d, path+"address")
+		if err != nil {
+			return nil, err
+		}
+		endpoint.SetAddressSpecs(address)
+	}
+
+	if val, ok := d.GetOk(path + "ports"); ok {
+		if ports, err := expandALBInt64ListFromList(val); err == nil {
+			endpoint.Ports = ports
+		}
+	}
+
+	return endpoint, nil
 }
 
-func expandALBEndpoints(v interface{}) []*apploadbalancer.EndpointSpec {
+func expandALBEndpoints(d *schema.ResourceData, path string) ([]*apploadbalancer.EndpointSpec, error) {
 	var endpoints []*apploadbalancer.EndpointSpec
-	if v != nil {
 
-		for _, h := range v.([]interface{}) {
-			endpoint := &apploadbalancer.EndpointSpec{}
-			config := h.(map[string]interface{})
-
-			if val, ok := config["address"]; ok {
-				endpoint.AddressSpecs = expandALBEndpointAddresses(val)
-			}
-
-			if val, ok := config["ports"]; ok {
-				if ports, err := expandALBInt64ListFromList(val); err == nil {
-					endpoint.Ports = ports
-				}
-			}
-
-			endpoints = append(endpoints, endpoint)
+	for _, key := range IterateKeys(d, path) {
+		endpoint, err := expandALBEndpoint(d, key)
+		if err != nil {
+			return nil, err
 		}
+		endpoints = append(endpoints, endpoint)
 	}
-	return endpoints
+
+	return endpoints, nil
 }
 
-func expandALBEndpointAddresses(v interface{}) []*apploadbalancer.AddressSpec {
-	var addresses []*apploadbalancer.AddressSpec
-	if v != nil {
+func expandALBEndpointAddress(d *schema.ResourceData, path string) (*apploadbalancer.AddressSpec, error) {
+	endpointAddress := &apploadbalancer.AddressSpec{}
 
-		for _, h := range v.([]interface{}) {
-			elem := &apploadbalancer.AddressSpec{}
-			elemConfig := h.(map[string]interface{})
+	_, gotExternalIPV4Address := d.GetOk(path + "external_ipv4_address.0")
+	_, gotInternalIPV4Address := d.GetOk(path + "internal_ipv4_address.0")
+	_, gotExternalIPV6Address := d.GetOk(path + "external_ipv6_address.0")
 
-			if config, ok := getFirstElementConfig(elemConfig, "external_ipv4_address"); ok {
-				address := &apploadbalancer.ExternalIpv4AddressSpec{}
-				if value, ok := config["address"]; ok {
-					address.Address = value.(string)
-				}
-				elem.SetExternalIpv4AddressSpec(address)
-			}
-
-			if config, ok := getFirstElementConfig(elemConfig, "internal_ipv4_address"); ok {
-				address := &apploadbalancer.InternalIpv4AddressSpec{}
-				if value, ok := config["address"]; ok {
-					address.Address = value.(string)
-				}
-				if value, ok := config["subnet_id"]; ok {
-					address.SubnetId = value.(string)
-				}
-				elem.SetInternalIpv4AddressSpec(address)
-			}
-
-			if config, ok := getFirstElementConfig(elemConfig, "external_ipv6_address"); ok {
-				address := &apploadbalancer.ExternalIpv6AddressSpec{}
-				if value, ok := config["address"]; ok {
-					address.Address = value.(string)
-				}
-				elem.SetExternalIpv6AddressSpec(address)
-			}
-
-			addresses = append(addresses, elem)
-		}
+	if isPlural(gotExternalIPV4Address, gotInternalIPV4Address, gotExternalIPV6Address) {
+		return nil, fmt.Errorf("Cannot specify more than one of external ipv4 address and internal ipv4 address and external ipv6 address for the endpoint address at the same time")
 	}
-	return addresses
+	if !gotExternalIPV4Address && !gotInternalIPV4Address && !gotExternalIPV6Address {
+		return nil, fmt.Errorf("Either external ipv4 address or internal ipv4 address or external ipv6 address should be specified for the HTTP route")
+	}
+
+	if gotExternalIPV4Address {
+		currentKey := path + "external_ipv4_address.0." + "address"
+		address := &apploadbalancer.ExternalIpv4AddressSpec{}
+		if value, ok := d.GetOk(currentKey); ok {
+			address.Address = value.(string)
+		}
+		endpointAddress.SetExternalIpv4AddressSpec(address)
+	}
+
+	if gotInternalIPV4Address {
+		currentPath := path + "internal_ipv4_address.0."
+		address := &apploadbalancer.InternalIpv4AddressSpec{}
+		if value, ok := d.GetOk(currentPath + "address"); ok {
+			address.Address = value.(string)
+		}
+		if value, ok := d.GetOk(currentPath + "subnet_id"); ok {
+			address.SubnetId = value.(string)
+		}
+		endpointAddress.SetInternalIpv4AddressSpec(address)
+	}
+
+	if gotExternalIPV6Address {
+		currentKey := path + "external_ipv6_address.0." + "address"
+		address := &apploadbalancer.ExternalIpv6AddressSpec{}
+		if value, ok := d.GetOk(currentKey); ok {
+			address.Address = value.(string)
+		}
+		endpointAddress.SetExternalIpv6AddressSpec(address)
+	}
+
+	return endpointAddress, nil
+}
+
+func expandALBEndpointAddresses(d *schema.ResourceData, path string) ([]*apploadbalancer.AddressSpec, error) {
+	var addresses []*apploadbalancer.AddressSpec
+
+	for _, key := range IterateKeys(d, path) {
+		address, err := expandALBEndpointAddress(d, key)
+		if err != nil {
+			return nil, err
+		}
+		addresses = append(addresses, address)
+	}
+
+	return addresses, nil
 }
 
 func expandALBHTTPBackends(d *schema.ResourceData) (*apploadbalancer.HttpBackendGroup, error) {
@@ -958,7 +1046,7 @@ func expandALBHTTPBackend(d *schema.ResourceData, key string) (*apploadbalancer.
 	switch {
 	case !haveTargetGroups && !haveStorageBucket:
 		return nil, fmt.Errorf("Either target_group_ids or storage_bucket should be specified for http backend")
-	case haveTargetGroups && haveStorageBucket:
+	case isPlural(haveTargetGroups, haveStorageBucket):
 		return nil, fmt.Errorf("Cannot specify both target_group_ids and storage_bucket for http backend")
 	}
 	return backend, nil
@@ -1236,7 +1324,7 @@ func expandALBTarget(d *schema.ResourceData, key string) (*apploadbalancer.Targe
 
 	subnet, gotSubnet := d.GetOk(key + "subnet_id")
 	privateAddr, gotPrivateAddr := d.GetOk(key + "private_ipv4_address")
-	if gotSubnet && gotPrivateAddr {
+	if isPlural(gotSubnet, gotPrivateAddr) {
 		return nil, fmt.Errorf("Cannot specify both subnet_id and private_ipv4_address for a target")
 	}
 
