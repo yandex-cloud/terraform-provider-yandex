@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"time"
 
@@ -158,6 +160,16 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"replica_priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  defaultReplicaPriority,
+						},
+						"assign_public_ip": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},
@@ -275,7 +287,7 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 	}
 
 	d.SetId(md.ClusterId)
-	log.Printf("[DEBUG] Created Redis Cluster %q", md.ClusterId)
+	log.Printf("[DEBUG] Creating Redis Cluster %q", md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
@@ -302,6 +314,7 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 
 func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.CreateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
+	sharded := d.Get("sharded").(bool)
 
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding labels on Redis Cluster create: %s", err)
@@ -360,7 +373,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		ConfigSpec:         configSpec,
 		HostSpecs:          hosts,
 		Labels:             labels,
-		Sharded:            d.Get("sharded").(bool),
+		Sharded:            sharded,
 		TlsEnabled:         &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
 		PersistenceMode:    persistenceMode,
 		SecurityGroupIds:   securityGroupIds,
@@ -438,9 +451,9 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	sortRedisHosts(hosts, dHosts)
+	sortRedisHosts(cluster.Sharded, hosts, dHosts)
 
-	hs, err := flattenRedisHosts(hosts)
+	hs, err := flattenRedisHosts(cluster.Sharded, hosts)
 	if err != nil {
 		return err
 	}
@@ -648,6 +661,58 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
+func addHosts(ctx context.Context, d *schema.ResourceData, config *Config, sharded bool, currShards []*redis.Shard,
+	toAdd map[string][]*redis.HostSpec) error {
+	var err error
+	for shardName, specs := range toAdd {
+		shardExists := false
+		for _, s := range currShards {
+			if s.Name == shardName {
+				shardExists = true
+				break
+			}
+		}
+		if sharded && !shardExists {
+			err = createRedisShard(ctx, config, d, shardName, specs)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = createRedisHosts(ctx, config, d, specs)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func deleteHosts(ctx context.Context, d *schema.ResourceData, config *Config, sharded bool, targetHosts []*redis.HostSpec,
+	toDelete map[string][]string) error {
+	var err error
+	for shardName, fqdns := range toDelete {
+		deleteShard := true
+		for _, th := range targetHosts {
+			if th.ShardName == shardName {
+				deleteShard = false
+				break
+			}
+		}
+		if sharded && deleteShard {
+			err = deleteRedisShard(ctx, config, d, shardName)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = deleteRedisHosts(ctx, config, d, fqdns)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	if !d.HasChange("host") {
 		return nil
@@ -674,49 +739,27 @@ func updateRedisClusterHosts(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	toDelete, toAdd := redisHostsDiff(currHosts, targetHosts)
+	toDelete, toUpdate, toAdd, err := redisHostsDiff(sharded, currHosts, targetHosts)
+	if err != nil {
+		return err
+	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
-	for shardName, specs := range toAdd {
-		shardExists := false
-		for _, s := range currShards {
-			if s.Name == shardName {
-				shardExists = true
-			}
-		}
-		if sharded && !shardExists {
-			err = createRedisShard(ctx, config, d, shardName, specs)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = createRedisHosts(ctx, config, d, specs)
-			if err != nil {
-				return err
-			}
-		}
+	err = addHosts(ctx, d, config, sharded, currShards, toAdd)
+	if err != nil {
+		return err
 	}
 
-	for shardName, fqdns := range toDelete {
-		deleteShard := true
-		for _, th := range targetHosts {
-			if th.ShardName == shardName {
-				deleteShard = false
-			}
-		}
-		if sharded && deleteShard {
-			err = deleteRedisShard(ctx, config, d, shardName)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = deleteRedisHosts(ctx, config, d, fqdns)
-			if err != nil {
-				return err
-			}
-		}
+	err = updateHosts(ctx, d, config, toUpdate)
+	if err != nil {
+		return err
+	}
+
+	err = deleteHosts(ctx, d, config, sharded, targetHosts, toDelete)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -828,6 +871,82 @@ func createRedisHosts(ctx context.Context, config *Config, d *schema.ResourceDat
 			return fmt.Errorf("Error while adding host to Redis Cluster %q: %s", d.Id(), err)
 		}
 	}
+	return nil
+}
+
+type HostUpdateInfo struct {
+	HostName        string
+	ReplicaPriority *wrappers.Int64Value
+	AssignPublicIp  bool
+	UpdateMask      *field_mask.FieldMask
+}
+
+func getHostUpdateInfo(sharded bool, fqdn string, oldPriority *wrapperspb.Int64Value, oldAssignPublicIp bool,
+	newPriority *wrapperspb.Int64Value, newAssignPublicIp bool) (*HostUpdateInfo, error) {
+	var maskPaths []string
+	if newPriority != nil && oldPriority != nil && oldPriority.Value != newPriority.Value {
+		if sharded {
+			return nil, fmt.Errorf("modifying replica priority in hosts of sharded clusters is not supported: %s", fqdn)
+		}
+		maskPaths = append(maskPaths, "replica_priority")
+	}
+	if oldAssignPublicIp != newAssignPublicIp {
+		maskPaths = append(maskPaths, "assign_public_ip")
+	}
+
+	if len(maskPaths) == 0 {
+		return nil, nil
+	}
+	res := &HostUpdateInfo{
+		HostName:        fqdn,
+		ReplicaPriority: newPriority,
+		AssignPublicIp:  newAssignPublicIp,
+		UpdateMask:      &field_mask.FieldMask{Paths: maskPaths},
+	}
+	return res, nil
+}
+
+func updateRedisHost(ctx context.Context, config *Config, d *schema.ResourceData, host *HostUpdateInfo) error {
+	request := &redis.UpdateClusterHostsRequest{
+		ClusterId: d.Id(),
+		UpdateHostSpecs: []*redis.UpdateHostSpec{
+			{
+				HostName:        host.HostName,
+				AssignPublicIp:  host.AssignPublicIp,
+				ReplicaPriority: host.ReplicaPriority,
+				UpdateMask:      host.UpdateMask,
+			},
+		},
+	}
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending Redis cluster update hosts request: %+v", request)
+		return config.sdk.MDB().Redis().Cluster().UpdateHosts(ctx, request)
+	})
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update host for Redis Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating host for Redis Cluster %q - host %v: %s", d.Id(), host.HostName, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return fmt.Errorf("updating host for Redis Cluster %q - host %v failed: %s", d.Id(), host.HostName, err)
+	}
+
+	return nil
+}
+
+func updateHosts(ctx context.Context, d *schema.ResourceData, config *Config, specs map[string][]*HostUpdateInfo) error {
+	for _, hostInfos := range specs {
+		for _, hostInfo := range hostInfos {
+			if err := updateRedisHost(ctx, config, d, hostInfo); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

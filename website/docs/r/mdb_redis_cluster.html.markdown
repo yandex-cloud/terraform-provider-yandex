@@ -165,6 +165,12 @@ The `config` block supports:
 
 * `version` - (Required) Version of Redis (5.0, 6.0 or 6.2).
 
+* `client_output_buffer_limit_normal` - (Optional) Normal clients output buffer limits.
+  See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1841).
+
+* `client_output_buffer_limit_pubsub` - (Optional) Pubsub clients output buffer limits.
+  See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1843).
+
 The `resources` block supports:
 
 * `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). 
@@ -185,6 +191,10 @@ The `host` block supports:
   be a part of the network to which the cluster belongs.
 
 * `shard_name` (Optional) - The name of the shard to which the host belongs.
+
+* `replica_priority` - (Optional) Replica priority of a current replica (usable for non-sharded only).
+
+* `assign_public_ip` - (Optional) Sets whether the host should get a public IP address or not.
 
 The `maintenance_window` block supports:
 

@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -23,52 +24,155 @@ type redisConfig struct {
 	clientOutputBufferLimitPubsub string
 }
 
+const defaultReplicaPriority = 100
+
+func weightFunc(zone, shard, subnet string, priority *wrappers.Int64Value, ipFlag bool) int {
+	weight := 0
+	if zone != "" {
+		weight += 10000
+	}
+	if shard != "" {
+		weight += 1000
+	}
+	if subnet != "" {
+		weight += 100
+	}
+	if priority != nil {
+		weight += 10
+	}
+	if ipFlag {
+		weight += 1
+	}
+	return weight
+}
+
+func getHostWeight(spec *redis.Host) int {
+	return weightFunc(spec.ZoneId, spec.ShardName, spec.SubnetId, spec.ReplicaPriority, spec.AssignPublicIp)
+}
+
 // Sorts list of hosts in accordance with the order in config.
 // We need to keep the original order so there's no diff appears on each apply.
-func sortRedisHosts(hosts []*redis.Host, specs []*redis.HostSpec) {
-	for i, h := range specs {
-		for j := i + 1; j < len(hosts); j++ {
-			if h.ZoneId == hosts[j].ZoneId && (h.ShardName == "" || h.ShardName == hosts[j].ShardName) {
-				hosts[i], hosts[j] = hosts[j], hosts[i]
-				break
+func sortRedisHosts(sharded bool, hosts []*redis.Host, specs []*redis.HostSpec) {
+	for i, hs := range specs {
+		switched := false
+		for j := i; j < len(hosts); j++ {
+			if (hs.ZoneId == hosts[j].ZoneId) &&
+				(hs.ShardName == "" || hs.ShardName == hosts[j].ShardName) &&
+				(hs.SubnetId == "" || hs.SubnetId == hosts[j].SubnetId) &&
+				(sharded || hosts[j].ReplicaPriority != nil && (hs.ReplicaPriority == nil && hosts[j].ReplicaPriority.GetValue() == defaultReplicaPriority ||
+					hs.ReplicaPriority.GetValue() == hosts[j].ReplicaPriority.GetValue())) &&
+				(hs.AssignPublicIp == hosts[j].AssignPublicIp) {
+				if !switched || getHostWeight(hosts[j]) > getHostWeight(hosts[i]) {
+					hosts[i], hosts[j] = hosts[j], hosts[i]
+					switched = true
+				}
 			}
 		}
 	}
 }
 
-// Takes the current list of hosts and the desirable list of hosts.
-// Returns the map of hostnames to delete grouped by shard,
-// and the map of hosts to add grouped by shard as well.
-func redisHostsDiff(currHosts []*redis.Host, targetHosts []*redis.HostSpec) (map[string][]string, map[string][]*redis.HostSpec) {
-	m := map[string][]*redis.HostSpec{}
+func keyFunc(zone, shard, subnet string) string {
+	return fmt.Sprintf("zone:%s;shard:%s;subnet:%s",
+		zone, shard, subnet,
+	)
+}
 
-	for _, h := range targetHosts {
-		key := h.ZoneId + h.ShardName
-		m[key] = append(m[key], h)
+func getHostSpecBaseKey(h *redis.HostSpec) string {
+	return keyFunc(h.ZoneId, h.ShardName, h.SubnetId)
+}
+
+func getHostBaseKey(h *redis.Host) string {
+	return keyFunc(h.ZoneId, h.ShardName, h.SubnetId)
+}
+
+func getHostSpecWeight(spec *redis.HostSpec) int {
+	return weightFunc(spec.ZoneId, spec.ShardName, spec.SubnetId, spec.ReplicaPriority, spec.AssignPublicIp)
+}
+
+// used to detect specs to update, add, delete
+func sortHostSpecs(targetHosts []*redis.HostSpec) []*redis.HostSpec {
+	weightedHosts := make(map[int][]*redis.HostSpec)
+	for _, spec := range targetHosts {
+		weight := getHostSpecWeight(spec)
+		weightedHosts[weight] = append(weightedHosts[weight], spec)
+	}
+
+	keys := make([]int, 0, len(weightedHosts))
+	for k := range weightedHosts {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] > keys[j]
+	})
+
+	res := []*redis.HostSpec{}
+	for _, k := range keys {
+		res = append(res, weightedHosts[k]...)
+	}
+
+	return res
+}
+
+func separateHostsToUpdateAndDelete(sharded bool, sortedHosts []*redis.HostSpec, currHosts []*redis.Host) (
+	[]*redis.HostSpec, map[string][]*HostUpdateInfo, map[string][]string, error) {
+	targetHostsBaseMap := map[string][]*redis.HostSpec{}
+	for _, h := range sortedHosts {
+		key := getHostSpecBaseKey(h)
+		targetHostsBaseMap[key] = append(targetHostsBaseMap[key], h)
 	}
 
 	toDelete := map[string][]string{}
+	toUpdate := map[string][]*HostUpdateInfo{}
 	for _, h := range currHosts {
-		key := h.ZoneId + h.ShardName
-		hs, ok := m[key]
-		if !ok {
+		key := getHostBaseKey(h)
+		hs, ok := targetHostsBaseMap[key]
+		if ok {
+			newSpec := hs[0]
+			hostInfo, err := getHostUpdateInfo(sharded, h.Name, h.ReplicaPriority, h.AssignPublicIp,
+				newSpec.ReplicaPriority, newSpec.AssignPublicIp)
+			if err != nil {
+				return nil, nil, nil, err
+			}
+			if hostInfo != nil {
+				toUpdate[h.ShardName] = append(toUpdate[h.ShardName], hostInfo)
+			}
+			if len(hs) > 1 {
+				targetHostsBaseMap[key] = hs[1:]
+			} else {
+				delete(targetHostsBaseMap, key)
+			}
+		} else {
 			toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
 		}
-		if len(hs) > 1 {
-			m[key] = hs[1:]
-		} else {
-			delete(m, key)
-		}
+	}
+
+	hostsLeft := []*redis.HostSpec{}
+	for _, specs := range targetHostsBaseMap {
+		hostsLeft = append(hostsLeft, specs...)
+	}
+
+	return hostsLeft, toUpdate, toDelete, nil
+}
+
+// Takes the current list of hosts and the desirable list of hosts.
+// Returns the map of hostnames:
+// to delete grouped by shard,
+// to update grouped by shard,
+// to add grouped by shard as well.
+func redisHostsDiff(sharded bool, currHosts []*redis.Host, targetHosts []*redis.HostSpec) (map[string][]string,
+	map[string][]*HostUpdateInfo, map[string][]*redis.HostSpec, error) {
+	sortedHosts := sortHostSpecs(targetHosts)
+	hostsLeft, toUpdate, toDelete, err := separateHostsToUpdateAndDelete(sharded, sortedHosts, currHosts)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 
 	toAdd := map[string][]*redis.HostSpec{}
-	for _, hs := range m {
-		for _, h := range hs {
-			toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
-		}
+	for _, h := range hostsLeft {
+		toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
 	}
 
-	return toDelete, toAdd
+	return toDelete, toUpdate, toAdd, nil
 }
 
 func limitToStr(hard, soft, secs *wrappers.Int64Value) string {
@@ -458,7 +562,7 @@ func flattenRedisMaintenanceWindow(mw *redis.MaintenanceWindow) []map[string]int
 	return []map[string]interface{}{result}
 }
 
-func flattenRedisHosts(hs []*redis.Host) ([]map[string]interface{}, error) {
+func flattenRedisHosts(sharded bool, hs []*redis.Host) ([]map[string]interface{}, error) {
 	res := []map[string]interface{}{}
 
 	for _, h := range hs {
@@ -467,6 +571,12 @@ func flattenRedisHosts(hs []*redis.Host) ([]map[string]interface{}, error) {
 		m["subnet_id"] = h.SubnetId
 		m["shard_name"] = h.ShardName
 		m["fqdn"] = h.Name
+		if sharded {
+			m["replica_priority"] = defaultReplicaPriority
+		} else {
+			m["replica_priority"] = h.ReplicaPriority.GetValue()
+		}
+		m["assign_public_ip"] = h.AssignPublicIp
 		res = append(res, m)
 	}
 
@@ -476,17 +586,18 @@ func flattenRedisHosts(hs []*redis.Host) ([]map[string]interface{}, error) {
 func expandRedisHosts(d *schema.ResourceData) ([]*redis.HostSpec, error) {
 	var result []*redis.HostSpec
 	hosts := d.Get("host").([]interface{})
+	sharded := d.Get("sharded").(bool)
 
 	for _, v := range hosts {
 		config := v.(map[string]interface{})
-		host := expandRedisHost(config)
+		host := expandRedisHost(sharded, config)
 		result = append(result, host)
 	}
 
 	return result, nil
 }
 
-func expandRedisHost(config map[string]interface{}) *redis.HostSpec {
+func expandRedisHost(sharded bool, config map[string]interface{}) *redis.HostSpec {
 	host := &redis.HostSpec{}
 	if v, ok := config["zone"]; ok {
 		host.ZoneId = v.(string)
@@ -498,6 +609,15 @@ func expandRedisHost(config map[string]interface{}) *redis.HostSpec {
 
 	if v, ok := config["shard_name"]; ok {
 		host.ShardName = v.(string)
+	}
+
+	if v, ok := config["replica_priority"]; ok && !sharded {
+		priority := v.(int)
+		host.ReplicaPriority = &wrappers.Int64Value{Value: int64(priority)}
+	}
+
+	if v, ok := config["assign_public_ip"]; ok {
+		host.AssignPublicIp = v.(bool)
 	}
 	return host
 }

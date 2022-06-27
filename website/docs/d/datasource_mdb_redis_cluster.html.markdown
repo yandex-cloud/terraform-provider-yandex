@@ -63,6 +63,8 @@ The `config` block supports:
 * `slowlog_max_len` - Slow queries log length.
 * `databases` - Number of databases (changing requires redis-server restart).
 * `version` - Version of Redis (5.0, 6.0 or 6.2).
+* `client_output_buffer_limit_normal` - Normal clients output buffer limits.
+* `client_output_buffer_limit_pubsub` - Pubsub clients output buffer limits.
 
 The `resources` block supports:
 
@@ -78,6 +80,8 @@ The `host` block supports:
   be a part of the network to which the cluster belongs.
 * `shard_name` - The name of the shard to which the host belongs.
 * `fqdn` - The fully qualified domain name of the host.
+* `replica_priority` - Replica priority of a current replica (usable for non-sharded only).
+* `assign_public_ip` - Sets whether the host should get a public IP address or not.
 
 The `maintenance_window` block supports:
 

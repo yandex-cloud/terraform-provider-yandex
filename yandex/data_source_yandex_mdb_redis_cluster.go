@@ -123,6 +123,15 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"replica_priority": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  defaultReplicaPriority,
+						},
+						"assign_public_ip": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -278,7 +287,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	hs, err := flattenRedisHosts(hosts)
+	hs, err := flattenRedisHosts(cluster.Sharded, hosts)
 	if err != nil {
 		return err
 	}

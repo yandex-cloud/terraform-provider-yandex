@@ -10,6 +10,8 @@ BUG FIXES:
 ENHANCEMENTS:
 * alb: refactoring `yandex_alb_backend_group` resource and data source
 * mdb: add `client_output_buffer_limit_normal` and `client_output_buffer_limit_pubsub` attributes to `yandex_mdb_redis_cluster` resource and data source
+* mdb: add `replica_priority` attribute to `yandex_mdb_redis_cluster` resource and data source
+* mdb: add `assign_public_ip` attribute to `yandex_mdb_redis_cluster` resource and data source
 
 FEATURES:
 * compute: support for creating `yandex_compute_instance` with local disks
