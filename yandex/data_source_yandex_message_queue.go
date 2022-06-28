@@ -30,6 +30,10 @@ func dataSourceYandexMessageQueue() *schema.Resource {
 				Optional:  true,
 				Sensitive: true,
 			},
+			"region_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			// Computed
 			"arn": {

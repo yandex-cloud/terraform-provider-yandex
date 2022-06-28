@@ -18,6 +18,7 @@ const (
 	defaultEndpoint        = "api.cloud.yandex.net:443"
 	defaultStorageEndpoint = "storage.yandexcloud.net"
 	defaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
+	defaultRegion          = "ru-central1"
 )
 
 // Global MutexKV
@@ -57,6 +58,12 @@ func provider(emptyFolder bool) *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("YC_ORGANIZATION_ID", nil),
 				Description: descriptions["organization_id"],
+			},
+			"region_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("YC_REGION", defaultRegion),
+				Description: descriptions["region"],
 			},
 			"zone": {
 				Type:        schema.TypeString,
@@ -334,6 +341,9 @@ var descriptions = map[string]string{
 
 	"cloud_id": "ID of Yandex.Cloud tenant.",
 
+	"region_id": "The region where operations will take place. Examples\n" +
+		"are ru-central1",
+
 	"zone": "The zone where operations will take place. Examples\n" +
 		"are ru-central1-a, ru-central2-c, etc.",
 
@@ -370,6 +380,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	config := Config{
 		Token:                          d.Get("token").(string),
 		ServiceAccountKeyFileOrContent: d.Get("service_account_key_file").(string),
+		Region:                         d.Get("region_id").(string),
 		Zone:                           d.Get("zone").(string),
 		FolderID:                       d.Get("folder_id").(string),
 		CloudID:                        d.Get("cloud_id").(string),

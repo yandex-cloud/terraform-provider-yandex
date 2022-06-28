@@ -248,6 +248,9 @@ func testAccNewYMQClientForResource(rs *terraform.ResourceState) (ymqClient *sqs
 	}
 	ymqClient, err = newYMQClientFromConfig(newYMQClientConfigFromKeys(accessKey, secretKey,
 		testAccProvider.Meta().(*Config)))
+	if region, ok := rs.Primary.Attributes["region_id"]; err == nil && ok && region != "" {
+		ymqClient.Config.WithRegion(region)
+	}
 	return
 }
 
@@ -507,7 +510,8 @@ func testAccMessageQueueSetTmpKeysForProvider() (cleanupFunc func(), err error) 
 func testAccMessageQueueConfigWithDefaults(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_message_queue" "queue" {
-  name = "message-queue-%d"
+  region_id   = "ru-central1"
+  name        = "message-queue-%d"
 
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
@@ -518,7 +522,8 @@ resource "yandex_message_queue" "queue" {
 func testAccMessageQueueConfigForImport(randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_message_queue" "queue" {
-  name = "message-queue-%d"
+  region_id = "ru-central1"
+  name      = "message-queue-%d"
 
   delay_seconds = 303
   max_message_size = 2049
@@ -532,6 +537,7 @@ resource "yandex_message_queue" "queue" {
 func testAccMessageQueueConfigWithNamePrefix(prefix string, randInt int) string {
 	return fmt.Sprintf(`
 resource "yandex_message_queue" "queue" {
+  region_id   = "ru-central1"
   name_prefix = "%s"
 
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key

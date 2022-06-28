@@ -6,13 +6,14 @@ BUG FIXES:
 * mysql: `mysql_config.sql_mode` is setting now when creating a cluster
 * mdb: fix changing `maintenance_window` only in `yandex_mdb_redis_cluster`
 * clickhouse: fix issue with `shard_group` update
-  
+
 ENHANCEMENTS:
 * alb: refactoring `yandex_alb_backend_group` resource and data source
 * alb: extra validation added to `yandex_alb_load_balancer` and `yandex_alb_virtual_host` resources and data sources
 * mdb: add `client_output_buffer_limit_normal` and `client_output_buffer_limit_pubsub` attributes to `yandex_mdb_redis_cluster` resource and data source
 * mdb: add `replica_priority` attribute to `yandex_mdb_redis_cluster` resource and data source
 * mdb: add `assign_public_ip` attribute to `yandex_mdb_redis_cluster` resource and data source
+* ymq: add `region_id` attribute to resource
 
 FEATURES:
 * compute: support for creating `yandex_compute_instance` with local disks

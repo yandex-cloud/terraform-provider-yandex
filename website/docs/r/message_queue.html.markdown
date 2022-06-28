@@ -67,6 +67,9 @@ The following arguments are supported:
 
 * `secret_key` - (Optional) The [secret key](https://cloud.yandex.com/docs/iam/operations/sa/create-access-key) to use when applying changes. If omitted, `ymq_secret_key` specified in provider config is used. For more information see [documentation](https://cloud.yandex.com/docs/message-queue/quickstart).
 
+* `region_id` - (Optional, forces new resource) ID of the region where the message queue is located at.
+The default is 'ru-central1'.
+
 ## Attributes Reference
 
 Message Queue also has the following attributes:

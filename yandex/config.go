@@ -48,6 +48,7 @@ type Config struct {
 	MaxRetries                     int
 	StorageEndpoint                string
 	YMQEndpoint                    string
+	Region                         string
 
 	// These storage access keys are optional and only used when
 	// storage data/resource doesn't have own access keys explicitly specified.

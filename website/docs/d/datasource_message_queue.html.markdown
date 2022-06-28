@@ -22,6 +22,7 @@ data "yandex_message_queue" "example_queue" {
 ## Argument Reference
 
 * `name` - (Required) Queue name.
+* `region_id` - (Optional) The region ID where the message queue is located.
 
 ## Attributes Reference
 

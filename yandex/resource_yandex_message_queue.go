@@ -109,6 +109,12 @@ func resourceYandexMessageQueue() *schema.Resource {
 				Default:  false,
 				Optional: true,
 			},
+			"region_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  defaultYMQRegion,
+				ForceNew: true,
+			},
 
 			// Credentials
 			"access_key": {
@@ -340,12 +346,18 @@ func resourceYandexMessageQueueReadImpl(d *schema.ResourceData, meta interface{}
 	d.Set("receive_wait_time_seconds", 0)
 	d.Set("redrive_policy", "")
 	d.Set("visibility_timeout_seconds", 30)
+	d.Set("region_id", defaultYMQRegion)
 
 	if attributeOutput != nil {
 		queueAttributes := aws.StringValueMap(attributeOutput.Attributes)
 
 		if v, ok := queueAttributes[sqs.QueueAttributeNameQueueArn]; ok {
 			d.Set("arn", v)
+			region, err := regionFromYRN(v)
+			if err != nil {
+				return err
+			}
+			d.Set("region_id", region)
 		}
 
 		if v, ok := queueAttributes[sqs.QueueAttributeNameContentBasedDeduplication]; ok && v != "" {
@@ -548,7 +560,7 @@ func newYMQClientConfigFromKeys(accessKey, secretKey string, providerConfig *Con
 	return &aws.Config{
 		Credentials: credentials.NewStaticCredentials(accessKey, secretKey, ""),
 		Endpoint:    aws.String(providerConfig.YMQEndpoint),
-		Region:      aws.String(defaultYMQRegion),
+		Region:      aws.String(providerConfig.Region),
 	}
 }
 
@@ -559,6 +571,10 @@ func newYMQClientConfig(d *schema.ResourceData, meta interface{}) (config *aws.C
 		return
 	}
 	config = newYMQClientConfigFromKeys(accessKey, secretKey, providerConfig)
+	if v, ok := d.GetOk("region_id"); ok {
+		log.Printf("[DEBUG] Use custom region: %s", v.(string))
+		config.WithRegion(v.(string))
+	}
 	return
 }
 
@@ -577,6 +593,16 @@ func newYMQClient(d *schema.ResourceData, meta interface{}) (*sqs.SQS, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[DEBUG] YMQ config: %v", config)
 
 	return newYMQClientFromConfig(config)
+}
+
+func regionFromYRN(yrn string) (string, error) {
+	// yrn:yc:ymq:ru-central1:21i6v06sqmsaoeon7nus:event-queue
+	parts := strings.Split(yrn, ":")
+	if len(parts) > 4 {
+		return parts[3], nil
+	}
+	return "", fmt.Errorf("YRN was not parsed correctly: %s", yrn)
 }
