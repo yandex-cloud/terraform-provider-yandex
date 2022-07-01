@@ -46,10 +46,11 @@ func resourceYandexLoggingGroup() *schema.Resource {
 			},
 
 			"retention_period": {
-				Type:         schema.TypeString,
-				Computed:     true,
-				Optional:     true,
-				ValidateFunc: validateParsableValue(parseDuration),
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ValidateFunc:     validateParsableValue(parseDuration),
+				DiffSuppressFunc: shouldSuppressDiffForTimeDuration,
 			},
 
 			"description": {

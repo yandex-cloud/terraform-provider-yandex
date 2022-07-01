@@ -6,6 +6,7 @@ BUG FIXES:
 * mysql: `mysql_config.sql_mode` is setting now when creating a cluster
 * mdb: fix changing `maintenance_window` only in `yandex_mdb_redis_cluster`
 * clickhouse: fix issue with `shard_group` update
+* serverless: fix issue with `retention_period` update in `yandex_logging_group` resource
 
 ENHANCEMENTS:
 * alb: refactoring `yandex_alb_backend_group` resource and data source
