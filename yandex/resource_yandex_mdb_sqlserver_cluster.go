@@ -231,6 +231,11 @@ func resourceYandexMDBSQLServerCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"sqlcollation": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -334,6 +339,7 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 		Labels:             labels,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		Sqlcollation:       d.Get("sqlcollation").(string),
 		HostGroupIds:       hostGroupIds,
 	}
 	return &req, nil
@@ -437,6 +443,7 @@ func resourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+	d.Set("sqlcollation", cluster.Sqlcollation)
 
 	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
@@ -565,6 +572,11 @@ func sqlserverClusterUpdate(ctx context.Context, config *Config, d *schema.Resou
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return fmt.Errorf("error expanding labels while updating SQLServer cluster: %s", err)
+	}
+
+	sqlcollation := d.Get("sqlcollation").(string)
+	if sqlcollation != "" {
+		return fmt.Errorf("SQL Collation cannot be changed!")
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))

@@ -181,6 +181,10 @@ func testAccDataSourceMDBSQLServerClusterAttributesCheck(datasourceName string, 
 				"deletion_protection",
 				"deletion_protection",
 			},
+			{
+				"sqlcollation",
+				"sqlcollation",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -223,6 +227,7 @@ func testAccDataSourceMDBSQLServerClusterCheck(datasourceName string, resourceNa
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "sqlcollation", "Cyrillic_General_CI_AI"),
 	)
 }
 

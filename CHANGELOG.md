@@ -1,4 +1,6 @@
 ## 0.77.0 (Unreleased)
+ENHANCEMENTS:
+* mdb: add `sqlcollation` attribute to `yandex_mdb_sqlserver_cluster` resource and data source
 
 ## 0.76.0 (July 01, 2022)
 BUG FIXES:

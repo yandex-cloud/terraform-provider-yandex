@@ -200,6 +200,11 @@ func dataSourceYandexMDBSQLServerCluster() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
+			"sqlcollation": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -312,6 +317,7 @@ func dataSourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interf
 	}
 
 	d.Set("deletion_protection", cluster.DeletionProtection)
+	d.Set("sqlcollation", cluster.Sqlcollation)
 
 	d.Set("created_at", getTimestamp(cluster.CreatedAt))
 	d.SetId(cluster.Id)

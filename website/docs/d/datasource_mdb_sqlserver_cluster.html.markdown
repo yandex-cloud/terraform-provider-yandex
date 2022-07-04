@@ -55,6 +55,8 @@ exported:
 * `sqlserver_config` - SQLServer cluster config.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `host_group_ids` - A list of IDs of the host groups hosting VMs of the cluster.
+* `deletion_protection` - Inhibits deletion of the cluster.  Can be either `true` or `false`.
+* `sqlcollation` - SQL Collation cluster will be created with. This attribute cannot be changed when cluster is created!
 
 The `resources` block supports:
 

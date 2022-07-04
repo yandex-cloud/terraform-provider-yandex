@@ -162,6 +162,8 @@ The following arguments are supported:
 
 * `host_group_ids` - (Optional) A list of IDs of the host groups hosting VMs of the cluster.
 
+* `sqlcollation` - (Optional) SQL Collation cluster will be created with. This attribute cannot be changed when cluster is created!
+
 - - -
 
 The `resources` block supports:

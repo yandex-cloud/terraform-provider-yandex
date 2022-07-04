@@ -119,6 +119,7 @@ func TestAccMDBSQLServerCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(sqlserverResource),
 					resource.TestCheckResourceAttr(sqlserverResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(sqlserverResource, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(sqlserverResource, "sqlcollation", "Cyrillic_General_CI_AI"),
 				),
 			},
 			mdbSQLServerClusterImportStep(sqlserverResource),
@@ -180,6 +181,7 @@ func TestAccMDBSQLServerCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(sqlserverResource, "database.2.name", "testdb-b"),
 					testAccCheckCreatedAtAttr(sqlserverResource),
 					resource.TestCheckResourceAttr(sqlserverResource, "security_group_ids.#", "2"),
+					resource.TestCheckResourceAttr(sqlserverResource, "sqlcollation", "Cyrillic_General_CI_AI"),
 				),
 			},
 			mdbSQLServerClusterImportStep(sqlserverResource),
@@ -409,6 +411,8 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-sqlserver-test-sg-x.id]
 
+  sqlcollation = "Cyrillic_General_CI_AI"
+
   deletion_protection = %t
 }
 `, name, desc, environment, deletionProtection)
@@ -497,6 +501,8 @@ resource "yandex_mdb_sqlserver_cluster" "foo" {
   }
 
   security_group_ids = [yandex_vpc_security_group.mdb-sqlserver-test-sg-x.id, yandex_vpc_security_group.mdb-sqlserver-test-sg-y.id]
+
+  sqlcollation = "Cyrillic_General_CS_AS"
 }
 `, name, desc)
 }
