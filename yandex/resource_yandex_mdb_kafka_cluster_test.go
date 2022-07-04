@@ -859,10 +859,10 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
-					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 16777216),
+					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 777216),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{
 						CleanupPolicy:   kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
-						MaxMessageBytes: &wrappers.Int64Value{Value: 16777216},
+						MaxMessageBytes: &wrappers.Int64Value{Value: 777216},
 						SegmentBytes:    &wrappers.Int64Value{Value: 134217728},
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
@@ -886,7 +886,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{
 						CleanupPolicy:   kafka.TopicConfig2_8_CLEANUP_POLICY_DELETE,
-						MaxMessageBytes: &wrappers.Int64Value{Value: 33554432},
+						MaxMessageBytes: &wrappers.Int64Value{Value: 554432},
 						SegmentBytes:    &wrappers.Int64Value{Value: 268435456},
 						FlushMs:         &wrappers.Int64Value{Value: 9223372036854775807},
 					}),
@@ -928,7 +928,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 16777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -949,7 +949,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
-					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 33554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
+					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig2_8{MaxMessageBytes: &wrappers.Int64Value{Value: 554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
 			},
@@ -1047,7 +1047,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  replication_factor = 1
 	  topic_config {
 		cleanup_policy    = "CLEANUP_POLICY_COMPACT_AND_DELETE"
-		max_message_bytes = 16777216
+		max_message_bytes = 777216
 		segment_bytes     = 134217728
 		flush_ms          = 9223372036854775807
 	  }
@@ -1129,7 +1129,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 
 		topic_config {
 			cleanup_policy = "CLEANUP_POLICY_DELETE"
-	 		max_message_bytes = 33554432
+	 		max_message_bytes = 554432
 			segment_bytes = 268435456
 			flush_ms      = 9223372036854775807
 		}
@@ -1443,7 +1443,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  replication_factor = 1
 
 	  topic_config {
-		max_message_bytes = 16777216
+		max_message_bytes = 777216
 		segment_bytes     = 134217728
 	  }
 	}
@@ -1522,7 +1522,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  partitions         = 2
 	  replication_factor = 1
 	  topic_config {
-		max_message_bytes = 33554432
+		max_message_bytes = 554432
 		segment_bytes     = 268435456
 		retention_bytes   = 1073741824
 	  }

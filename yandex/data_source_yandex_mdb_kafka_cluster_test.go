@@ -64,7 +64,7 @@ func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
 					resource.TestCheckResourceAttr(topicDatasource, "partitions", "1"),
 					resource.TestCheckResourceAttr(topicDatasource, "replication_factor", "1"),
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.cleanup_policy", "CLEANUP_POLICY_COMPACT_AND_DELETE"),
-					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.max_message_bytes", "16777216"),
+					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.max_message_bytes", "777216"),
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.segment_bytes", "134217728"),
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.flush_ms", "9223372036854775807"),
 				),
