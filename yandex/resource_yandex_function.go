@@ -20,7 +20,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 )
 
-const yandexFunctionDefaultTimeout = 5 * time.Minute
+const yandexFunctionDefaultTimeout = 10 * time.Minute
 const versionCreateSourceContentMaxBytes = 3670016
 
 func resourceYandexFunction() *schema.Resource {
