@@ -135,6 +135,15 @@ The `instance_template` block supports:
 * `network_acceleration_type` - (Optional) Type of network acceleration. Values: `standard`, `software_accelerated`.
 
 * `container_runtime` - (Optional) Container runtime configuration. The structure is documented below.
+
+* `name` - (Optional) Name template of the instance.  
+In order to be unique it must contain at least one of instance unique placeholders:   
+{instance.short_id}   
+{instance.index}   
+combination of {instance.zone_id} and {instance.index_in_zone}   
+Example: my-instance-{instance.index}  
+If not set, default is used: {instance_group.id}-{instance.short_id}   
+It may also contain another placeholders, see [Compute Instance group metadata doc](https://cloud.yandex.com/en-ru/docs/compute/api-ref/grpc/instance_group_service) for full list.
 ---
 
 The `boot_disk` block supports:

@@ -199,6 +199,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource.Cores = "2"
 	nodeUpdatedResource.DiskSize = "65"
 	nodeUpdatedResource.Preemptible = "false"
+	nodeUpdatedResource.NodeName = "new-{instance.short_id}"
 
 	// update maintenance policy
 	nodeUpdatedResource.constructMaintenancePolicyField(false, false, dailyMaintenancePolicy)
@@ -206,6 +207,7 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	//nodeUpdatedResource.FixedScale = "2"
 
 	nodeUpdatedResource2 := nodeUpdatedResource
+	nodeUpdatedResource2.NodeName = ""
 	nodeUpdatedResource2.constructMaintenancePolicyField(true, true, weeklyMaintenancePolicy)
 
 	nodeUpdatedResource3 := nodeUpdatedResource2
@@ -520,6 +522,8 @@ type resourceNodeGroupInfo struct {
 	DualStack bool
 
 	NetworkAccelerationType string
+
+	NodeName string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -549,6 +553,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		NodeLabelValue:        "node_label_value",
 		ScalePolicy:           fixedScalePolicy,
 		NetworkInterfaces:     enableNAT,
+		NodeName:              "node-{instance.short_id}",
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
@@ -754,6 +759,8 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
     {{if .NetworkAccelerationType}}
 	network_acceleration_type = "{{.NetworkAccelerationType}}"
 	{{end}}
+
+    name = "{{.NodeName}}"
   }
 
   {{.ScalePolicy}}
@@ -854,6 +861,7 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 				strconv.FormatBool(tpl.GetSchedulingPolicy().GetPreemptible())),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_acceleration_type",
 				strings.ToLower(tpl.NetworkSettings.Type.String())),
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.name", info.NodeName),
 
 			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.current_version",
 				versionInfo.GetCurrentVersion()),

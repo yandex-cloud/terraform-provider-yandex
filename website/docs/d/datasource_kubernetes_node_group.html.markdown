@@ -85,6 +85,8 @@ The `instance_template` block supports:
 * `placement_policy` - (Optional) The placement policy configuration. The structure is documented below.
 
 * `container_runtime` - Container runtime configuration. The structure is documented below.
+
+* `name` - Name template of the instance.
 ---
 
 The `network_interface` block supports:

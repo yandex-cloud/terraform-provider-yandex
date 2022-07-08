@@ -3,6 +3,9 @@ ENHANCEMENTS:
 * mdb: add `sqlcollation` attribute to `yandex_mdb_sqlserver_cluster` resource and data source
 * serverless: increase operation timeouts in `yandex_function` resource
 
+FEATURES:
+* k8s: add `instance_template.name` attribute in `node group` resource and data source
+
 ## 0.76.0 (July 01, 2022)
 BUG FIXES:
 * alb: `send` and `receive` attributes can be empty now in `yandex_alb_backend_group` resource and data source

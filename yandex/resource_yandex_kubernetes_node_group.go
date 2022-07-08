@@ -203,6 +203,10 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -754,6 +758,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		PlacementPolicy:          getNodeGroupTemplatePlacementPolicy(d),
 		NetworkSettings:          ns,
 		ContainerRuntimeSettings: crs,
+		Name:                     h.GetString("name"),
 	}
 
 	return tpl, nil
@@ -975,6 +980,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.network_interface":                     "node_template.network_interface_specs",
 	"instance_template.0.network_acceleration_type":             "node_template.network_settings",
 	"instance_template.0.container_runtime.0.type":              "node_template.container_runtime_settings.type",
+	"instance_template.0.name":                                  "node_template.name",
 	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
@@ -1114,6 +1120,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"placement_policy":          flattenKubernetesNodeGroupTemplatePlacementPolicy(ngTpl.GetPlacementPolicy()),
 		"network_acceleration_type": strings.ToLower(ngTpl.GetNetworkSettings().GetType().String()),
 		"container_runtime":         flattenKubernetesNodeGroupTemplateContainerRuntime(ngTpl.GetContainerRuntimeSettings()),
+		"name":                      ngTpl.GetName(),
 	}
 
 	return []map[string]interface{}{tpl}

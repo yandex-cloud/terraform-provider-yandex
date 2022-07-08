@@ -182,6 +182,10 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
