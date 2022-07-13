@@ -1,4 +1,7 @@
 ## 0.77.0 (Unreleased)
+BUG FIXES:
+* iam: fix access bindings deletion
+
 ENHANCEMENTS:
 * mdb: add `sqlcollation` attribute to `yandex_mdb_sqlserver_cluster` resource and data source
 * serverless: increase operation timeouts in `yandex_function` resource

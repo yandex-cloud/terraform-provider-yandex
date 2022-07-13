@@ -37,7 +37,7 @@ var accessBindingSchema = map[string]*schema.Schema{
 func resourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAccessBindingCreate(newUpdaterFunc),
-		Read:   resourceAccessBindingRead(newUpdaterFunc),
+		Read:   resourceAccessBindingRead(newUpdaterFunc, true),
 		Update: resourceAccessBindingUpdate(newUpdaterFunc),
 		Delete: resourceAccessBindingDelete(newUpdaterFunc),
 		Schema: mergeSchemas(accessBindingSchema, parentSpecificSchema),
@@ -80,11 +80,11 @@ func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			time.Sleep(time.Second * time.Duration(v.(int)))
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, true)(d, meta)
 	}
 }
 
-func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
+func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc, check bool) schema.ReadFunc {
 	return func(d *schema.ResourceData, meta interface{}) error {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
@@ -122,14 +122,13 @@ func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.
 			}
 		}
 
-		if len(mBindings) == 0 {
+		if check && len(mBindings) == 0 {
 			return fmt.Errorf("Binding for role %q not found in policy for %s.", role, updater.DescribeResource())
 		}
 
 		if err := d.Set("members", roleToMembersList(role, mBindings)); err != nil {
 			return err
 		}
-		d.Set("role", role)
 		return nil
 	}
 }
@@ -154,7 +153,7 @@ func resourceAccessBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			return err
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, true)(d, meta)
 	}
 }
 
@@ -182,7 +181,7 @@ func resourceAccessBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			return err
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, false)(d, meta)
 	}
 }
 
