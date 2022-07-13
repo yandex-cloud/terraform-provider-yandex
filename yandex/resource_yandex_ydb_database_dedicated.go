@@ -414,6 +414,12 @@ func performYandexYDBDatabaseRead(d *schema.ResourceData, config *Config) (*ydb.
 }
 
 func flattenYandexYDBDatabaseDedicated(d *schema.ResourceData, database *ydb.Database) error {
+	if database == nil {
+		// NOTE(shmel1k@): database existed before but was removed outside of terraform.
+		d.SetId("")
+		return nil
+	}
+
 	switch database.DatabaseType.(type) {
 	case *ydb.Database_RegionalDatabase,
 		*ydb.Database_ZonalDatabase,
