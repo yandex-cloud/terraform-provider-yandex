@@ -5,6 +5,7 @@ example.tf
 terraform.tfvars
 terraform.tfplan
 terraform.tfstate
+.terraform.lock.hcl
 bin/
 terraform-provider-google
 modules-dev/

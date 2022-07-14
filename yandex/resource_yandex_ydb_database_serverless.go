@@ -159,6 +159,12 @@ func resourceYandexYDBDatabaseServerlessRead(d *schema.ResourceData, meta interf
 }
 
 func flattenYandexYDBDatabaseServerless(d *schema.ResourceData, database *ydb.Database) error {
+	if database == nil {
+		// NOTE(shmel1k@): database existed before but was removed outside of terraform.
+		d.SetId("")
+		return nil
+	}
+
 	switch database.DatabaseType.(type) {
 	case *ydb.Database_ServerlessDatabase: // we actually expect it
 	case *ydb.Database_DedicatedDatabase:
