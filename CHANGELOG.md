@@ -10,6 +10,10 @@ ENHANCEMENTS:
 FEATURES:
 * k8s: add `instance_template.name` attribute in `node group` resource and data source
 
+BUG FIXES:
+* storage: fix issue when error, returned from reading extend bucket settings treated as important.
+It will be printed as log output now instead of interrupting plan execution.
+
 ## 0.76.0 (July 01, 2022)
 BUG FIXES:
 * alb: `send` and `receive` attributes can be empty now in `yandex_alb_backend_group` resource and data source

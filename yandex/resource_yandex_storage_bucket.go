@@ -837,7 +837,7 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 
 	err = resourceYandexStorageBucketReadExtended(d, meta)
 	if err != nil {
-		return err
+		log.Printf("[WARN] Got an error reading Storage Bucket's extended properties: %s", err)
 	}
 
 	return nil
