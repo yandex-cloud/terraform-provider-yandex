@@ -212,6 +212,21 @@ func flattenComputeInstanceDnsRecords(specs []*compute.DnsRecord) []map[string]i
 	return res
 }
 
+func flattenK8SNodeGroupDNSRecords(specs []*k8s.DnsRecordSpec) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(specs))
+
+	for i, spec := range specs {
+		res[i] = map[string]interface{}{
+			"fqdn":        spec.Fqdn,
+			"dns_zone_id": spec.DnsZoneId,
+			"ttl":         int(spec.Ttl),
+			"ptr":         spec.Ptr,
+		}
+	}
+
+	return res
+}
+
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
 	rs := &compute.ResourcesSpec{}
 
@@ -591,6 +606,27 @@ func expandComputeInstanceDnsRecords(data []interface{}) []*compute.DnsRecordSpe
 	for i, raw := range data {
 		d := raw.(map[string]interface{})
 		r := &compute.DnsRecordSpec{Fqdn: d["fqdn"].(string)}
+		if s, ok := d["dns_zone_id"]; ok {
+			r.DnsZoneId = s.(string)
+		}
+		if s, ok := d["ttl"]; ok {
+			r.Ttl = int64(s.(int))
+		}
+		if s, ok := d["ptr"]; ok {
+			r.Ptr = s.(bool)
+		}
+		recs[i] = r
+	}
+
+	return recs
+}
+
+func expandK8SNodeGroupDNSRecords(data []interface{}) []*k8s.DnsRecordSpec {
+	recs := make([]*k8s.DnsRecordSpec, len(data))
+
+	for i, raw := range data {
+		d := raw.(map[string]interface{})
+		r := &k8s.DnsRecordSpec{Fqdn: d["fqdn"].(string)}
 		if s, ok := d["dns_zone_id"]; ok {
 			r.DnsZoneId = s.(string)
 		}

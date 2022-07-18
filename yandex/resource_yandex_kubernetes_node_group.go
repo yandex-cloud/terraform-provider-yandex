@@ -159,6 +159,54 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Set:      schema.HashString,
 										Optional: true,
 									},
+									"ipv4_dns_records": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"ipv6_dns_records": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -828,6 +876,17 @@ func getNodeGroupNetworkInterfaceSpecs(d *schema.ResourceData) []*k8s.NetworkInt
 			nifSpec.SubnetIds = expandSubnetIds(subnets)
 		}
 
+		if rec, ok := nif["ipv4_dns_records"]; ok {
+			if nifSpec.PrimaryV4AddressSpec != nil {
+				nifSpec.PrimaryV4AddressSpec.DnsRecordSpecs = expandK8SNodeGroupDNSRecords(rec.([]interface{}))
+			}
+		}
+		if rec, ok := nif["ipv6_dns_records"]; ok {
+			if nifSpec.PrimaryV6AddressSpec != nil {
+				nifSpec.PrimaryV6AddressSpec.DnsRecordSpecs = expandK8SNodeGroupDNSRecords(rec.([]interface{}))
+			}
+		}
+
 		nifs = append(nifs, nifSpec)
 	}
 	return nifs
@@ -1136,13 +1195,21 @@ func flattenKubernetesNodeGroupNetworkInterfaces(ifs []*k8s.NetworkInterfaceSpec
 }
 
 func flattenKubernetesNodeGroupNetworkInterface(nif *k8s.NetworkInterfaceSpec) map[string]interface{} {
-	return map[string]interface{}{
+	res := map[string]interface{}{
 		"subnet_ids":         nif.SubnetIds,
 		"security_group_ids": nif.SecurityGroupIds,
 		"nat":                flattenKubernetesNodeGroupNat(nif),
 		"ipv4":               nif.PrimaryV4AddressSpec != nil,
 		"ipv6":               nif.PrimaryV6AddressSpec != nil,
 	}
+	if nif.PrimaryV4AddressSpec != nil {
+		res["ipv4_dns_records"] = flattenK8SNodeGroupDNSRecords(nif.GetPrimaryV4AddressSpec().GetDnsRecordSpecs())
+	}
+	if nif.PrimaryV6AddressSpec != nil {
+		res["ipv6_dns_records"] = flattenK8SNodeGroupDNSRecords(nif.GetPrimaryV6AddressSpec().GetDnsRecordSpecs())
+	}
+
+	return res
 }
 
 func flattenKubernetesNodeGroupNat(nif *k8s.NetworkInterfaceSpec) bool {

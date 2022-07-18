@@ -171,6 +171,26 @@ The `network_interface` block supports:
 * `ipv6` - (Optional) If true, allocate an IPv6 address for the interface. The address will be automatically assigned from the specified subnet.
 * `nat` - A public address that can be used to access the internet over NAT.
 * `security_group_ids` - (Optional) Security group ids for network interface.
+* `ipv4_dns_records` - (Optional) List of configurations for creating ipv4 DNS records. The structure is documented below.
+* `ipv6_dns_records` - (Optional) List of configurations for creating ipv6 DNS records. The structure is documented below.
+
+---
+
+The `ipv4_dns_records` block supports:
+
+* `fqdn` - (Required) DNS record FQDN.
+* `dns_zone_id` - (Optional) DNS zone ID (if not set, private zone is used).
+* `ttl` - (Optional) DNS record TTL (in seconds).
+* `ptr` - (Optional) When set to true, also create a PTR DNS record.
+
+---
+
+The `ipv6_dns_records` block supports:
+
+* `fqdn` - (Required) DNS record FQDN.
+* `dns_zone_id` - (Optional) DNS zone ID (if not set, private zone is used).
+* `ttl` - (Optional) DNS record TTL (in seconds).
+* `ptr` - (Optional) When set to true, also create a PTR DNS record.
 
 ---
 

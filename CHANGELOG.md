@@ -2,17 +2,16 @@
 BUG FIXES:
 * iam: fix access bindings deletion
 * ydb: fixed panic if database was removed outside of terraform
+* storage: fix issue when error, returned from reading extend bucket settings treated as important.
+  It will be printed as log output now instead of interrupting plan execution.
 
 ENHANCEMENTS:
 * mdb: add `sqlcollation` attribute to `yandex_mdb_sqlserver_cluster` resource and data source
 * serverless: increase operation timeouts in `yandex_function` resource
 
 FEATURES:
-* k8s: add `instance_template.name` attribute in `node group` resource and data source
-
-BUG FIXES:
-* storage: fix issue when error, returned from reading extend bucket settings treated as important.
-It will be printed as log output now instead of interrupting plan execution.
+* k8s: add `instance_template.name` attribute to `node group` resource and data source
+* k8s: add `instance_template.ipv4_dns_records`, `instance_template.ipv6_dns_records` attributes to `node group` resource and data source
 
 ## 0.76.0 (July 01, 2022)
 BUG FIXES:

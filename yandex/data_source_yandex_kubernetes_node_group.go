@@ -145,6 +145,54 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 										Set:      schema.HashString,
 										Computed: true,
 									},
+									"ipv4_dns_records": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+											},
+										},
+									},
+									"ipv6_dns_records": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"fqdn": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"dns_zone_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"ttl": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"ptr": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},

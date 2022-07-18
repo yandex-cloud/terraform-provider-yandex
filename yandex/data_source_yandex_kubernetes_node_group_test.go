@@ -63,7 +63,7 @@ func TestAccDataSourceKubernetesNodeGroupNetworkInterfaces_basic(t *testing.T) {
 	clusterResource := clusterInfoWithSecurityGroups("TestAccDataSourceKubernetesNodeGroupNetworkInterfaces_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
-	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
 
 	var ng k8s.NodeGroup
 
@@ -210,6 +210,30 @@ func TestAccDataSourceKubernetesNodeGroup_containerRuntimeContainerd(t *testing.
 					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
 					testAccCheckResourceIDField(nodeResourceFullName, "node_group_id"),
 					testAccCheckCreatedAtAttr(nodeResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceKubernetesNodeGroupIPv4DNSFQDN_basic(t *testing.T) {
+	clusterResource := clusterInfoWithSecurityGroups("TestAccDataSourceKubernetesNodeGroupIPv4DNSFQDN_basic", true)
+	nodeResource := nodeGroupInfoIPv4DNSFQDN(clusterResource.ClusterResourceName)
+	nodeResource.constructNetworkInterfaces(clusterResource.SubnetResourceNameA, clusterResource.SecurityGroupName)
+	nodeResourceFullName := nodeResource.ResourceFullName(false)
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
 				),
 			},
 		},
