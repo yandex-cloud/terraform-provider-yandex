@@ -15,6 +15,7 @@ FEATURES:
 * k8s: add `instance_template.name` attribute to `node group` resource and data source
 * k8s: add `instance_template.ipv4_dns_records`, `instance_template.ipv6_dns_records` attributes to `node group` resource and data source
 * greenplum: add fields `greenplum_config` and `pooler_config` in `resource_yandex_mdb_greenplum_cluster`
+* **New Resource:** `yandex_serverless_container_iam_binding`
 
 ## 0.76.0 (July 01, 2022)
 BUG FIXES:

@@ -281,6 +281,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_resourcemanager_folder_iam_member":            resourceYandexResourceManagerFolderIAMMember(),
 			"yandex_resourcemanager_folder_iam_policy":            resourceYandexResourceManagerFolderIAMPolicy(),
 			"yandex_serverless_container":                         resourceYandexServerlessContainer(),
+			"yandex_serverless_container_iam_binding":             resourceYandexServerlessContainerIAMBinding(),
 			"yandex_storage_bucket":                               resourceYandexStorageBucket(),
 			"yandex_storage_object":                               resourceYandexStorageObject(),
 			"yandex_vpc_address":                                  resourceYandexVPCAddress(),
