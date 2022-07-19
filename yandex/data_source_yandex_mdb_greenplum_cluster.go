@@ -223,6 +223,37 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"pooler_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pooling_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"pool_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"pool_client_idle_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"greenplum_config": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbGreenplumSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbGreenplumSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -244,7 +275,10 @@ func dataSourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interf
 		if err != nil {
 			return fmt.Errorf("failed to resolve data source Greenplum Cluster by name: %v", err)
 		}
+
+		d.Set("cluster_id", clusterID)
 	}
+
 	cluster, err := config.sdk.MDB().Greenplum().Cluster().Get(ctx, &greenplum.GetClusterRequest{
 		ClusterId: clusterID,
 	})
@@ -252,101 +286,6 @@ func dataSourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interf
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
 	}
 
-	d.Set("folder_id", cluster.GetFolderId())
-	d.Set("cluster_id", cluster.Id)
-	d.Set("name", cluster.GetName())
-	d.Set("description", cluster.GetDescription())
-	d.Set("environment", cluster.GetEnvironment().String())
-	d.Set("network_id", cluster.GetNetworkId())
-	d.Set("health", cluster.GetHealth().String())
-	d.Set("status", cluster.GetStatus().String())
-	d.Set("version", cluster.GetConfig().GetVersion())
-
-	d.Set("zone", cluster.GetConfig().ZoneId)
-	d.Set("subnet_id", cluster.GetConfig().SubnetId)
-	d.Set("assign_public_ip", cluster.GetConfig().AssignPublicIp)
-	d.Set("version", cluster.GetConfig().Version)
-
-	d.Set("master_host_count", cluster.GetMasterHostCount())
-	d.Set("segment_host_count", cluster.GetSegmentHostCount())
-	d.Set("segment_in_host", cluster.GetSegmentInHost())
-
-	d.Set("user_name", cluster.GetUserName())
-
-	masterSubcluster := map[string]interface{}{}
-	masterResources := map[string]interface{}{}
-	masterResources["resource_preset_id"] = cluster.GetMasterConfig().Resources.ResourcePresetId
-	masterResources["disk_type_id"] = cluster.GetMasterConfig().Resources.DiskTypeId
-	masterResources["disk_size"] = toGigabytes(cluster.GetMasterConfig().Resources.DiskSize)
-	masterSubcluster["resources"] = []map[string]interface{}{masterResources}
-	d.Set("master_subcluster", []map[string]interface{}{masterSubcluster})
-
-	segmentSubcluster := map[string]interface{}{}
-	segmentResources := map[string]interface{}{}
-	segmentResources["resource_preset_id"] = cluster.GetMasterConfig().Resources.ResourcePresetId
-	segmentResources["disk_type_id"] = cluster.GetMasterConfig().Resources.DiskTypeId
-	segmentResources["disk_size"] = toGigabytes(cluster.GetMasterConfig().Resources.DiskSize)
-	segmentSubcluster["resources"] = []map[string]interface{}{segmentResources}
-	d.Set("segment_subcluster", []map[string]interface{}{segmentSubcluster})
-
-	if cluster.Labels == nil {
-		if err = d.Set("labels", make(map[string]string)); err != nil {
-			return err
-		}
-	} else if err = d.Set("labels", cluster.Labels); err != nil {
-		return err
-	}
-
-	if cluster.SecurityGroupIds == nil {
-		if err = d.Set("security_group_ids", make([]string, 0)); err != nil {
-			return err
-		}
-	} else if err = d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
-		return err
-	}
-
-	masterHosts, err := listGreenplumMasterHosts(ctx, config, cluster.GetId())
-	if err != nil {
-		return err
-	}
-	mHost := make([]map[string]interface{}, 0, len(masterHosts))
-	for _, h := range masterHosts {
-		mHost = append(mHost, map[string]interface{}{"fqdn": h.Name, "assign_public_ip": h.AssignPublicIp})
-	}
-	if err = d.Set("master_hosts", mHost); err != nil {
-		return err
-	}
-
-	segmentHosts, err := listGreenplumSegmentHosts(ctx, config, cluster.GetId())
-	if err != nil {
-		return err
-	}
-	sHost := make([]map[string]interface{}, 0, len(segmentHosts))
-	for _, h := range segmentHosts {
-		sHost = append(sHost, map[string]interface{}{"fqdn": h.Name})
-	}
-	if err = d.Set("segment_hosts", sHost); err != nil {
-		return err
-	}
-
-	d.Set("deletion_protection", cluster.DeletionProtection)
-
-	accessElement := map[string]interface{}{}
-	if cluster.Config != nil && cluster.Config.Access != nil {
-		accessElement["data_lens"] = cluster.Config.Access.DataLens
-		accessElement["web_sql"] = cluster.Config.Access.WebSql
-	}
-	d.Set("access", []map[string]interface{}{accessElement})
-
-	bwsElement := map[string]interface{}{}
-	if cluster.Config != nil && cluster.Config.BackupWindowStart != nil {
-		bwsElement["hours"] = cluster.Config.BackupWindowStart.Hours
-		bwsElement["minutes"] = cluster.Config.BackupWindowStart.Minutes
-	}
-	d.Set("backup_window_start", []map[string]interface{}{bwsElement})
-
-	d.Set("created_at", getTimestamp(cluster.CreatedAt))
-
 	d.SetId(cluster.Id)
-	return nil
+	return resourceYandexMDBGreenplumClusterRead(d, meta)
 }

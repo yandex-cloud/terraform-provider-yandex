@@ -13,7 +13,7 @@ func TestAccDataSourceMDBGreenplumCluster_byID(t *testing.T) {
 	t.Parallel()
 
 	greenplumName := acctest.RandomWithPrefix("ds-greenplum-by-id")
-	greenplumDesc := "Greenplum Cluster Terraform Datasource Test"
+	greenplumDescription := "Greenplum Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,10 +21,10 @@ func TestAccDataSourceMDBGreenplumCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBGreenplumClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDesc, true),
+				Config: testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDescription, true),
 				Check: testAccDataSourceMDBGreenplumClusterCheck(
 					"data.yandex_mdb_greenplum_cluster.bar",
-					"yandex_mdb_greenplum_cluster.foo", greenplumName, greenplumDesc),
+					"yandex_mdb_greenplum_cluster.foo", greenplumName, greenplumDescription),
 			},
 		},
 	})
@@ -130,6 +130,26 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"deletion_protection",
 				"deletion_protection",
 			},
+			{
+				"pooler_config.0.pooling_mode",
+				"pooler_config.0.pooling_mode",
+			},
+			{
+				"pooler_config.0.pool_size",
+				"pooler_config.0.pool_size",
+			},
+			{
+				"pooler_config.0.pool_client_idle_timeout",
+				"pooler_config.0.pool_client_idle_timeout",
+			},
+			{
+				"access.#",
+				"access.#",
+			},
+			{
+				"access.0.data_lens",
+				"access.0.data_lens",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -183,10 +203,10 @@ data "yandex_mdb_greenplum_cluster" "bar" {
 }
 `
 
-func testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDesc string, useDataID bool) string {
+func testAccDataSourceMDBGreenplumClusterConfig(greenplumName, greenplumDescription string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBGreenplumClusterConfigMain(greenplumName, greenplumDesc, "PRESTABLE", false) + mdbGreenplumClusterByIDConfig
+		return testAccMDBGreenplumClusterConfigStep1(greenplumName, greenplumDescription) + mdbGreenplumClusterByIDConfig
 	}
 
-	return testAccMDBGreenplumClusterConfigMain(greenplumName, greenplumDesc, "PRESTABLE", false) + mdbGreenplumClusterByNameConfig
+	return testAccMDBGreenplumClusterConfigStep1(greenplumName, greenplumDescription) + mdbGreenplumClusterByNameConfig
 }

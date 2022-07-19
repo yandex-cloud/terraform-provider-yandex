@@ -92,19 +92,6 @@ func flattenPGResources(r *postgresql.Resources) ([]interface{}, error) {
 	return []interface{}{out}, nil
 }
 
-func flattenPGBackupWindowStart(t *timeofday.TimeOfDay) ([]interface{}, error) {
-	if t == nil {
-		return nil, nil
-	}
-
-	out := map[string]interface{}{}
-
-	out["hours"] = int(t.Hours)
-	out["minutes"] = int(t.Minutes)
-
-	return []interface{}{out}, nil
-}
-
 func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]interface{}, error) {
 	if p == nil {
 		return nil, nil

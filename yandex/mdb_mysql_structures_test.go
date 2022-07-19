@@ -59,13 +59,14 @@ func TestFlattenMySQLSettings_5_7(t *testing.T) {
 	}
 
 	ethalon := map[string]string{
-		"max_connections":            "555",
-		"sql_mode":                   "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
-		"innodb_print_all_deadlocks": "true",
-		"log_slow_rate_type":         "0",
+		"binlog_transaction_dependency_tracking": "0",
+		"max_connections":                        "555",
+		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
+		"innodb_print_all_deadlocks":             "true",
+		"log_slow_rate_type":                     "0",
 	}
 
-	if !reflect.DeepEqual(m, ethalon) {
+	if !reflect.DeepEqual(ethalon, m) {
 		t.Errorf("FlattenMySQLSettings fail: flatten 5_7 should return %v map but map is: %v", ethalon, m)
 	}
 }
@@ -101,13 +102,14 @@ func TestFlattenMySQLSettings_8_0(t *testing.T) {
 	}
 
 	ethalon := map[string]string{
-		"max_connections":            "555",
-		"sql_mode":                   "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
-		"innodb_print_all_deadlocks": "true",
-		"log_slow_rate_type":         "0",
+		"binlog_transaction_dependency_tracking": "0",
+		"max_connections":                        "555",
+		"sql_mode":                               "NO_BACKSLASH_ESCAPES,STRICT_ALL_TABLES",
+		"innodb_print_all_deadlocks":             "true",
+		"log_slow_rate_type":                     "0",
 	}
 
-	if !reflect.DeepEqual(m, ethalon) {
+	if !reflect.DeepEqual(ethalon, m) {
 		t.Errorf("FlattenMySQLSettings fail: flatten 8_0 should return %v map but map is: %v", ethalon, m)
 	}
 }

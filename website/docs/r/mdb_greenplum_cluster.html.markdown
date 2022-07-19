@@ -51,6 +51,11 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
     web_sql = true
   }
 
+  greenplum_config = {
+    max_connections                   = 395
+    gp_workfile_compression           = "false"
+  }
+
   user_name     = "admin_user"
   user_password = "your_super_secret_password"
 
@@ -119,6 +124,10 @@ The following arguments are supported:
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
+* `pooler_config` - (Optional) Configuration of the connection pooler. The structure is documented below.
+
+* `greenplum_config` - (Optional) Greenplum cluster config. Detail info in "Greenplum cluster settings" section (documented below).
+
 - - -
 * `user_name` - (Required) Greenplum cluster admin user name.
 
@@ -157,6 +166,14 @@ The `access` block supports:
 
 * `web_sql` - Allows access for SQL queries in the management console
 
+The `pooler_config` block supports:
+
+* `pooling_mode` - (Optional) Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
+
+* `pool_size` - (Optional) Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).
+
+* `pool_client_idle_timeout` - (Optional) Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -187,3 +204,17 @@ A cluster can be imported using the `id` of the resource, e.g.
 ```
 $ terraform import yandex_mdb_greenplum_cluster.foo cluster_id
 ```
+
+## Greenplum cluster settings
+
+| Setting name and type \ Greenplum version | 6.17 | 6.19 |
+| ------------------------------------------| ---- | ---- |
+| max_connections : integer | supported | supported |
+| max_prepared_transactions : integer | supported | supported |
+| gp_workfile_limit_per_query : integer | supported | supported |
+| gp_workfile_limit_files_per_query : integer | supported | supported |
+| max_slot_wal_keep_size : integer | supported | supported |
+| gp_workfile_limit_per_segment : integer | supported | supported |
+| gp_workfile_compression : boolean | supported | supported |
+| max_statement_mem : integer | - | supported |
+| log_statement : one of<br>  - 0: " LOG_STATEMENT_UNSPECIFIED"<br>  - 1: " LOG_STATEMENT_NONE"<br>  - 2: " LOG_STATEMENT_DDL"<er>  - 3: " LOG_STATEMENT_MOD"<br>  - 4: " LOG_STATEMENT_ALL"  | - | supported |

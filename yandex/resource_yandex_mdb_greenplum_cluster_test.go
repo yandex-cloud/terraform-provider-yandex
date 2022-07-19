@@ -88,10 +88,10 @@ func mdbGreenplumClusterImportStep(name string) resource.TestStep {
 func TestAccMDBGreenplumCluster_full(t *testing.T) {
 	t.Parallel()
 
-	GreenplumName := acctest.RandomWithPrefix("tf-greenplum")
-	greenplumNameMod := GreenplumName + "_mod"
-	GreenplumDesc := "Greenplum Cluster Terraform Test"
-	greenplumDescMod := GreenplumDesc + "_mod"
+	clusterName := acctest.RandomWithPrefix("tf-greenplum")
+	clusterNameUpdated := clusterName + "_updated"
+	clusterDescription := "Greenplum Cluster Terraform Test"
+	clusterDescriptionUpdated := clusterDescription + " Updated"
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
@@ -99,29 +99,73 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBGreenplumClusterDestroy,
 		Steps: []resource.TestStep{
-			//Create Greenplum Cluster
+			// Create Greenplum Cluster
 			{
-				Config: testAccMDBGreenplumClusterConfigMain(GreenplumName, GreenplumDesc, "PRESTABLE", false),
+				Config: testAccMDBGreenplumClusterConfigStep1(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
-					resource.TestCheckResourceAttr(greenplumResource, "name", GreenplumName),
+					resource.TestCheckResourceAttr(greenplumResource, "name", clusterName),
 					resource.TestCheckResourceAttr(greenplumResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(greenplumResource, "description", GreenplumDesc),
+					resource.TestCheckResourceAttr(greenplumResource, "description", clusterDescription),
 					testAccCheckCreatedAtAttr(greenplumResource),
 					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
+
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "TRANSACTION"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "0"),
+
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "395"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_slot_wal_keep_size", "1048576"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_per_segment", "0"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_per_query", "0"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_files_per_query", "100000"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_prepared_transactions", "500"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "false"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
-			// Change some options
+			// Update name and description of the cluster
 			{
-				Config: testAccMDBGreenplumClusterConfigUpdate(greenplumNameMod, greenplumDescMod, "PRESTABLE", false),
+				Config: testAccMDBGreenplumClusterConfigStep2(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(greenplumResource, "name", greenplumNameMod),
-					resource.TestCheckResourceAttr(greenplumResource, "description", greenplumDescMod),
-					resource.TestCheckResourceAttr(greenplumResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(greenplumResource, "name", clusterNameUpdated),
+					resource.TestCheckResourceAttr(greenplumResource, "description", clusterDescriptionUpdated),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResource),
+			// Update pooler_config and greenplum_config
+			{
+				Config: testAccMDBGreenplumClusterConfigStep3(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "400"),
+					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_compression", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "SESSION"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
+					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "0"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResource),
+			// Update deletion_protection
+			{
+				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+					testAccCheckCreatedAtAttr(greenplumResource),
+					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "true"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResource),
+			// Add access and backup_window_start fields
+			{
+				Config: testAccMDBGreenplumClusterConfigStep5(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
+
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "backup_window_start.0.minutes", "15"),
+					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -204,8 +248,6 @@ func testAccCheckMDBGreenplumClusterExists(n string, masterHosts int, segmentHos
 const greenplumVPCDependencies = `
 resource "yandex_vpc_network" "mdb-greenplum-test-net" {}
 
-
-
 resource "yandex_vpc_subnet" "mdb-greenplum-test-subnet-b" {
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.mdb-greenplum-test-net.id
@@ -229,33 +271,14 @@ resource "yandex_vpc_security_group" "mdb-greenplum-test-sg-x" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-resource "yandex_vpc_security_group" "mdb-greenplum-test-sg-y" {
-  network_id = yandex_vpc_network.mdb-greenplum-test-net.id
-
-  ingress {
-    protocol       = "ANY"
-    description    = "Allow incoming traffic from members of the same security group"
-    from_port      = 0
-    to_port        = 65535
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    protocol       = "ANY"
-    description    = "Allow outgoing traffic to members of the same security group"
-    from_port      = 0
-    to_port        = 65535
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-}
 `
 
-func testAccMDBGreenplumClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
+func testAccMDBGreenplumClusterConfigStep0(name string, description string) string {
 	return fmt.Sprintf(greenplumVPCDependencies+`
 resource "yandex_mdb_greenplum_cluster" "foo" {
   name        = "%s"
   description = "%s"
-  environment = "%s"
+  environment = "PRESTABLE"
   network_id  = yandex_vpc_network.mdb-greenplum-test-net.id
   zone = "ru-central1-b"
   subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
@@ -285,46 +308,96 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
 
   user_name     = "user1"
   user_password = "mysecurepassword"
-
   security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
 
-  deletion_protection = %t
-}
-`, name, desc, environment, deletionProtection)
+`, name, description)
 }
 
-func testAccMDBGreenplumClusterConfigUpdate(name, desc, environment string, deletionProtection bool) string {
-	return fmt.Sprintf(greenplumVPCDependencies+`
-resource "yandex_mdb_greenplum_cluster" "foo" {
-  name        = "%s"
-  description = "%s"
-  environment = "%s"
-  network_id  = yandex_vpc_network.mdb-greenplum-test-net.id
-  zone = "ru-central1-b"
-  subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
-  assign_public_ip = false
-  version = "6.19"
-
-  labels = { test_key_create2 : "test_value_create2" }
-
-  master_host_count  = 2
-  segment_host_count = 5
-  segment_in_host    = 1
-
-  master_subcluster {
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 24
-      disk_type_id       = "network-ssd"
-    }
+func testAccMDBGreenplumClusterConfigStep1(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description) + `
+  pooler_config {
+	pooling_mode             = "TRANSACTION"
+	pool_size                = 10
+	pool_client_idle_timeout = 0
   }
-  segment_subcluster {
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_size          = 24
-      disk_type_id       = "network-ssd"
-    }
+
+  greenplum_config = {
+	max_connections                   = 395
+	max_slot_wal_keep_size            = 1048576 
+	gp_workfile_limit_per_segment     = 0
+	gp_workfile_limit_per_query       = 0
+	gp_workfile_limit_files_per_query = 100000
+	max_prepared_transactions         = 500
+	gp_workfile_compression           = "false"
   }
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep2(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep1(name, description)
+}
+
+func testAccMDBGreenplumClusterConfigStep3(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description) + `
+  pooler_config {
+	pooling_mode             = "SESSION"
+	pool_size                = 10
+	pool_client_idle_timeout = 0
+  }
+
+  greenplum_config = {
+	max_connections                   = 400
+	max_slot_wal_keep_size            = 1048576 
+	gp_workfile_limit_per_segment     = 0
+	gp_workfile_limit_per_query       = 0
+	gp_workfile_limit_files_per_query = 100000
+	max_prepared_transactions         = 500
+	gp_workfile_compression           = "true"
+  }
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep4(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description) + `
+  pooler_config {
+	pooling_mode             = "SESSION"
+	pool_size                = 10
+	pool_client_idle_timeout = 0
+  }
+
+  greenplum_config = {
+	max_connections                   = 400
+	max_slot_wal_keep_size            = 1048576 
+	gp_workfile_limit_per_segment     = 0
+	gp_workfile_limit_per_query       = 0
+	gp_workfile_limit_files_per_query = 100000
+	max_prepared_transactions         = 500
+	gp_workfile_compression           = "true"
+  }
+  
+  deletion_protection = true
+}`
+}
+
+func testAccMDBGreenplumClusterConfigStep5(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigStep0(name, description) + `
+  pooler_config {
+	pooling_mode             = "SESSION"
+	pool_size                = 10
+	pool_client_idle_timeout = 0
+  }
+
+  greenplum_config = {
+	max_connections                   = 400
+	max_slot_wal_keep_size            = 1048576 
+	gp_workfile_limit_per_segment     = 0
+	gp_workfile_limit_per_query       = 0
+	gp_workfile_limit_files_per_query = 100000
+	max_prepared_transactions         = 500
+	gp_workfile_compression           = "true"
+  }
+  
+  deletion_protection = false
 
   access {
     data_lens = true
@@ -334,13 +407,5 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
     hours = 22
     minutes = 15
   }
-
-  user_name     = "user1"
-  user_password = "mysecurepassword"
-
-  security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
-
-  deletion_protection = %t
-}
-`, name, desc, environment, deletionProtection)
+}`
 }

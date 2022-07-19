@@ -66,6 +66,9 @@ exported:
 * `access` - Access policy to the Greenplum cluster. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
+* `pooler_config` - Configuration of the connection pooler. The structure is documented below.
+* `greenplum_config` - Greenplum cluster config.
+
 * `user_name` - Greenplum cluster admin user name.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `deletion_protection` - Flag to protect the cluster from deletion.
@@ -98,3 +101,11 @@ The `access` block supports:
 
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `web_sql` - Allows access for SQL queries in the management console.
+
+
+The `pooler_config` block supports:
+
+* `pooling_mode` - Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool-string.
+* `pool_size` - Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).
+* `pool_client_idle_timeout` - Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).
+

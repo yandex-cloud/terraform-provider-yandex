@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
-	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -100,7 +99,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-
 			"master_subcluster": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -161,7 +159,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"master_hosts": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -190,7 +187,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"user_name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -200,7 +196,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
-
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -224,7 +219,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
 			"backup_window_start": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -247,7 +241,6 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
-
 			"access": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -268,13 +261,44 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"pooler_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"pooling_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"pool_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"pool_client_idle_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"greenplum_config": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbGreenplumSettingsFieldsInfo),
+				ValidateFunc:     generateMapSchemaValidateFunc(mdbGreenplumSettingsFieldsInfo),
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
 
 func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	req, err := prepareCreateGreenplumRequest(d, config)
+	req, err := prepareCreateGreenplumClusterRequest(d, config)
 	if err != nil {
 		return err
 	}
@@ -283,71 +307,75 @@ func resourceYandexMDBGreenplumClusterCreate(d *schema.ResourceData, meta interf
 	defer cancel()
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Create(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create Greenplum Cluster: %s", err)
+		return fmt.Errorf("error while requesting API to create Greenplum Cluster: %s", err)
 	}
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while get Greenplum create operation metadata: %s", err)
+		return fmt.Errorf("error while get Greenplum create operation metadata: %s", err)
 	}
 	md, ok := protoMetadata.(*greenplum.CreateClusterMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get Greenplum Cluster ID from create operation metadata")
+		return fmt.Errorf("could not get Greenplum Cluster ID from create operation metadata")
 	}
 	d.SetId(md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting for operation to create Greenplum Cluster: %s", err)
+		return fmt.Errorf("error while waiting for operation to create Greenplum Cluster: %s", err)
 	}
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("Greenplum Cluster creation failed: %s", err)
+		return fmt.Errorf("failed to create Greenplum Cluster: %s", err)
 	}
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
 }
 
-func prepareCreateGreenplumRequest(d *schema.ResourceData, meta *Config) (*greenplum.CreateClusterRequest, error) {
+func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) (*greenplum.CreateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
-
 	if err != nil {
-		return nil, fmt.Errorf("Error while expanding labels on Greenplum Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding labels on Greenplum Cluster create: %s", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting folder ID while creating Greenplum Cluster: %s", err)
+		return nil, fmt.Errorf("error getting folder ID while creating Greenplum Cluster: %s", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseGreenplumEnv(e)
 	if err != nil {
-		return nil, fmt.Errorf("Error resolving environment while creating Greenplum Cluster: %s", err)
+		return nil, fmt.Errorf("error resolving environment while creating Greenplum Cluster: %s", err)
 	}
-
-	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("Error while expanding network id on Greenplum Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding network id on Greenplum Cluster create: %s", err)
 	}
 
-	req := greenplum.CreateClusterRequest{
+	configSpec, _, err := expandGreenplumConfigSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster create: %s", err)
+	}
+
+	return &greenplum.CreateClusterRequest{
 		FolderId:         folderID,
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
 		NetworkId:        networkID,
 		Environment:      env,
 		Labels:           labels,
-		SecurityGroupIds: securityGroupIds,
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 
 		MasterHostCount:  int64(d.Get("master_host_count").(int)),
 		SegmentInHost:    int64(d.Get("segment_in_host").(int)),
 		SegmentHostCount: int64(d.Get("segment_host_count").(int)),
 
 		Config: &greenplum.GreenplumConfig{
-			Version:        d.Get("version").(string),
-			ZoneId:         d.Get("zone").(string),
-			SubnetId:       d.Get("subnet_id").(string),
-			AssignPublicIp: d.Get("assign_public_ip").(bool),
+			Version:           d.Get("version").(string),
+			BackupWindowStart: expandGreenplumBackupWindowStart(d),
+			Access:            expandGreenplumAccess(d),
+			ZoneId:            d.Get("zone").(string),
+			SubnetId:          d.Get("subnet_id").(string),
+			AssignPublicIp:    d.Get("assign_public_ip").(bool),
 		},
 		MasterConfig: &greenplum.MasterSubclusterConfigSpec{
 			Resources: &greenplum.Resources{
@@ -366,8 +394,9 @@ func prepareCreateGreenplumRequest(d *schema.ResourceData, meta *Config) (*green
 
 		UserName:     d.Get("user_name").(string),
 		UserPassword: d.Get("user_password").(string),
-	}
-	return &req, nil
+
+		ConfigSpec: configSpec,
+	}, nil
 }
 
 func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -391,6 +420,7 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	d.Set("health", cluster.GetHealth().String())
 	d.Set("status", cluster.GetStatus().String())
 	d.Set("version", cluster.GetConfig().GetVersion())
+	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	d.Set("zone", cluster.GetConfig().ZoneId)
 	d.Set("subnet_id", cluster.GetConfig().SubnetId)
@@ -403,35 +433,30 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 
 	d.Set("user_name", cluster.GetUserName())
 
-	masterSubcluster := map[string]interface{}{}
-	masterResources := map[string]interface{}{}
-	masterResources["resource_preset_id"] = cluster.GetMasterConfig().Resources.ResourcePresetId
-	masterResources["disk_type_id"] = cluster.GetMasterConfig().Resources.DiskTypeId
-	masterResources["disk_size"] = toGigabytes(cluster.GetMasterConfig().Resources.DiskSize)
-	masterSubcluster["resources"] = []map[string]interface{}{masterResources}
-	d.Set("master_subcluster", []map[string]interface{}{masterSubcluster})
+	d.Set("master_subcluster", flattenGreenplumMasterSubcluster(cluster.GetMasterConfig().Resources))
+	d.Set("segment_subcluster", flattenGreenplumSegmentSubcluster(cluster.GetSegmentConfig().Resources))
 
-	segmentSubcluster := map[string]interface{}{}
-	segmentResources := map[string]interface{}{}
-	segmentResources["resource_preset_id"] = cluster.GetMasterConfig().Resources.ResourcePresetId
-	segmentResources["disk_type_id"] = cluster.GetMasterConfig().Resources.DiskTypeId
-	segmentResources["disk_size"] = toGigabytes(cluster.GetMasterConfig().Resources.DiskSize)
-	segmentSubcluster["resources"] = []map[string]interface{}{segmentResources}
-	d.Set("segment_subcluster", []map[string]interface{}{segmentSubcluster})
-
-	if cluster.Labels == nil {
-		if err = d.Set("labels", make(map[string]string)); err != nil {
-			return err
-		}
-	} else if err = d.Set("labels", cluster.Labels); err != nil {
+	poolConfig, err := flattenGreenplumPoolerConfig(cluster.GetClusterConfig().GetPool())
+	if err != nil {
+		return err
+	}
+	if err := d.Set("pooler_config", poolConfig); err != nil {
 		return err
 	}
 
-	if cluster.SecurityGroupIds == nil {
-		if err = d.Set("security_group_ids", make([]string, 0)); err != nil {
-			return err
-		}
-	} else if err = d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+	gpConfig, err := flattenGreenplumClusterConfig(cluster.ClusterConfig)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("greenplum_config", gpConfig); err != nil {
+		return err
+	}
+
+	if err := d.Set("labels", cluster.Labels); err != nil {
+		return err
+	}
+
+	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
 
@@ -439,43 +464,31 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	mHost := make([]map[string]interface{}, 0, len(masterHosts))
-	for _, h := range masterHosts {
-		mHost = append(mHost, map[string]interface{}{"fqdn": h.Name, "assign_public_ip": h.AssignPublicIp})
-	}
-	if err = d.Set("master_hosts", mHost); err != nil {
-		return err
-	}
-
 	segmentHosts, err := listGreenplumSegmentHosts(ctx, config, d.Id())
 	if err != nil {
 		return err
 	}
-	sHost := make([]map[string]interface{}, 0, len(segmentHosts))
-	for _, h := range segmentHosts {
-		sHost = append(sHost, map[string]interface{}{"fqdn": h.Name})
+	mHost, sHost := flattenGreenplumHosts(masterHosts, segmentHosts)
+	if err := d.Set("master_hosts", mHost); err != nil {
+		return err
 	}
-	if err = d.Set("segment_hosts", sHost); err != nil {
+	if err := d.Set("segment_hosts", sHost); err != nil {
 		return err
 	}
 
-	d.Set("deletion_protection", cluster.DeletionProtection)
-
-	accessElement := map[string]interface{}{}
-	if cluster.Config != nil && cluster.Config.Access != nil {
-		accessElement["data_lens"] = cluster.Config.Access.DataLens
-		accessElement["web_sql"] = cluster.Config.Access.WebSql
+	if err := d.Set("access", flattenGreenplumAccess(cluster.Config)); err != nil {
+		return err
 	}
-	d.Set("access", []map[string]interface{}{accessElement})
 
-	bwsElement := map[string]interface{}{}
-	if cluster.Config != nil && cluster.Config.BackupWindowStart != nil {
-		bwsElement["hours"] = cluster.Config.BackupWindowStart.Hours
-		bwsElement["minutes"] = cluster.Config.BackupWindowStart.Minutes
+	if err := d.Set("backup_window_start", flattenBackupWindowsStart(cluster.Config)); err != nil {
+		return err
 	}
-	d.Set("backup_window_start", []map[string]interface{}{bwsElement})
 
-	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
+	if err := d.Set("created_at", getTimestamp(cluster.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func listGreenplumMasterHosts(ctx context.Context, config *Config, id string) ([]*greenplum.Host, error) {
@@ -502,6 +515,7 @@ func listGreenplumMasterHosts(ctx context.Context, config *Config, id string) ([
 
 	return hosts, nil
 }
+
 func listGreenplumSegmentHosts(ctx context.Context, config *Config, id string) ([]*greenplum.Host, error) {
 	hosts := []*greenplum.Host{}
 	pageToken := ""
@@ -527,44 +541,18 @@ func listGreenplumSegmentHosts(ctx context.Context, config *Config, id string) (
 	return hosts, nil
 }
 
-var mdbGreenplumUpdateFieldsMap = map[string]string{
-	"name":                "name",
-	"description":         "description",
-	"labels":              "labels",
-	"access.0.data_lens":  "config.access.data_lens",
-	"access.0.web_sql":    "config.access.web_sql",
-	"backup_window_start": "config.backup_window_start",
-	"deletion_protection": "deletion_protection",
-}
-
 func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
 
 	config := meta.(*Config)
-	req, err := getGreenplumlusterUpdateRequest(d)
+	req, err := prepareUpdateGreenplumClusterRequest(d)
 	if err != nil {
 		return err
 	}
 
-	backupWindowStart := expandGreenplumBackupWindowStart(d)
-	req.Config = &greenplum.GreenplumConfig{
-		Version:           d.Get("version").(string),
-		BackupWindowStart: backupWindowStart,
-		Access:            expandGreenplumAccess(d),
-	}
-
-	updatePath := []string{}
-	for field, path := range mdbGreenplumUpdateFieldsMap {
-		if d.HasChange(field) {
-			updatePath = append(updatePath, path)
-		}
-	}
-
-	if len(updatePath) == 0 {
+	if len(req.UpdateMask.Paths) == 0 {
 		return nil
 	}
-
-	req.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -583,53 +571,35 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
 }
 
-func getGreenplumlusterUpdateRequest(d *schema.ResourceData) (*greenplum.UpdateClusterRequest, error) {
+func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.UpdateClusterRequest, error) {
+	if d.HasChange("security_group_ids") {
+		return nil, fmt.Errorf("changing of 'security_group_ids' is not implemented yet")
+	}
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return nil, fmt.Errorf("error expanding labels while updating Greenplum cluster: %s", err)
 	}
 
-	req := &greenplum.UpdateClusterRequest{
+	configSpec, settingNames, err := expandGreenplumConfigSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster create: %s", err)
+	}
+
+	return &greenplum.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-	}
-
-	return req, nil
-}
-
-func expandGreenplumBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
-	out := &timeofday.TimeOfDay{}
-
-	if v, ok := d.GetOk("backup_window_start.0.hours"); ok {
-		out.Hours = int32(v.(int))
-	}
-
-	if v, ok := d.GetOk("backup_window_start.0.minutes"); ok {
-		out.Minutes = int32(v.(int))
-	}
-
-	return out
-}
-
-func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
-	if _, ok := d.GetOkExists("access"); !ok {
-		return nil
-	}
-
-	out := &greenplum.Access{}
-
-	if v, ok := d.GetOk("access.0.data_lens"); ok {
-		out.DataLens = v.(bool)
-	}
-
-	if v, ok := d.GetOk("access.0.web_sql"); ok {
-		out.WebSql = v.(bool)
-	}
-
-	return out
+		Config: &greenplum.GreenplumConfig{
+			Version:           d.Get("version").(string),
+			BackupWindowStart: expandGreenplumBackupWindowStart(d),
+			Access:            expandGreenplumAccess(d),
+		},
+		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		UpdateMask:       &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
+		ConfigSpec:       configSpec,
+	}, nil
 }
 
 func resourceYandexMDBGreenplumClusterDelete(d *schema.ResourceData, meta interface{}) error {
