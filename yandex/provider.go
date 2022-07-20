@@ -291,6 +291,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_vpc_security_group":                           resourceYandexVPCSecurityGroup(),
 			"yandex_vpc_security_group_rule":                      resourceYandexVpcSecurityGroupRule(),
 			"yandex_vpc_subnet":                                   resourceYandexVPCSubnet(),
+			"yandex_ydb_database_iam_binding":                     resourceYandexYDBDatabaseIAMBinding(),
 			"yandex_ydb_database_dedicated":                       resourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                      resourceYandexYDBDatabaseServerless(),
 		},
