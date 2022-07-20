@@ -136,7 +136,7 @@ The `instance_template` block supports:
 
 * `container_runtime` - (Optional) Container runtime configuration. The structure is documented below.
 
-* `name` - (Optional) Name template of the instance.  
+* `name` - (Optional) Name template of the instance.
 In order to be unique it must contain at least one of instance unique placeholders:   
 {instance.short_id}   
 {instance.index}   
@@ -144,6 +144,8 @@ combination of {instance.zone_id} and {instance.index_in_zone}
 Example: my-instance-{instance.index}  
 If not set, default is used: {instance_group.id}-{instance.short_id}   
 It may also contain another placeholders, see [Compute Instance group metadata doc](https://cloud.yandex.com/en-ru/docs/compute/api-ref/grpc/instance_group_service) for full list.
+
+* `labels` - (Optional) Labels that will be assigned to compute nodes (instances), created by the Node Group.
 ---
 
 The `boot_disk` block supports:

@@ -200,6 +200,8 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 	nodeUpdatedResource.DiskSize = "65"
 	nodeUpdatedResource.Preemptible = "false"
 	nodeUpdatedResource.NodeName = "new-{instance.short_id}"
+	nodeUpdatedResource.TemplateLabelKey = "two"
+	nodeUpdatedResource.TemplateLabelValue = "2"
 
 	// update maintenance policy
 	nodeUpdatedResource.constructMaintenancePolicyField(false, false, dailyMaintenancePolicy)
@@ -208,6 +210,8 @@ func TestAccKubernetesNodeGroup_update(t *testing.T) {
 
 	nodeUpdatedResource2 := nodeUpdatedResource
 	nodeUpdatedResource2.NodeName = ""
+	// clearing node group template labels
+	nodeUpdatedResource2.TemplateLabelKey = ""
 	nodeUpdatedResource2.constructMaintenancePolicyField(true, true, weeklyMaintenancePolicy)
 
 	nodeUpdatedResource3 := nodeUpdatedResource2
@@ -571,6 +575,9 @@ type resourceNodeGroupInfo struct {
 	NetworkAccelerationType string
 
 	NodeName string
+
+	TemplateLabelKey   string
+	TemplateLabelValue string
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -615,6 +622,8 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		ScalePolicy:           fixedScalePolicy,
 		NetworkInterfaces:     enableNAT,
 		NodeName:              "node-{instance.short_id}",
+		TemplateLabelKey:      "one",
+		TemplateLabelValue:    "1",
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)
@@ -839,6 +848,12 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
 	{{end}}
 
     name = "{{.NodeName}}"
+
+    {{if .TemplateLabelKey}}
+    labels = {
+      {{.TemplateLabelKey}} = "{{.TemplateLabelValue}}"
+    }
+    {{end}}
   }
 
   {{.ScalePolicy}}
@@ -934,6 +949,10 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			return fmt.Errorf("failed to get kubernetes node group specs info")
 		}
 
+		expectedTemplateLabels := map[string]string{}
+		if info.TemplateLabelKey != "" {
+			expectedTemplateLabels[info.TemplateLabelKey] = info.TemplateLabelValue
+		}
 		resourceFullName := info.ResourceFullName(rs)
 		checkFuncsAr := []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(resourceFullName, "cluster_id", ng.ClusterId),
@@ -966,6 +985,8 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.network_acceleration_type",
 				strings.ToLower(tpl.NetworkSettings.Type.String())),
 			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.name", info.NodeName),
+			testCheckResourceMap(resourceFullName, "instance_template.0.labels", tpl.GetLabels()),
+			testCheckResourceMap(resourceFullName, "instance_template.0.labels", expectedTemplateLabels),
 
 			resource.TestCheckResourceAttr(resourceFullName, "version_info.0.current_version",
 				versionInfo.GetCurrentVersion()),

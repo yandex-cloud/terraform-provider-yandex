@@ -87,6 +87,7 @@ The `instance_template` block supports:
 * `container_runtime` - Container runtime configuration. The structure is documented below.
 
 * `name` - Name template of the instance.
+* `labels` - Labels assigned to compute nodes (instances), created by the Node Group.
 ---
 
 The `network_interface` block supports:

@@ -234,6 +234,12 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"labels": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
 					},
 				},
 			},

@@ -255,6 +255,12 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
 					},
 				},
 			},
@@ -785,6 +791,11 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
 	}
 
+	labels, err := expandLabels(h.Get("labels"))
+	if err != nil {
+		return nil, fmt.Errorf("error expanding template labels while creating Kubernetes node group: %s", err)
+	}
+
 	ns, err := getNodeGroupTemplateNetworkSettings(d)
 	if err != nil {
 		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
@@ -807,6 +818,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		NetworkSettings:          ns,
 		ContainerRuntimeSettings: crs,
 		Name:                     h.GetString("name"),
+		Labels:                   labels,
 	}
 
 	return tpl, nil
@@ -1040,6 +1052,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.network_acceleration_type":             "node_template.network_settings",
 	"instance_template.0.container_runtime.0.type":              "node_template.container_runtime_settings.type",
 	"instance_template.0.name":                                  "node_template.name",
+	"instance_template.0.labels":                                "node_template.labels",
 	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
@@ -1180,6 +1193,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"network_acceleration_type": strings.ToLower(ngTpl.GetNetworkSettings().GetType().String()),
 		"container_runtime":         flattenKubernetesNodeGroupTemplateContainerRuntime(ngTpl.GetContainerRuntimeSettings()),
 		"name":                      ngTpl.GetName(),
+		"labels":                    ngTpl.GetLabels(),
 	}
 
 	return []map[string]interface{}{tpl}
