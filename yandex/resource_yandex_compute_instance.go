@@ -368,10 +368,11 @@ func resourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"hostname": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: hostnameDiffSuppressFunc,
 			},
 
 			"metadata": {
@@ -1284,12 +1285,18 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 }
 
 func parseHostnameFromFQDN(fqdn string) (string, error) {
-	p := strings.Split(fqdn, ".")
-	if len(p) < 1 {
-		return "", fmt.Errorf("failed to get instance hostname from its fqdn")
+	if !strings.Contains(fqdn, ".") {
+		return fqdn + ".", nil
+	}
+	if strings.HasSuffix(fqdn, ".auto.internal") {
+		return "", nil
+	}
+	if strings.HasSuffix(fqdn, ".internal") {
+		p := strings.Split(fqdn, ".")
+		return p[0], nil
 	}
 
-	return p[0], nil
+	return fqdn, nil
 }
 
 func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.PrimaryAddressSpec) bool {
@@ -1559,4 +1566,8 @@ func ensureAllowStoppingForUpdate(d *schema.ResourceData, propNames ...string) e
 		return fmt.Errorf(message + "To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 	}
 	return nil
+}
+
+func hostnameDiffSuppressFunc(_, oldValue, newValue string, _ *schema.ResourceData) bool {
+	return strings.TrimRight(oldValue, ".") == strings.TrimRight(newValue, ".")
 }

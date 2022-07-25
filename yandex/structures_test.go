@@ -747,3 +747,21 @@ func TestFlattenLocalDiskLocalDisks(t *testing.T) {
 		})
 	}
 }
+
+func TestConvertFQDN(t *testing.T) {
+	testdata := map[string]string{
+		"123.auto.internal":                 "",
+		"breathtaking.ru-central1.internal": "breathtaking",
+		"hello.world":                       "hello.world",
+		"breathtaking":                      "breathtaking.",
+	}
+
+	for fqdn, hostname := range testdata {
+		t.Run("fqdn "+fqdn, func(t *testing.T) {
+			h, _ := parseHostnameFromFQDN(fqdn)
+			if h != hostname {
+				t.Errorf("%s is not equal to %s", h, hostname)
+			}
+		})
+	}
+}
