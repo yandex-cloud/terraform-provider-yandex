@@ -1,4 +1,6 @@
-## 0.77.0 (Unreleased)
+## 0.78.0 (Unreleased)
+
+## 0.77.0 (July 27, 2022)
 BUG FIXES:
 * iam: fix access bindings deletion
 * ydb: fixed panic if database was removed outside of terraform
