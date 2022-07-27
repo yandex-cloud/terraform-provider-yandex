@@ -44,6 +44,8 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 			"active": {
 				Type:     schema.TypeBool,

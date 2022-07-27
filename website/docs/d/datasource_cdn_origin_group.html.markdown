@@ -33,8 +33,8 @@ The following arguments are supported:
 * `name` - (Optional) Name of the origin group.
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 * `origins` -A set of available origins, an origins group must contain at least one enabled origin with fields:
-  - source (Required) - IP address or Domain name of your origin and the port;
-  - enabled (Optional) - the origin is enabled and used as a source for the CDN. Default is enabled.
-  - backup (Optional) - specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
+  * `source` (Required) - IP address or Domain name of your origin and the port;
+  * `enabled` (Optional) - the origin is enabled and used as a source for the CDN. Default is enabled.
+  * `backup` (Optional) - specifies whether the origin is used in its origin group as backup. A backup origin is used when one of active origins becomes unavailable.
 
 ~> **NOTE:** One of `origin_group_id` or `name` should be specified.

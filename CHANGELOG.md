@@ -10,6 +10,7 @@ BUG FIXES:
 ENHANCEMENTS:
 * mdb: add `sqlcollation` attribute to `yandex_mdb_sqlserver_cluster` resource and data source
 * serverless: increase operation timeouts in `yandex_function` resource
+* cdn: added the ability to set custom `folder_id` attribute for resources `yandex_cdn_origin_group` and `yandex_cdn_resource`
 
 FEATURES:
 * k8s: add `instance_template.name` attribute to `node group` resource and data source

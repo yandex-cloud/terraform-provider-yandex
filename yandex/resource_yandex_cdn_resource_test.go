@@ -94,6 +94,38 @@ func TestAccCDNResource_basicByName(t *testing.T) {
 	})
 }
 
+func TestAccCDNResource_basicByNameWithFolderID(t *testing.T) {
+	t.Parallel()
+
+	folderID := getExampleFolderID()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_basicByNameWithFolderID(groupName, resourceCName, folderID),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "origin_protocol", "http"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "active", "true"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "secondary_hostnames.#", "0"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "ssl_certificate.0.type", "not_used"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccCDNResource_basicUpdate(t *testing.T) {
 	folderID := getExampleFolderID()
 
@@ -674,6 +706,26 @@ resource "yandex_cdn_resource" "foobar_resource" {
 	origin_group_name = "${yandex_cdn_origin_group.foo_cdn_group_by_name.name}"
 }
 `, groupName, resourceCNAME)
+}
+
+func testAccCDNResource_basicByNameWithFolderID(groupName, resourceCNAME, folderID string) string {
+	return fmt.Sprintf(`
+resource "yandex_cdn_origin_group" "foo_cdn_group_by_name" {
+  name      = "%s"
+  folder_id = "%s"
+
+  origin {
+    source = "ya.ru"
+  }
+}
+
+resource "yandex_cdn_resource" "foobar_resource" {
+  cname = "%s"
+
+  origin_group_name = yandex_cdn_origin_group.foo_cdn_group_by_name.name
+}
+
+`, groupName, folderID, resourceCNAME)
 }
 
 func testAccCDNResource_basicByID(groupName, resourceCNAME string) string {

@@ -40,6 +40,8 @@ func resourceYandexCDNOriginGroup() *schema.Resource {
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,

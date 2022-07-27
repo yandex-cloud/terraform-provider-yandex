@@ -26,7 +26,7 @@ func init() {
 }
 
 func testAccCDNOriginsContainsSources(originGroup *cdn.OriginGroup, sources ...string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
+	return func(_ *terraform.State) error {
 		if originGroup == nil {
 			return fmt.Errorf("CDN Origin Group must exist")
 		}
@@ -70,6 +70,49 @@ func TestAccCDNOriginGroup_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCDNOriginGroup_basic(groupName),
+				Check: resource.ComposeTestCheckFunc(
+					testOriginGroupExists("yandex_cdn_origin_group.test_cdn_group", &originGroup),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "name", groupName),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "use_next", "true"),
+					testAccCDNOriginsContainsSources(&originGroup,
+						"ya.ru",
+						"yandex.ru",
+						"goo.gl",
+						"amazon.com",
+					),
+				),
+			},
+			{
+				ResourceName: "yandex_cdn_origin_group.test_cdn_group",
+				ImportStateIdFunc: func(*terraform.State) (string, error) {
+					return extractStringGroupID(), nil
+				},
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"origin"},
+				ImportStateVerify:       true,
+			},
+		},
+	})
+}
+
+func TestAccCDNOriginGroup_basicWithFolderID(t *testing.T) {
+	groupName := fmt.Sprintf("tf-test-cdn-origin-group-basic-%s", acctest.RandString(10))
+	var originGroup cdn.OriginGroup
+
+	folderID := getExampleFolderID()
+
+	extractStringGroupID := func() string {
+		return strconv.FormatInt(originGroup.Id, 10)
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNOriginGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNOriginGroup_basicWithFolderID(groupName, folderID),
 				Check: resource.ComposeTestCheckFunc(
 					testOriginGroupExists("yandex_cdn_origin_group.test_cdn_group", &originGroup),
 					resource.TestCheckResourceAttr("yandex_cdn_origin_group.test_cdn_group", "name", groupName),
@@ -260,6 +303,32 @@ resource "yandex_cdn_origin_group" "test_cdn_group" {
   }
 }
 `, groupName)
+}
+
+func testAccCDNOriginGroup_basicWithFolderID(groupName, folderID string) string {
+	return fmt.Sprintf(`
+resource "yandex_cdn_origin_group" "test_cdn_group" {
+  name      = "%s"
+  folder_id = "%s"
+
+  origin {
+    source = "ya.ru"
+  }
+
+  origin {
+    source = "yandex.ru"
+  }
+
+  origin {
+    source = "goo.gl"
+  }
+
+  origin {
+    source = "amazon.com"
+  }
+}
+
+`, groupName, folderID)
 }
 
 func testAccCDNOriginGroup_update(groupName string) string {

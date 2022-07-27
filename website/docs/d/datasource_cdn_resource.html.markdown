@@ -31,6 +31,8 @@ The following arguments are supported:
 
 * `cname` (Required) - CDN endpoint CNAME, must be unique among resources.
 
+* `folder_id` (Optional) - Folder that the resource belongs to. If value is omitted, the default provider folder is used.
+
 * `active` (Optional) - Flag to create Resource either in active or disabled state. True - the content from CDN is available to clients.
 
 * `options` (Optional) - CDN Resource settings and options to tune CDN edge behavior.
