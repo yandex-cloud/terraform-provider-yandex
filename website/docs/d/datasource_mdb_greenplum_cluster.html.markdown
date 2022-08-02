@@ -64,6 +64,7 @@ exported:
 * `segment_hosts` - Info about hosts in segment subcluster. The structure is documented below.
 
 * `access` - Access policy to the Greenplum cluster. The structure is documented below.
+* `maintenance_window` - Maintenance window settings of the Greenplum cluster. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 * `pooler_config` - Configuration of the connection pooler. The structure is documented below.
@@ -102,6 +103,11 @@ The `access` block supports:
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `web_sql` - Allows access for SQL queries in the management console.
 
+The `maintenance_window` block supports:
+
+* `type` - Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`.
+* `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+* `hour` - Hour of the day in UTC (in `HH` format). Value is between 1 and 24.
 
 The `pooler_config` block supports:
 

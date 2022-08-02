@@ -410,10 +410,7 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	backupWindowStart, err := flattenMysqlBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
-	if err != nil {
-		return err
-	}
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
 	if err := d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
 	}

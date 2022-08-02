@@ -295,7 +295,7 @@ func prepareCreateSQLServerRequest(d *schema.ResourceData, meta *Config) (*sqlse
 		return nil, fmt.Errorf("Error resolving environment while creating SQLServer Cluster: %s", err)
 	}
 
-	backupWindowStart := expandSQLServerBackupWindowStart(d)
+	backupWindowStart := expandMDBBackupWindowStart(d, "backup_window_start.0")
 
 	resources := expandSQLServerResources(d)
 
@@ -425,10 +425,7 @@ func resourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	backupWindowStart, err := flattenSQLServerBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
-	if err != nil {
-		return err
-	}
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
 	if err = d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
 	}
@@ -588,14 +585,11 @@ func sqlserverClusterUpdate(ctx context.Context, config *Config, d *schema.Resou
 		Labels:             labels,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-	}
-
-	resources := expandSQLServerResources(d)
-	backupWindowStart := expandSQLServerBackupWindowStart(d)
-	req.ConfigSpec = &sqlserver.ConfigSpec{
-		Resources:         resources,
-		Version:           d.Get("version").(string),
-		BackupWindowStart: backupWindowStart,
+		ConfigSpec: &sqlserver.ConfigSpec{
+			Resources:         expandSQLServerResources(d),
+			Version:           d.Get("version").(string),
+			BackupWindowStart: expandMDBBackupWindowStart(d, "backup_window_start.0"),
+		},
 	}
 
 	updateFieldConfigName, fields, err := expandSQLServerConfigSpecSettings(d, req.ConfigSpec)

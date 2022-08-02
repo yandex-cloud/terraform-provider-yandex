@@ -185,6 +185,26 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"day": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"hour": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Computed: true,

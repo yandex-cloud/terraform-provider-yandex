@@ -14,7 +14,6 @@ import (
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
@@ -32,11 +31,6 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData)
 	}
 
 	resources, err := flattenPGResources(c.Resources)
-	if err != nil {
-		return nil, err
-	}
-
-	backupWindowStart, err := flattenPGBackupWindowStart(c.BackupWindowStart)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +55,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData)
 	out["version"] = c.Version
 	out["pooler_config"] = poolerConf
 	out["resources"] = resources
-	out["backup_window_start"] = backupWindowStart
+	out["backup_window_start"] = flattenMDBBackupWindowStart(c.BackupWindowStart)
 	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
 	out["performance_diagnostics"] = performanceDiagnostics
 	out["access"] = access
@@ -835,7 +829,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (cs *postgresql.ConfigSpec, upda
 	}
 	cs.Resources = resources
 
-	cs.BackupWindowStart = expandPGBackupWindowStart(d)
+	cs.BackupWindowStart = expandMDBBackupWindowStart(d, "config.0.backup_window_start.0")
 	cs.Access = expandPGAccess(d)
 	cs.PerformanceDiagnostics = expandPGPerformanceDiagnostics(d)
 
@@ -1122,20 +1116,6 @@ func expandPGExtensions(es []interface{}) []*postgresql.Extension {
 	return out
 }
 
-func expandPGBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
-	out := &timeofday.TimeOfDay{}
-
-	if v, ok := d.GetOk("config.0.backup_window_start.0.hours"); ok {
-		out.Hours = int32(v.(int))
-	}
-
-	if v, ok := d.GetOk("config.0.backup_window_start.0.minutes"); ok {
-		out.Minutes = int32(v.(int))
-	}
-
-	return out
-}
-
 func expandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.PerformanceDiagnostics {
 
 	if _, ok := d.GetOkExists("config.0.performance_diagnostics"); !ok {
@@ -1233,17 +1213,6 @@ func expandPGMaintenanceWindow(d *schema.ResourceData) (*postgresql.MaintenanceW
 	}
 
 	return out, nil
-}
-
-func pgMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {
-	dayString := v.(string)
-	day, ok := postgresql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
-	if !ok || day == 0 {
-		es = append(es, fmt.Errorf(`expected %s value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"). Current value is %v`, k, v))
-		return
-	}
-
-	return
 }
 
 func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.ConfigSpec) (updateFieldConfigName string, err error) {

@@ -467,7 +467,7 @@ func resourceYandexMDBPostgreSQLClusterMaintenanceWindow() *schema.Resource {
 			},
 			"day": {
 				Type:         schema.TypeString,
-				ValidateFunc: pgMaintenanceWindowSchemaValidateFunc,
+				ValidateFunc: mdbMaintenanceWindowSchemaValidateFunc,
 				Optional:     true,
 			},
 			"hour": {

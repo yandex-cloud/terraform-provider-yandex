@@ -348,7 +348,7 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 						},
 						"day": {
 							Type:         schema.TypeString,
-							ValidateFunc: mysqlMaintenanceWindowSchemaValidateFunc,
+							ValidateFunc: mdbMaintenanceWindowSchemaValidateFunc,
 							Optional:     true,
 						},
 						"hour": {
@@ -680,10 +680,7 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	backupWindowStart, err := flattenMysqlBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
-	if err != nil {
-		return err
-	}
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
 	if err := d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
 	}

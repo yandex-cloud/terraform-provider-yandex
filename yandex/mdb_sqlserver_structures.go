@@ -11,7 +11,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1"
-	"google.golang.org/genproto/googleapis/type/timeofday"
 
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/sqlserver/v1/config"
 )
@@ -51,29 +50,6 @@ func flattenSQLServerResources(r *sqlserver.Resources) []map[string]interface{} 
 	res["disk_size"] = toGigabytes(r.DiskSize)
 
 	return []map[string]interface{}{res}
-}
-
-func expandSQLServerBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
-	out := &timeofday.TimeOfDay{}
-
-	if v, ok := d.GetOk("backup_window_start.0.hours"); ok {
-		out.Hours = int32(v.(int))
-	}
-
-	if v, ok := d.GetOk("backup_window_start.0.minutes"); ok {
-		out.Minutes = int32(v.(int))
-	}
-
-	return out
-}
-
-func flattenSQLServerBackupWindowStart(t *timeofday.TimeOfDay) ([]interface{}, error) {
-	out := map[string]interface{}{}
-
-	out["hours"] = int(t.Hours)
-	out["minutes"] = int(t.Minutes)
-
-	return []interface{}{out}, nil
 }
 
 func expandSQLServerHost(config map[string]interface{}) (*sqlserver.HostSpec, error) {

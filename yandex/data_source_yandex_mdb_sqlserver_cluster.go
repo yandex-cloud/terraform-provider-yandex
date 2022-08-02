@@ -299,10 +299,7 @@ func dataSourceYandexMDBSQLServerClusterRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	backupWindowStart, err := flattenSQLServerBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
-	if err != nil {
-		return err
-	}
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
 	if err = d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
 	}

@@ -214,6 +214,31 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"maintenance_window": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:         schema.TypeString,
+							ValidateFunc: validation.StringInSlice([]string{"ANYTIME", "WEEKLY"}, false),
+							Required:     true,
+						},
+						"day": {
+							Type:         schema.TypeString,
+							ValidateFunc: mdbMaintenanceWindowSchemaValidateFunc,
+							Optional:     true,
+						},
+						"hour": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(1, 24),
+							Optional:     true,
+						},
+					},
+				},
+			},
 			"deletion_protection": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -356,14 +381,21 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster create: %s", err)
 	}
 
+	maintenanceWindow, err := expandGreenplumMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding maintenance_window on Greenplum Cluster create: %s", err)
+	}
+
 	return &greenplum.CreateClusterRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		NetworkId:        networkID,
-		Environment:      env,
-		Labels:           labels,
-		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		NetworkId:          networkID,
+		Environment:        env,
+		Labels:             labels,
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
+		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  maintenanceWindow,
 
 		MasterHostCount:  int64(d.Get("master_host_count").(int)),
 		SegmentInHost:    int64(d.Get("segment_in_host").(int)),
@@ -480,7 +512,16 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	if err := d.Set("backup_window_start", flattenBackupWindowsStart(cluster.Config)); err != nil {
+	maintenanceWindow, err := flattenGreenplumMaintenanceWindow(cluster.MaintenanceWindow)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("maintenance_window", maintenanceWindow); err != nil {
+		return err
+	}
+
+	if err := d.Set("backup_window_start", flattenMDBBackupWindowStart(cluster.Config.BackupWindowStart)); err != nil {
 		return err
 	}
 
@@ -577,28 +618,51 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.Up
 	}
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("error expanding labels while updating Greenplum cluster: %s", err)
+		return nil, fmt.Errorf("error while expanding labels on Greenplum cluster update: %s", err)
 	}
 
 	configSpec, settingNames, err := expandGreenplumConfigSpec(d)
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding config spec on Greenplum Cluster update: %s", err)
+	}
+
+	maintenanceWindow, err := expandGreenplumMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding maintenance_window on Greenplum Cluster update: %s", err)
 	}
 
 	return &greenplum.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
+		UserPassword:       d.Get("user_password").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
+		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  maintenanceWindow,
+
 		Config: &greenplum.GreenplumConfig{
 			Version:           d.Get("version").(string),
 			BackupWindowStart: expandGreenplumBackupWindowStart(d),
 			Access:            expandGreenplumAccess(d),
 		},
-		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
-		UpdateMask:       &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
-		ConfigSpec:       configSpec,
+		MasterConfig: &greenplum.MasterSubclusterConfigSpec{
+			Resources: &greenplum.Resources{
+				ResourcePresetId: d.Get("master_subcluster.0.resources.0.resource_preset_id").(string),
+				DiskTypeId:       d.Get("master_subcluster.0.resources.0.disk_type_id").(string),
+				DiskSize:         toBytes(d.Get("master_subcluster.0.resources.0.disk_size").(int)),
+			},
+		},
+		SegmentConfig: &greenplum.SegmentSubclusterConfigSpec{
+			Resources: &greenplum.Resources{
+				ResourcePresetId: d.Get("segment_subcluster.0.resources.0.resource_preset_id").(string),
+				DiskTypeId:       d.Get("segment_subcluster.0.resources.0.disk_type_id").(string),
+				DiskSize:         toBytes(d.Get("segment_subcluster.0.resources.0.disk_size").(int)),
+			},
+		},
+
+		UpdateMask: &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
+		ConfigSpec: configSpec,
 	}, nil
 }
 

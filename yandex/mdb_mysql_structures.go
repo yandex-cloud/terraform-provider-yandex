@@ -16,7 +16,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
-	"google.golang.org/genproto/googleapis/type/timeofday"
 )
 
 func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
@@ -271,29 +270,6 @@ func flattenMysqlResources(r *mysql.Resources) ([]map[string]interface{}, error)
 	res["disk_size"] = toGigabytes(r.DiskSize)
 
 	return []map[string]interface{}{res}, nil
-}
-
-func flattenMysqlBackupWindowStart(t *timeofday.TimeOfDay) ([]interface{}, error) {
-	out := map[string]interface{}{}
-
-	out["hours"] = int(t.Hours)
-	out["minutes"] = int(t.Minutes)
-
-	return []interface{}{out}, nil
-}
-
-func expandMysqlBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
-	out := &timeofday.TimeOfDay{}
-
-	if v, ok := d.GetOk("backup_window_start.0.hours"); ok {
-		out.Hours = int32(v.(int))
-	}
-
-	if v, ok := d.GetOk("backup_window_start.0.minutes"); ok {
-		out.Minutes = int32(v.(int))
-	}
-
-	return out
 }
 
 type compareMySQLHostsInfoResult struct {
@@ -1345,17 +1321,6 @@ func expandMySQLMaintenanceWindow(d *schema.ResourceData) (*mysql.MaintenanceWin
 	return out, nil
 }
 
-func mysqlMaintenanceWindowSchemaValidateFunc(v interface{}, k string) (s []string, es []error) {
-	dayString := v.(string)
-	day, ok := mysql.WeeklyMaintenanceWindow_WeekDay_value[dayString]
-	if !ok || day == 0 {
-		es = append(es, fmt.Errorf(`expected %s value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"). Current value is %v`, k, v))
-		return
-	}
-
-	return
-}
-
 func convertSQLModes57ToInt32(sqlModes []config.MysqlConfig5_7_SQLMode) []int32 {
 	modes := make([]int32, 0)
 	for _, v := range sqlModes {
@@ -1421,7 +1386,7 @@ func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
 	configSpec := &mysql.ConfigSpec{
 		Version:                d.Get("version").(string),
 		Resources:              expandMysqlResources(d),
-		BackupWindowStart:      expandMysqlBackupWindowStart(d),
+		BackupWindowStart:      expandMDBBackupWindowStart(d, "backup_window_start.0"),
 		Access:                 expandMySQLAccess(d),
 		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
 	}

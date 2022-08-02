@@ -122,6 +122,8 @@ The following arguments are supported:
 
 * `access` - (Optional) Access policy to the Greenplum cluster. The structure is documented below.
 
+* `maintenance_window` - (Optional) Maintenance policy of the Greenplum cluster. The structure is documented below.
+
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 * `pooler_config` - (Optional) Configuration of the connection pooler. The structure is documented below.
@@ -165,6 +167,14 @@ The `access` block supports:
 * `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 
 * `web_sql` - Allows access for SQL queries in the management console
+
+The `maintenance_window` block supports:
+
+* `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
+
+* `day` - (Optional) Day of the week (in `DDD` format). Allowed values: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
+
+* `hour` - (Optional) Hour of the day in UTC (in `HH` format). Allowed value is between 0 and 23.
 
 The `pooler_config` block supports:
 

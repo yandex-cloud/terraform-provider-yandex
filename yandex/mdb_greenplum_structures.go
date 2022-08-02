@@ -69,13 +69,62 @@ func flattenGreenplumAccess(c *greenplum.GreenplumConfig) []map[string]interface
 	return []map[string]interface{}{out}
 }
 
-func flattenBackupWindowsStart(c *greenplum.GreenplumConfig) []map[string]interface{} {
-	out := map[string]interface{}{}
-	if c != nil && c.BackupWindowStart != nil {
-		out["hours"] = c.BackupWindowStart.Hours
-		out["minutes"] = c.BackupWindowStart.Minutes
+func flattenGreenplumMaintenanceWindow(mw *greenplum.MaintenanceWindow) ([]interface{}, error) {
+	maintenanceWindow := map[string]interface{}{}
+	if mw != nil {
+		switch p := mw.GetPolicy().(type) {
+		case *greenplum.MaintenanceWindow_Anytime:
+			maintenanceWindow["type"] = "ANYTIME"
+			// do nothing
+		case *greenplum.MaintenanceWindow_WeeklyMaintenanceWindow:
+			maintenanceWindow["type"] = "WEEKLY"
+			maintenanceWindow["hour"] = p.WeeklyMaintenanceWindow.Hour
+			maintenanceWindow["day"] = greenplum.WeeklyMaintenanceWindow_WeekDay_name[int32(p.WeeklyMaintenanceWindow.GetDay())]
+		default:
+			return nil, fmt.Errorf("unsupported greenplum maintenance policy type")
+		}
 	}
-	return []map[string]interface{}{out}
+
+	return []interface{}{maintenanceWindow}, nil
+}
+
+func expandGreenplumMaintenanceWindow(d *schema.ResourceData) (*greenplum.MaintenanceWindow, error) {
+	if _, ok := d.GetOkExists("maintenance_window"); !ok {
+		return nil, nil
+	}
+
+	out := &greenplum.MaintenanceWindow{}
+	typeMW, _ := d.GetOk("maintenance_window.0.type")
+	if typeMW == "ANYTIME" {
+		if hour, ok := d.GetOk("maintenance_window.0.hour"); ok && hour != "" {
+			return nil, fmt.Errorf("hour should be not set, when using ANYTIME")
+		}
+		if day, ok := d.GetOk("maintenance_window.0.day"); ok && day != "" {
+			return nil, fmt.Errorf("day should be not set, when using ANYTIME")
+		}
+		out.Policy = &greenplum.MaintenanceWindow_Anytime{
+			Anytime: &greenplum.AnytimeMaintenanceWindow{},
+		}
+	} else if typeMW == "WEEKLY" {
+		hour := d.Get("maintenance_window.0.hour").(int)
+		dayString := d.Get("maintenance_window.0.day").(string)
+
+		day, ok := greenplum.WeeklyMaintenanceWindow_WeekDay_value[dayString]
+		if !ok || day == 0 {
+			return nil, fmt.Errorf(`day value should be one of ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")`)
+		}
+
+		out.Policy = &greenplum.MaintenanceWindow_WeeklyMaintenanceWindow{
+			WeeklyMaintenanceWindow: &greenplum.WeeklyMaintenanceWindow{
+				Hour: int64(hour),
+				Day:  greenplum.WeeklyMaintenanceWindow_WeekDay(day),
+			},
+		}
+	} else {
+		return nil, fmt.Errorf("maintenance_window.0.type should be ANYTIME or WEEKLY")
+	}
+
+	return out, nil
 }
 
 func flattenGreenplumClusterConfig(c *greenplum.ClusterConfigSet) (map[string]string, error) {
@@ -144,17 +193,28 @@ func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
 
 func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []string {
 	mdbGreenplumUpdateFieldsMap := map[string]string{
-		"name":                         "name",
-		"description":                  "description",
-		"labels":                       "labels",
-		"access.0.data_lens":           "config.access.data_lens",
-		"access.0.web_sql":             "config.access.web_sql",
-		"backup_window_start":          "config.backup_window_start",
-		"deletion_protection":          "deletion_protection",
-		"security_group_ids":           "security_group_ids",
-		"pooler_config.0.pooling_mode": "config_spec.pool.mode",
-		"pooler_config.0.pool_size":    "config_spec.pool.size",
+		"name":                "name",
+		"description":         "description",
+		"user_password":       "user_password",
+		"labels":              "labels",
+		"access.0.data_lens":  "config.access.data_lens",
+		"access.0.web_sql":    "config.access.web_sql",
+		"backup_window_start": "config.backup_window_start",
+		"maintenance_window":  "maintenance_window",
+		"deletion_protection": "deletion_protection",
+		"security_group_ids":  "security_group_ids",
+
+		"pooler_config.0.pooling_mode":             "config_spec.pool.mode",
+		"pooler_config.0.pool_size":                "config_spec.pool.size",
 		"pooler_config.0.pool_client_idle_timeout": "config_spec.pool.client_idle_timeout",
+
+		"master_subcluster.0.resources.0.resource_preset_id": "master_config.resources.resource_preset_id",
+		"master_subcluster.0.resources.0.disk_type_id":       "master_config.resources.disk_type_id",
+		"master_subcluster.0.resources.0.disk_size":          "master_config.resources.disk_size",
+
+		"segment_subcluster.0.resources.0.resource_preset_id": "segment_config.resources.resource_preset_id",
+		"segment_subcluster.0.resources.0.disk_type_id":       "segment_config.resources.disk_type_id",
+		"segment_subcluster.0.resources.0.disk_size":          "segment_config.resources.disk_size",
 	}
 
 	updatePath := []string{}
