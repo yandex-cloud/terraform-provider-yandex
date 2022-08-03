@@ -1,4 +1,7 @@
 ## 0.78.0 (Unreleased)
+BUG FIXES:
+* cdn: fixed wrong documentation example
+
 FEATURES:
 * greenplum: add `maintenance_window` attribute to resource and data source
 * greenplum: support for changing the user's password
