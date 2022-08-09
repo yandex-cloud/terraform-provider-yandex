@@ -120,7 +120,7 @@ The `instance_template` block supports:
 
 * `platform_id` - The ID of the hardware platform configuration for the node group compute instances.
 * `nat` - Boolean flag, enables NAT for node group compute instances.
-* `metadata` - The set of metadata `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys.
+* `metadata` - The set of metadata `key:value` pairs assigned to this instance template. This includes custom metadata and predefined keys. **Note**: key "user-data" won't be provided into instances. It reserved for internal activity in kubernetes_node_group resource
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
