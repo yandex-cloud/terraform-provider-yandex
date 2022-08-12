@@ -104,7 +104,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	diskTypeId := "network-ssd"
 	baseFlavor := "hm1.nano"
 	updatedFlavor := "hm1.micro"
-	tlsEnabled := false
+	tlsEnabled := true
 	persistenceMode := "ON"
 	normalLimits := "16777215 8388607 61"
 	pubsubLimits := "16777214 8388606 62"
@@ -123,7 +123,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 			// Create Redis Cluster
 			{
 				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-					nil, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 					[]*bool{nil}, []*int{nil}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
@@ -150,7 +150,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 			// uncheck 'deletion_protection'
 			{
 				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-					nil, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 					[]*bool{nil}, []*int{nil}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
@@ -161,7 +161,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 			// check 'deletion_protection'
 			{
 				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-					nil, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 					[]*bool{nil}, []*int{nil}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
@@ -172,14 +172,14 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 			// check 'deletion_protection
 			{
 				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRODUCTION", true,
-					nil, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 					[]*bool{nil}, []*int{nil}),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			// uncheck 'deletion_protection'
 			{
 				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-					nil, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 					[]*bool{nil}, []*int{nil}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
@@ -213,7 +213,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 			mdbRedisClusterImportStep(redisResource),
 			// Add new host
 			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, nil, persistenceMode,
+				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
 					version, updatedFlavor, updatedDiskSize, "",
 					[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
 				Check: resource.ComposeTestCheckFunc(
