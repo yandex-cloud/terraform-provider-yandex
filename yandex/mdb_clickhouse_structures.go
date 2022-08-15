@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
-
 	"github.com/golang/protobuf/ptypes/wrappers"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 // Sorts list of hosts in accordance with the order in config.
@@ -205,7 +205,7 @@ func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schem
 // Returns the map of hostnames to delete grouped by shard,
 // and the map of hosts to add grouped by shard as well.
 // All the ZOOKEEPER hosts will reside under the key "zk".
-func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse.HostSpec) (map[string][]string, map[string][]*clickhouse.HostSpec) {
+func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse.HostSpec) (map[string][]string, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.UpdateHostSpec) {
 	m := map[string][]*clickhouse.HostSpec{}
 
 	for _, h := range targetHosts {
@@ -221,6 +221,7 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 	}
 
 	toDelete := map[string][]string{}
+	toUpdate := map[string]*clickhouse.UpdateHostSpec{}
 	for _, h := range currHosts {
 		shardName := h.ShardName
 		if h.Type == clickhouse.Host_ZOOKEEPER {
@@ -230,6 +231,17 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 		hs, ok := m[key]
 		if !ok {
 			toDelete[shardName] = append(toDelete[h.ShardName], h.Name)
+		} else {
+			updateRequired := false
+			uh := &clickhouse.UpdateHostSpec{HostName: h.Name, UpdateMask: &field_mask.FieldMask{}}
+			if hs[0].AssignPublicIp != h.AssignPublicIp {
+				updateRequired = true
+				uh.AssignPublicIp = &wrapperspb.BoolValue{Value: hs[0].AssignPublicIp}
+				uh.UpdateMask.Paths = append(uh.UpdateMask.Paths, "assign_public_ip")
+			}
+			if updateRequired {
+				toUpdate[h.Name] = uh
+			}
 		}
 		if len(hs) > 1 {
 			m[key] = hs[1:]
@@ -249,7 +261,7 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 		}
 	}
 
-	return toDelete, toAdd
+	return toDelete, toAdd, toUpdate
 }
 
 type shardGroupDiffInfo struct {

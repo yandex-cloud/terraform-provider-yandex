@@ -1909,7 +1909,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
-  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  network_id     = yandex_vpc_network.mdb-ch-test-net.id
   admin_password = "strong_password"
 
   clickhouse {
@@ -2028,17 +2028,19 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   }
 
   host {
-    type       = "CLICKHOUSE"
-    zone       = "ru-central1-a"
-    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-    shard_name = "shard1"
+    type             = "CLICKHOUSE"
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+    shard_name       = "shard1"
+    assign_public_ip = false
   }
 
   host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
-    shard_name = "shard2"
+    type             = "CLICKHOUSE"
+    zone             = "ru-central1-b"
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-b.id
+    shard_name       = "shard2"
+    assign_public_ip = false
   }
 
   shard_group {
@@ -2057,7 +2059,6 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
       "shard1",
     ]
   }
-
 }
 `, name, desc)
 }
@@ -2068,7 +2069,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
   description    = "%s"
   environment    = "PRESTABLE"
-  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  network_id     = yandex_vpc_network.mdb-ch-test-net.id
   admin_password = "strong_password"
 
   clickhouse {
@@ -2187,17 +2188,19 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   }
 
   host {
-    type       = "CLICKHOUSE"
-    zone       = "ru-central1-a"
-    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-    shard_name = "shard1"
+    type             = "CLICKHOUSE"
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+    shard_name       = "shard1"
+    assign_public_ip = true
   }
 
   host {
-    type       = "CLICKHOUSE"
-    zone       = "ru-central1-c"
-    subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
-    shard_name = "shard3"
+    type             = "CLICKHOUSE"
+    zone             = "ru-central1-c"
+    subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-c.id
+    shard_name       = "shard3"
+    assign_public_ip = true
   }
 
   shard_group {
