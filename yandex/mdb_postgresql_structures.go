@@ -765,6 +765,7 @@ func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {
 		m["name"] = d.Name
 		m["owner"] = d.Owner
 		m["lc_collate"] = d.LcCollate
+		m["template_db"] = d.TemplateDb
 		m["lc_type"] = d.LcCtype
 		m["extension"] = flattenPGExtensions(d.Extensions)
 
@@ -1081,6 +1082,10 @@ func expandPGDatabase(m map[string]interface{}) (*postgresql.DatabaseSpec, error
 
 	if v, ok := m["lc_collate"]; ok {
 		out.LcCollate = v.(string)
+	}
+
+	if v, ok := m["template_db"]; ok {
+		out.TemplateDb = v.(string)
 	}
 
 	if v, ok := m["lc_type"]; ok {

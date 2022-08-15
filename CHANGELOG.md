@@ -6,6 +6,7 @@ FEATURES:
 * greenplum: add `maintenance_window` attribute to resource and data source
 * greenplum: support for changing the user's password
 * greenplum: support for changing segment and master resources
+* mdb: add `template_db` attribute to `yandex_mdb_postgresql_cluster` resource and data source
 
 ## 0.77.0 (July 27, 2022)
 BUG FIXES:

@@ -80,6 +80,10 @@ func testAccDataSourceMDBPGDatabaseAttributesCheck(datasourceName string, resour
 				"lc_type",
 				"lc_type",
 			},
+			{
+				"template_db",
+				"template_db",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

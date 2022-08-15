@@ -41,6 +41,7 @@ exported:
 * `lc_collate` - POSIX locale for string sorting order. Forbidden to change in an existing database.
 * `lc_type` - POSIX locale for character classification. Forbidden to change in an existing database.
 * `extension` - Set of database extensions. The structure is documented below
+* `template_db` - Name of the template database.
 
 The `extension` block supports:
 

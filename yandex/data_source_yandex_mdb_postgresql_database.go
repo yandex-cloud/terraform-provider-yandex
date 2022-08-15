@@ -23,13 +23,18 @@ func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			},
 			"lc_collate": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
-				Default:  "C",
 			},
 			"lc_type": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
-				Default:  "C",
+			},
+			"template_db": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
 			},
 			"extension": {
 				Type:     schema.TypeSet,

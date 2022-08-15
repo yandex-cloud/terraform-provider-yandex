@@ -47,17 +47,25 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			},
 			"owner": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			"lc_collate": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Default:  "C",
 			},
 			"lc_type": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Optional: true,
 				Default:  "C",
+			},
+			"template_db": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
 			},
 			"extension": {
 				Type:     schema.TypeSet,
@@ -134,6 +142,10 @@ func expandPgDatabaseSpec(d *schema.ResourceData) (*postgresql.DatabaseSpec, err
 		out.LcCollate = v.(string)
 	}
 
+	if v, ok := d.GetOk("template_db"); ok {
+		out.TemplateDb = v.(string)
+	}
+
 	if v, ok := d.GetOk("lc_type"); ok {
 		out.LcCtype = v.(string)
 	}
@@ -170,19 +182,12 @@ func resourceYandexMDBPostgreSQLDatabaseRead(d *schema.ResourceData, meta interf
 	d.Set("owner", db.Owner)
 	d.Set("lc_collate", db.LcCollate)
 	d.Set("lc_type", db.LcCtype)
+	d.Set("template_db", db.TemplateDb)
 	d.Set("extension", flattenPGExtensions(db.Extensions))
 	return nil
 }
 
 func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	if d.HasChange("lc_collate") || d.HasChange("lc_type") {
-		return fmt.Errorf("impossible to change lc_collate or lc_type for PostgreSQL Cluster database %s", d.Get("name").(string))
-	}
-
-	if d.HasChange("owner") {
-		return fmt.Errorf("impossible to change owner for PostgreSQL Cluster database %s", d.Get("owner").(string))
-	}
-
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()

@@ -297,17 +297,25 @@ func resourceYandexMDBPostgreSQLClusterDatabaseBlock() *schema.Resource {
 			},
 			"owner": {
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			"lc_collate": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Default:  "C",
 			},
 			"lc_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Default:  "C",
+			},
+			"template_db": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
 			},
 			"extension": {
 				Type:     schema.TypeSet,
@@ -1042,16 +1050,6 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	err = validateNoUpdatingCollation(currDBs, targetDBs)
-	if err != nil {
-		return err
-	}
-
-	err = validateNoUpdatingOwner(currDBs, targetDBs)
-	if err != nil {
-		return err
-	}
-
 	toDelete, toAdd := pgDatabasesDiff(currDBs, targetDBs)
 
 	for _, dbn := range toDelete {
@@ -1081,30 +1079,6 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	return nil
-}
-
-func validateNoUpdatingCollation(currentDatabases []*postgresql.Database, targetDatabases []*postgresql.DatabaseSpec) error {
-	for _, currentDatabase := range currentDatabases {
-		for _, targetDatabase := range targetDatabases {
-			if currentDatabase.Name == targetDatabase.Name &&
-				(currentDatabase.LcCollate != targetDatabase.LcCollate || currentDatabase.LcCtype != targetDatabase.LcCtype) {
-				return fmt.Errorf("impossible to change lc_collate or lc_type for PostgreSQL Cluster database %s", currentDatabase.Name)
-			}
-		}
-	}
-	return nil
-}
-
-func validateNoUpdatingOwner(currentDatabases []*postgresql.Database, targetDatabases []*postgresql.DatabaseSpec) error {
-	for _, currentDatabase := range currentDatabases {
-		for _, targetDatabase := range targetDatabases {
-			if currentDatabase.Name == targetDatabase.Name &&
-				(currentDatabase.Owner != targetDatabase.Owner) {
-				return fmt.Errorf("impossible to change owner for PostgreSQL Cluster database %s", currentDatabase.Name)
-			}
-		}
-	}
 	return nil
 }
 
@@ -1493,6 +1467,7 @@ func createPGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 				Owner:      db.Owner,
 				LcCollate:  db.LcCollate,
 				LcCtype:    db.LcCtype,
+				TemplateDb: db.TemplateDb,
 				Extensions: db.Extensions,
 			},
 		}),

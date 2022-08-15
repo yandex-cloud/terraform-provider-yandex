@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -14,7 +13,8 @@ import (
 )
 
 const (
-	pgDatabaseResourceName = "yandex_mdb_postgresql_database.testdb"
+	pgDatabaseResourceName  = "yandex_mdb_postgresql_database.testdb"
+	pgDatabaseResourceName1 = "yandex_mdb_postgresql_database.testdb1"
 )
 
 // Test that a PostgreSQL Database can be created, updated and destroyed
@@ -37,21 +37,24 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
 			{
-				Config:      testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
-				ExpectError: regexp.MustCompile("impossible to change lc_collate or lc_type for PostgreSQL Cluster database .*"),
-			},
-			{
-				Config:      testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
-				ExpectError: regexp.MustCompile("impossible to change owner for PostgreSQL Cluster database .*"),
-			},
-			{
-				Config: testAccMDBPostgreSQLDatabaseConfigStep4(clusterName),
+				Config: testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "name", "testdb"),
 					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb", []string{"uuid-ossp", "xml2"}),
 				),
 			},
-			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
+			{
+				Config: testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "name", "testdb1"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "owner", "alice"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "template_db", "testdb"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "lc_collate", "en_US.UTF-8"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "lc_type", "en_US.UTF-8"),
+					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb1", make([]string, 0)),
+				),
+			},
+			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName1),
 		},
 	})
 }
@@ -141,34 +144,8 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 `
 }
 
-// Change of lc_collate lc_type is impossible
-func testAccMDBPostgreSQLDatabaseConfigStep2(name string) string {
-	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
-resource "yandex_mdb_postgresql_database" "testdb" {
-	cluster_id = yandex_mdb_postgresql_cluster.foo.id
-	name       = "testdb"
-	owner      = yandex_mdb_postgresql_user.alice.name
-	lc_collate = "ru_RU.UTF-8"
-	lc_type    = "ru_RU.UTF-8"
-}
-`
-}
-
-// Owner change is impossible
-func testAccMDBPostgreSQLDatabaseConfigStep3(name string) string {
-	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
-resource "yandex_mdb_postgresql_database" "testdb" {
-	cluster_id = yandex_mdb_postgresql_cluster.foo.id
-	name       = "testdb"
-	owner      = "ghost"
-	lc_collate = "en_US.UTF-8"
-	lc_type    = "en_US.UTF-8"
-}
-`
-}
-
 // Extensions change works
-func testAccMDBPostgreSQLDatabaseConfigStep4(name string) string {
+func testAccMDBPostgreSQLDatabaseConfigStep2(name string) string {
 	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
 resource "yandex_mdb_postgresql_database" "testdb" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
@@ -183,6 +160,20 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 	extension {
 		name    = "xml2"
 	}
+}
+`
+}
+
+// Create database with template_db
+func testAccMDBPostgreSQLDatabaseConfigStep3(name string) string {
+	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
+resource "yandex_mdb_postgresql_database" "testdb1" {
+	cluster_id  = yandex_mdb_postgresql_cluster.foo.id
+	name        = "testdb1"
+	template_db = "testdb"
+	owner       = yandex_mdb_postgresql_user.alice.name
+	lc_collate  = "en_US.UTF-8"
+	lc_type     = "en_US.UTF-8"
 }
 `
 }

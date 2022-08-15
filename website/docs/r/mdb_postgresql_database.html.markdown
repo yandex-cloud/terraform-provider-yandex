@@ -78,6 +78,8 @@ The following arguments are supported:
 
 * `lc_type` - (Optional) POSIX locale for character classification. Forbidden to change in an existing database.
 
+* `template_db` - (Optional) Name of the template database.
+
 The `extension` block supports:
 
 * `name` - (Required) Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
