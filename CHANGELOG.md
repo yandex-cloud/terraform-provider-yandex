@@ -9,6 +9,8 @@ FEATURES:
 * mdb: add `template_db` attribute to `yandex_mdb_postgresql_cluster` resource and data source
 * clickhouse: add `assign_public_ip` attribute to `host` declaration in resource and data source
 * clickhouse: support hosts update
+* **New Data Source:** `yandex_iot_core_broker`
+* **New Resource:** `yandex_iot_core_broker`
 
 ## 0.77.0 (July 27, 2022)
 BUG FIXES:
