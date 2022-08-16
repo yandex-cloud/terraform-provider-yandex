@@ -54,6 +54,12 @@ func dataSourceYandexVPCRouteTable() *schema.Resource {
 						"next_hop_address": {
 							Type:     schema.TypeString,
 							Computed: true,
+							Optional: true,
+						},
+						"gateway_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Optional: true,
 						},
 					},
 				},

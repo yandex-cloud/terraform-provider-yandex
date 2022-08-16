@@ -136,6 +136,31 @@ func TestExpandStaticRoutes(t *testing.T) {
 			shouldFail: false,
 		},
 		{
+			name: "two routes with gateway",
+			v: schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{
+				map[string]interface{}{
+					"destination_prefix": "192.0.2.0/24",
+					"next_hop_address":   "192.0.2.1",
+				},
+				map[string]interface{}{
+					"destination_prefix": "0.0.0.0/0",
+					"gateway_id":         "gateway-id",
+				},
+			},
+			),
+			expected: []*vpc.StaticRoute{
+				{
+					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "192.0.2.0/24"},
+					NextHop:     &vpc.StaticRoute_NextHopAddress{NextHopAddress: "192.0.2.1"},
+				},
+				{
+					Destination: &vpc.StaticRoute_DestinationPrefix{DestinationPrefix: "0.0.0.0/0"},
+					NextHop:     &vpc.StaticRoute_GatewayId{GatewayId: "gateway-id"},
+				},
+			},
+			shouldFail: false,
+		},
+		{
 			name:       "missing",
 			v:          nil,
 			expected:   []*vpc.StaticRoute{},
@@ -144,6 +169,28 @@ func TestExpandStaticRoutes(t *testing.T) {
 		{
 			name:       "empty set element",
 			v:          schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{map[string]interface{}{}}),
+			shouldFail: true,
+		},
+		{
+			name: "no next hop",
+			v: schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{
+				map[string]interface{}{
+					"destination_prefix": "192.0.2.0/24",
+				},
+			},
+			),
+			shouldFail: true,
+		},
+		{
+			name: "too many next hops",
+			v: schema.NewSet(resourceYandexVPCRouteTableHash, []interface{}{
+				map[string]interface{}{
+					"destination_prefix": "192.0.2.0/24",
+					"next_hop_address":   "192.0.2.1",
+					"gateway_id":         "gateway-id",
+				},
+			},
+			),
 			shouldFail: true,
 		},
 	}

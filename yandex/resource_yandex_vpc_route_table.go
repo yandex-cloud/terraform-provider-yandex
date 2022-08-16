@@ -81,6 +81,10 @@ func resourceYandexVPCRouteTable() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"gateway_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 				Set: resourceYandexVPCRouteTableHash,

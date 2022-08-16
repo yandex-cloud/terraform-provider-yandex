@@ -32,11 +32,11 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/yandex-cloud/go-genproto v0.0.0-20220805142335-27b56ddae16f
 	github.com/yandex-cloud/go-sdk v0.0.0-20220805164847-cf028e604997
-	golang.org/x/net v0.0.0-20220630215102-69896b714898
-	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
-	google.golang.org/genproto v0.0.0-20220630174209-ad1d48641aa7
-	google.golang.org/grpc v1.47.0
-	google.golang.org/protobuf v1.28.0
+	golang.org/x/net v0.0.0-20220809184613-07c6da5e1ced
+	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
+	google.golang.org/genproto v0.0.0-20220808204814-fd01256a5276
+	google.golang.org/grpc v1.48.0
+	google.golang.org/protobuf v1.28.1
 )
 
 replace (

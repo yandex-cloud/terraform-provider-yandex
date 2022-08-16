@@ -784,6 +784,8 @@ func flattenStaticRoutes(routeTable *vpc.RouteTable) *schema.Set {
 		switch h := r.NextHop.(type) {
 		case *vpc.StaticRoute_NextHopAddress:
 			m["next_hop_address"] = h.NextHopAddress
+		case *vpc.StaticRoute_GatewayId:
+			m["gateway_id"] = h.GatewayId
 		}
 
 		staticRoutes.Add(m)
@@ -826,12 +828,24 @@ func routeDescriptionToStaticRoute(v interface{}) (*vpc.StaticRoute, error) {
 		return nil, errors.New("'static_route' should have a 'destination_prefix' field")
 	}
 
-	if v, ok := res["next_hop_address"].(string); ok {
+	var nextHops = 0
+	if v, ok := res["next_hop_address"].(string); ok && v != "" {
 		sr.NextHop = &vpc.StaticRoute_NextHopAddress{
 			NextHopAddress: v,
 		}
-	} else {
-		return nil, errors.New("'static_route' should have a 'next_hop_address' field")
+		nextHops += 1
+	}
+	if v, ok := res["gateway_id"].(string); ok && v != "" {
+		sr.NextHop = &vpc.StaticRoute_GatewayId{
+			GatewayId: v,
+		}
+		nextHops += 1
+	}
+
+	if nextHops == 0 {
+		return nil, errors.New("'static_route' should have a 'next_hop_address' or 'gateway_id' field")
+	} else if nextHops > 1 {
+		return nil, errors.New("'static_route' should have one of 'next_hop_address' or 'gateway_id' fields")
 	}
 
 	return &sr, nil
@@ -1502,4 +1516,14 @@ func flattenLocalDisks(instance *compute.Instance) []interface{} {
 		}
 	}
 	return result
+}
+
+func flattenSharedEgressGateway(sharedEgressGateway *vpc.SharedEgressGateway) []interface{} {
+	if sharedEgressGateway == nil {
+		return nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []interface{}{m}
 }

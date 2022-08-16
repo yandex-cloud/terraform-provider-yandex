@@ -44,5 +44,8 @@ The `static_route` block supports:
 		
 * `destination_prefix` - Route prefix in CIDR notation.
 * `next_hop_address` - Address of the next hop.
+* `gateway_id` - ID of the gateway used as next hop.
+
+ ~> **NOTE:** Only one of `next_hop_address` or `gateway_id` should be specified.
 
 [VPC Route Table]: https://cloud.yandex.com/docs/vpc/concepts/

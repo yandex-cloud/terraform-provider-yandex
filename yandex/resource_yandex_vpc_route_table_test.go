@@ -101,10 +101,12 @@ func TestAccVPCRouteTable_update(t *testing.T) {
 	t.Parallel()
 
 	var network vpc.Network
+	var gateway vpc.Gateway
 	var routeTable1 vpc.RouteTable
 	var routeTable2 vpc.RouteTable
 
 	networkName := acctest.RandomWithPrefix("tf-network")
+	gatewayName := acctest.RandomWithPrefix("tf-gateway")
 	routeTable1Name := acctest.RandomWithPrefix("tf-route-table-a")
 	routeTable2Name := acctest.RandomWithPrefix("tf-route-table-b")
 	updatedRouteTable1Name := routeTable1Name + "-update"
@@ -142,8 +144,9 @@ func TestAccVPCRouteTable_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccVPCRouteTable_update(networkName, updatedRouteTable1Name, updatedRouteTable2Name),
+				Config: testAccVPCRouteTable_update(networkName, gatewayName, updatedRouteTable1Name, updatedRouteTable2Name),
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCGatewayExists("yandex_vpc_gateway.bar", &gateway),
 					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-a", &routeTable1),
 					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-a", "network_id", &network.Id),
 					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "name", updatedRouteTable1Name),
@@ -157,10 +160,123 @@ func TestAccVPCRouteTable_update(t *testing.T) {
 					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-b", &routeTable2),
 					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "network_id", &network.Id),
 					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "name", updatedRouteTable2Name),
-					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.destination_prefix", "10.101.0.0/16"),
-					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.next_hop_address", "192.168.22.22"),
-					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.destination_prefix", "10.102.0.0/16"),
-					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.next_hop_address", "192.168.22.24"),
+					// reverse route order because TypeSet...
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.next_hop_address", "192.168.22.22"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.destination_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "static_route.0.gateway_id", &gateway.Id),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "new-field", "only-shows-up-when-updated"),
+				),
+			},
+			{
+				ResourceName:      "yandex_vpc_route_table.rt-a",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "yandex_vpc_route_table.rt-b",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVPCRouteTable_updateGatewayToNextHopAddress(t *testing.T) {
+	t.Parallel()
+
+	var network vpc.Network
+	var gateway vpc.Gateway
+	var routeTable1 vpc.RouteTable
+	var routeTable2 vpc.RouteTable
+
+	networkName := acctest.RandomWithPrefix("tf-network")
+	gatewayName := acctest.RandomWithPrefix("tf-gateway")
+	routeTable1Name := acctest.RandomWithPrefix("tf-route-table-a")
+	routeTable2Name := acctest.RandomWithPrefix("tf-route-table-b")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVPCRouteTableDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVPCRouteTable_update(networkName, gatewayName, routeTable1Name, routeTable2Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCNetworkExists("yandex_vpc_network.foo", &network),
+					testAccCheckVPCGatewayExists("yandex_vpc_gateway.bar", &gateway),
+
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-a", &routeTable1),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-a", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "name", routeTable1Name),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.destination_prefix", "10.100.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.next_hop_address", "192.168.11.11"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.next_hop_address", "192.168.11.13"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "new-field", "only-shows-up-when-updated"),
+
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-b", &routeTable2),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "name", routeTable2Name),
+					// reverse route order because TypeSet...
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.next_hop_address", "192.168.22.22"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.destination_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "static_route.0.gateway_id", &gateway.Id),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "new-field", "only-shows-up-when-updated"),
+				),
+			},
+			{
+				// change gateway_id to next_hop_address
+				Config: testAccVPCRouteTable_updateGatewayToNextHopAddress(networkName, gatewayName, routeTable1Name, routeTable2Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCGatewayExists("yandex_vpc_gateway.bar", &gateway),
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-a", &routeTable1),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-a", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "name", routeTable1Name),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.destination_prefix", "10.100.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.next_hop_address", "192.168.11.11"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.next_hop_address", "192.168.11.13"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "new-field", "only-shows-up-when-updated"),
+
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-b", &routeTable2),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "name", routeTable2Name),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.destination_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.next_hop_address", "192.168.22.33"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.next_hop_address", "192.168.22.22"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "new-field", "only-shows-up-when-updated"),
+				),
+			},
+			{
+				// change next_hop_address back to gateway_id
+				Config: testAccVPCRouteTable_update(networkName, gatewayName, routeTable1Name, routeTable2Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckVPCGatewayExists("yandex_vpc_gateway.bar", &gateway),
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-a", &routeTable1),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-a", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "name", routeTable1Name),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.destination_prefix", "10.100.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.0.next_hop_address", "192.168.11.11"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-a", "static_route.1.next_hop_address", "192.168.11.13"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "empty-label", "oh-look-theres-a-label-now"),
+					testAccCheckVPCRouteTableContainsLabel(&routeTable1, "new-field", "only-shows-up-when-updated"),
+
+					testAccCheckVPCRouteTableExists("yandex_vpc_route_table.rt-b", &routeTable2),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "network_id", &network.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "name", routeTable2Name),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.0.destination_prefix", "0.0.0.0/0"),
+					resource.TestCheckResourceAttrPtr("yandex_vpc_route_table.rt-b", "static_route.0.gateway_id", &gateway.Id),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.destination_prefix", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_route_table.rt-b", "static_route.1.next_hop_address", "192.168.22.22"),
 					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckVPCRouteTableContainsLabel(&routeTable2, "new-field", "only-shows-up-when-updated"),
 				),
@@ -263,10 +379,15 @@ resource "yandex_vpc_route_table" "rt-b" {
 `, networkName, routeTable1Name, routeTable2Name)
 }
 
-func testAccVPCRouteTable_update(networkName, routeTable1Name, routeTable2Name string) string {
+func testAccVPCRouteTable_update(networkName, gatewayName, routeTable1Name, routeTable2Name string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "foo" {
   name = "%s"
+}
+
+resource "yandex_vpc_gateway" "bar" {
+  name = "%s"
+  shared_egress_gateway {}
 }
 
 resource "yandex_vpc_route_table" "rt-a" {
@@ -301,8 +422,8 @@ resource "yandex_vpc_route_table" "rt-b" {
   }
 
   static_route {
-    destination_prefix = "10.102.0.0/16"
-    next_hop_address   = "192.168.22.24"
+    destination_prefix = "0.0.0.0/0"
+    gateway_id         = "${yandex_vpc_gateway.bar.id}"
   }
 
   labels = {
@@ -310,7 +431,62 @@ resource "yandex_vpc_route_table" "rt-b" {
     new-field   = "only-shows-up-when-updated"
   }
 }
-`, networkName, routeTable1Name, routeTable2Name)
+`, networkName, gatewayName, routeTable1Name, routeTable2Name)
+}
+
+func testAccVPCRouteTable_updateGatewayToNextHopAddress(networkName, gatewayName, routeTable1Name, routeTable2Name string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "foo" {
+  name = "%s"
+}
+
+resource "yandex_vpc_gateway" "bar" {
+  name = "%s"
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "rt-a" {
+  name        = "%s"
+  description = "description with update for route table A"
+  network_id  = "${yandex_vpc_network.foo.id}"
+
+  static_route {
+    destination_prefix = "10.100.0.0/16"
+    next_hop_address   = "192.168.11.11"
+  }
+
+  static_route {
+    destination_prefix = "10.101.0.0/16"
+    next_hop_address   = "192.168.11.13"
+  }
+
+  labels = {
+    empty-label = "oh-look-theres-a-label-now"
+    new-field   = "only-shows-up-when-updated"
+  }
+}
+
+resource "yandex_vpc_route_table" "rt-b" {
+  name        = "%s"
+  description = "description with update for route table B"
+  network_id  = "${yandex_vpc_network.foo.id}"
+
+  static_route {
+    destination_prefix = "10.101.0.0/16"
+    next_hop_address   = "192.168.22.22"
+  }
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    next_hop_address   = "192.168.22.33"
+  }
+
+  labels = {
+    empty-label = "oh-look-theres-a-label-now"
+    new-field   = "only-shows-up-when-updated"
+  }
+}
+`, networkName, gatewayName, routeTable1Name, routeTable2Name)
 }
 
 func testAccCheckVPCRouteTableDestroy(s *terraform.State) error {

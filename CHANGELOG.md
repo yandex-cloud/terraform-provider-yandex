@@ -2,6 +2,9 @@
 BUG FIXES:
 * cdn: fixed wrong documentation example
 
+ENHANCEMENTS:
+vpc: allow usage of `yandex_vpc_gateway` in `yandex_vpc_route_table.static_route` as `gateway_id` next hop
+
 FEATURES:
 * greenplum: add `maintenance_window` attribute to resource and data source
 * greenplum: support for changing the user's password
@@ -10,7 +13,9 @@ FEATURES:
 * clickhouse: add `assign_public_ip` attribute to `host` declaration in resource and data source
 * clickhouse: support hosts update
 * **New Data Source:** `yandex_iot_core_broker`
+* **New Data Source:** `yandex_vpc_gateway`
 * **New Resource:** `yandex_iot_core_broker`
+* **New Resource:** `yandex_vpc_gateway`
 
 ## 0.77.0 (July 27, 2022)
 BUG FIXES:
