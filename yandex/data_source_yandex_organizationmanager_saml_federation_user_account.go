@@ -46,6 +46,7 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 
 	resp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(config.Context(), &saml.ListFederatedUserAccountsRequest{
 		FederationId: federationID,
+		PageSize:     1000,
 	})
 
 	if err != nil {
