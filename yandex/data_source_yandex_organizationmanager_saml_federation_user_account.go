@@ -46,14 +46,27 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 
 	resp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(config.Context(), &saml.ListFederatedUserAccountsRequest{
 		FederationId: federationID,
-		PageSize:     1000,
 	})
 
 	if err != nil {
 		return err
 	}
 
-	for _, account := range resp.UserAccounts {
+	UserAccounts := resp.UserAccounts
+
+	for resp.NextPageToken != "" {
+		resp, err = config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(config.Context(), &saml.ListFederatedUserAccountsRequest{
+			FederationId: federationID,
+			PageToken:    resp.NextPageToken,
+		})
+
+		if err != nil {
+			return err
+		}
+		UserAccounts = append(UserAccounts, resp.UserAccounts...)
+	}
+
+	for _, account := range UserAccounts {
 		if account.GetSamlUserAccount().GetNameId() == nameID {
 			d.SetId(account.Id)
 			return nil
