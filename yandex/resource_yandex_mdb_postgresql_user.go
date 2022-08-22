@@ -138,23 +138,23 @@ func resourceYandexMDBPostgreSQLUserCreate(d *schema.ResourceData, meta interfac
 
 func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 	user := &postgresql.UserSpec{}
-	if v, ok := d.GetOk("name"); ok {
+	if v, ok := d.GetOkExists("name"); ok {
 		user.Name = v.(string)
 	}
 
-	if v, ok := d.GetOk("password"); ok {
+	if v, ok := d.GetOkExists("password"); ok {
 		user.Password = v.(string)
 	}
 
-	if v, ok := d.GetOk("login"); ok {
+	if v, ok := d.GetOkExists("login"); ok {
 		user.Login = &wrappers.BoolValue{Value: v.(bool)}
 	}
 
-	if v, ok := d.GetOk("conn_limit"); ok {
+	if v, ok := d.GetOkExists("conn_limit"); ok {
 		user.ConnLimit = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
-	if v, ok := d.GetOk("permission"); ok {
+	if v, ok := d.GetOkExists("permission"); ok {
 		permissions, err := expandPGUserPermissions(v.(*schema.Set))
 		if err != nil {
 			return nil, err
@@ -162,7 +162,7 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.Permissions = permissions
 	}
 
-	if v, ok := d.GetOk("grants"); ok {
+	if v, ok := d.GetOkExists("grants"); ok {
 		gs, err := expandPGUserGrants(v.([]interface{}))
 		if err != nil {
 			return nil, err
@@ -170,7 +170,7 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		user.Grants = gs
 	}
 
-	if _, ok := d.GetOk("settings"); ok {
+	if _, ok := d.GetOkExists("settings"); ok {
 		if user.Settings == nil {
 			user.Settings = &postgresql.UserSettings{}
 		}

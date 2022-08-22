@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	pgClusterResourceName   = "yandex_mdb_postgresql_cluster.foo"
-	pgUserResourceNameAlice = "yandex_mdb_postgresql_user.alice"
-	pgUserResourceNameBob   = "yandex_mdb_postgresql_user.bob"
+	pgClusterResourceName     = "yandex_mdb_postgresql_cluster.foo"
+	pgUserResourceNameAlice   = "yandex_mdb_postgresql_user.alice"
+	pgUserResourceNameBob     = "yandex_mdb_postgresql_user.bob"
+	pgUserResourceNameCharlie = "yandex_mdb_postgresql_user.charlie"
 )
 
 // Test that a PostgreSQL User can be created, updated and destroyed
@@ -56,6 +57,15 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep4(clusterName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "name", "charlie"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "login", "false"),
+					resource.TestCheckResourceAttr(pgUserResourceNameCharlie, "conn_limit", "0"),
+				),
+			},
+			mdbPostgreSQLUserImportStep(pgUserResourceNameCharlie),
 		},
 	})
 }
@@ -225,5 +235,18 @@ resource "yandex_mdb_postgresql_user" "alice" {
 		default_transaction_isolation = "read uncommitted"
 		log_min_duration_statement    = 1234
 	}
+}`
+}
+
+// Check login and conn_limit. Bug report: https://github.com/KazanExpress/yc-tf-bugreports/tree/master/bugs/postgres-3
+func testAccMDBPostgreSQLUserConfigStep4(name string) string {
+	return testAccMDBPostgreSQLUserConfigStep3(name) + `
+resource "yandex_mdb_postgresql_user" "charlie" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "charlie"
+	password   = "password"
+    
+	login      = false
+	conn_limit = 0
 }`
 }
