@@ -44,19 +44,21 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 		return err
 	}
 
-	resp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(config.Context(), &saml.ListFederatedUserAccountsRequest{
-		FederationId: federationID,
-	})
-
+	protoResponse, err := op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("Error while get SAML Add User Accounts operation response: %s", err)
 	}
 
-	for _, account := range resp.UserAccounts {
-		if account.GetSamlUserAccount().GetNameId() == nameID {
-			d.SetId(account.Id)
-			return nil
-		}
+	res, ok := protoResponse.(*saml.AddFederatedUserAccountsResponse)
+	if !ok {
+		return fmt.Errorf("could not get SAML Federated User ID from Add User Accounts operation response")
+	}
+
+	UserAccounts := res.UserAccounts
+
+	if UserAccounts[0].Id != "" {
+		d.SetId(UserAccounts[0].Id)
+		return nil
 	}
 
 	return fmt.Errorf("user account with name_id: %s not found in federation: %s", nameID, federationID)
