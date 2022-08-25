@@ -4,7 +4,7 @@ BUG FIXES:
 * postgresql: fix `login` and `conn_limit` wrong behaviour in `yandex_mdb_postgresql_user`
 
 ENHANCEMENTS:
-vpc: allow usage of `yandex_vpc_gateway` in `yandex_vpc_route_table.static_route` as `gateway_id` next hop
+* vpc: allow usage of `yandex_vpc_gateway` in `yandex_vpc_route_table.static_route` as `gateway_id` next hop
 
 FEATURES:
 * greenplum: add `maintenance_window` attribute to resource and data source
@@ -17,6 +17,9 @@ FEATURES:
 * **New Data Source:** `yandex_vpc_gateway`
 * **New Resource:** `yandex_iot_core_broker`
 * **New Resource:** `yandex_vpc_gateway`
+
+WARNING:
+* mdb: remove 5 and 6 from supported versions for redis
 
 ## 0.77.0 (July 27, 2022)
 BUG FIXES:

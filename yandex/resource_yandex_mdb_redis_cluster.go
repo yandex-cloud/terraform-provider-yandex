@@ -569,9 +569,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("config") {
-		if d.HasChange("config.0.version") {
-			return fmt.Errorf("Version update for Redis is not supported")
-		}
 		conf, version, err := expandRedisConfig(d)
 		if err != nil {
 			return err
@@ -584,10 +581,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.ConfigSpec.RedisSpec = *conf
 		updateFieldConfigName := ""
 		switch version {
-		case "5.0":
-			updateFieldConfigName = "redis_config_5_0"
-		case "6.0":
-			updateFieldConfigName = "redis_config_6_0"
 		case "6.2":
 			updateFieldConfigName = "redis_config_6_2"
 		}

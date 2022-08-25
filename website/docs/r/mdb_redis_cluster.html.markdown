@@ -23,7 +23,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   config {
     password = "your_password"
-    version  = "6.0"
+    version  = "6.2"
   }
 
   resources {
@@ -60,7 +60,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   sharded     = true
 
   config {
-    version  = "6.0"
+    version  = "6.2"
     password = "your_password"
   }
 
@@ -163,7 +163,7 @@ The `config` block supports:
   
 * `databases` - (Optional) Number of databases (changing requires redis-server restart).
 
-* `version` - (Required) Version of Redis (5.0, 6.0 or 6.2).
+* `version` - (Required) Version of Redis (6.2).
 
 * `client_output_buffer_limit_normal` - (Optional) Normal clients output buffer limits.
   See [redis config file](https://github.com/redis/redis/blob/6.2/redis.conf#L1841).

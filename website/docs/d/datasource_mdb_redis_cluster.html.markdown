@@ -62,7 +62,7 @@ The `config` block supports:
 * `slowlog_log_slower_than` - Log slow queries below this number in microseconds.
 * `slowlog_max_len` - Slow queries log length.
 * `databases` - Number of databases (changing requires redis-server restart).
-* `version` - Version of Redis (5.0, 6.0 or 6.2).
+* `version` - Version of Redis (6.2).
 * `client_output_buffer_limit_normal` - Normal clients output buffer limits.
 * `client_output_buffer_limit_pubsub` - Pubsub clients output buffer limits.
 
