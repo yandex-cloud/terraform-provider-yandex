@@ -2,6 +2,7 @@
 BUG FIXES:
 * cdn: fixed wrong documentation example
 * postgresql: fix `login` and `conn_limit` wrong behaviour in `yandex_mdb_postgresql_user`
+* data source `yandex_organizationmanager_saml_federation_user_account` now works for federations with more than a hundred of users and with viewer role
 
 ENHANCEMENTS:
 * vpc: allow usage of `yandex_vpc_gateway` in `yandex_vpc_route_table.static_route` as `gateway_id` next hop

@@ -1,8 +1,6 @@
 package yandex
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
@@ -30,11 +28,46 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 
 	federationID := d.Get("federation_id").(string)
 	nameID := d.Get("name_id").(string)
+	var nextPageToken string
+	for {
+		req := &saml.ListFederatedUserAccountsRequest{
+			FederationId: federationID,
+		}
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().AddUserAccounts(config.Context(), &saml.AddFederatedUserAccountsRequest{
-		FederationId: federationID,
-		NameIds:      []string{nameID},
-	}))
+		if nextPageToken != "" {
+			req.PageToken = nextPageToken
+		}
+
+		listResp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(
+			config.Context(),
+			req,
+		)
+		if err != nil {
+			return err
+		}
+
+		for _, account := range listResp.UserAccounts {
+			if account.GetSamlUserAccount().GetNameId() == nameID {
+				d.SetId(account.Id)
+				return nil
+			}
+		}
+
+		if listResp.NextPageToken == "" {
+			break
+		}
+
+		nextPageToken = listResp.NextPageToken
+	}
+
+	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().AddUserAccounts(
+		config.Context(),
+		&saml.AddFederatedUserAccountsRequest{
+			FederationId: federationID,
+			NameIds:      []string{nameID},
+		},
+	))
+
 	if err != nil {
 		return err
 	}
@@ -44,20 +77,12 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 		return err
 	}
 
-	resp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(config.Context(), &saml.ListFederatedUserAccountsRequest{
-		FederationId: federationID,
-	})
-
+	rawResp, err := op.Response()
 	if err != nil {
 		return err
 	}
+	addResp := rawResp.(*saml.AddFederatedUserAccountsResponse)
+	d.SetId(addResp.UserAccounts[0].Id)
 
-	for _, account := range resp.UserAccounts {
-		if account.GetSamlUserAccount().GetNameId() == nameID {
-			d.SetId(account.Id)
-			return nil
-		}
-	}
-
-	return fmt.Errorf("user account with name_id: %s not found in federation: %s", nameID, federationID)
+	return nil
 }
