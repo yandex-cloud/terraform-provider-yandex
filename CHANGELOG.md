@@ -1,4 +1,6 @@
-## 0.78.0 (Unreleased)
+## 0.79.0 (Unreleased)
+
+## 0.78.0 (September 1, 2022)
 BUG FIXES:
 * cdn: fixed wrong documentation example
 * postgresql: fix `login` and `conn_limit` wrong behaviour in `yandex_mdb_postgresql_user`
