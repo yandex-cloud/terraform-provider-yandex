@@ -207,6 +207,7 @@ func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schem
 // All the ZOOKEEPER hosts will reside under the key "zk".
 func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse.HostSpec) (map[string][]string, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.UpdateHostSpec) {
 	m := map[string][]*clickhouse.HostSpec{}
+	mKeys := []string{}
 
 	for _, h := range targetHosts {
 		shardName := "shard1"
@@ -218,6 +219,7 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 		}
 		key := h.Type.String() + h.ZoneId + shardName
 		m[key] = append(m[key], h)
+		mKeys = append(mKeys, key)
 	}
 
 	toDelete := map[string][]string{}
@@ -251,7 +253,11 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 	}
 
 	toAdd := map[string][]*clickhouse.HostSpec{}
-	for _, hs := range m {
+	for _, key := range mKeys {
+		hs, ok := m[key]
+		if !ok {
+			continue
+		}
 		for _, h := range hs {
 			if h.Type == clickhouse.Host_ZOOKEEPER {
 				toAdd["zk"] = append(toAdd["zk"], h)
