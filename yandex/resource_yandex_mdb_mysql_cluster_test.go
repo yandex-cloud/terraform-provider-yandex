@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"google.golang.org/genproto/protobuf/field_mask"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
@@ -215,6 +215,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "user.0.authentication_plugin", "SHA256_PASSWORD"),
 
 					resource.TestCheckResourceAttr(mysqlResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "IGNORE_SPACE,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,HIGH_NOT_PRECEDENCE"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.max_connections", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.default_authentication_plugin", "MYSQL_NATIVE_PASSWORD"),
@@ -814,6 +816,8 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   access {
     web_sql = true
+    data_lens = true
+    data_transfer = true
   }
 
   backup_window_start {

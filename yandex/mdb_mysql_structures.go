@@ -13,6 +13,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/objx"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
@@ -1241,6 +1242,7 @@ func flattenMySQLAccess(a *mysql.Access) ([]interface{}, error) {
 
 	out["data_lens"] = a.DataLens
 	out["web_sql"] = a.WebSql
+	out["data_transfer"] = a.DataTransfer
 
 	return []interface{}{out}, nil
 }
@@ -1258,6 +1260,9 @@ func expandMySQLAccess(d *schema.ResourceData) *mysql.Access {
 
 	if v, ok := d.GetOk("access.0.web_sql"); ok {
 		out.WebSql = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.data_transfer"); ok {
+		out.DataTransfer = v.(bool)
 	}
 
 	return out

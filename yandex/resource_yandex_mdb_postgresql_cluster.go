@@ -10,9 +10,10 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/genproto/protobuf/field_mask"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
@@ -267,6 +268,11 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							Computed: true,
 						},
 						"serverless": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"data_transfer": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,

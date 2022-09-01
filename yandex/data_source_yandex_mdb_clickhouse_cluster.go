@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -506,6 +507,14 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							Computed: true,
 						},
 						"serverless": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"yandex_query": {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},

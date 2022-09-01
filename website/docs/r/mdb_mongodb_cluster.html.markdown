@@ -97,7 +97,6 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the MongoDB cluster.
 
-* `access` - (Optional) Access policy to the MongoDB cluster. The structure is documented below.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
@@ -112,7 +111,7 @@ The `cluster_config` block supports:
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
-* `access` - (Optional) Shows whether cluster has access to data lens. The structure is documented below.
+* `access` - (Optional) Access policy to the MongoDB cluster. The structure is documented below.
 
 * `mongod` - (Optional) Configuration of the mongod service. The structure is documented below.
 
@@ -172,7 +171,8 @@ The `host` block supports:
 
 The `access` block supports:
 
-* `data_lens` - (Optional) Allow access for DataLens.
+* `data_lens` - (Optional) Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
 The `maintenance_window` block supports:
 

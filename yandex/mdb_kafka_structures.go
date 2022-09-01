@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
-
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 type TopicCleanupPolicy int32
@@ -438,6 +437,8 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 		result.Zookeeper.Resources = expandKafkaResources(d, "config.0.zookeeper.0.resources.0")
 	}
 
+	result.SetAccess(expandKafkaAccess(d))
+
 	return result, nil
 }
 
@@ -563,6 +564,9 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 				"resources": []map[string]interface{}{zkResources},
 			},
 		}
+	}
+	if cluster.Config.GetAccess() != nil {
+		config["access"] = flattenKafkaAccess(cluster.Config)
 	}
 
 	return []map[string]interface{}{config}, nil
@@ -1014,4 +1018,24 @@ func expandKafkaMaintenanceWindow(d *schema.ResourceData) (*kafka.MaintenanceWin
 	}
 
 	return out, nil
+}
+
+func expandKafkaAccess(d *schema.ResourceData) *kafka.Access {
+	if _, ok := d.GetOkExists("config.0.access"); !ok {
+		return nil
+	}
+	out := &kafka.Access{}
+
+	if v, ok := d.GetOk("config.0.access.0.data_transfer"); ok {
+		out.DataTransfer = v.(bool)
+	}
+	return out
+}
+
+func flattenKafkaAccess(c *kafka.ConfigSpec) []map[string]interface{} {
+	out := map[string]interface{}{}
+	if c != nil && c.GetAccess() != nil {
+		out["data_transfer"] = c.GetAccess().GetDataTransfer()
+	}
+	return []map[string]interface{}{out}
 }

@@ -572,6 +572,16 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"yandex_query": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},
@@ -957,7 +967,7 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	ac := flattenClickHouseAccess(cluster.Config.Access)
+	ac := flattenClickHouseAccess(cluster.GetConfig().GetAccess())
 	if err := d.Set("access", ac); err != nil {
 		return err
 	}

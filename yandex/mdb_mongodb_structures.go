@@ -506,7 +506,8 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 			"version":                       cc.Version,
 			"access": []interface{}{
 				map[string]interface{}{
-					"data_lens": cc.Access.DataLens,
+					"data_lens":     cc.Access.DataLens,
+					"data_transfer": cc.Access.DataTransfer,
 				},
 			},
 			"mongod": flattenMongod,

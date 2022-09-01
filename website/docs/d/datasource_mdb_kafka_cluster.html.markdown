@@ -65,6 +65,7 @@ The `config` block supports:
 * `schema_registry` - (Optional) Enables managed schema registry on cluster. Can be either `true` or `false`.
 * `kafka` - (Optional) Configuration of the Kafka subcluster. The structure is documented below.
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
+* `access` - (Optional) Access policy to the Kafka cluster. The structure is documented below.
 
 The `kafka` block supports:
 
@@ -98,6 +99,11 @@ The `resources` block supports:
 * `disk_size` - (Optional) Volume of the storage available to a ZooKeeper host, in gigabytes.
 * `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts.
   For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+
+The `access` block supports:
+
+* `data_transfer` - Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+
 
 The `user` block supports:
 

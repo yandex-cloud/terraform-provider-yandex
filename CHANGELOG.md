@@ -18,6 +18,8 @@ FEATURES:
 * **New Data Source:** `yandex_vpc_gateway`
 * **New Resource:** `yandex_iot_core_broker`
 * **New Resource:** `yandex_vpc_gateway`
+* `data_transfer` flag in `ClusterConfig.access` for ClickHouse, Greenplum, MySQL, PostgreSQL, Kafka, MongoDB
+* `yandex_query` flag in `ClusterConfig.access` for ClickHouse
 
 WARNING:
 * mdb: remove 5 and 6 from supported versions for redis

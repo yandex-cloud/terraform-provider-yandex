@@ -17,10 +17,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 )
 
 const kfResource = "yandex_mdb_kafka_cluster.foo"
@@ -853,6 +854,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
 					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -878,6 +880,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
@@ -1027,6 +1030,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  assign_public_ip = false
 	  unmanaged_topics = false
 	  schema_registry  = false	
+      access {
+	    data_transfer  = true
+      }
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"
@@ -1108,6 +1114,9 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		assign_public_ip = false
 		unmanaged_topics = false
 		schema_registry  = false
+        access {
+	        data_transfer = false
+        }
 		kafka {
 			resources {
 				resource_preset_id = "s2.micro"

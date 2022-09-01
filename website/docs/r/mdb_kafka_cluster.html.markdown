@@ -243,6 +243,8 @@ The `config` block supports:
 
 * `zookeeper` - (Optional) Configuration of the ZooKeeper subcluster. The structure is documented below.
 
+* `access` - (Optional) Access policy to the Kafka cluster. The structure is documented below.
+
 - - -
 
 The `kafka` block supports:
@@ -282,6 +284,10 @@ The `resources` block supports:
 
 * `disk_type_id` - (Optional) Type of the storage of ZooKeeper hosts.
   For more information see [the official documentation](https://cloud.yandex.com/docs/managed-kafka/concepts/storage).
+
+The `access` block supports:
+
+* `data_transfer` - Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
 The `user` block supports:
 

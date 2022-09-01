@@ -102,6 +102,13 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   cluster_config {
     version = "{{.Version}}"
     feature_compatibility_version = "{{dropSuffix .Version "-enterprise"}}"
+{{if .Access}}
+	access {
+	{{- range $key, $value := .Access}}
+		{{ $key }} = "{{ $value }}"
+	{{- end}}
+	} 
+{{end}}
     backup_window_start {
       hours = {{.BackupWindow.hours}}
       minutes = {{.BackupWindow.minutes}}
@@ -296,6 +303,10 @@ func create4_2ConfigData() map[string]interface{} {
 			"hours":   3,
 			"minutes": 4,
 		},
+		"Access": map[string]bool{
+			"data_lens":     true,
+			"data_transfer": true,
+		},
 		"Databases": []string{"testdb"},
 		"Users": []*mongodb.UserSpec{
 			{
@@ -349,6 +360,8 @@ func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),

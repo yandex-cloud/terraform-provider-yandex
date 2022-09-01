@@ -325,6 +325,11 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},

@@ -87,7 +87,7 @@ The `access` block supports:
 * `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
 * `web_sql` - Allow access for [SQL queries in the management console](https://cloud.yandex.com/docs/managed-postgresql/operations/web-sql-query)
 * `serverless` - Allow access for [connection to managed databases from functions](https://cloud.yandex.com/docs/functions/operations/database-connection)
-
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
 The `performance_diagnostics` block supports:
 * `enabled` - Flag, when true, performance diagnostics is enabled

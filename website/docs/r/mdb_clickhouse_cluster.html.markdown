@@ -808,6 +808,10 @@ The `access` block supports:
 
 * `serverless` - (Optional) Allow access for Serverless. Can be either `true` or `false`.
 
+* `yandex_query` - (Optional) Allow access for YandexQuery. Can be either `true` or `false`.
+
+* `data_transfer` - (Optional) Allow access for DataTransfer. Can be either `true` or `false`.
+
 The `config` block supports:
 
 * `log_level`, `max_connections`, `max_concurrent_queries`, `keep_alive_timeout`, `uncompressed_cache_size`, `mark_cache_size`,

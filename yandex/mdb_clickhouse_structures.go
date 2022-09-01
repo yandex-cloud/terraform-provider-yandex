@@ -994,13 +994,16 @@ func expandClickHouseBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOf
 }
 
 func flattenClickHouseAccess(a *clickhouse.Access) []map[string]interface{} {
+
 	res := map[string]interface{}{}
-
-	res["web_sql"] = a.WebSql
-	res["data_lens"] = a.DataLens
-	res["metrika"] = a.Metrika
-	res["serverless"] = a.Serverless
-
+	if a != nil {
+		res["web_sql"] = a.WebSql
+		res["data_lens"] = a.DataLens
+		res["metrika"] = a.Metrika
+		res["serverless"] = a.Serverless
+		res["data_transfer"] = a.DataTransfer
+		res["yandex_query"] = a.YandexQuery
+	}
 	return []map[string]interface{}{res}
 }
 
@@ -1018,6 +1021,12 @@ func expandClickHouseAccess(d *schema.ResourceData) *clickhouse.Access {
 	}
 	if v, ok := d.GetOk("access.0.serverless"); ok {
 		result.Serverless = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.data_transfer"); ok {
+		result.DataTransfer = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.yandex_query"); ok {
+		result.YandexQuery = v.(bool)
 	}
 	return result
 }

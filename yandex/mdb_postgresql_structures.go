@@ -8,15 +8,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/stretchr/objx"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
-
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/objx"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 type PostgreSQLHostSpec struct {
@@ -205,6 +203,7 @@ func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
 	out["data_lens"] = a.DataLens
 	out["web_sql"] = a.WebSql
 	out["serverless"] = a.Serverless
+	out["data_transfer"] = a.DataTransfer
 
 	return []interface{}{out}, nil
 }
@@ -1159,6 +1158,9 @@ func expandPGAccess(d *schema.ResourceData) *postgresql.Access {
 		out.Serverless = v.(bool)
 	}
 
+	if v, ok := d.GetOk("config.0.access.0.data_transfer"); ok {
+		out.DataTransfer = v.(bool)
+	}
 	return out
 }
 

@@ -307,6 +307,8 @@ The `access` block supports:
 
 * `serverless` - Allow access for [connection to managed databases from functions](https://cloud.yandex.com/docs/functions/operations/database-connection)
 
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
+
 The `performance_diagnostics` block supports:
 
 * `enabled` - Enable performance diagnostics

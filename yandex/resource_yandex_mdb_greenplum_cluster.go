@@ -8,8 +8,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
 const (
@@ -279,6 +280,11 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 							Default:  false,
 						},
 						"web_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"data_transfer": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,

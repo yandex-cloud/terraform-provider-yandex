@@ -132,6 +132,14 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "service_account_id"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
+
+					resource.TestCheckResourceAttr(chResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.metrika", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.serverless", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.yandex_query", "true"),
+
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}},
@@ -1189,6 +1197,15 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     type = "WEEKLY"
     day  = "FRI"
     hour = 20
+  }
+
+  access {
+	web_sql       = true
+	data_lens     = true
+	metrika       = true
+	serverless    = true
+	data_transfer = true
+	yandex_query  = true
   }
 
   deletion_protection = %t

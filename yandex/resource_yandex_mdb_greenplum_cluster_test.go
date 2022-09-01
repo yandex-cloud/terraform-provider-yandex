@@ -10,8 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
 const greenplumResource = "yandex_mdb_greenplum_cluster.foo"
@@ -179,7 +180,9 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
 
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "backup_window_start.0.minutes", "15"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.hour", "12"),
@@ -438,10 +441,6 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
   
   deletion_protection = false
 
-  access {
-    data_lens = true
-  }
-
   backup_window_start {
     hours = 22
     minutes = 15
@@ -451,6 +450,11 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
     type = "WEEKLY"
     day  = "SAT"
     hour = 12
+  }
+  access {
+	web_sql       = true
+	data_lens     = true
+	data_transfer = true
   }
 }`
 }

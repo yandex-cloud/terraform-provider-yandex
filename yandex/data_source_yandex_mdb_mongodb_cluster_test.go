@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 )
 
 const mdbMongoDBClusterByNameConfig = `

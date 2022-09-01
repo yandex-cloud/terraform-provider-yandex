@@ -11,9 +11,10 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/genproto/protobuf/field_mask"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const (
@@ -209,6 +210,21 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Computed: true,
 				MaxItems: 1,
 				Elem:     resourceYandexMDBKafkaClusterZookeeperConfig(),
+			},
+			"access": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -900,6 +916,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
+	"config.0.access": "config_spec.access",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequest, error) {

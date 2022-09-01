@@ -6,8 +6,9 @@ import (
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/greenplum/v1"
 )
 
 func parseGreenplumEnv(e string) (greenplum.Cluster_Environment, error) {
@@ -65,6 +66,7 @@ func flattenGreenplumAccess(c *greenplum.GreenplumConfig) []map[string]interface
 	if c != nil && c.Access != nil {
 		out["data_lens"] = c.Access.DataLens
 		out["web_sql"] = c.Access.WebSql
+		out["data_transfer"] = c.Access.DataTransfer
 	}
 	return []map[string]interface{}{out}
 }
@@ -188,21 +190,26 @@ func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
 		out.WebSql = v.(bool)
 	}
 
+	if v, ok := d.GetOk("access.0.data_transfer"); ok {
+		out.DataTransfer = v.(bool)
+	}
+
 	return out
 }
 
 func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []string {
 	mdbGreenplumUpdateFieldsMap := map[string]string{
-		"name":                "name",
-		"description":         "description",
-		"user_password":       "user_password",
-		"labels":              "labels",
-		"access.0.data_lens":  "config.access.data_lens",
-		"access.0.web_sql":    "config.access.web_sql",
-		"backup_window_start": "config.backup_window_start",
-		"maintenance_window":  "maintenance_window",
-		"deletion_protection": "deletion_protection",
-		"security_group_ids":  "security_group_ids",
+		"name":                   "name",
+		"description":            "description",
+		"user_password":          "user_password",
+		"labels":                 "labels",
+		"access.0.data_lens":     "config.access.data_lens",
+		"access.0.web_sql":       "config.access.web_sql",
+		"access.0.data_transfer": "config.access.data_transfer",
+		"backup_window_start":    "config.backup_window_start",
+		"maintenance_window":     "maintenance_window",
+		"deletion_protection":    "deletion_protection",
+		"security_group_ids":     "security_group_ids",
 
 		"pooler_config.0.pooling_mode":             "config_spec.pool.mode",
 		"pooler_config.0.pool_size":                "config_spec.pool.size",

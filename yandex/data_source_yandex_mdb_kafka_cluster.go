@@ -124,6 +124,18 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 					},
 				},
 			},
+			"access": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

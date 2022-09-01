@@ -88,7 +88,8 @@ The `backup_window_start` block supports:
 
 The `access` block supports:
 
-* `data_lens` - Shows whether cluster has access to data lens.
+* `data_lens` - Allow access for [Yandex DataLens](https://cloud.yandex.com/services/datalens).
+* `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
 The `user` block supports:
 

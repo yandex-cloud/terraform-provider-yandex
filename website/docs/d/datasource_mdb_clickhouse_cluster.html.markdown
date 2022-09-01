@@ -257,6 +257,8 @@ The `access` block supports:
 * `data_lens` - Allow access for Web SQL.
 * `metrika` - Allow access for Yandex.Metrika.
 * `serverless` - Allow access for Serverless.
+* `data_transfer` - Allow access for DataTransfer
+* `yandex_query` - Allow access for YandexQuery
 
 The `config` block supports:
 

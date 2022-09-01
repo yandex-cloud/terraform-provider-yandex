@@ -126,6 +126,10 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "description", pgDesc),
 					resource.TestCheckResourceAttr(clusterResource, "database.0.lc_collate", "en_US.UTF-8"),
 					resource.TestCheckResourceAttr(clusterResource, "database.0.lc_type", "en_US.UTF-8"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.serverless", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "test_key", "test_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
@@ -179,9 +183,11 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(clusterResource, "description", pgDesc2),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.serverless", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "false"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttrSet(clusterResource, "config.0.access.0.web_sql"),
-					resource.TestCheckResourceAttrSet(clusterResource, "config.0.access.0.serverless"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
@@ -503,7 +509,7 @@ func testAccCheckClusterSettingsPerformanceDiagnostics(r string) resource.TestCh
 				found.Config.PerformanceDiagnostics.SessionsSamplingInterval)
 		}
 
-		if found.Config.PerformanceDiagnostics.StatementsSamplingInterval != 8 {
+		if found.Config.PerformanceDiagnostics.StatementsSamplingInterval != 60 {
 			return fmt.Errorf("Cluster Config.PerformanceDiagnostics.SessionsSamplingInterval must be 8, current %v",
 				found.Config.PerformanceDiagnostics.StatementsSamplingInterval)
 		}
@@ -783,6 +789,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       disk_size          = 10
       disk_type_id       = "network-ssd"
     }
+    access {
+      web_sql       = true
+      serverless    = true
+      data_lens     = true
+	  data_transfer = true
+    }
   }
 
   user {
@@ -840,12 +852,14 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       disk_type_id       = "network-ssd"
     }
     access {
-      web_sql    = true
-      serverless = true
+      web_sql       = true
+      serverless    = false
+      data_lens     = false
+	  data_transfer = false
     }
     performance_diagnostics {
       sessions_sampling_interval   = 9
-      statements_sampling_interval = 8
+      statements_sampling_interval = 60
     }
     
     backup_retain_period_days = 12

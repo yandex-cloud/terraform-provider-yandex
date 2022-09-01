@@ -240,6 +240,10 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"data_transfer": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},

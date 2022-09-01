@@ -210,7 +210,13 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"data_lens": {
 										Type:     schema.TypeBool,
-										Computed: true,
+										Optional: true,
+										Default:  false,
+									},
+									"data_transfer": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
 									},
 								},
 							},
@@ -414,7 +420,8 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 
 	if access := d.Get("cluster_config.0.access"); access != nil {
 		configSpec.Access = &mongodb.Access{
-			DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool),
+			DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
+			DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
 		}
 	}
 
@@ -803,7 +810,10 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 			Version:           version,
 			MongodbSpec:       mongodbSpecHelper.Expand(d),
 			BackupWindowStart: expandMongoDBBackupWindowStart(d),
-			Access:            &mongodb.Access{DataLens: d.Get("cluster_config.0.access.0.data_lens").(bool)},
+			Access: &mongodb.Access{
+				DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
+				DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
+			},
 		},
 		SecurityGroupIds: expandSecurityGroupIds(d.Get("security_group_ids")),
 	}
@@ -861,6 +871,7 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("deletion_protection") {
 		req.DeletionProtection = d.Get("deletion_protection").(bool)
+		updatePath = append(updatePath, "deletion_protection")
 	}
 
 	if len(updatePath) == 0 {
