@@ -1,5 +1,9 @@
 ## 0.79.0 (Unreleased)
 
+## 0.78.1 (September 6, 2022)
+BUG FIXES:
+* dns: fixed `proto: not found` error when creating, updating or deleting `yandex_dns_recordset`
+
 ## 0.78.0 (September 1, 2022)
 BUG FIXES:
 * cdn: fixed wrong documentation example
