@@ -957,7 +957,7 @@ func kafkaClusterUpdateRequestWithMask(d *schema.ResourceData) (*kafka.UpdateClu
 	updatePath := []string{}
 	for field, path := range mdbKafkaUpdateFieldsMap {
 		if d.HasChange(field) {
-			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVerion(d), -1))
+			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVersion(d), -1))
 		}
 	}
 
@@ -971,8 +971,13 @@ func kafkaClusterUpdateRequestWithMask(d *schema.ResourceData) (*kafka.UpdateClu
 	return req, nil
 }
 
-func getSuffixVerion(d *schema.ResourceData) string {
-	return strings.Replace(d.Get("config.0.version").(string), ".", "_", -1)
+func getSuffixVersion(d *schema.ResourceData) string {
+	version := d.Get("config.0.version").(string)
+	result := "3"
+	if strings.HasPrefix(version, "2") {
+		result = strings.Replace(version, ".", "_", -1)
+	}
+	return result
 }
 
 func updateKafkaClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1041,7 +1046,7 @@ func updateKafkaClusterTopics(d *schema.ResourceData, topicModifier KafkaTopicMo
 			if err != nil {
 				return err
 			}
-			paths := kafkaTopicUpdateMask(topicDiff.OldEntity, topicDiff.NewEntity, getSuffixVerion(d))
+			paths := kafkaTopicUpdateMask(topicDiff.OldEntity, topicDiff.NewEntity, getSuffixVersion(d))
 			if err := topicModifier.UpdateKafkaTopic(ctx, d, topicSpec, paths); err != nil {
 				return err
 			}

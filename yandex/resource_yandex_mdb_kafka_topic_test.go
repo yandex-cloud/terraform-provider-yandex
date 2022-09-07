@@ -45,6 +45,30 @@ func TestNoCrashOnNilKafkaTopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
+func TestNoCrashOnNilKafka30TopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config":       []interface{}{nil},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig:       nil,
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
 func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
@@ -57,6 +81,32 @@ func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
 	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "2.8")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig:       nil,
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
+func TestNoCrashOnEmptyKafka30TopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -96,6 +146,38 @@ func TestNoCrashOnNotFulledKafkaTopicConfig(t *testing.T) {
 		TopicConfig: &kafka.TopicSpec_TopicConfig_2_8{
 			TopicConfig_2_8: &kafka.TopicConfig2_8{
 				CleanupPolicy: kafka.TopicConfig2_8_CLEANUP_POLICY_COMPACT_AND_DELETE,
+			},
+		},
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
+func TestNoCrashOnNotFulledKafka30TopicConfig(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{
+				"cleanup_policy": "CLEANUP_POLICY_COMPACT_AND_DELETE",
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_3{
+			TopicConfig_3: &kafka.TopicConfig3{
+				CleanupPolicy: kafka.TopicConfig3_CLEANUP_POLICY_COMPACT_AND_DELETE,
 			},
 		},
 	}
@@ -157,6 +239,60 @@ func TestBuildKafkaTopicSpec(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
+func TestBuildKafka30TopicSpec(t *testing.T) {
+	raw := map[string]interface{}{
+		"name":               "events",
+		"partitions":         12,
+		"replication_factor": 3,
+		"topic_config": []interface{}{
+			map[string]interface{}{
+				"cleanup_policy":        "CLEANUP_POLICY_COMPACT_AND_DELETE",
+				"compression_type":      "COMPRESSION_TYPE_ZSTD",
+				"min_insync_replicas":   1,
+				"delete_retention_ms":   2,
+				"file_delete_delay_ms":  3,
+				"flush_messages":        4,
+				"flush_ms":              5,
+				"min_compaction_lag_ms": 6,
+				"retention_bytes":       7,
+				"retention_ms":          8,
+				"segment_bytes":         9,
+				"max_message_bytes":     16777216,
+			},
+		},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
+
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	if err != nil {
+		require.NoError(t, err)
+	}
+
+	expected := &kafka.TopicSpec{
+		Name:              "events",
+		Partitions:        &wrappers.Int64Value{Value: 12},
+		ReplicationFactor: &wrappers.Int64Value{Value: 3},
+		TopicConfig: &kafka.TopicSpec_TopicConfig_3{
+			TopicConfig_3: &kafka.TopicConfig3{
+				CleanupPolicy:      kafka.TopicConfig3_CLEANUP_POLICY_COMPACT_AND_DELETE,
+				CompressionType:    kafka.CompressionType_COMPRESSION_TYPE_ZSTD,
+				MinInsyncReplicas:  &wrappers.Int64Value{Value: int64(1)},
+				DeleteRetentionMs:  &wrappers.Int64Value{Value: int64(2)},
+				FileDeleteDelayMs:  &wrappers.Int64Value{Value: int64(3)},
+				FlushMessages:      &wrappers.Int64Value{Value: int64(4)},
+				FlushMs:            &wrappers.Int64Value{Value: int64(5)},
+				MinCompactionLagMs: &wrappers.Int64Value{Value: int64(6)},
+				RetentionBytes:     &wrappers.Int64Value{Value: int64(7)},
+				RetentionMs:        &wrappers.Int64Value{Value: int64(8)},
+				SegmentBytes:       &wrappers.Int64Value{Value: int64(9)},
+				MaxMessageBytes:    &wrappers.Int64Value{Value: int64(16777216)},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, topicSpec)
+}
+
 func TestAccMDBKafkaTopic(t *testing.T) {
 	t.Parallel()
 	clusterName := acctest.RandomWithPrefix("tf-kafka")
@@ -169,7 +305,7 @@ func TestAccMDBKafkaTopic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBKafkaTopicHasPartitions("events", 6),
 					testAccCheckMDBKafkaTopicHasReplicationFactor("events", 1),
-					testAccCheckMDBKafkaTopicHasConfig("events", &kafka.TopicConfig2_8{
+					testAccCheckMDBKafkaTopicHasConfig("events", &kafka.TopicConfig3{
 						DeleteRetentionMs: &wrappers.Int64Value{Value: 86400000},
 						FlushMs:           &wrappers.Int64Value{Value: 2000},
 					}),
@@ -182,7 +318,7 @@ func TestAccMDBKafkaTopic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBKafkaTopicHasPartitions("events", 12),
 					testAccCheckMDBKafkaTopicHasReplicationFactor("events", 1),
-					testAccCheckMDBKafkaTopicHasConfig("events", &kafka.TopicConfig2_8{
+					testAccCheckMDBKafkaTopicHasConfig("events", &kafka.TopicConfig3{
 						FlushMs:      &wrappers.Int64Value{Value: 4000},
 						SegmentBytes: &wrappers.Int64Value{Value: 52428800},
 					}),
@@ -211,7 +347,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
 
 	config {
-	  version          = "2.8"
+	  version          = "3.0"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  unmanaged_topics = true
@@ -333,13 +469,13 @@ func testAccCheckMDBKafkaTopicHasReplicationFactor(topicName string, replicas in
 	}
 }
 
-func testAccCheckMDBKafkaTopicHasConfig(topicName string, topicConfig *kafka.TopicConfig2_8) resource.TestCheckFunc {
+func testAccCheckMDBKafkaTopicHasConfig(topicName string, topicConfig *kafka.TopicConfig3) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		topic, err := testAccLoadKafkaTopic(s, topicName)
 		if err != nil {
 			return err
 		}
-		actualTopicConfig := topic.GetTopicConfig_2_8()
+		actualTopicConfig := topic.GetTopicConfig_3()
 		if !reflect.DeepEqual(topicConfig, actualTopicConfig) {
 			return fmt.Errorf("topic %q has config %v, expected: %v", topicName, actualTopicConfig, topicConfig)
 		}

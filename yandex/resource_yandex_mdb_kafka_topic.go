@@ -141,6 +141,12 @@ func buildKafkaTopicSpec(d *schema.ResourceData, prefixKey string, version strin
 
 	if _, ok := d.GetOk(key("topic_config.0")); ok {
 		switch version {
+		case "3.0", "3.1", "3.2":
+			cfg, err := expandKafkaTopicConfig3x(d, key("topic_config.0."))
+			if err != nil {
+				return nil, err
+			}
+			topicSpec.SetTopicConfig_3(cfg)
 		case "2.8":
 			cfg, err := expandKafkaTopicConfig2_8(d, key("topic_config.0."))
 			if err != nil {
@@ -193,6 +199,9 @@ func resourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("replication_factor", topic.ReplicationFactor.GetValue())
 
 	var cfg map[string]interface{}
+	if topic.GetTopicConfig_3() != nil {
+		cfg = flattenKafkaTopicConfig3(topic.GetTopicConfig_3())
+	}
 	if topic.GetTopicConfig_2_8() != nil {
 		cfg = flattenKafkaTopicConfig2_8(topic.GetTopicConfig_2_8())
 	}
@@ -236,7 +245,10 @@ func resourceYandexMDBKafkaTopicUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	var updatePath []string
-	versionPath := strings.Replace(version, ".", "_", -1)
+	versionPath := "3"
+	if strings.HasPrefix(version, "2") {
+		versionPath = strings.Replace(version, ".", "_", -1)
+	}
 	for field, path := range mdbKafkaTopicUpdateFieldsMap {
 		if d.HasChange(field) {
 			updatePath = append(updatePath, strings.Replace(path, "{version}", versionPath, -1))

@@ -54,7 +54,7 @@ func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterDatasource, "labels.test_key", "test_value"),
 					resource.TestCheckResourceAttr(clusterDatasource, "config.0.brokers_count", "1"),
 					resource.TestCheckResourceAttr(clusterDatasource, "config.0.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(clusterDatasource, "config.0.version", "2.8"),
+					resource.TestCheckResourceAttr(clusterDatasource, "config.0.version", "3.0"),
 					resource.TestCheckResourceAttr(clusterDatasource, "zookeeper.#", "0"),
 					resource.TestCheckResourceAttr(clusterDatasource, "topic.#", "2"),
 					resource.TestCheckResourceAttr(clusterDatasource, "user.#", "2"),

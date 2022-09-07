@@ -1,4 +1,6 @@
 ## 0.79.0 (Unreleased)
+FEATURES:
+* kafka: support Kafka 3.0,3.1,3.2 in `yandex_mdb_kafka_cluster`
 
 ## 0.78.1 (September 6, 2022)
 BUG FIXES:

@@ -8,6 +8,7 @@ terraform.tfstate
 .terraform.lock.hcl
 bin/
 terraform-provider-google
+terraform-provider-yandex
 modules-dev/
 website/.vagrant
 website/.bundle
