@@ -1,6 +1,7 @@
 ## 0.79.0 (Unreleased)
 FEATURES:
 * kafka: support Kafka 3.0,3.1,3.2 in `yandex_mdb_kafka_cluster`
+* postgresql: added 13-1c, 14-1c Postgresql versions
 
 ## 0.78.1 (September 6, 2022)
 BUG FIXES:

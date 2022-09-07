@@ -262,7 +262,7 @@ The `config` block supports:
 
 * `resources` - (Required) Resources allocated to hosts of the PostgreSQL cluster. The structure is documented below.
 
-* `version` - (Required) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 14)
+* `version` - (Required) Version of the PostgreSQL cluster. (allowed versions are: 10, 10-1c, 11, 11-1c, 12, 12-1c, 13, 13-1c, 14, 14-1c)
 
 * `access` - (Optional) Access policy to the PostgreSQL cluster. The structure is documented below.
 

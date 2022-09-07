@@ -124,6 +124,15 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 
 		return settings, err
 	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_14_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
+		return settings, err
+	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
 		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
@@ -132,6 +141,15 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 
 		settings = flattenPGSettingsSPL(settings, d)
 
+		return settings, err
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_13_1C.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		settings = flattenPGSettingsSPL(settings, d)
 		return settings, err
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
@@ -1332,6 +1350,18 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 			pgConfig = cfg.PostgresqlConfig_13
 			configSpec.PostgresqlConfig = cfg
 			updateFieldConfigName = "postgresql_config_13"
+		} else if version == "13-1c" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_13_1C{
+				PostgresqlConfig_13_1C: &config.PostgresqlConfig13_1C{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_13_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_13_1C.SharedPreloadLibraries, config.PostgresqlConfig13_1C_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_13_1C
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_13_1c"
 		} else if version == "14" {
 			cfg := &postgresql.ConfigSpec_PostgresqlConfig_14{
 				PostgresqlConfig_14: &config.PostgresqlConfig14{},
@@ -1344,6 +1374,18 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 			pgConfig = cfg.PostgresqlConfig_14
 			configSpec.PostgresqlConfig = cfg
 			updateFieldConfigName = "postgresql_config_14"
+		} else if version == "14-1c" {
+			cfg := &postgresql.ConfigSpec_PostgresqlConfig_14_1C{
+				PostgresqlConfig_14_1C: &config.PostgresqlConfig14_1C{},
+			}
+			if len(sharedPreloadLibraries) > 0 {
+				for _, v := range sharedPreloadLibraries {
+					cfg.PostgresqlConfig_14_1C.SharedPreloadLibraries = append(cfg.PostgresqlConfig_14_1C.SharedPreloadLibraries, config.PostgresqlConfig14_1C_SharedPreloadLibraries(v))
+				}
+			}
+			pgConfig = cfg.PostgresqlConfig_14_1C
+			configSpec.PostgresqlConfig = cfg
+			updateFieldConfigName = "postgresql_config_14_1c"
 		} else {
 			return updateFieldConfigName, nil
 		}
@@ -1465,7 +1507,9 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 
 var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig14{}).
+	addType(config.PostgresqlConfig14_1C{}).
 	addType(config.PostgresqlConfig13{}).
+	addType(config.PostgresqlConfig13_1C{}).
 	addType(config.PostgresqlConfig12{}).
 	addType(config.PostgresqlConfig12_1C{}).
 	addType(config.PostgresqlConfig11{}).
