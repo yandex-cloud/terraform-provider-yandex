@@ -1,4 +1,7 @@
 ## 0.79.0 (Unreleased)
+BUG FIXES:
+* kafka: sort hosts in listKafkaHosts method to avoid non - deterministic list of hosts.
+
 FEATURES:
 * kafka: support Kafka 3.0,3.1,3.2 in `yandex_mdb_kafka_cluster`
 * postgresql: added 13-1c, 14-1c Postgresql versions

@@ -880,6 +880,9 @@ func listKafkaHosts(ctx context.Context, config *Config, id string) ([]*kafka.Ho
 		}
 		pageToken = resp.NextPageToken
 	}
+	sort.Slice(ret, func(i, j int) bool {
+		return ret[i].Name < ret[j].Name
+	})
 	return ret, nil
 }
 
