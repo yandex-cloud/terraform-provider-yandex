@@ -1,4 +1,6 @@
 ## 0.79.0 (Unreleased)
+
+## 0.78.2 (September 9, 2022)
 BUG FIXES:
 * kafka: sort hosts in listKafkaHosts method to avoid non - deterministic list of hosts.
 
