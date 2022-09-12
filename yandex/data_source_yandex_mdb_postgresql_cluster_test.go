@@ -2,7 +2,10 @@ package yandex
 
 import (
 	"fmt"
+	"log"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,6 +14,10 @@ import (
 
 func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
 	t.Parallel()
+
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccDataSourceMDBPostgreSQLCluster_byID: version %s", version)
 
 	pgName := acctest.RandomWithPrefix("ds-pg-by-id")
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
@@ -21,7 +28,7 @@ func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, true),
+				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version, true),
 				Check: testAccDataSourceMDBPGClusterCheck(
 					"data.yandex_mdb_postgresql_cluster.bar",
 					"yandex_mdb_postgresql_cluster.foo", pgName, pgDesc),
@@ -33,6 +40,10 @@ func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
 func TestAccDataSourceMDBPostgreSQLCluster_byName(t *testing.T) {
 	t.Parallel()
 
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccDataSourceMDBPostgreSQLCluster_byID: version %s", version)
+
 	pgName := acctest.RandomWithPrefix("ds-pg-by-name")
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
 
@@ -42,7 +53,7 @@ func TestAccDataSourceMDBPostgreSQLCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, false),
+				Config: testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version, false),
 				Check: testAccDataSourceMDBPGClusterCheck(
 					"data.yandex_mdb_postgresql_cluster.bar",
 					"yandex_mdb_postgresql_cluster.foo", pgName, pgDesc),
@@ -261,10 +272,10 @@ data "yandex_mdb_postgresql_cluster" "bar" {
 }
 `
 
-func testAccDataSourceMDBPGClusterConfig(pgName, pgDesc string, useDataID bool) string {
+func testAccDataSourceMDBPGClusterConfig(pgName, pgDesc, version string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false) + mdbPGClusterByIDConfig
+		return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, false) + mdbPGClusterByIDConfig
 	}
 
-	return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", false) + mdbPGClusterByNameConfig
+	return testAccMDBPGClusterConfigMain(pgName, pgDesc, "PRESTABLE", version, false) + mdbPGClusterByNameConfig
 }

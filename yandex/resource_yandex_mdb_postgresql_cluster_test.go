@@ -3,10 +3,13 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/rand"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -20,6 +23,8 @@ import (
 const (
 	pgResource = "yandex_mdb_postgresql_cluster.foo"
 )
+
+var postgresql_versions = [...]string{"11", "11-1c", "12", "12-1c", "13", "13-1c", "14", "14-1c"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{
@@ -103,7 +108,9 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 // Test that a PostgreSQL Cluster can be created, updated and destroyed
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
-
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql")
 	clusterResource := "yandex_mdb_postgresql_cluster.foo"
@@ -118,7 +125,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// 1. Create PostgreSQL Cluster
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", true),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -145,7 +152,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 3. uncheck 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", false),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
@@ -154,7 +161,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 5. check 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", true),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
@@ -163,12 +170,12 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 7. trigger deletion by changing environment
 			{
-				Config:      testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRODUCTION", true),
+				Config:      testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRODUCTION", version, true),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			// 8. uncheck 'deletion_protection'
 			{
-				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", false),
+				Config: testAccMDBPGClusterConfigMain(clusterName, pgDesc, "PRESTABLE", version, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
@@ -177,7 +184,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 			mdbPGClusterImportStep(clusterResource),
 			// 12. Change some options
 			{
-				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2),
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, pgDesc2, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -214,6 +221,9 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	t.Parallel()
 
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_HAWithoutNames_update: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster"
@@ -224,7 +234,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBPGClusterConfigHA(clusterName),
+				Config: testAccMDBPGClusterConfigHA(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -240,7 +250,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 			},
 			mdbPGClusterImportStep(clusterResource),
 			{
-				Config: testAccMDBPGClusterConfigHAChangePublicIP(clusterName),
+				Config: testAccMDBPGClusterConfigHAChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
@@ -254,6 +264,9 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	t.Parallel()
 
+	rand.Seed(time.Now().Unix())
+	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
+	log.Printf("TestAccMDBPostgreSQLCluster_HAWithNames_update: version %s", version)
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster_with_names"
@@ -264,7 +277,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBPGClusterConfigHANamed(clusterName),
+				Config: testAccMDBPGClusterConfigHANamed(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -276,7 +289,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			},
 			mdbPGClusterImportStep(clusterResource),
 			{
-				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName),
+				Config: testAccMDBPGClusterConfigHANamedChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -286,7 +299,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			},
 			mdbPGClusterImportStep(clusterResource),
 			{
-				Config: testAccMDBPGClusterConfigHANamedWithCascade(clusterName),
+				Config: testAccMDBPGClusterConfigHANamedWithCascade(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -298,7 +311,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 			},
 			mdbPGClusterImportStep(clusterResource),
 			{
-				Config: testAccMDBPGClusterConfigHANamedWithPriorities(clusterName),
+				Config: testAccMDBPGClusterConfigHANamedWithPriorities(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
@@ -763,7 +776,7 @@ resource "yandex_vpc_security_group" "mdb-pg-test-sg-y" {
 }
 `
 
-func testAccMDBPGClusterConfigMain(name, desc, environment string, deletionProtection bool) string {
+func testAccMDBPGClusterConfigMain(name, desc, environment, version string, deletionProtection bool) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
   name        = "%s"
@@ -782,7 +795,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   config {
-    version = 12
+    version = "%s"
 
     resources {
       resource_preset_id = "s2.micro"
@@ -821,10 +834,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
   deletion_protection = %t
 }
-`, name, desc, environment, deletionProtection)
+`, name, desc, environment, version, deletionProtection)
 }
 
-func testAccMDBPGClusterConfigUpdated(name, desc string) string {
+func testAccMDBPGClusterConfigUpdated(name, desc, version string) string {
 
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "foo" {
@@ -844,7 +857,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   config {
-    version = 12
+    version = "%s"
 
     resources {
       resource_preset_id = "s2.micro"
@@ -939,10 +952,10 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
-`, name, desc)
+`, name, desc, version)
 }
 
-func testAccMDBPGClusterConfigHABasicConfig(name, hosts string) string {
+func testAccMDBPGClusterConfigHABasicConfig(name, hosts, version string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
   name        = "%s"
@@ -951,7 +964,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
   network_id  = yandex_vpc_network.mdb-pg-test-net.id
 
   config {
-    version = 13
+    version = "%s"
 
     resources {
       resource_preset_id = "s2.micro"
@@ -967,10 +980,10 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
 
   %s
 }
-`, name, hosts)
+`, name, version, hosts)
 }
 
-func testAccMDBPGClusterConfigHA(name string) string {
+func testAccMDBPGClusterConfigHA(name, version string) string {
 	return testAccMDBPGClusterConfigHABasicConfig(name, `
 	host {
 		zone             = "ru-central1-a"
@@ -985,10 +998,10 @@ func testAccMDBPGClusterConfigHA(name string) string {
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 		assign_public_ip = true
 	}
-`)
+`, version)
 }
 
-func testAccMDBPGClusterConfigHAChangePublicIP(name string) string {
+func testAccMDBPGClusterConfigHAChangePublicIP(name, version string) string {
 	return testAccMDBPGClusterConfigHABasicConfig(name, `
 	host {
 		zone             = "ru-central1-a"
@@ -1003,10 +1016,10 @@ func testAccMDBPGClusterConfigHAChangePublicIP(name string) string {
 		zone             = "ru-central1-c"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 	}
-`)
+`, version)
 }
 
-func testAccMDBPGClusterConfigHANamedBasicConfig(name, hosts string) string {
+func testAccMDBPGClusterConfigHANamedBasicConfig(name, hosts, version string) string {
 	return fmt.Sprintf(pgVPCDependencies+`
 resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
   name        = "%s"
@@ -1019,7 +1032,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
   }
 
   config {
-    version = 14
+    version = "%s"
 
     resources {
       resource_preset_id = "s2.micro"
@@ -1035,10 +1048,10 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
 
 %s
 }
-`, name, hosts)
+`, name, version, hosts)
 }
 
-func testAccMDBPGClusterConfigHANamed(name string) string {
+func testAccMDBPGClusterConfigHANamed(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
     name                    = "na"
@@ -1059,10 +1072,10 @@ func testAccMDBPGClusterConfigHANamed(name string) string {
     zone             = "ru-central1-c"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
   }
-`)
+`, version)
 }
 
-func testAccMDBPGClusterConfigHANamedChangePublicIP(name string) string {
+func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
     name                    = "na"
@@ -1083,10 +1096,10 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name string) string {
     
     assign_public_ip = true
   }
-`)
+`, version)
 }
 
-func testAccMDBPGClusterConfigHANamedWithCascade(name string) string {
+func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
     name                    = "na"
@@ -1110,10 +1123,10 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name string) string {
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
     assign_public_ip = true
   }
-`)
+`, version)
 }
 
-func testAccMDBPGClusterConfigHANamedWithPriorities(name string) string {
+func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
     name                    = "na"
@@ -1140,5 +1153,5 @@ func testAccMDBPGClusterConfigHANamedWithPriorities(name string) string {
     
     priority         = 10
   }
-`)
+`, version)
 }
