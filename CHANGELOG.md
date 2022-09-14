@@ -1,5 +1,8 @@
 ## 0.79.0 (Unreleased)
 
+FEATURES:
+* ydb: support `deletion_protection` attribute to `yandex_ydb_database_serverless` and `yandex_ydb_database_dedicated` resources.
+
 ## 0.78.2 (September 9, 2022)
 BUG FIXES:
 * kafka: sort hosts in listKafkaHosts method to avoid non - deterministic list of hosts.

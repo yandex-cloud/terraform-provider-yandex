@@ -194,6 +194,12 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -236,18 +242,19 @@ func resourceYandexYDBDatabaseDedicatedCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("Error expanding database type while creating database: %s", err)
 	}
 	req := ydb.CreateDatabaseRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		DatabaseType:     dbType,
-		Description:      d.Get("description").(string),
-		ResourcePresetId: d.Get("resource_preset_id").(string),
-		StorageConfig:    storageConfig,
-		ScalePolicy:      scalePolicy,
-		NetworkId:        d.Get("network_id").(string),
-		SubnetIds:        subnetIDs,
-		AssignPublicIps:  d.Get("assign_public_ips").(bool),
-		LocationId:       d.Get("location_id").(string),
-		Labels:           labels,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		DatabaseType:       dbType,
+		Description:        d.Get("description").(string),
+		ResourcePresetId:   d.Get("resource_preset_id").(string),
+		StorageConfig:      storageConfig,
+		ScalePolicy:        scalePolicy,
+		NetworkId:          d.Get("network_id").(string),
+		SubnetIds:          subnetIDs,
+		AssignPublicIps:    d.Get("assign_public_ips").(bool),
+		LocationId:         d.Get("location_id").(string),
+		Labels:             labels,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	if err := performYandexYDBDatabaseCreate(d, config, &req); err != nil {
@@ -353,6 +360,11 @@ func performYandexYDBDatabaseUpdate(d *schema.ResourceData, config *Config, req 
 	if d.HasChange("description") {
 		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if d.HasChange("deletion_protection") {
+		req.DeletionProtection = d.Get("deletion_protection").(bool)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection")
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
@@ -482,6 +494,7 @@ func flattenYandexYDBDatabase(d *schema.ResourceData, database *ydb.Database) er
 	d.Set("ydb_api_endpoint", baseEP)
 	d.Set("database_path", dbPath)
 	d.Set("tls_enabled", useTLS)
+	d.Set("deletion_protection", database.DeletionProtection)
 
 	return d.Set("status", database.Status.String())
 }

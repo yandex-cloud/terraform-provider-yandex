@@ -17,6 +17,8 @@ Yandex Database (serverless) resource. For more information, see
 resource "yandex_ydb_database_serverless" "database1" {
   name      = "test-ydb-serverless"
   folder_id = "${data.yandex_resourcemanager_folder.test_folder.id}"
+
+  deletion_protection = true
 }
 ```
 
@@ -34,6 +36,8 @@ The following arguments are supported:
 * `description` - (Optional) A description for the Yandex Database serverless cluster.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Yandex Database serverless cluster.
+
+* `deletion_protection` - (Optional) Inhibits deletion of the database. Can be either `true` or `false`
 
 ## Attributes Reference
 

@@ -64,3 +64,5 @@ The following arguments are supported:
 * `created_at` - The Yandex Database serverless cluster creation timestamp.
 
 * `status` - Status of the Yandex Database serverless cluster.
+
+* `deletion_protection` - Inhibits deletion of the database. Can be either `true` or `false`

@@ -78,6 +78,12 @@ func dataSourceYandexYDBDatabaseServerless() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }

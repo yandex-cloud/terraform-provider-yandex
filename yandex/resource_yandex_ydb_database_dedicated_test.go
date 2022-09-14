@@ -69,13 +69,14 @@ func TestAccYandexYDBDatabaseDedicated_basic(t *testing.T) {
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
 	labelKey := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label")
 	labelValue := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value")
+	deletionProtection := "false"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexYDBDatabaseDedicatedDestroy,
 		Steps: []resource.TestStep{
-			basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, labelKey, labelValue, &database),
+			basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database),
 		},
 	})
 }
@@ -86,19 +87,21 @@ func TestAccYandexYDBDatabaseDedicated_update(t *testing.T) {
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
 	labelKey := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label")
 	labelValue := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value")
+	deletionProtection := "true"
 
 	databaseNameUpdated := acctest.RandomWithPrefix("tf-ydb-database-dedicated-updated")
 	databaseDescUpdated := acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc-updated")
 	labelKeyUpdated := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-updated")
 	labelValueUpdated := acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value-updated")
+	deletionProtectionUpdated := "false"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexYDBDatabaseDedicatedDestroy,
 		Steps: []resource.TestStep{
-			basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, labelKey, labelValue, &database),
-			basicYandexYDBDatabaseDedicatedTestStep(databaseNameUpdated, databaseDescUpdated, labelKeyUpdated, labelValueUpdated, &database),
+			basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database),
+			basicYandexYDBDatabaseDedicatedTestStep(databaseNameUpdated, databaseDescUpdated, deletionProtectionUpdated, labelKeyUpdated, labelValueUpdated, &database),
 		},
 	})
 }
@@ -110,12 +113,14 @@ func TestAccYandexYDBDatabaseDedicated_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value")
+	params.deletionProtection = "true"
 
 	paramsUpdated := testYandexYDBDatabaseDedicatedParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-ydb-database-dedicated-updated")
 	paramsUpdated.desc = acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc-updated")
 	paramsUpdated.labelKey = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-updated")
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value-updated")
+	paramsUpdated.deletionProtection = "false"
 
 	testConfigFunc := func(params testYandexYDBDatabaseDedicatedParameters) resource.TestStep {
 		return resource.TestStep{
@@ -124,6 +129,7 @@ func TestAccYandexYDBDatabaseDedicated_full(t *testing.T) {
 				testYandexYDBDatabaseDedicatedExists(ydbDatabaseDedicatedResource, &database),
 				resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "name", params.name),
 				resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "description", params.desc),
+				resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "deletion_protection", params.deletionProtection),
 				resource.TestCheckResourceAttrSet(ydbDatabaseDedicatedResource, "folder_id"),
 				testYandexYDBDatabaseDedicatedContainsLabel(&database, params.labelKey, params.labelValue),
 				testAccCheckCreatedAtAttr(ydbDatabaseDedicatedResource),
@@ -142,13 +148,14 @@ func TestAccYandexYDBDatabaseDedicated_full(t *testing.T) {
 	})
 }
 
-func basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, labelKey, labelValue string, database *ydb.Database) resource.TestStep {
+func basicYandexYDBDatabaseDedicatedTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue string, database *ydb.Database) resource.TestStep {
 	return resource.TestStep{
-		Config: testYandexYDBDatabaseDedicatedBasic(databaseName, databaseDesc, labelKey, labelValue),
+		Config: testYandexYDBDatabaseDedicatedBasic(databaseName, databaseDesc, deletionProtection, labelKey, labelValue),
 		Check: resource.ComposeTestCheckFunc(
 			testYandexYDBDatabaseDedicatedExists(ydbDatabaseDedicatedResource, database),
 			resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "name", databaseName),
 			resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "description", databaseDesc),
+			resource.TestCheckResourceAttr(ydbDatabaseDedicatedResource, "deletion_protection", deletionProtection),
 			resource.TestCheckResourceAttrSet(ydbDatabaseDedicatedResource, "folder_id"),
 			testYandexYDBDatabaseDedicatedContainsLabel(database, labelKey, labelValue),
 			testAccCheckCreatedAtAttr(ydbDatabaseDedicatedResource),
@@ -243,11 +250,13 @@ resource "yandex_vpc_subnet" "ydb-db-dedicated-test-subnet-c" {
 }
 `
 
-func testYandexYDBDatabaseDedicatedBasic(name string, desc string, labelKey string, labelValue string) string {
+func testYandexYDBDatabaseDedicatedBasic(name string, desc string, deletionProtection, labelKey string, labelValue string) string {
 	return fmt.Sprintf(ydbDatabaseDedicatedDependencies+`
 resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   name        = "%s"
   description = "%s"
+
+  deletion_protection = %s
 
   labels = {
     %s          = "%s"
@@ -274,14 +283,15 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-c.id}",
   ]
 }
-`, name, desc, labelKey, labelValue)
+`, name, desc, deletionProtection, labelKey, labelValue)
 }
 
 type testYandexYDBDatabaseDedicatedParameters struct {
-	name       string
-	desc       string
-	labelKey   string
-	labelValue string
+	name               string
+	desc               string
+	labelKey           string
+	labelValue         string
+	deletionProtection string
 }
 
 func testYandexYDBDatabaseDedicatedFull(params testYandexYDBDatabaseDedicatedParameters) string {
@@ -290,12 +300,14 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   name        = "%s"
   description = "%s"
 
+  deletion_protection = %s
+
   labels = {
     %s          = "%s"
     empty-label = ""
   }
 
-  resource_preset_id = "medium"
+  resource_preset_id  = "medium"
 
   scale_policy {
     fixed_scale {
@@ -318,6 +330,7 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
 `,
 		params.name,
 		params.desc,
+		params.deletionProtection,
 		params.labelKey,
 		params.labelValue)
 }

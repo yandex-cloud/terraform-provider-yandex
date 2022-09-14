@@ -80,6 +80,8 @@ The following arguments are supported:
 
 * `status` - Status of the Yandex Database cluster.
 
+* `deletion_protection` - Inhibits deletion of the database. Can be either `true` or `false`
+
 ---
 
 The `scale_policy` block supports:

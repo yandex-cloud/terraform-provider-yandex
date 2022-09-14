@@ -21,7 +21,8 @@ resource "yandex_ydb_database_dedicated" "database1" {
   network_id = "${yandex_vpc_network.my-inst-group-network.id}"
   subnet_ids = ["${yandex_vpc_subnet.my-inst-group-subnet.id}"]
 
-  resource_preset_id = "medium"
+  resource_preset_id  = "medium"
+  deletion_protection = true
 
   scale_policy {
     fixed_scale {
@@ -74,6 +75,8 @@ The following arguments are supported:
 * `description` - (Optional) A description for the Yandex Database cluster.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Yandex Database cluster.
+
+* `deletion_protection` - (Optional) Inhibits deletion of the database. Can be either `true` or `false`
 
 ---
 

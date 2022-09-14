@@ -97,6 +97,12 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
@@ -121,8 +127,9 @@ func resourceYandexYDBDatabaseServerlessCreate(d *schema.ResourceData, meta inte
 		DatabaseType: &ydb.CreateDatabaseRequest_ServerlessDatabase{
 			ServerlessDatabase: &ydb.ServerlessDatabase{},
 		},
-		LocationId: d.Get("location_id").(string),
-		Labels:     labels,
+		LocationId:         d.Get("location_id").(string),
+		Labels:             labels,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	if err := performYandexYDBDatabaseCreate(d, config, &req); err != nil {
