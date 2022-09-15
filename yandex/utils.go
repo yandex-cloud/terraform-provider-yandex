@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -569,6 +570,22 @@ func checkOneOf(d *schema.ResourceData, keys ...string) error {
 
 	if !gotKey {
 		return fmt.Errorf("one of %s should be provided", getJoinedKeys(keys))
+	}
+
+	return nil
+}
+
+func checkEveryOf(d *schema.ResourceData, keys ...string) error {
+	for _, key := range keys {
+		if key == "" {
+			return errors.New("empty keys not allowed")
+		}
+
+		_, ok := d.GetOk(key)
+
+		if !ok {
+			return fmt.Errorf("provide every of: %v", getJoinedKeys(keys))
+		}
 	}
 
 	return nil

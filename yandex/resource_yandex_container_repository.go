@@ -26,13 +26,11 @@ func resourceYandexContainerRepository() *schema.Resource {
 			Delete: schema.DefaultTimeout(yandexContainerRepositoryDefaultTimeout),
 		},
 
-		SchemaVersion: 0,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -84,7 +82,6 @@ func resourceYandexContainerRepositoryRead(d *schema.ResourceData, meta interfac
 		&containerregistry.GetRepositoryRequest{
 			RepositoryId: d.Id(),
 		})
-
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Container Repository %q", d.Id()))
 	}

@@ -24,8 +24,8 @@ import (
 )
 
 func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
-	diffAttributes map[string]*terraform.ResourceAttrDiff) *schema.ResourceData {
-
+	diffAttributes map[string]*terraform.ResourceAttrDiff,
+) *schema.ResourceData {
 	t.Helper()
 	ctx := context.Background()
 	internalMap := schema.InternalMap(schemaObject)
@@ -599,4 +599,33 @@ func TestParseDuration(t *testing.T) {
 	r, err := parseDuration(i.(string))
 	require.NoError(t, err)
 	require.Nil(t, r)
+}
+
+func TestEveryOf(t *testing.T) {
+	t.Parallel()
+
+	t.Run("checkEveryOf", func(t *testing.T) {
+		d := (&schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"field_one": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"field_two": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		}).TestResourceData()
+
+		d.Set("field_one", "value_one")
+		d.Set("field_two", "value_two")
+
+		require.NoError(t, checkEveryOf(d, "field_one", "field_two"), "success case")
+		require.Error(t, checkEveryOf(d, "field_one", "field_two", "field_three"), "non existent keys")
+		require.Error(t, checkEveryOf(d, ""), "empty keys not allowed")
+		require.Error(t, checkEveryOf(d, "field_one", ""), "empty keys not allowed")
+	})
 }

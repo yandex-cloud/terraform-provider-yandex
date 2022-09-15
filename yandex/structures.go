@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dataproc/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
@@ -1526,4 +1527,67 @@ func flattenSharedEgressGateway(sharedEgressGateway *vpc.SharedEgressGateway) []
 	m := make(map[string]interface{})
 
 	return []interface{}{m}
+}
+
+func expandContainerRepositoryLifecyclePolicyRules(d *schema.ResourceData) ([]*containerregistry.LifecycleRule, error) {
+	var rules []*containerregistry.LifecycleRule
+
+	for _, key := range IterateKeys(d, "rule") {
+		rule := &containerregistry.LifecycleRule{}
+
+		if description, ok := d.GetOk(key + "description"); ok {
+			rule.SetDescription(description.(string))
+		}
+
+		if expirePeriod, ok := d.GetOk(key + "expire_period"); ok {
+			duration, err := parseDuration(expirePeriod.(string))
+			if err != nil {
+				return nil, err
+			}
+
+			rule.SetExpirePeriod(duration)
+		}
+
+		if retainedTop, ok := d.GetOk(key + "retained_top"); ok {
+			rule.SetRetainedTop(int64(retainedTop.(int)))
+		}
+
+		if tagRegexp, ok := d.GetOk(key + "tag_regexp"); ok {
+			rule.SetTagRegexp(tagRegexp.(string))
+		}
+
+		if untagged, ok := d.GetOk(key + "untagged"); ok {
+			rule.SetUntagged(untagged.(bool))
+		}
+
+		rules = append(rules, rule)
+	}
+
+	return rules, nil
+}
+
+func flattenContainerRepositoryLifecyclePolicyRules(lifecycleRules []*containerregistry.LifecycleRule) []interface{} {
+	s := make([]interface{}, 0, len(lifecycleRules))
+
+	for _, lifecycleRule := range lifecycleRules {
+		rule := flattenContainerRepositoryLifecyclePolicyRule(lifecycleRule)
+
+		if len(rule) != 0 {
+			s = append(s, rule)
+		}
+	}
+
+	return s
+}
+
+func flattenContainerRepositoryLifecyclePolicyRule(lifecycleRule *containerregistry.LifecycleRule) map[string]interface{} {
+	m := make(map[string]interface{})
+
+	m["description"] = lifecycleRule.GetDescription()
+	m["expire_period"] = formatDuration(lifecycleRule.GetExpirePeriod())
+	m["tag_regexp"] = lifecycleRule.GetTagRegexp()
+	m["untagged"] = lifecycleRule.GetUntagged()
+	m["retained_top"] = lifecycleRule.GetRetainedTop()
+
+	return m
 }
