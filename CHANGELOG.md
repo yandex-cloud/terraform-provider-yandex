@@ -1,4 +1,6 @@
 ## 0.79.0 (Unreleased)
+FEATURES:
+* redis: support for Redis 7.0
 
 BUG FIXES:
 

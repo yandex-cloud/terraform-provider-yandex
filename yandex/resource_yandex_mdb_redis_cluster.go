@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"time"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -583,6 +584,8 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		switch version {
 		case "6.2":
 			updateFieldConfigName = "redis_config_6_2"
+		case "7.0":
+			updateFieldConfigName = "redis_config_7_0"
 		}
 		fields := [...]string{
 			"password",

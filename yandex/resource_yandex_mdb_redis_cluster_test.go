@@ -98,7 +98,6 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	redisDesc := "Redis Cluster Networkssd Terraform Test"
 	redisDesc2 := "Redis Cluster Networkssd Terraform Test Updated"
 	folderID := getExampleFolderID()
-	version := "6.2"
 	baseDiskSize := 16
 	updatedDiskSize := 24
 	diskTypeId := "network-ssd"
@@ -115,130 +114,133 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 61
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
-		Steps: []resource.TestStep{
-			// Create Redis Cluster
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
-					[]*bool{nil}, []*int{nil}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
-						"Elg", 5000, 10, 15, version,
-						normalLimits, pubsubLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
-					testAccCheckCreatedAtAttr(redisResource),
-					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
-					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
-				),
+	for _, version := range []string{"6.2", "7.0"} {
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			Steps: []resource.TestStep{
+				// Create Redis Cluster
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
+						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+							"Elg", 5000, 10, 15, version,
+							normalLimits, pubsubLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// uncheck 'deletion_protection'
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
+						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// check 'deletion_protection'
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
+						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// check 'deletion_protection
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRODUCTION", true,
+						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+				},
+				// uncheck 'deletion_protection'
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
+						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Change some options
+				{
+					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+						version, updatedFlavor, updatedDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
+						[]*bool{&pubIpSet}, []*int{&updatedReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+							"Ex", 6000, 12, 17, version,
+							normalUpdatedLimits, pubsubUpdatedLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Add new host
+				{
+					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+						version, updatedFlavor, updatedDiskSize, "",
+						[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+							"Ex", 6000, 12, 17, version,
+							normalUpdatedLimits, pubsubUpdatedLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
 			},
-			mdbRedisClusterImportStep(redisResource),
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
-					[]*bool{nil}, []*int{nil}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-			// check 'deletion_protection'
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
-					[]*bool{nil}, []*int{nil}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-			// check 'deletion_protection
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRODUCTION", true,
-					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
-					[]*bool{nil}, []*int{nil}),
-				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
-			},
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-					&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
-					[]*bool{nil}, []*int{nil}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-			// Change some options
-			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceMode,
-					version, updatedFlavor, updatedDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
-					[]*bool{&pubIpSet}, []*int{&updatedReplicaPriority}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
-						"Ex", 6000, 12, 17, version,
-						normalUpdatedLimits, pubsubUpdatedLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(redisResource),
-					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-			// Add new host
-			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
-					version, updatedFlavor, updatedDiskSize, "",
-					[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
-						"Ex", 6000, 12, 17, version,
-						normalUpdatedLimits, pubsubUpdatedLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(redisResource),
-					resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-		},
-	})
+		})
+	}
 }
 
 func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
@@ -249,7 +251,6 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	redisDesc := "Redis Cluster Localssd Terraform Test"
 	redisDesc2 := "Redis Cluster Localssd Terraform Test Updated"
 	folderID := getExampleFolderID()
-	version := "6.2"
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
 	baseFlavor := "hm1.nano"
@@ -265,104 +266,106 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	baseReplicaPriority := 100
 	updatedReplicaPriority := 51
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
-		Steps: []resource.TestStep{
-			// Create Redis Cluster
-			{
-				Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-					&tlsEnabled, persistenceMode, version, baseFlavor, baseDiskSize, diskTypeId, normalLimits, pubsubLimits,
-					[]*bool{&pubIpUnset, &pubIpSet, &pubIpUnset}, []*int{&baseReplicaPriority, &updatedReplicaPriority, &baseReplicaPriority}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
-						"Elg", 5000, 10, 15, version,
-						normalLimits, pubsubLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
-					testAccCheckCreatedAtAttr(redisResource),
-				),
+	for _, version := range []string{"6.2", "7.0"} {
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			Steps: []resource.TestStep{
+				// Create Redis Cluster
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
+						&tlsEnabled, persistenceMode, version, baseFlavor, baseDiskSize, diskTypeId, normalLimits, pubsubLimits,
+						[]*bool{&pubIpUnset, &pubIpSet, &pubIpUnset}, []*int{&baseReplicaPriority, &updatedReplicaPriority, &baseReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+							"Elg", 5000, 10, 15, version,
+							normalLimits, pubsubLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						testAccCheckCreatedAtAttr(redisResource),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Change some options
+				{
+					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceModeChanged,
+						version, baseFlavor, baseDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
+						[]*bool{&pubIpUnset, &pubIpSet, &pubIpSet}, []*int{nil, &baseReplicaPriority, &updatedReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceModeChanged),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+							"Ex", 6000, 12, 17, version,
+							normalUpdatedLimits, pubsubUpdatedLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Add new host
+				{
+					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+						version, baseFlavor, baseDiskSize, diskTypeId,
+						[]*bool{&pubIpSet, nil, nil, nil}, []*int{&baseReplicaPriority, &updatedReplicaPriority, nil, &updatedReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						resource.TestCheckResourceAttrSet(redisResource, "host.3.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.3.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.3.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+							"Ex", 6000, 12, 17, version,
+							normalUpdatedLimits, pubsubUpdatedLimits),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
 			},
-			mdbRedisClusterImportStep(redisResource),
-			// Change some options
-			{
-				Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceModeChanged,
-					version, baseFlavor, baseDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
-					[]*bool{&pubIpUnset, &pubIpSet, &pubIpSet}, []*int{nil, &baseReplicaPriority, &updatedReplicaPriority}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceModeChanged),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
-						"Ex", 6000, 12, 17, version,
-						normalUpdatedLimits, pubsubUpdatedLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(redisResource),
-					resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-			// Add new host
-			{
-				Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
-					version, baseFlavor, baseDiskSize, diskTypeId,
-					[]*bool{&pubIpSet, nil, nil, nil}, []*int{&baseReplicaPriority, &updatedReplicaPriority, nil, &updatedReplicaPriority}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResource, "name", redisName),
-					resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
-					resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpSet)),
-					resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.1.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.2.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.2.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
-					resource.TestCheckResourceAttrSet(redisResource, "host.3.fqdn"),
-					resource.TestCheckResourceAttr(redisResource, "host.3.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
-					resource.TestCheckResourceAttr(redisResource, "host.3.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
-					testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
-						"Ex", 6000, 12, 17, version,
-						normalUpdatedLimits, pubsubUpdatedLimits),
-					testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
-					testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckCreatedAtAttr(redisResource),
-				),
-			},
-			mdbRedisClusterImportStep(redisResource),
-		},
-	})
+		})
+	}
 }
 
 // Test that a sharded Redis Cluster can be created, updated and destroyed
@@ -373,51 +376,52 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	redisName := acctest.RandomWithPrefix("tf-sharded-redis")
 	redisDesc := "Sharded Redis Cluster Terraform Test"
 	folderID := getExampleFolderID()
-	version := "6.2"
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
 	tlsEnabled := false
 	persistenceMode := "ON"
 	persistenceModeChanged := "OFF"
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVPCNetworkDestroy,
-		Steps: []resource.TestStep{
-			// Create Redis Cluster
-			{
-				Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, persistenceMode, version,
-					baseDiskSize, diskTypeId),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceMode),
-					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
-					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
-					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
-						diskTypeId),
-					testAccCheckCreatedAtAttr(redisResourceSharded),
-				),
+	for _, version := range []string{"6.2", "7.0"} {
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			Steps: []resource.TestStep{
+				// Create Redis Cluster
+				{
+					Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, persistenceMode, version,
+						baseDiskSize, diskTypeId),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceMode),
+						resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
+						testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+							diskTypeId),
+						testAccCheckCreatedAtAttr(redisResourceSharded),
+					),
+				},
+				mdbRedisClusterImportStep(redisResourceSharded),
+				// Add new shard, delete old shard, change password, persistence mode
+				{
+					Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, persistenceModeChanged, version,
+						baseDiskSize, ""),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceModeChanged),
+						resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
+						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
+						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
+						testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+							diskTypeId),
+						testAccCheckCreatedAtAttr(redisResourceSharded),
+					),
+				},
 			},
-			mdbRedisClusterImportStep(redisResourceSharded),
-			// Add new shard, delete old shard, change password, persistence mode
-			{
-				Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, persistenceModeChanged, version,
-					baseDiskSize, ""),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceModeChanged),
-					resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
-					resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
-					resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
-					testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-					testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
-						diskTypeId),
-					testAccCheckCreatedAtAttr(redisResourceSharded),
-				),
-			},
-		},
-	})
+		})
+	}
 }
 
 func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
