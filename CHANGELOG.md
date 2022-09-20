@@ -1,21 +1,18 @@
-## 0.79.0 (Unreleased)
+## 0.80.0 (Unreleased)
+
+## 0.79.0 (September 20, 2022)
 FEATURES:
 * redis: support for Redis 7.0
 * **New Data Source:** `yandex_organizationmanager_group`
 * **New Resource:** `yandex_organizationmanager_group`
 * **New Resource:** `yandex_organizationmanager_group_membership`
-
-BUG FIXES:
-
-* `yandex_container_repository`: fixed bug with orphant `yandex_container_repository` after taint of `yandex_container_registry`
-
-ENHANCEMENTS:
-
+* ydb: support `deletion_protection` attribute to `yandex_ydb_database_serverless` and `yandex_ydb_database_dedicated` resources.
 * **New Data Source:** `yandex_container_repository_lifecycle_policy`
 * **New Resource:** `yandex_container_repository_lifecycle_policy`
 
-FEATURES:
-* ydb: support `deletion_protection` attribute to `yandex_ydb_database_serverless` and `yandex_ydb_database_dedicated` resources.
+BUG FIXES:
+* `yandex_container_repository`: fixed bug with orphant `yandex_container_repository` after taint of `yandex_container_registry`
+
 
 ## 0.78.2 (September 9, 2022)
 BUG FIXES:
