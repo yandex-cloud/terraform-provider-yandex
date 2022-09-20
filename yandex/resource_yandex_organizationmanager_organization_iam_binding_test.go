@@ -254,24 +254,24 @@ resource "yandex_organizationmanager_organization_iam_binding" "acceptance" {
 `, organizationID, role, userID)
 }
 
-func testAccOrganizationAssociateBindingUpdated(cloudID, role, userID1, userID2 string) string {
+func testAccOrganizationAssociateBindingUpdated(organizationID, role, userID1, userID2 string) string {
 	return fmt.Sprintf(`
 resource "yandex_organizationmanager_organization_iam_binding" "acceptance" {
   organization_id = "%s"
   role            = "%s"
   members         = ["userAccount:%s", "userAccount:%s"]
 }
-`, cloudID, role, userID1, userID2)
+`, organizationID, role, userID1, userID2)
 }
 
-func testAccOrganizationAssociateBindingMultiple(cloudID, role1, role2, userID1, userID2 string) string {
+func testAccOrganizationAssociateBindingMultiple(organizationID, role1, role2, userID1, userID2 string) string {
 	multiple1 := fmt.Sprintf(`
 resource "yandex_organizationmanager_organization_iam_binding" "acceptance" {
   organization_id = "%s"
   role            = "%s"
   members         = ["userAccount:%s", "userAccount:%s"]
 }
-`, cloudID, role1, userID1, userID2)
+`, organizationID, role1, userID1, userID2)
 
 	multiple2 := fmt.Sprintf(`
 resource "yandex_organizationmanager_organization_iam_binding" "multiple" {
@@ -279,7 +279,7 @@ resource "yandex_organizationmanager_organization_iam_binding" "multiple" {
   role            = "%s"
   members         = ["userAccount:%s", "userAccount:%s"]
 }
-`, cloudID, role2, userID1, userID2)
+`, organizationID, role2, userID1, userID2)
 
 	return multiple1 + multiple2
 }

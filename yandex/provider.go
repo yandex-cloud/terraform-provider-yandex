@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/version"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/mutexkv"
 )
@@ -195,6 +196,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_mdb_redis_cluster":                                dataSourceYandexMDBRedisCluster(),
 			"yandex_mdb_sqlserver_cluster":                            dataSourceYandexMDBSQLServerCluster(),
 			"yandex_message_queue":                                    dataSourceYandexMessageQueue(),
+			"yandex_organizationmanager_group":                        dataSourceYandexOrganizationManagerGroup(),
 			"yandex_organizationmanager_saml_federation":              dataSourceYandexOrganizationManagerSamlFederation(),
 			"yandex_organizationmanager_saml_federation_user_account": dataSourceYandexOrganizationManagerSamlFederationUserAccount(),
 			"yandex_resourcemanager_cloud":                            dataSourceYandexResourceManagerCloud(),
@@ -278,6 +280,8 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_organizationmanager_organization_iam_binding": resourceYandexOrganizationManagerOrganizationIAMBinding(),
 			"yandex_organizationmanager_organization_iam_member":  resourceYandexOrganizationManagerOrganizationIAMMember(),
 			"yandex_organizationmanager_saml_federation":          resourceYandexOrganizationManagerSamlFederation(),
+			"yandex_organizationmanager_group":                    resourceYandexOrganizationManagerGroup(),
+			"yandex_organizationmanager_group_membership":         resourceYandexOrganizationManagerGroupMembership(),
 			"yandex_resourcemanager_cloud":                        resourceYandexResourceManagerCloud(),
 			"yandex_resourcemanager_cloud_iam_binding":            resourceYandexResourceManagerCloudIAMBinding(),
 			"yandex_resourcemanager_cloud_iam_member":             resourceYandexResourceManagerCloudIAMMember(),

@@ -1,6 +1,9 @@
 ## 0.79.0 (Unreleased)
 FEATURES:
 * redis: support for Redis 7.0
+* **New Data Source:** `yandex_organizationmanager_group`
+* **New Resource:** `yandex_organizationmanager_group`
+* **New Resource:** `yandex_organizationmanager_group_membership`
 
 BUG FIXES:
 

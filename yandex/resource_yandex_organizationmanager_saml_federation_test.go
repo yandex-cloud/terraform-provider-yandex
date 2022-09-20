@@ -159,7 +159,7 @@ func testAccCheckSamlFederationExists(n string, federation *saml.Federation) res
 		}
 
 		if found.Id != rs.Primary.ID {
-			return fmt.Errorf("Kubernetes node group not found")
+			return fmt.Errorf("SAML Federation not found")
 		}
 
 		*federation = *found
