@@ -651,11 +651,6 @@ func testAccCheckPostgresqlConfigUpdate(r string) resource.TestCheckFunc {
 				userConfig.EnableParallelHash.GetValue())
 		}
 
-		if userConfig.VacuumCleanupIndexScaleFactor.GetValue() != 0.2 {
-			return fmt.Errorf("Field 'config.postgresql_config.vacuum_cleanup_index_scale_factor' wasn`t changed for with value 0.2. Current value is %v",
-				userConfig.VacuumCleanupIndexScaleFactor.GetValue())
-		}
-
 		if userConfig.DefaultTransactionIsolation != 1 {
 			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v",
 				userConfig.DefaultTransactionIsolation)

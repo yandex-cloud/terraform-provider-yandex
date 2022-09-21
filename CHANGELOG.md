@@ -1,4 +1,7 @@
 ## 0.80.0 (Unreleased)
+BUG FIXES:
+* postgresql: fix `host_master_name` wrong behaviour in in `yandex_mdb_postgresql_cluster`
+* postgresql: fix `yandex_mdb_postgresql_database` resource wrong behaviour in 0.78.1
 
 ## 0.79.0 (September 20, 2022)
 FEATURES:

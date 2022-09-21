@@ -691,7 +691,7 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
 	}
 
-	if err := updateMasterPGClusterHosts(d, meta); err != nil {
+	if err := startPGFailoverIfNeed(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
 	}
 
@@ -774,7 +774,7 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		return fmt.Errorf("PostgreSQL Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
 	}
 
-	if err := updateMasterPGClusterHosts(d, meta); err != nil {
+	if err := startPGFailoverIfNeed(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
 	}
 
@@ -927,11 +927,8 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 		}
 	}
 
-	if d.HasChange("host_master_name") {
-
-		if err := updateMasterPGClusterHosts(d, meta); err != nil {
-			return err
-		}
+	if err := startPGFailoverIfNeed(d, meta); err != nil {
+		return err
 	}
 
 	d.Partial(false)
@@ -1256,7 +1253,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
-func updateMasterPGClusterHosts(d *schema.ResourceData, meta interface{}) error {
+func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -1276,8 +1273,7 @@ func updateMasterPGClusterHosts(d *schema.ResourceData, meta interface{}) error 
 
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
 		if compareHostsInfo.hostMasterName == hostInfo.name && hostInfo.role != postgresql.Host_MASTER {
-			err = startPGFailover(ctx, config, d, hostInfo.fqdn)
-			if err != nil {
+			if err := startPGFailover(ctx, config, d, hostInfo.fqdn); err != nil {
 				return err
 			}
 			break

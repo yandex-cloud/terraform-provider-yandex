@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -37,7 +38,11 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
 			{
-				Config: testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
+				Config:      testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
+				ExpectError: regexp.MustCompile(".*renaming of database is not supported yet.*"),
+			},
+			{
+				Config: testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "name", "testdb"),
 					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb", []string{"uuid-ossp", "xml2"}),
@@ -45,7 +50,7 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
 			{
-				Config: testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
+				Config: testAccMDBPostgreSQLDatabaseConfigStep4(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "name", "testdb1"),
 					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "owner", "alice"),
@@ -145,8 +150,21 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 `
 }
 
-// Extensions change works
+// Database rename is not supported yet
 func testAccMDBPostgreSQLDatabaseConfigStep2(name string) string {
+	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
+resource "yandex_mdb_postgresql_database" "testdb" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "renamed_testdb"
+	owner      = yandex_mdb_postgresql_user.alice.name
+	lc_collate = "en_US.UTF-8"
+	lc_type    = "en_US.UTF-8"
+}
+`
+}
+
+// Extensions change works
+func testAccMDBPostgreSQLDatabaseConfigStep3(name string) string {
 	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
 resource "yandex_mdb_postgresql_database" "testdb" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
@@ -166,7 +184,7 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 }
 
 // Create database with template_db
-func testAccMDBPostgreSQLDatabaseConfigStep3(name string) string {
+func testAccMDBPostgreSQLDatabaseConfigStep4(name string) string {
 	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
 resource "yandex_mdb_postgresql_database" "testdb1" {
 	cluster_id  = yandex_mdb_postgresql_cluster.foo.id

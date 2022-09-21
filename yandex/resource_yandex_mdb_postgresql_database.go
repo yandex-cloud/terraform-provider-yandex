@@ -199,10 +199,15 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 		extensions = expandPGExtensions(es)
 	}
 
+	oldName, newName := d.GetChange("name")
+	if oldName != newName {
+		return fmt.Errorf("renaming of database is not supported yet")
+	}
 	request := &postgresql.UpdateDatabaseRequest{
-		ClusterId:    clusterID,
-		DatabaseName: d.Get("name").(string),
-		Extensions:   extensions,
+		ClusterId:       clusterID,
+		DatabaseName:    oldName.(string),
+		NewDatabaseName: newName.(string),
+		Extensions:      extensions,
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database update request: %+v", request)
