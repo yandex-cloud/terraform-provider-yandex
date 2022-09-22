@@ -43,8 +43,9 @@ resource "yandex_compute_instance" "default" {
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone       = "ru-central1-a"
-  network_id = "${yandex_vpc_network.foo.id}"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.5.0.0/24"]
 }
 ```
 
