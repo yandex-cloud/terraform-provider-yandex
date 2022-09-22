@@ -3,6 +3,9 @@ BUG FIXES:
 * postgresql: fix `host_master_name` wrong behaviour in in `yandex_mdb_postgresql_cluster`
 * postgresql: fix `yandex_mdb_postgresql_database` resource wrong behaviour in 0.78.1
 
+FEATURES:
+* **New Resource:** `yandex_organizationmanager_group_iam_member`
+
 ## 0.79.0 (September 20, 2022)
 FEATURES:
 * redis: support for Redis 7.0
