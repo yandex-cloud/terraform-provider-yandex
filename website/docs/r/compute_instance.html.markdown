@@ -134,6 +134,8 @@ The `initialize_params` block supports:
 
 * `size` - (Optional) Size of the disk in GB.
 
+* `block_size` - (Optional) Block size of the disk, specified in bytes.
+
 * `type` - (Optional) Disk type.
 
 * `image_id` - (Optional) A disk image to initialize this disk from.

@@ -92,6 +92,8 @@ The following arguments are supported:
   the size value must not be less than the size of the source image
   or the size of the snapshot.
 
+* `block_size` - (Optional) Block size of the disk, specified in bytes.
+
 * `type` - (Optional) Type of disk to create. Provide this when creating a disk.
   
 * `disk_placement_policy` - (Optional) Disk placement policy configuration. The structure is documented below.

@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
@@ -75,14 +76,15 @@ func resourceYandexComputeDisk() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      150,
-				ValidateFunc: validateDiskSize,
+				ValidateFunc: validation.IntAtLeast(0),
 			},
 
 			"block_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-				Default:  4096,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      4096,
+				ValidateFunc: validation.IntAtLeast(0),
 			},
 
 			"image_id": {
@@ -143,7 +145,6 @@ func resourceYandexComputeDisk() *schema.Resource {
 			},
 		},
 	}
-
 }
 
 func expandDiskPlacementPolicy(d *schema.ResourceData) (*compute.DiskPlacementPolicy, error) {
@@ -494,13 +495,4 @@ func isDiskSizeDecreased(ctx context.Context, old, new, _ interface{}) bool {
 		return false
 	}
 	return new.(int) < old.(int)
-}
-
-func validateDiskSize(v interface{}, _ string) (warnings []string, errors []error) {
-	value := v.(int)
-	if value < 0 || value > 8192 {
-		errors = append(errors, fmt.Errorf(
-			"The `size` can only be between 0 and 8192"))
-	}
-	return warnings, errors
 }
