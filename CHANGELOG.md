@@ -1,6 +1,7 @@
 ## 0.81.0 (Unreleased)
 BUG FIXES:
 * compute: fix size validation in `resource_yandex_compute_disk`
+* vpc: fix region_id validation in `resource_yandex_lb_network_load_balanacer` and `resource_yandex_lb_target_group`
 
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:

@@ -52,10 +52,8 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			},
 
 			"region_id": {
-				Type:         schema.TypeString,
-				Default:      "ru-central1",
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ru-central1"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"type": {

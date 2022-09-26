@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/loadbalancer/v1"
 )
 
@@ -39,10 +37,8 @@ func resourceYandexLBTargetGroup() *schema.Resource {
 			},
 
 			"region_id": {
-				Type:         schema.TypeString,
-				Default:      "ru-central1",
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"ru-central1"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"target": {
