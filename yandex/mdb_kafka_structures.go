@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -457,33 +458,35 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	result.Kafka = &kafka.ConfigSpec_Kafka{}
 	result.Kafka.Resources = expandKafkaResources(d, "config.0.kafka.0.resources.0")
 
-	switch version := result.Version; version {
-	case "3.0", "3.1", "3.2":
+	version := result.Version
+	if strings.HasPrefix(version, "3") {
 		cfg, err := expandKafkaConfig3x(d)
 		if err != nil {
 			return nil, err
 		}
 		result.Kafka.SetKafkaConfig_3(cfg)
-	case "2.8":
+	} else if version == "2.8" {
 		cfg, err := expandKafkaConfig2_8(d)
 		if err != nil {
 			return nil, err
 		}
 		result.Kafka.SetKafkaConfig_2_8(cfg)
-	case "2.6":
+	} else if version == "2.6" {
 		cfg, err := expandKafkaConfig2_6(d)
 		if err != nil {
 			return nil, err
 		}
 		result.Kafka.SetKafkaConfig_2_6(cfg)
-	case "2.1":
+	} else if version == "2.1" {
 		cfg, err := expandKafkaConfig2_1(d)
 		if err != nil {
 			return nil, err
 		}
 		result.Kafka.SetKafkaConfig_2_1(cfg)
-	default:
+	} else if version == "" {
 		return nil, fmt.Errorf("you must specify version of Kafka")
+	} else {
+		return nil, fmt.Errorf("this version of Kafka not supported by Terraform provider")
 	}
 
 	if _, ok := d.GetOk("config.0.zookeeper"); ok {

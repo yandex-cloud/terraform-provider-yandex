@@ -140,33 +140,34 @@ func buildKafkaTopicSpec(d *schema.ResourceData, prefixKey string, version strin
 	}
 
 	if _, ok := d.GetOk(key("topic_config.0")); ok {
-		switch version {
-		case "3.0", "3.1", "3.2":
+		if strings.HasPrefix(version, "3") {
 			cfg, err := expandKafkaTopicConfig3x(d, key("topic_config.0."))
 			if err != nil {
 				return nil, err
 			}
 			topicSpec.SetTopicConfig_3(cfg)
-		case "2.8":
+		} else if version == "2.8" {
 			cfg, err := expandKafkaTopicConfig2_8(d, key("topic_config.0."))
 			if err != nil {
 				return nil, err
 			}
 			topicSpec.SetTopicConfig_2_8(cfg)
-		case "2.6":
+		} else if version == "2.6" {
 			cfg, err := expandKafkaTopicConfig2_6(d, key("topic_config.0."))
 			if err != nil {
 				return nil, err
 			}
 			topicSpec.SetTopicConfig_2_6(cfg)
-		case "2.1":
+		} else if version == "2.1" {
 			cfg, err := expandKafkaTopicConfig2_1(d, key("topic_config.0."))
 			if err != nil {
 				return nil, err
 			}
 			topicSpec.SetTopicConfig_2_1(cfg)
-		default:
-			return nil, fmt.Errorf("unable to serialize topic config for kafka of version %v", version)
+		} else if version == "" {
+			return nil, fmt.Errorf("you must specify version of Kafka")
+		} else {
+			return nil, fmt.Errorf("this version of Kafka not supported by Terraform provider")
 		}
 	}
 
