@@ -30,8 +30,8 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.1.1
 	github.com/stretchr/testify v1.7.0
-	github.com/yandex-cloud/go-genproto v0.0.0-20220902133259-5be489ec3a5d
-	github.com/yandex-cloud/go-sdk v0.0.0-20220902133848-327f1859d27a
+	github.com/yandex-cloud/go-genproto v0.0.0-20220926085246-3a5ad834cdba
+	github.com/yandex-cloud/go-sdk v0.0.0-20220926085905-49c5cf6c6f20
 	golang.org/x/net v0.0.0-20220809184613-07c6da5e1ced
 	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
 	google.golang.org/genproto v0.0.0-20220808204814-fd01256a5276

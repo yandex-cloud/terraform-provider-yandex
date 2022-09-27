@@ -3,6 +3,9 @@ BUG FIXES:
 * compute: fix size validation in `resource_yandex_compute_disk`
 * vpc: fix region_id validation in `resource_yandex_lb_network_load_balanacer` and `resource_yandex_lb_target_group`
 
+ENHANCEMENTS:
+* provider: Upgrade go-sdk and go-genproto to the latest version. This is needed for ALB RBAC feature. 
+
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:
 * postgresql: fix `host_master_name` wrong behaviour in in `yandex_mdb_postgresql_cluster`
