@@ -112,7 +112,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
-	clusterName := acctest.RandomWithPrefix("tf-postgresql")
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-full")
 	clusterResource := "yandex_mdb_postgresql_cluster.foo"
 	pgDesc := "PostgreSQL Cluster Terraform Test"
 	pgDesc2 := "PostgreSQL Cluster Terraform Test Updated"
@@ -204,7 +204,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckConnLimitUpdateUserSettings(clusterResource),
 					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb", "newdb", "fornewuserdb"}),
 					testAccCheckSettingsUpdateUserSettings(clusterResource),
-					testAccCheckPostgresqlConfigUpdate(clusterResource),
+					testAccCheckPostgresqlConfigUpdate(clusterResource, version),
 					testAccCheckCreatedAtAttr(clusterResource),
 					resource.TestCheckResourceAttr(clusterResource, "security_group_ids.#", "2"),
 
@@ -225,7 +225,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HAWithoutNames_update: version %s", version)
 	var cluster postgresql.Cluster
-	clusterName := acctest.RandomWithPrefix("tf-postgresql")
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster"
 
 	resource.Test(t, resource.TestCase{
@@ -268,7 +268,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HAWithNames_update: version %s", version)
 	var cluster postgresql.Cluster
-	clusterName := acctest.RandomWithPrefix("tf-postgresql")
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-names-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster_with_names"
 
 	resource.Test(t, resource.TestCase{
@@ -619,7 +619,7 @@ func testAccCheckSettingsUpdateUserSettings(r string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckPostgresqlConfigUpdate(r string) resource.TestCheckFunc {
+func testAccCheckPostgresqlConfigUpdate(r, version string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[r]
 		if !ok {
@@ -639,25 +639,106 @@ func testAccCheckPostgresqlConfigUpdate(r string) resource.TestCheckFunc {
 			return err
 		}
 
-		userConfig := cluster.Config.GetPostgresqlConfig_12().UserConfig
-
-		if userConfig.MaxConnections.GetValue() != 395 {
-			return fmt.Errorf("Field 'config.postgresql_config.max_connections' wasn`t changed for with value 395. Current value is %v",
-				userConfig.MaxConnections.GetValue())
+		userConfig, err := clusterSettings(cluster, version)
+		if err != nil {
+			panic(err)
 		}
 
-		if !userConfig.EnableParallelHash.GetValue() {
-			return fmt.Errorf("Field 'config.postgresql_config.enable_parallel_hash' wasn`t changed for with value true. Current value is %v",
-				userConfig.EnableParallelHash.GetValue())
+		if userConfig.maxConnections != 395 {
+			return fmt.Errorf("Field 'config.postgresql_config.max_connections' wasn`t changed for with value 395. Current value is %v", userConfig.maxConnections)
 		}
 
-		if userConfig.DefaultTransactionIsolation != 1 {
-			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v",
-				userConfig.DefaultTransactionIsolation)
+		if !userConfig.enableParallelHash {
+			return fmt.Errorf("Field 'config.postgresql_config.enable_parallel_hash' wasn`t changed for with value true. Current value is %v", userConfig.enableParallelHash)
+		}
+
+		if userConfig.autovacuumVacuumScaleFactor != 0.34 {
+			return fmt.Errorf("Field 'config.postgresql_config.autovacuum_vacuum_scale_factor' wasn`t changed for with value 0.34. Current value is %v", userConfig.autovacuumVacuumScaleFactor)
+		}
+
+		if userConfig.defaultTransactionIsolation != 1 {
+			return fmt.Errorf("Field 'config.postgresql_config.default_transaction_isolation' wasn`t changed for with value 1. Current value is %v", userConfig.defaultTransactionIsolation)
 		}
 
 		return nil
 	}
+}
+
+type clusterSettingsResult struct {
+	maxConnections              int64
+	enableParallelHash          bool
+	autovacuumVacuumScaleFactor float64
+	defaultTransactionIsolation int32
+}
+
+func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSettingsResult, error) {
+	switch version {
+	case "11":
+		userConfig := cluster.Config.GetPostgresqlConfig_11().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "11-1c":
+		userConfig := cluster.Config.GetPostgresqlConfig_11_1C().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "12":
+		userConfig := cluster.Config.GetPostgresqlConfig_12().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "12-1c":
+		userConfig := cluster.Config.GetPostgresqlConfig_12_1C().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "13":
+		userConfig := cluster.Config.GetPostgresqlConfig_13().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "13-1c":
+		userConfig := cluster.Config.GetPostgresqlConfig_13_1C().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "14":
+		userConfig := cluster.Config.GetPostgresqlConfig_14().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "14-1c":
+		userConfig := cluster.Config.GetPostgresqlConfig_14_1C().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	}
+	return nil, fmt.Errorf("Add PostgreSQL %s settings to tests", version)
 }
 
 func testAccCheckMDBPGClusterHasDatabases(r string, databases []string) resource.TestCheckFunc {
@@ -880,7 +961,6 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     postgresql_config = {
       max_connections                   = 395
       enable_parallel_hash              = true
-      vacuum_cleanup_index_scale_factor = 0.2
       autovacuum_vacuum_scale_factor    = 0.34
       default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
     }

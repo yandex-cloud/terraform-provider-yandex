@@ -22,7 +22,7 @@ const (
 // Test that a PostgreSQL User can be created, updated and destroyed
 func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 	t.Parallel()
-	clusterName := acctest.RandomWithPrefix("tf-postgresql")
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-user")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,

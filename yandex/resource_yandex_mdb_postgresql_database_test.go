@@ -21,7 +21,7 @@ const (
 // Test that a PostgreSQL Database can be created, updated and destroyed
 func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 	t.Parallel()
-	clusterName := acctest.RandomWithPrefix("tf-postgresql")
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-database")
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
