@@ -646,7 +646,6 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 	config := meta.(*Config)
 
 	request, err := prepareCreatePostgreSQLRequest(d, config)
-
 	if err != nil {
 		return err
 	}
@@ -832,7 +831,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding network id on PostgreSQL Cluster create: %s", err)
 	}
 
-	req := &postgresql.CreateClusterRequest{
+	return &postgresql.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
@@ -846,9 +845,7 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		HostGroupIds:       hostGroupIds,
-	}
-
-	return req, nil
+	}, nil
 }
 
 func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
@@ -1254,6 +1251,13 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 }
 
 func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
+	rawHostMasterName, ok := d.GetOk("host_master_name")
+	if !d.HasChange("host_master_name") || !ok {
+		return nil
+	}
+	hostMasterName := rawHostMasterName.(string)
+
+	log.Printf("[DEBUG] startPGFailoverIfNeed")
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -1271,8 +1275,10 @@ func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
+	log.Printf("[DEBUG] hostMasterName: %+v", hostMasterName)
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
-		if compareHostsInfo.hostMasterName == hostInfo.name && hostInfo.role != postgresql.Host_MASTER {
+		log.Printf("[DEBUG] hostInfox: %+v", hostInfo)
+		if hostMasterName == hostInfo.name && hostInfo.role != postgresql.Host_MASTER {
 			if err := startPGFailover(ctx, config, d, hostInfo.fqdn); err != nil {
 				return err
 			}

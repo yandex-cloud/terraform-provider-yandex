@@ -345,7 +345,7 @@ func loadNewPGHostsInfo(newHosts []interface{}) ([]*pgHostInfo, error) {
 	return hostsInfo, nil
 }
 
-func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo, currentNameToHost map[string]string, hostMasterName string) int {
+func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo, currentNameToHost map[string]string) int {
 	if existsHostInfo.name == newHostInfo.name {
 		return 10
 	}
@@ -359,12 +359,6 @@ func comparePGNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInfo,
 	}
 
 	compareWeight := 1
-
-	if hostMasterName != "" &&
-		(existsHostInfo.role == postgresql.Host_MASTER && hostMasterName == newHostInfo.name ||
-			existsHostInfo.role != postgresql.Host_MASTER && hostMasterName != newHostInfo.name) {
-		compareWeight += 2
-	}
 
 	if newHostInfo.newReplicationSourceName != "" {
 		if fqdn, ok := currentNameToHost[newHostInfo.newReplicationSourceName]; ok && existsHostInfo.oldReplicationSource == fqdn {
@@ -416,11 +410,11 @@ func copyMapIntString(source map[int]string) map[int]string {
 	return res
 }
 
-func comparePGNamedHostsInfoWeight(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, compareResult pgCompareHostNameResult, hostMasterName string) int {
+func comparePGNamedHostsInfoWeight(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, compareResult pgCompareHostNameResult) int {
 	weight := 0
 
 	for i, fqdn := range compareResult.compareMap {
-		weightStep := comparePGNamedHostInfo(existsHostsInfo[fqdn], newHostsInfo[i], compareResult.nameToHost, hostMasterName)
+		weightStep := comparePGNamedHostInfo(existsHostsInfo[fqdn], newHostsInfo[i], compareResult.nameToHost)
 		if weightStep == 0 {
 			return 0
 		}
@@ -437,7 +431,7 @@ type pgCompareHostNameResult struct {
 	hostToName map[string]string
 }
 
-func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, nameToHost map[string]string, hostToName map[string]string, compareMap map[int]string, itm int, hostMasterName string) (compareResults []pgCompareHostNameResult) {
+func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHostsInfo []*pgHostInfo, nameToHost map[string]string, hostToName map[string]string, compareMap map[int]string, itm int) (compareResults []pgCompareHostNameResult) {
 	compareResults = make([]pgCompareHostNameResult, 0)
 
 	if len(newHostsInfo) <= itm {
@@ -454,10 +448,10 @@ func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHos
 	if fqdn, ok := nameToHost[newHostInfo.name]; ok {
 		compareMap[itm] = fqdn
 		hostToName[fqdn] = newHostInfo.name
-		return generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, hostToName, compareMap, itm+1, hostMasterName)
+		return generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, hostToName, compareMap, itm+1)
 	}
 
-	compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, copyMapStringString(nameToHost), copyMapStringString(hostToName), copyMapIntString(compareMap), itm+1, hostMasterName)...)
+	compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, copyMapStringString(nameToHost), copyMapStringString(hostToName), copyMapIntString(compareMap), itm+1)...)
 
 	for fqdn, existHostInfo := range existsHostsInfo {
 
@@ -465,7 +459,7 @@ func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHos
 			continue
 		}
 
-		weight := comparePGNamedHostInfo(existHostInfo, newHostInfo, nameToHost, hostMasterName)
+		weight := comparePGNamedHostInfo(existHostInfo, newHostInfo, nameToHost)
 		if weight == 0 {
 			continue
 		}
@@ -478,22 +472,22 @@ func generatePGNamedHostsInfoMaps(existsHostsInfo map[string]*pgHostInfo, newHos
 		stepHostToName[fqdn] = newHostInfo.name
 		stepCompareMap[itm] = fqdn
 
-		compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, stepNameToHost, stepHostToName, stepCompareMap, itm+1, hostMasterName)...)
+		compareResults = append(compareResults, generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, stepNameToHost, stepHostToName, stepCompareMap, itm+1)...)
 	}
 
 	return compareResults
 }
 
-func comparePGNamedHostsInfo(existsHostsInfo map[string]*pgHostInfo, nameToHost map[string]string, newHostsInfo []*pgHostInfo, hostMasterName string) (compareMap map[int]string, hostToName map[string]string) {
+func comparePGNamedHostsInfo(existsHostsInfo map[string]*pgHostInfo, nameToHost map[string]string, newHostsInfo []*pgHostInfo) (compareMap map[int]string, hostToName map[string]string) {
 	compareMap = make(map[int]string)
 	hostToName = make(map[string]string)
 
 	weight := 0
 
-	compareResults := generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, make(map[string]string), make(map[int]string), 0, hostMasterName)
+	compareResults := generatePGNamedHostsInfoMaps(existsHostsInfo, newHostsInfo, nameToHost, make(map[string]string), make(map[int]string), 0)
 
 	for _, compareResult := range compareResults {
-		stepWeight := comparePGNamedHostsInfoWeight(existsHostsInfo, newHostsInfo, compareResult, hostMasterName)
+		stepWeight := comparePGNamedHostsInfoWeight(existsHostsInfo, newHostsInfo, compareResult)
 
 		if stepWeight > weight {
 			weight = stepWeight
@@ -596,7 +590,6 @@ type comparePGHostsInfoResult struct {
 	// when hierarchyExists is true - we cannot change replication source graph in a single round
 	// because we don't know all FQDNs.
 	hierarchyExists bool
-	hostMasterName  string
 }
 
 func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host, isUpdate bool) (*comparePGHostsInfoResult, error) {
@@ -614,7 +607,6 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 		return nil, err
 	}
 
-	hostMasterName := objx.New(d.Get("host_master_name")).Value().Str()
 	haveHostWithName, err := validateNewPGHostsInfo(newHostsInfo, isUpdate)
 	if err != nil {
 		return nil, err
@@ -631,7 +623,7 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 	log.Printf("[DEBUG] haveHostWithName: %t", haveHostWithName)
 	if haveHostWithName {
 		// find best mapping from existingHostsInfo to newHostsInfo
-		compareMap, hostToName := comparePGNamedHostsInfo(existingHostsInfo, nameToHost, newHostsInfo, hostMasterName)
+		compareMap, hostToName := comparePGNamedHostsInfo(existingHostsInfo, nameToHost, newHostsInfo)
 
 		log.Println("[DEBUG] iterate over newHostsInfo")
 		for i, newHostInfo := range newHostsInfo {
@@ -681,7 +673,6 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 		}
 
 		return &comparePGHostsInfoResult{
-			hostMasterName:   hostMasterName,
 			haveHostWithName: haveHostWithName,
 			createHostsInfo:  createHostsInfo,
 			hierarchyExists:  hierarchyExists,
@@ -717,7 +708,6 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 	}
 
 	return &comparePGHostsInfoResult{
-		hostMasterName:   hostMasterName,
 		haveHostWithName: haveHostWithName,
 		createHostsInfo:  createHostsInfoPrepare,
 		hostsInfo:        existingHostsInfo,

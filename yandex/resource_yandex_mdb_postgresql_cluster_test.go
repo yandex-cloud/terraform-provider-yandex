@@ -285,6 +285,16 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nc"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "na"),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			{
+				Config: testAccMDBPGClusterConfigHANamedSwitchMaster(clusterName, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -295,6 +305,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -307,6 +318,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.replication_source_name", "nb"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.1.replication_source"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", "nc"),
+					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -317,6 +329,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.priority", "5"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.priority", "10"),
+					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
 		},
@@ -1128,6 +1141,34 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
 
 func testAccMDBPGClusterConfigHANamed(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host_master_name = "na"
+
+  host {
+    name                    = "na"
+    zone                    = "ru-central1-a"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    
+    assign_public_ip = true
+  }
+
+  host {
+    name                    = "nb"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+  }
+
+  host {
+    name             = "nc"
+    zone             = "ru-central1-c"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+  }
+`, version)
+}
+
+func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string {
+	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host_master_name = "nc"
+
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
@@ -1152,6 +1193,8 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
 
 func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host_master_name = "nc"
+
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
@@ -1176,6 +1219,8 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
 
 func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host_master_name = "nc"
+
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
@@ -1203,6 +1248,8 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 
 func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host_master_name = "nc"
+
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
