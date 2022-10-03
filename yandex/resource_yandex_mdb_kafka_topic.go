@@ -152,18 +152,6 @@ func buildKafkaTopicSpec(d *schema.ResourceData, prefixKey string, version strin
 				return nil, err
 			}
 			topicSpec.SetTopicConfig_2_8(cfg)
-		} else if version == "2.6" {
-			cfg, err := expandKafkaTopicConfig2_6(d, key("topic_config.0."))
-			if err != nil {
-				return nil, err
-			}
-			topicSpec.SetTopicConfig_2_6(cfg)
-		} else if version == "2.1" {
-			cfg, err := expandKafkaTopicConfig2_1(d, key("topic_config.0."))
-			if err != nil {
-				return nil, err
-			}
-			topicSpec.SetTopicConfig_2_1(cfg)
 		} else if version == "" {
 			return nil, fmt.Errorf("you must specify version of Kafka")
 		} else {
@@ -205,12 +193,6 @@ func resourceYandexMDBKafkaTopicRead(d *schema.ResourceData, meta interface{}) e
 	}
 	if topic.GetTopicConfig_2_8() != nil {
 		cfg = flattenKafkaTopicConfig2_8(topic.GetTopicConfig_2_8())
-	}
-	if topic.GetTopicConfig_2_6() != nil {
-		cfg = flattenKafkaTopicConfig2_6(topic.GetTopicConfig_2_6())
-	}
-	if topic.GetTopicConfig_2_1() != nil {
-		cfg = flattenKafkaTopicConfig2_1(topic.GetTopicConfig_2_1())
 	}
 	if len(cfg) != 0 {
 		if err := d.Set("topic_config", []map[string]interface{}{cfg}); err != nil {

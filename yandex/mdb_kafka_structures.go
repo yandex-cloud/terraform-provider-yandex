@@ -17,7 +17,7 @@ type TopicCleanupPolicy int32
 
 const (
 	Topic_CLEANUP_POLICY_UNSPECIFIED TopicCleanupPolicy = 0
-	// this policy discards log segments when either their retention time or log size limit is reached. See also: [KafkaConfig2_1.log_retention_ms] and other similar parameters.
+	// this policy discards log segments when either their retention time or log size limit is reached. See also: [KafkaConfig2_8.log_retention_ms] and other similar parameters.
 	Topic_CLEANUP_POLICY_DELETE TopicCleanupPolicy = 1
 	// this policy compacts messages in log.
 	Topic_CLEANUP_POLICY_COMPACT TopicCleanupPolicy = 2
@@ -153,54 +153,6 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 	return res, nil
 }
 
-func expandKafkaConfig2_6(d *schema.ResourceData) (*kafka.KafkaConfig2_6, error) {
-	kafkaConfig, err := parseKafkaConfig(d)
-	if err != nil {
-		return nil, err
-	}
-	return &kafka.KafkaConfig2_6{
-		CompressionType:             kafkaConfig.CompressionType,
-		LogFlushIntervalMessages:    kafkaConfig.LogFlushIntervalMessages,
-		LogFlushIntervalMs:          kafkaConfig.LogFlushIntervalMs,
-		LogFlushSchedulerIntervalMs: kafkaConfig.LogFlushSchedulerIntervalMs,
-		LogRetentionBytes:           kafkaConfig.LogRetentionBytes,
-		LogRetentionHours:           kafkaConfig.LogRetentionHours,
-		LogRetentionMinutes:         kafkaConfig.LogRetentionMinutes,
-		LogRetentionMs:              kafkaConfig.LogRetentionMs,
-		LogSegmentBytes:             kafkaConfig.LogSegmentBytes,
-		LogPreallocate:              kafkaConfig.LogPreallocate,
-		SocketSendBufferBytes:       kafkaConfig.SocketSendBufferBytes,
-		SocketReceiveBufferBytes:    kafkaConfig.SocketReceiveBufferBytes,
-		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
-		NumPartitions:               kafkaConfig.NumPartitions,
-		DefaultReplicationFactor:    kafkaConfig.DefaultReplicationFactor,
-	}, nil
-}
-
-func expandKafkaConfig2_1(d *schema.ResourceData) (*kafka.KafkaConfig2_1, error) {
-	kafkaConfig, err := parseKafkaConfig(d)
-	if err != nil {
-		return nil, err
-	}
-	return &kafka.KafkaConfig2_1{
-		CompressionType:             kafkaConfig.CompressionType,
-		LogFlushIntervalMessages:    kafkaConfig.LogFlushIntervalMessages,
-		LogFlushIntervalMs:          kafkaConfig.LogFlushIntervalMs,
-		LogFlushSchedulerIntervalMs: kafkaConfig.LogFlushSchedulerIntervalMs,
-		LogRetentionBytes:           kafkaConfig.LogRetentionBytes,
-		LogRetentionHours:           kafkaConfig.LogRetentionHours,
-		LogRetentionMinutes:         kafkaConfig.LogRetentionMinutes,
-		LogRetentionMs:              kafkaConfig.LogRetentionMs,
-		LogSegmentBytes:             kafkaConfig.LogSegmentBytes,
-		LogPreallocate:              kafkaConfig.LogPreallocate,
-		SocketSendBufferBytes:       kafkaConfig.SocketSendBufferBytes,
-		SocketReceiveBufferBytes:    kafkaConfig.SocketReceiveBufferBytes,
-		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
-		NumPartitions:               kafkaConfig.NumPartitions,
-		DefaultReplicationFactor:    kafkaConfig.DefaultReplicationFactor,
-	}, nil
-}
-
 func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error) {
 	kafkaConfig, err := parseKafkaConfig(d)
 	if err != nil {
@@ -329,54 +281,6 @@ func parseKafkaTopicConfig(d *schema.ResourceData, topicConfigPrefix string) (*T
 	return res, nil
 }
 
-func expandKafkaTopicConfig2_6(d *schema.ResourceData, topicConfigPath string) (*kafka.TopicConfig2_6, error) {
-	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPath)
-	if err != nil {
-		return nil, err
-	}
-	res := &kafka.TopicConfig2_6{
-		CleanupPolicy:      kafka.TopicConfig2_6_CleanupPolicy(kafka.TopicConfig2_6_CleanupPolicy_value[topicConfig.CleanupPolicy]),
-		CompressionType:    topicConfig.CompressionType,
-		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
-		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
-		FlushMessages:      topicConfig.FlushMessages,
-		FlushMs:            topicConfig.FlushMs,
-		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
-		RetentionBytes:     topicConfig.RetentionBytes,
-		RetentionMs:        topicConfig.RetentionMs,
-		MaxMessageBytes:    topicConfig.MaxMessageBytes,
-		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
-		SegmentBytes:       topicConfig.SegmentBytes,
-		Preallocate:        topicConfig.Preallocate,
-	}
-
-	return res, nil
-}
-
-func expandKafkaTopicConfig2_1(d *schema.ResourceData, topicConfigPath string) (*kafka.TopicConfig2_1, error) {
-	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPath)
-	if err != nil {
-		return nil, err
-	}
-	res := &kafka.TopicConfig2_1{
-		CleanupPolicy:      kafka.TopicConfig2_1_CleanupPolicy(kafka.TopicConfig2_1_CleanupPolicy_value[topicConfig.CleanupPolicy]),
-		CompressionType:    topicConfig.CompressionType,
-		DeleteRetentionMs:  topicConfig.DeleteRetentionMs,
-		FileDeleteDelayMs:  topicConfig.FileDeleteDelayMs,
-		FlushMessages:      topicConfig.FlushMessages,
-		FlushMs:            topicConfig.FlushMs,
-		MinCompactionLagMs: topicConfig.MinCompactionLagMs,
-		RetentionBytes:     topicConfig.RetentionBytes,
-		RetentionMs:        topicConfig.RetentionMs,
-		MaxMessageBytes:    topicConfig.MaxMessageBytes,
-		MinInsyncReplicas:  topicConfig.MinInsyncReplicas,
-		SegmentBytes:       topicConfig.SegmentBytes,
-		Preallocate:        topicConfig.Preallocate,
-	}
-
-	return res, nil
-}
-
 func expandKafkaTopicConfig2_8(d *schema.ResourceData, topicConfigPrefix string) (*kafka.TopicConfig2_8, error) {
 	topicConfig, err := parseKafkaTopicConfig(d, topicConfigPrefix)
 	if err != nil {
@@ -471,18 +375,6 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 			return nil, err
 		}
 		result.Kafka.SetKafkaConfig_2_8(cfg)
-	} else if version == "2.6" {
-		cfg, err := expandKafkaConfig2_6(d)
-		if err != nil {
-			return nil, err
-		}
-		result.Kafka.SetKafkaConfig_2_6(cfg)
-	} else if version == "2.1" {
-		cfg, err := expandKafkaConfig2_1(d)
-		if err != nil {
-			return nil, err
-		}
-		result.Kafka.SetKafkaConfig_2_1(cfg)
 	} else if version == "" {
 		return nil, fmt.Errorf("you must specify version of Kafka")
 	} else {
@@ -578,18 +470,6 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 	}
 
 	var kafkaConfig map[string]interface{}
-	if cluster.Config.Kafka.GetKafkaConfig_2_6() != nil {
-		kafkaConfig, err = flattenKafkaConfig2_6Settings(cluster.Config.Kafka.GetKafkaConfig_2_6())
-		if err != nil {
-			return nil, err
-		}
-	}
-	if cluster.Config.Kafka.GetKafkaConfig_2_1() != nil {
-		kafkaConfig, err = flattenKafkaConfig2_1Settings(cluster.Config.Kafka.GetKafkaConfig_2_1())
-		if err != nil {
-			return nil, err
-		}
-	}
 	if cluster.Config.Kafka.GetKafkaConfig_2_8() != nil {
 		kafkaConfig, err = flattenKafkaConfig2_8Settings(cluster.Config.Kafka.GetKafkaConfig_2_8())
 		if err != nil {
@@ -705,14 +585,6 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	return res, nil
 }
 
-func flattenKafkaConfig2_6Settings(r *kafka.KafkaConfig2_6) (map[string]interface{}, error) {
-	return flattenKafkaConfigSettings(r)
-}
-
-func flattenKafkaConfig2_1Settings(r *kafka.KafkaConfig2_1) (map[string]interface{}, error) {
-	return flattenKafkaConfigSettings(r)
-}
-
 func flattenKafkaConfig2_8Settings(r *kafka.KafkaConfig2_8) (map[string]interface{}, error) {
 	return flattenKafkaConfigSettings(r)
 }
@@ -791,12 +663,6 @@ func flattenKafkaTopics(topics []*kafka.Topic) []map[string]interface{} {
 		m["partitions"] = d.GetPartitions().GetValue()
 		m["replication_factor"] = d.GetReplicationFactor().GetValue()
 		var cfg map[string]interface{}
-		if d.GetTopicConfig_2_6() != nil {
-			cfg = flattenKafkaTopicConfig2_6(d.GetTopicConfig_2_6())
-		}
-		if d.GetTopicConfig_2_1() != nil {
-			cfg = flattenKafkaTopicConfig2_1(d.GetTopicConfig_2_1())
-		}
 		if d.GetTopicConfig_2_8() != nil {
 			cfg = flattenKafkaTopicConfig2_8(d.GetTopicConfig_2_8())
 		}
@@ -866,26 +732,6 @@ func flattenKafkaTopicConfig(topicConfig TopicConfigSpec) map[string]interface{}
 	if topicConfig.GetPreallocate() != nil {
 		result["preallocate"] = topicConfig.GetPreallocate().GetValue()
 	}
-	return result
-}
-
-func flattenKafkaTopicConfig2_6(topicConfig *kafka.TopicConfig2_6) map[string]interface{} {
-	result := flattenKafkaTopicConfig(topicConfig)
-
-	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig2_6_CLEANUP_POLICY_UNSPECIFIED {
-		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
-	}
-
-	return result
-}
-
-func flattenKafkaTopicConfig2_1(topicConfig *kafka.TopicConfig2_1) map[string]interface{} {
-	result := flattenKafkaTopicConfig(topicConfig)
-
-	if topicConfig.GetCleanupPolicy() != kafka.TopicConfig2_1_CLEANUP_POLICY_UNSPECIFIED {
-		result["cleanup_policy"] = topicConfig.GetCleanupPolicy().String()
-	}
-
 	return result
 }
 

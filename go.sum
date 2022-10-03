@@ -927,18 +927,8 @@ github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6e
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778/go.mod h1:2MuV+tbUrU1zIOPMxZ5EncGwgmMJsa+9ucAQZXxsObs=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
-github.com/yandex-cloud/go-genproto v0.0.0-20220805142335-27b56ddae16f h1:cG+ehPRJSlqljSufLf1KXeXpUd1dLNjnzA18mZcB/O0=
-github.com/yandex-cloud/go-genproto v0.0.0-20220805142335-27b56ddae16f/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-genproto v0.0.0-20220902133259-5be489ec3a5d h1:9SncSKVHgZwOE4tqaPL6M8z8W/d44vMLKOUjpDNwVhU=
-github.com/yandex-cloud/go-genproto v0.0.0-20220902133259-5be489ec3a5d/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-genproto v0.0.0-20220926085246-3a5ad834cdba h1:jH32+9JyxgQwm4K/0JfAOeJKe/0vWT4ijBG9/DZoIqM=
 github.com/yandex-cloud/go-genproto v0.0.0-20220926085246-3a5ad834cdba/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-sdk v0.0.0-20220718100739-50070cd9746e h1:p/APVZzglWfiQJY+rIPH94SgAqD7PQzoAuAvvVU0iY0=
-github.com/yandex-cloud/go-sdk v0.0.0-20220718100739-50070cd9746e/go.mod h1:NszadvtI2oAulirw9kCjAXjSL31EPqe35CbLi0g5Se8=
-github.com/yandex-cloud/go-sdk v0.0.0-20220805164847-cf028e604997 h1:2wzke3JH7OtN20WsNDZx2VH/TCmsbqtDEbXzjF+i05E=
-github.com/yandex-cloud/go-sdk v0.0.0-20220805164847-cf028e604997/go.mod h1:2CHKs/YGbCcNn/BPaCkEBwKz/FNCELi+MLILjR9RaTA=
-github.com/yandex-cloud/go-sdk v0.0.0-20220902133848-327f1859d27a h1:QYBJihRF0pfDasFnHZK5JmA/wwymleIxG+OTSkDtSR0=
-github.com/yandex-cloud/go-sdk v0.0.0-20220902133848-327f1859d27a/go.mod h1:OQLAYnEbSr3ax1soqYhNwDpCBT+vf4GiwSYOPkeo4bE=
 github.com/yandex-cloud/go-sdk v0.0.0-20220926085905-49c5cf6c6f20 h1:TLIVl30veq8iizNlee1N2TfaRIICq9YWyLk8NyuX+SE=
 github.com/yandex-cloud/go-sdk v0.0.0-20220926085905-49c5cf6c6f20/go.mod h1:/OuJXMwHCbhxRmR7WNrFtfuZ26UAdc9MWw1LXHJiEb4=
 github.com/yeya24/promlinter v0.1.0 h1:goWULN0jH5Yajmu/K+v1xCqIREeB+48OiJ2uu2ssc7U=
@@ -1486,8 +1476,6 @@ google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlba
 google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
-google.golang.org/protobuf v1.28.0 h1:w43yiav+6bVFTBQFZX0r7ipe9JQ1QsbMgHwbBziscLw=
-google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 google.golang.org/protobuf v1.28.1 h1:d0NfwRgPtno5B1Wa6L2DAG+KivqkdutMf1UhdNx175w=
 google.golang.org/protobuf v1.28.1/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
