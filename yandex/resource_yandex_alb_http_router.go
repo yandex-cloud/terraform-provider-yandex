@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,13 +57,85 @@ func resourceYandexALBHTTPRouter() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"route_options": routeOptions(),
+
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
 	}
+}
 
+func routeOptions() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"rbac": {
+					Type:     schema.TypeList,
+					MaxItems: 1,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"action": {
+								Type:             schema.TypeString,
+								Default:          "allow",
+								Optional:         true,
+								DiffSuppressFunc: CaseInsensitive,
+							},
+							"principals": {
+								Type:     schema.TypeList,
+								MinItems: 1,
+								Required: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"and_principals": {
+											Type:     schema.TypeList,
+											MinItems: 1,
+											Required: true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"header": {
+														Type:     schema.TypeList,
+														MaxItems: 1,
+														Optional: true,
+														Elem: &schema.Resource{
+															Schema: map[string]*schema.Schema{
+																"name": {
+																	Type:     schema.TypeString,
+																	Required: true,
+																},
+																"value": stringMatch(),
+															},
+														},
+													},
+													"remote_ip": {
+														Type:     schema.TypeString,
+														Optional: true,
+													},
+													"any": {
+														Type:     schema.TypeBool,
+														Optional: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func CaseInsensitive(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.EqualFold(old, new)
 }
 
 func resourceYandexALBHTTPRouterCreate(d *schema.ResourceData, meta interface{}) error {
@@ -71,9 +144,8 @@ func resourceYandexALBHTTPRouterCreate(d *schema.ResourceData, meta interface{})
 	config := meta.(*Config)
 
 	labels, err := expandLabels(d.Get("labels"))
-
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Application : %w", err)
+		return fmt.Errorf("Error expanding labels while creating Application HTTP Router: %w", err)
 	}
 
 	folderID, err := getFolderID(d, config)
@@ -86,6 +158,14 @@ func resourceYandexALBHTTPRouterCreate(d *schema.ResourceData, meta interface{})
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		Labels:      labels,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return fmt.Errorf("Error expanding route options while creating Application HTTP Router: %w", err)
+		}
+		req.SetRouteOptions(ro)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -119,7 +199,6 @@ func resourceYandexALBHTTPRouterCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Finished creating Application Http Router %q", d.Id())
 	return resourceYandexALBHTTPRouterRead(d, meta)
-
 }
 
 func resourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{}) error {
@@ -129,7 +208,7 @@ func resourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{}) e
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutRead))
 	defer cancel()
 
-	bg, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(ctx, &apploadbalancer.GetHttpRouterRequest{
+	router, err := config.sdk.ApplicationLoadBalancer().HttpRouter().Get(ctx, &apploadbalancer.GetHttpRouterRequest{
 		HttpRouterId: d.Id(),
 	})
 
@@ -137,13 +216,19 @@ func resourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{}) e
 		return handleNotFoundError(err, d, fmt.Sprintf("Application Http Router %q", d.Get("name").(string)))
 	}
 
-	d.Set("created_at", getTimestamp(bg.CreatedAt))
-	d.Set("name", bg.Name)
-	d.Set("folder_id", bg.FolderId)
-	d.Set("description", bg.Description)
+	ro, err := flattenALBRouteOptions(router.GetRouteOptions())
+	if err != nil {
+		return err
+	}
+
+	d.Set("created_at", getTimestamp(router.CreatedAt))
+	d.Set("name", router.Name)
+	d.Set("folder_id", router.FolderId)
+	d.Set("description", router.Description)
+	d.Set("route_options", ro)
 
 	log.Printf("[DEBUG] Finished reading Application Http Router %q", d.Id())
-	return d.Set("labels", bg.Labels)
+	return d.Set("labels", router.Labels)
 }
 
 func resourceYandexALBHTTPRouterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -160,6 +245,14 @@ func resourceYandexALBHTTPRouterUpdate(d *schema.ResourceData, meta interface{})
 		Name:         d.Get("name").(string),
 		Description:  d.Get("description").(string),
 		Labels:       labels,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return fmt.Errorf("Error expanding route options while updating Application HTTP Router: %w", err)
+		}
+		req.SetRouteOptions(ro)
 	}
 
 	var updatePath []string

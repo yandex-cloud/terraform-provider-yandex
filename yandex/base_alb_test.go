@@ -34,7 +34,7 @@ const albDefaultStrictLocality = "true"
 const albDefaultServiceName = "true"
 const albDefaultHTTP2 = "true"
 const albDefaultHost = "tf-test-host"
-const albDefaultPath = "tf-test-path"
+const albDefaultPath = "/tf-test-path/"
 const albDefaultPort = "3"
 const albDefaultSendText = "tf-test-send"
 const albDefaultReceiveText = "tf-test-receive"
@@ -43,13 +43,18 @@ const albDefaultDirectResponseBody = "Not Found"
 const albDefaultDirectResponseStatus = "404"
 const albDefaultModificationAppend = "header"
 const albDefaultStatusResponse = "not_found"
-const albDefaultRedirectReplacePrefix = "/other"
+const albDefaultRedirectResponseCode = "moved_permanently"
 const albDefaultAutoHostRewrite = "true"
 const albDefaultAllowHTTP10 = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
 const albDefaultProxyProtocol = "false"
 const albDefaultHeaderAffinity = "x-some-header"
+const albDefaultAnyPrincipal = "true"
+const albDefaultRemoteIP = "127.0.0.1/16"
+const albDefaultHeaderName = "client-header"
+const albDefaultHeaderValue = "client-value"
+const albDefaultRBACAction = "allow"
 
 type resourceALBLoadBalancerInfo struct {
 	IsHTTPListener   bool
@@ -115,6 +120,8 @@ type resourceALBVirtualHostInfo struct {
 	IsDirectResponseAction       bool
 	IsGRPCRouteAction            bool
 	IsGRPCStatusResponseAction   bool
+	IsRouteRBAC                  bool
+	IsVirtualHostRBAC            bool
 	IsDataSource                 bool
 	IsHTTPRouteActionHostRewrite bool
 
@@ -130,13 +137,16 @@ type resourceALBVirtualHostInfo struct {
 	RouteName                      string
 	DirectResponseStatus           string
 	DirectResponseBody             string
-	RedirectReplacePrefix          string
+	RedirectResponseCode           string
 	HTTPRouteActionTimeout         string
 	GRPCRouteActionTimeout         string
 	GRPCStatusResponseActionStatus string
 	GRPCRouteActionAutoHostRewrite string
 	HTTPRouteActionHostRewrite     string
 	HTTPRouteActionAutoHostRewrite bool
+	AnyPrincipals                  string
+	RemoteIP                       string
+	RBACAction                     string
 }
 
 func albVirtualHostInfo() resourceALBVirtualHostInfo {
@@ -150,6 +160,8 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		IsDirectResponseAction:         false,
 		IsGRPCRouteAction:              false,
 		IsGRPCStatusResponseAction:     false,
+		IsRouteRBAC:                    false,
+		IsVirtualHostRBAC:              false,
 		IsDataSource:                   false,
 		IsHTTPRouteActionHostRewrite:   false,
 		BaseTemplate:                   testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
@@ -162,12 +174,36 @@ func albVirtualHostInfo() resourceALBVirtualHostInfo {
 		ModificationAppend:             albDefaultModificationAppend,
 		DirectResponseStatus:           albDefaultDirectResponseStatus,
 		DirectResponseBody:             albDefaultDirectResponseBody,
-		RedirectReplacePrefix:          albDefaultRedirectReplacePrefix,
+		RedirectResponseCode:           albDefaultRedirectResponseCode,
 		HTTPRouteActionTimeout:         albDefaultTimeout,
 		GRPCRouteActionTimeout:         albDefaultTimeout,
 		GRPCStatusResponseActionStatus: albDefaultStatusResponse,
 		GRPCRouteActionAutoHostRewrite: albDefaultAutoHostRewrite,
+		AnyPrincipals:                  albDefaultAnyPrincipal,
+		RemoteIP:                       albDefaultRemoteIP,
+		RBACAction:                     albDefaultRBACAction,
 		HTTPRouteActionAutoHostRewrite: false,
+	}
+
+	return res
+}
+
+type resourceALBHTTPRouterInfo struct {
+	IsRBAC bool
+
+	RouterName      string
+	RBACHeaderName  string
+	RBACHeaderValue string
+	RBACAction      string
+}
+
+func albHTTPRouterInfo() resourceALBHTTPRouterInfo {
+	res := resourceALBHTTPRouterInfo{
+		IsRBAC:          false,
+		RouterName:      acctest.RandomWithPrefix("tf-router"),
+		RBACHeaderName:  albDefaultHeaderName,
+		RBACHeaderValue: albDefaultHeaderValue,
+		RBACAction:      albDefaultRBACAction,
 	}
 
 	return res
@@ -286,9 +322,34 @@ resource "yandex_alb_virtual_host" "test-vh" {
     name   = "test-header"
     append = "{{.ModificationAppend}}"
   } 
+  {{if .IsVirtualHostRBAC}}
+  route_options {
+    rbac {
+      action = "{{.RBACAction}}"
+        principals {
+          and_principals {
+            remote_ip = "{{.RemoteIP}}"
+          }
+        }
+      }
+  }
+ {{end}}
+
   {{ if or .IsHTTPRoute .IsGRPCRoute}}
   route {
     name = "{{.RouteName}}"
+    route_options {
+       {{if .IsRouteRBAC}}
+       rbac {
+         action = "{{.RBACAction}}"
+         principals {
+           and_principals {
+             any = "{{.AnyPrincipals}}"
+           }
+         }
+       }
+       {{end}}
+    }
     {{if .IsHTTPRoute}}
     http_route {
       http_match {
@@ -315,7 +376,7 @@ resource "yandex_alb_virtual_host" "test-vh" {
       {{end}}
       {{if .IsRedirectAction}}
       redirect_action {
-        replace_prefix = "{{.RedirectReplacePrefix}}"
+        response_code = "{{.RedirectResponseCode}}"
       }
       {{end}}
     }
@@ -362,6 +423,35 @@ resource "yandex_alb_target_group" "test-target-group" {
 {{.BaseTemplate}}
 `
 
+const albHTTPRouterConfigTemplate = `
+{{ if .IsDataSource }}
+data "yandex_alb_http_router" "test-http-router-ds" {
+  http_router_id = yandex_alb_http_router.test-vh.id
+}		
+{{ end }}
+resource "yandex_alb_http_router" "test-router" {
+  name        = "{{.RouterName}}"
+  description = "{{.RouterDescription}}"
+  route_options {
+    {{if .IsRBAC}}
+    rbac {
+      action = "{{.RBACAction}}"
+      principals {
+        and_principals {
+          header {
+            name = "{{.RBACHeaderName}}"
+            value {
+              exact = "{{.RBACHeaderValue}}"
+            }
+          }
+        }
+      }
+    }
+    {{end}}
+  }
+}
+`
+
 const albLoadBalancerConfigTemplate = `
 {{ if .IsDataSource }}
 data "yandex_alb_load_balancer" "test-alb-ds" {
@@ -388,7 +478,7 @@ resource "yandex_alb_backend_group" "test-bg" {
       interval = "10s"
       http_healthcheck {
         host  = "tf-test-host"
-        path  = "tf-test-path"
+        path  = "/tf-test-path/"
         http2 = "true"
       }
     }
@@ -735,6 +825,12 @@ func testALBLoadBalancerConfig_basic(in resourceALBLoadBalancerInfo) string {
 func testALBVirtualHostConfig_basic(in resourceALBVirtualHostInfo) string {
 	m := structs.Map(in)
 	config := templateConfig(albVirtualHostConfigTemplate, m)
+	return config
+}
+
+func testALBHTTPRouterConfig_basic(in resourceALBHTTPRouterInfo) string {
+	m := structs.Map(in)
+	config := templateConfig(albHTTPRouterConfigTemplate, m)
 	return config
 }
 

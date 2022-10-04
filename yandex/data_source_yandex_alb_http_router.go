@@ -46,6 +46,68 @@ func dataSourceYandexALBHTTPRouter() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"route_options": dataSourceRouteOptions(),
+		},
+	}
+}
+
+func dataSourceRouteOptions() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"rbac": {
+					Type:     schema.TypeList,
+					Computed: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"action": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+							"principals": {
+								Type:     schema.TypeList,
+								Computed: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"and_principals": {
+											Type:     schema.TypeList,
+											Computed: true,
+											Elem: &schema.Resource{
+												Schema: map[string]*schema.Schema{
+													"headers": {
+														Type:     schema.TypeList,
+														Computed: true,
+														Elem: &schema.Resource{
+															Schema: map[string]*schema.Schema{
+																"name": {
+																	Type:     schema.TypeString,
+																	Computed: true,
+																},
+																"value": dataSourceStringMatch(),
+															},
+														},
+													},
+													"remote_ip": {
+														Type:     schema.TypeString,
+														Computed: true,
+													},
+													"any": {
+														Type:     schema.TypeBool,
+														Computed: true,
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -77,11 +139,17 @@ func dataSourceYandexALBHTTPRouterRead(d *schema.ResourceData, meta interface{})
 		return handleNotFoundError(err, d, fmt.Sprintf("Http Router with ID %q", routerID))
 	}
 
+	ro, err := flattenALBRouteOptions(router.GetRouteOptions())
+	if err != nil {
+		return err
+	}
+
 	d.Set("http_router_id", router.Id)
 	d.Set("name", router.Name)
 	d.Set("description", router.Description)
 	d.Set("created_at", getTimestamp(router.CreatedAt))
 	d.Set("folder_id", router.FolderId)
+	d.Set("route_options", ro)
 
 	if err := d.Set("labels", router.Labels); err != nil {
 		return err

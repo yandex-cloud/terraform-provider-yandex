@@ -46,8 +46,8 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"modify_request_headers":  headerModification("modify_request_headers."),
-			"modify_response_headers": headerModification("modify_response_headers."),
+			"modify_request_headers":  headerModification(),
+			"modify_response_headers": headerModification(),
 			"route": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -129,9 +129,10 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 													Optional: true,
 												},
 												"response_code": {
-													Type:     schema.TypeString,
-													Default:  "moved_permanently",
-													Optional: true,
+													Type:             schema.TypeString,
+													Default:          "moved_permanently",
+													Optional:         true,
+													DiffSuppressFunc: CaseInsensitive,
 												},
 												"replace_path": {
 													Type:     schema.TypeString,
@@ -235,8 +236,9 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"status": {
-													Type:     schema.TypeString,
-													Optional: true,
+													Type:             schema.TypeString,
+													Optional:         true,
+													DiffSuppressFunc: CaseInsensitive,
 												},
 											},
 										},
@@ -244,9 +246,11 @@ func resourceYandexALBVirtualHost() *schema.Resource {
 								},
 							},
 						},
+						"route_options": routeOptions(),
 					},
 				},
 			},
+			"route_options": routeOptions(),
 		},
 	}
 }
@@ -271,7 +275,7 @@ func stringMatch() *schema.Schema {
 	}
 }
 
-func headerModification(path string) *schema.Schema {
+func headerModification() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
@@ -321,6 +325,7 @@ func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
 	}
+
 	req := apploadbalancer.CreateVirtualHostRequest{
 		HttpRouterId:          d.Get("http_router_id").(string),
 		Name:                  d.Get("name").(string),
@@ -328,6 +333,14 @@ func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}
 		Routes:                routes,
 		ModifyResponseHeaders: responseHeaders,
 		ModifyRequestHeaders:  requestHeaders,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return fmt.Errorf("Error expanding route options while creating Application Virtual Host: %w", err)
+		}
+		req.SetRouteOptions(ro)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -394,6 +407,11 @@ func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
+	ro, err := flattenALBRouteOptions(virtualHost.GetRouteOptions())
+	if err != nil {
+		return err
+	}
+
 	d.Set("name", virtualHost.Name)
 	d.Set("authority", virtualHost.Authority)
 
@@ -406,6 +424,10 @@ func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := d.Set("route", routes); err != nil {
+		return err
+	}
+
+	if err := d.Set("route_options", ro); err != nil {
 		return err
 	}
 
@@ -445,6 +467,14 @@ func resourceYandexALBVirtualHostUpdate(d *schema.ResourceData, meta interface{}
 		Routes:                routes,
 		ModifyResponseHeaders: responseHeaders,
 		ModifyRequestHeaders:  requestHeaders,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return fmt.Errorf("Error expanding route options while updating Application Virtual Host: %w", err)
+		}
+		req.SetRouteOptions(ro)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

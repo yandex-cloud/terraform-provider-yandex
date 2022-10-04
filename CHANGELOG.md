@@ -2,13 +2,16 @@
 BUG FIXES:
 * compute: fix size validation in `resource_yandex_compute_disk`
 * vpc: fix region_id validation in `resource_yandex_lb_network_load_balanacer` and `resource_yandex_lb_target_group`
-* postgresql: fix `host_master_name` wrong behaviour in in `yandex_mdb_postgresql_cluster` again
+* postgresql: fix `host_master_name` wrong behaviour in `yandex_mdb_postgresql_cluster` again
+* alb: fix `value` wrong behaviour in `yandex_alb_http_router` and `yandex_alb_virtual_host`
+* alb: fix default `path` value in `yandex_alb_backend_group`
 
 ENHANCEMENTS:
 * provider: Upgrade go-sdk and go-genproto to the latest version. This is needed for ALB RBAC feature. 
 
 FEATURES:
 * mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_mysql_cluster` resource and data source
+* alb: support `route_options` attribute in `yandex_alb_http_router` and `yandex_alb_virtual_host` resource and data source
 
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:

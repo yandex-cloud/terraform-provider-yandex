@@ -162,16 +162,7 @@ func TestAccDataSourceTestAccDataSourceALBVirtualHost_httpRouteWithRedirectActio
 						},
 					),
 					testExistsElementWithAttrValue(
-						albVirtualHostDataSourceResource, "route", "http_route.0.redirect_action.0.replace_prefix", albDefaultRedirectReplacePrefix, &routePath,
-					),
-					testCheckResourceSubAttrFn(
-						albVirtualHostDataSourceResource, &routePath, "http_route.0.redirect_action.0.replace_prefix", func(value string) error {
-							prefix := virtualHost.GetRoutes()[0].GetHttp().GetRedirect().GetReplacePrefix()
-							if value != prefix {
-								return fmt.Errorf("Virtual Host's http route's redirect action's replace prefix doesnt't match. %s != %s", value, prefix)
-							}
-							return nil
-						},
+						albVirtualHostDataSourceResource, "route", "http_route.0.redirect_action.0.response_code", albDefaultRedirectResponseCode, &routePath,
 					),
 				),
 			},

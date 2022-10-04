@@ -101,6 +101,49 @@ func TestAccALBHTTPRouter_basic(t *testing.T) {
 	})
 }
 
+func TestAccALBHTTPRouter_full(t *testing.T) {
+	t.Parallel()
+
+	routerResource := albHTTPRouterInfo()
+	routerResource.IsRBAC = true
+
+	var router apploadbalancer.HttpRouter
+	routerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBHTTPRouterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBHTTPRouterConfig_basic(routerResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBHTTPRouterExists(albRouterResource, &router),
+					testExistsFirstElementWithAttr(
+						albRouterResource, "route_options", "rbac", &routerPath,
+					),
+					testExistsElementWithAttrValue(
+						albRouterResource, "route_options", "rbac.0.action", albDefaultRBACAction, &routerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albRouterResource, "route_options", "rbac.0.principals.0.and_principals.0.header", &routerPath,
+					),
+					testExistsElementWithAttrValue(
+						albRouterResource, "route_options", "rbac.0.principals.0.and_principals.0.header.0.name", albDefaultHeaderName, &routerPath,
+					),
+					testExistsFirstElementWithAttr(
+						albRouterResource, "route_options", "rbac.0.principals.0.and_principals.0.header.0.value", &routerPath,
+					),
+					testExistsElementWithAttrValue(
+						albRouterResource, "route_options", "rbac.0.principals.0.and_principals.0.header.0.value.0.exact", albDefaultHeaderValue, &routerPath,
+					),
+				),
+			},
+			albHTTPRouterImportStep(),
+		},
+	})
+}
+
 func TestAccALBHTTPRouter_update(t *testing.T) {
 	var router apploadbalancer.HttpRouter
 

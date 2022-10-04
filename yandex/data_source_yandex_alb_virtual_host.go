@@ -36,6 +36,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 			},
 			"modify_request_headers":  dataSourceHeaderModification("modify_request_headers."),
 			"modify_response_headers": dataSourceHeaderModification("modify_response_headers."),
+			"route_options":           dataSourceRouteOptions(),
 			"route": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -46,6 +47,7 @@ func dataSourceYandexALBVirtualHost() *schema.Resource {
 
 							Computed: true,
 						},
+						"route_options": dataSourceRouteOptions(),
 						"http_route": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -324,6 +326,11 @@ func dataSourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
+	ro, err := flattenALBRouteOptions(virtualHost.GetRouteOptions())
+	if err != nil {
+		return err
+	}
+
 	d.Set("virtual_host_id", virtualHostID.(string))
 	d.Set("name", virtualHost.Name)
 	d.Set("authority", virtualHost.Authority)
@@ -337,6 +344,10 @@ func dataSourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}
 	}
 
 	if err := d.Set("route", routes); err != nil {
+		return err
+	}
+
+	if err := d.Set("route_options", ro); err != nil {
 		return err
 	}
 

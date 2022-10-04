@@ -118,6 +118,14 @@ func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route
 		route.Name = v.(string)
 	}
 
+	if _, ok := d.GetOk(path + "route_options"); ok {
+		ro, err := expandALBRouteOptions(d, path+"route_options.0.")
+		if err != nil {
+			return nil, err
+		}
+		route.RouteOptions = ro
+	}
+
 	_, gotHTTPRoute := d.GetOk(path + "http_route")
 	_, gotGRPCRoute := d.GetOk(path + "grpc_route")
 
@@ -143,6 +151,111 @@ func expandALBRoute(d *schema.ResourceData, path string) (*apploadbalancer.Route
 	}
 
 	return route, nil
+}
+
+func expandALBRouteOptions(d *schema.ResourceData, path string) (*apploadbalancer.RouteOptions, error) {
+	ro := &apploadbalancer.RouteOptions{}
+	if _, ok := d.GetOk(path + "rbac"); ok {
+		rbac, err := expandALBRBAC(d, path+"rbac.0.")
+		if err != nil {
+			return nil, err
+		}
+
+		ro.Rbac = rbac
+	}
+
+	return ro, nil
+}
+
+func expandALBRBAC(d *schema.ResourceData, path string) (*apploadbalancer.RBAC, error) {
+	rbac := &apploadbalancer.RBAC{}
+
+	if v, ok := d.GetOk(path + "action"); ok {
+		action := v.(string)
+		code, getCode := apploadbalancer.RBAC_Action_value[strings.ToUpper(action)]
+		if !getCode {
+			return nil, fmt.Errorf("failed to resolve ALB rbac action: found %s", action)
+		}
+		rbac.SetAction(apploadbalancer.RBAC_Action(code))
+	}
+
+	for _, key := range IterateKeys(d, path+"principals") {
+		principals, err := expandALBPrincipals(d, key)
+		if err != nil {
+			return nil, err
+		}
+
+		rbac.Principals = append(rbac.Principals, principals)
+	}
+
+	return rbac, nil
+}
+
+func expandALBPrincipals(d *schema.ResourceData, path string) (*apploadbalancer.Principals, error) {
+	var principals []*apploadbalancer.Principal
+
+	for _, key := range IterateKeys(d, path+"and_principals") {
+		principal, err := expandALBPrincipal(d, key)
+		if err != nil {
+			return nil, err
+		}
+
+		principals = append(principals, principal)
+	}
+
+	return &apploadbalancer.Principals{AndPrincipals: principals}, nil
+}
+
+func expandALBPrincipal(d *schema.ResourceData, path string) (*apploadbalancer.Principal, error) {
+	principal := &apploadbalancer.Principal{}
+
+	_, gotHeader := d.GetOk(path + "header")
+	remoteIP, gotRemoteIP := d.GetOk(path + "remote_ip")
+	anyValue, gotAny := d.GetOk(path + "any")
+
+	if isPlural(gotHeader, gotRemoteIP, gotAny) {
+		return nil, fmt.Errorf("Cannot specify more than one of header pricnipal and remote ip pricnipal and any principal for the RBAC principal at the same time")
+	}
+
+	if !gotHeader && !gotRemoteIP && !gotAny {
+		return nil, fmt.Errorf("Either header pricnipal or remote ip pricnipal or any principal should be specified for the RBAC principal")
+	}
+
+	if gotHeader {
+		headerMatcher, err := expandALBHeaderMatcher(d, path+"header.0.")
+		if err != nil {
+			return nil, err
+		}
+		principal.SetHeader(headerMatcher)
+	}
+
+	if gotRemoteIP {
+		principal.SetRemoteIp(remoteIP.(string))
+	}
+
+	if gotAny {
+		principal.SetAny(anyValue.(bool))
+	}
+
+	return principal, nil
+}
+
+func expandALBHeaderMatcher(d *schema.ResourceData, path string) (*apploadbalancer.Principal_HeaderMatcher, error) {
+	headerMatcher := &apploadbalancer.Principal_HeaderMatcher{}
+
+	if v, ok := d.GetOk(path + "name"); ok {
+		headerMatcher.Name = v.(string)
+	}
+
+	if _, ok := d.GetOk(path + "value"); ok {
+		value, err := expandALBStringMatch(d, path+"value.0.")
+		if err != nil {
+			return nil, err
+		}
+		headerMatcher.Value = value
+	}
+
+	return headerMatcher, nil
 }
 
 func expandALBHTTPRoute(d *schema.ResourceData, path string) (*apploadbalancer.HttpRoute, error) {
@@ -245,7 +358,10 @@ func expandALBRedirectAction(d *schema.ResourceData, path string) (*apploadbalan
 	}
 
 	if val, ok := readStr("response_code"); ok {
-		code := apploadbalancer.RedirectAction_RedirectResponseCode_value[strings.ToUpper(val)]
+		code, getCode := apploadbalancer.RedirectAction_RedirectResponseCode_value[strings.ToUpper(val)]
+		if !getCode {
+			return nil, fmt.Errorf("failed to resolve ALB response code: found %s", val)
+		}
 		redirectAction.ResponseCode = apploadbalancer.RedirectAction_RedirectResponseCode(code)
 	}
 
@@ -387,22 +503,29 @@ func expandALBGRPCRoute(d *schema.ResourceData, path string) (*apploadbalancer.G
 		grpcRoute.SetRoute(expandALBGRPCRouteAction(d, path+"grpc_route_action.0."))
 	}
 	if gotGRPCStatusResponseAction {
-		grpcRoute.SetStatusResponse(expandALBGRPCStatusResponseAction(gRPCStatusResponseAction))
+		status, err := expandALBGRPCStatusResponseAction(gRPCStatusResponseAction)
+		if err != nil {
+			return nil, err
+		}
+		grpcRoute.SetStatusResponse(status)
 	}
 
 	return grpcRoute, nil
 }
 
-func expandALBGRPCStatusResponseAction(v interface{}) *apploadbalancer.GrpcStatusResponseAction {
+func expandALBGRPCStatusResponseAction(v interface{}) (*apploadbalancer.GrpcStatusResponseAction, error) {
 	statusResponseAction := &apploadbalancer.GrpcStatusResponseAction{}
 
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["status"]; ok {
-		code := apploadbalancer.GrpcStatusResponseAction_Status_value[strings.ToUpper(val.(string))]
-		statusResponseAction.Status = apploadbalancer.GrpcStatusResponseAction_Status(code)
+		status, getStatus := apploadbalancer.GrpcStatusResponseAction_Status_value[strings.ToUpper(val.(string))]
+		if !getStatus {
+			return nil, fmt.Errorf("failed to resolve ALB grpc status response action: found %s", val)
+		}
+		statusResponseAction.Status = apploadbalancer.GrpcStatusResponseAction_Status(status)
 	}
 
-	return statusResponseAction
+	return statusResponseAction, nil
 }
 
 func expandALBGRPCRouteMatch(d *schema.ResourceData, path string) (*apploadbalancer.GrpcRouteMatch, error) {
@@ -983,7 +1106,11 @@ func expandALBStreamBackend(d *schema.ResourceData, key string) (*apploadbalance
 	}
 
 	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
-		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
+		config, err := expandALBLoadBalancingConfig(v)
+		if err != nil {
+			return nil, err
+		}
+		backend.SetLoadBalancingConfig(config)
 	}
 
 	if v, ok := d.GetOk(key + "target_group_ids"); ok {
@@ -1027,7 +1154,11 @@ func expandALBHTTPBackend(d *schema.ResourceData, key string) (*apploadbalancer.
 	}
 
 	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
-		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
+		config, err := expandALBLoadBalancingConfig(v)
+		if err != nil {
+			return nil, err
+		}
+		backend.SetLoadBalancingConfig(config)
 	}
 
 	var (
@@ -1073,7 +1204,7 @@ func expandALBStorageBucket(v interface{}) *apploadbalancer.StorageBucketBackend
 	}
 }
 
-func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingConfig {
+func expandALBLoadBalancingConfig(v interface{}) (*apploadbalancer.LoadBalancingConfig, error) {
 	albConfig := &apploadbalancer.LoadBalancingConfig{}
 	config := v.([]interface{})[0].(map[string]interface{})
 	if val, ok := config["strict_locality"]; ok {
@@ -1089,11 +1220,13 @@ func expandALBLoadBalancingConfig(v interface{}) *apploadbalancer.LoadBalancingC
 	}
 
 	if val, ok := config["mode"]; ok {
-		modeName := strings.ToUpper(val.(string))
-		mode := apploadbalancer.LoadBalancingMode(apploadbalancer.LoadBalancingMode_value[modeName])
-		albConfig.SetMode(mode)
+		mode, getMode := apploadbalancer.LoadBalancingMode_value[strings.ToUpper(val.(string))]
+		if !getMode {
+			return nil, fmt.Errorf("failed to resolve ALB load balamcing config mode: found %s", val)
+		}
+		albConfig.SetMode(apploadbalancer.LoadBalancingMode(mode))
 	}
-	return albConfig
+	return albConfig, nil
 }
 
 func expandHealthChecks(d *schema.ResourceData, key string) []*apploadbalancer.HealthCheck {
@@ -1275,7 +1408,11 @@ func expandALBGRPCBackend(d *schema.ResourceData, key string) (*apploadbalancer.
 	}
 
 	if v, ok := d.GetOk(key + "load_balancing_config"); ok && len(v.([]interface{})) > 0 {
-		backend.SetLoadBalancingConfig(expandALBLoadBalancingConfig(v))
+		config, err := expandALBLoadBalancingConfig(v)
+		if err != nil {
+			return nil, err
+		}
+		backend.SetLoadBalancingConfig(config)
 	}
 
 	if _, ok := d.GetOk(key + "healthcheck"); ok {
@@ -1370,6 +1507,12 @@ func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}
 			"name": route.Name,
 		}
 
+		ro, err := flattenALBRouteOptions(route.GetRouteOptions())
+		if err != nil {
+			return nil, err
+		}
+		flRoute["route_options"] = ro
+
 		switch route.GetRoute().(type) {
 		case *apploadbalancer.Route_Http:
 			flHttpRoute := flattenALBHTTPRoute(route.GetHttp())
@@ -1383,6 +1526,85 @@ func flattenALBRoutes(routes []*apploadbalancer.Route) ([]map[string]interface{}
 	}
 
 	return result, nil
+}
+
+func flattenALBRouteOptions(ro *apploadbalancer.RouteOptions) ([]map[string]interface{}, error) {
+	if ro == nil {
+		return nil, nil
+	}
+	flOptions := map[string]interface{}{}
+	if ro.GetRbac() != nil {
+		rbac, err := flattenALBRBAC(ro.GetRbac())
+		if err != nil {
+			return nil, err
+		}
+		flOptions["rbac"] = rbac
+	}
+
+	return []map[string]interface{}{flOptions}, nil
+}
+
+func flattenALBRBAC(rbac *apploadbalancer.RBAC) ([]map[string]interface{}, error) {
+	var principals []map[string]interface{}
+
+	for _, principal := range rbac.GetPrincipals() {
+		pr, err := flattenALBPrincipals(principal)
+		if err != nil {
+			return nil, err
+		}
+
+		principals = append(principals, pr)
+	}
+
+	return []map[string]interface{}{{
+		"action":     strings.ToLower(rbac.GetAction().String()),
+		"principals": principals,
+	}}, nil
+}
+
+func flattenALBPrincipals(principals *apploadbalancer.Principals) (map[string]interface{}, error) {
+	var andPrincipals []map[string]interface{}
+
+	for _, principal := range principals.GetAndPrincipals() {
+		pr, err := flattenALBPrincipal(principal)
+		if err != nil {
+			return nil, err
+		}
+
+		andPrincipals = append(andPrincipals, pr)
+	}
+
+	return map[string]interface{}{
+		"and_principals": andPrincipals,
+	}, nil
+}
+
+func flattenALBPrincipal(principal *apploadbalancer.Principal) (map[string]interface{}, error) {
+	flPrincipal := map[string]interface{}{}
+
+	switch identifier := principal.GetIdentifier().(type) {
+	case *apploadbalancer.Principal_Header:
+		header, err := flattenALBHeaderMatcher(principal.GetHeader())
+		if err != nil {
+			return nil, err
+		}
+		flPrincipal["header"] = header
+	case *apploadbalancer.Principal_RemoteIp:
+		flPrincipal["remote_ip"] = principal.GetRemoteIp()
+	case *apploadbalancer.Principal_Any:
+		flPrincipal["any"] = principal.GetAny()
+	default:
+		return nil, fmt.Errorf("[ERROR] Unexpected Principal Identifier type %T!\n", identifier)
+	}
+
+	return flPrincipal, nil
+}
+
+func flattenALBHeaderMatcher(headerMatcher *apploadbalancer.Principal_HeaderMatcher) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{{
+		"name":  headerMatcher.GetName(),
+		"value": flattenALBStringMatch(headerMatcher.GetValue()),
+	}}, nil
 }
 
 func flattenALBGRPCRoute(route *apploadbalancer.GrpcRoute) []map[string]interface{} {

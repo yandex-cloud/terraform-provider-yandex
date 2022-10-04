@@ -48,6 +48,98 @@ func TestAccALBVirtualHost_basic(t *testing.T) {
 	})
 }
 
+func TestAccALBVirtualHost_httpRouteWithRBAC(t *testing.T) {
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsHTTPRoute = true
+	VHResource.IsRouteRBAC = true
+	VHResource.IsRedirectAction = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route", "name", &vhPath,
+					),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route", "route_options.0.rbac", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "route_options.0.rbac.0.action", albDefaultRBACAction, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route", "route_options.0.rbac.0.principals.0.and_principals", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route", "route_options.0.rbac.0.principals.0.and_principals.0.any", albDefaultAnyPrincipal, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
+func TestAccALBVirtualHost_httpVirtualHostWithRBAC(t *testing.T) {
+	t.Skip("Wait until CLOUD-103826 released")
+	t.Parallel()
+
+	VHResource := albVirtualHostInfo()
+	VHResource.IsVirtualHostRBAC = true
+	var virtualHost apploadbalancer.VirtualHost
+	vhPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBVirtualHostDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBVirtualHostConfig_basic(VHResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBVirtualHostExists(albVHResource, &virtualHost),
+					testAccCheckALBVirtualHostValues(&virtualHost, true, false),
+					testExistsFirstElementWithAttr(
+						albVHResource, "modify_request_headers", "name", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "modify_request_headers", "append", albDefaultModificationAppend, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route_options", "rbac", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route_options", "rbac.0.action", albDefaultRBACAction, &vhPath,
+					),
+					testExistsFirstElementWithAttr(
+						albVHResource, "route_options", "rbac.0.principals.0.and_principals", &vhPath,
+					),
+					testExistsElementWithAttrValue(
+						albVHResource, "route_options", "rbac.0.principals.0.and_principals.0.remote_ip", albDefaultRemoteIP, &vhPath,
+					),
+				),
+			},
+			albVirtualHostImportStep(),
+		},
+	})
+}
+
 func TestAccALBVirtualHost_httpRouteWithHTTPRouteAction(t *testing.T) {
 	t.Parallel()
 
@@ -120,7 +212,7 @@ func TestAccALBVirtualHost_httpRouteWithRedirectAction(t *testing.T) {
 						albVHResource, "route", "name", &vhPath,
 					),
 					testExistsElementWithAttrValue(
-						albVHResource, "route", "http_route.0.redirect_action.0.replace_prefix", albDefaultRedirectReplacePrefix, &vhPath,
+						albVHResource, "route", "http_route.0.redirect_action.0.response_code", albDefaultRedirectResponseCode, &vhPath,
 					),
 				),
 			},
