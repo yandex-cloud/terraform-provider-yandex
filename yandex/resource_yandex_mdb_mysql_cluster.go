@@ -253,6 +253,11 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 					},
 				},
 			},
+			"backup_retain_period_days": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -738,6 +743,10 @@ func resourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	if err = d.Set("backup_retain_period_days", int(cluster.Config.BackupRetainPeriodDays.Value)); err != nil {
+		return err
+	}
+
 	return d.Set("created_at", getTimestamp(cluster.CreatedAt))
 }
 
@@ -779,17 +788,18 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 }
 
 var mdbMysqlUpdateFieldsMap = map[string]string{
-	"name":                    "name",
-	"description":             "description",
-	"labels":                  "labels",
-	"access":                  "config_spec.access",
-	"backup_window_start":     "config_spec.backup_window_start",
-	"resources":               "config_spec.resources",
-	"version":                 "config_spec.version",
-	"performance_diagnostics": "config_spec.performance_diagnostics",
-	"security_group_ids":      "security_group_ids",
-	"maintenance_window":      "maintenance_window",
-	"deletion_protection":     "deletion_protection",
+	"name":                      "name",
+	"description":               "description",
+	"labels":                    "labels",
+	"access":                    "config_spec.access",
+	"backup_window_start":       "config_spec.backup_window_start",
+	"resources":                 "config_spec.resources",
+	"backup_retain_period_days": "config_spec.backup_retain_period_days",
+	"version":                   "config_spec.version",
+	"performance_diagnostics":   "config_spec.performance_diagnostics",
+	"security_group_ids":        "security_group_ids",
+	"maintenance_window":        "maintenance_window",
+	"deletion_protection":       "deletion_protection",
 }
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {

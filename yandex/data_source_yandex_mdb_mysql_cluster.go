@@ -315,6 +315,10 @@ func dataSourceYandexMDBMySQLCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Computed: true,
 			},
+			"backup_retain_period_days": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -453,6 +457,10 @@ func dataSourceYandexMDBMySQLClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("deletion_protection", cluster.DeletionProtection)
 
 	if err := d.Set("host_group_ids", cluster.HostGroupIds); err != nil {
+		return err
+	}
+
+	if err := d.Set("backup_retain_period_days", cluster.Config.BackupRetainPeriodDays.Value); err != nil {
 		return err
 	}
 

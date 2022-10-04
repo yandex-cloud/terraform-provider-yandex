@@ -381,6 +381,8 @@ The following arguments are supported:
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC. The structure is documented below.
 
+* `backup_retain_period_days` - (Optional) The period in days during which backups are stored.
+
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.

@@ -1394,6 +1394,7 @@ func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
 		BackupWindowStart:      expandMDBBackupWindowStart(d, "backup_window_start.0"),
 		Access:                 expandMySQLAccess(d),
 		PerformanceDiagnostics: expandMyPerformanceDiagnostics(d),
+		BackupRetainPeriodDays: expandMyBackupRetainPeriodDays(d),
 	}
 
 	if err := expandMySQLConfigSpecSettings(d, configSpec); err != nil {
@@ -1481,6 +1482,15 @@ func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDi
 	}
 
 	return out
+}
+
+func expandMyBackupRetainPeriodDays(d *schema.ResourceData) *wrappers.Int64Value {
+	if v, ok := d.GetOk("backup_retain_period_days"); ok {
+		return &wrappers.Int64Value{
+			Value: int64(v.(int)),
+		}
+	}
+	return nil
 }
 
 func flattenMyPerformanceDiagnostics(p *mysql.PerformanceDiagnostics) ([]interface{}, error) {

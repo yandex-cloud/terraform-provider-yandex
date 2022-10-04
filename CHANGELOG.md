@@ -7,6 +7,9 @@ BUG FIXES:
 ENHANCEMENTS:
 * provider: Upgrade go-sdk and go-genproto to the latest version. This is needed for ALB RBAC feature. 
 
+FEATURES:
+* mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_mysql_cluster` resource and data source
+
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:
 * postgresql: fix `host_master_name` wrong behaviour in in `yandex_mdb_postgresql_cluster`
@@ -57,6 +60,7 @@ FEATURES:
 * mdb: add `template_db` attribute to `yandex_mdb_postgresql_cluster` resource and data source
 * clickhouse: add `assign_public_ip` attribute to `host` declaration in resource and data source
 * clickhouse: support hosts update
+* mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_mysql_cluster` resource and data source
 * **New Data Source:** `yandex_iot_core_broker`
 * **New Data Source:** `yandex_vpc_gateway`
 * **New Resource:** `yandex_iot_core_broker`

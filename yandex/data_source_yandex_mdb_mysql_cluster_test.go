@@ -202,6 +202,10 @@ func testAccDataSourceMDBMysqlClusterAttributesCheck(datasourceName string, reso
 				"deletion_protection",
 				"deletion_protection",
 			},
+			{
+				"backup_retain_period_days",
+				"backup_retain_period_days",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -244,6 +248,7 @@ func testAccDataSourceMDBMysqlClusterCheck(datasourceName string, resourceName s
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "backup_retain_period_days", "12"),
 	)
 }
 

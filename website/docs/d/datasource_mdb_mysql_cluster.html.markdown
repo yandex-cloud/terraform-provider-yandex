@@ -57,6 +57,7 @@ exported:
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `maintenance_window` - Maintenance window settings of the MySQL cluster. The structure is documented below.
 * `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-mysql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
+* `backup_retain_period_days` - The period in days during which backups are stored.
 
 The `resources` block supports:
 

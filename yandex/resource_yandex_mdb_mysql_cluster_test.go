@@ -143,6 +143,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.sql_mode", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"),
 					resource.TestCheckResourceAttr(mysqlResource, "mysql_config.innodb_print_all_deadlocks", "true"),
 
+					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "12"),
+
 					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
 				),
 			},
@@ -224,6 +226,8 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.day", "WED"),
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
+
+					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "13"),
 				),
 			},
 		},
@@ -732,6 +736,8 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     sessions_sampling_interval   = 300
     statements_sampling_interval = 400
   }
+
+  backup_retain_period_days = 12
 }
 `, name, desc, environment, deletionProtection)
 }
@@ -824,6 +830,8 @@ resource "yandex_mdb_mysql_cluster" "foo" {
     hours   = 5
     minutes = 44
   }
+    
+  backup_retain_period_days = 13
 
   database {
     name = "testdb"
