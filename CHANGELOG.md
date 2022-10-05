@@ -13,6 +13,10 @@ ENHANCEMENTS:
 FEATURES:
 * mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_mysql_cluster` resource and data source
 * alb: support `route_options` attribute in `yandex_alb_http_router` and `yandex_alb_virtual_host` resource and data source
+* **New Data Source:** `yandex_lockbox_secret`
+* **New Data Source:** `yandex_lockbox_secret_version`
+* **New Resource:** `yandex_lockbox_secret`
+* **New Resource:** `yandex_lockbox_secret_version`
 
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:
