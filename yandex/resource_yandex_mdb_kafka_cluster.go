@@ -430,6 +430,28 @@ func resourceYandexMDBKafkaClusterKafkaSettings() *schema.Resource {
 				ValidateFunc: ConvertableToInt(),
 				Optional:     true,
 			},
+			"message_max_bytes": {
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
+			},
+			"replica_fetch_max_bytes": {
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
+			},
+			"ssl_cipher_suites": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
+			"offsets_retention_minutes": {
+				Type:         schema.TypeString,
+				ValidateFunc: ConvertableToInt(),
+				Optional:     true,
+			},
 		},
 	}
 }
@@ -915,6 +937,10 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.auto_create_topics_enable":       "config_spec.kafka.kafka_config_{version}.auto_create_topics_enable",
 	"config.0.kafka.0.kafka_config.0.num_partitions":                  "config_spec.kafka.kafka_config_{version}.num_partitions",
 	"config.0.kafka.0.kafka_config.0.default_replication_factor":      "config_spec.kafka.kafka_config_{version}.default_replication_factor",
+	"config.0.kafka.0.kafka_config.0.message_max_bytes":               "config_spec.kafka.kafka_config_{version}.message_max_bytes",
+	"config.0.kafka.0.kafka_config.0.replica_fetch_max_bytes":         "config_spec.kafka.kafka_config_{version}.replica_fetch_max_bytes",
+	"config.0.kafka.0.kafka_config.0.ssl_cipher_suites":               "config_spec.kafka.kafka_config_{version}.ssl_cipher_suites",
+	"config.0.kafka.0.kafka_config.0.offsets_retention_minutes":       "config_spec.kafka.kafka_config_{version}.offsets_retention_minutes",
 	"config.0.unmanaged_topics":                                       "config_spec.unmanaged_topics",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",

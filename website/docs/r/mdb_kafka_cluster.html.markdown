@@ -47,7 +47,11 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         log_segment_bytes               = 134217728
         log_preallocate                 = true 
         num_partitions                  = 10
-        default_replication_factor      = 1 
+        default_replication_factor      = 1
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
       }
     }
   }
@@ -118,7 +122,11 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         log_segment_bytes               = 134217728
         log_preallocate                 = true
         num_partitions                  = 10
-        default_replication_factor      = 6 
+        default_replication_factor      = 6
+        message_max_bytes               = 1048588
+        replica_fetch_max_bytes         = 1048576
+        ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
+        offsets_retention_minutes       = 10080
       }
     }
     zookeeper {
@@ -267,7 +275,7 @@ The `kafka_config` block supports:
 
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
   `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`,
-  `num_partitions`, `default_replication_factor` - (Optional) Kafka server settings. For more information, see
+  `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes` - (Optional) Kafka server settings. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 

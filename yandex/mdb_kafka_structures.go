@@ -3,6 +3,7 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -95,6 +96,14 @@ func parseIntKafkaConfigParam(d *schema.ResourceData, paramName string, retErr *
 	return &wrappers.Int64Value{Value: i}
 }
 
+func parseSslCipherSuites(sslCipherSuites interface{}) []string {
+	if sslCipherSuites == nil {
+		return nil
+	}
+	set := sslCipherSuites.(*schema.Set)
+	return convertStringSet(set)
+}
+
 type KafkaConfig struct {
 	CompressionType             kafka.CompressionType
 	LogFlushIntervalMessages    *wrappers.Int64Value
@@ -111,6 +120,10 @@ type KafkaConfig struct {
 	AutoCreateTopicsEnable      *wrappers.BoolValue
 	NumPartitions               *wrappers.Int64Value
 	DefaultReplicationFactor    *wrappers.Int64Value
+	MessageMaxBytes             *wrappers.Int64Value
+	ReplicaFetchMaxBytes        *wrappers.Int64Value
+	SslCipherSuites             []string
+	OffsetsRetentionMinutes     *wrappers.Int64Value
 }
 
 func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
@@ -138,12 +151,19 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 	res.SocketReceiveBufferBytes = parseIntKafkaConfigParam(d, "socket_receive_buffer_bytes", &retErr)
 	res.NumPartitions = parseIntKafkaConfigParam(d, "num_partitions", &retErr)
 	res.DefaultReplicationFactor = parseIntKafkaConfigParam(d, "default_replication_factor", &retErr)
+	res.MessageMaxBytes = parseIntKafkaConfigParam(d, "message_max_bytes", &retErr)
+	res.ReplicaFetchMaxBytes = parseIntKafkaConfigParam(d, "replica_fetch_max_bytes", &retErr)
+	res.OffsetsRetentionMinutes = parseIntKafkaConfigParam(d, "offsets_retention_minutes", &retErr)
 
 	if v, ok := d.GetOk(kafkaConfigPath + ".log_preallocate"); ok {
 		res.LogPreallocate = &wrappers.BoolValue{Value: v.(bool)}
 	}
 	if v, ok := d.GetOk(kafkaConfigPath + ".auto_create_topics_enable"); ok {
 		res.AutoCreateTopicsEnable = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk(kafkaConfigPath + ".ssl_cipher_suites"); ok {
+		res.SslCipherSuites = parseSslCipherSuites(v)
+		sort.Strings(res.SslCipherSuites)
 	}
 
 	if retErr != nil {
@@ -174,6 +194,10 @@ func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error)
 		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
 		NumPartitions:               kafkaConfig.NumPartitions,
 		DefaultReplicationFactor:    kafkaConfig.DefaultReplicationFactor,
+		MessageMaxBytes:             kafkaConfig.MessageMaxBytes,
+		ReplicaFetchMaxBytes:        kafkaConfig.ReplicaFetchMaxBytes,
+		SslCipherSuites:             kafkaConfig.SslCipherSuites,
+		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 	}, nil
 }
 
@@ -198,6 +222,10 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 		AutoCreateTopicsEnable:      kafkaConfig.AutoCreateTopicsEnable,
 		NumPartitions:               kafkaConfig.NumPartitions,
 		DefaultReplicationFactor:    kafkaConfig.DefaultReplicationFactor,
+		MessageMaxBytes:             kafkaConfig.MessageMaxBytes,
+		ReplicaFetchMaxBytes:        kafkaConfig.ReplicaFetchMaxBytes,
+		SslCipherSuites:             kafkaConfig.SslCipherSuites,
+		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
 	}, nil
 }
 
@@ -531,6 +559,10 @@ type KafkaConfigSettings interface {
 	GetAutoCreateTopicsEnable() *wrappers.BoolValue
 	GetNumPartitions() *wrappers.Int64Value
 	GetDefaultReplicationFactor() *wrappers.Int64Value
+	GetMessageMaxBytes() *wrappers.Int64Value
+	GetReplicaFetchMaxBytes() *wrappers.Int64Value
+	GetSslCipherSuites() []string
+	GetOffsetsRetentionMinutes() *wrappers.Int64Value
 }
 
 func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]interface{}, error) {
@@ -580,6 +612,18 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	}
 	if kafkaConfig.GetDefaultReplicationFactor() != nil {
 		res["default_replication_factor"] = strconv.FormatInt(kafkaConfig.GetDefaultReplicationFactor().GetValue(), 10)
+	}
+	if kafkaConfig.GetMessageMaxBytes() != nil {
+		res["message_max_bytes"] = strconv.FormatInt(kafkaConfig.GetMessageMaxBytes().GetValue(), 10)
+	}
+	if kafkaConfig.GetReplicaFetchMaxBytes() != nil {
+		res["replica_fetch_max_bytes"] = strconv.FormatInt(kafkaConfig.GetReplicaFetchMaxBytes().GetValue(), 10)
+	}
+	if kafkaConfig.GetSslCipherSuites() != nil {
+		res["ssl_cipher_suites"] = convertStringArrToInterface(kafkaConfig.GetSslCipherSuites())
+	}
+	if kafkaConfig.GetOffsetsRetentionMinutes() != nil {
+		res["offsets_retention_minutes"] = strconv.FormatInt(kafkaConfig.GetOffsetsRetentionMinutes().GetValue(), 10)
 	}
 
 	return res, nil

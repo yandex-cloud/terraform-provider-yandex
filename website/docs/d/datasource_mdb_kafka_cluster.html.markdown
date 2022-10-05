@@ -84,7 +84,7 @@ The `kafka_config` block supports:
 
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
   `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`,
-  `num_partitions`, `default_replication_factor` - (Optional) Kafka server settings. For more information, see
+  `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes` - (Optional) Kafka server settings. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
