@@ -12,7 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-const yandexYDBDedicatedDefaultTimeout = 10 * time.Minute
+const yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
 
 func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 	return &schema.Resource{
