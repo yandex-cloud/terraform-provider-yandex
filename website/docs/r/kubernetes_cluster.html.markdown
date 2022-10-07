@@ -172,7 +172,7 @@ that will cause problems for cluster and related node group deletion.
 
 ## Attributes Reference
 
-* `cluster_id` - (Computed) ID of a new Kubernetes cluster.
+* `id` - (Computed) ID of a new Kubernetes cluster.
 * `status` - (Computed)Status of the Kubernetes cluster.
 * `health` - (Computed) Health of the Kubernetes cluster.
 * `created_at` - (Computed) The Kubernetes cluster creation timestamp.
