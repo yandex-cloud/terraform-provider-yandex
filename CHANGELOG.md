@@ -9,6 +9,7 @@ BUG FIXES:
 ENHANCEMENTS:
 * provider: Upgrade go-sdk and go-genproto to the latest version. This is needed for ALB RBAC feature. 
 * add `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes` attributes in `yandex_mdb_kafka_cluster` resource and data source
+* clickhouse: use version 22.8 for tests
 
 FEATURES:
 * mdb: add `backup_retain_period_days` attribute to `config` entity in `yandex_mdb_mysql_cluster` resource and data source
