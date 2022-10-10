@@ -18,7 +18,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 )
 
-const chVersion = "22.3"
+const chVersion = "22.8"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -413,7 +413,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	})
 }
 
-// Test that a sharded ClickHouse Cluster can be created, updated and destroyed
+// Test that a ClickHouse Cluster with cloud storage can be created
 func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 	t.Parallel()
 
@@ -429,7 +429,7 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
-			// Create sharded ClickHouse Cluster
+			// Create ClickHouse Cluster with cloud storage
 			{
 				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
