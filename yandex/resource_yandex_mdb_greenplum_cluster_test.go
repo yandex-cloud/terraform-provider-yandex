@@ -127,18 +127,19 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.disk_size", "24"),
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.disk_type_id", "network-ssd"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
 					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.disk_size", "24"),
 					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.disk_type_id", "network-ssd"),
 				),
 			},
+
 			// Changing resource_preset_id
 			{
 				Config: testAccMDBGreenplumClusterConfigStep2(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 5),
 					resource.TestCheckResourceAttr(greenplumResource, "master_subcluster.0.resources.0.resource_preset_id", "s2.small"),
-					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr(greenplumResource, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -187,6 +188,20 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.hour", "12"),
 					resource.TestCheckResourceAttr(greenplumResource, "deletion_protection", "false"),
+				),
+			},
+
+			mdbGreenplumClusterImportStep(greenplumResource),
+			// Expand cluster and set params
+			{
+				Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 7),
+					testAccCheckCreatedAtAttr(greenplumResource),
+					resource.TestCheckResourceAttr(greenplumResource, "segment_in_host", "2"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "false"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -294,7 +309,7 @@ resource "yandex_vpc_security_group" "mdb-greenplum-test-sg-x" {
 }
 `
 
-func testAccMDBGreenplumClusterConfigStep0(name, description, resourcePresetId string) string {
+func testAccMDBGreenplumClusterConfigTemplate(name, description, resourcePresetId string) string {
 	return fmt.Sprintf(greenplumVPCDependencies+`
 resource "yandex_mdb_greenplum_cluster" "foo" {
   name        = "%s"
@@ -309,8 +324,6 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   labels = { test_key_create : "test_value_create" }
 
   master_host_count  = 2
-  segment_host_count = 5
-  segment_in_host    = 1
 
   master_subcluster {
     resources {
@@ -321,7 +334,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   }
   segment_subcluster {
     resources {
-      resource_preset_id = "s2.micro"
+      resource_preset_id = "s2.small"
       disk_size          = 24
       disk_type_id       = "network-ssd"
     }
@@ -332,6 +345,13 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   security_group_ids = [yandex_vpc_security_group.mdb-greenplum-test-sg-x.id]
 
 `, name, description, resourcePresetId)
+}
+
+func testAccMDBGreenplumClusterConfigStep0(name, description, resourcePresetId string) string {
+	return testAccMDBGreenplumClusterConfigTemplate(name, description, resourcePresetId) + `
+  segment_host_count = 5
+  segment_in_host    = 1
+`
 }
 
 func testAccMDBGreenplumClusterConfigStep1(name string, description string) string {
@@ -457,4 +477,23 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 	data_transfer = true
   }
 }`
+}
+
+func testAccMDBGreenplumClusterConfigStep7(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigTemplate(name, description, "s2.small") + `
+  segment_host_count = 7
+  segment_in_host    = 2
+
+  pooler_config {
+    pooling_mode             = "TRANSACTION"
+    pool_size                = 10
+    pool_client_idle_timeout = 0
+  }
+
+  access {
+	web_sql       = true
+	data_transfer = true
+  }
+}`
+
 }

@@ -5,6 +5,7 @@ BUG FIXES:
 * postgresql: fix `host_master_name` wrong behaviour in `yandex_mdb_postgresql_cluster` again
 * alb: fix `value` wrong behaviour in `yandex_alb_http_router` and `yandex_alb_virtual_host`
 * alb: fix default `path` value in `yandex_alb_backend_group`
+* greenplum: add expanding greenplum cluster in a case of changing segments host numbers, details in `resource_yandex_mdb_greenplum_cluster`
 
 ENHANCEMENTS:
 * provider: Upgrade go-sdk and go-genproto to the latest version. This is needed for ALB RBAC feature. 

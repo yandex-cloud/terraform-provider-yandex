@@ -16,6 +16,8 @@ import (
 const (
 	yandexMDBGreenplumClusterDefaultTimeout = 120 * time.Minute
 	yandexMDBGreenplumClusterUpdateTimeout  = 120 * time.Minute
+	yandexMDBGreenplumClusterExpandTimeout  = 24 * 60 * time.Minute
+	yandexMDBGreenplumClusterExpandDuration = 7200 // in seconds
 )
 
 func resourceYandexMDBGreenplumCluster() *schema.Resource {
@@ -592,30 +594,80 @@ func resourceYandexMDBGreenplumClusterUpdate(d *schema.ResourceData, meta interf
 	d.Partial(true)
 
 	config := meta.(*Config)
+
+	reqExpand, err := prepareExpandGreenplumClusterRequest(d)
+	if err != nil {
+		return err
+	}
+
 	req, err := prepareUpdateGreenplumClusterRequest(d)
 	if err != nil {
 		return err
 	}
 
-	if len(req.UpdateMask.Paths) == 0 {
-		return nil
+	if len(req.UpdateMask.Paths) != 0 {
+
+		ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+		defer cancel()
+
+		op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Update(ctx, req))
+		if err != nil {
+			return fmt.Errorf("error while requesting API to update Greenplum Cluster %q: %s", d.Id(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while updating Greenplum Cluster %q: %s", d.Id(), err)
+		}
 	}
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
+	if reqExpand.AddSegmentsPerHostCount != 0 || reqExpand.SegmentHostCount != 0 {
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Update(ctx, req))
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update Greenplum Cluster %q: %s", d.Id(), err)
-	}
+		ctx, cancelExp := config.ContextWithTimeout(yandexMDBGreenplumClusterExpandTimeout)
+		defer cancelExp()
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while updating Greenplum Cluster %q: %s", d.Id(), err)
+		op, err := config.sdk.WrapOperation(config.sdk.MDB().Greenplum().Cluster().Expand(ctx, reqExpand))
+		if err != nil {
+			return fmt.Errorf("error while requesting API to expand Greenplum Cluster %q: %s", d.Id(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while expanding Greenplum Cluster %q: %s", d.Id(), err)
+		}
 	}
 
 	d.Partial(false)
+
 	return resourceYandexMDBGreenplumClusterRead(d, meta)
+}
+
+func prepareExpandGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.ExpandRequest, error) {
+
+	var segHostCount int64
+	var addSegCount int64
+
+	if d.HasChange("segment_host_count") {
+		segHostOld, segHostNew := d.GetChange("segment_host_count")
+		segHostCount = int64(segHostNew.(int) - segHostOld.(int))
+		// set key value to old as if no changes nas been made - need for correct update
+		d.Set("segment_host_count", segHostOld.(int))
+	}
+
+	if d.HasChange("segment_in_host") {
+		inHostOld, inHostNew := d.GetChange("segment_in_host")
+		addSegCount = int64(inHostNew.(int) - inHostOld.(int))
+		// set key value to old as if no changes nas been made - need for correct update
+		d.Set("segment_in_host", inHostOld.(int))
+	}
+
+	return &greenplum.ExpandRequest{
+		ClusterId:               d.Id(),
+		SegmentHostCount:        segHostCount,
+		AddSegmentsPerHostCount: addSegCount,
+		Duration:                yandexMDBGreenplumClusterExpandDuration,
+	}, nil
+
 }
 
 func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.UpdateClusterRequest, error) {
