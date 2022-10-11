@@ -127,6 +127,12 @@ func TestAccYandexFunction_full(t *testing.T) {
 	params.envKey = "tf_function_env"
 	params.envValue = "tf_function_env_value"
 	params.tags = acctest.RandomWithPrefix("tf-function-tag")
+	params.secret = testSecretParameters{
+		secretName:   "tf-function-secret-name",
+		secretKey:    "tf-function-secret-key",
+		secretEnvVar: "TF_FUNCTION_ENV_KEY",
+		secretValue:  "tf-function-secret-value",
+	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 
 	paramsUpdated := testYandexFunctionParameters{}
@@ -142,6 +148,12 @@ func TestAccYandexFunction_full(t *testing.T) {
 	paramsUpdated.envKey = "tf_function_env_updated"
 	paramsUpdated.envValue = "tf_function_env_value_updated"
 	paramsUpdated.tags = acctest.RandomWithPrefix("tf-function-tag-updated")
+	paramsUpdated.secret = testSecretParameters{
+		secretName:   "tf-function-secret-name",
+		secretKey:    "tf-function-secret-key-updated",
+		secretEnvVar: "TF_FUNCTION_ENV_KEY_UPDATED",
+		secretValue:  "tf-function-secret-value",
+	}
 	paramsUpdated.zipFilename = "test-fixtures/serverless/main.zip"
 
 	testConfigFunc := func(params testYandexFunctionParameters) resource.TestStep {
@@ -163,6 +175,10 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttrSet(functionResource, "version"),
 				resource.TestCheckResourceAttrSet(functionResource, "image_size"),
 				resource.TestCheckResourceAttrSet(functionResource, "loggroup_id"),
+				resource.TestCheckResourceAttrSet(functionResource, "secrets.0.id"),
+				resource.TestCheckResourceAttrSet(functionResource, "secrets.0.version_id"),
+				resource.TestCheckResourceAttr(functionResource, "secrets.0.key", params.secret.secretKey),
+				resource.TestCheckResourceAttr(functionResource, "secrets.0.environment_variable", params.secret.secretEnvVar),
 				testAccCheckCreatedAtAttr(functionResource),
 			),
 		}
@@ -338,7 +354,15 @@ type testYandexFunctionParameters struct {
 	envKey           string
 	envValue         string
 	tags             string
+	secret           testSecretParameters
 	zipFilename      string
+}
+
+type testSecretParameters struct {
+	secretName   string
+	secretKey    string
+	secretEnvVar string
+	secretValue  string
 }
 
 func testYandexFunctionFull(params testYandexFunctionParameters) string {
@@ -360,6 +384,12 @@ resource "yandex_function" "test-function" {
     %s = "%s"
   }
   tags = ["%s"]
+  secrets {
+    id = yandex_lockbox_secret.secret.id
+    version_id = yandex_lockbox_secret_version.secret_version.id
+    key = "%s"
+    environment_variable = "%s"
+  }
   content {
     zip_filename = "%s"
   }
@@ -367,6 +397,26 @@ resource "yandex_function" "test-function" {
 
 resource "yandex_iam_service_account" "test-account" {
   name = "%s"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "admin-account-iam" {
+  folder_id   = yandex_lockbox_secret.secret.folder_id
+  role        = "lockbox.payloadViewer"
+  members     = [
+    "serviceAccount:${yandex_iam_service_account.test-account.id}",
+  ]
+}
+
+resource "yandex_lockbox_secret" "secret" {
+  name        = "%s"
+}
+
+resource "yandex_lockbox_secret_version" "secret_version" {
+  secret_id = yandex_lockbox_secret.secret.id
+  entries {
+    key        = "%s"
+    text_value = "%s"
+  }
 }
 	`,
 		params.name,
@@ -380,6 +430,11 @@ resource "yandex_iam_service_account" "test-account" {
 		params.envKey,
 		params.envValue,
 		params.tags,
+		params.secret.secretKey,
+		params.secret.secretEnvVar,
 		params.zipFilename,
-		params.serviceAccount)
+		params.serviceAccount,
+		params.secret.secretName,
+		params.secret.secretKey,
+		params.secret.secretValue)
 }

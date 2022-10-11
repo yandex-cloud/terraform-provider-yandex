@@ -168,6 +168,32 @@ func resourceYandexFunction() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"secrets": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"version_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"environment_variable": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -264,7 +290,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 		updatePaths = append(updatePaths, "labels")
 	}
 
-	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id", "environment", "tags", "package", "content"}
+	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id", "environment", "tags", "package", "content", "secrets"}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
 		if d.HasChange(p) {
@@ -415,6 +441,30 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 	} else {
 		return nil, fmt.Errorf("Package or content option must be present for Yandex Cloud Function")
 	}
+	if v, ok := d.GetOk("secrets"); ok {
+		secretsList := v.([]interface{})
+
+		versionReq.Secrets = make([]*functions.Secret, len(secretsList))
+		for i, s := range secretsList {
+			secret := s.(map[string]interface{})
+
+			fs := &functions.Secret{}
+			if ID, ok := secret["id"]; ok {
+				fs.Id = ID.(string)
+			}
+			if versionID, ok := secret["version_id"]; ok {
+				fs.VersionId = versionID.(string)
+			}
+			if key, ok := secret["key"]; ok {
+				fs.Key = key.(string)
+			}
+			if environmentVariable, ok := secret["environment_variable"]; ok {
+				fs.Reference = &functions.Secret_EnvironmentVariable{EnvironmentVariable: environmentVariable.(string)}
+			}
+
+			versionReq.Secrets[i] = fs
+		}
+	}
 
 	return versionReq, nil
 }
@@ -453,6 +503,8 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 			tags.Add(v)
 		}
 	}
+
+	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
 	return d.Set("tags", tags)
 }
 
@@ -533,4 +585,18 @@ func isZipContent(buf []byte) bool {
 		buf[0] == 0x50 && buf[1] == 0x4B &&
 		(buf[2] == 0x3 || buf[2] == 0x5 || buf[2] == 0x7) &&
 		(buf[3] == 0x4 || buf[3] == 0x6 || buf[3] == 0x8)
+}
+
+func flattenFunctionSecrets(secrets []*functions.Secret) []map[string]interface{} {
+	s := make([]map[string]interface{}, len(secrets))
+
+	for i, secret := range secrets {
+		s[i] = map[string]interface{}{
+			"id":                   secret.Id,
+			"version_id":           secret.VersionId,
+			"key":                  secret.Key,
+			"environment_variable": secret.GetEnvironmentVariable(),
+		}
+	}
+	return s
 }

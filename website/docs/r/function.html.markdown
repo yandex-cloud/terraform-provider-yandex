@@ -46,6 +46,7 @@ The following arguments are supported:
 * `service_account_id` - Service account ID for Yandex Cloud Function
 * `environment` - A set of key/value environment variables for Yandex Cloud Function
 * `tags` - Tags for Yandex Cloud Function. Tag "$latest" isn't returned.
+* `secrets` - Secrets for Yandex Cloud Function.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.
 * `loggroup_id` - Loggroup ID size for Yandex Cloud Function.

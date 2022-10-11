@@ -83,6 +83,32 @@ func dataSourceYandexFunction() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
+			"secrets": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"version_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"environment_variable": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"version": {
 				Type:     schema.TypeString,
 				Computed: true,
