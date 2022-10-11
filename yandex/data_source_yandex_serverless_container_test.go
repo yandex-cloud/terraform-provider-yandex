@@ -94,6 +94,12 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 	params.envVarKey = "env_var_key"
 	params.envVarValue = acctest.RandomWithPrefix("tf-container-env-value")
 	params.serviceAccount = acctest.RandomWithPrefix("tf-container-sa")
+	params.secret = testSecretParameters{
+		secretName:   "tf-container-secret-name",
+		secretKey:    "tf-container-secret-key",
+		secretEnvVar: "TF_CONTAINER_ENV_KEY",
+		secretValue:  "tf-container-secret-value",
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -123,6 +129,10 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "image.0.environment.%", "1"),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "image.0.environment."+params.envVarKey, params.envVarValue),
 					testYandexServerlessContainerServiceAccountAttr(serverlessContainerDataSource, serverlessContainerServiceAccountResource),
+					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "secrets.0.id"),
+					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "secrets.0.version_id"),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "secrets.0.key", params.secret.secretKey),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "secrets.0.environment_variable", params.secret.secretEnvVar),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
@@ -203,6 +213,12 @@ resource "yandex_serverless_container" "test-container" {
   execution_timeout  = "%s"
   concurrency        = %d
   service_account_id = "${yandex_iam_service_account.test-account.id}"
+  secrets {
+    id = yandex_lockbox_secret.secret.id
+    version_id = yandex_lockbox_secret_version.secret_version.id
+    key = "%s"
+    environment_variable = "%s"
+  }
   image {
     url         = "%s"
     work_dir    = "%s"
@@ -217,6 +233,26 @@ resource "yandex_serverless_container" "test-container" {
 resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
+
+resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
+  folder_id   = yandex_lockbox_secret.secret.folder_id
+  role        = "lockbox.payloadViewer"
+  members     = [
+    "serviceAccount:${yandex_iam_service_account.test-account.id}",
+  ]
+}
+
+resource "yandex_lockbox_secret" "secret" {
+  name        = "%s"
+}
+
+resource "yandex_lockbox_secret_version" "secret_version" {
+  secret_id = yandex_lockbox_secret.secret.id
+  entries {
+    key        = "%s"
+    text_value = "%s"
+  }
+}
 	`,
 		params.name,
 		params.desc,
@@ -227,11 +263,16 @@ resource "yandex_iam_service_account" "test-account" {
 		params.coreFraction,
 		params.executionTimeout,
 		params.concurrency,
+		params.secret.secretKey,
+		params.secret.secretEnvVar,
 		params.imageURL,
 		params.workDir,
 		params.command,
 		params.argument,
 		params.envVarKey,
 		params.envVarValue,
-		params.serviceAccount)
+		params.serviceAccount,
+		params.secret.secretName,
+		params.secret.secretKey,
+		params.secret.secretValue)
 }

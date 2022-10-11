@@ -40,6 +40,7 @@ The following attributes are exported:
 * `execution_timeout` - Execution timeout (duration format) of Yandex Cloud Serverless Container
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID of Yandex Cloud Serverless Container
+* `secrets` - Secrets for Yandex Cloud Serverless Container
 * `image.0.url` - URL of image that deployed as Yandex Cloud Serverless Container
 * `image.0.work_dir` - Working directory of Yandex Cloud Serverless Container
 * `image.0.digest` - Digest of image that deployed as Yandex Cloud Serverless Container

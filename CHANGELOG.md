@@ -20,6 +20,7 @@ FEATURES:
 * **New Resource:** `yandex_lockbox_secret`
 * **New Resource:** `yandex_lockbox_secret_version`
 * serverless: add `secrets` attribute in `yandex_function` resource and data source
+* serverless: add `secrets` attribute in `yandex_serverless_container` resource and data source
 
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:

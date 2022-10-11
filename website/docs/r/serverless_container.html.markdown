@@ -52,6 +52,7 @@ The following arguments are supported:
 * `execution_timeout` - Execution timeout in seconds (**duration format**) for Yandex Cloud Serverless Container
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID for Yandex Cloud Serverless Container
+* `secrets` - Secrets for Yandex Cloud Serverless Container
 
 * `image` - Revision deployment image for Yandex Cloud Serverless Container
 * `image.0.url` (Required) - URL of image that will be deployed as Yandex Cloud Serverless Container

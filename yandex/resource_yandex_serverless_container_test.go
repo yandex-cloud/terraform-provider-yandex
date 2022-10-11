@@ -169,6 +169,12 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	params.envVarKey = "env_var_key"
 	params.envVarValue = acctest.RandomWithPrefix("tf-container-env-value")
 	params.serviceAccount = acctest.RandomWithPrefix("tf-container-sa")
+	params.secret = testSecretParameters{
+		secretName:   "tf-container-secret-name",
+		secretKey:    "tf-container-secret-key",
+		secretEnvVar: "TF_CONTAINER_ENV_KEY",
+		secretValue:  "tf-container-secret-value",
+	}
 
 	paramsUpdated := testYandexServerlessContainerParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-container-updated")
@@ -187,6 +193,12 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 	paramsUpdated.envVarKey = "env_var_key"
 	paramsUpdated.envVarValue = acctest.RandomWithPrefix("tf-container-env-value-updated")
 	paramsUpdated.serviceAccount = acctest.RandomWithPrefix("tf-container-sa-updated")
+	paramsUpdated.secret = testSecretParameters{
+		secretName:   "tf-container-secret-name-updated",
+		secretKey:    "tf-container-secret-key-updated",
+		secretEnvVar: "TF_CONTAINER_ENV_KEY_UPDATED",
+		secretValue:  "tf-container-secret-value-updated",
+	}
 
 	testConfigFunc := func(params testYandexServerlessContainerParameters) resource.TestStep {
 		return resource.TestStep{
@@ -206,6 +218,10 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				testYandexServerlessContainerRevisionConcurrency(&revision, params.concurrency),
 				testYandexServerlessContainerRevisionImage(&revision, params),
 				testYandexServerlessContainerRevisionServiceAccount(&revision, serverlessContainerServiceAccountResource),
+				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.id"),
+				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.version_id"),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.key", params.secret.secretKey),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.environment_variable", params.secret.secretEnvVar),
 				// metadata
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
@@ -476,6 +492,7 @@ type testYandexServerlessContainerParameters struct {
 	envVarKey        string
 	envVarValue      string
 	serviceAccount   string
+	secret           testSecretParameters
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -493,6 +510,12 @@ resource "yandex_serverless_container" "test-container" {
   execution_timeout  = "%s"
   concurrency        = %d
   service_account_id = "${yandex_iam_service_account.test-account.id}"
+  secrets {
+    id = yandex_lockbox_secret.secret.id
+    version_id = yandex_lockbox_secret_version.secret_version.id
+    key = "%s"
+    environment_variable = "%s"
+  }
   image {
     url         = "%s"
     work_dir    = "%s"
@@ -507,6 +530,26 @@ resource "yandex_serverless_container" "test-container" {
 resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
+
+resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
+  folder_id   = yandex_lockbox_secret.secret.folder_id
+  role        = "lockbox.payloadViewer"
+  members     = [
+    "serviceAccount:${yandex_iam_service_account.test-account.id}",
+  ]
+}
+
+resource "yandex_lockbox_secret" "secret" {
+  name        = "%s"
+}
+
+resource "yandex_lockbox_secret_version" "secret_version" {
+  secret_id = yandex_lockbox_secret.secret.id
+  entries {
+    key        = "%s"
+    text_value = "%s"
+  }
+}
 	`,
 		params.name,
 		params.desc,
@@ -517,11 +560,16 @@ resource "yandex_iam_service_account" "test-account" {
 		params.coreFraction,
 		params.executionTimeout,
 		params.concurrency,
+		params.secret.secretKey,
+		params.secret.secretEnvVar,
 		params.imageURL,
 		params.workDir,
 		params.command,
 		params.argument,
 		params.envVarKey,
 		params.envVarValue,
-		params.serviceAccount)
+		params.serviceAccount,
+		params.secret.secretName,
+		params.secret.secretKey,
+		params.secret.secretValue)
 }

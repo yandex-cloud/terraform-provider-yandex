@@ -204,7 +204,7 @@ resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "admin-account-iam" {
+resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
   folder_id   = yandex_lockbox_secret.secret.folder_id
   role        = "lockbox.payloadViewer"
   members     = [

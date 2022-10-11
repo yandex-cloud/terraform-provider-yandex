@@ -92,6 +92,32 @@ func resourceYandexServerlessContainer() *schema.Resource {
 				Optional: true,
 			},
 
+			"secrets": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"version_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"environment_variable": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"image": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -232,7 +258,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 		updatePaths = append(updatePaths, "labels")
 	}
 
-	lastRevisionPaths := []string{"memory", "cores", "core_fraction", "execution_timeout", "service_account_id", "image", "concurrency"}
+	lastRevisionPaths := []string{"memory", "cores", "core_fraction", "execution_timeout", "service_account_id", "secrets", "image", "concurrency"}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
 		if d.HasChange(p) {
@@ -359,6 +385,31 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 		revisionReq.ServiceAccountId = v.(string)
 	}
 
+	if v, ok := d.GetOk("secrets"); ok {
+		secretsList := v.([]interface{})
+
+		revisionReq.Secrets = make([]*containers.Secret, len(secretsList))
+		for i, s := range secretsList {
+			secret := s.(map[string]interface{})
+
+			fs := &containers.Secret{}
+			if ID, ok := secret["id"]; ok {
+				fs.Id = ID.(string)
+			}
+			if versionID, ok := secret["version_id"]; ok {
+				fs.VersionId = versionID.(string)
+			}
+			if key, ok := secret["key"]; ok {
+				fs.Key = key.(string)
+			}
+			if environmentVariable, ok := secret["environment_variable"]; ok {
+				fs.Reference = &containers.Secret_EnvironmentVariable{EnvironmentVariable: environmentVariable.(string)}
+			}
+
+			revisionReq.Secrets[i] = fs
+		}
+	}
+
 	revisionReq.ImageSpec = &containers.ImageSpec{
 		ImageUrl:   d.Get("image.0.url").(string),
 		WorkingDir: d.Get("image.0.work_dir").(string),
@@ -412,6 +463,7 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	}
 	d.Set("concurrency", int(revision.Concurrency))
 	d.Set("service_account_id", revision.ServiceAccountId)
+	d.Set("secrets", flattenRevisionSecrets(revision.Secrets))
 
 	if revision.Image != nil {
 		m := make(map[string]interface{})
@@ -430,4 +482,18 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	}
 
 	return nil
+}
+
+func flattenRevisionSecrets(secrets []*containers.Secret) []map[string]interface{} {
+	s := make([]map[string]interface{}, len(secrets))
+
+	for i, secret := range secrets {
+		s[i] = map[string]interface{}{
+			"id":                   secret.Id,
+			"version_id":           secret.VersionId,
+			"key":                  secret.Key,
+			"environment_variable": secret.GetEnvironmentVariable(),
+		}
+	}
+	return s
 }
