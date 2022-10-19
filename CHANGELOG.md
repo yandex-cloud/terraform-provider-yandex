@@ -21,6 +21,7 @@ FEATURES:
 * **New Resource:** `yandex_lockbox_secret_version`
 * serverless: add `secrets` attribute in `yandex_function` resource and data source
 * serverless: add `secrets` attribute in `yandex_serverless_container` resource and data source
+* kafka: support S3-Sink Kafka connector in `yandex_mdb_kafka_connector` resource
 
 ## 0.80.0 (September 22, 2022)
 BUG FIXES:

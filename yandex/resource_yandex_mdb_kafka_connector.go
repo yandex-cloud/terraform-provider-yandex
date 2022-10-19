@@ -71,6 +71,33 @@ func resourceYandexMDBKafkaConnector() *schema.Resource {
 					},
 				},
 			},
+			"connector_config_s3_sink": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"topics": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"file_compression_type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"file_max_records": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"s3_connection": {
+							Type:     schema.TypeList,
+							Required: true,
+							MaxItems: 1,
+							Elem:     resourceYandexMDBKafkaS3ConnectionSpec(),
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -121,6 +148,42 @@ func resourceYandexMDBKafkaClusterConnectionSpec() *schema.Resource {
 	}
 }
 
+func resourceYandexMDBKafkaS3ConnectionSpec() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"bucket_name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"external_s3": {
+				Type:     schema.TypeList,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"endpoint": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"access_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"secret_access_key": {
+							Type:      schema.TypeString,
+							Optional:  true,
+							Sensitive: true,
+						},
+						"region": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -137,7 +200,7 @@ func resourceYandexMDBKafkaConnectorCreate(d *schema.ResourceData, meta interfac
 		ConnectorSpec: connectorSpec,
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-		log.Printf("[DEBUG] Creating Kafka topic: %+v", req)
+		log.Printf("[DEBUG] Creating Kafka connector: %+v", req)
 		return config.sdk.MDB().Kafka().Connector().Create(ctx, req)
 	})
 	if err != nil {
@@ -168,7 +231,7 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 
 	parts := strings.SplitN(d.Id(), ":", 2)
 	if len(parts) != 2 {
-		return fmt.Errorf("invalid topic resource id format: %q", d.Id())
+		return fmt.Errorf("invalid connector resource id format: %q", d.Id())
 	}
 
 	clusterID := parts[0]
@@ -181,10 +244,39 @@ func resourceYandexMDBKafkaConnectorRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Connector %q", connectorName))
 	}
-	d.Set("cluster_id", clusterID)
-	d.Set("name", conn.Name)
-	d.Set("tasks_max", conn.TasksMax.GetValue())
+	if err = d.Set("cluster_id", clusterID); err != nil {
+		return err
+	}
+	if err = d.Set("name", conn.Name); err != nil {
+		return err
+	}
+	if err = d.Set("tasks_max", conn.TasksMax.GetValue()); err != nil {
+		return err
+	}
+	if err = d.Set("properties", conn.Properties); err != nil {
+		return err
+	}
 
+	switch conn.GetConnectorConfig().(type) {
+	case *kafka.Connector_ConnectorConfigMirrormaker:
+		cfg, err := flattenKafkaConnectorMirrormaker(conn.GetConnectorConfigMirrormaker())
+		if err != nil {
+			return err
+		}
+		if err = d.Set("connector_config_mirrormaker", cfg); err != nil {
+			return err
+		}
+	case *kafka.Connector_ConnectorConfigS3Sink:
+		cfg, err := flattenKafkaConnectorS3Sink(conn.GetConnectorConfigS3Sink())
+		if err != nil {
+			return err
+		}
+		if err = d.Set("connector_config_s3_sink", cfg); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("this type of connector is not supported by current version of terraform provider")
+	}
 	return nil
 }
 
@@ -287,9 +379,19 @@ func buildKafkaConnectorSpec(d *schema.ResourceData) (*kafka.ConnectorSpec, erro
 		return nil, fmt.Errorf("error expanding properties while creating connector: %s", err)
 	}
 	connSpec.Properties = props
-
+	var countOfSpecificConnectorConfigs int64
 	if _, ok := d.GetOk("connector_config_mirrormaker"); ok {
 		connSpec.SetConnectorConfigMirrormaker(buildKafkaMirrorMakerSpec(d))
+		countOfSpecificConnectorConfigs++
+	}
+	if _, ok := d.GetOk("connector_config_s3_sink"); ok {
+		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpec(d))
+		countOfSpecificConnectorConfigs++
+	}
+	if countOfSpecificConnectorConfigs == 0 {
+		return nil, fmt.Errorf("connector-specific config must be specified")
+	} else if countOfSpecificConnectorConfigs > 1 {
+		return nil, fmt.Errorf("must be specified only one connector-specific config")
 	}
 	return connSpec, nil
 }
@@ -305,8 +407,17 @@ func buildKafkaConnectorUpdateSpec(d *schema.ResourceData) (*kafka.UpdateConnect
 	}
 	connSpec.Properties = props
 
+	var countOfSpecificConnectorConfigs int64
 	if _, ok := d.GetOk("connector_config_mirrormaker"); ok {
 		connSpec.SetConnectorConfigMirrormaker(buildKafkaMirrorMakerSpec(d))
+		countOfSpecificConnectorConfigs++
+	}
+	if _, ok := d.GetOk("connector_config_s3_sink"); ok {
+		connSpec.SetConnectorConfigS3Sink(buildKafkaS3SinkConnectorSpecUpdate(d))
+		countOfSpecificConnectorConfigs++
+	}
+	if countOfSpecificConnectorConfigs > 1 {
+		return nil, fmt.Errorf("must be specified only one connector-specific config")
 	}
 	return connSpec, nil
 }
@@ -344,6 +455,43 @@ func buildKafkaClusterConnectionSpec(d *schema.ResourceData, prefixKey string) *
 	return spec
 }
 
+func buildKafkaS3SinkConnectorSpec(d *schema.ResourceData) *kafka.ConnectorConfigS3SinkSpec {
+	return &kafka.ConnectorConfigS3SinkSpec{
+		S3Connection:        buildS3ConnectionSpec(d, "connector_config_s3_sink.0.s3_connection.0."),
+		Topics:              d.Get("connector_config_s3_sink.0.topics").(string),
+		FileCompressionType: d.Get("connector_config_s3_sink.0.file_compression_type").(string),
+		FileMaxRecords:      getWrapedInt64(d, "connector_config_s3_sink.0.file_max_records"),
+	}
+}
+
+func buildKafkaS3SinkConnectorSpecUpdate(d *schema.ResourceData) *kafka.UpdateConnectorConfigS3SinkSpec {
+	return &kafka.UpdateConnectorConfigS3SinkSpec{
+		S3Connection:   buildS3ConnectionSpec(d, "connector_config_s3_sink.0.s3_connection.0."),
+		Topics:         d.Get("connector_config_s3_sink.0.topics").(string),
+		FileMaxRecords: getWrapedInt64(d, "connector_config_s3_sink.0.file_max_records"),
+	}
+}
+
+func buildS3ConnectionSpec(d *schema.ResourceData, prefixKey string) *kafka.S3ConnectionSpec {
+	key := func(key string) string {
+		return fmt.Sprintf("%s%s", prefixKey, key)
+	}
+	spec := &kafka.S3ConnectionSpec{
+		BucketName: d.Get(key("bucket_name")).(string),
+	}
+	if _, ok := d.GetOk(key("external_s3")); ok {
+		spec.Storage = &kafka.S3ConnectionSpec_ExternalS3{
+			ExternalS3: &kafka.ExternalS3StorageSpec{
+				AccessKeyId:     d.Get(key("external_s3.0.access_key_id")).(string),
+				SecretAccessKey: d.Get(key("external_s3.0.secret_access_key")).(string),
+				Endpoint:        d.Get(key("external_s3.0.endpoint")).(string),
+				Region:          d.Get(key("external_s3.0.region")).(string),
+			},
+		}
+	}
+	return spec
+}
+
 var mdbKafkaConnectorUpdateFieldsMap = map[string]string{}
 
 func init() {
@@ -351,9 +499,13 @@ func init() {
 	valPrefix := "connector_spec."
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"tasks_max"] = valPrefix + "tasks_max"
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"properties"] = valPrefix + "properties"
+	addMirrormakerUpdatePathsToFieldsMap(keyPrefix, valPrefix)
+	addS3SinkUpdatePathsToFieldsMap(keyPrefix, valPrefix)
+}
 
-	keyPrefix = keyPrefix + "connector_config_mirrormaker.0."
-	valPrefix = valPrefix + "connector_config_mirrormaker."
+func addMirrormakerUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefix string) {
+	keyPrefix := commonKeyPrefix + "connector_config_mirrormaker.0."
+	valPrefix := commonValPrefix + "connector_config_mirrormaker."
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"topics"] = valPrefix + "topics"
 	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"replication_factor"] = valPrefix + "replication_factor"
 
@@ -369,7 +521,23 @@ func init() {
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_password"] = valPrefix + "sasl_password"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"sasl_mechanism"] = valPrefix + "sasl_mechanism"
 		mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"security_protocol"] = valPrefix + "security_protocol"
-
 	}
+}
 
+func addS3SinkUpdatePathsToFieldsMap(commonKeyPrefix string, commonValPrefix string) {
+	keyPrefix := commonKeyPrefix + "connector_config_s3_sink.0."
+	valPrefix := commonValPrefix + "connector_config_s3_sink."
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"topics"] = valPrefix + "topics"
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"file_max_records"] = valPrefix + "file_max_records"
+
+	keyPrefix = keyPrefix + "s3_connection" + ".0."
+	valPrefix = valPrefix + "s3_connection" + "."
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"bucket_name"] = valPrefix + "bucket_name"
+
+	keyPrefix = keyPrefix + "external_s3.0."
+	valPrefix = valPrefix + "external_s3."
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"access_key_id"] = valPrefix + "access_key_id"
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"secret_access_key"] = valPrefix + "secret_access_key"
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"endpoint"] = valPrefix + "endpoint"
+	mdbKafkaConnectorUpdateFieldsMap[keyPrefix+"region"] = valPrefix + "region"
 }

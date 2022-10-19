@@ -1009,3 +1009,80 @@ func flattenKafkaAccess(c *kafka.ConfigSpec) []map[string]interface{} {
 	}
 	return []map[string]interface{}{out}
 }
+
+func flattenKafkaConnectorMirrormaker(mm *kafka.ConnectorConfigMirrorMaker) ([]map[string]interface{}, error) {
+	config := map[string]interface{}{
+		"topics":             mm.Topics,
+		"replication_factor": mm.ReplicationFactor.GetValue(),
+	}
+	sourceCluster, err := flattenKafkaClusterConnection(mm.SourceCluster)
+	if err != nil {
+		return nil, err
+	}
+	targetCluster, err := flattenKafkaClusterConnection(mm.TargetCluster)
+	if err != nil {
+		return nil, err
+	}
+	config["source_cluster"] = []map[string]interface{}{sourceCluster}
+	config["target_cluster"] = []map[string]interface{}{targetCluster}
+	return []map[string]interface{}{config}, nil
+}
+
+func flattenKafkaClusterConnection(cc *kafka.ClusterConnection) (map[string]interface{}, error) {
+	config := map[string]interface{}{
+		"alias": cc.Alias,
+	}
+	switch cc.GetClusterConnection().(type) {
+	case *kafka.ClusterConnection_ThisCluster:
+		config["this_cluster"] = []interface{}{map[string]interface{}{}}
+	case *kafka.ClusterConnection_ExternalCluster:
+		config["external_cluster"] = []map[string]interface{}{flattenKafkaExternalClusterConnection(cc.GetExternalCluster())}
+	default:
+		return nil, fmt.Errorf("cluster connection type of mirrormaker's cluster with alias %q not specified", cc.Alias)
+	}
+	return config, nil
+}
+
+func flattenKafkaExternalClusterConnection(ecc *kafka.ExternalClusterConnection) map[string]interface{} {
+	return map[string]interface{}{
+		"bootstrap_servers": ecc.BootstrapServers,
+		"sasl_username":     ecc.SaslUsername,
+		"sasl_mechanism":    ecc.SaslMechanism,
+		"security_protocol": ecc.SecurityProtocol,
+	}
+}
+
+func flattenKafkaConnectorS3Sink(s3Sink *kafka.ConnectorConfigS3Sink) ([]map[string]interface{}, error) {
+	config := map[string]interface{}{
+		"topics":                s3Sink.Topics,
+		"file_compression_type": s3Sink.FileCompressionType,
+		"file_max_records":      s3Sink.FileMaxRecords.GetValue(),
+	}
+	s3Connection, err := flattenS3Connection(s3Sink.GetS3Connection())
+	if err != nil {
+		return nil, err
+	}
+	config["s3_connection"] = []map[string]interface{}{s3Connection}
+	return []map[string]interface{}{config}, nil
+}
+
+func flattenS3Connection(s3Conn *kafka.S3Connection) (map[string]interface{}, error) {
+	config := map[string]interface{}{
+		"bucket_name": s3Conn.BucketName,
+	}
+	switch s3Conn.GetStorage().(type) {
+	case *kafka.S3Connection_ExternalS3:
+		config["external_s3"] = []map[string]interface{}{flattenExternalS3Storage(s3Conn.GetExternalS3())}
+	default:
+		return nil, fmt.Errorf("this s3 connection type of s3-sink connector is not supported by current version of terraform provider")
+	}
+	return config, nil
+}
+
+func flattenExternalS3Storage(externalS3 *kafka.ExternalS3Storage) map[string]interface{} {
+	return map[string]interface{}{
+		"access_key_id": externalS3.AccessKeyId,
+		"endpoint":      externalS3.Endpoint,
+		"region":        externalS3.Region,
+	}
+}
