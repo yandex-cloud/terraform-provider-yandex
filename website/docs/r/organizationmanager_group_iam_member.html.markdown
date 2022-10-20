@@ -6,16 +6,10 @@ description: |-
  Allows management of a single member for a single IAM binding on a Yandex.Cloud Organization Manager Group.
 ---
 
-# yandex\_organizationmanager\_organization\_iam\_member
+# yandex\_organizationmanager\_group\_iam\_member
 
 Allows creation and management of a single member for a single binding within
 the IAM policy for an existing Yandex Organization Manager Group.
-
-~> **Note:** Roles controlled by `yandex_organizationmanager_group_iam_binding`
-   should not be assigned using `yandex_organizationmanager_group_iam_member`.
-
-~> **Note:** When you delete `yandex_organizationmanager_group_iam_binding` resource,
-   the roles can be deleted from other users within the organization as well. Be careful!
 
 ## Example Usage
 
