@@ -1199,7 +1199,7 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 	}
 }
 
-//// These need a bit of randomness as the name can only be used once globally
+// These need a bit of randomness as the name can only be used once globally
 func testAccBucketName(randInt int) string {
 	return fmt.Sprintf("tf-test-bucket-%d", randInt)
 }
@@ -1293,21 +1293,21 @@ func (b testAccStorageBucketConfigBuilder) asAdmin() testAccStorageBucketConfigB
 render creates new bucket config. For visual representation, note the following
 example of how it might look after calling this method:
 
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-test-bucket-%d"
+	resource "yandex_storage_bucket" "test" {
+		bucket = "tf-test-bucket-%d"
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+		access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+		secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	default_storage_class = "STANDARD"
+		default_storage_class = "STANDARD"
 
-	anonymous_access_flags {
-		list = false
-		read = false
+		anonymous_access_flags {
+			list = false
+			read = false
+		}
+
+		{ bucket statements on each line }
 	}
-
-	{ bucket statements on each line }
-}
 
 { after bucket statements on each line }
 
