@@ -24,7 +24,7 @@ const (
 	pgResource = "yandex_mdb_postgresql_cluster.foo"
 )
 
-var postgresql_versions = [...]string{"11", "11-1c", "12", "12-1c", "13", "13-1c", "14", "14-1c"}
+var postgresql_versions = [...]string{"11", "11-1c", "12", "12-1c", "13", "13-1c", "14", "14-1c", "15"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{
@@ -100,6 +100,10 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 			"host.1.replication_source_name", // not returned
 			"host.2.replication_source_name", // not returned
 			"host.3.replication_source_name", // not returned
+			"host.0.role",                    // not returned
+			"host.1.role",                    // not returned
+			"host.2.role",                    // not returned
+			"host.3.role",                    // not returned
 			"host_master_name",               // not returned
 		},
 	}
@@ -744,6 +748,14 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 		}, nil
 	case "14-1c":
 		userConfig := cluster.Config.GetPostgresqlConfig_14_1C().UserConfig
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+		}, nil
+	case "15":
+		userConfig := cluster.Config.GetPostgresqlConfig_15().UserConfig
 		return &clusterSettingsResult{
 			maxConnections:              userConfig.MaxConnections.GetValue(),
 			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),

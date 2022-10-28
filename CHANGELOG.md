@@ -1,4 +1,6 @@
 ## 0.82.0 (Unreleased)
+FEATURES:
+* postgresql: add postgresql 15 support
 
 FEATURES:
 * **New Data Source:** `yandex_compute_snapshot_schedule`

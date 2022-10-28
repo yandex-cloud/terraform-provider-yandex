@@ -849,7 +849,6 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 }
 
 func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error {
-
 	maintenanceWindow, err := expandPGMaintenanceWindow(d)
 	if err != nil {
 		return fmt.Errorf("error expanding maintenance_window while updating PostgreSQL after creation: %s", err)
@@ -858,11 +857,11 @@ func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error 
 	if maintenanceWindow == nil {
 		return nil
 	}
-	updatePath := []string{"maintenance_window"}
+
 	request := &postgresql.UpdateClusterRequest{
 		ClusterId:         d.Id(),
 		MaintenanceWindow: maintenanceWindow,
-		UpdateMask:        &field_mask.FieldMask{Paths: updatePath},
+		UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
 	}
 
 	config := meta.(*Config)
@@ -887,7 +886,6 @@ func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	d.Partial(true)
 
 	if err := setPGFolderID(d, meta); err != nil {
@@ -934,48 +932,15 @@ func resourceYandexMDBPostgreSQLClusterUpdate(d *schema.ResourceData, meta inter
 }
 
 func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
-	request, updateFieldConfigName, err := getPGClusterUpdateRequest(d)
+	log.Println("[DEBUG] updatePGClusterParams")
+	request, err := prepareUpdatePostgreSQLClusterParamsRequest(d)
 	if err != nil {
 		return err
 	}
 
-	mdbPGUpdateFieldsMap := map[string]string{
-		"name":                               "name",
-		"description":                        "description",
-		"labels":                             "labels",
-		"config.0.version":                   "config_spec.version",
-		"config.0.autofailover":              "config_spec.autofailover",
-		"config.0.pooler_config":             "config_spec.pooler_config",
-		"config.0.access":                    "config_spec.access",
-		"config.0.performance_diagnostics":   "config_spec.performance_diagnostics",
-		"config.0.backup_window_start":       "config_spec.backup_window_start",
-		"config.0.resources":                 "config_spec.resources",
-		"config.0.backup_retain_period_days": "config_spec.backup_retain_period_days",
-		"security_group_ids":                 "security_group_ids",
-		"maintenance_window":                 "maintenance_window",
-		"deletion_protection":                "deletion_protection",
-	}
-
-	if updateFieldConfigName != "" {
-		mdbPGUpdateFieldsMap["config.0.postgresql_config"] = "config_spec." + updateFieldConfigName
-	}
-
-	onDone := []func(){}
-	updatePath := []string{}
-	for field, path := range mdbPGUpdateFieldsMap {
-		if d.HasChange(field) {
-			updatePath = append(updatePath, path)
-			onDone = append(onDone, func() {
-
-			})
-		}
-	}
-
-	if len(updatePath) == 0 {
+	if len(request.UpdateMask.Paths) == 0 {
 		return nil
 	}
-
-	request.UpdateMask = &field_mask.FieldMask{Paths: updatePath}
 
 	config := meta.(*Config)
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
@@ -990,37 +955,32 @@ func updatePGClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error while requesting API to update PostgreSQL Cluster %q: %s", d.Id(), err)
 	}
 
-	err = op.Wait(ctx)
-	if err != nil {
+	if err := op.Wait(ctx); err != nil {
 		return fmt.Errorf("error while waiting for operation to update PostgreSQL Cluster %q: %s", d.Id(), err)
-	}
-
-	for _, f := range onDone {
-		f()
 	}
 
 	return nil
 }
 
-func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateClusterRequest, updateFieldConfigName string, err error) {
+func prepareUpdatePostgreSQLClusterParamsRequest(d *schema.ResourceData) (request *postgresql.UpdateClusterRequest, err error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, updateFieldConfigName, fmt.Errorf("error expanding labels while updating PostgreSQL Cluster: %s", err)
+		return nil, fmt.Errorf("error expanding labels while updating PostgreSQL Cluster: %s", err)
 	}
 
-	configSpec, updateFieldConfigName, err := expandPGConfigSpec(d)
+	configSpec, settingNames, err := expandPGConfigSpec(d)
 	if err != nil {
-		return nil, updateFieldConfigName, fmt.Errorf("error expanding config while updating PostgreSQL Cluster: %s", err)
+		return nil, fmt.Errorf("error expanding config while updating PostgreSQL Cluster: %s", err)
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
 	if d.HasChange("host_group_ids") {
-		return nil, updateFieldConfigName, fmt.Errorf("host_group_ids change is not supported yet")
+		return nil, fmt.Errorf("host_group_ids change is not supported yet")
 	}
 
 	maintenanceWindow, err := expandPGMaintenanceWindow(d)
 	if err != nil {
-		return nil, updateFieldConfigName, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
+		return nil, fmt.Errorf("error expanding maintenance_window while updating PostgreSQL cluster: %s", err)
 	}
 
 	return &postgresql.UpdateClusterRequest{
@@ -1032,7 +992,8 @@ func getPGClusterUpdateRequest(d *schema.ResourceData) (ucr *postgresql.UpdateCl
 		MaintenanceWindow:  maintenanceWindow,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
-	}, updateFieldConfigName, nil
+		UpdateMask:         &field_mask.FieldMask{Paths: expandPGParamsUpdatePath(d, settingNames)},
+	}, nil
 }
 
 func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {

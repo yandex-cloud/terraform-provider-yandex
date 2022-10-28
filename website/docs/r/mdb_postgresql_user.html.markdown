@@ -32,7 +32,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   network_id  = yandex_vpc_network.foo.id
 
   config {
-    version = 14
+    version = 15
     resources {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"

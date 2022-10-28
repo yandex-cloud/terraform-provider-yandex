@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -272,11 +271,11 @@ func expandGreenplumConfigSpecGreenplumConfig(d *schema.ResourceData) (*greenplu
 		cfg := &greenplum.ConfigSpec_GreenplumConfig_6_17{
 			GreenplumConfig_6_17: &greenplum.GreenplumConfig6_17{},
 		}
-		fields, err := expandResourceGenerateNonSkippedFields(mdbGreenplumSettingsFieldsInfo, d, cfg.GreenplumConfig_6_17, "greenplum_config.", true)
+		settingNames, err := expandResourceGenerateNonSkippedFields(mdbGreenplumSettingsFieldsInfo, d, cfg.GreenplumConfig_6_17, "greenplum_config.", true)
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		return cfg, nil, fields, nil
+		return cfg, nil, settingNames, nil
 	} else if version == "6.19" {
 		cfg := &greenplum.ConfigSpec_GreenplumConfig_6_19{
 			GreenplumConfig_6_19: &greenplum.GreenplumConfig6_19{},
@@ -286,8 +285,6 @@ func expandGreenplumConfigSpecGreenplumConfig(d *schema.ResourceData) (*greenplu
 		if err != nil {
 			return nil, nil, []string{}, err
 		}
-		log.Printf("[SPECIAL DEBUG] %v", cfg.GreenplumConfig_6_19)
-		log.Printf("[SPECIAL DEBUG] %v", settingNames)
 		return nil, cfg, settingNames, nil
 	}
 
