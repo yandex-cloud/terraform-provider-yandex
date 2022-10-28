@@ -14,6 +14,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/grpc"
+	proto "google.golang.org/protobuf/proto"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1"
@@ -1601,4 +1602,70 @@ func flattenContainerRepositoryLifecyclePolicyRule(lifecycleRule *containerregis
 	m["retained_top"] = lifecycleRule.GetRetainedTop()
 
 	return m
+}
+
+func flattenSnapshotScheduleSchedulePolicy(policy *compute.SchedulePolicy) ([]map[string]interface{}, error) {
+	resourceMap := map[string]interface{}{
+		"expression": policy.GetExpression(),
+		"start_at":   getTimestamp(policy.GetStartAt()),
+	}
+
+	return []map[string]interface{}{resourceMap}, nil
+}
+
+func expandSnapshotScheduleSchedulePolicy(d *schema.ResourceData) (*compute.SchedulePolicy, error) {
+	val := new(compute.SchedulePolicy)
+
+	if v, ok := d.GetOk("schedule_policy.0.start_at"); ok {
+		startAt, err := parseTimestamp(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetStartAt(startAt)
+	}
+
+	if v, ok := d.GetOk("schedule_policy.0.expression"); ok {
+		val.SetExpression(v.(string))
+	}
+
+	empty := new(compute.SchedulePolicy)
+	if proto.Equal(val, empty) {
+		return nil, nil
+	}
+
+	return val, nil
+}
+
+func flattenSnapshotScheduleSnapshotSpec(spec *compute.SnapshotSpec) ([]map[string]interface{}, error) {
+	resourceMap := map[string]interface{}{
+		"description": spec.GetDescription(),
+		"labels":      spec.GetLabels(),
+	}
+
+	return []map[string]interface{}{resourceMap}, nil
+}
+
+func expandSnapshotScheduleSnapshotSpec(d *schema.ResourceData) (*compute.SnapshotSpec, error) {
+	val := new(compute.SnapshotSpec)
+
+	if v, ok := d.GetOk("snapshot_spec.0.description"); ok {
+		val.SetDescription(v.(string))
+	}
+
+	if v, ok := d.GetOk("snapshot_spec.0.labels"); ok {
+		labels, err := expandLabels(v.(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetLabels(labels)
+	}
+
+	empty := new(compute.SnapshotSpec)
+	if proto.Equal(val, empty) {
+		return nil, nil
+	}
+
+	return val, nil
 }

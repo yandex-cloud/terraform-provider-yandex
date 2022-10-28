@@ -849,3 +849,65 @@ func TestFlattenContainerRepositoryLifecyclePolicyRule(t *testing.T) {
 		}
 	})
 }
+
+func TestFlattenSnapshotScheduleSchedulePolicy(t *testing.T) {
+	t.Parallel()
+
+	t.Run("flattenSnapshotScheduleSchedulePolicy", func(t *testing.T) {
+		test := struct {
+			policy   *compute.SchedulePolicy
+			expected []map[string]interface{}
+		}{
+			policy: &compute.SchedulePolicy{
+				Expression: "* * * * *",
+			},
+			expected: []map[string]interface{}{
+				{
+					"expression": "* * * * *", "start_at": "",
+				},
+			},
+		}
+
+		got, err := flattenSnapshotScheduleSchedulePolicy(test.policy)
+		if err != nil {
+			t.Fatalf("Invalid schedule policy: %v", err)
+		}
+		if !reflect.DeepEqual(test.expected, got) {
+			t.Errorf("%#v is not equal to %#v", test.expected, got)
+		}
+	})
+}
+
+func TestFlattenSnapshotScheduleSnapshotSpec(t *testing.T) {
+	t.Parallel()
+
+	t.Run("flattenSnapshotScheduleSnapshotSpec", func(t *testing.T) {
+		test := struct {
+			spec     *compute.SnapshotSpec
+			expected []map[string]interface{}
+		}{
+			spec: &compute.SnapshotSpec{
+				Description: "test description",
+				Labels: map[string]string{
+					"foo": "bar",
+				},
+			},
+			expected: []map[string]interface{}{
+				{
+					"description": "test description",
+					"labels": map[string]string{
+						"foo": "bar",
+					},
+				},
+			},
+		}
+
+		got, err := flattenSnapshotScheduleSnapshotSpec(test.spec)
+		if err != nil {
+			t.Fatalf("Invalid spec: %v", err)
+		}
+		if !reflect.DeepEqual(test.expected, got) {
+			t.Errorf("%#v is not equal to %#v", test.expected, got)
+		}
+	})
+}

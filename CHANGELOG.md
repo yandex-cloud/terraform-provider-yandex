@@ -1,5 +1,9 @@
 ## 0.82.0 (Unreleased)
 
+FEATURES:
+* **New Data Source:** `yandex_compute_snapshot_schedule`
+* **New Resource:** `yandex_compute_snapshot_schedule`
+
 ## 0.81.0 (October 20, 2022)
 BUG FIXES:
 * compute: fix size validation in `resource_yandex_compute_disk`

@@ -526,6 +526,15 @@ func getTimestamp(timestamp *timestamppb.Timestamp) string {
 	return timestamp.AsTime().Format(defaultTimeFormat)
 }
 
+func parseTimestamp(ts string) (*timestamppb.Timestamp, error) {
+	t, err := time.Parse(defaultTimeFormat, ts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse timestamp: %s", err)
+	}
+
+	return timestamppb.New(t), nil
+}
+
 func stringSliceToLower(s []string) []string {
 	var ret []string
 	for _, v := range s {
