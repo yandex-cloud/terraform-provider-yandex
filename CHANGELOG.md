@@ -1,6 +1,7 @@
 ## 0.82.0 (Unreleased)
 FEATURES:
 * postgresql: add postgresql 15 support
+* postgresql: fix bug with cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
 
 FEATURES:
 * **New Data Source:** `yandex_compute_snapshot_schedule`

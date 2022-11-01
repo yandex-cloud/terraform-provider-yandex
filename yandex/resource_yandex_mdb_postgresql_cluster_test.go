@@ -217,6 +217,19 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "config.0.backup_retain_period_days", "12"),
 				),
 			},
+			mdbPGClusterImportStep(clusterResource),
+			// 13. Check it is possible to drop users and dbs
+			{
+				Config: testAccMDBPGClusterConfigCheckUsersAndDBsDropping(clusterName, pgDesc2, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(clusterResource, "description", pgDesc2),
+					testAccCheckMDBPGClusterHasUsers(clusterResource, map[string][]string{"alice": {"testdb"}}),
+					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb"}),
+				),
+			},
 		},
 	})
 }
@@ -1052,6 +1065,90 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
   security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
 }
+`, name, desc, version)
+}
+
+func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version string) string {
+	return fmt.Sprintf(pgVPCDependencies+`
+	resource "yandex_mdb_postgresql_cluster" "foo" {
+		name        = "%s"
+		description = "%s"
+		environment = "PRESTABLE"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+	  
+		labels = {
+		  new_key = "new_value"
+		}
+	  
+		maintenance_window {
+		  type = "WEEKLY"
+		  day  = "WED"
+		  hour = 22
+		}
+	  
+		config {
+		  version = "%s"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 18
+			disk_type_id       = "network-ssd"
+		  }
+		  access {
+			web_sql       = true
+			serverless    = false
+			data_lens     = false
+			data_transfer = false
+		  }
+		  performance_diagnostics {
+			sessions_sampling_interval   = 9
+			statements_sampling_interval = 60
+		  }
+		  
+		  backup_retain_period_days = 12
+		  
+		  pooler_config {
+			pooling_mode = "TRANSACTION"
+			pool_discard = false
+		  }
+	  
+		  postgresql_config = {
+			max_connections                   = 395
+			enable_parallel_hash              = true
+			autovacuum_vacuum_scale_factor    = 0.34
+			default_transaction_isolation     = "TRANSACTION_ISOLATION_READ_UNCOMMITTED"
+		  }
+		}
+	  
+		user {
+		  name       = "alice"
+		  password   = "mysecurepassword"
+		  conn_limit = 42
+	  
+		  permission {
+			database_name = "testdb"
+		  }
+	  
+		  settings = {
+			default_transaction_isolation = "read uncommitted"
+			log_min_duration_statement    = 5000
+		  }
+		}
+	  
+		host {
+		  zone             = "ru-central1-a"
+		  subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		}
+	  
+		database {
+		  owner      = "alice"
+		  name       = "testdb"
+		  lc_collate = "en_US.UTF-8"
+		  lc_type    = "en_US.UTF-8"
+		}
+	  
+		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id, yandex_vpc_security_group.mdb-pg-test-sg-y.id]
+	  }
 `, name, desc, version)
 }
 

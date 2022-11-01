@@ -303,24 +303,20 @@ func resourceYandexMDBPostgreSQLClusterDatabaseBlock() *schema.Resource {
 			},
 			"owner": {
 				Type:     schema.TypeString,
-				ForceNew: true,
 				Required: true,
 			},
 			"lc_collate": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "C",
 			},
 			"lc_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "C",
 			},
 			"template_db": {
 				Type:     schema.TypeString,
-				ForceNew: true,
 				Optional: true,
 			},
 			"extension": {
