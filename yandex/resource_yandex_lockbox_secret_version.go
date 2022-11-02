@@ -121,7 +121,7 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 
 	payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, getPayloadReq)
 	if err != nil {
-		return diag.Errorf("could not get payload from secret %v and version %v", getPayloadReq.SecretId, getPayloadReq.VersionId)
+		return diag.Errorf("could not get payload from secret %v and version %v: %s", getPayloadReq.SecretId, getPayloadReq.VersionId, err)
 	}
 
 	log.Printf("[INFO] read Lockbox payload (to compare entries) with VersionID: %s", payload.GetVersionId())

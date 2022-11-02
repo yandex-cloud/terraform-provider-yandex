@@ -1,4 +1,7 @@
 ## 0.82.0 (Unreleased)
+BUG FIXES:
+* lockbox: display error cause, when creating resource `yandex_lockbox_secret_version` fails
+
 FEATURES:
 * postgresql: add postgresql 15 support
 * postgresql: fix bug with cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
