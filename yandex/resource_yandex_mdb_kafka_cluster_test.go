@@ -160,6 +160,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 								"replica_fetch_max_bytes":         14,
 								"ssl_cipher_suites":               []interface{}{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 								"offsets_retention_minutes":       15,
+								"sasl_enabled_mechanisms":         []interface{}{"SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"},
 							},
 						},
 					},
@@ -287,6 +288,10 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						ReplicaFetchMaxBytes:        &wrappers.Int64Value{Value: 14},
 						SslCipherSuites:             []string{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 						OffsetsRetentionMinutes:     &wrappers.Int64Value{Value: 15},
+						SaslEnabledMechanisms: []kafka.SaslMechanism{
+							kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256,
+							kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512,
+						},
 					},
 				},
 			},
@@ -397,6 +402,7 @@ func TestExpandKafka3xClusterConfig(t *testing.T) {
 									"replica_fetch_max_bytes":         14,
 									"ssl_cipher_suites":               []interface{}{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 									"offsets_retention_minutes":       15,
+									"sasl_enabled_mechanisms":         []interface{}{"SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"},
 								},
 							},
 						},
@@ -457,6 +463,10 @@ func TestExpandKafka3xClusterConfig(t *testing.T) {
 				ReplicaFetchMaxBytes:        &wrappers.Int64Value{Value: 14},
 				SslCipherSuites:             []string{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 				OffsetsRetentionMinutes:     &wrappers.Int64Value{Value: 15},
+				SaslEnabledMechanisms: []kafka.SaslMechanism{
+					kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256,
+					kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512,
+				},
 			},
 		}, req.ConfigSpec.Kafka.KafkaConfig)
 
@@ -561,6 +571,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 								"replica_fetch_max_bytes":         14,
 								"ssl_cipher_suites":               []interface{}{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 								"offsets_retention_minutes":       15,
+								"sasl_enabled_mechanisms":         []interface{}{"SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"},
 							},
 						},
 					},
@@ -626,6 +637,10 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 						ReplicaFetchMaxBytes:        &wrappers.Int64Value{Value: 14},
 						SslCipherSuites:             []string{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 						OffsetsRetentionMinutes:     &wrappers.Int64Value{Value: 15},
+						SaslEnabledMechanisms: []kafka.SaslMechanism{
+							kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256,
+							kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512,
+						},
 					},
 				},
 			},
@@ -660,6 +675,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"config_spec.kafka.kafka_config_2_8.num_partitions",
 			"config_spec.kafka.kafka_config_2_8.offsets_retention_minutes",
 			"config_spec.kafka.kafka_config_2_8.replica_fetch_max_bytes",
+			"config_spec.kafka.kafka_config_2_8.sasl_enabled_mechanisms",
 			"config_spec.kafka.kafka_config_2_8.socket_receive_buffer_bytes",
 			"config_spec.kafka.kafka_config_2_8.socket_send_buffer_bytes",
 			"config_spec.kafka.kafka_config_2_8.ssl_cipher_suites",
@@ -723,6 +739,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 									"replica_fetch_max_bytes":         14,
 									"ssl_cipher_suites":               []interface{}{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 									"offsets_retention_minutes":       15,
+									"sasl_enabled_mechanisms":         []interface{}{"SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"},
 								},
 							},
 						},
@@ -788,6 +805,10 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 							ReplicaFetchMaxBytes:        &wrappers.Int64Value{Value: 14},
 							SslCipherSuites:             []string{"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"},
 							OffsetsRetentionMinutes:     &wrappers.Int64Value{Value: 15},
+							SaslEnabledMechanisms: []kafka.SaslMechanism{
+								kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256,
+								kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512,
+							},
 						},
 					},
 				},
@@ -822,6 +843,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 				"config_spec.kafka.kafka_config_3.num_partitions",
 				"config_spec.kafka.kafka_config_3.offsets_retention_minutes",
 				"config_spec.kafka.kafka_config_3.replica_fetch_max_bytes",
+				"config_spec.kafka.kafka_config_3.sasl_enabled_mechanisms",
 				"config_spec.kafka.kafka_config_3.socket_receive_buffer_bytes",
 				"config_spec.kafka.kafka_config_3.socket_send_buffer_bytes",
 				"config_spec.kafka.kafka_config_3.ssl_cipher_suites",
@@ -1035,6 +1057,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
+					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256}),
 					testAccCheckMDBKafkaTopicMaxMessageBytes(kfResource, "raw_events", 777216),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_COMPACT_AND_DELETE,
@@ -1061,6 +1084,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
+					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256, kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_512}),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{
 						CleanupPolicy:   kafka.TopicConfig3_CLEANUP_POLICY_DELETE,
 						MaxMessageBytes: &wrappers.Int64Value{Value: 554432},
@@ -1105,6 +1129,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
+					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, []kafka.SaslMechanism{kafka.SaslMechanism_SASL_MECHANISM_SCRAM_SHA_256}),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 777216}, SegmentBytes: &wrappers.Int64Value{Value: 134217728}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -1126,6 +1151,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 2147483648),
 					testAccCheckMDBKafkaClusterLogSegmentBytes(&r, 268435456),
+					testAccCheckMDBKafkaClusterSaslEnabledMechanisms(&r, nil),
 					testAccCheckMDBKafkaTopicConfig(kfResource, "raw_events", &kafka.TopicConfig3{MaxMessageBytes: &wrappers.Int64Value{Value: 554432}, SegmentBytes: &wrappers.Int64Value{Value: 268435456}, RetentionBytes: &wrappers.Int64Value{Value: 1073741824}}),
 					testAccCheckCreatedAtAttr(kfResource),
 				),
@@ -1134,7 +1160,6 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 	})
 }
 
-// Test that a Kafka Cluster can be created, updated and destroyed in high availability configuration
 func testAccCheckMDBKafkaClusterExists(n string, r *kafka.Cluster, hosts int) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -1217,6 +1242,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		kafka_config {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
+		  sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_256"]
 		}
 	  }
 	}
@@ -1301,6 +1327,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 				compression_type    	   = "COMPRESSION_TYPE_ZSTD"
 				log_retention_bytes 	   = 2147483648
 				log_segment_bytes   	   = 268435456
+           		sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_512","SASL_MECHANISM_SCRAM_SHA_256"]
 			}
 		}
 	}
@@ -1391,6 +1418,16 @@ func testAccCheckMDBKafkaClusterLogSegmentBytes(r *kafka.Cluster, value int64) r
 		v := r.Config.Kafka.GetKafkaConfig_3().LogSegmentBytes
 		if v.GetValue() != value {
 			return fmt.Errorf("incorrect log_segment_bytes value: expected '%v' but found '%v'", value, v.GetValue())
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBKafkaClusterSaslEnabledMechanisms(r *kafka.Cluster, value []kafka.SaslMechanism) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v := r.Config.Kafka.GetKafkaConfig_3().SaslEnabledMechanisms
+		if !reflect.DeepEqual(v, value) {
+			return fmt.Errorf("incorrect saslEnabledMechanisms value: expected '%v' but found '%v'", value, v)
 		}
 		return nil
 	}
@@ -1616,6 +1653,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		kafka_config {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
+		  sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_256"]
 		}
 	  }
 	}

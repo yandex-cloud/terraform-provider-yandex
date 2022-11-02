@@ -62,6 +62,15 @@ func parseKafkaCompression(e string) (kafka.CompressionType, error) {
 	return kafka.CompressionType(v), nil
 }
 
+func parseKafkaSaslMechanism(e string) (kafka.SaslMechanism, error) {
+	v, ok := kafka.SaslMechanism_value[e]
+	if !ok || e == "SASL_MECHANISM_UNSPECIFIED" {
+		return 0, fmt.Errorf("value for 'sasl_mechanism' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeysExt(kafka.SaslMechanism_value, true)), e)
+	}
+	return kafka.SaslMechanism(v), nil
+}
+
 func parseKafkaPermission(e string) (kafka.Permission_AccessRole, error) {
 	v, ok := kafka.Permission_AccessRole_value[e]
 	if !ok {
@@ -104,6 +113,23 @@ func parseSslCipherSuites(sslCipherSuites interface{}) []string {
 	return convertStringSet(set)
 }
 
+func parseSaslEnabledMechanisms(saslEnabledMechanisms interface{}) ([]kafka.SaslMechanism, error) {
+	if saslEnabledMechanisms == nil {
+		return nil, nil
+	}
+	setOfMechanisms := saslEnabledMechanisms.(*schema.Set)
+	sliceOfMechanisms := convertStringSet(setOfMechanisms)
+	var result []kafka.SaslMechanism
+	for _, mechanismString := range sliceOfMechanisms {
+		mechanismSpec, err := parseKafkaSaslMechanism(mechanismString)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, mechanismSpec)
+	}
+	return result, nil
+}
+
 type KafkaConfig struct {
 	CompressionType             kafka.CompressionType
 	LogFlushIntervalMessages    *wrappers.Int64Value
@@ -124,6 +150,7 @@ type KafkaConfig struct {
 	ReplicaFetchMaxBytes        *wrappers.Int64Value
 	SslCipherSuites             []string
 	OffsetsRetentionMinutes     *wrappers.Int64Value
+	SaslEnabledMechanisms       []kafka.SaslMechanism
 }
 
 func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
@@ -165,6 +192,13 @@ func parseKafkaConfig(d *schema.ResourceData) (*KafkaConfig, error) {
 		res.SslCipherSuites = parseSslCipherSuites(v)
 		sort.Strings(res.SslCipherSuites)
 	}
+	if v, ok := d.GetOk(kafkaConfigPath + ".sasl_enabled_mechanisms"); ok {
+		mechanisms, err := parseSaslEnabledMechanisms(v)
+		if err != nil {
+			return nil, err
+		}
+		res.SaslEnabledMechanisms = mechanisms
+	}
 
 	if retErr != nil {
 		return nil, retErr
@@ -198,6 +232,7 @@ func expandKafkaConfig2_8(d *schema.ResourceData) (*kafka.KafkaConfig2_8, error)
 		ReplicaFetchMaxBytes:        kafkaConfig.ReplicaFetchMaxBytes,
 		SslCipherSuites:             kafkaConfig.SslCipherSuites,
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
+		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
 	}, nil
 }
 
@@ -226,6 +261,7 @@ func expandKafkaConfig3x(d *schema.ResourceData) (*kafka.KafkaConfig3, error) {
 		ReplicaFetchMaxBytes:        kafkaConfig.ReplicaFetchMaxBytes,
 		SslCipherSuites:             kafkaConfig.SslCipherSuites,
 		OffsetsRetentionMinutes:     kafkaConfig.OffsetsRetentionMinutes,
+		SaslEnabledMechanisms:       kafkaConfig.SaslEnabledMechanisms,
 	}, nil
 }
 
@@ -563,6 +599,7 @@ type KafkaConfigSettings interface {
 	GetReplicaFetchMaxBytes() *wrappers.Int64Value
 	GetSslCipherSuites() []string
 	GetOffsetsRetentionMinutes() *wrappers.Int64Value
+	GetSaslEnabledMechanisms() []kafka.SaslMechanism
 }
 
 func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]interface{}, error) {
@@ -625,8 +662,18 @@ func flattenKafkaConfigSettings(kafkaConfig KafkaConfigSettings) (map[string]int
 	if kafkaConfig.GetOffsetsRetentionMinutes() != nil {
 		res["offsets_retention_minutes"] = strconv.FormatInt(kafkaConfig.GetOffsetsRetentionMinutes().GetValue(), 10)
 	}
-
+	if kafkaConfig.GetSaslEnabledMechanisms() != nil {
+		res["sasl_enabled_mechanisms"] = convertStringArrToInterface(convertSaslEnabledMechanismsToStrings(kafkaConfig.GetSaslEnabledMechanisms()))
+	}
 	return res, nil
+}
+
+func convertSaslEnabledMechanismsToStrings(mechanisms []kafka.SaslMechanism) []string {
+	var result []string
+	for _, mechanism := range mechanisms {
+		result = append(result, mechanism.String())
+	}
+	return result
 }
 
 func flattenKafkaConfig2_8Settings(r *kafka.KafkaConfig2_8) (map[string]interface{}, error) {

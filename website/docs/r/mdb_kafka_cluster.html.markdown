@@ -52,6 +52,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         replica_fetch_max_bytes         = 1048576
         ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
         offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
       }
     }
   }
@@ -127,6 +128,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
         replica_fetch_max_bytes         = 1048576
         ssl_cipher_suites               = ["TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"]
         offsets_retention_minutes       = 10080
+        sasl_enabled_mechanisms         = ["SASL_MECHANISM_SCRAM_SHA_256", "SASL_MECHANISM_SCRAM_SHA_512"]
       }
     }
     zookeeper {
@@ -275,7 +277,7 @@ The `kafka_config` block supports:
 
 * `compression_type`, `log_flush_interval_messages`, `log_flush_interval_ms`, `log_flush_scheduler_interval_ms`, `log_retention_bytes`, `log_retention_hours`,
   `log_retention_minutes`, `log_retention_ms`, `log_segment_bytes`, `log_preallocate`, `socket_send_buffer_bytes`, `socket_receive_buffer_bytes`, `auto_create_topics_enable`,
-  `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes` - (Optional) Kafka server settings. For more information, see
+  `num_partitions`, `default_replication_factor`, `message_max_bytes`, `replica_fetch_max_bytes`, `ssl_cipher_suites`, `offsets_retention_minutes`, `sasl_enabled_mechanisms` - (Optional) Kafka server settings. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-kafka/operations/cluster-update)
 and [the Kafka documentation](https://kafka.apache.org/documentation/#configuration).
 
