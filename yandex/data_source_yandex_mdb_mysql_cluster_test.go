@@ -12,7 +12,7 @@ import (
 func TestAccDataSourceMDBMySQLCluster_byID(t *testing.T) {
 	t.Parallel()
 
-	mysqlName := acctest.RandomWithPrefix("ds-mysql-by-id")
+	mysqlName := acctest.RandomWithPrefix("ds-mysql-cluster-by-id")
 	mysqlDesc := "MySQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
@@ -33,7 +33,7 @@ func TestAccDataSourceMDBMySQLCluster_byID(t *testing.T) {
 func TestAccDataSourceMDBMySQLCluster_byName(t *testing.T) {
 	t.Parallel()
 
-	mysqlName := acctest.RandomWithPrefix("ds-mysql-by-name")
+	mysqlName := acctest.RandomWithPrefix("ds-mysql-cluster-by-name")
 	mysqlDesc := "MySQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{

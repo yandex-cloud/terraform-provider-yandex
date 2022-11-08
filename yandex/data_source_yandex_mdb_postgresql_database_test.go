@@ -15,7 +15,7 @@ import (
 func TestAccDataSourceMDBPostgreSQLDatabase_basic(t *testing.T) {
 	t.Parallel()
 
-	clusterName := acctest.RandomWithPrefix("ds-pg-by-id")
+	clusterName := acctest.RandomWithPrefix("ds-postgresql-database")
 	description := "PostgreSQL Database Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{

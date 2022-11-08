@@ -15,7 +15,7 @@ import (
 func TestAccDataSourceMDBMySQLDatabase_basic(t *testing.T) {
 	t.Parallel()
 
-	clusterName := acctest.RandomWithPrefix("ds-pg-by-id")
+	clusterName := acctest.RandomWithPrefix("ds-mysql-database")
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

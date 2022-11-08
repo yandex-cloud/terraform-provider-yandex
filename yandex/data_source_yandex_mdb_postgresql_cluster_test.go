@@ -19,7 +19,7 @@ func TestAccDataSourceMDBPostgreSQLCluster_byID(t *testing.T) {
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccDataSourceMDBPostgreSQLCluster_byID: version %s", version)
 
-	pgName := acctest.RandomWithPrefix("ds-pg-by-id")
+	pgName := acctest.RandomWithPrefix("ds-postgresql-cluster-by-id")
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
@@ -44,7 +44,7 @@ func TestAccDataSourceMDBPostgreSQLCluster_byName(t *testing.T) {
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccDataSourceMDBPostgreSQLCluster_byID: version %s", version)
 
-	pgName := acctest.RandomWithPrefix("ds-pg-by-name")
+	pgName := acctest.RandomWithPrefix("ds-postgresql-cluster-by-name")
 	pgDesc := "PostgreSQL Cluster Terraform Datasource Test"
 
 	resource.Test(t, resource.TestCase{
