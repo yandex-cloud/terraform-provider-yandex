@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -66,6 +67,34 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameCharlie),
+		},
+	})
+}
+
+// Test that a PostgreSQL User can't be created with grants = [""]
+func TestAccMDBPostgreSQLUserIncorrectGrants(t *testing.T) {
+	t.Parallel()
+	clusterName := acctest.RandomWithPrefix("tf-postgresql-user")
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep0(clusterName) + `
+resource "yandex_mdb_postgresql_user" "alice" {
+	cluster_id = yandex_mdb_postgresql_cluster.foo.id
+	name       = "alice"
+	password   = "mysecurepassword"
+	login      = true
+	grants     = [""]
+	conn_limit = 50
+	settings = {
+		default_transaction_isolation = "read committed"
+		log_min_duration_statement    = 5000
+	}
+}`,
+				ExpectError: regexp.MustCompile(".*expected .*? to not be an empty string.*"),
+			},
 		},
 	})
 }

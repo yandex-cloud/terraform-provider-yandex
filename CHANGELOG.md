@@ -5,6 +5,7 @@ BUG FIXES:
 FEATURES:
 * postgresql: add postgresql 15 support
 * postgresql: fix bug with cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
+* postgresql: fix bug leading to panic when creating user with grants = [""]
 
 FEATURES:
 * **New Data Source:** `yandex_compute_snapshot_schedule`
