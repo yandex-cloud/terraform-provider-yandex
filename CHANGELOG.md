@@ -1,13 +1,12 @@
 ## 0.82.0 (Unreleased)
 BUG FIXES:
 * lockbox: display error cause, when creating resource `yandex_lockbox_secret_version` fails
-
-FEATURES:
-* postgresql: add postgresql 15 support
-* postgresql: fix bug with cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
+* greenplum: add default values for pooler_config. Fix bug with greenplum cluster creation.
+* postgresql: fix bug leading to cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
 * postgresql: fix bug leading to panic when creating user with grants = [""]
 
 FEATURES:
+* postgresql: add postgresql 15 support
 * **New Data Source:** `yandex_compute_snapshot_schedule`
 * **New Resource:** `yandex_compute_snapshot_schedule`
 

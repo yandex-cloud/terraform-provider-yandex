@@ -296,21 +296,25 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 			},
 			"pooler_config": {
 				Type:     schema.TypeList,
-				Optional: true,
 				MaxItems: 1,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"pooling_mode": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Default:  "POOL_MODE_UNSPECIFIED",
 						},
 						"pool_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  nil,
 						},
 						"pool_client_idle_timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
+							Default:  nil,
 						},
 					},
 				},
