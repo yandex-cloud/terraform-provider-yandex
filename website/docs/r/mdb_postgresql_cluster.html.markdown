@@ -319,7 +319,8 @@ The `performance_diagnostics` block supports:
 
 * `database` - (Deprecated) To manage databases, please switch to using a separate resource type `yandex_mdb_postgresql_database`.
 
-~> **Note:** Historically, `user` and `database` blocks of the `yandex_mdb_postgresql_cluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the only possible way to manage databases and users is using `yandex_mdb_postgresql_user` and  `yandex_mdb_postgresql_database` resources.
+~> **Note:** Historically, `user` and `database` blocks of the `yandex_mdb_postgresql_cluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the recommended way to manage databases and users is using `yandex_mdb_postgresql_user` and `yandex_mdb_postgresql_database` resources.
+
 
 The `host` block supports:
 
