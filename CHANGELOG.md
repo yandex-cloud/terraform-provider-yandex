@@ -4,6 +4,7 @@ BUG FIXES:
 * greenplum: add default values for pooler_config. Fix bug with greenplum cluster creation.
 * postgresql: fix bug leading to cluster recreation when dropping users or databases in `yandex_mdb_postgresql_cluster` resource
 * postgresql: fix bug leading to panic when creating user with grants = [""]
+* serverless: check retry attributes when creating message queue trigger
 
 FEATURES:
 * postgresql: add postgresql 15 support

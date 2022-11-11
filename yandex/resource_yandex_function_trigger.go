@@ -457,6 +457,9 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 	if _, ok := d.GetOk(triggerTypeMessageQueue); ok {
 		triggerCnt++
+		if err := checkDisableRetrySettingsForMessageQueueTrigger(d); err != nil {
+			return err
+		}
 		batch, err := expandBatchSettings(d, "message_queue.0")
 		if err != nil {
 			return err
@@ -958,6 +961,17 @@ func expandDLQSettings(d *schema.ResourceData) (*triggers.PutQueueMessage, error
 	}
 
 	return settings, nil
+}
+
+func checkDisableRetrySettingsForMessageQueueTrigger(d *schema.ResourceData) error {
+	keys := []string{"dlq", "function.0.retry_attempts", "function.0.retry_interval"}
+	forOutput := []string{"dlq", "function.retry_attempts", "function.retry_interval"}
+	for i, name := range keys {
+		if _, found := d.GetOk(name); found {
+			return fmt.Errorf("Cannot define %s for Yandex Cloud Functions Trigger: not supported for message queue trigger", forOutput[i])
+		}
+	}
+	return nil
 }
 
 func expandBatchSettings(d *schema.ResourceData, prefix string) (settings *triggers.BatchSettings, err error) {
