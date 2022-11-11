@@ -1,4 +1,6 @@
-## 0.82.0 (Unreleased)
+## 0.83.0 (Unreleased)
+
+## 0.82.0 (November 11, 2022)
 BUG FIXES:
 * lockbox: display error cause, when creating resource `yandex_lockbox_secret_version` fails
 * greenplum: add default values for pooler_config. Fix bug with greenplum cluster creation.
