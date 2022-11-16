@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
@@ -16,6 +17,17 @@ import (
 const (
 	traceIDMetadataKey   = "x-server-trace-id"
 	requestIDMetadataKey = "x-server-request-id"
+)
+
+const (
+	// а fake state of the field `on_create_activate_mode` that is set automatically
+	// when the transfer has already been created or imported.
+	internalMessageActivateMode = "[WARN: works only on create resource]"
+	// possible scenarios for activating SNAPSHOT_AND_INCREMENT and SNAPSHOT_ONLY
+	// transfers when created or re-created through a Terraform provider.
+	syncActivateMode  = "sync_activate"
+	asyncActivateMode = "async_activate"
+	dontActivateMode  = "dont_activate"
 )
 
 func resourceYandexDatatransferTransfer() *schema.Resource {
@@ -81,7 +93,26 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"on_create_activate_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      asyncActivateMode,
+				ValidateFunc: stringInSliceWithHiddenDefault([]string{syncActivateMode, asyncActivateMode, dontActivateMode}, false),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return old == internalMessageActivateMode
+				},
+			},
 		},
+	}
+}
+
+func stringInSliceWithHiddenDefault(valid []string, ignoreCase bool) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (warnings []string, errors []error) {
+		if k == internalMessageActivateMode {
+			return nil, nil
+		}
+		return validation.StringInSlice(valid, ignoreCase)(i, k)
 	}
 }
 
@@ -150,7 +181,7 @@ func createTransfer(config *Config, d *schema.ResourceData) (*datatransfer.Trans
 	return transfer, nil
 }
 
-func activateTransfer(config *Config, transferID string) error {
+func activateTransfer(config *Config, transferID string, waitActivating bool) error {
 	ctx := config.Context()
 
 	req := &datatransfer.ActivateTransferRequest{TransferId: transferID}
@@ -166,9 +197,10 @@ func activateTransfer(config *Config, transferID string) error {
 	if err != nil {
 		return err
 	}
-
-	if err := activateOp.Wait(ctx); err != nil {
-		return fmt.Errorf("error while waiting operation to complete: %s", err)
+	if waitActivating {
+		if err := activateOp.Wait(ctx); err != nil {
+			return fmt.Errorf("error while waiting operation to complete: %s", err)
+		}
 	}
 	return nil
 }
@@ -244,9 +276,14 @@ func resourceYandexDatatransferTransferCreateAndActivate(d *schema.ResourceData,
 	}
 
 	if transfer.Type != datatransfer.TransferType_SNAPSHOT_ONLY {
-		err := activateTransfer(config, transfer.Id)
-		if err != nil {
-			return fmt.Errorf("cannot activate transfer %q: %w", transfer.Id, err)
+		activateType := d.Get("on_create_activate_mode").(string)
+		if activateType == asyncActivateMode || activateType == syncActivateMode || activateType == internalMessageActivateMode {
+			syncMode := activateType == syncActivateMode
+			if err := activateTransfer(config, transfer.Id, syncMode); err != nil {
+				return fmt.Errorf("cannot activate transfer %q: %w", transfer.Id, err)
+			}
+		} else {
+			log.Printf("activating skipped by on_create_activate_mode param: %s", activateType)
 		}
 	}
 
@@ -263,7 +300,12 @@ func resourceYandexDatatransferTransferDeactivateAndDelete(d *schema.ResourceDat
 
 	if transferType != datatransfer.TransferType_SNAPSHOT_ONLY {
 		if err := deactivateTransfer(config, d.Id()); err != nil {
-			return handleNotFoundError(err, d, fmt.Sprintf("transfer %q", d.Id()))
+			if err := handleNotFoundError(err, d, fmt.Sprintf("transfer %q", d.Id())); err != nil {
+				log.Printf("[WARN] Deactivate Transfer %s error: %s. Trying to delete", d.Id(), err)
+			} else {
+				log.Printf("[INFO] Transfer %s not found", d.Id())
+				return nil
+			}
 		}
 	}
 
@@ -320,6 +362,10 @@ func resourceYandexDatatransferTransferRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	if err := d.Set("on_create_activate_mode", internalMessageActivateMode); err != nil {
+		log.Printf("[ERROR] failed set field activate_mode: %s", err)
+		return err
+	}
 	return nil
 }
 

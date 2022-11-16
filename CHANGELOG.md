@@ -10,6 +10,8 @@ BUG FIXES:
 
 FEATURES:
 * postgresql: add postgresql 15 support
+* datatransfer: add `on_create_activate_mode` for incremental transfers
+* datatransfer: ignore deactivation error on destroy
 * **New Data Source:** `yandex_compute_snapshot_schedule`
 * **New Resource:** `yandex_compute_snapshot_schedule`
 

@@ -182,6 +182,26 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
 				),
 			},
+			{
+				Config: testAccDataTransferConfigMain(
+					defaultTemplateParams.
+						withTransferType("SNAPSHOT_AND_INCREMENT").
+						withActivateMode(dontActivateMode),
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", internalMessageActivateMode),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigMain(
+					defaultTemplateParams.
+						withTransferType("SNAPSHOT_AND_INCREMENT").
+						withActivateMode(asyncActivateMode),
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(transferResourceName, "on_create_activate_mode", internalMessageActivateMode),
+				),
+			},
 			dataTransferSourceEndpointImportStep(),
 			dataTransferTargetEndpointImportStep(),
 			dataTransferTransferImportStep(),
@@ -221,6 +241,8 @@ type dataTransferTerraformTemplateParams struct {
 	TargetEndpointPort                 int
 	TransferName                       string
 	TransferDescription                string
+	TransferType                       string
+	TransferActivateMode               string
 }
 
 var defaultTemplateParams = dataTransferTerraformTemplateParams{
@@ -237,6 +259,8 @@ var defaultTemplateParams = dataTransferTerraformTemplateParams{
 	TargetEndpointPort:                 5432,
 	TransferName:                       "datatransfer-transfer" + randomPostfix,
 	TransferDescription:                "transfer description",
+	TransferType:                       "SNAPSHOT_ONLY",
+	TransferActivateMode:               syncActivateMode,
 }
 
 func (p dataTransferTerraformTemplateParams) withSourceEndpointName(sourceEndpointName string) dataTransferTerraformTemplateParams {
@@ -264,6 +288,15 @@ func (p dataTransferTerraformTemplateParams) withTransferName(transferName strin
 	return p
 }
 
+func (p dataTransferTerraformTemplateParams) withActivateMode(activateMode string) dataTransferTerraformTemplateParams {
+	p.TransferActivateMode = activateMode
+	return p
+}
+
+func (p dataTransferTerraformTemplateParams) withTransferType(transferType string) dataTransferTerraformTemplateParams {
+	p.TransferType = transferType
+	return p
+}
 func testAccDataTransferConfigMain(templateParams dataTransferTerraformTemplateParams) string {
 	template := template.Must(template.New("main.tf").Parse(`
 		resource "yandex_datatransfer_endpoint" "pg_source" {
@@ -316,7 +349,8 @@ func testAccDataTransferConfigMain(templateParams dataTransferTerraformTemplateP
 		  description = "{{.TransferDescription}}"
 		  source_id = yandex_datatransfer_endpoint.pg_source.id
 		  target_id = yandex_datatransfer_endpoint.pg_target.id
-		  type = "SNAPSHOT_ONLY"
+		  type = "{{.TransferType}}"
+          on_create_activate_mode = "{{.TransferActivateMode}}"
 		}
 	`))
 	buffer := bytes.NewBuffer(nil)

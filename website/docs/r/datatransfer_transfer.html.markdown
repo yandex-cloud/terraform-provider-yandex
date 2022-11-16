@@ -73,6 +73,9 @@ The following arguments are supported:
 * `description` - (Optional) Arbitrary description text for the transfer.
 * `folder_id` - (Optional) ID of the folder to create the transfer in. If it is not provided, the default provider folder is used.
 * `labels` - (Optional) A set of key/value label pairs to assign to the Data Transfer transfer.
+* `on_create_activate_mode` - (Optional) Activation action on create a new incremental transfer.
+It is not part of the transfer parameter and is used only on create.
+One of "sync_activate", "async_activate", "dont_activate". The default is "sync_activate".
 
 ## Attributes Reference
 
