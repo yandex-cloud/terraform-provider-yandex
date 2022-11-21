@@ -53,9 +53,57 @@ func sweepYDBDatabaseDedicated(conf *Config, id string) bool {
 	return sweepWithRetry(sweepYDBDatabaseDedicatedOnce, conf, "YDB dedicated database", id)
 }
 
+func unsetYDBDatabaseDedicatedDeletionProtection(conf *Config, ctx context.Context, db *ydb.Database) error {
+	op, err := conf.sdk.YDB().Database().Update(ctx, &ydb.UpdateDatabaseRequest{
+		DatabaseId:         db.Id,
+		Name:               db.Name,
+		ResourcePresetId:   db.ResourcePresetId,
+		BackupConfig:       db.BackupConfig,
+		FolderId:           db.FolderId,
+		ScalePolicy:        db.ScalePolicy,
+		Description:        db.Description,
+		StorageConfig:      db.StorageConfig,
+		LocationId:         db.LocationId,
+		NetworkId:          db.NetworkId,
+		SubnetIds:          db.SubnetIds,
+		Labels:             db.Labels,
+		MonitoringConfig:   db.MonitoringConfig,
+		AssignPublicIps:    db.AssignPublicIps,
+		DeletionProtection: false,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to unset deletion_protection for database %q: %s", db.Id, err)
+	}
+
+	sdkop, err := conf.sdk.WrapOperation(op, err)
+	if err != nil {
+		return err
+	}
+
+	err = sdkop.Wait(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = sdkop.Response()
+	return err
+}
+
 func sweepYDBDatabaseDedicatedOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexYDBDedicatedDefaultTimeout)
 	defer cancel()
+
+	db, err := conf.sdk.YDB().Database().Get(ctx, &ydb.GetDatabaseRequest{
+		DatabaseId: id,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to get database with id %q: %s", id, err)
+	}
+
+	if db.DeletionProtection {
+		if err := unsetYDBDatabaseDedicatedDeletionProtection(conf, ctx, db); err != nil {
+			return err
+		}
+	}
 
 	op, err := conf.sdk.YDB().Database().Delete(ctx, &ydb.DeleteDatabaseRequest{
 		DatabaseId: id,
