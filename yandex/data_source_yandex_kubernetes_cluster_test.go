@@ -61,6 +61,39 @@ func TestAccDataSourceKubernetesClusterRegional_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesClusterRegional_externalIPv6Address(t *testing.T) {
+	clusterResource := clusterInfoExternalIPv6Address("testAccDataSourceKubernetesClusterRegional_externalIPv6Address")
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
+
+	var cluster k8s.Cluster
+
+	// All external IPv6 tests share the same subnets. Disallow concurrent execution.
+	mutexKV.Lock(clusterResource.SubnetResourceNameA)
+	mutexKV.Lock(clusterResource.SubnetResourceNameB)
+	mutexKV.Lock(clusterResource.SubnetResourceNameC)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameB)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameC)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					testAccCheckResourceIDField(clusterDataSourceFullName, "cluster_id"),
+					checkClusterAttributes(&cluster, &clusterResource, false),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium", true)
 

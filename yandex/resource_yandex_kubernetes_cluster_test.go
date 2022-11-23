@@ -282,6 +282,38 @@ func TestAccKubernetesClusterRegional_basic(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterRegional_externalIPv6Address(t *testing.T) {
+	clusterResource := clusterInfoExternalIPv6Address("testAccKubernetesClusterRegional_externalIPv6Address")
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	// All external IPv6 tests share the same subnets. Disallow concurrent execution.
+	mutexKV.Lock(clusterResource.SubnetResourceNameA)
+	mutexKV.Lock(clusterResource.SubnetResourceNameB)
+	mutexKV.Lock(clusterResource.SubnetResourceNameC)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameA)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameB)
+	defer mutexKV.Unlock(clusterResource.SubnetResourceNameC)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+			k8sClusterImportStep(clusterResourceFullName, "master.0.regional"),
+		},
+	})
+}
+
 func TestAccKubernetesClusterZonal_update(t *testing.T) {
 	clusterResource := clusterInfo("testAccKubernetesClusterZonalConfig_basic", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
@@ -492,10 +524,33 @@ func clusterInfo(testDesc string, zonal bool) resourceClusterInfo {
 	return clusterInfoWithMaintenance(testDesc, zonal, true, anyMaintenancePolicy)
 }
 
+// fillSharedEmptyResourceClusterInfoParams ensures that some cluster info parameters has fake values if they're empty.
+// It is needed for shared resources that are locked by mutexKV, so we don't have locks on the same empty string in unit
+// tests where those env variables are not set.
+func fillSharedEmptyResourceClusterInfoParams(ci resourceClusterInfo) resourceClusterInfo {
+	if ci.SubnetResourceNameA == "" {
+		ci.SubnetResourceNameA = "SubnetResourceNameA"
+	}
+	if ci.SubnetResourceNameB == "" {
+		ci.SubnetResourceNameB = "SubnetResourceNameB"
+	}
+	if ci.SubnetResourceNameC == "" {
+		ci.SubnetResourceNameC = "SubnetResourceNameC"
+	}
+	return ci
+}
+
 func clusterInfoDualStack(testDesc string, zonal bool) resourceClusterInfo {
 	ci := clusterInfo(testDesc, zonal)
 
 	// Use existing resources rather than creating new ones for dual stack clusters.
+	//
+	// K8S_SUBNET_NETWORK_ID - network with dual-stack subnets without external ivp6 for k8s cluster and node-groups.
+	// K8S_SUBNET_A_ID - dual-stack subnet without external ivp6 in location "a" for k8s cluster and node-groups.
+	// K8S_SUBNET_B_ID - dual-stack subnet without external ivp6 in location "b" for k8s cluster and node-groups.
+	// K8S_SUBNET_C_ID - dual-stack subnet without external ivp6 in location "c" for k8s cluster and node-groups.
+	// K8S_SECURITY_GROUP_ID - security-group of K8S_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
+	// K8S_NETWORK_FOLDER_ID - folder with dual-stack resources to add folder iam member to use those resources.
 	ci.NetworkResourceName = os.Getenv("K8S_SUBNET_NETWORK_ID")
 	ci.SubnetResourceNameA = os.Getenv("K8S_SUBNET_A_ID")
 	ci.SubnetResourceNameB = os.Getenv("K8S_SUBNET_B_ID")
@@ -508,7 +563,32 @@ func clusterInfoDualStack(testDesc string, zonal bool) resourceClusterInfo {
 	ci.ServiceIPv4Range = "10.21.0.0/16"
 	ci.DualStack = true
 
-	return ci
+	return fillSharedEmptyResourceClusterInfoParams(ci)
+}
+
+func clusterInfoExternalIPv6Address(testDesc string) resourceClusterInfo {
+	ci := clusterInfo(testDesc, false)
+
+	// Use existing resources rather than creating new ones for clusters with external ipv6 address.
+	//
+	// K8S_E2E_IPV6_SUBNET_NETWORK_ID - network with dual-stack external ivp6 subnets for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_A_ID - dual-stack subnet with external ivp6 in location "a" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_B_ID - dual-stack subnet with external ivp6 in location "b" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SUBNET_C_ID - dual-stack subnet with external ivp6 in location "c" for k8s cluster and node-groups.
+	// K8S_E2E_IPV6_SECURITY_GROUP_ID - security-group of K8S_E2E_IPV6_SUBNET_NETWORK_ID that can be used to test k8s cluster with security-group.
+	// K8S_E2E_IPV6_ADDRESS - IPv6 address that can be used as K8S cluster endpoint.
+	// K8S_NETWORK_FOLDER_ID - folder with dual-stack external ivp6 resources to add folder iam member to use those resources.
+	ci.NetworkResourceName = os.Getenv("K8S_E2E_IPV6_SUBNET_NETWORK_ID")
+	ci.SubnetResourceNameA = os.Getenv("K8S_E2E_IPV6_SUBNET_A_ID")
+	ci.SubnetResourceNameB = os.Getenv("K8S_E2E_IPV6_SUBNET_B_ID")
+	ci.SubnetResourceNameC = os.Getenv("K8S_E2E_IPV6_SUBNET_C_ID")
+	ci.SecurityGroupName = os.Getenv("K8S_E2E_IPV6_SECURITY_GROUP_ID")
+	ci.ExternalIPv6Address = os.Getenv("K8S_E2E_IPV6_ADDRESS")
+	ci.NetworkFolderID = os.Getenv("K8S_NETWORK_FOLDER_ID")
+	ci.ClusterIPv4Range = "10.8.0.0/16"
+	ci.ServiceIPv4Range = "10.9.0.0/16"
+
+	return fillSharedEmptyResourceClusterInfoParams(ci)
 }
 
 func clusterInfoWithMaintenance(testDesc string, zonal bool, autoUpgrade bool, policyType maintenancePolicyType) resourceClusterInfo {
@@ -568,30 +648,36 @@ type clusterResourceIDs struct {
 	kmsKeyResourceID             string
 }
 
+func clusterVPCDepsPrecreated(info *resourceClusterInfo) bool {
+	return info.DualStack || info.ExternalIPv6Address != ""
+}
+
 func getClusterResourcesIds(s *terraform.State, info *resourceClusterInfo) (ids clusterResourceIDs, err error) {
-	ids.networkResourceID, err = getResourceID(info.networkResourceName(), s)
-	if err != nil {
-		return
-	}
+	if !clusterVPCDepsPrecreated(info) {
+		ids.networkResourceID, err = getResourceID(info.networkResourceName(), s)
+		if err != nil {
+			return
+		}
 
-	ids.subnetAResourceID, err = getResourceID(info.subnetAResourceName(), s)
-	if err != nil {
-		return
-	}
+		ids.subnetAResourceID, err = getResourceID(info.subnetAResourceName(), s)
+		if err != nil {
+			return
+		}
 
-	ids.subnetBResourceID, err = getResourceID(info.subnetBResourceName(), s)
-	if err != nil {
-		return
-	}
+		ids.subnetBResourceID, err = getResourceID(info.subnetBResourceName(), s)
+		if err != nil {
+			return
+		}
 
-	ids.subnetCResourceID, err = getResourceID(info.subnetCResourceName(), s)
-	if err != nil {
-		return
-	}
+		ids.subnetCResourceID, err = getResourceID(info.subnetCResourceName(), s)
+		if err != nil {
+			return
+		}
 
-	ids.securityGroupID, err = getResourceID(info.securityGroupName(), s)
-	if err != nil {
-		return
+		ids.securityGroupID, err = getResourceID(info.securityGroupName(), s)
+		if err != nil {
+			return
+		}
 	}
 
 	ids.serviceAccountResourceID, err = getResourceID(info.serviceAccountResourceName(), s)
@@ -643,7 +729,6 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 		checkFuncsAr := []resource.TestCheckFunc{
 			resource.TestCheckResourceAttr(resourceFullName, "service_account_id", ids.serviceAccountResourceID),
 			resource.TestCheckResourceAttr(resourceFullName, "node_service_account_id", ids.nodeServiceAccountResourceID),
-			resource.TestCheckResourceAttr(resourceFullName, "network_id", ids.networkResourceID),
 
 			resource.TestCheckResourceAttr(resourceFullName, "name", info.Name),
 			resource.TestCheckResourceAttr(resourceFullName, "description", info.Description),
@@ -681,6 +766,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			resource.TestCheckResourceAttrSet(resourceFullName, "log_group_id"),
 		}
 
+		if !clusterVPCDepsPrecreated(info) {
+			resource.TestCheckResourceAttr(resourceFullName, "network_id", ids.networkResourceID)
+		}
+		if info.ExternalIPv6Address != "" {
+			resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v6_endpoint", master.GetEndpoints().GetExternalV6Endpoint())
+		}
+
 		if networkImplementation := cluster.GetNetworkImplementation(); networkImplementation != nil {
 			switch networkImplementation.(type) {
 			case *k8s.Cluster_Cilium:
@@ -688,7 +780,7 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			}
 		}
 
-		if info.SecurityGroups != "" {
+		if info.SecurityGroups != "" && !clusterVPCDepsPrecreated(info) {
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.0", ids.securityGroupID)
 		} else {
 			resource.TestCheckResourceAttr(resourceFullName, "master.0.security_groups_ids.#", "0")
@@ -758,15 +850,13 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.internal_v4_address",
 					regionalMaster.GetInternalV4Address()),
 			)
+			if info.ExternalIPv6Address != "" {
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.external_v6_address",
+					regionalMaster.GetExternalV6Address())
+			}
 
 			if rs {
 				checkFuncsAr = append(checkFuncsAr,
-					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.0.subnet_id",
-						ids.subnetAResourceID),
-					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.subnet_id",
-						ids.subnetBResourceID),
-					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.subnet_id",
-						ids.subnetCResourceID),
 					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.0.zone",
 						"ru-central1-a"),
 					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.zone",
@@ -774,8 +864,16 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.zone",
 						"ru-central1-c"),
 				)
-			}
 
+				if !clusterVPCDepsPrecreated(info) {
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.0.subnet_id",
+						ids.subnetAResourceID)
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.subnet_id",
+						ids.subnetBResourceID)
+					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.subnet_id",
+						ids.subnetCResourceID)
+				}
+			}
 		}
 
 		if rs {
@@ -920,9 +1018,10 @@ type resourceClusterInfo struct {
 	ServiceIPv4Range string
 	ServiceIPv6Range string
 
-	// For dual stack clusters.
-	NetworkFolderID string
-	DualStack       bool
+	// For dual stack clusters and clusters with external ipv6.
+	NetworkFolderID     string
+	ExternalIPv6Address string
+	DualStack           bool
 
 	NetworkImplementationCilium bool
 }
@@ -1064,7 +1163,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
 	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
 {{if .DualStack}}
-	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_dualStack",
+	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_existing_network",
 {{end}}
 	"yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
   ]
@@ -1136,31 +1235,52 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
 const regionalClusterConfigTemplate = `
 resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
-	"yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
-	"yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
+    "yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}",
+{{if or .DualStack .ExternalIPv6Address}}
+    "yandex_resourcemanager_folder_iam_member.{{.ServiceAccountResourceName}}_existing_network",
+{{end}}
+    "yandex_resourcemanager_folder_iam_member.{{.NodeServiceAccountResourceName}}"
   ]
 
   name        = "{{.Name}}"
   description = "{{.Description}}"
-
+{{if or .DualStack .ExternalIPv6Address}}
+  network_id = "{{.NetworkResourceName}}"
+{{else}}
   network_id = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
+{{end}}
 
   master {
-	version = "{{.MasterVersion}}"
+    version = "{{.MasterVersion}}"
     regional {
-  	  region = "ru-central1"
+      region = "ru-central1"
+{{if or .DualStack .ExternalIPv6Address}}
       location {
-          zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}"
-          subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
+        zone = "ru-central1-a"
+        subnet_id = "{{.SubnetResourceNameA}}"
+      }
+      location {
+        zone = "ru-central1-b"
+        subnet_id = "{{.SubnetResourceNameB}}"
+      }
+      location {
+        zone = "ru-central1-c"
+        subnet_id = "{{.SubnetResourceNameC}}"
+      }
+{{else}}
+      location {
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameA}}.id}"
 	  }
       location {
-          zone = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.zone}"
-          subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.id}"
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameB}}.id}"
 	  }
       location {
-          zone = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.zone}"
-          subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.id}"
+        zone = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.zone}"
+        subnet_id = "${yandex_vpc_subnet.{{.SubnetResourceNameC}}.id}"
 	  }
+{{end}}
     }
   
     public_ip = true
@@ -1168,6 +1288,10 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     {{.SecurityGroups}}
 
     {{.MaintenancePolicy}}
+
+{{if .ExternalIPv6Address}}
+    external_v6_address = "{{.ExternalIPv6Address}}"
+{{end}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
@@ -1188,8 +1312,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
 `
 
 const clusterDependenciesConfigTemplate = `
-{{if .DualStack}}
-// Use existing infrastructure for dual stack clusters.
+{{if or .DualStack .ExternalIPv6Address}}
+// Use existing infrastructure for dual stack clusters or clusters with external ipv6 address.
 {{else}}
 resource "yandex_vpc_network" "{{.NetworkResourceName}}" {
   description = "{{.TestDescription}}"
@@ -1252,8 +1376,8 @@ resource "yandex_iam_service_account" "{{.ServiceAccountResourceName}}" {
   description = "{{.TestDescription}}"
 }
 
-{{if .DualStack}}
-resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}_dualStack" {
+{{if or .DualStack .ExternalIPv6Address}}
+resource "yandex_resourcemanager_folder_iam_member" "{{.ServiceAccountResourceName}}_existing_network" {
   folder_id   = "{{.NetworkFolderID}}"
   member      = "serviceAccount:${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
   role        = "editor"

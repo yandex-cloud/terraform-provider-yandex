@@ -11,6 +11,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/googleapis/type/dayofweek"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -189,11 +190,21 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"external_v6_address": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: validation.IsIPv6Address,
+						},
 						"internal_v4_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"external_v4_endpoint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"external_v6_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -700,7 +711,7 @@ func getKubernetesClusterZonalMaster(d *schema.ResourceData, meta *Config) *k8s.
 		ZonalMasterSpec: &k8s.ZonalMasterSpec{
 			ZoneId:                getZonalMasterZone(d, meta),
 			InternalV4AddressSpec: getZonalMasterInternalAddressSpec(d),
-			ExternalV4AddressSpec: getZonalMasterExternalAddressSpec(d),
+			ExternalV4AddressSpec: getMasterExternalIPv4AddressSpec(d),
 		},
 	}
 }
@@ -710,7 +721,8 @@ func getKubernetesClusterRegionalMaster(d *schema.ResourceData, _ *Config) *k8s.
 		RegionalMasterSpec: &k8s.RegionalMasterSpec{
 			RegionId:              d.Get("master.0.regional.0.region").(string),
 			Locations:             getKubernetesClusterRegionalMasterLocations(d),
-			ExternalV4AddressSpec: getZonalMasterExternalAddressSpec(d),
+			ExternalV4AddressSpec: getMasterExternalIPv4AddressSpec(d),
+			ExternalV6AddressSpec: getMasterExternalIPv6AddressSpec(d),
 		},
 	}
 }
@@ -755,10 +767,19 @@ func getZonalMasterInternalAddressSpec(d *schema.ResourceData) *k8s.InternalAddr
 	return nil
 }
 
-func getZonalMasterExternalAddressSpec(d *schema.ResourceData) *k8s.ExternalAddressSpec {
+func getMasterExternalIPv4AddressSpec(d *schema.ResourceData) *k8s.ExternalAddressSpec {
 	publicIP, ok := d.GetOk("master.0.public_ip")
 	if ok && publicIP.(bool) {
 		return &k8s.ExternalAddressSpec{}
+	}
+
+	return nil
+}
+
+func getMasterExternalIPv6AddressSpec(d *schema.ResourceData) *k8s.ExternalAddressSpec {
+	publicIPv6, ok := d.Get("master.0.external_v6_address").(string)
+	if ok && publicIPv6 != "" {
+		return &k8s.ExternalAddressSpec{Address: publicIPv6}
 	}
 
 	return nil
@@ -915,6 +936,7 @@ func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster
 func (h *masterSchemaHelper) flattenClusterRegionalMaster(m *k8s.Master_RegionalMaster) {
 	h.master["internal_v4_address"] = m.RegionalMaster.GetInternalV4Address()
 	h.master["external_v4_address"] = m.RegionalMaster.GetExternalV4Address()
+	h.master["external_v6_address"] = m.RegionalMaster.GetExternalV6Address()
 
 	h.getRegionalMaster()["region"] = m.RegionalMaster.GetRegionId()
 }
@@ -931,6 +953,7 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	h.master["security_group_ids"] = clusterMaster.GetSecurityGroupIds()
 	h.master["internal_v4_endpoint"] = clusterMaster.GetEndpoints().GetInternalV4Endpoint()
 	h.master["external_v4_endpoint"] = clusterMaster.GetEndpoints().GetExternalV4Endpoint()
+	h.master["external_v6_endpoint"] = clusterMaster.GetEndpoints().GetExternalV6Endpoint()
 	h.master["cluster_ca_certificate"] = clusterMaster.GetMasterAuth().GetClusterCaCertificate()
 
 	p := clusterMaster.GetMaintenancePolicy()

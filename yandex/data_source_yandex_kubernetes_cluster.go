@@ -157,11 +157,19 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"external_v6_address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"internal_v4_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"external_v4_endpoint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"external_v6_endpoint": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
