@@ -1,4 +1,6 @@
 ## 0.83.0 (Unreleased)
+FEATURES
+* alb: add `log_options` attribute in `yandex_alb_load_balancer` resource and data source.
 
 ## 0.82.0 (November 11, 2022)
 BUG FIXES:

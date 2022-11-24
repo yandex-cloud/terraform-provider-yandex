@@ -66,6 +66,7 @@ type resourceALBLoadBalancerInfo struct {
 	IsDataSource     bool
 	IsHTTP2Options   bool
 	IsAllowHTTP10    bool
+	IsLogOptions     bool
 
 	BaseTemplate string
 
@@ -505,6 +506,20 @@ resource "yandex_alb_load_balancer" "test-balancer" {
       subnet_id = yandex_vpc_subnet.test-subnet.id 
     }
   }
+  {{ if .IsLogOptions }}
+  log_options {
+    disable = false
+    discard_rule {
+      http_codes = [300,301,307]
+      http_code_intervals = ["HTTP_2XX"]
+      grpc_codes = ["OK", "NOT_FOUND"]
+      discard_percent = 90
+    }
+    discard_rule {
+      http_code_intervals = ["HTTP_ALL"]
+    }
+  }
+  {{ end }}
   {{ if or .IsHTTPListener .IsTLSListener .IsStreamListener}}
   listener {
     name = "{{.ListenerName}}"

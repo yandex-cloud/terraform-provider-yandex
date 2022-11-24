@@ -483,6 +483,74 @@ func TestAccDataSourceALBLoadBalancer_tlsListenerWithAllowHTTP10(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceALBLoadBalancer_logOptions(t *testing.T) {
+	t.Parallel()
+	albResource := albLoadBalancerInfo()
+	albResource.IsLogOptions = true
+	albResource.IsDataSource = true
+
+	var alb apploadbalancer.LoadBalancer
+	var rulesPath string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerDataSourceResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "log_options", "discard_rule.0.http_codes.2", &rulesPath,
+					),
+					testCheckResourceSubAttrFn(albLoadBalancerDataSourceResource, &rulesPath, "discard_rule.0.http_codes.2", func(value string) error {
+						httpCode := alb.GetLogOptions().GetDiscardRules()[0].GetHttpCodes()[2]
+						if realValue, _ := strconv.ParseInt(value, 10, 64); realValue != httpCode {
+							return fmt.Errorf("ALB Load Balancer's log options discard rule http code doesn't match. %d != %d", realValue, httpCode)
+						}
+						return nil
+					}),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "log_options", "discard_rule.0.http_code_intervals.0", &rulesPath,
+					),
+					testCheckResourceSubAttrFn(albLoadBalancerDataSourceResource, &rulesPath, "discard_rule.0.http_code_intervals.0", func(value string) error {
+						interval := alb.GetLogOptions().GetDiscardRules()[0].GetHttpCodeIntervals()[0]
+						realValue, _ := parseAlbHttpCodeInterval(value)
+						if interval != realValue {
+							return fmt.Errorf("ALB Load Balancer's log options discard rule http code interval doesn't match. %v != %v", realValue, interval)
+						}
+						return nil
+					}),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "log_options", "discard_rule.0.grpc_codes.0", &rulesPath,
+					),
+					testCheckResourceSubAttrFn(albLoadBalancerDataSourceResource, &rulesPath, "discard_rule.0.grpc_codes.0", func(value string) error {
+						grpcCode := alb.GetLogOptions().GetDiscardRules()[0].GetGrpcCodes()[0]
+						realValue, _ := parseCodeCode(value)
+						if realValue != grpcCode {
+							return fmt.Errorf("ALB Load Balancer's log options discard rule grpc code doesn't match. %v != %v", realValue, grpcCode)
+						}
+						return nil
+					}),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerDataSourceResource, "log_options", "disable", &rulesPath,
+					),
+					testCheckResourceSubAttrFn(albLoadBalancerDataSourceResource, &rulesPath, "disable", func(value string) error {
+						disable := alb.GetLogOptions().GetDisable()
+						realValue, _ := strconv.ParseBool(value)
+						if realValue != disable {
+							return fmt.Errorf("ALB Load Balancer's log options disable field doesn't match. %t != %t", realValue, disable)
+						}
+						return nil
+					}),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
 func testAccDataSourceALBLoadBalancerExists(n string, loadBalancer *apploadbalancer.LoadBalancer) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[n]

@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 )
 
@@ -115,6 +117,65 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 						},
 					},
 				},
+			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+
+						"discard_rule": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"discard_percent": {
+										Type:         schema.TypeInt,
+										Optional:     true,
+										ValidateFunc: validation.IntBetween(0, 100),
+									},
+
+									"grpc_codes": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+									},
+
+									"http_code_intervals": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+									},
+
+									"http_codes": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type:         schema.TypeInt,
+											ValidateFunc: validation.IntBetween(100, 599),
+										},
+										Optional: true,
+									},
+								},
+							},
+							Optional: true,
+						},
+
+						"log_group_id": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringMatch(regexp.MustCompile("^(([a-zA-Z][-a-zA-Z0-9_.]{0,63})?)$"), ""),
+						},
+					},
+				},
+				Optional: true,
 			},
 
 			"listener": {
@@ -372,6 +433,12 @@ func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{
 	}
 	req.SetAllocationPolicy(allocationPolicy)
 
+	logOptions, err := expandALBLogOptions(d)
+	if err != nil {
+		return err
+	}
+	req.SetLogOptions(logOptions)
+
 	listeners, err := expandALBListeners(d)
 	if err != nil {
 		return fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
@@ -453,6 +520,14 @@ func resourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	logOptions, err := flattenALBLogOptions(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("log_options", logOptions); err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] Finished reading ALB Load Balancer %q", d.Id())
 	return d.Set("labels", alb.Labels)
 }
@@ -485,6 +560,12 @@ func resourceYandexALBLoadBalancerUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
 	}
 	req.SetListenerSpecs(listeners)
+
+	logOptions, err := expandALBLogOptions(d)
+	if err != nil {
+		return err
+	}
+	req.SetLogOptions(logOptions)
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()

@@ -3,8 +3,10 @@ package yandex
 import (
 	"bytes"
 	"fmt"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"strings"
+
+	"google.golang.org/genproto/googleapis/rpc/code"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -598,6 +600,106 @@ func expandALBLocation(config map[string]interface{}) (*apploadbalancer.Location
 	}
 
 	return location, nil
+}
+
+func expandALBLogOptions(d *schema.ResourceData) (*apploadbalancer.LogOptions, error) {
+	var l apploadbalancer.LogOptions
+	v, ok := d.GetOk("log_options")
+	if !ok || len(v.([]interface{})) == 0 {
+		return nil, nil
+	}
+
+	config := v.([]interface{})[0].(map[string]interface{})
+	l.Disable = config["disable"].(bool)
+	for _, key := range IterateKeys(d, "log_options.0.discard_rule") {
+		rule, err := expandDiscardRule(d, key)
+		if err != nil {
+			return nil, err
+		}
+		l.DiscardRules = append(l.DiscardRules, rule)
+	}
+	l.LogGroupId = config["log_group_id"].(string)
+
+	return &l, nil
+}
+
+func expandDiscardRule(d *schema.ResourceData, key string) (*apploadbalancer.LogDiscardRule, error) {
+	var ret apploadbalancer.LogDiscardRule
+	var err error
+	if v, ok := d.GetOk(key + "http_codes"); ok {
+		ret.HttpCodes, err = expandALBInt64ListFromList(v)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(key + "http_code_intervals"); ok {
+		ret.HttpCodeIntervals, err = expandALBCodeIntervalSlice(v.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(key + "grpc_codes"); ok {
+		ret.GrpcCodes, err = expandGRPCCodeSlice(v.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(key + "discard_percent"); ok {
+		ret.DiscardPercent = &wrapperspb.Int64Value{Value: int64(v.(int))}
+	}
+	return &ret, nil
+}
+
+func expandALBCodeIntervalSlice(v []interface{}) ([]apploadbalancer.HttpCodeInterval, error) {
+	s := make([]apploadbalancer.HttpCodeInterval, len(v))
+	if v == nil {
+		return s, nil
+	}
+
+	for i, val := range v {
+		httpCodeInterval, err := parseAlbHttpCodeInterval(val.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		s[i] = httpCodeInterval
+	}
+
+	return s, nil
+}
+
+func expandGRPCCodeSlice(v []interface{}) ([]code.Code, error) {
+	s := make([]code.Code, len(v))
+	if v == nil {
+		return s, nil
+	}
+
+	for i, val := range v {
+		code_, err := parseCodeCode(val.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		s[i] = code_
+	}
+
+	return s, nil
+}
+
+func parseAlbHttpCodeInterval(str string) (apploadbalancer.HttpCodeInterval, error) {
+	val, ok := apploadbalancer.HttpCodeInterval_value[str]
+	if !ok {
+		return apploadbalancer.HttpCodeInterval(0), invalidKeyError("http_code_interval", apploadbalancer.HttpCodeInterval_value, str)
+	}
+	return apploadbalancer.HttpCodeInterval(val), nil
+}
+
+func parseCodeCode(str string) (code.Code, error) {
+	val, ok := code.Code_value[str]
+	if !ok {
+		return code.Code(0), invalidKeyError("code", code.Code_value, str)
+	}
+	return code.Code(val), nil
 }
 
 func expandALBListeners(d *schema.ResourceData) ([]*apploadbalancer.ListenerSpec, error) {
@@ -2190,4 +2292,77 @@ func flattenALBTargets(tg *apploadbalancer.TargetGroup) []interface{} {
 	}
 
 	return result
+}
+
+func flattenALBLogOptions(alb *apploadbalancer.LoadBalancer) ([]map[string]interface{}, error) {
+	v := alb.GetLogOptions()
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["disable"] = v.Disable
+	discardRule, err := flattenAlbLogOptionsDiscardRuleSlice(v.DiscardRules)
+	if err != nil {
+		return nil, err
+	}
+	m["discard_rule"] = discardRule
+	m["log_group_id"] = v.LogGroupId
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenAlbLogOptionsDiscardRuleSlice(vs []*apploadbalancer.LogDiscardRule) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(vs))
+
+	for _, v := range vs {
+		discardRule, err := flattenALBLogDiscardRule(v)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(discardRule) != 0 {
+			s = append(s, discardRule[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenALBLogDiscardRule(v *apploadbalancer.LogDiscardRule) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	var discardPercent interface{}
+	if v.DiscardPercent != nil {
+		discardPercent = v.DiscardPercent.GetValue()
+	}
+	m["discard_percent"] = discardPercent
+
+	var grpcCodes []string
+	for _, v := range v.GrpcCodes {
+		grpcCodes = append(grpcCodes, v.String())
+	}
+	m["grpc_codes"] = grpcCodes
+
+	var httpCodeIntervals []string
+	for _, v := range v.HttpCodeIntervals {
+		httpCodeIntervals = append(httpCodeIntervals, v.String())
+	}
+	m["http_code_intervals"] = httpCodeIntervals
+	m["http_codes"] = v.HttpCodes
+
+	return []map[string]interface{}{m}, nil
+}
+
+func invalidKeyError(name string, valid map[string]int32, got string) error {
+	keys := make([]string, 0, len(valid))
+	for k := range valid {
+		keys = append(keys, k)
+	}
+	return fmt.Errorf("expected %q to be one of %v, got %q", name, keys, got)
 }

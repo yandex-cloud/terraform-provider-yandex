@@ -110,6 +110,61 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 				},
 			},
 
+			"log_options": {
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"discard_rule": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"discard_percent": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+
+									"grpc_codes": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Computed: true,
+									},
+
+									"http_code_intervals": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Computed: true,
+									},
+
+									"http_codes": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeInt,
+										},
+										Computed: true,
+									},
+								},
+							},
+							Computed: true,
+						},
+
+						"log_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+				Computed: true,
+			},
+
 			"listener": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -366,6 +421,14 @@ func dataSourceYandexALBLoadBalancerRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 	if err := d.Set("listener", listeners); err != nil {
+		return err
+	}
+
+	logOptions, err := flattenALBLogOptions(alb)
+	if err != nil {
+		return err
+	}
+	if err = d.Set("log_options", logOptions); err != nil {
 		return err
 	}
 

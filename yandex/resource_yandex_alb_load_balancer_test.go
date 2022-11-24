@@ -419,6 +419,45 @@ func TestAccALBLoadBalancer_update(t *testing.T) {
 	})
 }
 
+func TestAccALBLoadBalancer_logOptions(t *testing.T) {
+	t.Parallel()
+	albResource := albLoadBalancerInfo()
+	albResource.IsLogOptions = true
+
+	var alb apploadbalancer.LoadBalancer
+	var rulesPath string
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "log_options", "discard_rule.0.http_codes", &rulesPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "log_options", "discard_rule.0.http_code_intervals", &rulesPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "log_options", "discard_rule.0.grpc_codes", &rulesPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "log_options", "discard_rule.1.http_code_intervals", &rulesPath,
+					),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "log_options", "disable", &rulesPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
 func testAccCheckALBLoadBalancerDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 

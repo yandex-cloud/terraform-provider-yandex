@@ -50,6 +50,8 @@ The following attributes are exported:
 
 * `listener` - List of listeners for the Load Balancer. The structure is documented below.
 
+* `log_options` - Cloud Logging settings. The structure is documented below.
+
 * `created_at` - The Load Balancer creation timestamp.
 
 * `status` - Status of the Load Balancer.
@@ -203,6 +205,26 @@ The `http2_options` block supports:
 The `redirects` block supports:
 
 * `http_to_https` - If set redirects all unencrypted HTTP requests to the same URI with scheme changed to `https`.
+
+---
+
+The `log_options` block supports:
+
+* `disable` (Optional) Set to true to disable Cloud Logging for the balancer
+
+* `log_group_id` (Optional) Cloud Logging group ID to send logs to. Leave empty to use the balancer folder default log group.
+
+* `discard_rule` (Optional) List of rules to discard a fraction of logs. The structure is documented below.
+
+---
+
+The `discard_rule` block supports:
+
+* `http_codes` (Optional) list of http codes _100_-_599_
+
+* `http_code_intervals` (Optional) list of http code intervals _1XX_-_5XX_ or _ALL_
+
+* `grpc_codes` (Optional) list of grpc codes by name, e.g, _["NOT_FOUND", "RESOURCE_EXHAUSTED"]_
 
 ---
 
