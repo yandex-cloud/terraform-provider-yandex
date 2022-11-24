@@ -1,4 +1,7 @@
 ## 0.83.0 (Unreleased)
+BUG FIXES:
+* compute: fix bug leading to failed instance update when changing subnet_id of a network_interface
+
 FEATURES
 * alb: add `log_options` attribute in `yandex_alb_load_balancer` resource and data source.
 

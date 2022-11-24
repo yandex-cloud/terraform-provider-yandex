@@ -617,6 +617,13 @@ func TestAccComputeInstance_update(t *testing.T) {
 					testAccCheckComputeInstanceHasNoSG(&instance),
 				),
 			},
+			{
+				Config: testAccComputeInstance_basic(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+				),
+			},
 		},
 	})
 }
@@ -2309,7 +2316,7 @@ resource "yandex_compute_instance" "foobar" {
 
   network_interface {
     subnet_id  = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
-    ip_address = "10.0.0.55"
+    ip_address = ""
   }
 
   metadata = {

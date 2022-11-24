@@ -888,7 +888,13 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 				req.SubnetId = newIface["subnet_id"].(string)
 				req.PrimaryV4AddressSpec = newV4Spec
+				if newV4Spec != nil && !d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ip_address")) {
+					req.PrimaryV4AddressSpec.Address = ""
+				}
 				req.PrimaryV6AddressSpec = newV6Spec
+				if newV6Spec != nil && d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ipv6_address")) {
+					req.PrimaryV6AddressSpec.Address = ""
+				}
 			} else {
 				if wantChangeAddressSpec(oldV4Spec, newV4Spec) {
 					// change primary v4 address
