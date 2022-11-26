@@ -480,7 +480,7 @@ The following arguments are supported:
 
 * `website` - (Optional) A [website object](https://cloud.yandex.com/docs/storage/concepts/hosting) (documented below).
 
-* `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/cors/) (documented below).
+* `cors_rule` - (Optional) A rule of [Cross-Origin Resource Sharing](https://cloud.yandex.com/docs/storage/concepts/cors) (documented below).
 
 * `versioning` - (Optional) A state of [versioning](https://cloud.yandex.com/docs/storage/concepts/versioning) (documented below)
 
