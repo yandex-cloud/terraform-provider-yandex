@@ -24,6 +24,11 @@ const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
 const chResourceKeeper = "yandex_mdb_clickhouse_cluster.keeper"
 
+const (
+	MaintenanceWindowAnytime = "type = \"ANYTIME\""
+	MaintenanceWindowWeekly  = "type = \"WEEKLY\"\n    day  = \"FRI\"\n    hour = 20"
+)
+
 func init() {
 	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
 		Name: "yandex_mdb_clickhouse_cluster",
@@ -116,9 +121,52 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
-			// Create ClickHouse Cluster
+			// Create ClickHouse Cluster with anytime maintenance_window
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowAnytime),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "TRACE"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(chResource, "service_account_id"),
+					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
+
+					resource.TestCheckResourceAttr(chResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.metrika", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.serverless", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(chResource, "access.0.yandex_query", "true"),
+
+					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
+					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}},
+						map[string]map[string]interface{}{
+							"john": {
+								"add_http_cors_header":          true,
+								"connect_timeout":               42000,
+								"count_distinct_implementation": "uniq_combined_64"}},
+						map[string][]map[string]interface{}{},
+					),
+					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{"testdb"}),
+					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{}),
+					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{}),
+					testAccCheckCreatedAtAttr(chResource),
+					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Update ClickHouse Cluster with weekly maintenance_window
+			{
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt, MaintenanceWindowWeekly),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -163,7 +211,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowWeekly),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
@@ -172,7 +220,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// check 'deletion_protection'
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt, MaintenanceWindowWeekly),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "true"),
@@ -180,13 +228,13 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			},
 			// test 'deletion_protection
 			{
-				Config:      testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRODUCTION", true, bucketName, rInt),
+				Config:      testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRODUCTION", true, bucketName, rInt, MaintenanceWindowWeekly),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowWeekly),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
@@ -969,7 +1017,7 @@ resource "yandex_storage_object" "test_ml_model" {
 `, bucket)
 }
 
-func testAccMDBClickHouseClusterConfigMain(name, desc, environment string, deletionProtection bool, bucket string, randInt int) string {
+func testAccMDBClickHouseClusterConfigMain(name, desc, environment string, deletionProtection bool, bucket string, randInt int, maintenanceWindow string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   depends_on = [
@@ -1194,9 +1242,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   service_account_id = "${yandex_iam_service_account.sa.id}"
 
   maintenance_window {
-    type = "WEEKLY"
-    day  = "FRI"
-    hour = 20
+    %s
   }
 
   access {
@@ -1210,7 +1256,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   deletion_protection = %t
 }
-`, name, desc, environment, chVersion, deletionProtection)
+`, name, desc, environment, chVersion, maintenanceWindow, deletionProtection)
 }
 
 func testAccMDBClickHouseClusterConfigUpdated(name, desc, bucket string, randInt int) string {

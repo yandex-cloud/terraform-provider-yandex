@@ -1,6 +1,7 @@
 ## 0.83.0 (Unreleased)
 BUG FIXES:
 * compute: fix bug leading to failed instance update when changing subnet_id of a network_interface
+* clickhouse: fix bug leading to failed creating cluster when set maintenance_window
 
 FEATURES
 * alb: add `log_options` attribute in `yandex_alb_load_balancer` resource and data source.

@@ -806,7 +806,7 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return err
 	}
-	if mw != nil {
+	if mw != nil && mw.GetAnytime() == nil {
 		err = updateClickHouseMaintenanceWindow(ctx, config, d, mw)
 		if err != nil {
 			return err

@@ -157,8 +157,8 @@ data "yandex_mdb_clickhouse_cluster" "bar" {
 
 func testAccDataSourceMDBClickHouseClusterConfig(chName, chDesc, bucket string, useDataID bool, randInt int) string {
 	if useDataID {
-		return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt) + mdbClickHouseClusterByIDConfig
+		return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt, MaintenanceWindowWeekly) + mdbClickHouseClusterByIDConfig
 	}
 
-	return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt) + mdbClickHouseClusterByNameConfig
+	return testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucket, randInt, MaintenanceWindowWeekly) + mdbClickHouseClusterByNameConfig
 }
