@@ -57,6 +57,11 @@ func sweepYDBServerlessDatabaseOnce(conf *Config, id string) error {
 	ctx, cancel := conf.ContextWithTimeout(yandexYDBServerlessDefaultTimeout)
 	defer cancel()
 
+	err := checkAndUnsetYDBDeletionProtection(conf, ctx, id)
+	if err != nil {
+		return err
+	}
+
 	op, err := conf.sdk.YDB().Database().Delete(ctx, &ydb.DeleteDatabaseRequest{
 		DatabaseId: id,
 	})
