@@ -6,6 +6,11 @@ BUG FIXES:
 FEATURES
 * alb: add `log_options` attribute in `yandex_alb_load_balancer` resource and data source.
 
+FEATURES:
+* **New Data Source:** `yandex_cm_certificate`
+* **New Data Source:** `yandex_cm_certificate_content`
+* **New Resource:** `yandex_cm_certificate`
+
 ## 0.82.0 (November 11, 2022)
 BUG FIXES:
 * lockbox: display error cause, when creating resource `yandex_lockbox_secret_version` fails
