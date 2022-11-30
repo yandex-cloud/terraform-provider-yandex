@@ -1,4 +1,6 @@
 ## 0.83.0 (Unreleased)
+FEATURES:
+* serverless: increase operation timeouts in `yandex_serverless_container` resource
 
 ## 0.82.0 (November 11, 2022)
 BUG FIXES:

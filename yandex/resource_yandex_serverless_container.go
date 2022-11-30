@@ -11,7 +11,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-const yandexServerlessContainerDefaultTimeout = 5 * time.Minute
+const yandexServerlessContainerDefaultTimeout = 15 * time.Minute
 
 func resourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
