@@ -1,4 +1,6 @@
-## 0.83.0 (Unreleased)
+## 0.84.0 (Unreleased)
+
+## 0.83.0 (December 1, 2022)
 BUG FIXES:
 * compute: fix bug leading to failed instance update when changing subnet_id of a network_interface
 * clickhouse: fix bug leading to failed creating cluster when set maintenance_window
