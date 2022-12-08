@@ -1,4 +1,6 @@
 ## 0.84.0 (Unreleased)
+BUG FIXES:
+* mysql: fix bug leading to cluster recreation when changing folder_id
 
 ## 0.83.0 (December 1, 2022)
 BUG FIXES:

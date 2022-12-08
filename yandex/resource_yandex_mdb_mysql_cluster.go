@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
 const (
@@ -262,7 +263,6 @@ func resourceYandexMDBMySQLCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -756,6 +756,10 @@ func resourceYandexMDBMySQLClusterUpdate(d *schema.ResourceData, meta interface{
 
 	err := validateClusterConfig(d)
 	if err != nil {
+		return err
+	}
+
+	if err = setMySQLFolderID(d, meta); err != nil {
 		return err
 	}
 
@@ -1363,6 +1367,54 @@ func validateClusterConfig(d *schema.ResourceData) error {
 	err = validateMysqlReplicationReferences(targetHosts)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func setMySQLFolderID(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	cluster, err := config.sdk.MDB().MySQL().Cluster().Get(ctx, &mysql.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+		request := &mysql.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending MySQL cluster move request: %+v", request)
+			return config.sdk.MDB().MySQL().Cluster().Move(ctx, request)
+		})
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move MySQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving MySQL Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving MySQL Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
 	}
 
 	return nil
