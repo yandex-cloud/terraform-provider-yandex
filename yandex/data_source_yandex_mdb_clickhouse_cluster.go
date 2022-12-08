@@ -596,6 +596,7 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"cloud_storage": {
 				Type:     schema.TypeList,
+				Computed: true,
 				MaxItems: 1,
 				Optional: true,
 				Elem: &schema.Resource{

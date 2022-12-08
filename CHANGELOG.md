@@ -1,6 +1,7 @@
 ## 0.84.0 (Unreleased)
 BUG FIXES:
 * mysql: fix bug leading to cluster recreation when changing folder_id
+* clickhouse: fix bug leading to failed updating cluster when set cloud_storage(enabled: false)
 
 ## 0.83.0 (December 1, 2022)
 BUG FIXES:

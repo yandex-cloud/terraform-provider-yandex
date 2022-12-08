@@ -1921,11 +1921,9 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]interface{} {
 	result := []map[string]interface{}{}
 
-	if cs != nil && cs.GetEnabled() {
-		m := map[string]interface{}{}
-		m["enabled"] = true
-		result = append(result, m)
-	}
+	m := map[string]interface{}{}
+	m["enabled"] = cs != nil && cs.GetEnabled()
+	result = append(result, m)
 
 	return result
 }
