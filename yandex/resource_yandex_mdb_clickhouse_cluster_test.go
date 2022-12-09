@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"os"
 	"reflect"
 	"regexp"
 	"sort"
@@ -28,6 +29,8 @@ const (
 	MaintenanceWindowAnytime = "type = \"ANYTIME\""
 	MaintenanceWindowWeekly  = "type = \"WEEKLY\"\n    day  = \"FRI\"\n    hour = 20"
 )
+
+var StorageEndpointUrl string = os.Getenv("YC_STORAGE_ENDPOINT_URL")
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
@@ -275,13 +278,13 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
 						"test_schema": {
 							"type": "FORMAT_SCHEMA_TYPE_CAPNPROTO",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test.capnp", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/test.capnp", StorageEndpointUrl, bucketName),
 						},
 					}),
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
 						"test_model": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
 						},
 					}),
 					testAccCheckCreatedAtAttr(chResource),
@@ -323,21 +326,21 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckMDBClickHouseClusterHasFormatSchemas(chResource, map[string]map[string]string{
 						"test_schema": {
 							"type": "FORMAT_SCHEMA_TYPE_CAPNPROTO",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test2.capnp", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/test2.capnp", StorageEndpointUrl, bucketName),
 						},
 						"test_schema2": {
 							"type": "FORMAT_SCHEMA_TYPE_PROTOBUF",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/test.proto", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/test.proto", StorageEndpointUrl, bucketName),
 						},
 					}),
 					testAccCheckMDBClickHouseClusterHasMlModels(chResource, map[string]map[string]string{
 						"test_model": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
 						},
 						"test_model2": {
 							"type": "ML_MODEL_TYPE_CATBOOST",
-							"uri":  fmt.Sprintf("https://storage.yandexcloud.net/%s/train.csv", bucketName),
+							"uri":  fmt.Sprintf("%s/%s/train.csv", StorageEndpointUrl, bucketName),
 						},
 					}),
 				),
@@ -1004,6 +1007,8 @@ resource "yandex_storage_object" "test_capnp" {
 
   key     = "test.capnp"
   content = "# This is a comment."
+
+  acl = "public-read"
 
   depends_on = [
     yandex_storage_bucket.tmp_bucket
@@ -1894,13 +1899,13 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   format_schema {
     name = "test_schema"
     type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test.capnp"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test.capnp"
   }
 
   ml_model {
     name = "test_model"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
   }
 
   maintenance_window {
@@ -1911,7 +1916,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     enabled = true
   }
 }
-`, name, desc, chVersion)
+`, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
 
 func testAccMDBClickHouseClusterConfigHA(name, desc, bucket string, randInt int) string {
@@ -2208,32 +2213,32 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   format_schema {
     name = "test_schema"
     type = "FORMAT_SCHEMA_TYPE_CAPNPROTO"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test2.capnp"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test2.capnp"
   }
 
   format_schema {
     name = "test_schema2"
     type = "FORMAT_SCHEMA_TYPE_PROTOBUF"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/test.proto"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/test.proto"
   }
 
   ml_model {
     name = "test_model"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
   }
 
   ml_model {
     name = "test_model2"
     type = "ML_MODEL_TYPE_CATBOOST"
-    uri  = "https://storage.yandexcloud.net/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
+    uri  = "%s/${yandex_storage_bucket.tmp_bucket.bucket}/train.csv"
   }
 
   cloud_storage {
     enabled = true
   }
 }
-`, name, desc, chVersion)
+`, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl)
 }
 
 func testAccMDBClickHouseClusterConfigSharded(name, desc, bucket string, randInt int) string {
