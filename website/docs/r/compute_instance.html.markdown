@@ -236,6 +236,7 @@ The `local_disk` block supports:
 
 * `size_bytes` - (Required) Size of the disk, specified in bytes.
 
+~> **NOTE:** Local disks are not available for all users by default.
 
 ## Attributes Reference
 

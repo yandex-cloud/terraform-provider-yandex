@@ -362,9 +362,8 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 			},
 
 			"local_disk": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				RequiredWith: []string{"placement_policy"},
+				Type:     schema.TypeList,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size_bytes": {

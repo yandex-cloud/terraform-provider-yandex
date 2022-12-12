@@ -618,7 +618,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_basic(instanceName),
+				Config: testAccComputeInstance_update_to_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
@@ -1331,10 +1331,9 @@ func TestAccComputeInstance_local_disks(t *testing.T) {
 	var instance compute.Instance
 	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
 
-	var hostGroupID = os.Getenv("COMPUTE_HOST_GROUP_ID")
 	var diskSize = os.Getenv("COMPUTE_LOCAL_DISK_SIZE")
-	if hostGroupID == "" || diskSize == "" {
-		t.Skip("Required vars COMPUTE_HOST_GROUP_ID and COMPUTE_LOCAL_DISK_SIZE are not set.")
+	if diskSize == "" {
+		t.Skip("Required var COMPUTE_LOCAL_DISK_SIZE is not set.")
 	}
 
 	diskSizeBytes, err := strconv.Atoi(diskSize)
@@ -1348,7 +1347,7 @@ func TestAccComputeInstance_local_disks(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstance_local_disks(instanceName, hostGroupID, diskSizeBytes),
+				Config: testAccComputeInstance_local_disks(instanceName, diskSizeBytes),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						"yandex_compute_instance.foobar", &instance),
@@ -2657,6 +2656,62 @@ resource "yandex_vpc_subnet" "inst-update-test-subnet" {
 `, instance)
 }
 
+//revive:disable:var-naming
+func testAccComputeInstance_update_to_basic(instance string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  platform_id = "standard-v2"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
 func testAccComputeInstance_natIp(instance string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
@@ -3931,7 +3986,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance, folderAttr, allowRecreate)
 }
 
-func testAccComputeInstance_local_disks(instance, hostGroupID string, diskSize int) string {
+func testAccComputeInstance_local_disks(instance string, diskSize int) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
@@ -3967,14 +4022,6 @@ resource "yandex_compute_instance" "foobar" {
   local_disk {
     size_bytes = %d
   }
-
-  placement_policy {
-    host_affinity_rules {
-      key = "yc.hostGroupId"
-      op = "IN"
-      values = ["%s"]
-    }
-  }
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
@@ -3983,5 +4030,5 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
-`, instance, diskSize, hostGroupID)
+`, instance, diskSize)
 }
