@@ -30,7 +30,16 @@ const (
 	MaintenanceWindowWeekly  = "type = \"WEEKLY\"\n    day  = \"FRI\"\n    hour = 20"
 )
 
-var StorageEndpointUrl string = os.Getenv("YC_STORAGE_ENDPOINT_URL")
+var StorageEndpointUrl = getStorageEndpointUrl()
+
+func getStorageEndpointUrl() string {
+	rawUrl := os.Getenv("YC_STORAGE_ENDPOINT_URL")
+	const protocol = "https://"
+	if strings.HasPrefix(rawUrl, protocol) {
+		return rawUrl
+	}
+	return fmt.Sprintf("%s%s", protocol, rawUrl)
+}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_clickhouse_cluster", &resource.Sweeper{
