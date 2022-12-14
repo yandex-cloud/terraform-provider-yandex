@@ -1,6 +1,7 @@
 ## 0.84.0 (Unreleased)
 BUG FIXES:
 * mysql: fix bug leading to cluster recreation when changing folder_id
+* mdb: fix bug when description cannot be set to null in `yandex_mdb_postgresql_cluster` and `yandex_mdb_mongodb_cluster`
 * clickhouse: fix bug leading to failed updating cluster when set cloud_storage(enabled: false)
 * compute: fix validation of local_disk in yandex_compute_instance resource
 

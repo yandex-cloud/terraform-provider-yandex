@@ -514,6 +514,17 @@ func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 				),
 			},
 			mdbMongoDBClusterImportStep(),
+			// Check if description can be set to null
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ClusterDescription": "",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "description", ""),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
 		},
 	})
 }

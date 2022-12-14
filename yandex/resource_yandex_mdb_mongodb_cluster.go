@@ -318,7 +318,6 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"labels": {
 				Type:     schema.TypeMap,

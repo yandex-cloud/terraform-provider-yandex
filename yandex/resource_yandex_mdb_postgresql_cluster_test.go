@@ -230,6 +230,15 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb"}),
 				),
 			},
+			mdbPGClusterImportStep(clusterResource),
+			// 14. Check if description can be set to null
+			{
+				Config: testAccMDBPGClusterConfigUpdated(clusterName, "", version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "description", ""),
+				),
+			},
 		},
 	})
 }
