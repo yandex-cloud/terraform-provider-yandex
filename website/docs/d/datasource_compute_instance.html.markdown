@@ -58,6 +58,7 @@ The following arguments are supported:
 * `created_at` - Instance creation timestamp.
 * `placement_policy` - The placement policy configuration. The structure is documented below.
 * `local_disk` - List of local disks that are attached to the instance. Structure is documented below.
+* `metadata_options` - Options allow user to configure access to instance's metadata
 
 ---
 

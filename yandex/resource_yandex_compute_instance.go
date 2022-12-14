@@ -528,6 +528,41 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"metadata_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gce_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"gce_http_token": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_token": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -619,6 +654,8 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 
 	localDisks := flattenLocalDisks(instance)
 
+	metadataOptions := flattenInstanceMetadataOptions(instance)
+
 	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
@@ -628,6 +665,7 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("description", instance.Description)
 	d.Set("service_account_id", instance.ServiceAccountId)
 	d.Set("status", strings.ToLower(instance.Status.String()))
+	d.Set("metadata_options", metadataOptions)
 
 	hostname, err := parseHostnameFromFQDN(instance.Fqdn)
 	if err != nil {
@@ -775,6 +813,25 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			Metadata:   metadataProp,
 			UpdateMask: &field_mask.FieldMask{
 				Paths: []string{metadataPropName},
+			},
+		}
+
+		err = makeInstanceUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	metadataOptionsPropName := "metadata_options"
+	if d.HasChange(metadataOptionsPropName) {
+		metadataOptionsProp := expandInstanceMetadataOptions(d)
+
+		req := &compute.UpdateInstanceRequest{
+			InstanceId:      d.Id(),
+			MetadataOptions: metadataOptionsProp,
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{metadataOptionsPropName},
 			},
 		}
 
@@ -1264,6 +1321,8 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'placement_policy' object of api request: %s", err)
 	}
 
+	metadataOptions := expandInstanceMetadataOptions(d)
+
 	localDisks := expandLocalDiskSpecs(d.Get("local_disk"))
 
 	req := &compute.CreateInstanceRequest{
@@ -1284,6 +1343,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		SchedulingPolicy:      schedulingPolicy,
 		PlacementPolicy:       placementPolicy,
 		LocalDiskSpecs:        localDisks,
+		MetadataOptions:       metadataOptions,
 	}
 
 	return req, nil

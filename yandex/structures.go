@@ -716,6 +716,24 @@ func expandInstancePlacementPolicy(d *schema.ResourceData) (*compute.PlacementPo
 	return placementPolicy, nil
 }
 
+func expandInstanceMetadataOptions(d *schema.ResourceData) *compute.MetadataOptions {
+	metadataOptions := compute.MetadataOptions{}
+	if v, ok := d.GetOk("metadata_options.0.gce_http_endpoint"); ok {
+		metadataOptions.GceHttpEndpoint = compute.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v1_http_endpoint"); ok {
+		metadataOptions.AwsV1HttpEndpoint = compute.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.gce_http_token"); ok {
+		metadataOptions.GceHttpToken = compute.MetadataOption(v.(int))
+	}
+	if v, ok := d.GetOk("metadata_options.0.aws_v1_http_token"); ok {
+		metadataOptions.AwsV1HttpToken = compute.MetadataOption(v.(int))
+	}
+
+	return &metadataOptions
+}
+
 func expandHostAffinityRulesSpec(ruleSpecs []interface{}) []*compute.PlacementPolicy_HostAffinityRule {
 	rulesCount := len(ruleSpecs)
 	hostAffinityRules := make([]*compute.PlacementPolicy_HostAffinityRule, rulesCount)
@@ -781,6 +799,17 @@ func flattenInstancePlacementPolicy(instance *compute.Instance) ([]map[string]in
 	}
 	placementPolicy = append(placementPolicy, placementMap)
 	return placementPolicy, nil
+}
+
+func flattenInstanceMetadataOptions(instance *compute.Instance) []map[string]interface{} {
+	metadataOptions := map[string]interface{}{
+		"gce_http_endpoint":    int(instance.MetadataOptions.GceHttpEndpoint),
+		"aws_v1_http_endpoint": int(instance.MetadataOptions.AwsV1HttpEndpoint),
+		"gce_http_token":       int(instance.MetadataOptions.GceHttpToken),
+		"aws_v1_http_token":    int(instance.MetadataOptions.AwsV1HttpToken),
+	}
+
+	return []map[string]interface{}{metadataOptions}
 }
 
 func flattenStaticRoutes(routeTable *vpc.RouteTable) *schema.Set {

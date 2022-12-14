@@ -19,6 +19,10 @@ import (
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
+const (
+	instanceResource = "yandex_compute_instance.foobar"
+)
+
 func init() {
 	resource.AddTestSweepers("yandex_compute_instance", &resource.Sweeper{
 		Name: "yandex_compute_instance",
@@ -66,7 +70,7 @@ func sweepComputeInstanceOnce(conf *Config, id string) error {
 
 func computeInstanceImportStep() resource.TestStep {
 	return resource.TestStep{
-		ResourceName:            "yandex_compute_instance.foobar",
+		ResourceName:            instanceResource,
 		ImportState:             true,
 		ImportStateVerify:       true,
 		ImportStateVerifyIgnore: []string{"allow_stopping_for_update"},
@@ -87,15 +91,19 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 			{
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasInstanceID(&instance, "yandex_compute_instance.foobar"),
+					testAccCheckComputeInstanceExists(instanceResource, &instance),
+					testAccCheckComputeInstanceHasInstanceID(&instance, instanceResource),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 					testAccCheckComputeInstanceIsPreemptible(&instance, false),
 					testAccCheckComputeInstanceLabel(&instance, "my_key", "my_value"),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
 					testAccCheckComputeInstanceMetadata(&instance, "baz", "qux"),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.#", "1"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_endpoint", "1"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_endpoint", "1"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_token", "1"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_token", "1"),
 				),
 			},
 			computeInstanceImportStep(),
@@ -116,8 +124,8 @@ func TestAccComputeInstance_Gpus(t *testing.T) {
 				Config: testAccComputeInstance_gpus(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
-					testAccCheckComputeInstanceHasInstanceID(&instance, "yandex_compute_instance.foobar"),
+						instanceResource, &instance),
+					testAccCheckComputeInstanceHasInstanceID(&instance, instanceResource),
 					testAccCheckComputeInstanceHasGpus(&instance, 1),
 				),
 			},
@@ -141,11 +149,11 @@ func TestAccComputeInstance_basic2(t *testing.T) {
 				Config: testAccComputeInstance_basic2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 					testAccCheckComputeInstanceFqdn(&instance, instanceName),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -167,9 +175,9 @@ func TestAccComputeInstance_basic3(t *testing.T) {
 				Config: testAccComputeInstance_basic3(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -191,9 +199,9 @@ func TestAccComputeInstance_basic4(t *testing.T) {
 				Config: testAccComputeInstance_basic4(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -215,9 +223,9 @@ func TestAccComputeInstance_basic5(t *testing.T) {
 				Config: testAccComputeInstance_basic5(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceMetadata(&instance, "foo", "bar"),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -239,9 +247,9 @@ func TestAccComputeInstance_basic6(t *testing.T) {
 				Config: testAccComputeInstance_basic6(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -263,10 +271,10 @@ func TestAccComputeInstance_SecurityGroups(t *testing.T) {
 				Config: testAccComputeInstance_SecurityGroups(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 5, 0.5),
 					testAccCheckComputeInstanceHasSG(&instance),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 		},
@@ -286,7 +294,7 @@ func TestAccComputeInstance_NatIP(t *testing.T) {
 				Config: testAccComputeInstance_natIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNatAddress(&instance),
 				),
 			},
@@ -310,7 +318,7 @@ func TestAccComputeInstance_attachedDisk(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -335,7 +343,7 @@ func TestAccComputeInstance_attachedDisk_sourceUrl(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk_sourceUrl(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -361,7 +369,7 @@ func TestAccComputeInstance_attachedDisk_modeRo(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk_modeRo(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -387,7 +395,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_attachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -396,7 +404,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_addAttachedDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 					testAccCheckComputeInstanceDisk(&instance, diskName2, false, false),
 				),
@@ -406,7 +414,7 @@ func TestAccComputeInstance_attachedDiskUpdate(t *testing.T) {
 				Config: testAccComputeInstance_detachDisk(diskName, diskName2, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceDisk(&instance, diskName, false, false),
 				),
 			},
@@ -430,7 +438,7 @@ func TestAccComputeInstance_attachedDiskDelete(t *testing.T) {
 				Config: testAccComputeInstance_delAttachedDisk(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceAttachedDisks(&instance, diskName),
 				),
 			},
@@ -439,7 +447,7 @@ func TestAccComputeInstance_attachedDiskDelete(t *testing.T) {
 				Config: testAccComputeInstance_delAttachedDisk("", instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceAttachedDisks(&instance),
 				),
 			},
@@ -464,7 +472,7 @@ func TestAccComputeInstance_bootDisk_source(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_source(diskName, instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceBootDisk(&instance, diskName),
 				),
 			},
@@ -488,7 +496,7 @@ func TestAccComputeInstance_bootDisk_size(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_size(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 				),
 			},
 			computeInstanceImportStep(),
@@ -512,7 +520,7 @@ func TestAccComputeInstance_bootDisk_type(t *testing.T) {
 				Config: testAccComputeInstance_bootDisk_type(instanceName, diskTypeID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceBootDiskType(instanceName, diskTypeID),
 				),
 			},
@@ -535,14 +543,14 @@ func TestAccComputeInstance_forceNewAndChangeMetadata(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 				),
 			},
 			{
 				Config: testAccComputeInstance_forceNewAndChangeMetadata(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceMetadata(
 						&instance, "qux", "true"),
 				),
@@ -566,27 +574,32 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 				),
 			},
 			{
 				Config: testAccComputeInstance_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceMetadata(
 						&instance, "bar", "baz"),
 					testAccCheckComputeInstanceLabel(&instance, "only_me", "nothing_else"),
 					testAccCheckComputeInstanceHasNoLabel(&instance, "my_key"),
 					testAccCheckComputeInstanceHasNoLabel(&instance, "my_other_key"),
 					testAccCheckComputeInstanceHasServiceAccount(&instance),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.#", "1"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_endpoint", "2"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_endpoint", "2"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_token", "2"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_token", "2"),
 				),
 			},
 			{
 				Config: testAccComputeInstance_update_add_dns(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasDnsRecord(&instance),
 				),
 			},
@@ -594,7 +607,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_update_add_natIp(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNatAddress(&instance),
 					testAccCheckComputeInstanceHasNoSG(&instance),
 				),
@@ -603,7 +616,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_update_add_SecurityGroups(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNatAddress(&instance),
 					testAccCheckComputeInstanceHasSG(&instance),
 				),
@@ -612,7 +625,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_update_remove_natIp_remove_SGs(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNoNatAddress(&instance),
 					testAccCheckComputeInstanceHasNoSG(&instance),
 				),
@@ -621,7 +634,7 @@ func TestAccComputeInstance_update(t *testing.T) {
 				Config: testAccComputeInstance_update_to_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 				),
 			},
 		},
@@ -644,7 +657,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Config: testAccComputeInstance_stopInstanceToUpdate(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 				),
 			},
@@ -654,7 +667,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Config: testAccComputeInstance_stopInstanceToUpdate2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 4, 100, 4),
 				),
@@ -665,7 +678,7 @@ func TestAccComputeInstance_stopInstanceToUpdate(t *testing.T) {
 				Config: testAccComputeInstance_stopInstanceToUpdate3(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 4, 5, 1),
 				),
@@ -691,7 +704,7 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 				Config: testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 100, 2),
 				),
@@ -702,7 +715,7 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 				Config: testAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform2(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasPlatformID(&instance, "standard-v2"),
 					testAccCheckComputeInstanceHasResources(&instance, 2, 50, 1),
 				),
@@ -728,7 +741,7 @@ func TestAccComputeInstance_subnet_auto(t *testing.T) {
 				Config: testAccComputeInstance_subnet_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -752,7 +765,7 @@ func TestAccComputeInstance_subnet_custom(t *testing.T) {
 				Config: testAccComputeInstance_subnet_custom(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasSubnet(&instance),
 				),
 			},
@@ -776,7 +789,7 @@ func TestAccComputeInstance_address_auto(t *testing.T) {
 				Config: testAccComputeInstance_address_auto(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAnyAddress(&instance),
 				),
 			},
@@ -800,7 +813,7 @@ func TestAccComputeInstance_address_custom(t *testing.T) {
 				Config: testAccComputeInstance_address_custom(instanceName, address),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAddress(&instance, address),
 				),
 			},
@@ -825,7 +838,7 @@ func TestAccComputeInstance_multiNic(t *testing.T) {
 			{
 				Config: testAccComputeInstance_multiNic(instanceName, networkName, subnetworkName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists(instanceResource, &instance),
 					testAccCheckComputeInstanceHasMultiNic(&instance),
 				),
 			},
@@ -849,9 +862,9 @@ func TestAccComputeInstance_preemptible(t *testing.T) {
 				Config: testAccComputeInstance_preemptible(instanceName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceIsPreemptible(&instance, true),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 			computeInstanceImportStep(),
@@ -873,15 +886,15 @@ func TestAccComputeInstance_update_scheduling_policy(t *testing.T) {
 			{
 				Config: testAccComputeInstance_preemptible(instanceName, false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists(instanceResource, &instance),
 					testAccCheckComputeInstanceIsPreemptible(&instance, false),
 				),
 			},
 			{
 				Config: testAccComputeInstance_preemptible(instanceName, true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
-					resource.TestCheckResourceAttrPtr("yandex_compute_instance.foobar", "id", &instance.Id),
+					testAccCheckComputeInstanceExists(instanceResource, &instance),
+					resource.TestCheckResourceAttrPtr(instanceResource, "id", &instance.Id),
 					testAccCheckComputeInstanceIsPreemptible(&instance, true),
 				),
 			},
@@ -906,9 +919,9 @@ func TestAccComputeInstance_service_account(t *testing.T) {
 				Config: testAccComputeInstance_service_account(instanceName, saName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasServiceAccount(&instance),
-					testAccCheckCreatedAtAttr("yandex_compute_instance.foobar"),
+					testAccCheckCreatedAtAttr(instanceResource),
 				),
 			},
 			computeInstanceImportStep(),
@@ -932,7 +945,7 @@ func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
 				Config: testAccComputeInstance_network_acceleration_type_empty(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
 				),
 			},
@@ -942,7 +955,7 @@ func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
 				Config: testAccComputeInstance_network_acceleration_type(instanceName, "standard"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
 				),
 			},
@@ -952,7 +965,7 @@ func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
 				Config: testAccComputeInstance_network_acceleration_type(instanceName, "software_accelerated"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_SOFTWARE_ACCELERATED),
 				),
 			},
@@ -962,7 +975,7 @@ func TestAccComputeInstance_network_acceleration_type(t *testing.T) {
 				Config: testAccComputeInstance_network_acceleration_type_empty(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasNetworkAccelerationType(&instance, compute.NetworkSettings_STANDARD),
 				),
 			},
@@ -990,7 +1003,7 @@ func TestAccComputeInstance_nat_create_specific(t *testing.T) {
 				Config: testAccComputeInstance_network_nat(instanceName, true, reservedAddress, false, ""),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceNat(&instance, true, reservedAddress, false, ""),
 				),
 			},
@@ -1012,7 +1025,7 @@ func TestAccComputeInstance_nat(t *testing.T) {
 		return resource.TestStep{
 			Config: testAccComputeInstance_network_nat(instanceName, nat1, natAddress1, nat2, natAddress2),
 			Check: resource.ComposeTestCheckFunc(
-				testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+				testAccCheckComputeInstanceExists(instanceResource, &instance),
 				testAccCheckComputeInstanceNat(&instance, nat1, natAddress1, nat2, natAddress2),
 			),
 		}
@@ -1182,14 +1195,14 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 				Config: testAccComputeInstance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 				),
 			},
 			{
 				Config: testAccComputeInstance_placement_host(instanceName, hostID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostId": hostID}),
 				),
 			},
@@ -1197,7 +1210,7 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 				Config: testAccComputeInstance_placement_hostgroup(instanceName, hostGroupID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostGroupId": hostGroupID}),
 				),
 			},
@@ -1205,7 +1218,7 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 				Config: testAccComputeInstance_placement_empty(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, nil),
 				),
 			},
@@ -1233,21 +1246,21 @@ func TestAccComputeInstance_move(t *testing.T) {
 			{
 				Config: testAccComputeInstance_with_folder(instanceName, "", false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceExists(instanceResource, &instance),
 				),
 			},
 			{
 				Config: testAccComputeInstance_with_folder(instanceName, targetFolderID, false),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_compute_instance.foobar", "folder_id", targetFolderID),
-					resource.TestCheckResourceAttrPtr("yandex_compute_instance.foobar", "id", &instance.Id),
+					resource.TestCheckResourceAttr(instanceResource, "folder_id", targetFolderID),
+					resource.TestCheckResourceAttrPtr(instanceResource, "id", &instance.Id),
 				),
 			},
 			{
 				Config: testAccComputeInstance_with_folder(instanceName, sourceFolderID, true),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("yandex_compute_instance.foobar", "folder_id", sourceFolderID),
-					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instanceNew),
+					resource.TestCheckResourceAttr(instanceResource, "folder_id", sourceFolderID),
+					testAccCheckComputeInstanceExists(instanceResource, &instanceNew),
 					testAccCheckComputeInstancesNotEqual(&instance, &instanceNew),
 				),
 			},
@@ -1350,7 +1363,7 @@ func TestAccComputeInstance_local_disks(t *testing.T) {
 				Config: testAccComputeInstance_local_disks(instanceName, diskSizeBytes),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
-						"yandex_compute_instance.foobar", &instance),
+						instanceResource, &instance),
 					testAccCheckComputeInstanceHasLocalDisk(&instance, int64(diskSizeBytes)),
 				),
 			},
@@ -1894,6 +1907,13 @@ resource "yandex_compute_instance" "foobar" {
     baz = "qux"
   }
 
+  metadata_options {
+	gce_http_endpoint = 1
+	aws_v1_http_endpoint = 1
+	gce_http_token = 1
+	aws_v1_http_token = 1
+  }
+
   labels = {
     my_key       = "my_value"
     my_other_key = "my_other_value"
@@ -2287,7 +2307,7 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance)
 }
 
-// Update metadata, network_interface, service account id
+// Update metadata, network_interface, service account id, metadata_options
 func testAccComputeInstance_update(instance string) string {
 	// language=tf
 	return fmt.Sprintf(`
@@ -2321,6 +2341,13 @@ resource "yandex_compute_instance" "foobar" {
   metadata = {
     bar            = "baz"
     startup-script = "echo Hello"
+  }
+
+  metadata_options {
+	gce_http_endpoint = 2
+	aws_v1_http_endpoint = 2
+	gce_http_token = 2
+	aws_v1_http_token = 2
   }
 
   labels = {

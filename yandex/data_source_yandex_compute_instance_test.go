@@ -126,6 +126,11 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.#", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "network_interface.0.nat", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "scheduling_policy.0.preemptible", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.#", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_endpoint", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_endpoint", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_token", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_token", "1"),
 	)
 }
 
@@ -215,6 +220,13 @@ resource "yandex_compute_instance" "foo" {
   metadata = {
     foo = "bar"
     baz = "qux"
+  }
+
+  metadata_options {
+	gce_http_endpoint = 1
+	aws_v1_http_endpoint = 1
+	gce_http_token = 1
+	aws_v1_http_token = 1
   }
 
   labels = {

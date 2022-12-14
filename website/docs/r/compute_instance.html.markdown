@@ -98,6 +98,7 @@ The following arguments are supported:
 * `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software_accelerated`
 
 * `local_disk` - (Optional) List of local disks that are attached to the instance. Structure is documented below.
+* `metadata_options` - (Optional) Options allow user to configure access to instance's metadata
 
 ---
 

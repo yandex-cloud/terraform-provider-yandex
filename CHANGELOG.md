@@ -5,6 +5,9 @@ BUG FIXES:
 * clickhouse: fix bug leading to failed updating cluster when set cloud_storage(enabled: false)
 * compute: fix validation of local_disk in yandex_compute_instance resource
 
+FEATURES:
+* compute: support `metadata_options` in `yandex_compute_instance`
+
 ## 0.83.0 (December 1, 2022)
 BUG FIXES:
 * compute: fix bug leading to failed instance update when changing subnet_id of a network_interface

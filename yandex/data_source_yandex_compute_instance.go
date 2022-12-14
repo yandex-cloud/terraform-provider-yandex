@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -378,6 +379,41 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"metadata_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gce_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_endpoint": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"gce_http_token": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+						"aws_v1_http_token": {
+							Type:         schema.TypeInt,
+							ValidateFunc: validation.IntBetween(0, 2),
+							Optional:     true,
+							Computed:     true,
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -443,6 +479,8 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	localDisks := flattenLocalDisks(instance)
 
+	metadataOptions := flattenInstanceMetadataOptions(instance)
+
 	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
@@ -453,6 +491,7 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("description", instance.Description)
 	d.Set("service_account_id", instance.ServiceAccountId)
 	d.Set("status", strings.ToLower(instance.Status.String()))
+	d.Set("metadata_options", metadataOptions)
 
 	if err := d.Set("metadata", instance.Metadata); err != nil {
 		return err
