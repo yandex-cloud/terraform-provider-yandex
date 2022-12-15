@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	k8sTestVersion       = "1.20"
-	k8sTestUpdateVersion = "1.21"
+	k8sTestVersion       = "1.21"
+	k8sTestUpdateVersion = "1.22"
 )
 
 func init() {
@@ -489,7 +489,7 @@ func TestAccKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_networkImplementationCilium", true)
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 	clusterResource.NetworkImplementationCilium = true
-	clusterResource.MasterVersion = "1.20"
+	clusterResource.MasterVersion = k8sTestVersion
 
 	var cluster k8s.Cluster
 

@@ -100,7 +100,7 @@ func TestAccDataSourceKubernetesClusterZonal_networkImplementationCilium(t *test
 	clusterResourceFullName := clusterResource.ResourceFullName(true)
 	clusterDataSourceFullName := clusterResource.ResourceFullName(false)
 	clusterResource.NetworkImplementationCilium = true
-	clusterResource.MasterVersion = "1.20"
+	clusterResource.MasterVersion = k8sTestVersion
 
 	var cluster k8s.Cluster
 
