@@ -62,7 +62,7 @@ func sweepComputeDiskOnce(conf *Config, id string) error {
 func TestAccComputeDisk_basic(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := acctest.RandomWithPrefix("tf-test")
 	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
@@ -110,7 +110,7 @@ func TestAccComputeDisk_timeout(t *testing.T) {
 func TestAccComputeDisk_update(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := acctest.RandomWithPrefix("tf-test")
 	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
@@ -145,9 +145,9 @@ func TestAccComputeDisk_update(t *testing.T) {
 func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	firstDiskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	snapshotName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := acctest.RandomWithPrefix("tf-test")
+	firstDiskName := acctest.RandomWithPrefix("tf-test")
+	snapshotName := acctest.RandomWithPrefix("tf-test")
 
 	var disk compute.Disk
 
@@ -168,11 +168,10 @@ func TestAccComputeDisk_fromSnapshot(t *testing.T) {
 }
 
 func TestAccComputeDisk_deleteDetach(t *testing.T) {
-	t.Skip("enable when instance disk attach/detach operation will be supported")
 	t.Parallel()
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
-	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := acctest.RandomWithPrefix("tf-test")
+	instanceName := acctest.RandomWithPrefix("tf-test")
 	var disk compute.Disk
 
 	resource.Test(t, resource.TestCase{
@@ -211,7 +210,7 @@ func TestAccComputeDisk_move(t *testing.T) {
 		t.Skip("Required var COMPUTE_TARGET_FOLDER is not set.")
 	}
 
-	diskName := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	diskName := acctest.RandomWithPrefix("tf-test")
 	var disk, diskNew compute.Disk
 
 	resource.Test(t, resource.TestCase{

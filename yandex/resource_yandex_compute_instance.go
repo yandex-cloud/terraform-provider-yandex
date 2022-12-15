@@ -563,6 +563,33 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"filesystem": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      hashFilesystem,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"filesystem_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+
+						"device_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "READ_WRITE",
+							ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -656,6 +683,8 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 
 	metadataOptions := flattenInstanceMetadataOptions(instance)
 
+	filesystems := flattenInstanceFilesystems(instance)
+
 	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("platform_id", instance.PlatformId)
 	d.Set("folder_id", instance.FolderId)
@@ -702,6 +731,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("local_disk", localDisks); err != nil {
+		return err
+	}
+
+	if err := d.Set("filesystem", filesystems); err != nil {
 		return err
 	}
 
@@ -1119,15 +1152,18 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	networkAccelerationTypePropName := "network_acceleration_type"
 	schedulingPolicyName := "scheduling_policy"
 	placementPolicyPropName := "placement_policy"
+	filesystemPropName := "filesystem"
 	properties := []string{
 		resourcesPropName,
 		platformIDPropName,
 		networkAccelerationTypePropName,
 		schedulingPolicyName,
 		placementPolicyPropName,
+		filesystemPropName,
 	}
 	if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) ||
-		needUpdateInterfacesOnStoppedInstance || d.HasChange(schedulingPolicyName) || d.HasChange(placementPolicyPropName) {
+		needUpdateInterfacesOnStoppedInstance || d.HasChange(schedulingPolicyName) || d.HasChange(placementPolicyPropName) ||
+		d.HasChange(filesystemPropName) {
 		if err := ensureAllowStoppingForUpdate(d, properties...); err != nil {
 			return err
 		}
@@ -1220,6 +1256,83 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 				if err != nil {
 					return err
 				}
+			}
+
+		}
+
+		if d.HasChange(filesystemPropName) {
+			o, n := d.GetChange(filesystemPropName)
+
+			currFs := map[string]struct{}{}
+			for _, fs := range instance.Filesystems {
+				currFs[fs.FilesystemId] = struct{}{}
+			}
+
+			oldFs := map[uint64]string{}
+			for _, fs := range o.(*schema.Set).List() {
+				fsConfig := fs.(map[string]interface{})
+				fsSpec, err := expandFilesystemSpec(fsConfig)
+				if err != nil {
+					return err
+				}
+				hash, err := hashstructure.Hash(fsSpec, nil)
+				if err != nil {
+					return err
+				}
+				if _, ok := currFs[fsSpec.GetFilesystemId()]; ok {
+					oldFs[hash] = fsSpec.GetFilesystemId()
+				}
+			}
+
+			newFs := map[uint64]struct{}{}
+			var attach []*compute.AttachedFilesystemSpec
+			for _, fs := range n.(*schema.Set).List() {
+				fsConfig := fs.(map[string]interface{})
+				fsSpec, err := expandFilesystemSpec(fsConfig)
+				if err != nil {
+					return err
+				}
+				hash, err := hashstructure.Hash(fsSpec, nil)
+				if err != nil {
+					return err
+				}
+				newFs[hash] = struct{}{}
+
+				if _, ok := oldFs[hash]; !ok {
+					attach = append(attach, fsSpec)
+				}
+			}
+
+			// Detach old filesystems
+			for hash, fsID := range oldFs {
+				if _, ok := newFs[hash]; !ok {
+					req := &compute.DetachInstanceFilesystemRequest{
+						InstanceId: d.Id(),
+						Filesystem: &compute.DetachInstanceFilesystemRequest_FilesystemId{
+							FilesystemId: fsID,
+						},
+					}
+
+					err = makeDetachFilesystemRequest(req, meta)
+					if err != nil {
+						return err
+					}
+					log.Printf("[DEBUG] Successfully detached filesystem %s", fsID)
+				}
+			}
+
+			// Attach the new filesystems
+			for _, fsSpec := range attach {
+				req := &compute.AttachInstanceFilesystemRequest{
+					InstanceId:             d.Id(),
+					AttachedFilesystemSpec: fsSpec,
+				}
+
+				err := makeAttachFilesystemRequest(req, meta)
+				if err != nil {
+					return err
+				}
+				log.Printf("[DEBUG] Successfully attached filesystem %s", fsSpec.GetFilesystemId())
 			}
 
 		}
@@ -1325,6 +1438,11 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 
 	localDisks := expandLocalDiskSpecs(d.Get("local_disk"))
 
+	filesystemSpecs, err := expandInstanceFilesystemSpecs(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'filesystem' object of api request: %s", err)
+	}
+
 	req := &compute.CreateInstanceRequest{
 		FolderId:              folderID,
 		Hostname:              d.Get("hostname").(string),
@@ -1344,6 +1462,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		PlacementPolicy:       placementPolicy,
 		LocalDiskSpecs:        localDisks,
 		MetadataOptions:       metadataOptions,
+		FilesystemSpecs:       filesystemSpecs,
 	}
 
 	return req, nil
@@ -1570,6 +1689,48 @@ func makeAttachDiskRequest(req *compute.AttachInstanceDiskRequest, meta interfac
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error attach Disk %s to Instance %q: %s", req.AttachedDiskSpec.GetDiskId(), req.GetInstanceId(), err)
+	}
+
+	return nil
+}
+
+func makeDetachFilesystemRequest(req *compute.DetachInstanceFilesystemRequest, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDefaultTimeout)
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachFilesystem(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to detach Filesystem %s from Instance %q: %s",
+			req.GetFilesystemId(), req.GetInstanceId(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error detach Filesystem %s from Instance %q: %s",
+			req.GetFilesystemId(), req.GetInstanceId(), err)
+	}
+
+	return nil
+}
+
+func makeAttachFilesystemRequest(req *compute.AttachInstanceFilesystemRequest, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), yandexComputeInstanceDefaultTimeout)
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachFilesystem(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to attach Filesystem %s to Instance %q: %s",
+			req.AttachedFilesystemSpec.GetFilesystemId(), req.GetInstanceId(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error attach Filesystem %s to Instance %q: %s",
+			req.AttachedFilesystemSpec.GetFilesystemId(), req.GetInstanceId(), err)
 	}
 
 	return nil

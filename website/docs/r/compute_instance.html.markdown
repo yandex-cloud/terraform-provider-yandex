@@ -100,6 +100,8 @@ The following arguments are supported:
 * `local_disk` - (Optional) List of local disks that are attached to the instance. Structure is documented below.
 * `metadata_options` - (Optional) Options allow user to configure access to instance's metadata
 
+* `filesystem` - (Optional) List of filesystems that are attached to the instance. Structure is documented below.
+
 ---
 
 The `resources` block supports:
@@ -238,6 +240,15 @@ The `local_disk` block supports:
 * `size_bytes` - (Required) Size of the disk, specified in bytes.
 
 ~> **NOTE:** Local disks are not available for all users by default.
+
+The `filesystem` block supports:
+
+* `filesystem_id` - (Required) ID of the filesystem that should be attached.
+
+* `device_name` - (Optional) Name of the device representing the filesystem on the instance.
+
+* `mode` - (Optional) Mode of access to the filesystem that should be attached. By default, filesystem is attached 
+   in `READ_WRITE` mode.
 
 ## Attributes Reference
 

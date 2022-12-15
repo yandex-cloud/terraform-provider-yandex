@@ -1371,6 +1371,56 @@ func TestAccComputeInstance_local_disks(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_filesystem(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var fs compute.Filesystem
+	var newFs compute.Filesystem
+
+	var instanceName = acctest.RandomWithPrefix("tf-test")
+	var fsName = acctest.RandomWithPrefix("tf-test")
+	var newFsName = acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Create instance with a filesystem attached to it
+			{
+				Config: testAccComputeInstance_filesystem(fsName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.foobar", &fs),
+					testAccCheckComputeInstanceFilesystem(&instance, []string{fsName}),
+				),
+			},
+			// Attach one more filesystem
+			{
+				Config: testAccComputeInstance_attachFilesystem(fsName, newFsName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.foobar", &fs),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.foobar2", &newFs),
+					testAccCheckComputeInstanceFilesystem(&instance, []string{fsName, newFsName}),
+				),
+			},
+			// Detach filesystem
+			{
+				Config: testAccComputeInstance_detachFilesystem(fsName, newFsName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeFilesystemExists("yandex_compute_filesystem.foobar2", &newFs),
+					testAccCheckComputeInstanceFilesystem(&instance, []string{newFsName}),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1868,6 +1918,35 @@ func testAccCheckComputeInstanceHasLocalDisk(instance *compute.Instance, localDi
 		}
 		if instance.LocalDisks[0].Size != localDiskSize {
 			return fmt.Errorf("Unexpected local disk size: expected %d, got %d", localDiskSize, instance.LocalDisks[0].Size)
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceFilesystem(instance *compute.Instance, fsNames []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		instanceAttachedFs := make(map[string]struct{})
+		for _, fs := range instance.Filesystems {
+			instanceAttachedFs[fs.FilesystemId] = struct{}{}
+		}
+
+		if len(instanceAttachedFs) != len(fsNames) {
+			return fmt.Errorf("Unexpected number of filesystems attached to instance: expected %d, got %d",
+				len(instanceAttachedFs), len(fsNames))
+		}
+
+		for _, fsName := range fsNames {
+			fsResolver := sdkresolvers.FilesystemResolver(fsName, sdkresolvers.FolderID(config.FolderID))
+			if err := config.sdk.Resolve(context.Background(), fsResolver); err != nil {
+				return fmt.Errorf("Error while resolve filesystem name to ID: %s", err)
+			}
+
+			fsID := fsResolver.ID()
+			if _, ok := instanceAttachedFs[fsID]; !ok {
+				return fmt.Errorf("Filesystem %q is expected to be attached", fsID)
+			}
 		}
 		return nil
 	}
@@ -4058,4 +4137,172 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, diskSize)
+}
+
+func testAccComputeInstance_filesystem(fs, instance string) string {
+	return fmt.Sprintf(`
+	data "yandex_compute_image" "ubuntu" {
+		family = "ubuntu-1804-lts"
+	}
+
+	resource "yandex_compute_filesystem" "foobar" {
+		name        = "%s"
+        description = "simple filesystem"
+		size        = 15
+        type        = "network-hdd"
+	}
+
+	resource "yandex_compute_instance" "foobar" {
+		name = "%s"
+		zone = "ru-central1-a"
+		platform_id = "standard-v2"
+
+		allow_stopping_for_update = true
+
+		resources {
+			cores  = 2
+			memory = 2
+		}
+
+		boot_disk {
+			initialize_params {
+				image_id = "${data.yandex_compute_image.ubuntu.id}"
+			}
+		}
+
+		filesystem {
+			filesystem_id = "${yandex_compute_filesystem.foobar.id}"
+		}
+
+		network_interface {
+			subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+		}
+	}
+
+	resource "yandex_vpc_network" "inst-test-network" {}
+
+	resource "yandex_vpc_subnet" "inst-test-subnet" {
+		zone           = "ru-central1-a"
+		network_id     = "${yandex_vpc_network.inst-test-network.id}"
+		v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, fs, instance)
+}
+
+func testAccComputeInstance_attachFilesystem(fs, newFs, instance string) string {
+	return fmt.Sprintf(`
+	data "yandex_compute_image" "ubuntu" {
+		family = "ubuntu-1804-lts"
+	}
+
+	resource "yandex_compute_filesystem" "foobar" {
+		name        = "%s"
+        description = "simple filesystem"
+		size        = 15
+        type        = "network-hdd"
+	}
+
+	resource "yandex_compute_filesystem" "foobar2" {
+		name        = "%s"
+        description = "simple filesystem"
+		size        = 15
+        type        = "network-hdd"
+	}
+
+	resource "yandex_compute_instance" "foobar" {
+		name = "%s"
+		zone = "ru-central1-a"
+		platform_id = "standard-v2"
+
+		allow_stopping_for_update = true
+
+		resources {
+			cores  = 2
+			memory = 2
+		}
+
+		boot_disk {
+			initialize_params {
+				image_id = "${data.yandex_compute_image.ubuntu.id}"
+			}
+		}
+
+		filesystem {
+			filesystem_id = "${yandex_compute_filesystem.foobar.id}"
+		}
+
+		filesystem {
+			filesystem_id = "${yandex_compute_filesystem.foobar2.id}"
+		}
+
+		network_interface {
+			subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+		}
+	}
+
+	resource "yandex_vpc_network" "inst-test-network" {}
+
+	resource "yandex_vpc_subnet" "inst-test-subnet" {
+		zone           = "ru-central1-a"
+		network_id     = "${yandex_vpc_network.inst-test-network.id}"
+		v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, fs, newFs, instance)
+}
+
+func testAccComputeInstance_detachFilesystem(fs, newFs, instance string) string {
+	return fmt.Sprintf(`
+	data "yandex_compute_image" "ubuntu" {
+		family = "ubuntu-1804-lts"
+	}
+
+	resource "yandex_compute_filesystem" "foobar" {
+		name        = "%s"
+        description = "simple filesystem"
+		size        = 15
+        type        = "network-hdd"
+	}
+
+	resource "yandex_compute_filesystem" "foobar2" {
+		name        = "%s"
+        description = "simple filesystem"
+		size        = 15
+        type        = "network-hdd"
+	}
+
+	resource "yandex_compute_instance" "foobar" {
+		name = "%s"
+		zone = "ru-central1-a"
+		platform_id = "standard-v2"
+
+		allow_stopping_for_update = true
+
+		resources {
+			cores  = 2
+			memory = 2
+		}
+
+		boot_disk {
+			initialize_params {
+				image_id = "${data.yandex_compute_image.ubuntu.id}"
+			}
+		}
+
+		filesystem {
+			filesystem_id = "${yandex_compute_filesystem.foobar2.id}"
+		}
+
+		network_interface {
+			subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+		}
+	}
+
+	resource "yandex_vpc_network" "inst-test-network" {}
+
+	resource "yandex_vpc_subnet" "inst-test-subnet" {
+		zone           = "ru-central1-a"
+		network_id     = "${yandex_vpc_network.inst-test-network.id}"
+		v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, fs, newFs, instance)
 }

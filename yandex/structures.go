@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -23,6 +24,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 type ReducedDiskServiceClient interface {
@@ -238,6 +240,34 @@ func flattenK8SNodeGroupDNSRecords(specs []*k8s.DnsRecordSpec) []map[string]inte
 	}
 
 	return res
+}
+
+func flattenInstanceFilesystems(instance *compute.Instance) []map[string]interface{} {
+	filesystems := make([]map[string]interface{}, len(instance.Filesystems))
+
+	for i, spec := range instance.Filesystems {
+		filesystems[i] = map[string]interface{}{
+			"filesystem_id": spec.FilesystemId,
+			"device_name":   spec.DeviceName,
+			"mode":          spec.GetMode().String(),
+		}
+	}
+	return filesystems
+}
+
+func hashFilesystem(v interface{}) int {
+	var buf bytes.Buffer
+
+	fs := v.(map[string]interface{})
+	if v, ok := fs["filesystem_id"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := fs["mode"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
+
 }
 
 func expandInstanceResourcesSpec(d *schema.ResourceData) (*compute.ResourcesSpec, error) {
@@ -663,6 +693,14 @@ func parseDiskMode(mode string) (compute.AttachedDiskSpec_Mode, error) {
 	return compute.AttachedDiskSpec_Mode(val), nil
 }
 
+func parseFilesystemMode(mode string) (compute.AttachedFilesystemSpec_Mode, error) {
+	val, ok := compute.AttachedFilesystemSpec_Mode_value[mode]
+	if !ok {
+		return compute.AttachedFilesystemSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
+	}
+	return compute.AttachedFilesystemSpec_Mode(val), nil
+}
+
 func parseIamKeyAlgorithm(algorithm string) (iam.Key_Algorithm, error) {
 	val, ok := iam.Key_Algorithm_value[algorithm]
 	if !ok {
@@ -772,6 +810,46 @@ func expandLocalDiskSpecs(disks interface{}) []*compute.AttachedLocalDiskSpec {
 		}
 	}
 	return localDiskSpecs
+}
+
+func expandFilesystemSpec(fsConfig map[string]interface{}) (*compute.AttachedFilesystemSpec, error) {
+	fs := compute.AttachedFilesystemSpec{}
+
+	if v, ok := fsConfig["filesystem_id"]; ok {
+		fs.FilesystemId = v.(string)
+	}
+
+	if v, ok := fsConfig["mode"]; ok {
+		mode, err := parseFilesystemMode(v.(string))
+		if err != nil {
+			return nil, err
+		}
+		fs.Mode = mode
+	}
+
+	if v, ok := fsConfig["device_name"]; ok {
+		fs.DeviceName = v.(string)
+	}
+
+	return &fs, nil
+}
+
+func expandInstanceFilesystemSpecs(d *schema.ResourceData) ([]*compute.AttachedFilesystemSpec, error) {
+	var fsSpecs []*compute.AttachedFilesystemSpec
+
+	specs := d.Get("filesystem").(*schema.Set)
+	for _, spec := range specs.List() {
+		fsConfig := spec.(map[string]interface{})
+		log.Printf("# FS config: %+v", fsConfig)
+
+		fs, err := expandFilesystemSpec(fsConfig)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("# FS spec: %+v", fs)
+		fsSpecs = append(fsSpecs, fs)
+	}
+	return fsSpecs, nil
 }
 
 func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {

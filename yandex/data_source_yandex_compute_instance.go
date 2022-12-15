@@ -414,6 +414,31 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"filesystem": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      hashFilesystem,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"filesystem_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"device_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -481,6 +506,8 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	metadataOptions := flattenInstanceMetadataOptions(instance)
 
+	filesystems := flattenInstanceFilesystems(instance)
+
 	d.Set("created_at", getTimestamp(instance.CreatedAt))
 	d.Set("instance_id", instance.Id)
 	d.Set("platform_id", instance.PlatformId)
@@ -530,6 +557,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 	}
 
 	if err := d.Set("local_disk", localDisks); err != nil {
+		return err
+	}
+
+	if err := d.Set("filesystem", filesystems); err != nil {
 		return err
 	}
 

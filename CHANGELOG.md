@@ -7,6 +7,9 @@ BUG FIXES:
 
 FEATURES:
 * compute: support `metadata_options` in `yandex_compute_instance`
+* **New Data Source:** `yandex_compute_filesystem`
+* **New Resource:** `yandex_compute_filesystem`
+* compute: support `yandex_compute_filesystem` in `yandex_compute_instance`
 
 ## 0.83.0 (December 1, 2022)
 BUG FIXES:
