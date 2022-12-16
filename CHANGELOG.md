@@ -1,4 +1,6 @@
-## 0.84.0 (Unreleased)
+## 0.85.0 (Unreleased)
+
+## 0.84.0 (December 16, 2022)
 BUG FIXES:
 * mysql: fix bug leading to cluster recreation when changing folder_id
 * mdb: fix bug when description cannot be set to null in `yandex_mdb_postgresql_cluster` and `yandex_mdb_mongodb_cluster`
