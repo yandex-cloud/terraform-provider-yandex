@@ -721,17 +721,18 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 		Time: &timestamp.Timestamp{
 			Seconds: timeBackup.Unix(),
 		},
-		TimeInclusive:    timeInclusive,
-		Name:             createClusterRequest.Name,
-		Description:      createClusterRequest.Description,
-		Labels:           createClusterRequest.Labels,
-		Environment:      createClusterRequest.Environment,
-		ConfigSpec:       createClusterRequest.ConfigSpec,
-		HostSpecs:        createClusterRequest.HostSpecs,
-		NetworkId:        createClusterRequest.NetworkId,
-		FolderId:         createClusterRequest.FolderId,
-		SecurityGroupIds: createClusterRequest.SecurityGroupIds,
-		HostGroupIds:     createClusterRequest.HostGroupIds,
+		TimeInclusive:      timeInclusive,
+		Name:               createClusterRequest.Name,
+		Description:        createClusterRequest.Description,
+		Labels:             createClusterRequest.Labels,
+		Environment:        createClusterRequest.Environment,
+		ConfigSpec:         createClusterRequest.ConfigSpec,
+		HostSpecs:          createClusterRequest.HostSpecs,
+		NetworkId:          createClusterRequest.NetworkId,
+		FolderId:           createClusterRequest.FolderId,
+		SecurityGroupIds:   createClusterRequest.SecurityGroupIds,
+		HostGroupIds:       createClusterRequest.HostGroupIds,
+		DeletionProtection: createClusterRequest.DeletionProtection,
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
@@ -770,6 +771,10 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 
 	if err := startPGFailoverIfNeed(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
+	}
+
+	if err := updatePGClusterAfterCreate(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
 	}
 
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)

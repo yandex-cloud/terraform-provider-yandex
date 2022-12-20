@@ -362,6 +362,56 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	})
 }
 
+// Test that PostgreSQL cluster can be restored
+func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
+	t.Parallel()
+
+	var cluster postgresql.Cluster
+	clusterResource := "yandex_mdb_postgresql_cluster.foo"
+	folderId := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBPGClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMDBPGClusterConfigRestore(true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+
+					resource.TestCheckResourceAttr(clusterResource, "name", "PostgreSQL-Restored-Cluster"),
+					resource.TestCheckResourceAttr(clusterResource, "folder_id", folderId),
+					resource.TestCheckResourceAttr(clusterResource, "description", "PostgreSQL Cluster Restore Test"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.serverless", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
+					testAccCheckMDBPGClusterContainsLabel(&cluster, "test_key", "test_value"),
+					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
+					testAccCheckMDBPGClusterHasUsers(clusterResource, map[string][]string{"alice": {"testdb"}}),
+					testAccCheckMDBPGClusterHasDatabases(clusterResource, []string{"testdb"}),
+					testAccCheckCreatedAtAttr(clusterResource),
+					resource.TestCheckResourceAttr(clusterResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.day", "SAT"),
+					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "12"),
+				),
+			},
+			// Uncheck deletion_protection
+			{
+				Config: testAccMDBPGClusterConfigRestore(false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+
+					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckMDBPGClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1241,7 +1291,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
     version = "%s"
 
     resources {
-      resource_preset_id = "s2.micro"
+      resource_preset_id = "s2.small"
       disk_size          = 18
       disk_type_id       = "network-ssd"
     }
@@ -1394,4 +1444,55 @@ func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string
     priority         = 10
   }
 `, version)
+}
+
+func testAccMDBPGClusterConfigRestore(deletionProtection bool) string {
+	return fmt.Sprintf(pgVPCDependencies+`	  
+	resource "yandex_mdb_postgresql_cluster" "foo" {
+		name        = "PostgreSQL-Restored-Cluster"
+		description = "PostgreSQL Cluster Restore Test"
+		environment = "PRODUCTION"
+		network_id  = yandex_vpc_network.mdb-pg-test-net.id
+		folder_id = "%s"
+
+		restore {
+			backup_id = "c9qsctum8nuh960087vb:c9qn3oppmns8djr68l5d"
+			time = "2022-12-14T11:45:30"
+		}
+	  
+		labels = {
+		  test_key = "test_value"
+		}
+
+		maintenance_window {
+			type = "WEEKLY"
+			day  = "SAT"
+			hour = 12
+		}
+	  
+		config {
+		  version = "15"
+	  
+		  resources {
+			resource_preset_id = "s2.micro"
+			disk_size          = 10
+			disk_type_id       = "network-ssd"
+		  }
+		  access {
+			web_sql       = true
+			serverless    = true
+			data_lens     = true
+			data_transfer = true
+		  }
+		}
+	  
+		host {
+		  zone      = "ru-central1-a"
+		  subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		}
+	  
+		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
+		deletion_protection = %t
+	  }
+`, getExampleFolderID(), deletionProtection)
 }
