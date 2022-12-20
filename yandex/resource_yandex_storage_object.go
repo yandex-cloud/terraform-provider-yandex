@@ -8,11 +8,13 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	homedir "github.com/mitchellh/go-homedir"
 )
 
@@ -60,20 +62,46 @@ func resourceYandexStorageObject() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"content", "content_base64"},
 			},
+
 			"content": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"source", "content_base64"},
 			},
+
 			"content_base64": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"source", "content"},
 			},
+
 			"content_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+
+			"object_lock_legal_hold_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      s3.ObjectLockLegalHoldStatusOff,
+				ValidateFunc: validation.StringInSlice(s3.ObjectLockLegalHoldStatus_Values(), false),
+			},
+
+			"object_lock_mode": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      nil,
+				RequiredWith: []string{"object_lock_retain_until_date"},
+				ValidateFunc: validation.StringInSlice(s3.ObjectLockRetentionMode_Values(), false),
+			},
+
+			"object_lock_retain_until_date": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      nil,
+				RequiredWith: []string{"object_lock_mode"},
+				ValidateFunc: validation.IsRFC3339Time,
 			},
 		},
 	}
@@ -138,6 +166,20 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 		putObjectInput.ContentType = aws.String(v.(string))
 	}
 
+	if v, ok := d.GetOk("object_lock_legal_hold_status"); ok {
+		status := v.(string)
+		putObjectInput.SetObjectLockLegalHoldStatus(status)
+	}
+
+	if v, ok := d.GetOk("object_lock_mode"); ok {
+		mode := v.(string)
+		v = d.Get("object_lock_retain_until_date")
+		// ignore error because the schema has validated the string already
+		untilDate, _ := time.Parse(time.RFC3339, v.(string))
+		putObjectInput.SetObjectLockMode(mode)
+		putObjectInput.SetObjectLockRetainUntilDate(untilDate)
+	}
+
 	if _, err := s3conn.PutObject(putObjectInput); err != nil {
 		return fmt.Errorf("error putting object in bucket %q: %s", bucket, err)
 	}
@@ -175,6 +217,19 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 
 	d.Set("content_type", resp.ContentType)
 
+	if resp.ObjectLockLegalHoldStatus != nil {
+		status := aws.StringValue(resp.ObjectLockLegalHoldStatus)
+		d.Set("object_lock_legal_hold_status", status)
+	}
+
+	if resp.ObjectLockMode != nil {
+		mode := aws.StringValue(resp.ObjectLockMode)
+		untilDate := aws.TimeValue(resp.ObjectLockRetainUntilDate)
+
+		d.Set("object_lock_mode", mode)
+		d.Set("object_lock_retain_until_date", untilDate.Format(time.RFC3339))
+	}
+
 	return nil
 }
 
@@ -190,22 +245,82 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if d.HasChange("acl") {
-		config := meta.(*Config)
-		s3Client, err := getS3Client(d, config)
-		if err != nil {
-			return fmt.Errorf("error getting storage client: %s", err)
+	changeHandlers := map[string]func(*s3.S3, *schema.ResourceData) error{
+		"acl":                           resourceYandexStorageObjectACLUpdate,
+		"object_lock_legal_hold_status": resourceYandexStorageObjectLegalHoldUpdate,
+		"object_lock_mode":              resourceYandexStorageObjectRetentionUpdate,
+		"object_lock_retain_until_date": resourceYandexStorageObjectRetentionUpdate,
+	}
+
+	config := meta.(*Config)
+	s3Client, err := getS3Client(d, config)
+	if err != nil {
+		return fmt.Errorf("error getting storage client: %s", err)
+	}
+
+	for name, handler := range changeHandlers {
+		if !d.HasChange(name) {
+			continue
 		}
-		_, err = s3Client.PutObjectAcl(&s3.PutObjectAclInput{
-			Bucket: aws.String(d.Get("bucket").(string)),
-			Key:    aws.String(d.Get("key").(string)),
-			ACL:    aws.String(d.Get("acl").(string)),
-		})
+
+		err := handler(s3Client, d)
 		if err != nil {
-			return fmt.Errorf("error putting storage object ACL: %s", err)
+			return err
 		}
 	}
 
+	return nil
+}
+
+func resourceYandexStorageObjectACLUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	_, err := s3conn.PutObjectAcl(&s3.PutObjectAclInput{
+		Bucket: aws.String(d.Get("bucket").(string)),
+		Key:    aws.String(d.Get("key").(string)),
+		ACL:    aws.String(d.Get("acl").(string)),
+	})
+	if err != nil {
+		return fmt.Errorf("error putting storage object ACL: %s", err)
+	}
+	return nil
+}
+
+func resourceYandexStorageObjectLegalHoldUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	legalHold := &s3.ObjectLockLegalHold{
+		Status: aws.String(d.Get("object_lock_legal_hold_status").(string)),
+	}
+
+	_, err := s3conn.PutObjectLegalHold(&s3.PutObjectLegalHoldInput{
+		Bucket:    aws.String(d.Get("bucket").(string)),
+		Key:       aws.String(d.Get("key").(string)),
+		LegalHold: legalHold,
+	})
+	if err != nil {
+		return fmt.Errorf("error putting storage object LegalHoldStatus: %s", err)
+	}
+	return nil
+}
+
+func resourceYandexStorageObjectRetentionUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	retention := &s3.ObjectLockRetention{}
+
+	mode := d.Get("object_lock_mode")
+	until := d.Get("object_lock_retain_until_date")
+
+	if mode != nil {
+		retention.Mode = aws.String(mode.(string))
+		untilDate, _ := time.Parse(time.RFC3339, until.(string))
+		retention.RetainUntilDate = aws.Time(untilDate)
+	}
+
+	_, err := s3conn.PutObjectRetention(&s3.PutObjectRetentionInput{
+		Bucket:                    aws.String(d.Get("bucket").(string)),
+		Key:                       aws.String(d.Get("key").(string)),
+		Retention:                 retention,
+		BypassGovernanceRetention: aws.Bool(true),
+	})
+	if err != nil {
+		return fmt.Errorf("error putting storage object Retention: %s", err)
+	}
 	return nil
 }
 
@@ -224,10 +339,20 @@ func resourceYandexStorageObjectDelete(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Storage Delete Object: %s/%s", bucket, key)
 
-	if _, err := s3client.DeleteObject(&s3.DeleteObjectInput{
+	versionOutput, err := s3client.ListObjectVersions(&s3.ListObjectVersionsInput{
 		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	}); err != nil {
+		Prefix: aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("error getting version id for deliting storage object %q in bucket %s: %s", key, bucket, err)
+	}
+
+	_, err = s3client.DeleteObject(&s3.DeleteObjectInput{
+		Bucket:    aws.String(bucket),
+		Key:       aws.String(key),
+		VersionId: versionOutput.Versions[0].VersionId,
+	})
+	if err != nil {
 		return fmt.Errorf("error deleting storage object %q in bucket %q: %s ", key, bucket, err)
 	}
 

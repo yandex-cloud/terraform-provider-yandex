@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -78,7 +79,7 @@ func testSweepStorageObject(_ string) error {
 	}
 
 	for _, b := range buckets.Buckets {
-		res, err := s3client.ListObjects(&s3.ListObjectsInput{
+		res, err := s3client.ListObjectVersions(&s3.ListObjectVersionsInput{
 			Bucket: b.Name,
 		})
 
@@ -86,10 +87,11 @@ func testSweepStorageObject(_ string) error {
 			result = multierror.Append(result, fmt.Errorf("failed to list objects in bucket: %s, error: %s", *b.Name, err))
 		}
 
-		for _, o := range res.Contents {
+		for _, o := range res.Versions {
 			_, err := s3client.DeleteObject(&s3.DeleteObjectInput{
-				Bucket: b.Name,
-				Key:    o.Key,
+				Bucket:    b.Name,
+				Key:       o.Key,
+				VersionId: o.VersionId,
 			})
 			if err != nil {
 				result = multierror.Append(result, fmt.Errorf("failed to delete object %s in bucket: %s, error: %s", *o.Key, *b.Name, err))
@@ -171,6 +173,7 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 		},
 	})
 }
+
 func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
 	var obj s3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
@@ -193,6 +196,7 @@ func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
 		},
 	})
 }
+
 func TestAccStorageObject_contentTypeText(t *testing.T) {
 	var obj s3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
@@ -240,6 +244,86 @@ func TestAccStorageObject_updateAcl(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageObject_ObjectLockNone(t *testing.T) {
+	var obj s3.GetObjectOutput
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_object.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigContent(rInt, "some_bucket_content"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectLegalHoldStatus(&obj, ""),
+					testAccCheckStorageObjectLockRetention(&obj, "", nil),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageObject_LegalHoldOn(t *testing.T) {
+	var obj s3.GetObjectOutput
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_object.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectLegalHoldStatus(&obj, s3.ObjectLockLegalHoldStatusOn),
+					testAccCheckStorageObjectLockRetention(&obj, "", nil),
+				),
+			},
+			{
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOff),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectLegalHoldStatus(&obj, ""),
+					testAccCheckStorageObjectLockRetention(&obj, "", nil),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageObject_LegalHoldOff(t *testing.T) {
+	var obj s3.GetObjectOutput
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_object.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOff),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectLegalHoldStatus(&obj, ""),
+					testAccCheckStorageObjectLockRetention(&obj, "", nil),
 				),
 			},
 		},
@@ -339,6 +423,31 @@ func testAccCheckStorageObjectContentType(obj *s3.GetObjectOutput, want string) 
 	}
 }
 
+func testAccCheckStorageObjectLegalHoldStatus(obj *s3.GetObjectOutput, want string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if got := aws.StringValue(obj.ObjectLockLegalHoldStatus); got != want {
+			return fmt.Errorf("wrong result object_lock_legal_hold_status %q; want %q", got, want)
+		}
+		return nil
+	}
+}
+
+func testAccCheckStorageObjectLockRetention(obj *s3.GetObjectOutput, modeWant string, untilWant *time.Time) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if modeGot := aws.StringValue(obj.ObjectLockMode); modeGot != modeWant {
+			return fmt.Errorf("wrong result object_lock_mode %q; want %q", modeGot, modeWant)
+		}
+
+		untilGot := aws.TimeValue(obj.ObjectLockRetainUntilDate)
+		want := aws.TimeValue(untilWant)
+		if !want.Equal(untilGot) {
+			return fmt.Errorf("wrong result object_lock_retain_until_date %q; want %q", untilGot, want)
+		}
+
+		return nil
+	}
+}
+
 func testAccStorageObjectCreateTempFile(t *testing.T, data string) string {
 	tmpFile, err := ioutil.TempFile("", "tf-acc-storage-obj")
 	if err != nil {
@@ -356,122 +465,122 @@ func testAccStorageObjectCreateTempFile(t *testing.T, data string) string {
 }
 
 func testAccStorageObjectConfigSource(randInt int, source string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
-
+	
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
+	
 	key     = "test-key"
-	source  = "%[2]s"
-}
-`, randInt, source) + testAccCommonIamDependenciesEditorConfig(randInt)
+	source  = "%[1]s"
+}	
+`, source)
+
+	return bucketConfig + objectConfig
 }
 
 func testAccStorageObjectConfigContent(randInt int, content string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
-
+	
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
+	
 	key     = "test-key"
-	content = "%[2]s"
-}
-`, randInt, content) + testAccCommonIamDependenciesEditorConfig(randInt)
+	content = "%[1]s"
+} 
+`, content)
+
+	return bucketConfig + objectConfig
 }
 
 func testAccStorageObjectConfigContentBase64(randInt int, contentBase64 string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	key            = "test-key"
-	content_base64 = "%[2]s"
+	key = "test-key"
+	content_base64 = "%[1]s"
 }
-`, randInt, contentBase64) + testAccCommonIamDependenciesEditorConfig(randInt)
+`, contentBase64)
+
+	return bucketConfig + objectConfig
 }
 
 func testAccStorageObjectConfigContentType(randInt int, contentType string) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	key            = "test-key"
+	key = "test-key"
 	content        = "some-content-type"
-	content_type   = "%[2]s"
+	content_type   = "%[1]s"
 }
-`, randInt, contentType) + testAccCommonIamDependenciesEditorConfig(randInt)
+`, contentType)
+
+	return bucketConfig + objectConfig
 }
 
 func testAccStorageObjectAclPreConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asAdmin().render()
 
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-}
-
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
 
-	key     = "test-key"
-	content = "some-contect"
-
+	key = "test-key"
+	content = "some-content-type"
+	
 	acl = "public-read"
 }
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+`)
+
+	return bucketConfig + objectConfig
 }
 
 func testAccStorageObjectAclPostConfig(randInt int) string {
-	return fmt.Sprintf(`
-resource "yandex_storage_bucket" "test" {
-	bucket = "tf-object-test-bucket-%[1]d"
+	bucketConfig := newBucketConfigBuilder(randInt).asAdmin().render()
+
+	objectConfig := `
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
 
 	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
 	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key = "test-key"
+	content = "some-content-type"
+	
+	acl = "private"
+}
+`
+
+	return bucketConfig + objectConfig
 }
 
+func testAccStorageObjectConfigLegalHoldStatus(randInt int, status string) string {
+	bucketConfig := testAccStorageBucketConfigWithObjectLock(randInt, "", 0, 0)
+
+	objectConfig := fmt.Sprintf(`
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
 
@@ -481,7 +590,30 @@ resource "yandex_storage_object" "test" {
 	key     = "test-key"
 	content = "some-contect"
 
-	acl = "private"
+	object_lock_legal_hold_status = "%[1]s"
 }
-`, randInt) + testAccCommonIamDependenciesAdminConfig(randInt)
+`, status)
+
+	return bucketConfig + objectConfig
+}
+
+func testAccStorageObjectConfigRetention(randInt int, mode string, untilDate time.Time) string {
+	bucketConfig := testAccStorageBucketConfigWithObjectLock(randInt, "", 0, 0)
+
+	objectConfig := fmt.Sprintf(`
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key 	= "test-key"
+	content = "some-content"
+
+	object_lock_mode 			  = "%[1]s"
+	object_lock_retain_until_date = "%[2]s"
+}	
+`, mode, untilDate.Format(time.RFC3339))
+
+	return bucketConfig + objectConfig
 }

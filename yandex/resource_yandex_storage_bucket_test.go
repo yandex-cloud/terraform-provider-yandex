@@ -390,6 +390,7 @@ func TestAccStorageBucket_WebsiteRoutingRules(t *testing.T) {
 // Test TestAccStorageBucket_shouldFailNotFound is designed to fail with a "plan
 // not empty" error in Terraform, to check against regresssions.
 // See https://github.com/hashicorp/terraform/pull/2925
+
 func TestAccStorageBucket_shouldFailNotFound(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
@@ -777,6 +778,121 @@ func TestAccStorageBucket_SSE(t *testing.T) {
 										KMSMasterKeyID: &symmetricKey.Id,
 										SSEAlgorithm:   aws.String(s3.ServerSideEncryptionAwsKms),
 									},
+								},
+							},
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_ObjectLockNone(t *testing.T) {
+	resourceName := "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketBasic(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketObjectLockConfiguration(resourceName, nil),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_ObjectLockEnabled(t *testing.T) {
+	resourceName := "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithObjectLock(rInt, "", 0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketObjectLockConfiguration(
+						resourceName,
+						&s3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_ObjectLockWithDefaultRetentionDays(t *testing.T) {
+	resourceName := "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithObjectLock(rInt, s3.ObjectLockModeGovernance, 10, 0),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketObjectLockConfiguration(
+						resourceName,
+						&s3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
+							Rule: &s3.ObjectLockRule{
+								DefaultRetention: &s3.DefaultRetention{
+									Mode: aws.String(s3.ObjectLockModeGovernance),
+									Days: aws.Int64(10),
+								},
+							},
+						},
+					),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_ObjectLockWithDefaultRetentionYears(t *testing.T) {
+	resourceName := "yandex_storage_bucket.test"
+
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: resourceName,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithObjectLock(rInt, s3.ObjectLockModeGovernance, 0, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketObjectLockConfiguration(
+						resourceName,
+						&s3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
+							Rule: &s3.ObjectLockRule{
+								DefaultRetention: &s3.DefaultRetention{
+									Mode:  aws.String(s3.ObjectLockModeGovernance),
+									Years: aws.Int64(10),
 								},
 							},
 						},
@@ -1199,6 +1315,39 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 	}
 }
 
+func testAccCheckStorageBucketObjectLockConfiguration(n string, config *s3.ObjectLockConfiguration) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+		out, err := conn.GetObjectLockConfiguration(&s3.GetObjectLockConfigurationInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+
+		awsErr, ok := err.(awserr.Error)
+
+		switch {
+		case !ok && err != nil:
+			return fmt.Errorf("GetObjectLockConfiguration error: %v", err)
+
+		case ok && awsErr.Code() == "ObjectLockConfigurationNotFoundError":
+			if config != nil {
+				return fmt.Errorf("bad error object lock config, expected: %v, got <nil>", config)
+			}
+
+		default:
+			if !reflect.DeepEqual(out.ObjectLockConfiguration, config) {
+				return fmt.Errorf("bad error object lock config, expected: %v, got %v", config, out.ObjectLockConfiguration)
+			}
+		}
+
+		return nil
+	}
+}
+
 // These need a bit of randomness as the name can only be used once globally
 func testAccBucketName(randInt int) string {
 	return fmt.Sprintf("tf-test-bucket-%d", randInt)
@@ -1495,6 +1644,45 @@ func testAccStorageBucketConfigWithDisableVersioning(randInt int) string {
 
 	return newBucketConfigBuilder(randInt).
 		addStatement(versioning).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketConfigWithObjectLock(randInt int, mode string, days int, years int) string {
+	var modeConfig, daysConfig, yearsConfig string
+	if days > 0 {
+		daysConfig = fmt.Sprintf("days = %d", days)
+	}
+	if years > 0 {
+		yearsConfig = fmt.Sprintf("years = %d", years)
+	}
+	if len(mode) > 0 {
+		modeConfig = fmt.Sprintf(`mode = "%s"`, mode)
+	}
+
+	var rule string
+	if len(modeConfig)+len(daysConfig)+len(yearsConfig) > 0 {
+		rule = fmt.Sprintf(`rule{
+				default_retention {
+					%[1]s
+					%[2]s
+					%[3]s
+				}
+			}`, modeConfig, daysConfig, yearsConfig)
+	}
+
+	versioningConfig := `versioning {
+		enabled = true
+	}`
+
+	objectLockConfig := fmt.Sprintf(`object_lock_configuration {
+		object_lock_enabled = "Enabled"
+		%s
+	}`, rule)
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(versioningConfig).
+		addStatement(objectLockConfig).
 		asAdmin().
 		render()
 }

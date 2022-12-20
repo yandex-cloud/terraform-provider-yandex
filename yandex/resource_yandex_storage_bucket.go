@@ -225,6 +225,61 @@ func resourceYandexStorageBucket() *schema.Resource {
 				},
 			},
 
+			"object_lock_configuration": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"object_lock_enabled": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      s3.ObjectLockEnabledEnabled,
+							ValidateFunc: validation.StringInSlice(s3.ObjectLockEnabled_Values(), false),
+						},
+						"rule": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"default_retention": {
+										Type:     schema.TypeList,
+										Required: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"mode": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: validation.StringInSlice(s3.ObjectLockRetentionMode_Values(), false),
+												},
+												"days": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ExactlyOneOf: []string{
+														"object_lock_configuration.0.rule.0.default_retention.0.days",
+														"object_lock_configuration.0.rule.0.default_retention.0.years",
+													},
+												},
+												"years": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ExactlyOneOf: []string{
+														"object_lock_configuration.0.rule.0.default_retention.0.days",
+														"object_lock_configuration.0.rule.0.default_retention.0.years",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			"logging": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -637,30 +692,35 @@ func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interfa
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
-	changeHandlers := map[string]func(*s3.S3, *schema.ResourceData) error{
-		"policy":                               resourceYandexStorageBucketPolicyUpdate,
-		"cors_rule":                            resourceYandexStorageBucketCORSUpdate,
-		"website":                              resourceYandexStorageBucketWebsiteUpdate,
-		"versioning":                           resourceYandexStorageBucketVersioningUpdate,
-		"grant":                                resourceYandexStorageBucketGrantsUpdate,
-		"logging":                              resourceYandexStorageBucketLoggingUpdate,
-		"lifecycle_rule":                       resourceYandexStorageBucketLifecycleUpdate,
-		"server_side_encryption_configuration": resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate,
-		"acl":                                  resourceYandexStorageBucketACLUpdate,
+	type property struct {
+		name          string
+		updateHandler func(*s3.S3, *schema.ResourceData) error
+	}
+	resourceProperties := []property{
+		{"policy", resourceYandexStorageBucketPolicyUpdate},
+		{"cors_rule", resourceYandexStorageBucketCORSUpdate},
+		{"website", resourceYandexStorageBucketWebsiteUpdate},
+		{"versioning", resourceYandexStorageBucketVersioningUpdate},
+		{"grant", resourceYandexStorageBucketGrantsUpdate},
+		{"logging", resourceYandexStorageBucketLoggingUpdate},
+		{"lifecycle_rule", resourceYandexStorageBucketLifecycleUpdate},
+		{"server_side_encryption_configuration", resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate},
+		{"acl", resourceYandexStorageBucketACLUpdate},
+		{"object_lock_configuration", resourceYandexStorageBucketObjectLockConfigurationUpdate},
 	}
 
-	for name, handler := range changeHandlers {
-		if !d.HasChange(name) {
+	for _, property := range resourceProperties {
+		if !d.HasChange(property.name) {
 			continue
 		}
 
-		if name == "acl" && d.IsNewResource() {
+		if property.name == "acl" && d.IsNewResource() {
 			continue
 		}
 
-		err := handler(s3Client, d)
+		err := property.updateHandler(s3Client, d)
 		if err != nil {
-			return fmt.Errorf("handling %s: %w", name, err)
+			return fmt.Errorf("handling %s: %w", property.name, err)
 		}
 	}
 
@@ -1085,6 +1145,57 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 	if err := d.Set("versioning", vcl); err != nil {
 		return fmt.Errorf("error setting versioning: %s", err)
+	}
+
+	// Read the Object Lock Configuration
+	objectLockConfigResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetObjectLockConfiguration(&s3.GetObjectLockConfigurationInput{
+			Bucket: aws.String(d.Id()),
+		})
+	})
+	if err != nil &&
+		(!isAWSErr(err, "ObjectLockConfigurationNotFoundError", "") && !isAWSErr(err, "AccessDenied", "")) {
+		log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ObjectLockConfiguration: %s", d.Id(), err)
+		return err
+	} else {
+		log.Printf("[Debug] Got an error while trying to read Storage Bucket (%s) ObjectLockConfigurationt: %s", d.Id(), err)
+	}
+
+	var olcl []map[string]interface{}
+	objectLockConfig, ok := objectLockConfigResponse.(*s3.GetObjectLockConfigurationOutput)
+	if err == nil && ok && objectLockConfig.ObjectLockConfiguration != nil {
+		log.Printf("[DEBUG] Storage get bucket object lock config output: %#v", objectLockConfig)
+		olcl = make([]map[string]interface{}, 0, 1)
+		olc := make(map[string]interface{})
+
+		enabled := objectLockConfig.ObjectLockConfiguration.ObjectLockEnabled
+		rule := objectLockConfig.ObjectLockConfiguration.Rule
+
+		if aws.StringValue(enabled) != "" {
+			olc["object_lock_enabled"] = aws.StringValue(enabled)
+		}
+
+		if rule != nil {
+			rt := make(map[string]interface{}, 2)
+			defaultRetention := rule.DefaultRetention
+
+			rt["mode"] = aws.StringValue(defaultRetention.Mode)
+			if defaultRetention.Days != nil {
+				rt["days"] = aws.Int64Value(defaultRetention.Days)
+			}
+			if defaultRetention.Years != nil {
+				rt["years"] = aws.Int64Value(defaultRetention.Years)
+			}
+
+			dr := make(map[string]interface{})
+			dr["default_retention"] = []interface{}{rt}
+			olc["rule"] = []interface{}{dr}
+		}
+
+		olcl = append(olcl, olc)
+	}
+	if err := d.Set("object_lock_configuration", olcl); err != nil {
+		return fmt.Errorf("error setting object lock configuration: %s", err)
 	}
 
 	// Read the logging configuration
@@ -1698,6 +1809,58 @@ func resourceYandexStorageBucketVersioningUpdate(s3conn *s3.S3, d *schema.Resour
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 versioning: %s", err)
+	}
+
+	return nil
+}
+
+func resourceYandexStorageBucketObjectLockConfigurationUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	ol := d.Get("object_lock_configuration").([]interface{})
+	bucket := d.Get("bucket").(string)
+	olc := &s3.ObjectLockConfiguration{}
+
+	if len(ol) > 0 {
+		config := ol[0].(map[string]interface{})
+
+		enabled := config["object_lock_enabled"].(string)
+		olc.ObjectLockEnabled = aws.String(enabled)
+
+		rs := config["rule"].([]interface{})
+		if len(rs) > 0 {
+			r := &s3.ObjectLockRule{
+				DefaultRetention: &s3.DefaultRetention{},
+			}
+			rule := rs[0].(map[string]interface{})
+			drs := rule["default_retention"].([]interface{})
+			retention := drs[0].(map[string]interface{})
+
+			mode := retention["mode"].(string)
+			r.DefaultRetention.Mode = aws.String(mode)
+
+			if d, ok := retention["days"]; ok && d.(int) > 0 {
+				days := int64(d.(int))
+				r.DefaultRetention.Days = aws.Int64(days)
+			}
+			if y, ok := retention["years"]; ok && y.(int) > 0 {
+				years := int64(y.(int))
+				r.DefaultRetention.Years = aws.Int64(years)
+			}
+
+			olc.Rule = r
+		}
+	}
+
+	i := &s3.PutObjectLockConfigurationInput{
+		Bucket:                  aws.String(bucket),
+		ObjectLockConfiguration: olc,
+	}
+	log.Printf("[DEBUG] S3 put object lock configuration: %#v", i)
+
+	_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.PutObjectLockConfiguration(i)
+	})
+	if err != nil {
+		return fmt.Errorf("Error putting S3 object lock configuration: %s", err)
 	}
 
 	return nil

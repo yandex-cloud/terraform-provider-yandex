@@ -46,6 +46,12 @@ The following arguments are supported:
 
 ~> **Note:** To change ACL after creation, the service account to which used access and secret keys correspond should have `storage.admin` role, though this role is not necessary to be able to create an object with any ACL.
 
+* `object_lock_legal_hold_status` - (Optional) Specifies a [legal hold status](https://cloud.yandex.com/en/docs/storage/concepts/object-lock#types) of an object. Requires `object_lock_configuration` to be enabled on a bucket.
+
+* `object_lock_mode` - (Optional) Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
+
+* `object_lock_retain_until_date` - (Optional) Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket. 
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -134,6 +134,29 @@ resource "yandex_storage_bucket" "b" {
 }
 ```
 
+### Using Object Lock Configuration
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  object_lock_configuration {
+    object_lock_enabled = "Enabled"
+    rule {
+      default_retention {
+        mode = "GOVERNANCE"
+        years = 1
+      }
+    }
+  }
+}
+```
+
 ### Enable Logging
 
 ```hcl
@@ -486,6 +509,8 @@ The following arguments are supported:
 
 ~> **Note:** To manage `versioning` argument, service account with `storage.admin` role should be used.
 
+* `object_lock_configuration` - (Optional) A configuration of [object lock management](https://cloud.yandex.com/en/docs/storage/concepts/object-lock) (documented below).
+
 * `logging` - (Optional) A settings of [bucket logging](https://cloud.yandex.com/docs/storage/concepts/server-logs) (documented below).
 
 * `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://cloud.yandex.com/docs/storage/concepts/lifecycles) (documented below).
@@ -517,6 +542,20 @@ The `CORS` object supports the following:
 The `versioning` object supports the following:
 
 * `enabled` - (Optional) Enable versioning. Once you version-enable a bucket, it can never return to an unversioned state. You can, however, suspend versioning on that bucket.
+
+The `object_lock_configuration` object support the following:
+
+* `object_lock_enabled` - (Optional) Enable object locking in a bucket. Require versioning to be enabled.
+
+* `rule` - (Optional) Specifies a default locking configuration for added objects. Require object_lock_enabled to be enabled.
+
+The `rule` object consists of a nested `default_retention` object, which in turn supports the following:
+
+* `mode` - (Required) Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`.
+
+* `days` - (Optional) Specifies a retention period in days after uploading an object version. It must be a positive integer. You can't set it simultaneously with `years`.
+
+* `years` - (Optional) Specifies a retention period in years after uploading an object version. It must be a positive integer. You can't set it simultaneously with `days`.
 
 The `logging` object supports the following:
 
