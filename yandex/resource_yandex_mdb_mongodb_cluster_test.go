@@ -678,6 +678,63 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 	})
 }
 
+func TestAccMDBMongoDBCluster_restore(t *testing.T) {
+	t.Parallel()
+
+	configData := create4_2ConfigData()
+	configData["restore"] = map[string]string{
+		"time":      "2022-12-15T14:50:30",
+		"backup_id": "c9qf8ieda2tv19mbman9:c9qrtj74fdapfrvu68k5",
+	}
+
+	clusterName := configData["ClusterName"].(string)
+
+	var r mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBMongoDBClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
+				),
+			},
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DeletionProtection": "false",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "false"),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckMDBMongoDBClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 

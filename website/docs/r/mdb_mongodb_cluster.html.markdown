@@ -103,6 +103,10 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 - - -
 
+* `restore` - (Optional, ForceNew) The cluster will be created from the specified backup. The structure is documented below.
+
+- - -
+
 The `cluster_config` block supports:
 
 * `version` - (Required) Version of MongoDB (either 5.0, 4.4, 4.2 or 4.0).
@@ -242,6 +246,12 @@ The `kmip` block supports:
   For more information see [security.kmip.keyIdentifier](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-security.kmip.keyIdentifier)
   description in the official documentation.
 
+
+The `restore` block supports:
+
+* `backup_id` - (Required, ForceNew) Backup ID. The cluster will be created from the specified backup. [How to get a list of PostgreSQL backups](https://cloud.yandex.com/en-ru/docs/managed-mongodb/operations/cluster-backups)
+
+* `time` - (Optional, ForceNew) Timestamp of the moment to which the MongoDB cluster should be restored. (Format: "2006-01-02T15:04:05" - UTC). When not set, current time is used.
 
 ## Attributes Reference
 

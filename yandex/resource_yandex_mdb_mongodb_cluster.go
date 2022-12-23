@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
 func resourceYandexMDBMongodbCluster() *schema.Resource {
@@ -353,6 +354,27 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Set:      schema.HashString,
 				Optional: true,
 			},
+			"restore": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				ForceNew: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"backup_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"time": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: stringToTimeValidateFunc,
+						},
+					},
+				},
+			},
 			"maintenance_window": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -474,6 +496,10 @@ func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
+	if backupID, ok := d.GetOk("restore.0.backup_id"); ok && backupID != "" {
+		return resourceYandexMDBMongodbClusterRestore(d, meta, req, backupID.(string))
+	}
+
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().Create(ctx, req))
 	if err != nil {
 		return diag.Errorf("error while requesting API to create Mongodb Cluster: %s", err)
@@ -508,6 +534,82 @@ func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.Resour
 		err = updateMongoDBMaintenanceWindow(ctx, config, d, mw)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
+}
+
+func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *mongodb.CreateClusterRequest, backupID string) diag.Diagnostics {
+	config := meta.(*Config)
+
+	timeBackup := time.Now()
+	if backupTime, ok := d.GetOk("restore.0.time"); ok {
+		var err error
+		timeBackup, err = parseStringToTime(backupTime.(string))
+		if err != nil {
+			return diag.Errorf("Error while parsing restore.0.time to create MongoDB Clsuter from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	request := &mongodb.RestoreClusterRequest{
+		BackupId: backupID,
+		RecoveryTargetSpec: &mongodb.RestoreClusterRequest_RecoveryTargetSpec{
+			Timestamp: timeBackup.Unix(),
+		},
+		Name:               createClusterRequest.Name,
+		Description:        createClusterRequest.Description,
+		Labels:             createClusterRequest.Labels,
+		Environment:        createClusterRequest.Environment,
+		ConfigSpec:         createClusterRequest.ConfigSpec,
+		HostSpecs:          createClusterRequest.HostSpecs,
+		NetworkId:          createClusterRequest.NetworkId,
+		FolderId:           createClusterRequest.FolderId,
+		SecurityGroupIds:   createClusterRequest.SecurityGroupIds,
+		DeletionProtection: createClusterRequest.DeletionProtection,
+	}
+
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Sending MongoDB cluste restore request: %+v", request)
+		return config.sdk.MDB().MongoDB().Cluster().Restore(ctx, request)
+	})
+
+	if err != nil {
+		return diag.Errorf("Error while requesting API to create MongoDB Cluster from backup %v: %s", backupID, err)
+	}
+
+	protoMetadata, err := op.Metadata()
+	if err != nil {
+		return diag.Errorf("Error while get MongoDB Cluster create from backup %v operation metadata: %s", backupID, err)
+	}
+
+	md, ok := protoMetadata.(*mongodb.RestoreClusterMetadata)
+	if !ok {
+		return diag.Errorf("Could not get MongoDB Cluster ID from create from backup %v operation metadata", backupID)
+	}
+
+	d.SetId(md.ClusterId)
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return diag.Errorf("Error while waiting for operation to create MongoDB Cluster from backup %v: %s", backupID, err)
+	}
+
+	if _, err := op.Response(); err != nil {
+		return diag.Errorf("MongoDB Cluster creationg from backup %v failed: %s", backupID, err)
+	}
+
+	hostSpecs, err := expandMongoDBHosts(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	for _, hs := range hostSpecs {
+		if err := createMongoDBHost(ctx, config, d, hs); err != nil {
+			return diag.Errorf("MongoDB Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
 		}
 	}
 
