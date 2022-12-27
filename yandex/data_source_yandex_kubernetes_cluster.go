@@ -201,6 +201,39 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"master_logging": {
+							Type:     schema.TypeList,
+							Computed: true,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"log_group_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"folder_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"kube_apiserver_enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"cluster_autoscaler_enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"events_enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

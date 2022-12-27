@@ -39,6 +39,14 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
         duration   = "3h"
       }
     }
+    
+    master_logging {
+      enabled = true
+      log_group_id = "${yandex_logging_group.log_group_resoruce_name.id}"
+      kube_apiserver_enabled = true
+      cluster_autoscaler_enabled = true
+      events_enabled = true
+    }
   }
 
   service_account_id      = "${yandex_iam_service_account.service_account_resource_name.id}"
@@ -102,6 +110,14 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
         start_time = "10:00"
         duration   = "4h30m"
       }
+    }
+    
+    master_logging {
+      enabled = true
+      folder_id = "${data.yandex_resourcemanager_folder.folder_resource_name.id}"
+      kube_apiserver_enabled = true
+      cluster_autoscaler_enabled = true
+      events_enabled = true
     }
   }
 
@@ -202,7 +218,9 @@ Minor version upgrades (e.g. 1.13->1.14) should be performed manually. The struc
 * `external_v4_address` - (Computed) An IPv4 external network address that is assigned to the master.
 * `internal_v4_endpoint` - (Computed) Internal endpoint that can be used to connect to the master from cloud networks. 
 * `external_v4_endpoint` - (Computed) External endpoint that can be used to access Kubernetes cluster API from the internet (outside of the cloud).
-* `cluster_ca_certificate` - (Computed) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.  
+* `cluster_ca_certificate` - (Computed) PEM-encoded public certificate that is the root of trust for the Kubernetes cluster.
+
+* `master_logging` - (Optional) Master Logging options. The structure is documented below.
 
 ---
 
@@ -263,6 +281,19 @@ The `kms_provider` block contains:
 The `network_implementation` block can contain one of:
 
 * `cilium` - (Optional) Cilium network implementation configuration. No options exist.
+
+---
+
+The `master_logging` block supports:
+
+* `enabled` - (Optional) Boolean flag that specifies if master components logs should be sent to [Yandex Cloud Logging](https://cloud.yandex.com/docs/logging/). The exact components that will send their logs must be configured via the options described below.
+* `log_group_id` - (Optional) ID of the Yandex Cloud Logging [Log group](https://cloud.yandex.com/docs/logging/concepts/log-group).
+* `folder_id` - (Optional) ID of the folder default Log group of which should be used to collect logs.
+* `kube_apiserver_enabled` - (Optional) Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
+* `cluster_autoscaler_enabled` - (Optional) Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.
+* `events_enabled` - (Optional) Boolean flag that specifies if kubernetes cluster events should be sent to Yandex Cloud Logging.
+
+~> **Note:** Only one of `log_group_id` or `folder_id` (or none) may be specified. If `log_group_id` is specified, logs will be sent to this specific Log group. If `folder_id` is specified, logs will be sent to **default** Log group of this folder. If none of two is specified, logs will be sent to **default** Log group of the **same** folder as Kubernetes cluster.
 
 ## Timeouts
 

@@ -236,6 +236,45 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"master_logging": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"log_group_id": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"master.0.master_logging.0.folder_id"},
+									},
+									"folder_id": {
+										Type:          schema.TypeString,
+										Optional:      true,
+										ConflictsWith: []string{"master.0.master_logging.0.log_group_id"},
+									},
+									"kube_apiserver_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"cluster_autoscaler_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+									"events_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -429,6 +468,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"master.0.version":            "master_spec.version.version",
 	"master.0.maintenance_policy": "master_spec.maintenance_policy",
 	"master.0.security_group_ids": "master_spec.security_group_ids",
+	"master.0.master_logging":     "master_spec.master_logging",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -484,6 +524,11 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 		return nil, fmt.Errorf("failed to get cluster master maintenance policy: %s", err)
 	}
 
+	ml, err := getKubernetesClusterMasterLogging(d)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cluster master logging: %s", err)
+	}
+
 	req := &k8s.UpdateClusterRequest{
 		ClusterId:            d.Id(),
 		Name:                 d.Get("name").(string),
@@ -499,11 +544,11 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 			},
 			SecurityGroupIds:  expandSecurityGroupIds(d.Get("master.0.security_group_ids")),
 			MaintenancePolicy: mp,
+			MasterLogging:     ml,
 		},
 	}
 
 	return req, nil
-
 }
 
 func resourceYandexKubernetesClusterDelete(d *schema.ResourceData, meta interface{}) error {
@@ -674,6 +719,10 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 		return nil, err
 	}
 
+	if spec.MasterLogging, err = getKubernetesClusterMasterLogging(d); err != nil {
+		return nil, err
+	}
+
 	if _, ok := d.GetOk("master.0.zonal"); ok {
 		spec.MasterType = getKubernetesClusterZonalMaster(d, meta)
 		return spec, nil
@@ -704,6 +753,46 @@ func getKubernetesClusterMasterMaintenancePolicy(d *schema.ResourceData) (*k8s.M
 	}
 
 	return p, nil
+}
+
+func getKubernetesClusterMasterLogging(d *schema.ResourceData) (*k8s.MasterLogging, error) {
+	if _, ok := d.GetOk("master.0.master_logging"); !ok {
+		return nil, nil
+	}
+
+	logGroupId, logGroupIdOk := d.GetOk("master.0.master_logging.0.log_group_id")
+	folderId, folderIdOk := d.GetOk("master.0.master_logging.0.folder_id")
+
+	if logGroupIdOk && folderIdOk {
+		return nil, errors.New("master_logging has both log_group_id and folder_id, but only one of those (or none) must be set")
+	}
+
+	var destination k8s.MasterLogging_Destination
+	if logGroupIdOk {
+		destination = &k8s.MasterLogging_LogGroupId{LogGroupId: logGroupId.(string)}
+	}
+	if folderIdOk {
+		destination = &k8s.MasterLogging_FolderId{FolderId: folderId.(string)}
+	}
+
+	ml := &k8s.MasterLogging{
+		Destination: destination,
+	}
+
+	if enabled, ok := d.GetOk("master.0.master_logging.0.enabled"); ok {
+		ml.Enabled = enabled.(bool)
+	}
+	if kubeApiserverEnabled, ok := d.GetOk("master.0.master_logging.0.kube_apiserver_enabled"); ok {
+		ml.KubeApiserverEnabled = kubeApiserverEnabled.(bool)
+	}
+	if clusterAutoscalerEnabled, ok := d.GetOk("master.0.master_logging.0.cluster_autoscaler_enabled"); ok {
+		ml.ClusterAutoscalerEnabled = clusterAutoscalerEnabled.(bool)
+	}
+	if eventsEnabled, ok := d.GetOk("master.0.master_logging.0.events_enabled"); ok {
+		ml.EventsEnabled = eventsEnabled.(bool)
+	}
+
+	return ml, nil
 }
 
 func getKubernetesClusterZonalMaster(d *schema.ResourceData, meta *Config) *k8s.MasterSpec_ZonalMasterSpec {
@@ -926,6 +1015,23 @@ func (h *masterSchemaHelper) flattenMasterMaintenancePolicy(m *k8s.MasterMainten
 	return nil
 }
 
+func (h *masterSchemaHelper) flattenMasterLogging(m *k8s.Master) {
+	ml := m.GetMasterLogging()
+	if ml == nil {
+		return
+	}
+	h.master["master_logging"] = []map[string]interface{}{
+		{
+			"enabled":                    ml.GetEnabled(),
+			"log_group_id":               ml.GetLogGroupId(),
+			"kube_apiserver_enabled":     ml.GetKubeApiserverEnabled(),
+			"folder_id":                  ml.GetFolderId(),
+			"cluster_autoscaler_enabled": ml.GetClusterAutoscalerEnabled(),
+			"events_enabled":             ml.GetEventsEnabled(),
+		},
+	}
+}
+
 func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster) {
 	h.master["internal_v4_address"] = m.ZonalMaster.GetInternalV4Address()
 	h.master["external_v4_address"] = m.ZonalMaster.GetExternalV4Address()
@@ -964,6 +1070,8 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	if err := h.flattenMasterMaintenancePolicy(p); err != nil {
 		return nil, err
 	}
+
+	h.flattenMasterLogging(clusterMaster)
 
 	switch m := clusterMaster.GetMasterType().(type) {
 	case *k8s.Master_ZonalMaster:

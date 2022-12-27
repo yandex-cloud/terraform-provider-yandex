@@ -511,6 +511,122 @@ func TestAccKubernetesClusterZonal_networkImplementationCilium(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesClusterZonal_masterLogging_defaultDestination(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_masterLogging_defaultDestination", true)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterZonal_masterLogging_toPrecreatedLogGroup(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterZonal_masterLogging_toPrecreatedLogGroup", true)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{LogToPrecreatedLogGroup: true})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterZonalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_masterLogging_defaultDestination(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterRegional_masterLogging_defaultDestination", false)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccKubernetesClusterRegional_masterLogging_toPrecreatedLogGroup(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesClusterRegional_masterLogging_toPrecreatedLogGroup", false)
+	clusterResource.constructMasterLoggingField(masterLoggingParams{LogToPrecreatedLogGroup: true})
+	clusterResourceFullName := clusterResource.ResourceFullName(true)
+
+	var cluster k8s.Cluster
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesClusterRegionalConfig_basic(clusterResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesClusterExists(clusterResourceFullName, &cluster),
+					checkClusterAttributes(&cluster, &clusterResource, true),
+					testAccCheckCreatedAtAttr(clusterResourceFullName),
+				),
+			},
+		},
+	})
+}
+
+// log_group_id and folder_id must not be set simultaneously
+func TestAccKubernetesCluster_masterLogging_wrong(t *testing.T) {
+	t.Parallel()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccKubernetesClusterConfig_masterLogging_wrong(),
+				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+			},
+		},
+	})
+}
+
+type masterLoggingParams struct {
+	LogToPrecreatedLogGroup bool
+}
+
 func randomResourceName(tp string) string {
 	return fmt.Sprintf("test_%s_%s", tp, acctest.RandString(10))
 }
@@ -888,6 +1004,17 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 			}
 		}
 
+		if info.MasterLogging != "" {
+			checkFuncsAr = append(checkFuncsAr,
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.log_group_id", master.GetMasterLogging().GetLogGroupId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.folder_id", master.GetMasterLogging().GetFolderId()),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.kube_apiserver_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetKubeApiserverEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.cluster_autoscaler_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetClusterAutoscalerEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.events_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetEventsEnabled())),
+			)
+		}
+
 		return resource.ComposeTestCheckFunc(checkFuncsAr...)(s)
 	}
 }
@@ -1024,6 +1151,10 @@ type resourceClusterInfo struct {
 	DualStack           bool
 
 	NetworkImplementationCilium bool
+
+	// folder_id is not tested here since folder deletion takes too long
+	MasterLogging                     string
+	MasterLoggingLogGroupResourceName string
 }
 
 func (i *resourceClusterInfo) constructMaintenancePolicyField(autoUpgrade bool, policy maintenancePolicyType) {
@@ -1053,6 +1184,16 @@ func (i *resourceClusterInfo) constructNetworkPolicyField(npp k8s.NetworkPolicy_
 		i.networkPolicyProvider = npp
 		i.NetworkPolicy = fmt.Sprintf("network_policy_provider = \"%s\"", npp.String())
 	}
+}
+
+func (i *resourceClusterInfo) constructMasterLoggingField(params masterLoggingParams) {
+	ctx := map[string]interface{}{}
+	if params.LogToPrecreatedLogGroup {
+		logGroupName := safeResourceName("loggroup")
+		i.MasterLoggingLogGroupResourceName = logGroupName
+		ctx["MasterLoggingLogGroupResourceName"] = logGroupName
+	}
+	i.MasterLogging = templateConfig(masterLoggingTemplate, ctx)
 }
 
 func (i *resourceClusterInfo) constructSecurityGroupsField() {
@@ -1158,6 +1299,18 @@ const weeklyMaintenancePolicyTemplateSecond = `
     }
 `
 
+const masterLoggingTemplate = `
+	master_logging {
+		enabled = true
+		kube_apiserver_enabled = true
+		cluster_autoscaler_enabled = true
+		events_enabled = true
+{{if .MasterLoggingLogGroupResourceName}}
+		log_group_id = yandex_logging_group.{{.MasterLoggingLogGroupResourceName}}.id
+{{end}}
+	}
+`
+
 const zonalClusterConfigTemplate = `
 resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
   depends_on         = [
@@ -1194,6 +1347,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     {{.MaintenancePolicy}}
 
     {{.SecurityGroups}}
+
+	{{.MasterLogging}}
   }
 
   service_account_id = "${yandex_iam_service_account.{{.ServiceAccountResourceName}}.id}"
@@ -1288,6 +1443,8 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
     {{.SecurityGroups}}
 
     {{.MaintenancePolicy}}
+
+    {{.MasterLogging}}
 
 {{if .ExternalIPv6Address}}
     external_v6_address = "{{.ExternalIPv6Address}}"
@@ -1408,6 +1565,13 @@ resource "yandex_kms_symmetric_key" "{{.KMSKeyResourceName}}" {
   name        = "{{.KMSKeyResourceName}}"
   description = "{{.TestDescription}}"
 }
+
+{{if .MasterLoggingLogGroupResourceName}}
+resource "yandex_logging_group" "{{.MasterLoggingLogGroupResourceName}}" {
+  name      = "{{.MasterLoggingLogGroupResourceName}}"
+  folder_id = "{{.FolderID}}"
+}
+{{end}}
 `
 
 func testAccKubernetesClusterZonalConfig_update(orig, new resourceClusterInfo) string {
@@ -1462,6 +1626,35 @@ resource "yandex_kubernetes_cluster" "this" {
           zone = "zone-c"
           subnet_id = "subnet-c"
 	  }
+    }
+  
+    public_ip = true 
+  }
+}
+`
+}
+
+func testAccKubernetesClusterConfig_masterLogging_wrong() string {
+	return `
+resource "yandex_kubernetes_cluster" "this" {
+  name        = "foo"
+  description = "bar"
+
+  network_id = "net-id"
+
+  service_account_id = "sa-id"
+  node_service_account_id = "node-sa-id"
+
+  master {
+    zonal {
+  	  zone = "ru-central1-a" 
+	  subnet_id = "subnet-id"
+    }
+
+    master_logging {
+      enabled = true
+      log_group_id = "log-group-id"
+      folder_id = "folder-id"
     }
   
     public_ip = true 
