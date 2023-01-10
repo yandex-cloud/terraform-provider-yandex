@@ -4,6 +4,7 @@ FEATURES:
 * storage: add `object_lock_legal_hold_status`, `object_lock_mode` and `object_lock_retain_until_date` attributes in `object` resource
 * mongodb: add `restore` entity in `yandex_mdb_mongodb_cluster` resource
 * k8s: add `master_logging` attribute to `cluster` resource and data source
+* clickhouse: add possibility to update `version` and `resources` in single apply
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:

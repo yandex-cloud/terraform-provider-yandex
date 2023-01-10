@@ -20,6 +20,7 @@ import (
 )
 
 const chVersion = "22.8"
+const chUpdatedVersion = "22.11"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -525,6 +526,52 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResourceCloudStorage)),
 			},
 			mdbClickHouseClusterImportStep(chResourceCloudStorage),
+		},
+	})
+}
+
+// Test that a ClickHouse Cluster version and resources could be updated simultaneously.
+func TestAccMDBClickHouseCluster_update_version_resources(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse-update")
+	chDesc := "ClickHouse Cluster update Terraform Test"
+	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create ClickHouse Cluster
+			{
+				Config: testAccMDBClickHouseClusterSimpleConfig(chName, chDesc, bucketName, rInt, chVersion, "s2.micro"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", "s2.micro"),
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Update ClickHouse version and cluster resources
+			{
+				Config: testAccMDBClickHouseClusterSimpleConfig(chName, chDesc, bucketName, rInt, chUpdatedVersion, "b1.medium"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", "b1.medium"),
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
 		},
 	})
 }
@@ -2938,4 +2985,35 @@ resource "yandex_mdb_clickhouse_cluster" "keeper" {
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
 `, name, desc)
+}
+
+func testAccMDBClickHouseClusterSimpleConfig(name, desc, bucket string, randInt int, version string, preset string) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo"{
+  name           = "%s"
+  description    = "%s"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+  version        = "%s"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "%s"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+}
+`, name, desc, version, preset)
 }

@@ -1158,6 +1158,35 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	if d.HasChanges("resources", "version") {
+		oldVersion, newVersion := d.GetChange("version")
+		log.Printf("[DEBUG] Pre-updating ClickHouse Cluster %q version %q -> %q", d.Id(), oldVersion, newVersion)
+
+		req := &clickhouse.UpdateClusterRequest{
+			ClusterId: d.Id(),
+			ConfigSpec: &clickhouse.ConfigSpec{
+				Version: d.Get("version").(string),
+			},
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{"config_spec.version"},
+			},
+		}
+
+		ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+		defer cancel()
+
+		op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Update(ctx, req))
+		if err != nil {
+			return fmt.Errorf("error while requesting API to update ClickHouse Cluster version %q: %s", d.Id(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while updating ClickHouse Cluster version %q: %s", d.Id(), err)
+		}
+	}
+
 	req, err := getClickHouseClusterUpdateRequest(d)
 	if err != nil {
 		return err
