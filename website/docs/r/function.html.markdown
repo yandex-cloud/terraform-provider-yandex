@@ -23,6 +23,12 @@ resource "yandex_function" "test-function" {
   execution_timeout  = "10"
   service_account_id = "are1service2account3id"
   tags               = ["my_tag"]
+  secrets {
+    id = "${yandex_lockbox_secret.secret.id}"
+    version_id = "${yandex_lockbox_secret_version.secret_version.id}"
+    key = "secret-key"
+    environment_variable = "ENV_VARIABLE"
+  }
   content {
     zip_filename = "function.zip"
   }
@@ -69,3 +75,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `image_size` - Image size for Yandex Cloud Function.
 * `loggroup_id` - Log group ID size for Yandex Cloud Function.
 
+---
+
+The `secrets` block supports:
+
+* `id` - (Required) Secret's id.
+
+* `version_id` - (Required) Secret's version id.
+
+* `key` - (Required) Secret's entries key which value will be stored in environment variable.
+
+* `environment_variable` - (Required) Function's environment variable in which secret's value will be stored.

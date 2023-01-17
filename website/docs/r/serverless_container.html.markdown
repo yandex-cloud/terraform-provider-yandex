@@ -21,6 +21,12 @@ resource "yandex_serverless_container" "test-container" {
   cores              = 1
   core_fraction      = 100
   service_account_id = "are1service2account3id"
+  secrets {
+    id = "${yandex_lockbox_secret.secret.id}"
+    version_id = "${yandex_lockbox_secret_version.secret_version.id}"
+    key = "secret-key"
+    environment_variable = "ENV_VARIABLE"
+  }
   image {
     url = "cr.yandex/yc/test-image:v1"
   }
@@ -73,3 +79,14 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the Yandex Cloud Serverless Container
 * `revision_id` - Last revision ID of the Yandex Cloud Serverless Container
 
+---
+
+The `secrets` block supports:
+
+* `id` - (Required) Secret's id.
+
+* `version_id` - (Required) Secret's version id.
+
+* `key` - (Required) Secret's entries key which value will be stored in environment variable.
+
+* `environment_variable` - (Required) Container's environment variable in which secret's value will be stored.
