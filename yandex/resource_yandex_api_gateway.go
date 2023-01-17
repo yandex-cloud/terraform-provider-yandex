@@ -328,7 +328,7 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	d.Set("log_group_id", apiGateway.LogGroupId)
 
 	if err := d.Set("custom_domains", flattenCustomDomains(apiGateway.AttachedDomains)); err != nil {
-		return fmt.Errorf("Unable to set custom_domains: %s, %#v", err)
+		return fmt.Errorf("Unable to set custom_domains: %s", err)
 	}
 
 	domains := make([]string, len(apiGateway.AttachedDomains))
