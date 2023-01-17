@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/getenv"
 	"io/ioutil"
 	"testing"
 
@@ -153,6 +154,100 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	})
 }
 
+func TestAccYandexAPIGateway_domainsUpdate(t *testing.T) {
+	t.Parallel()
+
+	testName := acctest.RandomWithPrefix("tf-api-gateway")
+	testDesc := acctest.RandomWithPrefix("tf-api-gateway-desc")
+	testCertificateId := getTestCertificateId()
+	testDomain1 := fmt.Sprintf("%s.tf-acc-tests.prod.apigwtest.ru", acctest.RandomWithPrefix("test"))
+	testDomain2 := fmt.Sprintf("%s.tf-acc-tests.prod.apigwtest.ru", acctest.RandomWithPrefix("test"))
+
+	// initial API Gateway creation
+	createConfig := fmt.Sprintf(`
+resource "yandex_api_gateway" "test-api-gateway" {
+  name        = "%s"
+  description = "%s"
+  custom_domains {
+    certificate_id = "%s"
+    domain = "%s"
+  }
+  spec = <<EOF
+%sEOF
+}`, testName, testDesc, testCertificateId, testDomain1, spec)
+	testCreateFunc := resource.TestStep{
+		Config: createConfig,
+		Check: resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
+			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.domain", testDomain1),
+			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.1"),
+		),
+	}
+
+	// add domain
+	addDomainConfig := fmt.Sprintf(`
+resource "yandex_api_gateway" "test-api-gateway" {
+  name        = "%s"
+  description = "%s"
+  custom_domains {
+    certificate_id = "%s"
+    domain = "%s"
+  }
+  custom_domains {
+    certificate_id = "%s"
+    domain = "%s"
+  }
+  spec = <<EOF
+%sEOF
+}`, testName, testDesc, testCertificateId, testDomain1, testCertificateId, testDomain2, spec)
+	testAddDomainFunc := resource.TestStep{
+		Config: addDomainConfig,
+		Check: resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
+			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.domain", testDomain2),
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.1.certificate_id", testCertificateId),
+			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.1.domain_id"),
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.1.domain", testDomain1),
+			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.2"),
+		),
+	}
+
+	// remove domain
+	removeDomainConfig := fmt.Sprintf(`
+resource "yandex_api_gateway" "test-api-gateway" {
+  name        = "%s"
+  description = "%s"
+  custom_domains {
+    certificate_id = "%s"
+    domain = "%s"
+  }
+  spec = <<EOF
+%sEOF
+}`, testName, testDesc, testCertificateId, testDomain2, spec)
+	testRemoveDomainFunc := resource.TestStep{
+		Config: removeDomainConfig,
+		Check: resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.certificate_id", testCertificateId),
+			resource.TestCheckResourceAttrSet(apiGatewayResource, "custom_domains.0.domain_id"),
+			resource.TestCheckResourceAttr(apiGatewayResource, "custom_domains.0.domain", testDomain2),
+			resource.TestCheckNoResourceAttr(apiGatewayResource, "custom_domains.1"),
+		),
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexAPIGatewayDestroy,
+		Steps: []resource.TestStep{
+			testCreateFunc,
+			testAddDomainFunc,
+			testRemoveDomainFunc,
+		},
+	})
+}
+
 func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, spec string, apiGateway *apigateway.ApiGateway) resource.TestStep {
 	return resource.TestStep{
 		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec),
@@ -277,10 +372,12 @@ resource "yandex_api_gateway" "test-api-gateway" {
 }
 
 type testYandexAPIGatewayParameters struct {
-	name       string
-	desc       string
-	labelKey   string
-	labelValue string
+	name          string
+	desc          string
+	labelKey      string
+	labelValue    string
+	certificateId string
+	domain        string
 }
 
 func testYandexAPIGatewayFull(params testYandexAPIGatewayParameters) string {
@@ -301,4 +398,8 @@ resource "yandex_api_gateway" "test-api-gateway" {
 		params.labelKey,
 		params.labelValue,
 		spec)
+}
+
+func getTestCertificateId() string {
+	return getenv.Strict("APIGW_TEST_CERTIFICATE_ID")
 }

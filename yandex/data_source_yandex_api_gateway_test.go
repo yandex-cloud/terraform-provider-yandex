@@ -75,6 +75,8 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
+	params.certificateId = getTestCertificateId()
+	params.domain = fmt.Sprintf("%s.tf-acc-tests.prod.apigwtest.ru", acctest.RandomWithPrefix("test"))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -88,6 +90,10 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "name", params.name),
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "description", params.desc),
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "folder_id"),
+					resource.TestCheckResourceAttr(apiGatewayDataSource, "custom_domains.0.certificate_id", params.certificateId),
+					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "custom_domains.0.domain_id"),
+					resource.TestCheckResourceAttr(apiGatewayDataSource, "custom_domains.0.domain", params.domain),
+					resource.TestCheckNoResourceAttr(apiGatewayDataSource, "custom_domains.1"),
 
 					testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
 					testAccCheckCreatedAtAttr(apiGatewayDataSource),
@@ -140,6 +146,10 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
+  custom_domains {
+    certificate_id = "%s"
+    domain = "%s"
+  }
   spec = <<EOF
 %sEOF
 }
@@ -148,5 +158,7 @@ resource "yandex_api_gateway" "test-api-gateway" {
 		params.desc,
 		params.labelKey,
 		params.labelValue,
+		params.certificateId,
+		params.domain,
 		spec)
 }
