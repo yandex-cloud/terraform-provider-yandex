@@ -39,4 +39,5 @@ The following attributes are exported:
 * `loggroup_id` - ID of the log group for the Yandex API Gateway.
 * `domain` - Default domain for the Yandex API Gateway.
 * `status` - Status of the Yandex API Gateway.
-* `user_domains` - Set of user domains attached to Yandex API Gateway.
+* `user_domains` - (**DEPRECATED**, use `custom_domains` instead) Set of user domains attached to Yandex API Gateway.
+* `custom_domains` - Set of custom domains attached to Yandex API Gateway. Each set item has the following properties: `domain_id`, `domain`, `certificate_id`.
