@@ -268,6 +268,10 @@ func dataSourceStringMatch() *schema.Schema {
 					Type:     schema.TypeString,
 					Computed: true,
 				},
+				"regex": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
 			},
 		},
 	}

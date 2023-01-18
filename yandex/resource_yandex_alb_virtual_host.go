@@ -270,6 +270,10 @@ func stringMatch() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
+				"regex": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}

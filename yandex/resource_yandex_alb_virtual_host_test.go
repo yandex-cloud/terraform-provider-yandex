@@ -3,6 +3,8 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -404,4 +406,85 @@ resource "yandex_alb_virtual_host" "test-vh" {
   name		= "%s"
 }
 `, virtualHostName)
+}
+
+func TestUnitALBVirtualHostParseStringMatch(t *testing.T) {
+	t.Parallel()
+
+	bgResource := resourceYandexALBVirtualHost()
+	makeRouteOptions := func(stringMatch interface{}) interface{} {
+		return []interface{}{
+			map[string]interface{}{
+				"rbac": []interface{}{
+					map[string]interface{}{
+						"principals": []interface{}{
+							map[string]interface{}{
+								"and_principals": []interface{}{
+									map[string]interface{}{
+										"header": []interface{}{
+											map[string]interface{}{
+												"value": stringMatch,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+	}
+	stringMatchPath := "route_options.0.rbac.0.principals.0.and_principals.0.header.0.value.0."
+
+	t.Run("string-match-path-regex", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"regex": "my_cool_regex",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := expandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetRegexMatch(), "my_cool_regex")
+	})
+
+	t.Run("string-match-path-prefix", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"prefix": "my_cool_prefix",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := expandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetPrefixMatch(), "my_cool_prefix")
+	})
+
+	t.Run("string-match-path-exact", func(t *testing.T) {
+		stringMatchValue := []interface{}{
+			map[string]interface{}{
+				"exact": "my_cool_exact",
+			},
+		}
+		rawValues := map[string]interface{}{
+			"http_router_id": "id_0",
+			"name":           "name_0",
+			"route_options":  makeRouteOptions(stringMatchValue),
+		}
+		resourceData := schema.TestResourceDataRaw(t, bgResource.Schema, rawValues)
+		stringMatch, _ := expandALBStringMatch(resourceData, stringMatchPath)
+
+		assert.Equal(t, stringMatch.GetExactMatch(), "my_cool_exact")
+	})
 }

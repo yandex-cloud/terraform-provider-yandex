@@ -546,18 +546,22 @@ func expandALBStringMatch(d *schema.ResourceData, path string) (*apploadbalancer
 	stringMatch := &apploadbalancer.StringMatch{}
 	exactMatch, gotExactMatch := d.GetOk(path + "exact")
 	prefixMatch, gotPrefixMatch := d.GetOk(path + "prefix")
+	regexMatch, gotRegexMatch := d.GetOk(path + "regex")
 
-	if isPlural(gotExactMatch, gotPrefixMatch) {
-		return nil, fmt.Errorf("Cannot specify both exact match and prefix match for the string match")
+	if isPlural(gotExactMatch, gotPrefixMatch, gotRegexMatch) {
+		return nil, fmt.Errorf("Cannot specify more than one of exact, prefix and regex match for the string match")
 	}
-	if !gotExactMatch && !gotPrefixMatch {
-		return nil, fmt.Errorf("Either exact match or prefix match should be specified for the string match")
+	if !gotExactMatch && !gotPrefixMatch && !gotRegexMatch {
+		return nil, fmt.Errorf("At least on of exact, prefix or regex match should be specified for the string match")
 	}
 	if gotExactMatch {
 		stringMatch.SetExactMatch(exactMatch.(string))
 	}
 	if gotPrefixMatch {
 		stringMatch.SetPrefixMatch(prefixMatch.(string))
+	}
+	if gotRegexMatch {
+		stringMatch.SetRegexMatch(regexMatch.(string))
 	}
 
 	return stringMatch, nil
@@ -1764,6 +1768,12 @@ func flattenALBStringMatch(match *apploadbalancer.StringMatch) []map[string]inte
 		return []map[string]interface{}{
 			{
 				"prefix": match.GetPrefixMatch(),
+			},
+		}
+	case *apploadbalancer.StringMatch_RegexMatch:
+		return []map[string]interface{}{
+			{
+				"regex": match.GetRegexMatch(),
 			},
 		}
 	}

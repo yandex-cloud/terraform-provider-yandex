@@ -209,7 +209,9 @@ The `path` and `fqmn` blocks support:
   
 * `prefix` - (Optional) Match prefix.
 
-~> **NOTE:** Exactly one type of string matches `exact` or `prefix` should be
+* `regex` - (Optional) Match regex.
+
+~> **NOTE:** Exactly one type of string matches `exact`, `prefix` or `regex` should be
 specified.
 
 ## Attributes Reference

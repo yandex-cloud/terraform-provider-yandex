@@ -206,7 +206,9 @@ The `path` and `fqmn` blocks support:
 
 * `prefix_match` - Match prefix.
 
-~> **NOTE:** Exactly one type of string matches `exact_match` or `prefix_match` should be specified.
+* `regex_match` - Match regex.
+
+~> **NOTE:** Exactly one type of string matches `exact_match`, `prefix_match` or `regex_match` should be specified.
 
 
 [Application Load Balancer Virtual Host]: https://cloud.yandex.com/en/docs/application-load-balancer/concepts/http-router

@@ -7,6 +7,7 @@ FEATURES:
 * **New Data Source:** `yandex_container_registry_ip_permission`
 * **New Resource:** `yandex_container_registry_ip_permission`
 * clickhouse: add possibility to update `version` and `resources` in single apply
+* alb: add `regex` support in `StringMatch`
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:
