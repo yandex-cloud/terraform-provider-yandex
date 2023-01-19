@@ -899,6 +899,11 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		return nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
 	}
 
+	mw, err := expandClickHouseMaintenanceWindow(d)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error while expand clickhouse maintenance_window: %s", err)
+	}
+
 	req := clickhouse.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -914,6 +919,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		SecurityGroupIds:   securityGroupIds,
 		ServiceAccountId:   d.Get("service_account_id").(string),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  mw,
 	}
 	return &req, toAdd, nil
 }

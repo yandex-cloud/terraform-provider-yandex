@@ -8,6 +8,7 @@ FEATURES:
 * **New Resource:** `yandex_container_registry_ip_permission`
 * clickhouse: add possibility to update `version` and `resources` in single apply
 * alb: add `regex` support in `StringMatch`
+* clickhouse: added the feature to set maintenance_window when creating a cluster.
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:
