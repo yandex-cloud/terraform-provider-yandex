@@ -803,17 +803,6 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		}
 	}
 
-	mw, err := expandClickHouseMaintenanceWindow(d)
-	if err != nil {
-		return err
-	}
-	if mw != nil && mw.GetAnytime() == nil {
-		err = updateClickHouseMaintenanceWindow(ctx, config, d, mw)
-		if err != nil {
-			return err
-		}
-	}
-
 	return resourceYandexMDBClickHouseClusterRead(d, meta)
 }
 
@@ -901,7 +890,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expand clickhouse maintenance_window: %s", err)
+		return nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
 	}
 
 	req := clickhouse.CreateClusterRequest{
@@ -1267,7 +1256,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("update error while expand clickhouse maintenance_window: %s", err)
 	}
 
 	req := &clickhouse.UpdateClusterRequest{
