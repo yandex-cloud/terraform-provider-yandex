@@ -1912,6 +1912,19 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 		cloudStorageSpec := g.(map[string]interface{})
 		if val, ok := cloudStorageSpec["enabled"]; ok {
 			result.SetEnabled(val.(bool))
+			if result.GetEnabled() {
+				if moveFactor, ok := cloudStorageSpec["move_factor"]; ok {
+					result.SetMoveFactor(&wrapperspb.DoubleValue{Value: moveFactor.(float64)})
+				}
+				if cacheEnabled, ok := cloudStorageSpec["data_cache_enabled"]; ok {
+					result.SetDataCacheEnabled(&wrapperspb.BoolValue{Value: cacheEnabled.(bool)})
+					if result.GetDataCacheEnabled() != nil && result.GetDataCacheEnabled().Value {
+						if data, ok := cloudStorageSpec["data_cache_max_size"]; ok {
+							result.SetDataCacheMaxSize(&wrapperspb.Int64Value{Value: int64(data.(int))})
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -1919,10 +1932,24 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 }
 
 func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]interface{} {
-	result := []map[string]interface{}{}
+	var result []map[string]interface{}
 
 	m := map[string]interface{}{}
-	m["enabled"] = cs != nil && cs.GetEnabled()
+	if cs != nil {
+		m["enabled"] = cs.GetEnabled()
+		if cs.GetMoveFactor() != nil {
+			m["move_factor"] = cs.GetMoveFactor().Value
+		}
+		if cs.GetDataCacheEnabled() != nil {
+			if cs.GetDataCacheEnabled().Value {
+				m["data_cache_enabled"] = cs.GetDataCacheEnabled().Value
+				if cs.GetDataCacheMaxSize() != nil {
+					m["data_cache_max_size"] = cs.GetDataCacheMaxSize().Value
+				}
+			}
+		}
+	}
+
 	result = append(result, m)
 
 	return result

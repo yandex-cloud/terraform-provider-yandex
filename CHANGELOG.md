@@ -9,6 +9,7 @@ FEATURES:
 * clickhouse: add possibility to update `version` and `resources` in single apply
 * alb: add `regex` support in `StringMatch`
 * clickhouse: added the feature to set maintenance_window when creating a cluster.
+* clickhouse: support cloud_storage with advanced settings
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:

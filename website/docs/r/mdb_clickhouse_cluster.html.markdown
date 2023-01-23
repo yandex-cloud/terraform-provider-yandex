@@ -876,6 +876,9 @@ The `graphite_rollup` block supports:
 The `cloud_storage` block supports:
 
 * `enabled` - (Required) Whether to use Yandex Object Storage for storing ClickHouse data. Can be either `true` or `false`.
+* `move_factor` - Sets the minimum free space ratio in the cluster storage. If the free space is lower than this value, the data is transferred to Yandex Object Storage. Acceptable values are 0 to 1, inclusive.
+* `data_cache_enabled` - Enables temporary storage in the cluster repository of data requested from the object repository.
+* `data_cache_max_size` - Defines the maximum amount of memory (in bytes) allocated in the cluster storage for temporary storage of data requested from the object storage.
 
 The `maintenance_window` block supports:
 

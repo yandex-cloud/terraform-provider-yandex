@@ -504,7 +504,7 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResourceCloudStorage),
 			// Update ClickHouse Cluster with cloud storage
 			{
-				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt, false),
+				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt, false, 0.0, false, 0),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceCloudStorage, &r, 1),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "name", chName),
@@ -514,15 +514,18 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResourceCloudStorage)),
 			},
 			mdbClickHouseClusterImportStep(chResourceCloudStorage),
-			// Update ClickHouse Cluster with cloud storage
+			// Update ClickHouse Cluster with cloud storage with all params
 			{
-				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt, true),
+				Config: testAccMDBClickHouseClusterConfigCloudStorage(chName, chDesc, bucketName, rInt, true, 0.5, true, 214748364),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceCloudStorage, &r, 1),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "name", chName),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "description", chDesc),
 					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.0.enabled", "true"),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.0.move_factor", "0.5"),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.0.data_cache_enabled", "true"),
+					resource.TestCheckResourceAttr(chResourceCloudStorage, "cloud_storage.0.data_cache_max_size", "214748364"),
 					testAccCheckCreatedAtAttr(chResourceCloudStorage)),
 			},
 			mdbClickHouseClusterImportStep(chResourceCloudStorage),
@@ -2800,7 +2803,7 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
 `, name, desc, chVersion)
 }
 
-func testAccMDBClickHouseClusterConfigCloudStorage(name, desc, bucket string, randInt int, enabled bool) string {
+func testAccMDBClickHouseClusterConfigCloudStorage(name, desc, bucket string, randInt int, enabled bool, moveFactor float64, dataCacheEnabled bool, dataCacheMaxSize int64) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "cloud" {
   depends_on = [
@@ -2941,11 +2944,14 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
 
   cloud_storage {
     enabled = %t
+	move_factor = %f
+	data_cache_enabled = %t
+	data_cache_max_size = %d
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 }
-`, name, desc, chVersion, enabled)
+`, name, desc, chVersion, enabled, moveFactor, dataCacheEnabled, dataCacheMaxSize)
 }
 
 func testAccMDBClickHouseClusterConfigEmbeddedKeeper(name, desc, bucket string, randInt int) string {

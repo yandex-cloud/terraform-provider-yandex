@@ -685,6 +685,21 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeBool,
 							Required: true,
 						},
+						"move_factor": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+							Computed: true,
+						},
+						"data_cache_enabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"data_cache_max_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
 					},
 				},
 			},
