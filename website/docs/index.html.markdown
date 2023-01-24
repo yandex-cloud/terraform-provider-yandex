@@ -68,6 +68,8 @@ The following keys can be used to configure the provider.
   are being throttled or experiencing transient failures. The delay between the subsequent API calls increases
   exponentially.
 
+* `storage_endpoint` — (Optional) Yandex.Cloud object storage [endpoint][yandex-storage-endpoint], which is used to connect to `S3 API`. Default value is `"storage.yandexcloud.net"`
+
 * `storage_access_key` - (Optional) Yandex.Cloud storage service access key, which is used when a storage data/resource doesn't have an access key explicitly specified.
 
   This can also be specified using environment variable `YC_STORAGE_ACCESS_KEY`.
@@ -90,3 +92,4 @@ The following keys can be used to configure the provider.
 [yandex-service-account-key]: https://cloud.yandex.com/docs/iam/operations/iam-token/create-for-sa#keys-create
 [instance-service-account]: https://cloud.yandex.com/docs/compute/operations/vm-connect/auth-inside-vm
 [yandex-iam-create-token]: https://cloud.yandex.com/docs/iam/operations/iam-token/create
+[yandex-storage-endpoint]: https://cloud.yandex.com/en-ru/docs/storage/s3/#request-url
