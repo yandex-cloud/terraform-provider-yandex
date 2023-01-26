@@ -43,10 +43,33 @@ func dataSourceYandexApiGateway() *schema.Resource {
 			},
 
 			"user_domains": {
+				Type:       schema.TypeSet,
+				Computed:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Set:        schema.HashString,
+				Deprecated: fieldDeprecatedForAnother("user_domains", "custom_domains"),
+			},
+
+			"custom_domains": {
 				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"certificate_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
 			},
 
 			"domain": {

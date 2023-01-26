@@ -20,6 +20,10 @@ resource "yandex_api_gateway" "test-api-gateway" {
     label       = "label"
     empty-label = ""
   }
+  custom_domains {
+    fqdn = "test.example.com"
+    certificate_id = "<certificate_id_from_cert_manager>"
+  }
   spec = <<-EOT
 openapi: "3.0.0"
 info:
@@ -65,6 +69,7 @@ The following arguments are supported:
 * `folder_id` - (Optional) Folder ID for the Yandex Cloud API Gateway. If it is not provided, the default provider folder is used.
 * `description` - (Optional) Description of the Yandex Cloud API Gateway.
 * `labels` - (Optional) A set of key/value label pairs to assign to the Yandex Cloud API Gateway.
+* `custom_domains` - (Optional) Set of custom domains to be attached to Yandex API Gateway.
 
 
 ## Attributes Reference
@@ -75,5 +80,5 @@ In addition to the arguments listed above, the following computed attributes are
 * `domain` - Default domain for the Yandex API Gateway. Generated at creation time.
 * `loggroup_id` - ID of the log group for the Yandex API Gateway.
 * `status` - Status of the Yandex API Gateway.
-* `user_domains` - Set of user domains attached to Yandex API Gateway.
+* `user_domains` - (**DEPRECATED**, use `custom_domains` instead) Set of user domains attached to Yandex API Gateway.
 

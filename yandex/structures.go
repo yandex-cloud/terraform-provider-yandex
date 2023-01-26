@@ -27,6 +27,16 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
+func IterateKeys(d *schema.ResourceData, key string) []string {
+	size := d.Get(key + ".#").(int)
+	var keys []string
+	for i := 0; i < size; i++ {
+		currentKey := fmt.Sprintf(key+".%d.", i)
+		keys = append(keys, currentKey)
+	}
+	return keys
+}
+
 type ReducedDiskServiceClient interface {
 	Get(ctx context.Context, in *compute.GetDiskRequest, opts ...grpc.CallOption) (*compute.Disk, error)
 }

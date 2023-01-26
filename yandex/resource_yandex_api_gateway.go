@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -58,10 +59,33 @@ func resourceYandexApiGateway() *schema.Resource {
 			},
 
 			"user_domains": {
+				Type:       schema.TypeSet,
+				Computed:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Set:        schema.HashString,
+				Deprecated: fieldDeprecatedForAnother("user_domains", "custom_domains"),
+			},
+
+			"custom_domains": {
 				Type:     schema.TypeSet,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"domain_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"certificate_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
 			},
 
 			"domain": {
@@ -119,6 +143,18 @@ func resourceYandexApiGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	err = op.Wait(ctx)
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Yandex Cloud API Gateway: %s", err)
+	}
+
+	// Attach custom domains
+	customDomains, err := expandCustomDomains(d.Get("custom_domains"))
+	if err != nil {
+		return fmt.Errorf("Unable to construct custom_domains value: %s", err)
+	}
+
+	for _, customDomain := range customDomains {
+		if err = attachDomain(ctx, config, md.ApiGatewayId, customDomain.Domain, customDomain.CertificateId); err != nil {
+			return err
+		}
 	}
 
 	return resourceYandexApiGatewayRead(d, meta)
@@ -199,6 +235,47 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 	}
 
+	if d.HasChanges("custom_domains") {
+		oldVal, newVal := d.GetChange("custom_domains")
+
+		oldDomains, err := expandCustomDomains(oldVal)
+		if err != nil {
+			return fmt.Errorf("Unable to construct previous custom_domains value: %s", err)
+		}
+
+		newDomains, err := expandCustomDomains(newVal)
+		if err != nil {
+			return fmt.Errorf("Unable to construct new custom_domains value: %s", err)
+		}
+
+		// Remove domains which are absent in new value
+		for _, domain := range oldDomains {
+			found := false
+
+			for _, newDomain := range newDomains {
+				if newDomain.DomainId == domain.DomainId {
+					found = true
+				}
+			}
+
+			if !found {
+				if err = removeDomain(ctx, config, d.Id(), domain.DomainId); err != nil {
+					return err
+				}
+			}
+		}
+
+		// Add new domains
+		for _, domain := range newDomains {
+			// Consider domains without ID as new ones
+			if domain.DomainId == "" {
+				if err = attachDomain(ctx, config, d.Id(), domain.Domain, domain.CertificateId); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
 	d.Partial(false)
 
 	return resourceYandexApiGatewayRead(d, meta)
@@ -250,10 +327,54 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	d.Set("status", strings.ToLower(apiGateway.Status.String()))
 	d.Set("log_group_id", apiGateway.LogGroupId)
 
+	if err := d.Set("custom_domains", flattenCustomDomains(apiGateway.AttachedDomains)); err != nil {
+		return fmt.Errorf("Unable to set custom_domains: %s", err)
+	}
+
 	domains := make([]string, len(apiGateway.AttachedDomains))
 	for i, domain := range apiGateway.AttachedDomains {
 		domains[i] = domain.DomainId
 	}
 	d.Set("user_domains", convertStringArrToInterface(domains))
+
 	return d.Set("labels", apiGateway.Labels)
+}
+
+func attachDomain(ctx context.Context, config *Config, apigwID string, domain string, certificateId string) error {
+	attachDomainRequest := &apigateway.AddDomainRequest{
+		ApiGatewayId:  apigwID,
+		DomainName:    domain,
+		CertificateId: certificateId,
+	}
+
+	op, err := config.sdk.WrapOperation(config.sdk.Serverless().APIGateway().ApiGateway().AddDomain(ctx, attachDomainRequest))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to attach custom domain to Yandex Cloud API Gateway: %s", err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to attach custom domain to Yandex Cloud API Gateway: %s", err)
+	}
+
+	return nil
+}
+
+func removeDomain(ctx context.Context, config *Config, apigwID string, domainId string) error {
+	removeDomainRequest := &apigateway.RemoveDomainRequest{
+		ApiGatewayId: apigwID,
+		DomainId:     domainId,
+	}
+
+	op, err := config.sdk.WrapOperation(config.sdk.Serverless().APIGateway().ApiGateway().RemoveDomain(ctx, removeDomainRequest))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to remove custom domain from Yandex Cloud API Gateway: %s", err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to remove custom domain from Yandex Cloud API Gateway: %s", err)
+	}
+
+	return nil
 }

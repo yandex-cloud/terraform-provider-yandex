@@ -1537,16 +1537,6 @@ func expandALBGRPCBackend(d *schema.ResourceData, key string) (*apploadbalancer.
 	return backend, nil
 }
 
-func IterateKeys(d *schema.ResourceData, key string) []string {
-	size := d.Get(key + ".#").(int)
-	var keys []string
-	for i := 0; i < size; i++ {
-		currentKey := fmt.Sprintf(key+".%d.", i)
-		keys = append(keys, currentKey)
-	}
-	return keys
-}
-
 func expandALBTargets(d *schema.ResourceData) ([]*apploadbalancer.Target, error) {
 	var targets []*apploadbalancer.Target
 
