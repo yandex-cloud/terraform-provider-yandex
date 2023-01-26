@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -38,9 +37,12 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
 			{
-				Config:      testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
-				ExpectError: regexp.MustCompile(".*renaming of database is not supported yet.*"),
+				Config: testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "renamed_testdb", make([]string, 0)),
+				),
 			},
+			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
 			{
 				Config: testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
 				Check: resource.ComposeTestCheckFunc(

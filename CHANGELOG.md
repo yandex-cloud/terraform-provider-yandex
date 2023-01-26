@@ -11,6 +11,7 @@ FEATURES:
 * alb: add `regex` support in `StringMatch`
 * clickhouse: added the feature to set maintenance_window when creating a cluster.
 * clickhouse: support cloud_storage with advanced settings
+* postgresql: add possibility to rename `yandex_mdb_postgresql_database`
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:
