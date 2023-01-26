@@ -43,11 +43,11 @@ The following arguments are supported:
 * `folder_id` - Folder ID for the Yandex Cloud Function
 * `description` - Description of the Yandex Cloud Function
 * `labels` - A set of key/value label pairs to assign to the Yandex Cloud Function
-* `user_hash` - User-defined string for current function version. User must change this string any times when function changed. Function will be updated when hash is changed.
+* `user_hash` - (Required) User-defined string for current function version. User must change this string any times when function changed. Function will be updated when hash is changed.
 
-* `runtime` - Runtime for Yandex Cloud Function
-* `entrypoint` - Entrypoint for Yandex Cloud Function
-* `memory` - Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function
+* `runtime` - (Required) Runtime for Yandex Cloud Function
+* `entrypoint` - (Required) Entrypoint for Yandex Cloud Function
+* `memory` - (Required) Memory in megabytes (**aligned to 128MB**) for Yandex Cloud Function
 * `execution_timeout` - Execution timeout in seconds for Yandex Cloud Function
 * `service_account_id` - Service account ID for Yandex Cloud Function
 * `environment` - A set of key/value environment variables for Yandex Cloud Function
@@ -60,12 +60,12 @@ The following arguments are supported:
 * `connectivity` - Function version connectivity. If specified the version will be attached to specified network.
 * `connectivity.0.network_id` - Network the version will have access to. It's essential to specify network with subnets in all availability zones.
 
-* `package` - Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section.
+* `package` - Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
 * `package.0.sha_256` - SHA256 hash of the version deployment package.
 * `package.0.bucket_name` - Name of the bucket that stores the code for the version.
 * `package.0.object_name` - Name of the object in the bucket that stores the code for the version.
 
-* `content` - Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section.
+* `content` - Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
 * `content.0.zip_filename` - Filename to zip archive for the version. 
 
 

@@ -16,6 +16,7 @@ FEATURES:
 * serverless: add `connectivity` attribute to `api_gateway` resource and data source
 * serverless: add `connectivity` attribute to `yandex_functions` resource and data source
 * serverless: add `connectivity` attribute to `yandex_serverless_container` resource and data source
+* serverless: fix documentation of required attributes for `yandex_function` resource
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:
