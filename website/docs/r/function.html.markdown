@@ -57,6 +57,9 @@ The following arguments are supported:
 * `image_size` - Image size for Yandex Cloud Function.
 * `loggroup_id` - Loggroup ID size for Yandex Cloud Function.
 
+* `connectivity` - Function version connectivity. If specified the version will be attached to specified network.
+* `connectivity.0.network_id` - Network the version will have access to. It's essential to specify network with subnets in all availability zones.
+
 * `package` - Version deployment package for Yandex Cloud Function code. Can be only one `package` or `content` section.
 * `package.0.sha_256` - SHA256 hash of the version deployment package.
 * `package.0.bucket_name` - Name of the bucket that stores the code for the version.

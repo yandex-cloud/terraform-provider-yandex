@@ -194,6 +194,20 @@ func resourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"connectivity": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -290,7 +304,10 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 		updatePaths = append(updatePaths, "labels")
 	}
 
-	lastVersionPaths := []string{"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id", "environment", "tags", "package", "content", "secrets"}
+	lastVersionPaths := []string{
+		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
+		"environment", "tags", "package", "content", "secrets", "connectivity",
+	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
 		if d.HasChange(p) {
@@ -465,6 +482,9 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 			versionReq.Secrets[i] = fs
 		}
 	}
+	if connectivity := expandFunctionConnectivity(d); connectivity != nil {
+		versionReq.Connectivity = connectivity
+	}
 
 	return versionReq, nil
 }
@@ -495,6 +515,9 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 	if version.ExecutionTimeout != nil && version.ExecutionTimeout.Seconds != 0 {
 		d.Set("execution_timeout", strconv.FormatInt(version.ExecutionTimeout.Seconds, 10))
+	}
+	if connectivity := flattenFunctionConnectivity(version.Connectivity); connectivity != nil {
+		d.Set("connectivity", connectivity)
 	}
 
 	tags := &schema.Set{F: schema.HashString}
@@ -599,4 +622,18 @@ func flattenFunctionSecrets(secrets []*functions.Secret) []map[string]interface{
 		}
 	}
 	return s
+}
+
+func expandFunctionConnectivity(d *schema.ResourceData) *functions.Connectivity {
+	if id, ok := d.GetOk("connectivity.0.network_id"); ok {
+		return &functions.Connectivity{NetworkId: id.(string)}
+	}
+	return nil
+}
+
+func flattenFunctionConnectivity(connectivity *functions.Connectivity) []interface{} {
+	if connectivity == nil || connectivity.NetworkId == "" {
+		return nil
+	}
+	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
 }

@@ -24,6 +24,9 @@ resource "yandex_api_gateway" "test-api-gateway" {
     fqdn = "test.example.com"
     certificate_id = "<certificate_id_from_cert_manager>"
   }
+  connectivity {
+    network_id = "<dynamic network id>"
+  }
   spec = <<-EOT
 openapi: "3.0.0"
 info:
@@ -70,6 +73,8 @@ The following arguments are supported:
 * `description` - (Optional) Description of the Yandex Cloud API Gateway.
 * `labels` - (Optional) A set of key/value label pairs to assign to the Yandex Cloud API Gateway.
 * `custom_domains` - (Optional) Set of custom domains to be attached to Yandex API Gateway.
+* `connectivity` - (Optional) Gateway connectivity. If specified the gateway will be attached to specified network.
+* `connectivity.0.network_id` - Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.
 
 
 ## Attributes Reference

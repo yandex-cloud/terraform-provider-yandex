@@ -171,6 +171,20 @@ func resourceYandexServerlessContainer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"connectivity": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -258,7 +272,10 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 		updatePaths = append(updatePaths, "labels")
 	}
 
-	lastRevisionPaths := []string{"memory", "cores", "core_fraction", "execution_timeout", "service_account_id", "secrets", "image", "concurrency"}
+	lastRevisionPaths := []string{
+		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
+		"secrets", "image", "concurrency", "connectivity",
+	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
 		if d.HasChange(p) {
@@ -433,6 +450,9 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 			revisionReq.ImageSpec.Environment = env
 		}
 	}
+	if connectivity := expandServerlessContainerConnectivity(d); connectivity != nil {
+		revisionReq.Connectivity = connectivity
+	}
 
 	return revisionReq, nil
 }
@@ -480,6 +500,9 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 
 		d.Set("image", []map[string]interface{}{m})
 	}
+	if connectivity := flattenServerlessContainerConnectivity(revision.Connectivity); connectivity != nil {
+		d.Set("connectivity", connectivity)
+	}
 
 	return nil
 }
@@ -496,4 +519,18 @@ func flattenRevisionSecrets(secrets []*containers.Secret) []map[string]interface
 		}
 	}
 	return s
+}
+
+func expandServerlessContainerConnectivity(d *schema.ResourceData) *containers.Connectivity {
+	if id, ok := d.GetOk("connectivity.0.network_id"); ok {
+		return &containers.Connectivity{NetworkId: id.(string)}
+	}
+	return nil
+}
+
+func flattenServerlessContainerConnectivity(connectivity *containers.Connectivity) []interface{} {
+	if connectivity == nil || connectivity.NetworkId == "" {
+		return nil
+	}
+	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
 }

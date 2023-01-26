@@ -41,3 +41,5 @@ The following attributes are exported:
 * `status` - Status of the Yandex API Gateway.
 * `user_domains` - (**DEPRECATED**, use `custom_domains` instead) Set of user domains attached to Yandex API Gateway.
 * `custom_domains` - Set of custom domains attached to Yandex API Gateway. Each set item has the following properties: `domain_id`, `fqdn`, `certificate_id`.
+* `connectivity` - Gateway connectivity. If specified the gateway will be attached to specified network.
+* `connectivity.0.network_id` - Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.

@@ -60,6 +60,9 @@ The following arguments are supported:
 * `service_account_id` - Service account ID for Yandex Cloud Serverless Container
 * `secrets` - Secrets for Yandex Cloud Serverless Container
 
+* `connectivity` - Network access. If specified the revision will be attached to specified network
+* `connectivity.0.network_id` - Network the revision will have access to
+
 * `image` - Revision deployment image for Yandex Cloud Serverless Container
 * `image.0.url` (Required) - URL of image that will be deployed as Yandex Cloud Serverless Container
 * `image.0.work_dir` - Working directory for Yandex Cloud Serverless Container

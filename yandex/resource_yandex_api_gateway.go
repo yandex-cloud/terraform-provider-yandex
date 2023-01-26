@@ -107,6 +107,20 @@ func resourceYandexApiGateway() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"connectivity": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -181,6 +195,10 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		},
 	}
 
+	if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
+		req.Connectivity = connectivity
+	}
+
 	return req, err
 }
 
@@ -215,6 +233,10 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		updatePaths = append(updatePaths, "labels")
 	}
 
+	if d.HasChange("connectivity") {
+		updatePaths = append(updatePaths, "connectivity")
+	}
+
 	if len(updatePaths) != 0 {
 		req := apigateway.UpdateApiGatewayRequest{
 			ApiGatewayId: d.Id(),
@@ -225,6 +247,10 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			Spec: &apigateway.UpdateApiGatewayRequest_OpenapiSpec{
 				OpenapiSpec: d.Get("spec").(string),
 			},
+		}
+
+		if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
+			req.Connectivity = connectivity
 		}
 
 		op, err := config.sdk.Serverless().APIGateway().ApiGateway().Update(ctx, &req)
@@ -331,6 +357,10 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 		return fmt.Errorf("Unable to set custom_domains: %s", err)
 	}
 
+	if connectivity := flattenApiGatewayConnectivity(apiGateway.Connectivity); connectivity != nil {
+		d.Set("connectivity", connectivity)
+	}
+
 	domains := make([]string, len(apiGateway.AttachedDomains))
 	for i, domain := range apiGateway.AttachedDomains {
 		domains[i] = domain.DomainId
@@ -377,4 +407,18 @@ func removeDomain(ctx context.Context, config *Config, apigwID string, domainId 
 	}
 
 	return nil
+}
+
+func expandApiGatewayConnectivity(d *schema.ResourceData) *apigateway.Connectivity {
+	if id, ok := d.GetOk("connectivity.0.network_id"); ok {
+		return &apigateway.Connectivity{NetworkId: id.(string)}
+	}
+	return nil
+}
+
+func flattenApiGatewayConnectivity(connectivity *apigateway.Connectivity) []interface{} {
+	if connectivity == nil || connectivity.NetworkId == "" {
+		return nil
+	}
+	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
 }

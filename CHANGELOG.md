@@ -13,6 +13,9 @@ FEATURES:
 * clickhouse: support cloud_storage with advanced settings
 * postgresql: add possibility to rename `yandex_mdb_postgresql_database`
 * api_gateway: add `custom_domains` attribute to `api_gateway` resource and data source
+* serverless: add `connectivity` attribute to `api_gateway` resource and data source
+* serverless: add `connectivity` attribute to `yandex_functions` resource and data source
+* serverless: add `connectivity` attribute to `yandex_serverless_container` resource and data source
 
 ## 0.84.0 (December 16, 2022)
 BUG FIXES:

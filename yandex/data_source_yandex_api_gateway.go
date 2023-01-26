@@ -91,6 +91,20 @@ func dataSourceYandexApiGateway() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"connectivity": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
