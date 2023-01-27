@@ -64,6 +64,10 @@ The following keys can be used to configure the provider.
 
   This can also be specified using environment variable `YC_ZONE`.
 
+* `endpoint` - (Optional) The endpoint for API calls, default value is api.cloud.yandex.net:443.
+
+  This can also be defined by environment variable `YC_ENDPOINT`
+
 * `max_retries` - (Optional) This is the maximum number of times an API call is retried, in the case where requests
   are being throttled or experiencing transient failures. The delay between the subsequent API calls increases
   exponentially.
