@@ -540,7 +540,7 @@ resource "yandex_storage_object" "test" {
 func testAccStorageObjectAclPreConfig(randInt int) string {
 	bucketConfig := newBucketConfigBuilder(randInt).asAdmin().render()
 
-	objectConfig := fmt.Sprintf(`
+	objectConfig := `
 resource "yandex_storage_object" "test" {
 	bucket = "${yandex_storage_bucket.test.bucket}"
 
@@ -552,7 +552,7 @@ resource "yandex_storage_object" "test" {
 	
 	acl = "public-read"
 }
-`)
+`
 
 	return bucketConfig + objectConfig
 }
@@ -593,27 +593,6 @@ resource "yandex_storage_object" "test" {
 	object_lock_legal_hold_status = "%[1]s"
 }
 `, status)
-
-	return bucketConfig + objectConfig
-}
-
-func testAccStorageObjectConfigRetention(randInt int, mode string, untilDate time.Time) string {
-	bucketConfig := testAccStorageBucketConfigWithObjectLock(randInt, "", 0, 0)
-
-	objectConfig := fmt.Sprintf(`
-resource "yandex_storage_object" "test" {
-	bucket = "${yandex_storage_bucket.test.bucket}"
-
-	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
-	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
-
-	key 	= "test-key"
-	content = "some-content"
-
-	object_lock_mode 			  = "%[1]s"
-	object_lock_retain_until_date = "%[2]s"
-}	
-`, mode, untilDate.Format(time.RFC3339))
 
 	return bucketConfig + objectConfig
 }

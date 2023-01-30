@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	awspolicy "github.com/jen20/awspolicyequivalence"
 	storagepb "github.com/yandex-cloud/go-genproto/yandex/cloud/storage/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/grpc/codes"
@@ -26,8 +27,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	awspolicy "github.com/jen20/awspolicyequivalence"
 )
+
+const (
+	storageClassStandard = s3.StorageClassStandardIa
+	storageClassCold     = "COLD"
+)
+
+var storageClassSet = []string{
+	storageClassStandard,
+	storageClassCold,
+}
 
 func resourceYandexStorageBucket() *schema.Resource {
 	return &schema.Resource{
@@ -74,14 +84,16 @@ func resourceYandexStorageBucket() *schema.Resource {
 
 			"acl": {
 				Type:          schema.TypeString,
-				Default:       "private",
 				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"grant"},
+				ValidateFunc:  validation.StringInSlice(bucketACLAllowedValues, false),
 			},
 
 			"grant": {
 				Type:          schema.TypeSet,
 				Optional:      true,
+				Computed:      true,
 				Set:           grantHash,
 				ConflictsWith: []string{"acl"},
 				Elem: &schema.Resource{
@@ -381,12 +393,9 @@ func resourceYandexStorageBucket() *schema.Resource {
 										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"storage_class": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											s3.StorageClassStandardIa,
-											"COLD",
-										}, false),
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},
 								},
 							},
@@ -403,12 +412,9 @@ func resourceYandexStorageBucket() *schema.Resource {
 										ValidateFunc: validation.IntAtLeast(0),
 									},
 									"storage_class": {
-										Type:     schema.TypeString,
-										Required: true,
-										ValidateFunc: validation.StringInSlice([]string{
-											s3.StorageClassStandardIa,
-											"COLD",
-										}, false),
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: validation.StringInSlice(storageClassSet, false),
 									},
 								},
 							},
@@ -487,7 +493,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				Set:      storageBucketS3SetFunc("list", "read"),
+				Set:      storageBucketS3SetFunc("list", "read", "config_read"),
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"list": {
@@ -495,6 +501,10 @@ func resourceYandexStorageBucket() *schema.Resource {
 							Optional: true,
 						},
 						"read": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"config_read": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -520,24 +530,32 @@ func resourceYandexStorageBucket() *schema.Resource {
 	}
 }
 
-func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interface{}) error {
-	const (
-		aclOwnerFullControl = "bucket-owner-full-control"
-		aclPublicRead       = "public-read"
-		aclPublicReadWrite  = "public-read-write"
-		aclAuthRead         = "authenticated-read"
-		aclPrivate          = "private"
-	)
+const (
+	bucketACLOwnerFullControl = "bucket-owner-full-control"
+	bucketACLPublicRead       = s3.BucketCannedACLPublicRead
+	bucketACLPublicReadWrite  = s3.BucketCannedACLPublicReadWrite
+	bucketACLAuthRead         = s3.BucketCannedACLAuthenticatedRead
+	bucketACLPrivate          = s3.BucketCannedACLPrivate
+)
 
+var bucketACLAllowedValues = []string{
+	bucketACLOwnerFullControl,
+	bucketACLPublicRead,
+	bucketACLPublicReadWrite,
+	bucketACLAuthRead,
+	bucketACLPrivate,
+}
+
+func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interface{}) error {
 	mapACL := func(acl string) (*storagepb.ACL, error) {
 		baseACL := &storagepb.ACL{}
 		switch acl {
-		case aclPublicRead:
+		case bucketACLPublicRead:
 			baseACL.Grants = []*storagepb.ACL_Grant{{
 				Permission: storagepb.ACL_Grant_PERMISSION_READ,
 				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
 			}}
-		case aclPublicReadWrite:
+		case bucketACLPublicReadWrite:
 			baseACL.Grants = []*storagepb.ACL_Grant{{
 				Permission: storagepb.ACL_Grant_PERMISSION_READ,
 				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
@@ -545,18 +563,14 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 				Permission: storagepb.ACL_Grant_PERMISSION_READ,
 				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_USERS,
 			}}
-		case aclAuthRead:
+		case bucketACLAuthRead:
 			baseACL.Grants = []*storagepb.ACL_Grant{{
 				Permission: storagepb.ACL_Grant_PERMISSION_READ,
 				GrantType:  storagepb.ACL_Grant_GRANT_TYPE_ALL_AUTHENTICATED_USERS,
 			}}
-		case aclPrivate,
-			aclOwnerFullControl:
+		case bucketACLPrivate,
+			bucketACLOwnerFullControl:
 			baseACL.Grants = []*storagepb.ACL_Grant{}
-		default:
-			return nil, fmt.Errorf("predefined acl not valid: %s, allowed values are: %v", acl, []string{
-				aclOwnerFullControl, aclPublicRead, aclPublicReadWrite, aclAuthRead, aclPrivate,
-			})
 		}
 
 		return baseACL, nil
@@ -565,10 +579,16 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 	bucket := d.Get("bucket").(string)
 	folderID := d.Get("folder_id").(string)
 	acl := d.Get("acl").(string)
+	maxSize := d.Get("max_size").(int)
+	defaultStorageClass := d.Get("default_storage_class").(string)
+	aaf := getAnonymousAccessFlagsSDK(d.Get("anonymous_access_flags"))
 
 	request := &storagepb.CreateBucketRequest{
-		Name:     bucket,
-		FolderId: folderID,
+		Name:                 bucket,
+		FolderId:             folderID,
+		AnonymousAccessFlags: aaf,
+		MaxSize:              int64(maxSize),
+		DefaultStorageClass:  defaultStorageClass,
 	}
 
 	var err error
@@ -606,7 +626,12 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 
 func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta interface{}) error {
 	bucket := d.Get("bucket").(string)
-	acl := d.Get("acl").(string)
+	var acl string
+	if aclValue, ok := d.GetOk("acl"); ok {
+		acl = aclValue.(string)
+	} else {
+		acl = bucketACLPrivate
+	}
 
 	config := meta.(*Config)
 	ctx := config.Context()
@@ -671,6 +696,20 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	return resourceYandexStorageBucketUpdate(d, meta)
 }
 
+func resourceYandexStorageRequireExternalSDK(d *schema.ResourceData) bool {
+	value, ok := d.GetOk("folder_id")
+	if !ok {
+		return false
+	}
+
+	folderID, ok := value.(string)
+	if !ok {
+		return false
+	}
+
+	return folderID != ""
+}
+
 func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	err := resourceYandexStorageBucketUpdateBasic(d, meta)
 	if err != nil {
@@ -701,11 +740,11 @@ func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interfa
 		{"cors_rule", resourceYandexStorageBucketCORSUpdate},
 		{"website", resourceYandexStorageBucketWebsiteUpdate},
 		{"versioning", resourceYandexStorageBucketVersioningUpdate},
+		{"acl", resourceYandexStorageBucketACLUpdate},
 		{"grant", resourceYandexStorageBucketGrantsUpdate},
 		{"logging", resourceYandexStorageBucketLoggingUpdate},
 		{"lifecycle_rule", resourceYandexStorageBucketLifecycleUpdate},
 		{"server_side_encryption_configuration", resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate},
-		{"acl", resourceYandexStorageBucketACLUpdate},
 		{"object_lock_configuration", resourceYandexStorageBucketObjectLockConfigurationUpdate},
 	}
 
@@ -739,12 +778,19 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 	}
 	paths := make([]string, 0, 3)
 
+	createdBySDK := resourceYandexStorageRequireExternalSDK(d)
 	handleChange := func(property string, f func(value interface{})) {
-		if !d.HasChange(property) {
+		switch {
+		// If this bucket is a new resource and we created it
+		// by our SDK it means we've already set all parameters
+		// to its values.
+		case d.IsNewResource() && createdBySDK:
+			fallthrough
+		case !d.HasChange(property):
 			return
 		}
 
-		log.Printf("[DEBUG] setting property %q is going to be updated", property)
+		log.Printf("[DEBUG] property %q is going to be updated", property)
 
 		value := d.Get(property)
 		f(value)
@@ -760,24 +806,7 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 			bucketUpdateRequest.SetMaxSize(int64(value.(int)))
 		},
 		"anonymous_access_flags": func(value interface{}) {
-			list := value.(*schema.Set).List()
-			if len(list) == 0 {
-				return
-			}
-
-			accessFlags := new(storagepb.AnonymousAccessFlags)
-			flags := list[0].(map[string]interface{})
-			if val, ok := flags["list"].(bool); ok {
-				accessFlags.List = wrapperspb.Bool(val)
-			}
-			if val, ok := flags["read"].(bool); ok {
-				accessFlags.Read = wrapperspb.Bool(val)
-			}
-			if val, ok := flags["config_read"].(bool); ok {
-				accessFlags.ConfigRead = wrapperspb.Bool(val)
-			}
-
-			bucketUpdateRequest.AnonymousAccessFlags = accessFlags
+			bucketUpdateRequest.AnonymousAccessFlags = getAnonymousAccessFlagsSDK(value)
 		},
 	}
 
@@ -826,13 +855,13 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 
 	log.Println("[DEBUG] updating S3 bucket https configuration")
 
-	list := d.Get("https").(*schema.Set).List()
-	if len(list) > 0 {
+	schemaSet := d.Get("https").(*schema.Set)
+	if schemaSet.Len() > 0 {
 		httpsUpdateRequest := &storagepb.SetBucketHTTPSConfigRequest{
 			Name: bucket,
 		}
 
-		params := list[0].(map[string]interface{})
+		params := schemaSet.List()[0].(map[string]interface{})
 		httpsUpdateRequest.Params = &storagepb.SetBucketHTTPSConfigRequest_CertificateManager{
 			CertificateManager: &storagepb.CertificateManagerHTTPSConfigParams{
 				CertificateId: params["certificate_id"].(string),
@@ -857,6 +886,7 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 
 			return status.Error(codes.Code(opErr.Code), opErr.Message)
 		}
+
 		log.Printf("[INFO] updated S3 bucket https config: %s", protojson.Format(op.GetResponse()))
 
 		return nil
@@ -1087,37 +1117,36 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 		}
 	}
 
-	// Read the Grant ACL. Reset if `acl` (canned ACL) is set.
-	if acl, ok := d.GetOk("acl"); ok && acl.(string) != "private" {
-		if err := d.Set("grant", nil); err != nil {
-			return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
-		}
-	} else {
-		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3Client.GetBucketAcl(&s3.GetBucketAclInput{
-				Bucket: aws.String(d.Id()),
-			})
+	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketAcl(&s3.GetBucketAclInput{
+			Bucket: aws.String(d.Id()),
 		})
+	})
 
-		if err != nil {
-			// Ignore access denied error, when reading ACL for bucket.
-			if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
+	if !d.IsNewResource() && isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+		log.Printf("[WARN] requested bucket not found, deleting")
+		d.SetId("")
+		return nil
+	}
 
-				if err := d.Set("grant", nil); err != nil {
-					return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
-				}
+	if err != nil {
+		// Ignore access denied error, when reading ACL for bucket.
+		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
+			log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
 
-				return nil
+			if err := d.Set("grant", nil); err != nil {
+				return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
 			}
 
-			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
-			grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
-			if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
-				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
-			}
+			return nil
+		}
+
+		return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
+	} else {
+		log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
+		grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
+		if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
+			return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
 		}
 	}
 
@@ -1400,6 +1429,7 @@ func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interf
 	d.Set("folder_id", bucket.GetFolderId())
 	d.Set("max_size", bucket.GetMaxSize())
 
+	aafValue := make([]map[string]interface{}, 0)
 	if aaf := bucket.AnonymousAccessFlags; aaf != nil {
 		flatten := map[string]interface{}{}
 		if value := aaf.List; value != nil {
@@ -1408,12 +1438,18 @@ func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interf
 		if value := aaf.Read; value != nil {
 			flatten["read"] = value.Value
 		}
-
-		result := []map[string]interface{}{flatten}
-		err = d.Set("anonymous_access_flags", result)
-		if err != nil {
-			return fmt.Errorf("setting anonymous_access_flags: %w", err)
+		if value := aaf.ConfigRead; value != nil {
+			flatten["config_read"] = value.Value
 		}
+
+		aafValue = append(aafValue, flatten)
+	}
+
+	log.Printf("[DEBUG] setting anonymous access flags: %v", aafValue)
+	if len(aafValue) == 0 {
+		d.Set("anonymous_access_flags", nil)
+	} else {
+		d.Set("anonymous_access_flags", aafValue)
 	}
 
 	log.Println("[DEBUG] trying to get S3 bucket https config")
@@ -1762,6 +1798,10 @@ func WebsiteDomainURL() string {
 
 func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
 	acl := d.Get("acl").(string)
+	if acl == "" {
+		acl = bucketACLPrivate
+	}
+
 	bucket := d.Get("bucket").(string)
 
 	i := &s3.PutBucketAclInput{
@@ -2205,66 +2245,69 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 		if err := resourceYandexStorageBucketACLUpdate(s3conn, d); err != nil {
 			return fmt.Errorf("error fallback to canned ACL, %s", err)
 		}
-	} else {
-		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.GetBucketAcl(&s3.GetBucketAclInput{
-				Bucket: aws.String(bucket),
-			})
-		})
 
-		if err != nil {
-			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", bucket, err)
-		}
+		return nil
+	}
 
-		ap := apResponse.(*s3.GetBucketAclOutput)
-		log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", bucket, ap)
-
-		grants := make([]*s3.Grant, 0, len(rawGrants))
-		for _, rawGrant := range rawGrants {
-			log.Printf("[DEBUG] Storage Bucket: %s, put grant: %#v", bucket, rawGrant)
-			grantMap := rawGrant.(map[string]interface{})
-			permissions := grantMap["permissions"].(*schema.Set).List()
-			if err := validateBucketPermissions(permissions); err != nil {
-				return err
-			}
-			for _, rawPermission := range permissions {
-				ge := &s3.Grantee{}
-				if i, ok := grantMap["id"].(string); ok && i != "" {
-					ge.SetID(i)
-				}
-				if t, ok := grantMap["type"].(string); ok && t != "" {
-					ge.SetType(t)
-				}
-				if u, ok := grantMap["uri"].(string); ok && u != "" {
-					ge.SetURI(u)
-				}
-
-				g := &s3.Grant{
-					Grantee:    ge,
-					Permission: aws.String(rawPermission.(string)),
-				}
-				grants = append(grants, g)
-			}
-		}
-
-		grantsInput := &s3.PutBucketAclInput{
+	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.GetBucketAcl(&s3.GetBucketAclInput{
 			Bucket: aws.String(bucket),
-			AccessControlPolicy: &s3.AccessControlPolicy{
-				Grants: grants,
-				Owner:  ap.Owner,
-			},
-		}
-
-		log.Printf("[DEBUG] Bucket: %s, put Grants: %#v", bucket, grantsInput)
-
-		_, err = retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.PutBucketAcl(grantsInput)
 		})
+	})
 
-		if err != nil {
-			return fmt.Errorf("error putting Storage Bucket (%s) ACL: %s", bucket, err)
+	if err != nil {
+		return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", bucket, err)
+	}
+
+	ap := apResponse.(*s3.GetBucketAclOutput)
+	log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", bucket, ap)
+
+	grants := make([]*s3.Grant, 0, len(rawGrants))
+	for _, rawGrant := range rawGrants {
+		log.Printf("[DEBUG] Storage Bucket: %s, put grant: %#v", bucket, rawGrant)
+		grantMap := rawGrant.(map[string]interface{})
+		permissions := grantMap["permissions"].(*schema.Set).List()
+		if err := validateBucketPermissions(permissions); err != nil {
+			return err
+		}
+		for _, rawPermission := range permissions {
+			ge := &s3.Grantee{}
+			if i, ok := grantMap["id"].(string); ok && i != "" {
+				ge.SetID(i)
+			}
+			if t, ok := grantMap["type"].(string); ok && t != "" {
+				ge.SetType(t)
+			}
+			if u, ok := grantMap["uri"].(string); ok && u != "" {
+				ge.SetURI(u)
+			}
+
+			g := &s3.Grant{
+				Grantee:    ge,
+				Permission: aws.String(rawPermission.(string)),
+			}
+			grants = append(grants, g)
 		}
 	}
+
+	grantsInput := &s3.PutBucketAclInput{
+		Bucket: aws.String(bucket),
+		AccessControlPolicy: &s3.AccessControlPolicy{
+			Grants: grants,
+			Owner:  ap.Owner,
+		},
+	}
+
+	log.Printf("[DEBUG] Bucket: %s, put Grants: %#v", bucket, grantsInput)
+
+	_, err = retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.PutBucketAcl(grantsInput)
+	})
+
+	if err != nil {
+		return fmt.Errorf("error putting Storage Bucket (%s) ACL: %s", bucket, err)
+	}
+
 	return nil
 }
 
@@ -2667,4 +2710,25 @@ func storageBucketS3SetFunc(keys ...string) schema.SchemaSetFunc {
 
 		return hashcode.String(buf.String())
 	}
+}
+
+func getAnonymousAccessFlagsSDK(value interface{}) *storagepb.AnonymousAccessFlags {
+	schemaSet, ok := value.(*schema.Set)
+	if !ok || schemaSet.Len() == 0 {
+		return nil
+	}
+
+	accessFlags := new(storagepb.AnonymousAccessFlags)
+	flags := schemaSet.List()[0].(map[string]interface{})
+	if val, ok := flags["list"].(bool); ok {
+		accessFlags.List = wrapperspb.Bool(val)
+	}
+	if val, ok := flags["read"].(bool); ok {
+		accessFlags.Read = wrapperspb.Bool(val)
+	}
+	if val, ok := flags["config_read"].(bool); ok {
+		accessFlags.ConfigRead = wrapperspb.Bool(val)
+	}
+
+	return accessFlags
 }

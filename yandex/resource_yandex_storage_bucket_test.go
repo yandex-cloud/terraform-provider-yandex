@@ -242,6 +242,9 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 			{
 				Config: testAccStorageBucketAclPreConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
+					// Add this delay because anonymous access flags
+					// are not applied instantly.
+					testAccDelay(time.Second*3),
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "acl", "public-read"),
 				),
@@ -249,6 +252,7 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 			{
 				Config: testAccStorageBucketAclPostConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
+					testAccDelay(time.Second*3),
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 				),
@@ -611,6 +615,7 @@ func TestAccStorageBucket_AnonymousAccessFlags(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.0.read", "true"),
 					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.0.list", "true"),
+					resource.TestCheckResourceAttr(resourceName, "anonymous_access_flags.0.config_read", "true"),
 				),
 			},
 		},
@@ -985,6 +990,13 @@ func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *
 		}
 	}
 	return nil
+}
+
+func testAccDelay(delay time.Duration) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		time.Sleep(delay)
+		return nil
+	}
 }
 
 func testAccCheckStorageBucketExists(n string) resource.TestCheckFunc {
@@ -1390,9 +1402,11 @@ type testAccStorageBucketConfigBuilder struct {
 	afterBucket      []string
 	role             string
 
-	storageClass  string
-	anonymousRead bool
-	anonymousList bool
+	storageClass string
+
+	anonymousRead       bool
+	anonymousList       bool
+	anonymousConfigRead bool
 }
 
 func (b testAccStorageBucketConfigBuilder) withCustomName(name string) testAccStorageBucketConfigBuilder {
@@ -1407,9 +1421,10 @@ func (b testAccStorageBucketConfigBuilder) withStorageClass(class string) testAc
 	return b
 }
 
-func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(read, list bool) testAccStorageBucketConfigBuilder {
+func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(read, list, configRead bool) testAccStorageBucketConfigBuilder {
 	b.anonymousRead = read
 	b.anonymousList = list
+	b.anonymousConfigRead = configRead
 
 	return b
 }
@@ -1476,6 +1491,7 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 	anonymous_access_flags {
 		list = %t
 		read = %t
+		config_read = %t
 	}`
 	)
 
@@ -1500,6 +1516,7 @@ func (b testAccStorageBucketConfigBuilder) render() string {
 		strconv.Quote(b.storageClass),
 		b.anonymousList,
 		b.anonymousRead,
+		b.anonymousConfigRead,
 	))
 	out.WriteString("\n")
 
@@ -1535,6 +1552,7 @@ func testAccStorageBucketAclPreConfig(randInt int) string {
 	const acl = `acl = "public-read"`
 
 	return newBucketConfigBuilder(randInt).
+		withAnonymousAccessFlags(true, true, true).
 		addStatement(acl).
 		asAdmin().
 		render()
@@ -1935,6 +1953,7 @@ func testAccStorageBucketConfigWithPolicy(randInt int) string {
 	const acl = `acl = "public-read"`
 	policy := "policy = " + strconv.Quote(testAccStorageBucketPolicy(randInt))
 	return newBucketConfigBuilder(randInt).
+		withAnonymousAccessFlags(true, true, true).
 		addStatement(policy).
 		addStatement(acl).
 		asAdmin().
@@ -1997,7 +2016,7 @@ func testAccStorageBucketWithFolderID(randInt int, folderID string) string {
 func testAccStorageBucketAnonymousAccessFlags(randInt int) string {
 	return newBucketConfigBuilder(randInt).
 		asEditor().
-		withAnonymousAccessFlags(true, true).
+		withAnonymousAccessFlags(true, true, true).
 		render()
 }
 

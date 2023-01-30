@@ -1358,6 +1358,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc, environment, chVersion, maintenanceWindow, deletionProtection)
 }
 
+//nolint:unused
 func testAccMDBClickHouseClusterConfigUpdateCloudStorage(name, desc, environment string, deletionProtection bool, bucket string, randInt int, maintenanceWindow string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {

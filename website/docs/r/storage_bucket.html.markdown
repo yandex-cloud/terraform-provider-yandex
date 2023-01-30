@@ -320,6 +320,7 @@ resource "yandex_storage_bucket" "b" {
   anonymous_access_flags {
     read = true
     list = false
+    config_read = true
   }
 }
 ```

@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/rand"
+	"strconv"
+	"testing"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
-	"math/rand"
-	"strconv"
-	"testing"
 )
 
 func init() {
@@ -255,7 +256,15 @@ func testSweepCMCertificate(_ string) error {
 	it := conf.sdk.Certificates().Certificate().CertificateIterator(conf.Context(), req)
 	result := &multierror.Error{}
 	for it.Next() {
-		id := it.Value().GetId()
+		certificate := it.Value()
+
+		if len(certificate.Labels) > 0 {
+			if certificate.Labels["sweeper-skip-deletion"] == "1" {
+				continue
+			}
+		}
+
+		id := certificate.GetId()
 		if !sweepCMCertificate(conf, id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep certificate %q", id))
 		}
