@@ -59,7 +59,7 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "template_db", "testdb"),
 					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "lc_collate", "en_US.UTF-8"),
 					resource.TestCheckResourceAttr(pgDatabaseResourceName1, "lc_type", "en_US.UTF-8"),
-					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb1", make([]string, 0)),
+					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb1", []string{"uuid-ossp", "xml2"}),
 				),
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName1),
@@ -195,6 +195,13 @@ resource "yandex_mdb_postgresql_database" "testdb1" {
 	owner       = yandex_mdb_postgresql_user.alice.name
 	lc_collate  = "en_US.UTF-8"
 	lc_type     = "en_US.UTF-8"
+
+	extension {
+		name    = "uuid-ossp"
+	}
+	extension {
+		name    = "xml2"
+	}
 }
 ` + `
 resource "yandex_mdb_postgresql_database" "testdb" {
