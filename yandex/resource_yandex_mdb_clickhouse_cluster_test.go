@@ -436,6 +436,11 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.name", "shard1"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard2"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.weight", "11"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.weight", "22"),
+
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard2"}),
 					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
@@ -457,6 +462,11 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResourceSharded, "description", chDesc),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.name", "shard1"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.weight", "110"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard3"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.weight", "330"),
+
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard3"}),
 					testAccCheckMDBClickHouseClusterHasShardGroups(&r, map[string][]string{
@@ -2424,6 +2434,16 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     }
   }
 
+  shard {
+	name = "shard1"
+	weight = 11
+  }
+
+  shard {
+	name = "shard2"
+	weight = 22
+  }
+
   host {
     type             = "CLICKHOUSE"
     zone             = "ru-central1-a"
@@ -2598,6 +2618,16 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-c.id
     shard_name       = "shard3"
     assign_public_ip = true
+  }
+
+  shard {
+	name = "shard1"
+	weight = 110
+  }
+
+  shard {
+	name = "shard3"
+	weight = 330
   }
 
   shard_group {

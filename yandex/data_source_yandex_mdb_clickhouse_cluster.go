@@ -358,6 +358,25 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"shard": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Set:      clickHouseShardHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"database": {
 				Type:     schema.TypeSet,
 				Computed: true,

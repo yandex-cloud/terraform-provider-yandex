@@ -385,6 +385,25 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 					},
 				},
 			},
+			"shard": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Set:      clickHouseShardHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"weight": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"database": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -740,7 +759,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	req, shards, err := prepareCreateClickHouseCreateRequest(d, config)
+	req, shardsToAdd, shardsFromSpec, err := prepareCreateClickHouseCreateRequest(d, config)
 
 	if err != nil {
 		return err
@@ -775,9 +794,25 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("ClickHouse Cluster creation failed: %s", err)
 	}
 
-	for shardName, shardHosts := range shards {
-		err = createClickHouseShard(ctx, config, d, shardName, shardHosts)
+	for shardName, shardHosts := range shardsToAdd {
+		var shardSpec *clickhouse.ShardConfigSpec
+		if v, ok := shardsFromSpec[shardName]; ok {
+			shardSpec = v
+		}
+		err = createClickHouseShard(ctx, config, d, shardName, shardHosts, shardSpec)
 		if err != nil {
+			return err
+		}
+		delete(shardsFromSpec, shardName)
+	}
+
+	for shardNameFromSpec, shardConfigFromSpec := range shardsFromSpec {
+		if req.ShardName != shardNameFromSpec {
+			log.Printf("[ERROR] trying to update non-existent shard, name=%s\n", shardNameFromSpec)
+			continue
+		}
+		log.Printf("[DEBUG] update exists shard = %s\n", shardNameFromSpec)
+		if err := updateClickHouseShard(ctx, config, d, shardNameFromSpec, shardConfigFromSpec); err != nil {
 			return err
 		}
 	}
@@ -822,37 +857,37 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 }
 
 // Returns request for creating the Cluster and the map of the remaining shards to add.
-func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, map[string][]*clickhouse.HostSpec, error) {
+func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) (*clickhouse.CreateClusterRequest, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.ShardConfigSpec, error) {
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
+		return nil, nil, nil, fmt.Errorf("error while expanding labels on ClickHouse Cluster create: %s", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
+		return nil, nil, nil, fmt.Errorf("Error getting folder ID while creating ClickHouse Cluster: %s", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseClickHouseEnv(e)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
+		return nil, nil, nil, fmt.Errorf("Error resolving environment while creating ClickHouse Cluster: %s", err)
 	}
 
 	dbSpecs, err := expandClickHouseDatabases(d)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
+		return nil, nil, nil, fmt.Errorf("error while expanding databases on ClickHouse Cluster create: %s", err)
 	}
 
 	users, err := expandClickHouseUserSpecs(d)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
+		return nil, nil, nil, fmt.Errorf("error while expanding user specs on ClickHouse Cluster create: %s", err)
 	}
 
 	hosts, err := expandClickHouseHosts(d)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
+		return nil, nil, nil, fmt.Errorf("error while expanding hosts on ClickHouse Cluster create: %s", err)
 	}
 
 	_, toAdd, _ := clickHouseHostsDiff(nil, hosts)
@@ -868,7 +903,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	clickhouseConfigSpec, err := expandClickHouseSpec(d)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	configSpec := &clickhouse.ConfigSpec{
@@ -878,6 +913,11 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		BackupWindowStart: expandClickHouseBackupWindowStart(d),
 		Access:            expandClickHouseAccess(d),
 		CloudStorage:      expandClickHouseCloudStorage(d),
+	}
+
+	shardsFromSpec, err := expandClickhouseShardSpecs(d)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error while expanding shard specs on ClickHouse Cluster create: %s", err)
 	}
 
 	if val, ok := d.GetOk("admin_password"); ok {
@@ -900,12 +940,12 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
+		return nil, nil, nil, fmt.Errorf("error while expanding network id on ClickHouse Cluster create: %s", err)
 	}
 
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
-		return nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
+		return nil, nil, nil, fmt.Errorf("creation error while expand clickhouse maintenance_window: %s", err)
 	}
 
 	req := clickhouse.CreateClusterRequest{
@@ -925,7 +965,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		DeletionProtection: d.Get("deletion_protection").(bool),
 		MaintenanceWindow:  mw,
 	}
-	return &req, toAdd, nil
+	return &req, toAdd, shardsFromSpec, nil
 }
 
 func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interface{}) error {
@@ -1005,6 +1045,10 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 	}
 
 	if err := d.Set("host", hs); err != nil {
+		return err
+	}
+
+	if err := setShardsToSchema(ctx, config, d); err != nil {
 		return err
 	}
 
@@ -1119,7 +1163,15 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("host") {
+		log.Println("[DEBUG] host configuration change detected.")
 		if err := updateClickHouseClusterHosts(d, meta); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("shard") {
+		log.Println("[DEBUG] shard configuration change detected.")
+		if err := updateClickHouseClusterShards(d, meta); err != nil {
 			return err
 		}
 	}
@@ -1458,7 +1510,7 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if shardName != "" && shardName != "zk" && !shardExists {
-			err = createClickHouseShard(ctx, config, d, shardName, specs)
+			err = createClickHouseShard(ctx, config, d, shardName, specs, nil)
 			if err != nil {
 				return err
 			}
@@ -1490,6 +1542,32 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 				if err != nil {
 					return err
 				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func updateClickHouseClusterShards(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	shardsOnCluster, err := listClickHouseShards(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	shardsFromSpec, err := expandClickhouseShardSpecs(d)
+	if err != nil {
+		return nil
+	}
+
+	for _, shard := range shardsOnCluster {
+		if shardSpec, ok := shardsFromSpec[shard.Name]; ok {
+			if err = updateClickHouseShard(ctx, config, d, shard.Name, shardSpec); err != nil {
+				return fmt.Errorf("failed update shard from config: %s", err)
 			}
 		}
 	}
@@ -1759,11 +1837,12 @@ func deleteClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
-func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec) error {
+func createClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, name string, specs []*clickhouse.HostSpec, shardSpec *clickhouse.ShardConfigSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddShard(ctx, &clickhouse.AddClusterShardRequest{
 			ClusterId:  d.Id(),
 			ShardName:  name,
+			ConfigSpec: shardSpec,
 			HostSpecs:  specs,
 			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
 		}),
@@ -1775,6 +1854,48 @@ func createClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 	if err != nil {
 		return fmt.Errorf("error while adding shard to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
+	return nil
+}
+
+func updateClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, shardSpec *clickhouse.ShardConfigSpec) error {
+	resp, err := config.sdk.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
+		ClusterId: d.Id(),
+		ShardName: shardName,
+	})
+	if err != nil {
+		return fmt.Errorf("eerror while requesting API to get shard's config, shard name=%s. Error=%s", shardName, err)
+	}
+
+	updateRequired := false
+	var updatePath []string
+
+	// @TODO check all nil pointers?
+	if resp.Config.Clickhouse.Weight.Value != shardSpec.Clickhouse.Weight.Value {
+		log.Printf("[DEBUG] shard=%s has wegith=%d, update to %d\n", shardName, resp.Config.Clickhouse.Weight.Value, shardSpec.Clickhouse.Weight.Value)
+		updateRequired = true
+		updatePath = append(updatePath, "config_spec.clickhouse.weight")
+	}
+
+	if !updateRequired {
+		return nil
+	}
+
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().Clickhouse().Cluster().UpdateShard(ctx, &clickhouse.UpdateClusterShardRequest{
+			ClusterId:  d.Id(),
+			ShardName:  shardName,
+			ConfigSpec: shardSpec,
+			UpdateMask: &field_mask.FieldMask{Paths: updatePath},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update shard to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating shard to ClickHouse Cluster %q: %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -2070,7 +2191,7 @@ func listClickHouseShards(ctx context.Context, config *Config, id string) ([]*cl
 			PageToken: pageToken,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("error while getting list of shards for '%s': %s", id, err)
+			return nil, fmt.Errorf("error while getting list of shards for cluster_id='%s': %s", id, err)
 		}
 		shards = append(shards, resp.Shards...)
 		if resp.NextPageToken == "" || resp.NextPageToken == pageToken {
@@ -2186,4 +2307,22 @@ func suppressZooKeeperResourcesDIff(k, old, new string, d *schema.ResourceData) 
 	}
 
 	return true
+}
+
+func setShardsToSchema(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	shardsOnCluster, err := listClickHouseShards(ctx, config, d.Id())
+	if err != nil {
+		return fmt.Errorf("read cluster: failed to get list of current shards: %s", err)
+	}
+
+	shards, err := flattenClickHouseShards(shardsOnCluster)
+	if err != nil {
+		return fmt.Errorf("read cluster: failed to flat current shards: %s", err)
+	}
+
+	if err := d.Set("shard", shards); err != nil {
+		return fmt.Errorf("read cluster: failed to set shards in schema: %s", err)
+	}
+
+	return nil
 }

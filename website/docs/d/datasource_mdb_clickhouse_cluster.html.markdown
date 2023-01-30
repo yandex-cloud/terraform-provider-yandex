@@ -52,6 +52,7 @@ exported:
 * `database` - A database of the ClickHouse cluster. The structure is documented below.
 * `host` - A host of the ClickHouse cluster. The structure is documented below.
 * `shard_group` - A group of clickhouse shards. The structure is documented below.
+* `shard` - A shard of the ClickHouse cluster. The structure is documented below.
 * `format_schema` - A set of protobuf or cap'n proto format schemas. The structure is documented below.
 * `ml_model` - A group of machine learning models. The structure is documented below.
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
@@ -227,6 +228,11 @@ The `host` block supports:
 * `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must be a part of the network to which the cluster belongs.
 * `shard_name` - The name of the shard to which the host belongs.
 * `assign_public_ip` - Sets whether the host should get a public IP address on creation.
+
+The `shard` block supports:
+
+* `name` - The name of the shard.
+* `weight` - The weight of the shard.
 
 The `shard_group` block supports:
 

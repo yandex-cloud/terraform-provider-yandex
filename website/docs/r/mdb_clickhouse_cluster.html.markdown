@@ -358,6 +358,16 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       errors            = 5000
     }
   }
+  
+  shard {
+    name = "shard1"
+    weight = 110
+  }
+  
+  shard {
+    name = "shard2"
+    weight = 300
+  }
 
   host {
     type       = "CLICKHOUSE"
@@ -766,6 +776,12 @@ The `host` block supports:
 * `shard_name` (Optional) - The name of the shard to which the host belongs.
 
 * `assign_public_ip` (Optional) - Sets whether the host should get a public IP address on creation. Can be either `true` or `false`.
+
+The `shard` block supports:
+
+* `name` - (Required) The name of shard.
+
+* `weight` - (Optional) The weight of shard.
 
 The `shard_group` block supports:
 

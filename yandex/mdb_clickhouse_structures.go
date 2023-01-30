@@ -117,6 +117,19 @@ func clickHouseUserHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
+func clickHouseShardHash(v interface{}) int {
+	var buf bytes.Buffer
+
+	m := v.(map[string]interface{})
+	if n, ok := m["name"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", n.(string)))
+	}
+	if w, ok := m["weight"]; ok {
+		buf.WriteString(fmt.Sprintf("%d-", w.(int)))
+	}
+	return hashcode.String(buf.String())
+}
+
 func clickHouseDatabaseHash(v interface{}) int {
 	m := v.(map[string]interface{})
 
@@ -1877,6 +1890,48 @@ func expandClickHouseUserSpecs(d *schema.ResourceData) ([]*clickhouse.UserSpec, 
 	}
 
 	return result, nil
+}
+
+func expandClickhouseShard(s map[string]interface{}, d *schema.ResourceData, hash int) *clickhouse.ShardConfigSpec {
+	shard := &clickhouse.ShardConfigSpec{
+		Clickhouse: &clickhouse.ShardConfigSpec_Clickhouse{},
+	}
+
+	if v, ok := s["weight"]; ok {
+		shard.Clickhouse.Weight = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return shard
+}
+
+func expandClickhouseShardSpecs(d *schema.ResourceData) (map[string]*clickhouse.ShardConfigSpec, error) {
+	resultShardsFromSpec := map[string]*clickhouse.ShardConfigSpec{}
+	rawShardsFromSpec := d.Get("shard").(*schema.Set)
+
+	for _, shard := range rawShardsFromSpec.List() {
+		m := shard.(map[string]interface{})
+		hash := clickHouseShardHash(shard)
+		if v, ok := m["name"]; ok {
+			resultShardsFromSpec[v.(string)] = expandClickhouseShard(m, d, hash)
+		}
+	}
+	return resultShardsFromSpec, nil
+}
+
+func flattenClickHouseShards(shards []*clickhouse.Shard) ([]map[string]interface{}, error) {
+	var res []map[string]interface{}
+
+	for _, shard := range shards {
+		m := map[string]interface{}{}
+		m["name"] = shard.Name
+		if shard.Config.Clickhouse.Weight != nil {
+			m["weight"] = shard.Config.Clickhouse.Weight.Value
+		}
+
+		res = append(res, m)
+	}
+
+	return res, nil
 }
 
 func clickHouseUsersPasswords(users []*clickhouse.UserSpec) map[string]string {
