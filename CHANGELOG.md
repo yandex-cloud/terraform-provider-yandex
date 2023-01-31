@@ -1,4 +1,6 @@
-## 0.85.0 (Unreleased)
+## 0.86.0 (Unreleased)
+
+## 0.85.0 (January 31, 2023)
 FEATURES:
 * storage: add `object_lock_configuration` attribute in `bucket` resource
 * storage: add `object_lock_legal_hold_status`, `object_lock_mode` and `object_lock_retain_until_date` attributes in `object` resource
