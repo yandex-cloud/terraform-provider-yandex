@@ -1,4 +1,5 @@
 ## 0.86.0 (Unreleased)
+* clickhouse: add new parameters for user settings.
 
 ## 0.85.0 (January 31, 2023)
 FEATURES:

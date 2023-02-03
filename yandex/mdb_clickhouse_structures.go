@@ -1205,6 +1205,22 @@ func setSettingFromDataInt64(d *schema.ResourceData, fullKey string, setting **w
 	}
 }
 
+func setSettingFromMapDouble(us map[string]interface{}, key string, setting **wrappers.DoubleValue) {
+	if v, ok := us[key]; ok {
+		if v.(float64) > 0 {
+			*setting = &wrappers.DoubleValue{Value: v.(float64)}
+		}
+	}
+}
+
+func setSettingFromDataDouble(d *schema.ResourceData, fullKey string, setting **wrappers.DoubleValue) {
+	if v, ok := d.GetOk(fullKey); ok {
+		if v.(float64) > 0 {
+			*setting = &wrappers.DoubleValue{Value: v.(float64)}
+		}
+	}
+}
+
 func setSettingFromMapBool(us map[string]interface{}, key string, setting **wrappers.BoolValue) {
 	if v, ok := us[key]; ok {
 		*setting = &wrappers.BoolValue{Value: v.(bool)}
@@ -1357,6 +1373,25 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	setSettingFromMapBool(us, "send_progress_in_http_headers", &result.SendProgressInHttpHeaders)
 	setSettingFromMapInt64(us, "http_headers_progress_interval", &result.HttpHeadersProgressInterval)
 	setSettingFromMapBool(us, "add_http_cors_header", &result.AddHttpCorsHeader)
+	setSettingFromMapInt64(us, "max_concurrent_queries_for_user", &result.MaxConcurrentQueriesForUser)
+	setSettingFromMapInt64(us, "memory_profiler_step", &result.MemoryProfilerStep)
+	setSettingFromMapDouble(us, "memory_profiler_sample_probability", &result.MemoryProfilerSampleProbability)
+	setSettingFromMapBool(us, "insert_null_as_default", &result.InsertNullAsDefault)
+	setSettingFromMapBool(us, "allow_suspicious_low_cardinality_types", &result.AllowSuspiciousLowCardinalityTypes)
+	setSettingFromMapInt64(us, "connect_timeout_with_failover", &result.ConnectTimeoutWithFailover)
+	setSettingFromMapBool(us, "allow_introspection_functions", &result.AllowIntrospectionFunctions)
+	setSettingFromMapBool(us, "async_insert", &result.AsyncInsert)
+	setSettingFromMapInt64(us, "async_insert_threads", &result.AsyncInsertThreads)
+	setSettingFromMapBool(us, "wait_for_async_insert", &result.WaitForAsyncInsert)
+	setSettingFromMapInt64(us, "wait_for_async_insert_timeout", &result.WaitForAsyncInsertTimeout)
+	setSettingFromMapInt64(us, "async_insert_max_data_size", &result.AsyncInsertMaxDataSize)
+	setSettingFromMapInt64(us, "async_insert_busy_timeout", &result.AsyncInsertBusyTimeout)
+	setSettingFromMapInt64(us, "async_insert_stale_timeout", &result.AsyncInsertStaleTimeout)
+
+	setSettingFromMapInt64(us, "timeout_before_checking_execution_speed", &result.TimeoutBeforeCheckingExecutionSpeed)
+	setSettingFromMapBool(us, "cancel_http_readonly_queries_on_client_close", &result.CancelHttpReadonlyQueriesOnClientClose)
+	setSettingFromMapBool(us, "flatten_nested", &result.FlattenNested)
+	setSettingFromMapInt64(us, "max_http_get_redirects", &result.MaxHttpGetRedirects)
 
 	if v, ok := us["quota_mode"]; ok {
 		result.QuotaMode = getQuotaModeValue(v.(string))
@@ -1507,6 +1542,24 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	setSettingFromDataBool(d, rootKey+".send_progress_in_http_headers", &result.SendProgressInHttpHeaders)
 	setSettingFromDataInt64(d, rootKey+".http_headers_progress_interval", &result.HttpHeadersProgressInterval)
 	setSettingFromDataBool(d, rootKey+".add_http_cors_header", &result.AddHttpCorsHeader)
+	setSettingFromDataInt64(d, rootKey+".max_concurrent_queries_for_user", &result.MaxConcurrentQueriesForUser)
+	setSettingFromDataInt64(d, rootKey+".memory_profiler_step", &result.MemoryProfilerStep)
+	setSettingFromDataDouble(d, rootKey+".memory_profiler_sample_probability", &result.MemoryProfilerSampleProbability)
+	setSettingFromDataBool(d, rootKey+".insert_null_as_default", &result.InsertNullAsDefault)
+	setSettingFromDataBool(d, rootKey+".allow_suspicious_low_cardinality_types", &result.AllowSuspiciousLowCardinalityTypes)
+	setSettingFromDataInt64(d, rootKey+".connect_timeout_with_failover", &result.ConnectTimeoutWithFailover)
+	setSettingFromDataBool(d, rootKey+".allow_introspection_functions", &result.AllowIntrospectionFunctions)
+	setSettingFromDataBool(d, rootKey+".async_insert", &result.AsyncInsert)
+	setSettingFromDataInt64(d, rootKey+".async_insert_threads", &result.AsyncInsertThreads)
+	setSettingFromDataBool(d, rootKey+".wait_for_async_insert", &result.WaitForAsyncInsert)
+	setSettingFromDataInt64(d, rootKey+".wait_for_async_insert_timeout", &result.WaitForAsyncInsertTimeout)
+	setSettingFromDataInt64(d, rootKey+".async_insert_max_data_size", &result.AsyncInsertMaxDataSize)
+	setSettingFromDataInt64(d, rootKey+".async_insert_busy_timeout", &result.AsyncInsertBusyTimeout)
+	setSettingFromDataInt64(d, rootKey+".async_insert_stale_timeout", &result.AsyncInsertStaleTimeout)
+	setSettingFromDataInt64(d, rootKey+".timeout_before_checking_execution_speed", &result.TimeoutBeforeCheckingExecutionSpeed)
+	setSettingFromDataBool(d, rootKey+".cancel_http_readonly_queries_on_client_close", &result.CancelHttpReadonlyQueriesOnClientClose)
+	setSettingFromDataBool(d, rootKey+".flatten_nested", &result.FlattenNested)
+	setSettingFromDataInt64(d, rootKey+".max_http_get_redirects", &result.MaxHttpGetRedirects)
 
 	if v, ok := d.GetOk(rootKey + ".quota_mode"); ok {
 		result.QuotaMode = getQuotaModeValue(v.(string))
@@ -1758,6 +1811,47 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 		result["http_headers_progress_interval"] = settings.HttpHeadersProgressInterval.Value
 	}
 	result["add_http_cors_header"] = falseOnNil(settings.AddHttpCorsHeader)
+	if settings.MaxConcurrentQueriesForUser != nil {
+		result["max_concurrent_queries_for_user"] = settings.MaxConcurrentQueriesForUser.Value
+	}
+	if settings.MemoryProfilerStep != nil {
+		result["memory_profiler_step"] = settings.MemoryProfilerStep.Value
+	}
+	if settings.MemoryProfilerSampleProbability != nil {
+		result["memory_profiler_sample_probability"] = settings.MemoryProfilerSampleProbability.Value
+	}
+	result["insert_null_as_default"] = falseOnNil(settings.InsertNullAsDefault)
+	result["allow_suspicious_low_cardinality_types"] = falseOnNil(settings.AllowSuspiciousLowCardinalityTypes)
+	if settings.ConnectTimeoutWithFailover != nil {
+		result["connect_timeout_with_failover"] = settings.ConnectTimeoutWithFailover.Value
+	}
+	result["allow_introspection_functions"] = falseOnNil(settings.AllowIntrospectionFunctions)
+	result["async_insert"] = falseOnNil(settings.AsyncInsert)
+	if settings.AsyncInsertThreads != nil {
+		result["async_insert_threads"] = settings.AsyncInsertThreads.Value
+	}
+	result["wait_for_async_insert"] = falseOnNil(settings.WaitForAsyncInsert)
+	if settings.WaitForAsyncInsertTimeout != nil {
+		result["wait_for_async_insert_timeout"] = settings.WaitForAsyncInsertTimeout.Value
+	}
+	if settings.AsyncInsertMaxDataSize != nil {
+		result["async_insert_max_data_size"] = settings.AsyncInsertMaxDataSize.Value
+	}
+	if settings.AsyncInsertBusyTimeout != nil {
+		result["async_insert_busy_timeout"] = settings.AsyncInsertBusyTimeout.Value
+	}
+	if settings.AsyncInsertStaleTimeout != nil {
+		result["async_insert_stale_timeout"] = settings.AsyncInsertStaleTimeout.Value
+	}
+	if settings.TimeoutBeforeCheckingExecutionSpeed != nil {
+		result["timeout_before_checking_execution_speed"] = settings.TimeoutBeforeCheckingExecutionSpeed.Value
+	}
+	result["cancel_http_readonly_queries_on_client_close"] = falseOnNil(settings.CancelHttpReadonlyQueriesOnClientClose)
+	result["flatten_nested"] = falseOnNil(settings.FlattenNested)
+	if settings.MaxHttpGetRedirects != nil {
+		result["max_http_get_redirects"] = settings.MaxHttpGetRedirects.Value
+	}
+
 	result["quota_mode"] = getQuotaModeName(settings.QuotaMode)
 
 	return result

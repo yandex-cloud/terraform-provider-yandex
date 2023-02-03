@@ -589,6 +589,82 @@ func TestAccMDBClickHouseCluster_update_version_resources(t *testing.T) {
 	})
 }
 
+func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse")
+	chDesc := "ClickHouse Cluster Terraform Test with specify user's settings"
+	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create ClickHouse Cluster with specify user settings
+			{
+				Config: testAccMDBClickHouseClusterConfigExpandUserParams(chName, chDesc, "PRESTABLE", bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "0"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194304"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "0"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.insert_null_as_default", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.allow_suspicious_low_cardinality_types", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.connect_timeout_with_failover", "50"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.allow_introspection_functions", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_threads", "16"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.wait_for_async_insert", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.wait_for_async_insert_timeout", "1000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_max_data_size", "100000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_busy_timeout", "200"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_stale_timeout", "1000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.timeout_before_checking_execution_speed", "1000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			{
+				Config: testAccMDBClickHouseClusterConfigExpandUserParamsUpdated(chName, chDesc, "PRESTABLE", bucketName, rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "description", chDesc),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194301"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.insert_null_as_default", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.allow_suspicious_low_cardinality_types", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.connect_timeout_with_failover", "51"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.allow_introspection_functions", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_threads", "17"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.wait_for_async_insert", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.wait_for_async_insert_timeout", "2000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_max_data_size", "100001"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_busy_timeout", "201"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.async_insert_stale_timeout", "1001"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.timeout_before_checking_execution_speed", "2000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
+				),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+		},
+	})
+}
+
 func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -3053,4 +3129,144 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 }
 `, name, desc, version, preset)
+}
+
+func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
+  name           = "%s"
+  description    = "%s"
+  environment    = "%s"
+  version        = "%s"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+    settings {
+	  max_concurrent_queries_for_user					 = 0
+	  memory_profiler_step 								 = 4194304
+	  memory_profiler_sample_probability				 = 0
+	  insert_null_as_default							 = false
+ 	  allow_suspicious_low_cardinality_types			 = false
+	  connect_timeout_with_failover						 = 50
+	  allow_introspection_functions						 = false
+	  async_insert										 = false
+	  async_insert_threads								 = 16
+	  wait_for_async_insert								 = false
+ 	  wait_for_async_insert_timeout						 = 1000
+	  async_insert_max_data_size						 = 100000
+	  async_insert_busy_timeout							 = 200
+	  async_insert_stale_timeout						 = 1000
+	  timeout_before_checking_execution_speed			 = 1000
+	  cancel_http_readonly_queries_on_client_close		 = false
+	  flatten_nested									 = false
+	  max_http_get_redirects							 = 0
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+}
+`, name, desc, environment, chVersion)
+}
+
+func testAccMDBClickHouseClusterConfigExpandUserParamsUpdated(name, desc, environment string, bucket string, randInt int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo" {
+  depends_on = [
+    yandex_storage_object.test_ml_model
+  ]
+
+  name           = "%s"
+  description    = "%s"
+  environment    = "%s"
+  version        = "%s"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 16
+    }
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+    settings {
+	  max_concurrent_queries_for_user					 = 1
+	  memory_profiler_step 								 = 4194301
+	  memory_profiler_sample_probability				 = 1
+	  insert_null_as_default							 = true
+ 	  allow_suspicious_low_cardinality_types			 = true
+	  connect_timeout_with_failover						 = 51
+	  allow_introspection_functions						 = true
+	  async_insert										 = true
+	  async_insert_threads								 = 17
+	  wait_for_async_insert								 = true
+ 	  wait_for_async_insert_timeout						 = 2000
+	  async_insert_max_data_size						 = 100001
+	  async_insert_busy_timeout							 = 201
+	  async_insert_stale_timeout						 = 1001
+	  timeout_before_checking_execution_speed			 = 2000
+	  cancel_http_readonly_queries_on_client_close		 = true
+	  flatten_nested									 = true
+	  max_http_get_redirects							 = 1
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+}
+`, name, desc, environment, chVersion)
 }

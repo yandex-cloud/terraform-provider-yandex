@@ -206,6 +206,27 @@ The `settings` block supports:
 * `http_headers_progress_interval` - Sets minimal interval between notifications about request process in HTTP header X-ClickHouse-Progress.
 * `add_http_cors_header` - Include CORS headers in HTTP responces.
 * `quota_mode` - Quota accounting mode.
+* `max_concurrent_queries_for_user` - (Optional) The maximum number of concurrent requests per user. Default value: 0 (no limit).
+* `memory_profiler_step` - (Optional) Memory profiler step (in bytes).  If the next query step requires more memory than this parameter specifies, the memory profiler collects the allocating stack trace. Values lower than a few megabytes slow down query processing. Default value: 4194304 (4 MB). Zero means disabled memory profiler.
+* `memory_profiler_sample_probability` - (Optional) Collect random allocations and deallocations and write them into system.trace_log with 'MemorySample' trace_type. The probability is for every alloc/free regardless to the size of the allocation. Possible values: from 0 to 1. Default: 0.
+* `insert_null_as_default` - (Optional) Enables the insertion of default values instead of NULL into columns with not nullable data type. Default value: true.
+* `allow_suspicious_low_cardinality_types` - (Optional) Allows specifying LowCardinality modifier for types of small fixed size (8 or less) in CREATE TABLE statements. Enabling this may increase merge times and memory consumption.
+* `connect_timeout_with_failover` - (Optional) The timeout in milliseconds for connecting to a remote server for a Distributed table engine, if the ‘shard’ and ‘replica’ sections are used in the cluster definition. If unsuccessful, several attempts are made to connect to various replicas. Default value: 50.
+* `allow_introspection_functions` - (Optional) Enables introspections functions for query profiling.
+* `async_insert` - (Optional) Enables asynchronous inserts. Disabled by default.
+* `async_insert_threads` - (Optional) The maximum number of threads for background data parsing and insertion. If the parameter is set to 0, asynchronous insertions are disabled. Default value: 16.
+* `wait_for_async_insert` - (Optional) Enables waiting for processing of asynchronous insertion. If enabled, server returns OK only after the data is inserted.
+* `wait_for_async_insert_timeout` - (Optional) The timeout (in seconds) for waiting for processing of asynchronous insertion. Value must be at least 1000 (1 second).
+* `async_insert_max_data_size` - (Optional) The maximum size of the unparsed data in bytes collected per query before being inserted. If the parameter is set to 0, asynchronous insertions are disabled. Default value: 100000.
+* `async_insert_busy_timeout` - (Optional) The maximum timeout in milliseconds since the first INSERT query before inserting collected data. If the parameter is set to 0, the timeout is disabled. Default value: 200.
+* `async_insert_stale_timeout` - (Optional) The maximum timeout in milliseconds since the last INSERT query before dumping collected data. If enabled, the settings prolongs the async_insert_busy_timeout with every INSERT query as long as async_insert_max_data_size is not exceeded.
+* `timeout_before_checking_execution_speed` - (Optional) Timeout (in seconds) between checks of execution speed. It is checked that execution speed is not less that specified in min_execution_speed parameter.
+  Must be at least 1000.
+* `cancel_http_readonly_queries_on_client_close` - (Optional) Cancels HTTP read-only queries (e.g. SELECT) when a client closes the connection without waiting for the response.
+  Default value: false.
+* `flatten_nested` - (Optional) Sets the data format of a nested columns.
+* `max_http_get_redirects` - (Optional) Limits the maximum number of HTTP GET redirect hops for URL-engine tables.
+  If the parameter is set to 0 (default), no hops is allowed.
 
 The `quota` block supports:
 
