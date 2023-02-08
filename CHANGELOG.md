@@ -4,6 +4,7 @@ BUG FIXES:
 
 FEATURES:
 * clickhouse: add new parameters for user settings.
+* serverless: add `container` support in `yandex_function_trigger` resource and data source
 
 
 ## 0.85.0 (January 31, 2023)

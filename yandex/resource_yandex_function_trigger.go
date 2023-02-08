@@ -77,10 +77,12 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 			},
 
 			"function": {
-				Type:     schema.TypeList,
-				MaxItems: 1,
-				Required: true,
-				ForceNew: true,
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"container"},
+				ExactlyOneOf:  []string{"function", "container"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
@@ -96,6 +98,48 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						},
 
 						"tag": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"retry_attempts": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"retry_interval": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			"container": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"function"},
+				ExactlyOneOf:  []string{"function", "container"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -410,7 +454,15 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		Labels:      labels,
 	}
 
-	retrySettings, err := expandRetrySettings(d)
+	var invokeType string
+	if _, ok := d.GetOk("function"); ok {
+		invokeType = "function"
+	}
+	if _, ok := d.GetOk("container"); ok {
+		invokeType = "container"
+	}
+
+	retrySettings, err := expandRetrySettings(d, invokeType)
 	if err != nil {
 		return err
 	}
@@ -438,6 +490,24 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 	}
 
+	var getInvokeContainerWithRetry = func() *triggers.InvokeContainerWithRetry {
+		return &triggers.InvokeContainerWithRetry{
+			ContainerId:      d.Get("container.0.id").(string),
+			Path:             d.Get("container.0.path").(string),
+			ServiceAccountId: d.Get("container.0.service_account_id").(string),
+			RetrySettings:    retrySettings,
+			DeadLetterQueue:  dlqSettings,
+		}
+	}
+
+	var getInvokeContainerOnce = func() *triggers.InvokeContainerOnce {
+		return &triggers.InvokeContainerOnce{
+			ContainerId:      d.Get("container.0.id").(string),
+			Path:             d.Get("container.0.path").(string),
+			ServiceAccountId: d.Get("container.0.service_account_id").(string),
+		}
+	}
+
 	triggerCnt := 0
 	if _, ok := d.GetOk(triggerTypeIoT); ok {
 		triggerCnt++
@@ -446,10 +516,17 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 				RegistryId: d.Get("iot.0.registry_id").(string),
 				DeviceId:   d.Get("iot.0.device_id").(string),
 				MqttTopic:  d.Get("iot.0.topic").(string),
-				Action: &triggers.Trigger_IoTMessage_InvokeFunction{
-					InvokeFunction: getInvokeFunctionWithRetry(),
-				},
 			},
+		}
+
+		if invokeType == "function" {
+			iot.IotMessage.Action = &triggers.Trigger_IoTMessage_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			iot.IotMessage.Action = &triggers.Trigger_IoTMessage_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
 		}
 
 		req.Rule = &triggers.Trigger_Rule{Rule: iot}
@@ -457,7 +534,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 	if _, ok := d.GetOk(triggerTypeMessageQueue); ok {
 		triggerCnt++
-		if err := checkDisableRetrySettingsForMessageQueueTrigger(d); err != nil {
+		if err := checkDisableRetrySettingsForMessageQueueTrigger(d, invokeType); err != nil {
 			return err
 		}
 		batch, err := expandBatchSettings(d, "message_queue.0")
@@ -469,9 +546,16 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			QueueId:          d.Get("message_queue.0.queue_id").(string),
 			ServiceAccountId: d.Get("message_queue.0.service_account_id").(string),
 			BatchSettings:    batch,
-			Action: &triggers.Trigger_MessageQueue_InvokeFunction{
+		}
+
+		if invokeType == "function" {
+			messageQueue.Action = &triggers.Trigger_MessageQueue_InvokeFunction{
 				InvokeFunction: getInvokeFunctionOnce(),
-			},
+			}
+		} else if invokeType == "container" {
+			messageQueue.Action = &triggers.Trigger_MessageQueue_InvokeContainer{
+				InvokeContainer: getInvokeContainerOnce(),
+			}
 		}
 
 		if _, ok := d.GetOk("message_queue.0.visibility_timeout"); ok {
@@ -506,9 +590,16 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			Prefix:    d.Get("object_storage.0.prefix").(string),
 			Suffix:    d.Get("object_storage.0.suffix").(string),
 			EventType: events,
-			Action: &triggers.Trigger_ObjectStorage_InvokeFunction{
+		}
+
+		if invokeType == "function" {
+			storageTrigger.Action = &triggers.Trigger_ObjectStorage_InvokeFunction{
 				InvokeFunction: getInvokeFunctionWithRetry(),
-			},
+			}
+		} else if invokeType == "container" {
+			storageTrigger.Action = &triggers.Trigger_ObjectStorage_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
 		}
 
 		storageRule := &triggers.Trigger_Rule_ObjectStorage{ObjectStorage: storageTrigger}
@@ -523,8 +614,14 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 
 		if retrySettings != nil || dlqSettings != nil {
-			timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
-				InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
+			if invokeType == "function" {
+				timer.Action = &triggers.Trigger_Timer_InvokeFunctionWithRetry{
+					InvokeFunctionWithRetry: getInvokeFunctionWithRetry(),
+				}
+			} else if invokeType == "container" {
+				timer.Action = &triggers.Trigger_Timer_InvokeContainerWithRetry{
+					InvokeContainerWithRetry: getInvokeContainerWithRetry(),
+				}
 			}
 		} else {
 			timer.Action = &triggers.Trigger_Timer_InvokeFunction{
@@ -541,10 +638,18 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		cloudLogs := &triggers.Trigger_CloudLogs{
 			LogGroupId: convertStringSet(d.Get("log_group.0.log_group_ids").(*schema.Set)),
-			Action: &triggers.Trigger_CloudLogs_InvokeFunction{
-				InvokeFunction: getInvokeFunctionWithRetry(),
-			},
 		}
+
+		if invokeType == "function" {
+			cloudLogs.Action = &triggers.Trigger_CloudLogs_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			cloudLogs.Action = &triggers.Trigger_CloudLogs_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		}
+
 		batch, err := expandBatchSettings(d, "log_group.0")
 		if err != nil {
 			return err
@@ -576,11 +681,18 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			ResourceId:   convertStringSet(d.Get("logging.0.resource_ids").(*schema.Set)),
 			ResourceType: convertStringSet(d.Get("logging.0.resource_types").(*schema.Set)),
 			Levels:       levels,
-
-			Action: &triggers.Trigger_Logging_InvokeFunction{
-				InvokeFunction: getInvokeFunctionWithRetry(),
-			},
 		}
+
+		if invokeType == "function" {
+			logging.Action = &triggers.Trigger_Logging_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			logging.Action = &triggers.Trigger_Logging_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		}
+
 		batch, err := expandBatchSettings(d, "logging.0")
 		if err != nil {
 			return err
@@ -715,6 +827,48 @@ func flattenYandexFunctionTriggerInvokeWithRetry(d *schema.ResourceData, functio
 	return nil
 }
 
+func flattenYandexContainerTriggerInvokeOnce(d *schema.ResourceData, container *triggers.InvokeContainerOnce) error {
+	f := map[string]interface{}{
+		"id":                 container.ContainerId,
+		"path":               container.Path,
+		"service_account_id": container.ServiceAccountId,
+	}
+	return d.Set("container", []map[string]interface{}{f})
+}
+
+func flattenYandexContainerTriggerInvokeWithRetry(d *schema.ResourceData, container *triggers.InvokeContainerWithRetry) error {
+	f := map[string]interface{}{
+		"id":                 container.ContainerId,
+		"path":               container.Path,
+		"service_account_id": container.ServiceAccountId,
+	}
+
+	if retrySettings := container.GetRetrySettings(); retrySettings != nil {
+		f["retry_attempts"] = strconv.FormatInt(retrySettings.RetryAttempts, 10)
+		if retrySettings.Interval != nil {
+			f["retry_interval"] = strconv.FormatInt(retrySettings.Interval.Seconds, 10)
+		}
+	}
+
+	err := d.Set("container", []map[string]interface{}{f})
+	if err != nil {
+		return err
+	}
+
+	if deadLetter := container.GetDeadLetterQueue(); deadLetter != nil {
+		dlq := map[string]interface{}{
+			"queue_id":           deadLetter.QueueId,
+			"service_account_id": deadLetter.ServiceAccountId,
+		}
+
+		err = d.Set("dlq", []map[string]interface{}{dlq})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger) error {
 	d.Set("name", trig.Name)
 	d.Set("folder_id", trig.FolderId)
@@ -741,6 +895,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
+		} else if function := iot.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
 		}
 	} else if messageQueue := trig.GetRule().GetMessageQueue(); messageQueue != nil {
 		m := map[string]interface{}{
@@ -764,6 +923,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 
 		if function := messageQueue.GetInvokeFunction(); function != nil {
 			err = flattenYandexFunctionTriggerInvokeOnce(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := messageQueue.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeOnce(d, function)
 			if err != nil {
 				return err
 			}
@@ -797,6 +961,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
+		} else if function := storage.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
 		}
 	} else if timer := trig.GetRule().GetTimer(); timer != nil {
 		t := map[string]interface{}{
@@ -818,6 +987,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			if err != nil {
 				return err
 			}
+		} else if function := timer.GetInvokeContainerWithRetry(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
 		}
 	} else if logGroup := trig.GetRule().GetCloudLogs(); logGroup != nil {
 
@@ -834,6 +1008,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 		}
 		if function := logGroup.GetInvokeFunction(); function != nil {
 			err := flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := logGroup.GetInvokeContainer(); function != nil {
+			err := flattenYandexContainerTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
 			}
@@ -871,6 +1050,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 		}
 		if function := logging.GetInvokeFunction(); function != nil {
 			err := flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := logGroup.GetInvokeContainer(); function != nil {
+			err := flattenYandexContainerTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err
 			}
@@ -921,24 +1105,24 @@ func resourceYandexFunctionTriggerDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func expandRetrySettings(d *schema.ResourceData) (*triggers.RetrySettings, error) {
+func expandRetrySettings(d *schema.ResourceData, prefix string) (*triggers.RetrySettings, error) {
 	settings := &triggers.RetrySettings{}
 	var err error
 	present := false
 
-	if _, ok := d.GetOk("function.0.retry_attempts"); ok {
+	if _, ok := d.GetOk(prefix + ".0.retry_attempts"); ok {
 		present = true
-		settings.RetryAttempts, err = strconv.ParseInt(d.Get("function.0.retry_attempts").(string), 10, 64)
+		settings.RetryAttempts, err = strconv.ParseInt(d.Get(prefix+".0.retry_attempts").(string), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Cannot define function.retry_attempts for Yandex Cloud Functions Trigger: %s", err)
+			return nil, fmt.Errorf("Cannot define %s.retry_attempts for Yandex Cloud Functions Trigger: %s", prefix, err)
 		}
 	}
 
-	if _, ok := d.GetOk("function.0.retry_interval"); ok {
+	if _, ok := d.GetOk(prefix + ".0.retry_interval"); ok {
 		present = true
-		retryInterval, err := strconv.ParseInt(d.Get("function.0.retry_interval").(string), 10, 64)
+		retryInterval, err := strconv.ParseInt(d.Get(prefix+".0.retry_interval").(string), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Cannot define function.retry_interval for Yandex Cloud Functions Trigger: %s", err)
+			return nil, fmt.Errorf("Cannot define %s.retry_interval for Yandex Cloud Functions Trigger: %s", prefix, err)
 		}
 		settings.Interval = &duration.Duration{Seconds: retryInterval}
 	}
@@ -963,9 +1147,9 @@ func expandDLQSettings(d *schema.ResourceData) (*triggers.PutQueueMessage, error
 	return settings, nil
 }
 
-func checkDisableRetrySettingsForMessageQueueTrigger(d *schema.ResourceData) error {
-	keys := []string{"dlq", "function.0.retry_attempts", "function.0.retry_interval"}
-	forOutput := []string{"dlq", "function.retry_attempts", "function.retry_interval"}
+func checkDisableRetrySettingsForMessageQueueTrigger(d *schema.ResourceData, prefix string) error {
+	keys := []string{"dlq", prefix + ".0.retry_attempts", prefix + ".0.retry_interval"}
+	forOutput := []string{"dlq", prefix + ".retry_attempts", prefix + ".retry_interval"}
 	for i, name := range keys {
 		if _, found := d.GetOk(name); found {
 			return fmt.Errorf("Cannot define %s for Yandex Cloud Functions Trigger: not supported for message queue trigger", forOutput[i])

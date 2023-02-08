@@ -47,6 +47,13 @@ The following attributes are exported:
 * `function.0.retry_attempts` - Retry attempts for Yandex.Cloud Function for Yandex Cloud Functions Trigger
 * `function.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Function for Yandex Cloud Functions Trigger
 
+* `` - [Yandex.Cloud Serverless Container](https://cloud.yandex.com/en-ru/docs/serverless-containers/concepts/container) settings definition for Yandex Cloud Functions Trigger
+* `container.0.id` - Yandex.Cloud Serverless Container ID for Yandex Cloud Functions Trigger
+* `container.0.service_account_id` - Service account ID for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.path` - Path for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_attempts` - Retry attempts for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+* `container.0.retry_interval` - Retry interval in seconds for Yandex.Cloud Serverless Container for Yandex Cloud Functions Trigger
+
 * `dlq` - Dead Letter Queue settings definition for Yandex Cloud Functions Trigger
 * `dlq.0.queue_id` - ID of Dead Letter Queue for Trigger (Queue ARN)
 * `dlq.0.service_account_id` - Service Account ID for Dead Letter Queue for Yandex Cloud Functions Trigger

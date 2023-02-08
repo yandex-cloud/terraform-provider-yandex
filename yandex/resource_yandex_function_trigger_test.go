@@ -90,6 +90,38 @@ func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 	})
 }
 
+func TestAccYandexFunctionTrigger_invokeContainerBasic(t *testing.T) {
+	t.Parallel()
+
+	var trigger triggers.Trigger
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	triggerDesc := acctest.RandomWithPrefix("tf-trigger-desc")
+	labelKey := acctest.RandomWithPrefix("tf-trigger-label")
+	labelValue := acctest.RandomWithPrefix("tf-trigger-label-value")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexFunctionTriggerInvokeContainer(triggerName, triggerDesc, labelKey, labelValue),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, &trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttr(triggerResource, "description", triggerDesc),
+					resource.TestCheckResourceAttrSet(triggerResource, "container.0.id"),
+					resource.TestCheckResourceAttrSet(triggerResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(triggerResource, "timer.0.cron_expression"),
+					testYandexFunctionTriggerContainsLabel(&trigger, labelKey, labelValue),
+					testAccCheckCreatedAtAttr(triggerResource),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
+}
+
 func TestAccYandexFunctionTrigger_update(t *testing.T) {
 	t.Parallel()
 
@@ -430,6 +462,48 @@ resource "yandex_function_trigger" "test-trigger" {
   }
 }
 	`, name, getExampleFolderID(), name, name, desc, labelKey, labelValue)
+}
+
+func testYandexFunctionTriggerInvokeContainer(name string, desc string, labelKey string, labelValue string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_serverless_container" "tf-test" {
+  name       = "%s-container"
+  service_account_id = yandex_iam_service_account.test-account.id
+  memory = 128
+  image {
+    url = "%s"
+  }
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name        = "%s"
+  description = "%s"
+  labels = {
+    %s          = "%s"
+    empty-label = ""
+  }
+  timer {
+    cron_expression = "* * * * ? *"
+  }
+  container {
+    id                 = yandex_serverless_container.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+    retry_attempts = 3
+	retry_interval = 15
+  }
+}
+	`, name, getExampleFolderID(), name, serverlessContainerTestImage1, name, desc, labelKey, labelValue)
 }
 
 func testYandexFunctionTriggerIoT(regName, devName, name string) string {

@@ -255,6 +255,39 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
+			"container": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"path": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"retry_attempts": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"retry_interval": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			"dlq": {
 				Type:     schema.TypeList,
 				Computed: true,
