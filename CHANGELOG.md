@@ -1,5 +1,10 @@
 ## 0.86.0 (Unreleased)
+BUG FIXES:
+* serverless: fix documentation of required attributes for `yandex_function` resource
+
+FEATURES:
 * clickhouse: add new parameters for user settings.
+
 
 ## 0.85.0 (January 31, 2023)
 FEATURES:
