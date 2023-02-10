@@ -14,6 +14,7 @@ FEATURES:
 * storage: add `object_lock_legal_hold_status`, `object_lock_mode` and `object_lock_retain_until_date` attributes in `object` resource
 * storage: add information about `storage_endpoint` in documents
 * storage: add `config_read` property to `anonymous_access_flags` structure.
+* **New Resource:** `yandex_ydb_topic`
 
 BUG FIXES:
 * storage: import bucket state now does not requires reapply because it's properly syncs acl and grants.

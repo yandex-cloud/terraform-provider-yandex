@@ -3,7 +3,6 @@ module github.com/yandex-cloud/terraform-provider-yandex
 go 1.16
 
 require (
-	github.com/apparentlymart/go-cidr v1.1.0 // indirect
 	github.com/aws/aws-sdk-go v1.37.0
 	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/client9/misspell v0.3.4
@@ -20,8 +19,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/hcl/v2 v2.8.2 // indirect
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.14.0
 	github.com/hashicorp/vault v0.10.4
 	github.com/jen20/awspolicyequivalence v1.1.0
 	github.com/keybase/go-crypto v0.0.0-20200123153347-de78d2cb44f4
@@ -29,9 +27,10 @@ require (
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.1.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/yandex-cloud/go-genproto v0.0.0-20221226093308-1d6b7100d2d6
 	github.com/yandex-cloud/go-sdk v0.0.0-20221226094806-d4be4392edaf
+	github.com/ydb-platform/terraform-provider-ydb v0.0.0-20230123171258-1a80b4185d46
 	golang.org/x/net v0.1.0
 	golang.org/x/sys v0.2.0 // indirect
 	google.golang.org/genproto v0.0.0-20221107162902-2d387536bcdd
