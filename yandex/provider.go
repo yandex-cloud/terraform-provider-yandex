@@ -75,6 +75,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("YC_TOKEN", nil),
 				Description: descriptions["token"],
 			},
@@ -101,6 +102,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"storage_secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_SECRET_KEY", nil),
 				Description: descriptions["storage_secret_key"],
 			},

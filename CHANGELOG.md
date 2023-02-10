@@ -1,5 +1,6 @@
 ## 0.86.0 (Unreleased)
 BUG FIXES:
+* provider config: make `storage_secret_key` and `token` attributes sensitive
 * serverless: fix documentation of required attributes for `yandex_function` resource
 
 FEATURES:
