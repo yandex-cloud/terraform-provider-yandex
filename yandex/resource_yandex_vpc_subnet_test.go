@@ -321,7 +321,7 @@ func TestAccVPCSubnet_withDhcpOptions(t *testing.T) {
 				Config: testAccVPCSubnet_withoutDhcpOptions(networkName, subnetName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCSubnetExists(subnetResourceName, &subnet),
-					resource.TestCheckNoResourceAttr(subnetResourceName, "dhcp_options"),
+					resource.TestCheckNoResourceAttr(subnetResourceName, "dhcp_options.#"),
 				),
 			},
 		},
