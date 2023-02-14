@@ -53,13 +53,15 @@ If omitted, the provider folder is used.
 * `labels` - (Optional) Labels to assign to this network load balancer. A list of key/value pairs.
 
 * `region_id` - (Optional) ID of the availability zone where the network load balancer resides.
-The default is 'ru-central1'.
+If omitted, default region is being used.
 
 * `type` - (Optional) Type of the network load balancer. Must be one of 'external' or 'internal'. The default is 'external'.
 
 * `attached_target_group` - (Optional) An AttachedTargetGroup resource. The structure is documented below.
 
 * `listener` - (Optional) Listener specification that will be used by a network load balancer. The structure is documented below.
+
+* `deletion_protection` - (Optional) Flag that protects the network load balancer from accidental deletion.
 
 ---
 

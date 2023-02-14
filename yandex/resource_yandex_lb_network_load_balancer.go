@@ -54,6 +54,7 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 			"region_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"type": {
@@ -225,6 +226,11 @@ func resourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -267,6 +273,7 @@ func resourceYandexLBNetworkLoadBalancerCreate(d *schema.ResourceData, meta inte
 		Labels:               labels,
 		ListenerSpecs:        ls,
 		AttachedTargetGroups: atgs,
+		DeletionProtection:   d.Get("deletion_protection").(bool),
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -331,6 +338,7 @@ func resourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta interf
 	d.Set("description", nlb.Description)
 	d.Set("region_id", nlb.RegionId)
 	d.Set("type", strings.ToLower(nlb.Type.String()))
+	d.Set("deletion_protection", nlb.DeletionProtection)
 
 	if err := d.Set("listener", ls); err != nil {
 		return err
@@ -368,6 +376,7 @@ func resourceYandexLBNetworkLoadBalancerUpdate(d *schema.ResourceData, meta inte
 		Labels:                labels,
 		ListenerSpecs:         ls,
 		AttachedTargetGroups:  atgs,
+		DeletionProtection:    d.Get("deletion_protection").(bool),
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

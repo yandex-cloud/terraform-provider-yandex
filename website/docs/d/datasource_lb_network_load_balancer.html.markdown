@@ -42,6 +42,7 @@ The following attributes are exported:
 * `attached_target_group` - An attached target group is a group of targets that is attached to a load balancer. Structure is documented below.
 * `listener` - Listener specification that will be used by a network load balancer. Structure is documented below.
 * `created_at` - Creation timestamp of this network load balancer.
+* `deletion_protection` - Flag that protects the network load balancer from accidental deletion.
 
 ---
 

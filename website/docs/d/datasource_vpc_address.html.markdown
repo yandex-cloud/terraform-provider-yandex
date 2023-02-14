@@ -40,6 +40,7 @@ The following attributes are exported:
 * `used` - `true` if address is used.
 * `reserved` - `false` means that address is ephemeral.
 * `external_ipv4_address` - spec of IP v4 address.
+* `deletion_protection` - Flag that protects the address from accidental deletion.
 
 ---
 

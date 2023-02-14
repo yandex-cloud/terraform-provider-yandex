@@ -39,6 +39,7 @@ func resourceYandexLBTargetGroup() *schema.Resource {
 			"region_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 
 			"target": {

@@ -83,10 +83,52 @@ func TestAccLBNetworkLoadBalancer_basic(t *testing.T) {
 					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
 					resource.TestCheckResourceAttr(nlbResource, "name", nlbName),
 					resource.TestCheckResourceAttrSet(nlbResource, "folder_id"),
+					resource.TestCheckResourceAttr(nlbResource, "deletion_protection", "false"),
 					testAccCheckLBNetworkLoadBalancerContainsLabel(&nlb, "tf-label", "tf-label-value"),
 					testAccCheckLBNetworkLoadBalancerContainsLabel(&nlb, "empty-label", ""),
 					testAccCheckCreatedAtAttr(nlbResource),
 					testAccCheckLBNetworkLoadBalancerValues(&nlb, 0, 0, nil, nil),
+				),
+			},
+			networkLoadBalancerImportStep(),
+		},
+	})
+}
+
+func TestAccLBNetworkLoadBalancer_deletion_protection(t *testing.T) {
+	t.Parallel()
+
+	var nlb loadbalancer.NetworkLoadBalancer
+	nlbName := acctest.RandomWithPrefix("tf-network-load-balancer")
+	nlbNewName := acctest.RandomWithPrefix("tf-network-load-balancer")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckLBNetworkLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccLBNetworkLoadBalancerDeletionProtection(nlbName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					resource.TestCheckResourceAttr(nlbResource, "name", nlbName),
+					resource.TestCheckResourceAttr(nlbResource, "deletion_protection", "true"),
+				),
+			},
+			{
+				Config: testAccLBNetworkLoadBalancerBasic(nlbNewName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					resource.TestCheckResourceAttr(nlbResource, "name", nlbNewName),
+					resource.TestCheckResourceAttr(nlbResource, "deletion_protection", "true"),
+				),
+			},
+			{
+				Config: testAccLBNetworkLoadBalancerDeletionProtection(nlbName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLBNetworkLoadBalancerExists(nlbResource, &nlb),
+					resource.TestCheckResourceAttr(nlbResource, "name", nlbName),
+					resource.TestCheckResourceAttr(nlbResource, "deletion_protection", "false"),
 				),
 			},
 			networkLoadBalancerImportStep(),
@@ -568,6 +610,17 @@ func testAccLBNetworkLoadBalancerBasic(name string) string {
 		  }
 		}
 		`, name,
+	)
+}
+
+func testAccLBNetworkLoadBalancerDeletionProtection(name string, deletionProtection bool) string {
+	return fmt.Sprintf(`
+		resource "yandex_lb_network_load_balancer" "test-nlb" {
+		  name					= "%s"
+		  description			= "nlb-descr"
+		  deletion_protection 	= "%t"
+		}
+		`, name, deletionProtection,
 	)
 }
 

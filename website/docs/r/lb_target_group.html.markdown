@@ -44,8 +44,8 @@ If omitted, the provider folder is used.
 
 * `labels` - (Optional) Labels to assign to this target group. A list of key/value pairs.
 
-* `region_id` - (Optional) ID of the availability zone where the target group resides. 
-The default is 'ru-central1'.
+* `region_id` - (Optional) ID of the availability zone where the target group resides.
+If omitted, default region is being used.
 
 * `target` - (Optional) A Target resource. The structure is documented below.
 

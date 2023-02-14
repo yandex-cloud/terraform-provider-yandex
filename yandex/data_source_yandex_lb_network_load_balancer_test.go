@@ -107,6 +107,9 @@ func TestAccDataSourceLBNetworkLoadBalancer_full(t *testing.T) {
 						nlbDataSourceResource, "folder_id", folderID,
 					),
 					resource.TestCheckResourceAttr(
+						nlbDataSourceResource, "deletion_protection", "false",
+					),
+					resource.TestCheckResourceAttr(
 						nlbDataSourceResource, "listener.#", "1",
 					),
 					resource.TestCheckResourceAttr(

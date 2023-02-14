@@ -186,6 +186,10 @@ func dataSourceYandexLBNetworkLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -234,6 +238,7 @@ func dataSourceYandexLBNetworkLoadBalancerRead(d *schema.ResourceData, meta inte
 	d.Set("description", nlb.Description)
 	d.Set("created_at", getTimestamp(nlb.CreatedAt))
 	d.Set("folder_id", nlb.FolderId)
+	d.Set("deletion_protection", nlb.DeletionProtection)
 
 	if err := d.Set("labels", nlb.Labels); err != nil {
 		return err

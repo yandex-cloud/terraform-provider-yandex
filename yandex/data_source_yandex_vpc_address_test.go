@@ -61,6 +61,7 @@ func TestAccDataSourceVPCAddress_basic(t *testing.T) {
 					testAccCheckResourceIDField("data.yandex_vpc_address.addr1", "address_id"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_address.addr1", "name", addressName),
 					resource.TestCheckResourceAttr("data.yandex_vpc_address.addr1", "folder_id", folderID),
+					resource.TestCheckResourceAttr("data.yandex_vpc_address.addr1", "deletion_protection", "false"),
 					testAccCheckCreatedAtAttr("data.yandex_vpc_address.addr1"),
 				),
 			},

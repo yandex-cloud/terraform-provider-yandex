@@ -51,6 +51,7 @@ The following arguments are supported:
 * `folder_id` - (Optional) ID of the folder that the resource belongs to. If it
     is not provided, the default provider folder is used.
 * `labels` - (Optional) Labels to apply to this resource. A list of key/value pairs.
+* `deletion_protection` - (Optional) Flag that protects the address from accidental deletion.
 
 ---
 

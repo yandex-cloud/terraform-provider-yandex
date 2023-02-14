@@ -106,6 +106,11 @@ func resourceYandexVPCAddress() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -136,6 +141,9 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 		return err
 	}
 	if err := d.Set("labels", address.GetLabels()); err != nil {
+		return err
+	}
+	if err := d.Set("deletion_protection", address.GetDeletionProtection()); err != nil {
 		return err
 	}
 
@@ -181,6 +189,7 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 		AddressSpec: &vpc.CreateAddressRequest_ExternalIpv4AddressSpec{
 			ExternalIpv4AddressSpec: spec,
 		},
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -246,6 +255,12 @@ func resourceYandexVPCAddressUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange(addrDescPropName) {
 		req.Description = d.Get(addrDescPropName).(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, addrDescPropName)
+	}
+
+	const addrDeletionProtectionPropName = "deletion_protection"
+	if d.HasChange(addrDeletionProtectionPropName) {
+		req.DeletionProtection = d.Get(addrDeletionProtectionPropName).(bool)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, addrDeletionProtectionPropName)
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
