@@ -351,6 +351,10 @@ func dataSourceHTTPHandler() *schema.Schema {
 					Type:     schema.TypeBool,
 					Optional: true,
 				},
+				"rewrite_request_id": {
+					Type:     schema.TypeBool,
+					Computed: true,
+				},
 			},
 		},
 	}

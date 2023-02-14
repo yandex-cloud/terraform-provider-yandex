@@ -380,6 +380,11 @@ func httpHandler() *schema.Schema {
 					Optional: true,
 					Default:  false,
 				},
+				"rewrite_request_id": {
+					Type:     schema.TypeBool,
+					Optional: true,
+					Default:  false,
+				},
 			},
 		},
 	}

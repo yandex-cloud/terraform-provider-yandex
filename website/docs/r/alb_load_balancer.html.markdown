@@ -206,6 +206,8 @@ The `http_handler` and `handler`(from `http`) block supports:
 
 * `http_router_id` - (Optional) HTTP router id.
 
+* `rewrite_request_id` - (Optional) When unset, will preserve the incoming x-request-id header, otherwise would rewrite it with a new value.
+
 * `http2_options` - (Optional) If set, will enable HTTP2 protocol for the handler. The structure is documented below.
 
 * `allow_http10` - (Optional) If set, will enable only HTTP1 protocol with HTTP1.0 support.

@@ -216,6 +216,45 @@ func TestAccALBLoadBalancer_httpListenerWithAllowHTTP10(t *testing.T) {
 	})
 }
 
+func TestAccALBLoadBalancer_httpListenerWithRewriteRequestID(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsHTTPListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsRewriteRequestID = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "name", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "endpoint.0.ports.0", albDefaultPort, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "name", albResource.ListenerName, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "http.0.handler.0.rewrite_request_id", albDefaultRewriteRequestID, &listenerPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
 func TestAccALBLoadBalancer_httpListenerWithRedirects(t *testing.T) {
 	t.Parallel()
 
@@ -374,6 +413,45 @@ func TestAccALBLoadBalancer_tlsListenerWithAllowHTTP10(t *testing.T) {
 					),
 					testExistsElementWithAttrValue(
 						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.allow_http10", albDefaultAllowHTTP10, &listenerPath,
+					),
+				),
+			},
+			albLoadBalancerImportStep(),
+		},
+	})
+}
+
+func TestAccALBLoadBalancer_tlsListenerWithRewriteRequestID(t *testing.T) {
+	t.Parallel()
+
+	albResource := albLoadBalancerInfo()
+	albResource.IsTLSListener = true
+	albResource.IsHTTPHandler = true
+	albResource.IsRewriteRequestID = true
+
+	var alb apploadbalancer.LoadBalancer
+	listenerPath := ""
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckALBLoadBalancerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testALBLoadBalancerConfig_basic(albResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckALBLoadBalancerExists(albLoadBalancerResource, &alb),
+					testExistsFirstElementWithAttr(
+						albLoadBalancerResource, "listener", "name", &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "endpoint.0.ports.0", albDefaultPort, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "name", albResource.ListenerName, &listenerPath,
+					),
+					testExistsElementWithAttrValue(
+						albLoadBalancerResource, "listener", "tls.0.default_handler.0.http_handler.0.rewrite_request_id", albDefaultRewriteRequestID, &listenerPath,
 					),
 				),
 			},

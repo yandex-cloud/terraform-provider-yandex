@@ -46,6 +46,7 @@ const albDefaultStatusResponse = "not_found"
 const albDefaultRedirectResponseCode = "moved_permanently"
 const albDefaultAutoHostRewrite = "true"
 const albDefaultAllowHTTP10 = "true"
+const albDefaultRewriteRequestID = "true"
 const albDefaultMaxConcurrentStreams = "2"
 const albDefaultHTTPToHTTPS = "true"
 const albDefaultProxyProtocol = "false"
@@ -57,16 +58,17 @@ const albDefaultHeaderValue = "client-value"
 const albDefaultRBACAction = "allow"
 
 type resourceALBLoadBalancerInfo struct {
-	IsHTTPListener   bool
-	IsStreamListener bool
-	IsTLSListener    bool
-	IsRedirects      bool
-	IsHTTPHandler    bool
-	IsStreamHandler  bool
-	IsDataSource     bool
-	IsHTTP2Options   bool
-	IsAllowHTTP10    bool
-	IsLogOptions     bool
+	IsHTTPListener     bool
+	IsStreamListener   bool
+	IsTLSListener      bool
+	IsRedirects        bool
+	IsHTTPHandler      bool
+	IsStreamHandler    bool
+	IsDataSource       bool
+	IsHTTP2Options     bool
+	IsAllowHTTP10      bool
+	IsRewriteRequestID bool
+	IsLogOptions       bool
 
 	BaseTemplate string
 
@@ -77,6 +79,7 @@ type resourceALBLoadBalancerInfo struct {
 	ListenerName         string
 	BalancerDescription  string
 	AllowHTTP10          string
+	RewriteRequestID     string
 	MaxConcurrentStreams string
 	EndpointPort         string
 	HTTPToHTTPS          string
@@ -94,6 +97,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		IsStreamHandler:      false,
 		IsHTTP2Options:       false,
 		IsAllowHTTP10:        false,
+		IsRewriteRequestID:   false,
 		BaseTemplate:         testAccALBBaseTemplate(acctest.RandomWithPrefix("tf-instance")),
 		BalancerName:         acctest.RandomWithPrefix("tf-load-balancer"),
 		RouterName:           acctest.RandomWithPrefix("tf-router"),
@@ -102,6 +106,7 @@ func albLoadBalancerInfo() resourceALBLoadBalancerInfo {
 		ListenerName:         acctest.RandomWithPrefix("tf-listener"),
 		BalancerDescription:  acctest.RandomWithPrefix("tf-load-balancer-description"),
 		AllowHTTP10:          albDefaultAllowHTTP10,
+		RewriteRequestID:     albDefaultRewriteRequestID,
 		MaxConcurrentStreams: albDefaultMaxConcurrentStreams,
 		EndpointPort:         albDefaultPort,
 		HTTPToHTTPS:          albDefaultHTTPToHTTPS,
@@ -539,6 +544,9 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         {{if .IsAllowHTTP10}}
         allow_http10 = {{.AllowHTTP10}}
         {{end}}
+		{{if .IsRewriteRequestID}}
+		rewrite_request_id = {{.RewriteRequestID}}
+		{{end}}
         {{if .IsHTTP2Options}}
         http2_options {
           max_concurrent_streams = {{.MaxConcurrentStreams}}
@@ -569,8 +577,11 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         http_handler {
           http_router_id = yandex_alb_http_router.test-router.id
           {{if .IsAllowHTTP10}}
-            allow_http10 = {{.AllowHTTP10}}
+		  allow_http10 = {{.AllowHTTP10}}
           {{end}}
+		  {{if .IsRewriteRequestID}}
+		  rewrite_request_id = {{.RewriteRequestID}}
+		  {{end}}
           {{if .IsHTTP2Options}}
           http2_options {
             max_concurrent_streams = {{.MaxConcurrentStreams}}
@@ -589,8 +600,10 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         name = "host"
         server_names = ["host.url.com"]
         handler {
+          rewrite_request_id = true
           http_handler {
             http_router_id = yandex_alb_http_router.test-router.id
+			rewrite_request_id = true
             allow_http10 = true
           }
           certificate_ids = ["{{.CertificateID}}"]

@@ -9,7 +9,7 @@ FEATURES:
 * vpc: add `deletion_protection` attribute in `yandex_vpc_address` resource and data source
 * vpc: add `deletion_protection` attribute in `yandex_lb_network_load_balancer` resource and data source
 * vpc: Use the default region if the `region_id` attribute is omitted in `yandex_lb_network_load_balanacer` and `yandex_lb_target_group`
-
+* alb: add `rewrite_request_id` support in `HTTPHandler`
 
 ## 0.85.0 (January 31, 2023)
 FEATURES:
