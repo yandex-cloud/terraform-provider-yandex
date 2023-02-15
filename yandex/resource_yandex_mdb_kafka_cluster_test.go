@@ -110,6 +110,7 @@ func mdbKafkaClusterImportStep(name string) resource.TestStep {
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
+			"host",       // prevent failure if health is not the same
 			"user",       // passwords are not returned
 			"topic",      // order may differs
 			"subnet_ids", // subnets not returned
