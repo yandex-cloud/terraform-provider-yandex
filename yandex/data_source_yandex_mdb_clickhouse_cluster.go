@@ -77,6 +77,9 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 									"text_log_level":                  {Type: schema.TypeString, Optional: true},
 									"background_pool_size":            {Type: schema.TypeInt, Optional: true},
 									"background_schedule_pool_size":   {Type: schema.TypeInt, Optional: true},
+									"background_fetches_pool_size":    {Type: schema.TypeInt, Optional: true, Computed: true},
+									"default_database":                {Type: schema.TypeString, Optional: true, Computed: true},
+									"total_memory_profiler_step":      {Type: schema.TypeInt, Optional: true, Computed: true},
 
 									"merge_tree": {
 										Type:     schema.TypeList,
@@ -92,6 +95,9 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 												"max_replicated_merges_in_queue":                            {Type: schema.TypeInt, Optional: true},
 												"number_of_free_entries_in_pool_to_lower_max_size_of_merge": {Type: schema.TypeInt, Optional: true},
 												"max_bytes_to_merge_at_min_space_in_pool":                   {Type: schema.TypeInt, Optional: true},
+												"min_bytes_for_wide_part":                                   {Type: schema.TypeInt, Optional: true, Computed: true},
+												"min_rows_for_wide_part":                                    {Type: schema.TypeInt, Optional: true, Computed: true},
+												"ttl_only_drop_parts":                                       {Type: schema.TypeBool, Optional: true, Computed: true},
 											},
 										},
 									},
@@ -140,6 +146,7 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"username": {Type: schema.TypeString, Optional: true},
 												"password": {Type: schema.TypeString, Optional: true, Sensitive: true},
+												"vhost":    {Type: schema.TypeString, Optional: true, Computed: true},
 											},
 										},
 									},

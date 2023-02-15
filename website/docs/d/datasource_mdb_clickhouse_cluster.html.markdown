@@ -294,9 +294,9 @@ The `config` block supports:
 `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`,
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
-`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size` - ClickHouse server parameters. For more information, see
-[the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/operations/update#change-clickhouse-config)
-and [the ClickHouse documentation](https://clickhouse.tech/docs/en/operations/server-configuration-parameters/settings/).
+`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `default_database`,
+`total_memory_profiler_step` - ClickHouse server parameters. For more information, see
+[the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - MergeTree engine configuration. The structure is documented below.
 * `kafka` - Kafka connection configuration. The structure is documented below.
@@ -314,6 +314,9 @@ The `merge_tree` block supports:
 * `max_replicated_merges_in_queue` - Max replicated merges in queue: Maximum number of merge tasks that can be in the ReplicatedMergeTree queue at the same time.
 * `number_of_free_entries_in_pool_to_lower_max_size_of_merge` - Number of free entries in pool to lower max size of merge: Threshold value of free entries in the pool. If the number of entries in the pool falls below this value, ClickHouse reduces the maximum size of a data part to merge. This helps handle small merges faster, rather than filling the pool with lengthy merges.
 * `max_bytes_to_merge_at_min_space_in_pool` - Max bytes to merge at min space in pool: Maximum total size of a data part to merge when the number of free threads in the background pool is minimum.
+* `min_bytes_for_wide_part` - (Optional) Minimum number of bytes in a data part that can be stored in Wide format. You can set one, both or none of these settings.
+* `min_rows_for_wide_part` - (Optional) Minimum number of rows in a data part that can be stored in Wide format. You can set one, both or none of these settings.
+* `ttl_only_drop_parts` - (Optional) Enables or disables complete dropping of data parts where all rows are expired in MergeTree tables.
 
 The `kafka` block supports:
 
@@ -337,6 +340,7 @@ The `rabbitmq` block supports:
 
 * `username` - RabbitMQ username.
 * `password` - RabbitMQ user password.
+* `vhost` - (Optional) RabbitMQ vhost. Default: '\'.
 
 The `graphite_rollup` block supports:
 

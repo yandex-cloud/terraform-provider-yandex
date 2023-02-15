@@ -4,7 +4,7 @@ BUG FIXES:
 * serverless: fix documentation of required attributes for `yandex_function` resource
 
 FEATURES:
-* clickhouse: add new parameters for user settings.
+* clickhouse: add new parameters for user settings, server config.
 * serverless: add `container` support in `yandex_function_trigger` resource and data source
 * vpc: add `deletion_protection` attribute in `yandex_vpc_address` resource and data source
 * vpc: add `deletion_protection` attribute in `yandex_lb_network_load_balancer` resource and data source

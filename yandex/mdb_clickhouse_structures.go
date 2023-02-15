@@ -503,6 +503,16 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	res["number_of_free_entries_in_pool_to_lower_max_size_of_merge"] = c.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.Value
 	res["max_bytes_to_merge_at_min_space_in_pool"] = c.MaxBytesToMergeAtMinSpaceInPool.Value
 
+	if c.MinBytesForWidePart != nil {
+		res["min_bytes_for_wide_part"] = c.MinBytesForWidePart.Value
+	}
+	if c.MinRowsForWidePart != nil {
+		res["min_rows_for_wide_part"] = c.MinRowsForWidePart.Value
+	}
+	if c.TtlOnlyDropParts != nil {
+		res["ttl_only_drop_parts"] = c.TtlOnlyDropParts.Value
+	}
+
 	return []map[string]interface{}{res}, nil
 }
 
@@ -543,6 +553,9 @@ func flattenClickhouseRabbitmqSettings(d *schema.ResourceData, c *clickhouseConf
 	res["username"] = c.Username
 	if v, ok := d.GetOk("clickhouse.0.config.0.rabbitmq.0.password"); ok {
 		res["password"] = v.(string)
+	}
+	if v, ok := d.GetOk("clickhouse.0.config.0.rabbitmq.0.vhost"); ok {
+		res["vhost"] = v.(string)
 	}
 
 	return []map[string]interface{}{res}, nil
@@ -632,6 +645,16 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 		res["background_schedule_pool_size"] = c.EffectiveConfig.BackgroundSchedulePoolSize.Value
 	}
 
+	if c.EffectiveConfig.BackgroundFetchesPoolSize != nil {
+		res["background_fetches_pool_size"] = c.EffectiveConfig.BackgroundFetchesPoolSize.Value
+	}
+	if c.EffectiveConfig.DefaultDatabase != nil && len(c.EffectiveConfig.DefaultDatabase.Value) != 0 {
+		res["default_database"] = c.EffectiveConfig.DefaultDatabase.Value
+	}
+	if c.EffectiveConfig.TotalMemoryProfilerStep != nil {
+		res["total_memory_profiler_step"] = c.EffectiveConfig.TotalMemoryProfilerStep.Value
+	}
+
 	mergeTreeSettings, err := flattenClickhouseMergeTreeConfig(c.EffectiveConfig.MergeTree)
 	if err != nil {
 		return nil, err
@@ -710,6 +733,15 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	if v, ok := d.GetOkExists(rootKey + ".max_bytes_to_merge_at_min_space_in_pool"); ok {
 		config.MaxBytesToMergeAtMinSpaceInPool = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".min_bytes_for_wide_part"); ok {
+		config.MinBytesForWidePart = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".min_rows_for_wide_part"); ok {
+		config.MinRowsForWidePart = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".ttl_only_drop_parts"); ok {
+		config.TtlOnlyDropParts = &wrappers.BoolValue{Value: v.(bool)}
+	}
 
 	return config, nil
 }
@@ -767,6 +799,9 @@ func expandClickhouseRabbitmqSettings(d *schema.ResourceData, rootKey string) (*
 	}
 	if v, ok := d.GetOkExists(rootKey + ".password"); ok {
 		config.Password = v.(string)
+	}
+	if v, ok := d.GetOkExists(rootKey + ".vhost"); ok {
+		config.Vhost = v.(string)
 	}
 
 	return config, nil
@@ -931,6 +966,19 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	}
 	if v, ok := d.GetOk(rootKey + ".background_schedule_pool_size"); ok {
 		config.BackgroundSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk(rootKey + ".background_fetches_pool_size"); ok {
+		config.BackgroundFetchesPoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".default_database"); ok {
+		defaultDatabase, ok := v.(string)
+		if ok && len(defaultDatabase) != 0 {
+			config.DefaultDatabase = &wrappers.StringValue{Value: defaultDatabase}
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".total_memory_profiler_step"); ok {
+		config.TotalMemoryProfilerStep = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	mergeTreeSettings, err := expandClickhouseMergeTreeConfig(d, rootKey+".merge_tree.0")

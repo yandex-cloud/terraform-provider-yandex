@@ -630,6 +630,16 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "old_clickhouse"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -658,6 +668,16 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "clickhouse"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -3155,6 +3175,20 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
+	config {
+		background_fetches_pool_size = 8
+		default_database = "default"
+		total_memory_profiler_step = 4194304
+
+		merge_tree {
+			min_bytes_for_wide_part = 0
+			min_rows_for_wide_part = 0
+			ttl_only_drop_parts = false
+		}
+		rabbitmq {
+			vhost = "old_clickhouse"
+		}
+	}
   }
 
   database {
@@ -3225,6 +3259,20 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
+	config {
+		background_fetches_pool_size = 16
+		default_database = "new_default"
+		total_memory_profiler_step = 4194303
+
+		merge_tree {
+			min_bytes_for_wide_part = 512
+			min_rows_for_wide_part = 16
+			ttl_only_drop_parts = true
+		}
+		rabbitmq {
+			vhost = "clickhouse"
+		}
+	}
   }
 
   database {
