@@ -514,7 +514,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	pgClusterConf, err := flattenPGClusterConfig(cluster.Config, d)
+	pgClusterConf, err := flattenPGClusterConfig(cluster.Config)
 	if err != nil {
 		return err
 	}

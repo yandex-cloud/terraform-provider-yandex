@@ -299,7 +299,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", clusterID))
 	}
 
-	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config, d)
+	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config)
 	if err != nil {
 		return err
 	}

@@ -22,7 +22,7 @@ type PostgreSQLHostSpec struct {
 	Fqdn     string
 }
 
-func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData) ([]interface{}, error) {
+func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
 	poolerConf, err := flattenPGPoolerConfig(c.PoolerConfig)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig, d *schema.ResourceData)
 		return nil, err
 	}
 
-	settings, err := flattenPGSettings(c, d)
+	settings, err := flattenPGSettings(c)
 	if err != nil {
 		return nil, err
 	}
@@ -98,28 +98,85 @@ func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]in
 	return []interface{}{out}, nil
 }
 
-func flattenPGSettingsSPL(settings map[string]string, d *schema.ResourceData) map[string]string {
-	spl, ok := d.GetOkExists("config.0.postgresql_config.shared_preload_libraries")
-	if ok {
-		if settings == nil {
-			settings = make(map[string]string)
-		}
-		if _, exists := settings["shared_preload_libraries"]; !exists {
-			settings["shared_preload_libraries"] = spl.(string)
-		}
+func flattenPGSettingsSPL(settings map[string]string, c *postgresql.ClusterConfig) map[string]string {
+	splEnums := convertPGSPLtoInts(c)
+	spl, _ := mdbPGSettingsFieldsInfo.intSliceToString("shared_preload_libraries", splEnums)
+	if settings == nil {
+		settings = make(map[string]string)
 	}
-
+	settings["shared_preload_libraries"] = spl
 	return settings
 }
 
-func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map[string]string, error) {
+func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
+	out := []int32{}
+
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
+		for _, v := range cf.PostgresqlConfig_15.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14); ok {
+		for _, v := range cf.PostgresqlConfig_14.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
+		for _, v := range cf.PostgresqlConfig_14_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
+		for _, v := range cf.PostgresqlConfig_13.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
+		for _, v := range cf.PostgresqlConfig_13_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
+		for _, v := range cf.PostgresqlConfig_12.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
+		for _, v := range cf.PostgresqlConfig_12_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
+		for _, v := range cf.PostgresqlConfig_11.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
+		for _, v := range cf.PostgresqlConfig_11_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
+		for _, v := range cf.PostgresqlConfig_10.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
+		for _, v := range cf.PostgresqlConfig_10_1C.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
+	return out
+}
+
+func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 	// TODO refactor it using generics
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
 		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14); ok {
@@ -127,7 +184,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_14_1C); ok {
@@ -135,7 +192,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13); ok {
@@ -143,7 +200,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_13_1C); ok {
@@ -151,7 +208,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12); ok {
@@ -159,7 +216,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_12_1C); ok {
@@ -167,7 +224,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11); ok {
@@ -175,7 +232,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_11_1C); ok {
@@ -183,7 +240,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10); ok {
@@ -191,7 +248,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_10_1C); ok {
@@ -199,7 +256,7 @@ func flattenPGSettings(c *postgresql.ClusterConfig, d *schema.ResourceData) (map
 		if err != nil {
 			return nil, err
 		}
-		settings = flattenPGSettingsSPL(settings, d)
+		settings = flattenPGSettingsSPL(settings, c)
 		return settings, nil
 	}
 
@@ -834,6 +891,10 @@ func pgExtensionHash(v interface{}) int {
 
 func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []string {
 	log.Println("[DEBUG] expandPGParamsUpdatePath")
+	version := d.Get("config.0.version").(string)
+	pgFieldName := getPostgreSQLConfigFieldName(version)
+	log.Print("[DEBUG] pgFieldName")
+
 	mdbPGUpdateFieldsMap := map[string]string{
 		"name":                               "name",
 		"description":                        "description",
@@ -849,6 +910,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []s
 		"security_group_ids":                 "security_group_ids",
 		"maintenance_window":                 "maintenance_window",
 		"deletion_protection":                "deletion_protection",
+		"config.0.postgresql_config.shared_preload_libraries": fmt.Sprintf("config_spec.%s.shared_preload_libraries", pgFieldName),
 	}
 
 	updatePath := []string{}
@@ -857,10 +919,6 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []s
 			updatePath = append(updatePath, path)
 		}
 	}
-
-	version := d.Get("config.0.version").(string)
-	pgFieldName := getPostgreSQLConfigFieldName(version)
-	log.Print("[DEBUG] pgFieldName")
 
 	for _, setting := range settingNames {
 		field := fmt.Sprintf("config.0.postgresql_config.%s", setting)
