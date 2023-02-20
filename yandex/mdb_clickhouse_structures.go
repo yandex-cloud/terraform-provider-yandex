@@ -91,7 +91,11 @@ func clickHouseUserHash(v interface{}) int {
 	emptySettings := true
 	if s, ok := m["settings"]; ok {
 		for _, settings := range s.([]interface{}) {
-			settings := expandClickHouseUserSettings(settings.(map[string]interface{}))
+			v, ok := settings.(map[string]interface{})
+			if !ok {
+				break
+			}
+			settings := expandClickHouseUserSettings(v)
 			p := flattenClickHouseUserSettings(settings)
 			buf.WriteString(fmt.Sprintf("%v-", p))
 			emptySettings = false

@@ -3,6 +3,7 @@ BUG FIXES:
 * provider config: make `storage_secret_key` and `token` attributes sensitive
 * serverless: fix documentation of required attributes for `yandex_function` resource
 * postgresql: fix adding `shared_preload_libraries` to cluster
+* clickhouse: fix bug with empty user settings.
 
 FEATURES:
 * clickhouse: add new parameters for user settings, server config.
