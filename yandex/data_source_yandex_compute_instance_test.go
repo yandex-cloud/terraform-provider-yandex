@@ -130,7 +130,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_endpoint", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_endpoint", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_token", "1"),
-		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_token", "1"),
+		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_token", "2"),
 	)
 }
 
@@ -226,7 +226,7 @@ resource "yandex_compute_instance" "foo" {
 	gce_http_endpoint = 1
 	aws_v1_http_endpoint = 1
 	gce_http_token = 1
-	aws_v1_http_token = 1
+	aws_v1_http_token = 2
   }
 
   labels = {

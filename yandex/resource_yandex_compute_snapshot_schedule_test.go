@@ -52,6 +52,14 @@ func TestAccComputeSnapshotSchedule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(snapshotScheduleResource, "snapshot_count", "1"),
 				),
 			},
+			{
+				// make sure state is unchanged
+				Config: testAccComputeSnapshotSchedule_basic(diskName, scheduleName, snapshotDescription, "my-value-for-tag"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(snapshotScheduleResource, "id"),
+					resource.TestCheckResourceAttr(snapshotScheduleResource, "disk_ids.#", "1"),
+				),
+			},
 		},
 	})
 }
@@ -189,32 +197,33 @@ resource "yandex_compute_snapshot_schedule" "foobar" {
 
 func Test_makeUpdateSnapshotScheduleDisksRequest(t *testing.T) {
 	tests := []struct {
-		name    string
-		diskIDs map[string]bool
-		want    *compute.UpdateSnapshotScheduleDisksRequest
+		name     string
+		oldDisks map[string]bool
+		newDisks map[string]bool
+		want     *compute.UpdateSnapshotScheduleDisksRequest
 	}{
 		{
-			name:    "empty",
-			diskIDs: nil,
-			want:    &compute.UpdateSnapshotScheduleDisksRequest{},
+			name: "empty",
+			want: &compute.UpdateSnapshotScheduleDisksRequest{},
 		},
 		{
-			name:    "add",
-			diskIDs: map[string]bool{"disk1": true},
+			name:     "add",
+			newDisks: map[string]bool{"disk1": true},
 			want: &compute.UpdateSnapshotScheduleDisksRequest{
 				Add: []string{"disk1"},
 			},
 		},
 		{
-			name:    "remove",
-			diskIDs: map[string]bool{"disk1": false},
+			name:     "remove",
+			oldDisks: map[string]bool{"disk1": true},
 			want: &compute.UpdateSnapshotScheduleDisksRequest{
 				Remove: []string{"disk1"},
 			},
 		},
 		{
-			name:    "add and remove",
-			diskIDs: map[string]bool{"disk1": false, "disk2": true},
+			name:     "add and remove",
+			oldDisks: map[string]bool{"disk1": true, "disk": true},
+			newDisks: map[string]bool{"disk2": true, "disk": true},
 			want: &compute.UpdateSnapshotScheduleDisksRequest{
 				Remove: []string{"disk1"},
 				Add:    []string{"disk2"},
@@ -223,7 +232,7 @@ func Test_makeUpdateSnapshotScheduleDisksRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := makeUpdateSnapshotScheduleDisksRequest(tt.diskIDs); !reflect.DeepEqual(got, tt.want) {
+			if got := makeUpdateSnapshotScheduleDisksRequest(tt.oldDisks, tt.newDisks); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("makeUpdateSnapshotScheduleDisksRequest() = %v, want %v", got, tt.want)
 			}
 		})

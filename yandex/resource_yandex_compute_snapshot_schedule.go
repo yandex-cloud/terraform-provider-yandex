@@ -395,7 +395,7 @@ func makeSnapshotScheduleUpdateRequest(ctx context.Context, req *compute.UpdateS
 func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	diskIDs := make(map[string]bool)
+	oldDisks := make(map[string]bool)
 	var token string
 	for {
 		resp, err := config.sdk.Compute().SnapshotSchedule().ListDisks(ctx, &compute.ListSnapshotScheduleDisksRequest{
@@ -406,7 +406,7 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 			return fmt.Errorf("Failed to get snapshot schedule disks: %v", err)
 		}
 		for _, d := range resp.Disks {
-			diskIDs[d.Id] = false
+			oldDisks[d.Id] = true
 		}
 
 		token = resp.NextPageToken
@@ -415,11 +415,12 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	newDisks := make(map[string]bool)
 	for _, d := range expandStringSlice(d.Get("disk_ids").([]interface{})) {
-		diskIDs[d] = true
+		newDisks[d] = true
 	}
 
-	req := makeUpdateSnapshotScheduleDisksRequest(diskIDs)
+	req := makeUpdateSnapshotScheduleDisksRequest(oldDisks, newDisks)
 	req.SnapshotScheduleId = d.Id()
 
 	if len(req.Add) == 0 && len(req.Remove) == 0 {
@@ -442,15 +443,23 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func makeUpdateSnapshotScheduleDisksRequest(diskIDs map[string]bool) *compute.UpdateSnapshotScheduleDisksRequest {
+func makeUpdateSnapshotScheduleDisksRequest(oldDisks, newDisks map[string]bool) *compute.UpdateSnapshotScheduleDisksRequest {
 	req := &compute.UpdateSnapshotScheduleDisksRequest{}
 
-	for d, ok := range diskIDs {
-		if ok {
-			req.Add = append(req.Add, d)
-		} else {
-			req.Remove = append(req.Remove, d)
+	// remove old disks
+	for disk := range oldDisks {
+		if newDisks[disk] {
+			continue
 		}
+		req.Remove = append(req.Remove, disk)
+	}
+
+	// add new disks
+	for disk := range newDisks {
+		if oldDisks[disk] {
+			continue
+		}
+		req.Add = append(req.Add, disk)
 	}
 
 	return req

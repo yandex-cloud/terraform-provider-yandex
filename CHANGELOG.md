@@ -4,6 +4,7 @@ BUG FIXES:
 * serverless: fix documentation of required attributes for `yandex_function` resource
 * postgresql: fix adding `shared_preload_libraries` to cluster
 * clickhouse: fix bug with empty user settings.
+* compute: fix updating `snapshot_schedule` disks
 
 FEATURES:
 * clickhouse: add new parameters for user settings, server config.
