@@ -600,7 +600,6 @@ resource "yandex_alb_load_balancer" "test-balancer" {
         name = "host"
         server_names = ["host.url.com"]
         handler {
-          rewrite_request_id = true
           http_handler {
             http_router_id = yandex_alb_http_router.test-router.id
 			rewrite_request_id = true
