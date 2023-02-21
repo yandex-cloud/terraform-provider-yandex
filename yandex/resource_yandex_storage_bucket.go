@@ -1187,7 +1187,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 		log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ObjectLockConfiguration: %s", d.Id(), err)
 		return err
 	} else {
-		log.Printf("[Debug] Got an error while trying to read Storage Bucket (%s) ObjectLockConfigurationt: %s", d.Id(), err)
+		log.Printf("[DEBUG] Got an error while trying to read Storage Bucket (%s) ObjectLockConfigurationt: %s", d.Id(), err)
 	}
 
 	var olcl []map[string]interface{}
@@ -1255,7 +1255,6 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 
 	// Read the lifecycle configuration
-
 	lifecycleResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketLifecycleConfiguration(&s3.GetBucketLifecycleConfigurationInput{
 			Bucket: aws.String(d.Id()),

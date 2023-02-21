@@ -5,6 +5,7 @@ BUG FIXES:
 * postgresql: fix adding `shared_preload_libraries` to cluster
 * clickhouse: fix bug with empty user settings.
 * compute: fix updating `snapshot_schedule` disks
+* storage: minor logging fixes
 
 FEATURES:
 * clickhouse: add new parameters for user settings, server config.
