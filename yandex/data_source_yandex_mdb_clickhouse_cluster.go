@@ -198,8 +198,10 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							},
 						},
 						"resources": {
-							Type:     schema.TypeList,
-							Computed: true,
+							Type:             schema.TypeList,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: compareClusterResources,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_preset_id": {
@@ -398,6 +400,31 @@ func dataSourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
+						},
+						"resources": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_preset_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"disk_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"disk_type_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
 						},
 					},
 				},

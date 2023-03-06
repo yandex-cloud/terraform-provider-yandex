@@ -75,10 +75,10 @@ The `zookeeper` block supports:
 
 The `resources` block supports:
 
-* `resources_preset_id` - The ID of the preset for computational resources available to a ClickHouse or ZooKeeper host (CPU, memory etc.).
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.).
   For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
-* `disk_size` - Volume of the storage available to a ClickHouse or ZooKeeper host, in gigabytes.
-* `disk_type_id` - Type of the storage of ClickHouse or ZooKeeper hosts.
+* `disk_size` - Volume of the storage available to a host, in gigabytes.
+* `disk_type_id` - Type of the storage of hosts.
 
 The `user` block supports:
 
@@ -254,6 +254,14 @@ The `shard` block supports:
 
 * `name` - The name of the shard.
 * `weight` - The weight of the shard.
+* `resources` - Resources allocated to hosts of the shard. The resources specified for the shard takes precedence over the resources specified for the cluster. The structure is documented below.
+
+The `resources` block supports:
+
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.).
+  For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `disk_size` - Volume of the storage available to a host, in gigabytes.
+* `disk_type_id` - Type of the storage of hosts.
 
 The `shard_group` block supports:
 

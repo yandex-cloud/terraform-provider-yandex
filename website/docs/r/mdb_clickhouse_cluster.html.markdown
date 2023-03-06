@@ -822,6 +822,15 @@ The `shard` block supports:
 
 * `weight` - (Optional) The weight of shard.
 
+* `resources` - (Optional) Resources allocated to host of the shard. The resources specified for the shard takes precedence over the resources specified for the cluster. The structure is documented below.
+
+The `resources` block supports:
+
+* `resources_preset_id` - The ID of the preset for computational resources available to a host (CPU, memory etc.).
+  For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts).
+* `disk_size` - Volume of the storage available to a host, in gigabytes.
+* `disk_type_id` - Type of the storage of hosts.
+
 The `shard_group` block supports:
 
 * `name` (Required) - The name of the shard group, used as cluster name in Distributed tables.

@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -413,16 +414,24 @@ func TestAccMDBClickHouseCluster_keeper(t *testing.T) {
 	})
 }
 
-// Test that a sharded ClickHouse Cluster can be created, updated and destroyed
+/**
+* Test that a sharded ClickHouse Cluster can be created, updated and destroyed.
+* Also it checks changes shard's configuration.
+ */
 func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 	t.Parallel()
 
 	var r clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse-sharded")
-	chDesc := "ClickHouse Sharded Cluster Terraform Test"
 	folderID := getExampleFolderID()
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
+
+	const createClusterDiskSize = 10
+	const createFirstShardDiskSize = 11
+	const createSecondShardDiskSize = 12
+
+	const updateClusterDiskSize = 15
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -431,15 +440,23 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create sharded ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterConfigSharded(chName, chDesc, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigSharded(chName, createClusterDiskSize, createFirstShardDiskSize, createSecondShardDiskSize, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.name", "shard1"),
-					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard2"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.weight", "11"),
+
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_size", strconv.Itoa(createFirstShardDiskSize)),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.resource_preset_id", "s3-c4-m16"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_type_id", "network-ssd"),
+
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard2"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.weight", "22"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_size", strconv.Itoa(createSecondShardDiskSize)),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.resource_preset_id", "s3-c2-m8"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_type_id", "network-ssd"),
 
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard2"}),
@@ -447,7 +464,6 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 						"test_group":   {"shard1", "shard2"},
 						"test_group_2": {"shard1"},
 					}),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
 					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(chResourceSharded),
@@ -456,16 +472,22 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResourceSharded),
 			// Add new shard, delete old shard
 			{
-				Config: testAccMDBClickHouseClusterConfigShardedUpdated(chName, chDesc, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigShardedUpdated(chName, updateClusterDiskSize, bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResourceSharded, &r, 2),
 					resource.TestCheckResourceAttr(chResourceSharded, "name", chName),
 					resource.TestCheckResourceAttr(chResourceSharded, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResourceSharded, "description", chDesc),
+
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.name", "shard1"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.weight", "110"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.disk_size", strconv.Itoa(updateClusterDiskSize)),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.0.resources.0.resource_preset_id", "s3-c2-m8"),
+
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.name", "shard3"),
 					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.weight", "330"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_size", strconv.Itoa(updateClusterDiskSize)),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.resource_preset_id", "s3-c2-m8"),
+					resource.TestCheckResourceAttr(chResourceSharded, "shard.1.resources.0.disk_type_id", "network-ssd"),
 
 					resource.TestCheckResourceAttrSet(chResourceSharded, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterHasShards(&r, []string{"shard1", "shard3"}),
@@ -473,7 +495,7 @@ func TestAccMDBClickHouseCluster_sharded(t *testing.T) {
 						"test_group":   {"shard1", "shard3"},
 						"test_group_3": {"shard1"},
 					}),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
+					testAccCheckMDBClickHouseClusterHasResources(&r, "s3-c2-m8", "network-ssd", toBytes(updateClusterDiskSize)),
 					testAccCheckMDBClickHouseClusterHasUsers(chResourceSharded, map[string][]string{"john": {"testdb"}}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResourceSharded, []string{"testdb"}),
 					testAccCheckCreatedAtAttr(chResourceSharded),
@@ -544,15 +566,15 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 }
 
 // Test that a ClickHouse Cluster version and resources could be updated simultaneously.
-func TestAccMDBClickHouseCluster_update_version_resources(t *testing.T) {
-	t.Parallel()
-
+func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 	var r clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse-update")
-	chDesc := "ClickHouse Cluster update Terraform Test"
 	folderID := getExampleFolderID()
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
+
+	preset := "s2.micro"
+	updatedPreset := "s2.small"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -561,27 +583,28 @@ func TestAccMDBClickHouseCluster_update_version_resources(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterSimpleConfig(chName, chDesc, bucketName, rInt, chVersion, "s2.micro"),
+				Config: testAccMDBClickHouseClusterResource(chName, bucketName, rInt, chVersion, preset, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", "s2.micro"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", preset),
+					testAccCheckMDBClickHouseClusterHasResources(&r, preset, "network-ssd", 10737418240),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Update ClickHouse version and cluster resources
 			{
-				Config: testAccMDBClickHouseClusterSimpleConfig(chName, chDesc, bucketName, rInt, chUpdatedVersion, "b1.medium"),
+				Config: testAccMDBClickHouseClusterResource(chName, bucketName, rInt, chUpdatedVersion, updatedPreset, 16),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
 					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", "b1.medium"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", updatedPreset),
+					testAccCheckMDBClickHouseClusterHasResources(&r, updatedPreset, "network-ssd", 17179869184),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -2407,20 +2430,20 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl)
 }
 
-func testAccMDBClickHouseClusterConfigSharded(name, desc, bucket string, randInt int) string {
+func testAccMDBClickHouseClusterConfigSharded(name string, clusterDiskSize int, firstShardDiskSize, secondShardDiskSize int, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
-  description    = "%s"
+  description    = "ClickHouse Sharded Cluster Terraform Test"
   environment    = "PRESTABLE"
   network_id     = yandex_vpc_network.mdb-ch-test-net.id
   admin_password = "strong_password"
 
   clickhouse {
     resources {
-      resource_preset_id = "s2.micro"
+      resource_preset_id = "s3-c2-m8"
       disk_type_id       = "network-ssd"
-      disk_size          = 10
+      disk_size          = %d
     }
   }
 
@@ -2434,111 +2457,26 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     permission {
       database_name = "testdb"
     }
-    settings {
-      add_http_cors_header                               = false
-      allow_ddl                                          = false
-      compile                                            = false
-      compile_expressions                                = false
-      connect_timeout                                    = 0
-      count_distinct_implementation                      = "unspecified"
-      distinct_overflow_mode                             = "unspecified"
-      distributed_aggregation_memory_efficient           = false
-      distributed_ddl_task_timeout                       = 0
-      distributed_product_mode                           = "unspecified"
-      empty_result_for_aggregation_by_empty_set          = false
-      enable_http_compression                            = false
-      fallback_to_stale_replicas_for_distributed_queries = false
-      force_index_by_date                                = false
-      force_primary_key                                  = false
-      group_by_overflow_mode                             = "unspecified"
-      group_by_two_level_threshold                       = 0
-      group_by_two_level_threshold_bytes                 = 0
-      http_connection_timeout                            = 0
-      http_headers_progress_interval                     = 0
-      http_receive_timeout                               = 0
-      http_send_timeout                                  = 0
-      input_format_defaults_for_omitted_fields           = false
-      input_format_values_interpret_expressions          = false
-      insert_quorum                                      = 0
-      insert_quorum_timeout                              = 0
-      join_overflow_mode                                 = "unspecified"
-      join_use_nulls                                     = false
-      joined_subquery_requires_alias                     = false
-      low_cardinality_allow_in_native_format             = false
-      max_ast_depth                                      = 0
-      max_ast_elements                                   = 0
-      max_block_size                                     = 0
-      max_bytes_before_external_group_by                 = 0
-      max_bytes_before_external_sort                     = 0
-      max_bytes_in_distinct                              = 0
-      max_bytes_in_join                                  = 0
-      max_bytes_in_set                                   = 0
-      max_bytes_to_read                                  = 0
-      max_bytes_to_sort                                  = 0
-      max_bytes_to_transfer                              = 0
-      max_columns_to_read                                = 0
-      max_execution_time                                 = 0
-      max_expanded_ast_elements                          = 0
-      max_insert_block_size                              = 0
-      max_memory_usage                                   = 0
-      max_memory_usage_for_user                          = 0
-      max_network_bandwidth                              = 0
-      max_network_bandwidth_for_user                     = 0
-      max_query_size                                     = 0
-      max_replica_delay_for_distributed_queries          = 0
-      max_result_bytes                                   = 0
-      max_result_rows                                    = 0
-      max_rows_in_distinct                               = 0
-      max_rows_in_join                                   = 0
-      max_rows_in_set                                    = 0
-      max_rows_to_group_by                               = 0
-      max_rows_to_read                                   = 0
-      max_rows_to_sort                                   = 0
-      max_rows_to_transfer                               = 0
-      max_temporary_columns                              = 0
-      max_temporary_non_const_columns                    = 0
-      max_threads                                        = 0
-      merge_tree_max_bytes_to_use_cache                  = 0
-      merge_tree_max_rows_to_use_cache                   = 0
-      merge_tree_min_bytes_for_concurrent_read           = 0
-      merge_tree_min_rows_for_concurrent_read            = 0
-      min_bytes_to_use_direct_io                         = 0
-      min_count_to_compile                               = 0
-      min_count_to_compile_expression                    = 0
-      min_execution_speed                                = 0
-      min_execution_speed_bytes                          = 0
-      min_insert_block_size_bytes                        = 0
-      min_insert_block_size_rows                         = 0
-      output_format_json_quote_64bit_integers            = false
-      output_format_json_quote_denormals                 = false
-      priority                                           = 0
-      quota_mode                                         = "unspecified"
-      read_overflow_mode                                 = "unspecified"
-      readonly                                           = 0
-      receive_timeout                                    = 0
-      replication_alter_partitions_sync                  = 0
-      result_overflow_mode                               = "unspecified"
-      select_sequential_consistency                      = false
-      send_progress_in_http_headers                      = false
-      send_timeout                                       = 0
-      set_overflow_mode                                  = "unspecified"
-      skip_unavailable_shards                            = false
-      sort_overflow_mode                                 = "unspecified"
-      timeout_overflow_mode                              = "unspecified"
-      transfer_overflow_mode                             = "unspecified"
-      transform_null_in                                  = false
-      use_uncompressed_cache                             = false
-    }
   }
 
   shard {
 	name = "shard1"
 	weight = 11
+	resources {
+      resource_preset_id = "s3-c4-m16"
+      disk_type_id       = "network-ssd"
+      disk_size          = %d
+    }
   }
 
   shard {
 	name = "shard2"
 	weight = 22
+	resources {
+      resource_preset_id = "s3-c2-m8"
+      disk_type_id       = "network-ssd"
+      disk_size          = %d
+    }
   }
 
   host {
@@ -2574,23 +2512,23 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     ]
   }
 }
-`, name, desc)
+`, name, clusterDiskSize, firstShardDiskSize, secondShardDiskSize)
 }
 
-func testAccMDBClickHouseClusterConfigShardedUpdated(name, desc, bucket string, randInt int) string {
+func testAccMDBClickHouseClusterConfigShardedUpdated(name string, clusterDiskSize int, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
-  description    = "%s"
+  description    = "ClickHouse Sharded Cluster Terraform Test"
   environment    = "PRESTABLE"
   network_id     = yandex_vpc_network.mdb-ch-test-net.id
   admin_password = "strong_password"
 
   clickhouse {
     resources {
-      resource_preset_id = "s2.micro"
+      resource_preset_id = "s3-c2-m8"
       disk_type_id       = "network-ssd"
-      disk_size          = 10
+      disk_size          = %d
     }
   }
 
@@ -2603,101 +2541,6 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     password = "password"
     permission {
       database_name = "testdb"
-    }
-    settings {
-      add_http_cors_header                               = false
-      allow_ddl                                          = false
-      compile                                            = false
-      compile_expressions                                = false
-      connect_timeout                                    = 0
-      count_distinct_implementation                      = "unspecified"
-      distinct_overflow_mode                             = "unspecified"
-      distributed_aggregation_memory_efficient           = false
-      distributed_ddl_task_timeout                       = 0
-      distributed_product_mode                           = "unspecified"
-      empty_result_for_aggregation_by_empty_set          = false
-      enable_http_compression                            = false
-      fallback_to_stale_replicas_for_distributed_queries = false
-      force_index_by_date                                = false
-      force_primary_key                                  = false
-      group_by_overflow_mode                             = "unspecified"
-      group_by_two_level_threshold                       = 0
-      group_by_two_level_threshold_bytes                 = 0
-      http_connection_timeout                            = 0
-      http_headers_progress_interval                     = 0
-      http_receive_timeout                               = 0
-      http_send_timeout                                  = 0
-      input_format_defaults_for_omitted_fields           = false
-      input_format_values_interpret_expressions          = false
-      insert_quorum                                      = 0
-      insert_quorum_timeout                              = 0
-      join_overflow_mode                                 = "unspecified"
-      join_use_nulls                                     = false
-      joined_subquery_requires_alias                     = false
-      low_cardinality_allow_in_native_format             = false
-      max_ast_depth                                      = 0
-      max_ast_elements                                   = 0
-      max_block_size                                     = 0
-      max_bytes_before_external_group_by                 = 0
-      max_bytes_before_external_sort                     = 0
-      max_bytes_in_distinct                              = 0
-      max_bytes_in_join                                  = 0
-      max_bytes_in_set                                   = 0
-      max_bytes_to_read                                  = 0
-      max_bytes_to_sort                                  = 0
-      max_bytes_to_transfer                              = 0
-      max_columns_to_read                                = 0
-      max_execution_time                                 = 0
-      max_expanded_ast_elements                          = 0
-      max_insert_block_size                              = 0
-      max_memory_usage                                   = 0
-      max_memory_usage_for_user                          = 0
-      max_network_bandwidth                              = 0
-      max_network_bandwidth_for_user                     = 0
-      max_query_size                                     = 0
-      max_replica_delay_for_distributed_queries          = 0
-      max_result_bytes                                   = 0
-      max_result_rows                                    = 0
-      max_rows_in_distinct                               = 0
-      max_rows_in_join                                   = 0
-      max_rows_in_set                                    = 0
-      max_rows_to_group_by                               = 0
-      max_rows_to_read                                   = 0
-      max_rows_to_sort                                   = 0
-      max_rows_to_transfer                               = 0
-      max_temporary_columns                              = 0
-      max_temporary_non_const_columns                    = 0
-      max_threads                                        = 0
-      merge_tree_max_bytes_to_use_cache                  = 0
-      merge_tree_max_rows_to_use_cache                   = 0
-      merge_tree_min_bytes_for_concurrent_read           = 0
-      merge_tree_min_rows_for_concurrent_read            = 0
-      min_bytes_to_use_direct_io                         = 0
-      min_count_to_compile                               = 0
-      min_count_to_compile_expression                    = 0
-      min_execution_speed                                = 0
-      min_execution_speed_bytes                          = 0
-      min_insert_block_size_bytes                        = 0
-      min_insert_block_size_rows                         = 0
-      output_format_json_quote_64bit_integers            = false
-      output_format_json_quote_denormals                 = false
-      priority                                           = 0
-      quota_mode                                         = "unspecified"
-      read_overflow_mode                                 = "unspecified"
-      readonly                                           = 0
-      receive_timeout                                    = 0
-      replication_alter_partitions_sync                  = 0
-      result_overflow_mode                               = "unspecified"
-      select_sequential_consistency                      = false
-      send_progress_in_http_headers                      = false
-      send_timeout                                       = 0
-      set_overflow_mode                                  = "unspecified"
-      skip_unavailable_shards                            = false
-      sort_overflow_mode                                 = "unspecified"
-      timeout_overflow_mode                              = "unspecified"
-      transfer_overflow_mode                             = "unspecified"
-      transform_null_in                                  = false
-      use_uncompressed_cache                             = false
     }
   }
 
@@ -2745,7 +2588,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
   }
 
 }
-`, name, desc)
+`, name, clusterDiskSize)
 }
 
 func testAccMDBClickHouseClusterConfigSqlManaged(name, desc, bucket string, randInt int) string {
@@ -3120,11 +2963,11 @@ resource "yandex_mdb_clickhouse_cluster" "keeper" {
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterSimpleConfig(name, desc, bucket string, randInt int, version string, preset string) string {
+func testAccMDBClickHouseClusterResource(name, bucket string, randInt int, version string, preset string, diskSize int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo"{
   name           = "%s"
-  description    = "%s"
+  description    = "ClickHouse Cluster update Terraform Test"
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
@@ -3138,7 +2981,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     resources {
       resource_preset_id = "%s"
       disk_type_id       = "network-ssd"
-      disk_size          = 16
+      disk_size          = %d
     }
   }
 
@@ -3148,7 +2991,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
 }
-`, name, desc, version, preset)
+`, name, version, preset, diskSize)
 }
 
 func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {

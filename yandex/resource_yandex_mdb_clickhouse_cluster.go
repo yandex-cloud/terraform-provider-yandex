@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -56,7 +58,8 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			},
 			"clickhouse": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -217,22 +220,27 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							},
 						},
 						"resources": {
-							Type:     schema.TypeList,
-							MaxItems: 1,
-							Required: true,
+							Type:             schema.TypeList,
+							MaxItems:         1,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: compareClusterResources,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"resource_preset_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+										Computed: true,
 									},
 									"disk_size": {
 										Type:     schema.TypeInt,
-										Required: true,
+										Optional: true,
+										Computed: true,
 									},
 									"disk_type_id": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
+										Computed: true,
 									},
 								},
 							},
@@ -424,6 +432,31 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
+						},
+						"resources": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resource_preset_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"disk_size": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"disk_type_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -781,6 +814,8 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 }
 
 func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Println("[DEBUG] create started")
+	backupOriginalClusterResource(d)
 	config := meta.(*Config)
 
 	req, shardsToAdd, shardsFromSpec, err := prepareCreateClickHouseCreateRequest(d, config)
@@ -835,7 +870,7 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 			log.Printf("[ERROR] trying to update non-existent shard, name=%s\n", shardNameFromSpec)
 			continue
 		}
-		log.Printf("[DEBUG] update exists shard = %s\n", shardNameFromSpec)
+		log.Printf("[DEBUG] update exists shard=%s\n", shardNameFromSpec)
 		if err := updateClickHouseShard(ctx, config, d, shardNameFromSpec, shardConfigFromSpec); err != nil {
 			return err
 		}
@@ -993,6 +1028,7 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 }
 
 func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interface{}) error {
+	log.Println("[DEBUG] cluster read started")
 	config := meta.(*Config)
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
@@ -1009,6 +1045,7 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	log.Printf("[DEBUG] read cluster resources: %v\n", chResources)
 	chConfig, err := flattenClickHouseConfig(d, cluster.Config.Clickhouse.Config)
 	if err != nil {
 		return err
@@ -1162,11 +1199,13 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
+	log.Printf("[DEBUG] cluster read finished: schema after read=%+v\n", d)
 	return d.Set("labels", cluster.Labels)
 }
 
 func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Updating ClickHouse Cluster %q", d.Id())
+	log.Printf("[DEBUG] Started update ClickHouse Cluster %q", d.Id())
+	backupOriginalClusterResource(d)
 
 	d.Partial(true)
 
@@ -1194,7 +1233,7 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("shard") {
-		log.Println("[DEBUG] shard configuration change detected.")
+		log.Println("[DEBUG] shard configuration changes detected.")
 		if err := updateClickHouseClusterShards(d, meta); err != nil {
 			return err
 		}
@@ -1345,6 +1384,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 		return nil, err
 	}
 
+	log.Printf("[DEBUG] resource for cluster update request: %+v\n", clickhouseConfigSpec.Resources)
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
 		return nil, fmt.Errorf("update error while expand clickhouse maintenance_window: %s", err)
@@ -1583,10 +1623,14 @@ func updateClickHouseClusterShards(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
+	log.Printf("[DEBUG] before update shards got shards from cluster: %+v\n", shardsOnCluster)
+
 	shardsFromSpec, err := expandClickhouseShardSpecs(d)
 	if err != nil {
 		return nil
 	}
+
+	log.Printf("[DEBUG] before update shards got shards from schema: %+v\n", shardsFromSpec)
 
 	for _, shard := range shardsOnCluster {
 		if shardSpec, ok := shardsFromSpec[shard.Name]; ok {
@@ -1881,6 +1925,45 @@ func createClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 	return nil
 }
 
+func isShardResourceDiskSizeChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
+	if fromCluster != nil && fromSpec == nil {
+		log.Printf("[DEBUG] shard's weight is removed from configuration. set default value.")
+		return true
+	}
+	if fromCluster.DiskSize != fromSpec.DiskSize {
+		log.Printf("[DEBUG] change shard's weight according to the configuration tf file.")
+		return true
+	}
+	log.Printf("[DEBUG] no change in shard's weight.")
+	return false
+}
+
+func isShardResourceResourcePresetIdChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
+	if fromCluster != nil && fromSpec == nil {
+		log.Printf("[DEBUG] shard's ResourcePresetId is removed from configuration. set default value.")
+		return true
+	}
+	if fromCluster.ResourcePresetId != fromSpec.ResourcePresetId {
+		log.Printf("[DEBUG] change shard's ResourcePresetId according to the configuration tf file.")
+		return true
+	}
+	log.Printf("[DEBUG] no change in shard's ResourcePresetId.")
+	return false
+}
+
+func isShardResourceDiskTypeIdChanged(fromCluster, fromSpec *clickhouse.Resources) bool {
+	if fromCluster != nil && fromSpec == nil {
+		log.Printf("[DEBUG] shard's DiskTypeId is removed from configuration. set default value.")
+		return true
+	}
+	if fromCluster.DiskTypeId != fromSpec.DiskTypeId {
+		log.Printf("[DEBUG] change shard's DiskTypeId according to the configuration tf file.")
+		return true
+	}
+	log.Printf("[DEBUG] no change in shard's DiskTypeId.")
+	return false
+}
+
 func updateClickHouseShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, shardSpec *clickhouse.ShardConfigSpec) error {
 	resp, err := config.sdk.MDB().Clickhouse().Cluster().GetShard(context.Background(), &clickhouse.GetClusterShardRequest{
 		ClusterId: d.Id(),
@@ -1893,11 +1976,31 @@ func updateClickHouseShard(ctx context.Context, config *Config, d *schema.Resour
 	updateRequired := false
 	var updatePath []string
 
-	// @TODO check all nil pointers?
+	log.Println("[DEBUG] start compute updating fields")
 	if resp.Config.Clickhouse.Weight.Value != shardSpec.Clickhouse.Weight.Value {
 		log.Printf("[DEBUG] shard=%s has wegith=%d, update to %d\n", shardName, resp.Config.Clickhouse.Weight.Value, shardSpec.Clickhouse.Weight.Value)
 		updateRequired = true
 		updatePath = append(updatePath, "config_spec.clickhouse.weight")
+	}
+
+	if shardSpec.Clickhouse.Resources != nil {
+		if isShardResourceDiskSizeChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
+			log.Printf("[DEBUG] shard=%s has disk_size=%d, update to %d\n", shardName, resp.Config.Clickhouse.Resources.GetDiskSize(), shardSpec.Clickhouse.Resources.GetDiskSize())
+			updateRequired = true
+			updatePath = append(updatePath, "config_spec.clickhouse.resources.disk_size")
+		}
+
+		if isShardResourceResourcePresetIdChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
+			log.Printf("[DEBUG] shard=%s has resource_preset_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetResourcePresetId(), shardSpec.Clickhouse.Resources.GetResourcePresetId())
+			updateRequired = true
+			updatePath = append(updatePath, "config_spec.clickhouse.resources.ResourcePresetId")
+		}
+
+		if isShardResourceDiskTypeIdChanged(resp.Config.Clickhouse.Resources, shardSpec.Clickhouse.Resources) {
+			log.Printf("[DEBUG] shard=%s has disk_type_id=%s, update to %s\n", shardName, resp.Config.Clickhouse.Resources.GetDiskTypeId(), shardSpec.Clickhouse.Resources.GetDiskTypeId())
+			updateRequired = true
+			updatePath = append(updatePath, "config_spec.clickhouse.resources.DiskTypeId")
+		}
 	}
 
 	if !updateRequired {
@@ -2347,6 +2450,96 @@ func setShardsToSchema(ctx context.Context, config *Config, d *schema.ResourceDa
 	if err := d.Set("shard", shards); err != nil {
 		return fmt.Errorf("read cluster: failed to set shards in schema: %s", err)
 	}
+	fmt.Printf("[DEBUG] read data for fill schema: shards=%v\n", shards)
 
 	return nil
+}
+
+func compareResourcesFields(key string, old, new string, configSpec *clickhouse.ShardConfigSpec) bool {
+	// need only such as: clickhouse.0.resources.0.disk_size
+	rawPartKey := strings.Split(key, ".0.")
+	if len(rawPartKey) != 3 {
+		log.Printf("[DEBUG] wrong format key: %s\n", key)
+		return defaultResourcesCompare(old, new)
+	}
+	resources := configSpec.Clickhouse.Resources
+	log.Printf("[DEBUG] current resource from first shard = %v\n", resources)
+
+	switch k := rawPartKey[len(rawPartKey)-1]; k {
+	case "disk_size":
+		oldGb, err := strconv.Atoi(old)
+		if err != nil {
+			log.Printf("[ERROR] failed parse value=%s, err=%s\n", old, err)
+			break
+		}
+		oldBytes := toBytes(oldGb)
+		log.Printf("[DEBUG] smart compare disk_size: shard=%v, old=%d\n", resources.GetDiskSize(), oldBytes)
+		return resources.GetDiskSize() == oldBytes
+	case "resource_preset_id":
+		log.Printf("[DEBUG] smart compare resource_preset_id: shard=%v, old=%s, new=%s\n", resources.GetResourcePresetId(), old, new)
+		return resources.GetResourcePresetId() == old
+	case "disk_type_id":
+		log.Printf("[DEBUG] smart compare disk_type_id: shard=%v, old=%s\n", resources.GetDiskTypeId(), old)
+		return resources.GetDiskTypeId() == old
+	default:
+		log.Printf("[ERROR] wrong key=%s\n", k)
+	}
+	return defaultResourcesCompare(old, new)
+}
+
+func defaultResourcesCompare(old, new string) bool {
+	log.Println("[DEBUG] default compare resources with value from cluster spec")
+	return old == new
+}
+
+func dropShardsWithDefaultResources(clusterResources *clickhouse.Resources, shardsResources map[string]*clickhouse.ShardConfigSpec) {
+	log.Println("[DEBUG] try to drop shards with default cluster resources.")
+	for shardName, shardSpec := range shardsResources {
+		log.Printf("[DEBUG] check shard: shard_name=%s, shard_spec=%v\n", shardName, shardSpec)
+
+		shardResources := shardSpec.Clickhouse.Resources
+		if shardResources == nil {
+			log.Printf("[DEBUG] shard_name=%s, shard_spec is empty. skip.\n", shardName)
+			continue
+		}
+
+		log.Printf("[DEBUG] shard_name=%s: compare resources: resources from cluster=%v, resources from shard=%v\n", shardName, clusterResources, shardResources)
+		if isEqualResources(clusterResources, shardResources) {
+			log.Printf("[DEBUG] shard_name=%s is default. drop.\n", shardName)
+			delete(shardsResources, shardName)
+			continue
+		}
+		log.Printf("[DEBUG] shard_name=%s isn't default. skip.\n", shardName)
+	}
+}
+
+func compareClusterResources(k, old, new string, updatedSchema *schema.ResourceData) bool {
+	if len(old) == 0 {
+		return defaultResourcesCompare(old, new)
+	}
+	log.Printf("[DEBUG] compareClusterResources: old=%s, new=%s, key=%s\n", old, new, k)
+	log.Printf("[DEBUG] original cluster schema: cluster=%v\n", originalClusterResources)
+
+	updatedClusterResources := expandClickHouseResources(updatedSchema, "clickhouse.0.resources.0")
+	log.Printf("[DEBUG] updated cluster schema: cluster=%v\n", updatedClusterResources)
+
+	updatedShardsResources, _ := expandClickhouseShardSpecs(updatedSchema)
+	log.Printf("[DEBUG] updated shards schema: shards=%v\n", updatedShardsResources)
+
+	dropShardsWithDefaultResources(originalClusterResources, updatedShardsResources)
+
+	log.Printf("[DEBUG] current shards schema after drop shards with default resources: sahrds=%v\n", updatedShardsResources)
+
+	hosts, err := expandClickHouseHosts(updatedSchema)
+	if err != nil || len(hosts) == 0 {
+		log.Printf("[DEBUG] compareClusterResources: error expand hosts schema: %s\n", err)
+		return defaultResourcesCompare(old, new)
+	}
+
+	if configSpec, ok := updatedShardsResources[hosts[0].ShardName]; ok && configSpec != nil && configSpec.Clickhouse.Resources != nil {
+		log.Println("[DEBUG] compareClusterResources: shard for first host specify in current shard resources schema. smart compare.")
+		return compareResourcesFields(k, old, new, configSpec)
+	}
+	log.Println("[DEBUG] compareClusterResources: shard for first host not specify in current shard resources schema. default compare.")
+	return defaultResourcesCompare(old, new)
 }

@@ -3,6 +3,7 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"reflect"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -15,6 +16,31 @@ import (
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
+
+var originalClusterResources *clickhouse.Resources
+
+func isEqualResources(clusterResources *clickhouse.Resources, shardResources *clickhouse.Resources) bool {
+	if clusterResources.GetDiskSize() != shardResources.GetDiskSize() {
+		log.Printf("[DEBUG] resource is diffrent by disk_size: cluster disk_size=%d, shard disk_size=%d\n", clusterResources.GetDiskSize(), shardResources.GetDiskSize())
+		return false
+	}
+	if clusterResources.GetDiskTypeId() != shardResources.GetDiskTypeId() {
+		log.Printf("[DEBUG] resource is diffrent by disk_type_id: cluster disk_type_id=%s, shard disk_type_id=%s\n", clusterResources.GetDiskTypeId(), shardResources.GetDiskTypeId())
+		return false
+
+	}
+	if clusterResources.GetResourcePresetId() != shardResources.GetResourcePresetId() {
+		log.Printf("[DEBUG] resource is diffrent by resource_preset_id: cluster resource_preset_id=%s, shard resource_preset_id=%s\n", clusterResources.GetResourcePresetId(), shardResources.GetResourcePresetId())
+		return false
+	}
+	log.Println("[DEBUG] resources are equal")
+	return true
+}
+
+func backupOriginalClusterResource(d *schema.ResourceData) {
+	originalClusterResources = expandClickHouseResources(d, "clickhouse.0.resources.0")
+	log.Printf("[DEBUG] update original schema cluster resources=%v\n", originalClusterResources)
+}
 
 // Sorts list of hosts in accordance with the order in config.
 // We need to keep the original order so there's no diff appears on each apply.
@@ -2038,27 +2064,33 @@ func expandClickHouseUserSpecs(d *schema.ResourceData) ([]*clickhouse.UserSpec, 
 	return result, nil
 }
 
-func expandClickhouseShard(s map[string]interface{}, d *schema.ResourceData, hash int) *clickhouse.ShardConfigSpec {
-	shard := &clickhouse.ShardConfigSpec{
+func expandClickhouseShard(s map[string]interface{}, _ *schema.ResourceData, hash int) *clickhouse.ShardConfigSpec {
+	shardFromSpec := &clickhouse.ShardConfigSpec{
 		Clickhouse: &clickhouse.ShardConfigSpec_Clickhouse{},
 	}
 
 	if v, ok := s["weight"]; ok {
-		shard.Clickhouse.Weight = &wrappers.Int64Value{Value: int64(v.(int))}
+		shardFromSpec.Clickhouse.Weight = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	shardFromSpec.Clickhouse.Resources = expandClickhouseShardResources(s)
 
-	return shard
+	return shardFromSpec
 }
 
 func expandClickhouseShardSpecs(d *schema.ResourceData) (map[string]*clickhouse.ShardConfigSpec, error) {
-	resultShardsFromSpec := map[string]*clickhouse.ShardConfigSpec{}
 	rawShardsFromSpec := d.Get("shard").(*schema.Set)
+	return expandClickhouseShardSpecsFromSchema(rawShardsFromSpec)
+}
 
+func expandClickhouseShardSpecsFromSchema(rawShardsFromSpec *schema.Set) (map[string]*clickhouse.ShardConfigSpec, error) {
+	resultShardsFromSpec := map[string]*clickhouse.ShardConfigSpec{}
+
+	log.Printf("[DEBUG] shards config from spec = %v\n", rawShardsFromSpec.List())
 	for _, shard := range rawShardsFromSpec.List() {
 		m := shard.(map[string]interface{})
 		hash := clickHouseShardHash(shard)
 		if v, ok := m["name"]; ok {
-			resultShardsFromSpec[v.(string)] = expandClickhouseShard(m, d, hash)
+			resultShardsFromSpec[v.(string)] = expandClickhouseShard(m, nil, hash)
 		}
 	}
 	return resultShardsFromSpec, nil
@@ -2072,6 +2104,15 @@ func flattenClickHouseShards(shards []*clickhouse.Shard) ([]map[string]interface
 		m["name"] = shard.Name
 		if shard.Config.Clickhouse.Weight != nil {
 			m["weight"] = shard.Config.Clickhouse.Weight.Value
+		}
+
+		if shard.Config.Clickhouse.Resources != nil {
+			resources, err := flattenClickHouseResources(shard.Config.Clickhouse.Resources)
+			if err != nil {
+				return nil, fmt.Errorf("failed parse shard resources from cluster")
+			}
+			m["resources"] = resources
+			log.Printf("[DEBUG] read shard from cluster: shard=%s, resources=%v\n", shard.Name, resources)
 		}
 
 		res = append(res, m)
@@ -2380,4 +2421,45 @@ func flattenClickHouseMlModels(schemas []*clickhouse.MlModel) ([]map[string]inte
 	}
 
 	return res, nil
+}
+
+func expandClickhouseShardResources(s map[string]interface{}) *clickhouse.Resources {
+	valueResources, ok := s["resources"]
+	if !ok {
+		log.Println("[TRACE] shard has empty resource.")
+		return nil
+	}
+	log.Printf("[DEBUG] parse shard resources: %v\n", valueResources)
+
+	resourcesShardSpec := valueResources.([]interface{})
+
+	if len(resourcesShardSpec) == 0 {
+		log.Println("[DEBUG] shard has resource but it is empty.")
+		return nil
+	}
+	hasResource := false
+	resources := clickhouse.Resources{}
+
+	resourceSpec := resourcesShardSpec[0].(map[string]interface{})
+
+	if diskSize, ok := resourceSpec["disk_size"]; ok {
+		log.Printf("[DEBUG] shard has resource: disk_size=%d\n", resources.GetDiskSize())
+		hasResource = true
+		resources.SetDiskSize(toBytes(diskSize.(int)))
+	}
+	if resourcePresetId, ok := resourceSpec["resource_preset_id"]; ok {
+		log.Printf("[DEBUG] shard has resource: resource_preset_id=%s\n", resources.GetResourcePresetId())
+		hasResource = true
+		resources.SetResourcePresetId(resourcePresetId.(string))
+	}
+	if diskTypeId, ok := resourceSpec["disk_type_id"]; ok {
+		log.Printf("[DEBUG] shard has resource: disk_type_id=%s\n", resources.GetDiskTypeId())
+		hasResource = true
+		resources.SetDiskTypeId(diskTypeId.(string))
+	}
+
+	if hasResource {
+		return &resources
+	}
+	return nil
 }
