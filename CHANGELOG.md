@@ -1,4 +1,6 @@
-## 0.86.0 (Unreleased)
+## 0.87.0 (Unreleased)
+
+## 0.86.0 (March 7, 2023)
 BUG FIXES:
 * provider config: make `storage_secret_key` and `token` attributes sensitive
 * serverless: fix documentation of required attributes for `yandex_function` resource
