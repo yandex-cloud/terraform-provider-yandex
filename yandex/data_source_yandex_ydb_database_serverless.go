@@ -84,6 +84,35 @@ func dataSourceYandexYDBDatabaseServerless() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"serverless_database": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"throttling_rcu_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"storage_size_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"enable_throttling_rcu_limit": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"provisioned_rcu_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

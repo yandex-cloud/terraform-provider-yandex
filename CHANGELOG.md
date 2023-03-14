@@ -13,6 +13,7 @@ BUG FIXES:
 * storage: minor logging fixes
 
 FEATURES:
+* ydb: add new parameters for serverless database
 * clickhouse: add new parameters for user settings, server config.
 * clickhouse: add feature to configure resources for shards.
 * serverless: add `container` support in `yandex_function_trigger` resource and data source

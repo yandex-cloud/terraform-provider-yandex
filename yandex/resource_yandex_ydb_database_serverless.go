@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/c2h5oh/datasize"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/ydb/v1"
@@ -103,8 +104,66 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"serverless_database": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"throttling_rcu_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"storage_size_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"enable_throttling_rcu_limit": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"provisioned_rcu_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func flattenYDBServerlessDatabaseSettings(d *schema.ResourceData, database *ydb.Database_ServerlessDatabase) {
+	output := make([]interface{}, 0, 1)
+	serverlessDatabase := make(map[string]interface{})
+	serverlessDatabase["throttling_rcu_limit"] = database.ServerlessDatabase.ThrottlingRcuLimit
+	serverlessDatabase["storage_size_limit"] = database.ServerlessDatabase.StorageSizeLimit / int64(datasize.GB)
+	serverlessDatabase["enable_throttling_rcu_limit"] = database.ServerlessDatabase.EnableThrottlingRcuLimit
+	serverlessDatabase["provisioned_rcu_limit"] = database.ServerlessDatabase.ProvisionedRcuLimit
+
+	output = append(output, serverlessDatabase)
+	_ = d.Set("serverless_database", output)
+}
+
+func expandYDBServerlessDatabaseSettings(d *schema.ResourceData) *ydb.ServerlessDatabase {
+	v, ok := d.GetOk("serverless_database")
+	if !ok {
+		return nil
+	}
+	serverlessDatabase := &ydb.ServerlessDatabase{}
+	ttlSet := v.(*schema.Set)
+	for _, l := range ttlSet.List() {
+		m := l.(map[string]interface{})
+		serverlessDatabase.ThrottlingRcuLimit = int64(m["throttling_rcu_limit"].(int))
+		serverlessDatabase.StorageSizeLimit = int64(datasize.GB) * int64(m["storage_size_limit"].(int))
+		serverlessDatabase.EnableThrottlingRcuLimit = m["enable_throttling_rcu_limit"].(bool)
+		serverlessDatabase.ProvisionedRcuLimit = int64(m["provisioned_rcu_limit"].(int))
+	}
+	return serverlessDatabase
 }
 
 func resourceYandexYDBDatabaseServerlessCreate(d *schema.ResourceData, meta interface{}) error {
@@ -114,18 +173,16 @@ func resourceYandexYDBDatabaseServerlessCreate(d *schema.ResourceData, meta inte
 	if err != nil {
 		return fmt.Errorf("Error getting folder ID while creating database: %s", err)
 	}
-
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
 		return fmt.Errorf("Error expanding labels while creating database: %s", err)
 	}
-
 	req := ydb.CreateDatabaseRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		DatabaseType: &ydb.CreateDatabaseRequest_ServerlessDatabase{
-			ServerlessDatabase: &ydb.ServerlessDatabase{},
+			ServerlessDatabase: expandYDBServerlessDatabaseSettings(d),
 		},
 		LocationId:         d.Get("location_id").(string),
 		Labels:             labels,
@@ -145,6 +202,12 @@ func resourceYandexYDBDatabaseServerlessUpdate(d *schema.ResourceData, meta inte
 	req := ydb.UpdateDatabaseRequest{
 		DatabaseId: d.Id(),
 		UpdateMask: &field_mask.FieldMask{},
+	}
+	if d.HasChange("serverless_database") {
+		req.DatabaseType = &ydb.UpdateDatabaseRequest_ServerlessDatabase{
+			ServerlessDatabase: expandYDBServerlessDatabaseSettings(d),
+		}
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "serverless_database")
 	}
 
 	if err := performYandexYDBDatabaseUpdate(d, config, &req); err != nil {
@@ -172,8 +235,9 @@ func flattenYandexYDBDatabaseServerless(d *schema.ResourceData, database *ydb.Da
 		return nil
 	}
 
-	switch database.DatabaseType.(type) {
+	switch t := database.DatabaseType.(type) {
 	case *ydb.Database_ServerlessDatabase: // we actually expect it
+		flattenYDBServerlessDatabaseSettings(d, t)
 	case *ydb.Database_DedicatedDatabase:
 		return fmt.Errorf("expect serverless database, got dedicated")
 	case *ydb.Database_RegionalDatabase:
