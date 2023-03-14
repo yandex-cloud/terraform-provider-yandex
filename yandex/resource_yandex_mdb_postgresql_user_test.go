@@ -255,9 +255,6 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
 	password   = "mysecurepassword"
-	permission {
-		database_name = "testdb"
-	}
     
 	conn_limit = 42
 	settings = {

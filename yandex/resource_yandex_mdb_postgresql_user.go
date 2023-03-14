@@ -1,10 +1,12 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 
@@ -207,11 +209,16 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 		return handleNotFoundError(err, d, fmt.Sprintf("User %q", username))
 	}
 
+	userPermissions, err := removePgUserOwnerPermissions(d, meta, clusterID, user.Name, user.Permissions)
+	if err != nil {
+		return fmt.Errorf("error while removing owner permissions from user in PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
 	d.Set("cluster_id", clusterID)
 	d.Set("name", user.Name)
 	d.Set("login", user.Login.GetValue())
 	d.Set("grants", user.Grants)
-	d.Set("permission", flattenPGUserPermissions(user.Permissions))
+	d.Set("permission", flattenPGUserPermissions(userPermissions))
 	d.Set("conn_limit", user.ConnLimit)
 	knownDefault := map[string]struct{}{
 		"log_min_duration_statement": {},
@@ -237,11 +244,16 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	clusterID := d.Get("cluster_id").(string)
+	userPermissions, err := addPgUserOwnerPermissions(meta, clusterID, user.Name, user.Permissions)
+	if err != nil {
+		return fmt.Errorf("error while adding owner permissions to user in PostgreSQL Cluster %q: %s", clusterID, err)
+	}
+
 	request := &postgresql.UpdateUserRequest{
 		ClusterId:   clusterID,
 		UserName:    user.Name,
 		Password:    user.Password,
-		Permissions: user.Permissions,
+		Permissions: userPermissions,
 		ConnLimit:   user.ConnLimit.GetValue(),
 		Login:       user.Login,
 		Grants:      user.Grants,
@@ -297,4 +309,66 @@ func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interfac
 	}
 
 	return nil
+}
+
+// Remove (from state) permissions of owners on databases not listed in manifest
+func removePgUserOwnerPermissions(d *schema.ResourceData, meta interface{}, clusterID string, name string, permissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
+	config := meta.(*Config)
+
+	resp, _ := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
+		ClusterId: clusterID,
+	})
+
+	dbMap := make(map[string]*postgresql.Database)
+	for _, db := range resp.Databases {
+		dbMap[db.Name] = db
+	}
+
+	v := d.Get("permission")
+	existingPerms, err := expandPGUserPermissions(v.(*schema.Set))
+	if err != nil {
+		return nil, err
+	}
+	existingPermsMap := make(map[string]*postgresql.Permission)
+	for _, perm := range existingPerms {
+		existingPermsMap[perm.DatabaseName] = perm
+	}
+
+	newPerms := []*postgresql.Permission{}
+	for _, perm := range permissions {
+		_, exist := existingPermsMap[perm.DatabaseName]
+		if !(!exist && dbMap[perm.DatabaseName].Owner == name) {
+			newPerms = append(newPerms, perm)
+		}
+	}
+
+	return newPerms, nil
+}
+
+// Add permissions for databases where user is owner
+func addPgUserOwnerPermissions(meta interface{}, clusterID string, name string, permissions []*postgresql.Permission) ([]*postgresql.Permission, error) {
+	config := meta.(*Config)
+
+	resp, err := config.sdk.MDB().PostgreSQL().Database().List(context.Background(), &postgresql.ListDatabasesRequest{
+		ClusterId: clusterID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	permsMap := make(map[string]*postgresql.Permission)
+	for _, perm := range permissions {
+		permsMap[perm.DatabaseName] = perm
+	}
+
+	for _, db := range resp.Databases {
+		_, added := permsMap[db.Name]
+		if !added && db.Owner == name {
+			permissions = append(permissions, &postgresql.Permission{
+				DatabaseName: db.Name,
+			})
+		}
+	}
+
+	return permissions, nil
 }

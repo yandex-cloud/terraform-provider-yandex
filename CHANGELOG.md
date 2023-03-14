@@ -1,7 +1,7 @@
 ## 0.87.0 (Unreleased)
-FEATURES:
 * **New Resource** `yandex_billing_cloud_binding`
 * **New Data Source** `yandex_billing_cloud_binding`
+* postgresql: fix owner permissions drop in `yandex_mdb_postgresql_user`elog
 
 ## 0.86.0 (March 7, 2023)
 BUG FIXES:
