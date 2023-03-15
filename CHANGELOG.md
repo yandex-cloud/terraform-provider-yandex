@@ -1,8 +1,9 @@
 ## 0.88.0 (Unreleased)
+* postgresql: fix host recreation when assigning public ip
 
 ## 0.87.0 (March 14, 2023)
 BUG FIXES:
-* postgresql: fix owner permissions drop in `yandex_mdb_postgresql_user`elog
+* postgresql: fix owner permissions drop in `yandex_mdb_postgresql_user`
 
 FEATURES:
 * **New Resource** `yandex_billing_cloud_binding`

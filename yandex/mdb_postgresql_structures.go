@@ -435,10 +435,6 @@ func matchesPGNoNamedHostInfo(existsHostInfo *pgHostInfo, newHostInfo *pgHostInf
 		return false
 	}
 
-	if existsHostInfo.oldAssignPublicIP != newHostInfo.newAssignPublicIP {
-		return false
-	}
-
 	if existsHostInfo.oldPriority != newHostInfo.newPriority {
 		return false
 	}
@@ -737,7 +733,11 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 		if existingHostFqdn, ok := compareMap[i]; ok {
 			log.Printf("[DEBUG] host %s exists", existingHostFqdn)
 			existHostInfo := existingHostsInfo[existingHostFqdn]
-			existHostInfo.rowNumber = newHostsInfo[i].rowNumber
+
+			existHostInfo.rowNumber = newHostInfo.rowNumber
+			existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
+			existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
+			existHostInfo.newPriority = newHostInfo.newPriority
 			existHostInfo.inTargetSet = true
 		} else {
 			log.Printf("[DEBUG] should create host %v", newHostInfo)

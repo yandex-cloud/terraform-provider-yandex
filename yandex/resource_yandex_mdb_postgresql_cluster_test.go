@@ -121,6 +121,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	pgDesc := "PostgreSQL Cluster Terraform Test"
 	pgDesc2 := "PostgreSQL Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
+	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -142,6 +143,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "test_key", "test_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
 					testAccCheckMDBPGClusterHasUsers(clusterResource, map[string][]string{"alice": {"testdb"}}),
@@ -151,6 +153,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "12"),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
+					testAccPGGetHostNames(clusterResource, hostNames),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -199,6 +202,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_lens", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.data_transfer", "false"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
 					testAccCheckMDBPGClusterContainsLabel(&cluster, "new_key", "new_value"),
 					testAccCheckMDBPGClusterHasResources(&cluster, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
@@ -211,6 +215,7 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 					testAccCheckPostgresqlConfigUpdate(clusterResource, version),
 					testAccCheckCreatedAtAttr(clusterResource),
 					resource.TestCheckResourceAttr(clusterResource, "security_group_ids.#", "2"),
+					testAccPGCompareHostNames(clusterResource, hostNames),
 
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.day", "WED"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.hour", "22"),
@@ -243,6 +248,71 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	})
 }
 
+func testAccPGGetHostNames(resource string, hostNames *[]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resource)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		hosts, err := listPGHosts(context.Background(), config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		for _, host := range hosts {
+			*hostNames = append(*hostNames, host.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccPGCompareHostNames(resource string, oldHosts *[]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resource)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		currentHosts, err := listPGHosts(context.Background(), config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		oldMap := make(map[string]struct{})
+
+		log.Printf("[DEBUG1] testAccPGCompareHostNames: current: %+v, old: %+v\n", currentHosts, *oldHosts)
+
+		for _, host := range *oldHosts {
+			oldMap[host] = struct{}{}
+		}
+
+		miss := 0
+		for _, host := range currentHosts {
+			if _, ok := oldMap[host.Name]; !ok {
+				miss++
+			}
+		}
+
+		if miss > len(currentHosts)-len(*oldHosts) {
+			return fmt.Errorf("some host names changed")
+		}
+
+		return nil
+	}
+}
+
 // Test that a PostgreSQL HA Cluster can be created, updated and destroyed
 func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	t.Parallel()
@@ -253,6 +323,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster"
+	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -270,8 +341,11 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.zone", "ru-central1-b"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
 					testAccCheckCreatedAtAttr(clusterResource),
+					testAccPGGetHostNames(clusterResource, hostNames),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -280,6 +354,9 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
+					testAccPGCompareHostNames(clusterResource, hostNames),
 				),
 			},
 		},
@@ -296,6 +373,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	var cluster postgresql.Cluster
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-names-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster_with_names"
+	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -311,7 +389,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.name", "nc"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "na"),
+					testAccPGGetHostNames(clusterResource, hostNames),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -330,8 +411,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
+					testAccPGCompareHostNames(clusterResource, hostNames),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -1155,6 +1238,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   host {
     zone             = "ru-central1-a"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    assign_public_ip = true
   }
 
   database {

@@ -1147,7 +1147,7 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 			if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
 				maskPaths = append(maskPaths, "replication_source")
 			}
-			if hostInfo.name != "" && hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
+			if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
 				maskPaths = append(maskPaths, "assign_public_ip")
 			}
 			if len(maskPaths) > 0 {
