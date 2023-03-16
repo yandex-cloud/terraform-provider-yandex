@@ -821,7 +821,7 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 	bucketAPI := config.sdk.StorageAPI().Bucket()
 
 	if len(paths) > 0 {
-		bucketUpdateRequest.FieldMask, err = fieldmaskpb.New(bucketUpdateRequest, paths...)
+		bucketUpdateRequest.UpdateMask, err = fieldmaskpb.New(bucketUpdateRequest, paths...)
 		if err != nil {
 			return fmt.Errorf("constructing field mask: %w", err)
 		}

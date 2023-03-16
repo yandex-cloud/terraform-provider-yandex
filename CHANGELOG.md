@@ -1,4 +1,7 @@
 ## 0.88.0 (Unreleased)
+FEATURES:
+* **New Resource** `yandex_monitoring_dashboard`
+* **New Data Source** `yandex_monitoring_dashboard`
 * postgresql: fix host recreation when assigning public ip
 
 ## 0.87.0 (March 14, 2023)
