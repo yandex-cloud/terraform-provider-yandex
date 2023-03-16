@@ -267,6 +267,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `local_disk.device_name` - The name of the local disk device.
 
+## Timeouts
+
+This resource provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default 5 minutes
+- `update` - Default 5 minutes
+- `delete` - Default 5 minutes
+
 ## Import
 
 Instances can be imported using the `ID` of an instance, e.g.

@@ -69,7 +69,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 This resource provides the following configuration options for
-[timeouts](/docs/configuration/resources.html#timeouts):
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
 
 - `create` - Default is 5 minutes.
 - `update` - Default is 5 minutes.

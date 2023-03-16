@@ -508,3 +508,12 @@ The `network_interface` block supports:
 * `nat` - The instance's public address for accessing the internet over NAT.
 * `nat_ip_address` - The public IP address of the instance.
 * `nat_ip_version` - The IP version for the public address.
+
+## Timeouts
+
+This resource provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default 30 minutes
+- `update` - Default 30 minutes
+- `delete` - Default 30 minutes

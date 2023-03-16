@@ -87,7 +87,7 @@ In addition to the arguments listed above, the following computed attributes are
 ## Timeouts
 
 `yandex_compute_image` provides the following configuration options for
-[timeouts](/docs/configuration/resources.html#timeouts):
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
 
 - `create` - Default 5 minutes
 - `update` - Default 5 minutes

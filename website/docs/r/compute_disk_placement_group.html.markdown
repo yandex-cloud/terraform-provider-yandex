@@ -36,3 +36,12 @@ The following arguments are supported:
 * `zone` - ID of the zone where the Disk Placement Group resides.
 
 * `status` - Status of the Disk Placement Group.
+
+## Timeouts
+
+This resource provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default is 1 minute.
+- `update` - Default is 1 minute.
+- `delete` - Default is 1 minute.

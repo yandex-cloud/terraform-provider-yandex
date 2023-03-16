@@ -32,3 +32,12 @@ The following arguments are supported:
 * `description` - (Optional) A description of the Placement Group.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Placement Group.
+
+## Timeouts
+
+This resource provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default is 1 minute.
+- `update` - Default is 1 minute.
+- `delete` - Default is 1 minute.
