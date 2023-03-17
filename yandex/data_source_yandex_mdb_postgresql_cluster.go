@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -89,6 +90,114 @@ func dataSourceYandexMDBPostgreSQLCluster() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 				Computed: true,
+			},
+			"database": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Set:      mysqlDatabaseHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"owner": {
+							Type:     schema.TypeString,
+							ForceNew: true,
+							Required: true,
+						},
+						"lc_collate": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Default:  "C",
+						},
+						"lc_type": {
+							Type:     schema.TypeString,
+							ForceNew: true,
+							Optional: true,
+							Default:  "C",
+						},
+						"template_db": {
+							Type:     schema.TypeString,
+							ForceNew: true,
+							Optional: true,
+						},
+						"extension": {
+							Type:     schema.TypeSet,
+							Set:      pgExtensionHash,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"version": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"user": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"login": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  true,
+						},
+						"grants": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type:         schema.TypeString,
+								ValidateFunc: validation.StringIsNotEmpty,
+							},
+						},
+						// TODO change to permissions
+						"permission": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Computed: true,
+							Set:      pgUserPermissionHash,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"database_name": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"conn_limit": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"settings": {
+							Type:             schema.TypeMap,
+							Optional:         true,
+							Computed:         true,
+							DiffSuppressFunc: generateMapSchemaDiffSuppressFunc(mdbPGUserSettingsFieldsInfo),
+							ValidateFunc:     generateMapSchemaValidateFunc(mdbPGUserSettingsFieldsInfo),
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 		},
 	}
@@ -297,6 +406,27 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", clusterID))
+	}
+
+	databases, err := listPGDatabases(ctx, config, clusterID)
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", clusterID))
+	}
+	if err := d.Set("database", flattenPGDatabases(databases)); err != nil {
+		return err
+	}
+
+	passwords := pgUsersPasswords(make([]*postgresql.UserSpec, 0))
+	users, err := listPGUsers(ctx, config, clusterID)
+	if err != nil {
+		return err
+	}
+	fUsers, err := flattenPGUsers(users, passwords, mdbPGUserSettingsFieldsInfo)
+	if err != nil {
+		return err
+	}
+	if err := d.Set("user", fUsers); err != nil {
+		return err
 	}
 
 	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config)

@@ -49,9 +49,11 @@ exported:
 * `health` - Aggregated health of the cluster.
 * `status` - Status of the cluster.
 * `config` - Configuration of the PostgreSQL cluster. The structure is documented below.
-* `host` - A host of the PostgreSQL cluster. The structure is documented below.
+* `host` - List of all hosts of the PostgreSQL cluster. The structure is documented below.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `maintenance_window` - Maintenance window settings of the PostgreSQL cluster. The structure is documented below.
+* `database` - List of all databases of the PostgreSQL cluster. The structure is documented below.
+* `user` - List of all users of the PostgreSQL cluster. The structure is documented below.
 
 The `config` block supports:
 
@@ -110,4 +112,27 @@ The `maintenance_window` block supports:
 * `day` - Day of the week (in `DDD` format). Value is one of: "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"
 * `hour` - Hour of the day in UTC (in `HH` format). Value is between 1 and 24.
 
+The `database` block supports:
 
+* `owner` - Name of the user assigned as the owner of the database.
+* `lc_collate` - POSIX locale for string sorting order. Forbidden to change in an existing database.
+* `lc_type` - POSIX locale for character classification. Forbidden to change in an existing database.
+* `extension` - Set of database extensions. The structure is documented below
+* `template_db` - Name of the template database.
+
+The `extension` block supports:
+
+* `name` - Name of the database extension. For more information on available extensions see [the official documentation](https://cloud.yandex.com/docs/managed-postgresql/operations/cluster-extensions).
+* `version` - Version of the extension.
+
+The `user` block supports:
+
+* `permission` - Set of permissions granted to the user. The structure is documented below.
+* `login` - User's ability to login.
+* `grants` - List of the user's grants.
+* `conn_limit` - The maximum number of connections per user.
+* `settings` - Map of user settings.
+
+The `permission` block supports:
+
+* `database_name` - The name of the database that the permission grants access to.

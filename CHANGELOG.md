@@ -5,6 +5,7 @@ FEATURES:
 * postgresql: fix host recreation when assigning public ip
 * logging: support data_stream attribute
 * mysql: fix host recreation when assigning public ip
+* postgresql: add `database` and `user` attributes to `yandex_mdb_postgresql_cluster` data source
 
 ## 0.87.0 (March 14, 2023)
 BUG FIXES:

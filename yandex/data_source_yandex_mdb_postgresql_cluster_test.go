@@ -213,6 +213,42 @@ func testAccDataSourceMDBPGClusterAttributesCheck(datasourceName string, resourc
 				"deletion_protection",
 				"deletion_protection",
 			},
+			{
+				"user.#",
+				"user.#",
+			},
+			{
+				"user.0.name",
+				"user.0.name",
+			},
+			{
+				"user.0.permission.#",
+				"user.0.permission.#",
+			},
+			{
+				"user.0.permission.0.database_name",
+				"user.0.permission.0.database_name",
+			},
+			{
+				"database.#",
+				"database.#",
+			},
+			{
+				"database.0.name",
+				"database.0.name",
+			},
+			{
+				"database.0.owner",
+				"database.0.owner",
+			},
+			{
+				"database.0.lc_collate",
+				"database.0.lc_collate",
+			},
+			{
+				"database.0.lc_type",
+				"database.0.lc_type",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
