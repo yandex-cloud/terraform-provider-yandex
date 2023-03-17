@@ -107,6 +107,7 @@ func TestAccYandexLoggingGroup_full(t *testing.T) {
 	base := testYandexLoggingGroupParameters{
 		name:            acctest.RandomWithPrefix("tf-yandex-logging-group"),
 		desc:            acctest.RandomWithPrefix("tf-yandex-logging-group-desc"),
+		dataStream:      dataStreamName,
 		labelKey:        acctest.RandomWithPrefix("tf-yandex-logging-group-label"),
 		labelValue:      acctest.RandomWithPrefix("tf-yandex-logging-group-label-value"),
 		retentionPeriod: time.Hour + time.Duration(rand.Uint32())*time.Nanosecond,
@@ -115,6 +116,7 @@ func TestAccYandexLoggingGroup_full(t *testing.T) {
 	updated := testYandexLoggingGroupParameters{
 		name:            acctest.RandomWithPrefix("tf-yandex-logging-group-updated"),
 		desc:            acctest.RandomWithPrefix("tf-yandex-logging-group-desc-updated"),
+		dataStream:      dataStreamName,
 		labelKey:        acctest.RandomWithPrefix("tf-yandex-logging-group-label-updated"),
 		labelValue:      acctest.RandomWithPrefix("tf-yandex-logging-group-label-value-updated"),
 		retentionPeriod: time.Hour + time.Duration(rand.Uint32())*time.Nanosecond,
@@ -123,17 +125,22 @@ func TestAccYandexLoggingGroup_full(t *testing.T) {
 	testConfigFunc := func(params testYandexLoggingGroupParameters) resource.TestStep {
 		return resource.TestStep{
 			Config: testYandexLoggingGroupFull(params),
-			Check: resource.ComposeTestCheckFunc(
-				testYandexLoggingGroupExists(yandexLoggingGroupResource, &group),
-				resource.TestCheckResourceAttr(yandexLoggingGroupResource, "name", params.name),
-				resource.TestCheckResourceAttr(yandexLoggingGroupResource, "description", params.desc),
-				resource.TestCheckResourceAttr(yandexLoggingGroupResource, "retention_period", params.retentionPeriod.String()),
-				resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "folder_id"),
-				resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "cloud_id"),
-				resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "created_at"),
-				testYandexLoggingGroupContainsLabel(&group, params.labelKey, params.labelValue),
-				testAccCheckCreatedAtAttr(yandexLoggingGroupResource),
-			),
+			Check: func(s *terraform.State) error {
+				databasePath := s.RootModule().Resources["yandex_ydb_database_serverless."+ydbResource].Primary.Attributes["database_path"]
+				dataStreamFullName := databasePath + "/" + params.dataStream
+				return resource.ComposeTestCheckFunc(
+					testYandexLoggingGroupExists(yandexLoggingGroupResource, &group),
+					resource.TestCheckResourceAttr(yandexLoggingGroupResource, "name", params.name),
+					resource.TestCheckResourceAttr(yandexLoggingGroupResource, "description", params.desc),
+					resource.TestCheckResourceAttr(yandexLoggingGroupResource, "data_stream", dataStreamFullName),
+					resource.TestCheckResourceAttr(yandexLoggingGroupResource, "retention_period", params.retentionPeriod.String()),
+					resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "folder_id"),
+					resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "cloud_id"),
+					resource.TestCheckResourceAttrSet(yandexLoggingGroupResource, "created_at"),
+					testYandexLoggingGroupContainsLabel(&group, params.labelKey, params.labelValue),
+					testAccCheckCreatedAtAttr(yandexLoggingGroupResource),
+				)(s)
+			},
 		}
 	}
 
@@ -246,6 +253,7 @@ resource "yandex_logging_group" "test-logging-group" {
 type testYandexLoggingGroupParameters struct {
 	name            string
 	desc            string
+	dataStream      string
 	labelKey        string
 	labelValue      string
 	retentionPeriod time.Duration
@@ -253,9 +261,21 @@ type testYandexLoggingGroupParameters struct {
 
 func testYandexLoggingGroupFull(params testYandexLoggingGroupParameters) string {
 	return fmt.Sprintf(`
+
+resource "yandex_ydb_database_serverless" "%s" {
+	name = "%s"
+	location_id = "ru-central1"
+}
+
+resource "yandex_ydb_topic" "%s" {
+	name = "%s"
+	database_endpoint = "${yandex_ydb_database_serverless.%s.ydb_full_endpoint}"
+}
+
 resource "yandex_logging_group" "test-logging-group" {
   name        = "%s"
   description = "%s"
+  data_stream = "${yandex_ydb_database_serverless.%s.database_path}/%s"
   labels = {
     %s          = "%s"
     empty-label = ""
@@ -263,8 +283,15 @@ resource "yandex_logging_group" "test-logging-group" {
   retention_period = "%s"
 }
 `,
+		ydbResource,
+		ydbResource,
+		topicResource,
+		dataStreamName,
+		ydbResource,
 		params.name,
 		params.desc,
+		ydbResource,
+		params.dataStream,
 		params.labelKey,
 		params.labelValue,
 		params.retentionPeriod.String(),

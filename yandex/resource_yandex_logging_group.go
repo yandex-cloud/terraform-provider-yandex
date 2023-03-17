@@ -58,6 +58,11 @@ func resourceYandexLoggingGroup() *schema.Resource {
 				Optional: true,
 			},
 
+			"data_stream": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -105,6 +110,7 @@ func resourceYandexLoggingGroupCreate(d *schema.ResourceData, meta interface{}) 
 		FolderId:        folderID,
 		Name:            d.Get("name").(string),
 		Description:     d.Get("description").(string),
+		DataStream:      d.Get("data_stream").(string),
 		Labels:          labels,
 		RetentionPeriod: retentionPeriod,
 	}
@@ -174,6 +180,11 @@ func performYandexLoggingGroupUpdate(d *schema.ResourceData, config *Config, req
 	if d.HasChange("description") {
 		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if d.HasChange("data_stream") {
+		req.DataStream = d.Get("data_stream").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "data_stream")
 	}
 
 	if d.HasChange("retention_period") {
@@ -256,6 +267,7 @@ func flattenYandexLoggingGroup(d *schema.ResourceData, group *logging.LogGroup) 
 	d.Set("folder_id", group.FolderId)
 	d.Set("retention_period", formatDuration(group.RetentionPeriod))
 	d.Set("description", group.Description)
+	d.Set("data_stream", group.DataStream)
 	d.Set("status", group.Status.String())
 	d.Set("cloud_id", group.CloudId)
 	d.Set("created_at", getTimestamp(group.CreatedAt))

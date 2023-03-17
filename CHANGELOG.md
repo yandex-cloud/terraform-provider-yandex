@@ -3,6 +3,7 @@ FEATURES:
 * **New Resource** `yandex_monitoring_dashboard`
 * **New Data Source** `yandex_monitoring_dashboard`
 * postgresql: fix host recreation when assigning public ip
+* logging: support data_stream attribute
 
 ## 0.87.0 (March 14, 2023)
 BUG FIXES:

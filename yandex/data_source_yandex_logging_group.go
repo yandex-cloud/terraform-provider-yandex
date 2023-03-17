@@ -43,6 +43,11 @@ func dataSourceYandexLoggingGroup() *schema.Resource {
 				Computed: true,
 			},
 
+			"data_stream": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"labels": {
 				Type:     schema.TypeMap,
 				Computed: true,
