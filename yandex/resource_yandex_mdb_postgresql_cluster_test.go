@@ -292,8 +292,6 @@ func testAccPGCompareHostNames(resource string, oldHosts *[]string) resource.Tes
 
 		oldMap := make(map[string]struct{})
 
-		log.Printf("[DEBUG1] testAccPGCompareHostNames: current: %+v, old: %+v\n", currentHosts, *oldHosts)
-
 		for _, host := range *oldHosts {
 			oldMap[host] = struct{}{}
 		}
@@ -306,7 +304,7 @@ func testAccPGCompareHostNames(resource string, oldHosts *[]string) resource.Tes
 		}
 
 		if miss > len(currentHosts)-len(*oldHosts) {
-			return fmt.Errorf("some host names changed")
+			return fmt.Errorf("some PostgreSQL host names changed")
 		}
 
 		return nil

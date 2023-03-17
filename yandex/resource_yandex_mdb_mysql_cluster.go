@@ -1207,33 +1207,31 @@ func updateMysqlClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
-		if compareHostsInfo.haveHostWithName {
-			if hostInfo.inTargetSet {
-				var maskPaths []string
-				if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
-					maskPaths = append(maskPaths, "replication_source")
-				}
-				if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
-					maskPaths = append(maskPaths, "assign_public_ip")
-				}
-				if hostInfo.oldBackupPriority != hostInfo.newBackupPriority {
-					maskPaths = append(maskPaths, "backup_priority")
-				}
-				if hostInfo.oldPriority != hostInfo.newPriority {
-					maskPaths = append(maskPaths, "priority")
-				}
-				if len(maskPaths) > 0 {
-					log.Printf("[DEBUG] Updating host (change paths: %v)", maskPaths)
-					if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
-						HostName:          hostInfo.fqdn,
-						ReplicationSource: hostInfo.newReplicationSource,
-						AssignPublicIp:    hostInfo.newAssignPublicIP,
-						BackupPriority:    hostInfo.newBackupPriority,
-						Priority:          hostInfo.newPriority,
-						UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
-					}); err != nil {
-						return err
-					}
+		if hostInfo.inTargetSet {
+			var maskPaths []string
+			if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
+				maskPaths = append(maskPaths, "replication_source")
+			}
+			if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
+				maskPaths = append(maskPaths, "assign_public_ip")
+			}
+			if hostInfo.oldBackupPriority != hostInfo.newBackupPriority {
+				maskPaths = append(maskPaths, "backup_priority")
+			}
+			if hostInfo.oldPriority != hostInfo.newPriority {
+				maskPaths = append(maskPaths, "priority")
+			}
+			if len(maskPaths) > 0 {
+				log.Printf("[DEBUG] Updating host (change paths: %v)", maskPaths)
+				if err := updateMySQLHost(ctx, config, d, &mysql.UpdateHostSpec{
+					HostName:          hostInfo.fqdn,
+					ReplicationSource: hostInfo.newReplicationSource,
+					AssignPublicIp:    hostInfo.newAssignPublicIP,
+					BackupPriority:    hostInfo.newBackupPriority,
+					Priority:          hostInfo.newPriority,
+					UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
+				}); err != nil {
+					return err
 				}
 			}
 		}

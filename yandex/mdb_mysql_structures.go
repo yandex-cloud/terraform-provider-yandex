@@ -624,10 +624,6 @@ func matchesMySQLNoNamedHostInfo(existsHostInfo *myHostInfo, newHostInfo *myHost
 		return false
 	}
 
-	if existsHostInfo.oldAssignPublicIP != newHostInfo.newAssignPublicIP {
-		return false
-	}
-
 	if existsHostInfo.oldBackupPriority != newHostInfo.newBackupPriority {
 		return false
 	}
@@ -893,7 +889,11 @@ func compareMySQLHostsInfo(d *schema.ResourceData, currentHosts []*mysql.Host, i
 	for i, newHostInfo := range newHostsInfo {
 		if existHostFqdn, ok := compareMap[i]; ok {
 			existHostInfo := existingHostsInfo[existHostFqdn]
+
 			existHostInfo.rowNumber = newHostsInfo[i].rowNumber
+			existHostInfo.newReplicationSourceName = newHostInfo.newReplicationSourceName
+			existHostInfo.newAssignPublicIP = newHostInfo.newAssignPublicIP
+			existHostInfo.newPriority = newHostInfo.newPriority
 			existHostInfo.inTargetSet = true
 		} else {
 			createHostsInfoPrepare = append(createHostsInfoPrepare, newHostInfo)

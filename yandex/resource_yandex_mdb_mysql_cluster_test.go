@@ -111,6 +111,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 	mysqlDesc := "MySQL Cluster Terraform Test"
 	mysqlDesc2 := "MySQL Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
+	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -126,6 +127,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
 					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "INSERT"}}}}),
@@ -146,6 +148,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "12"),
 
 					testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(mysqlResource, true, 300, 400),
+					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -201,6 +204,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mysqlResource, "description", mysqlDesc2),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
 					testAccCheckMDBMySQLClusterHasDatabases(mysqlResource, []string{"testdb", "new_testdb"}),
 					testAccCheckMDBMysqlClusterHasUsers(mysqlResource, map[string][]MockPermission{
 						"john": {MockPermission{"testdb", []string{"ALL", "DROP", "DELETE"}}},
@@ -228,6 +232,7 @@ func TestAccMDBMySQLCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "maintenance_window.0.hour", "22"),
 
 					resource.TestCheckResourceAttr(mysqlResource, "backup_retain_period_days", "13"),
+					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
 				),
 			},
 		},
@@ -240,6 +245,7 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 
 	var cluster mysql.Cluster
 	mysqlName := acctest.RandomWithPrefix("tf-mysql")
+	var hostNames *[]string = new([]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -257,6 +263,8 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.fqdn"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -273,6 +281,10 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-b"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-a"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
+					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -296,7 +308,10 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
+					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -616,6 +631,69 @@ func testAccCheckMDBMysqlClusterSettingsPerformanceDiagnostics(r string, enabled
 	}
 }
 
+func testAccMDBMysqlGetHostNames(resource string, hostNames *[]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resource)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		hosts, err := listMysqlHosts(context.Background(), config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		for _, host := range hosts {
+			*hostNames = append(*hostNames, host.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccMDBMysqlCompareHostNames(resource string, oldHosts *[]string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resource]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resource)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		currentHosts, err := listMysqlHosts(context.Background(), config, rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		oldMap := make(map[string]struct{})
+
+		for _, host := range *oldHosts {
+			oldMap[host] = struct{}{}
+		}
+
+		miss := 0
+		for _, host := range currentHosts {
+			if _, ok := oldMap[host.Name]; !ok {
+				miss++
+			}
+		}
+
+		if miss > len(currentHosts)-len(*oldHosts) {
+			return fmt.Errorf("some MySQL host names changed")
+		}
+
+		return nil
+	}
+}
+
 // TODO: add more zones when v2 platform becomes available.
 const mysqlVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
@@ -876,6 +954,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   host {
     zone      = "ru-central1-c"
     subnet_id = yandex_vpc_subnet.foo_c.id
+	assign_public_ip = true
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-x.id, yandex_vpc_security_group.sg-y.id]
@@ -1001,7 +1080,7 @@ func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
     zone             = "ru-central1-b"
     subnet_id        = yandex_vpc_subnet.foo_b.id
     name             = "nc"
-	  assign_public_ip = true
+	assign_public_ip = true
   }
 
   host {
