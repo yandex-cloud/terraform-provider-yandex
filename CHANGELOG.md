@@ -8,6 +8,9 @@ FEATURES:
 * mysql: fix host recreation when assigning public ip
 * postgresql: add `database` and `user` attributes to `yandex_mdb_postgresql_cluster` data source
 
+ENHANCEMENTS:
+* add `pool_mode` attribute to `settings` in `yandex_mdb_postgresql_user`
+
 ## 0.87.0 (March 14, 2023)
 BUG FIXES:
 * postgresql: fix owner permissions drop in `yandex_mdb_postgresql_user`

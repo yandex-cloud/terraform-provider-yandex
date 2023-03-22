@@ -225,7 +225,7 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 
 	databaseID := constructResourceId(clusterID, newName.(string))
 	d.SetId(databaseID)
-	return nil
+	return resourceYandexMDBPostgreSQLDatabaseRead(d, meta)
 }
 
 func resourceYandexMDBPostgreSQLDatabaseDelete(d *schema.ResourceData, meta interface{}) error {

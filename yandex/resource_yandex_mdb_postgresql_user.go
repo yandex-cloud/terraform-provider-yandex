@@ -297,7 +297,7 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("updating user for PostgreSQL Cluster %q failed: %s", clusterID, err)
 	}
-	return nil
+	return resourceYandexMDBPostgreSQLUserRead(d, meta)
 }
 
 func resourceYandexMDBPostgreSQLUserDelete(d *schema.ResourceData, meta interface{}) error {

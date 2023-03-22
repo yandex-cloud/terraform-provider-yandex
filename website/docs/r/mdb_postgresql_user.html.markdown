@@ -108,6 +108,11 @@ Full description https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/
   - 3: "mod"
   - 4: "all"
 
+* `pool_mode` - Mode that the connection pooler is working in with specified user. One of:
+  - 0: "session"
+  - 1: "transaction"
+  - 2: "statement"
+
 * `prepared_statements_pooling` - This setting allows user to use prepared statements with transaction pooling. Boolean.
 
 * `catchup_timeout` - The connection pooler setting. It determines the maximum allowed replication lag (in seconds). Pooler will reject connections to the replica with a lag above this threshold. Default value is 0, which disables this feature. Integer.

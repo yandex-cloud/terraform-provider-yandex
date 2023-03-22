@@ -1609,6 +1609,12 @@ var mdbPGUserSettingsLogStatementName = map[int]string{
 	int(postgresql.UserSettings_LOG_STATEMENT_MOD):         "mod",
 	int(postgresql.UserSettings_LOG_STATEMENT_ALL):         "all",
 }
+var mdbPGUserSettingsPoolModeName = map[int]string{
+	int(postgresql.UserSettings_POOLING_MODE_UNSPECIFIED): "unspecified",
+	int(postgresql.UserSettings_STATEMENT):                "statement",
+	int(postgresql.UserSettings_TRANSACTION):              "transaction",
+	int(postgresql.UserSettings_SESSION):                  "session",
+}
 
 var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 	addType(postgresql.UserSettings{}).
@@ -1618,7 +1624,9 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 	addEnumHumanNames("synchronous_commit", mdbPGUserSettingsSynchronousCommitName,
 		postgresql.UserSettings_SynchronousCommit_name).
 	addEnumHumanNames("log_statement", mdbPGUserSettingsLogStatementName,
-		postgresql.UserSettings_LogStatement_name)
+		postgresql.UserSettings_LogStatement_name).
+	addEnumHumanNames("pool_mode", mdbPGUserSettingsPoolModeName,
+		postgresql.UserSettings_PoolingMode_name)
 
 var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
 	addType(config.PostgresqlConfig15{}).

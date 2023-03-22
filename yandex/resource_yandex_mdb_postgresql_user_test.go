@@ -35,7 +35,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "login", "true"),
 					testAccCheckMDBPostgreSQLUserHasGrants(t, "alice", []string{"mdb_admin", "mdb_replication"}),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "50"),
-					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000)}),
+					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_COMMITTED, "log_min_duration_statement": int64(5000), "pool_mode": postgresql.UserSettings_TRANSACTION, "catchup_timeout": 350}),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -54,7 +54,7 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "42"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "alice", []string{"testdb"}),
-					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234)}),
+					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -231,6 +231,7 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	settings = {
 		default_transaction_isolation = "read committed"
 		log_min_duration_statement    = 5000
+		pool_mode                     = "transaction"
 	}
 }`
 }
@@ -260,6 +261,7 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	settings = {
 		default_transaction_isolation = "read uncommitted"
 		log_min_duration_statement    = 1234
+		pool_mode                     = "session"
 	}
 }`
 }
