@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 
@@ -243,12 +244,31 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
+	updatePath := []string{}
+	changeMask := map[string]string{
+		"password":   "password",
+		"permission": "permissions",
+		"login":      "login",
+		"grants":     "grants",
+		"conn_limit": "conn_limit",
+		"settings":   "settings",
+	}
+
+	for field, mask := range changeMask {
+		if d.HasChange(field) {
+			updatePath = append(updatePath, mask)
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
 	clusterID := d.Get("cluster_id").(string)
 	userPermissions, err := addPgUserOwnerPermissions(meta, clusterID, user.Name, user.Permissions)
 	if err != nil {
 		return fmt.Errorf("error while adding owner permissions to user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
-
 	request := &postgresql.UpdateUserRequest{
 		ClusterId:   clusterID,
 		UserName:    user.Name,
@@ -258,7 +278,9 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		Login:       user.Login,
 		Grants:      user.Grants,
 		Settings:    user.Settings,
+		UpdateMask:  &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
+
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL user update request: %+v", request)
 		return config.sdk.MDB().PostgreSQL().User().Update(ctx, request)

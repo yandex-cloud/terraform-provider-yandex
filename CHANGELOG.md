@@ -3,6 +3,7 @@ FEATURES:
 * **New Resource** `yandex_monitoring_dashboard`
 * **New Data Source** `yandex_monitoring_dashboard`
 * postgresql: fix host recreation when assigning public ip
+* postgresql: do not change user's password if no state changes
 * logging: support data_stream attribute
 * mysql: fix host recreation when assigning public ip
 * postgresql: add `database` and `user` attributes to `yandex_mdb_postgresql_cluster` data source

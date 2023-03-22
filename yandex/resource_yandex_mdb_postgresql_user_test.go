@@ -84,7 +84,7 @@ func TestAccMDBPostgreSQLUserIncorrectGrants(t *testing.T) {
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
-	password   = "mysecurepassword"
+	password   = "mysecureP@ssw0rd"
 	login      = true
 	grants     = [""]
 	conn_limit = 50
@@ -224,7 +224,7 @@ func testAccMDBPostgreSQLUserConfigStep1(name string) string {
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
-	password   = "mysecurepassword"
+	password   = "mysecureP@ssw0rd"
 	login      = true
 	grants     = ["mdb_admin", "mdb_replication"]
 	conn_limit = 50
@@ -241,7 +241,7 @@ func testAccMDBPostgreSQLUserConfigStep2(name string) string {
 resource "yandex_mdb_postgresql_user" "bob" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "bob"
-	password   = "mysecurepassword"
+	password   = "mysecureP@ssw0rd"
     permission {
 		database_name = "testdb"
 	}
@@ -254,7 +254,7 @@ func testAccMDBPostgreSQLUserConfigStep3(name string) string {
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
-	password   = "mysecurepassword"
+	password   = "mysecureP@ssw0rd"
     
 	conn_limit = 42
 	settings = {
@@ -270,7 +270,7 @@ func testAccMDBPostgreSQLUserConfigStep4(name string) string {
 resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
-	password   = "password"
+	password   = "P@ssw0rd123"
     
 	login      = false
 	conn_limit = 0
