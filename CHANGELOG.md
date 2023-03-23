@@ -1,4 +1,6 @@
-## 0.88.0 (Unreleased)
+## 0.89.0 (Unreleased)
+
+## 0.88.0 (March 23, 2023)
 FEATURES:
 * **New Resource** `yandex_monitoring_dashboard`
 * **New Data Source** `yandex_monitoring_dashboard`
@@ -10,9 +12,7 @@ FEATURES:
 * **New Resource** `yandex_compute_gpu_cluster`
 * **New Data Source** `yandex_compute_gpu_cluster`
 * compute: add `gpu_cluster_id` attribute in `yandex_compute_instance` resource and data source
-
-ENHANCEMENTS:
-* add `pool_mode` attribute to `settings` in `yandex_mdb_postgresql_user`
+* postgresql: add `pool_mode` attribute to `settings` in `yandex_mdb_postgresql_user`
 
 ## 0.87.0 (March 14, 2023)
 BUG FIXES:
