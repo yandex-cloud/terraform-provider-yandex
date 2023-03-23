@@ -1421,6 +1421,35 @@ func TestAccComputeInstance_filesystem(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_GpuCluster(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+	var gpuCluster compute.GpuCluster
+
+	var instanceName = acctest.RandomWithPrefix("tf-test")
+	var gpuClusterName = acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Create instance within a GPU cluster
+			{
+				Config: testAccComputeInstance_GpuCluster(gpuClusterName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeGpuClusterExists("yandex_compute_gpu_cluster.foobar", &gpuCluster),
+					testAccCheckComputeInstanceGpuCluster(&instance, &gpuCluster.Id),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -1947,6 +1976,19 @@ func testAccCheckComputeInstanceFilesystem(instance *compute.Instance, fsNames [
 			if _, ok := instanceAttachedFs[fsID]; !ok {
 				return fmt.Errorf("Filesystem %q is expected to be attached", fsID)
 			}
+		}
+		return nil
+	}
+}
+
+func testAccCheckComputeInstanceGpuCluster(instance *compute.Instance, expectedID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		var gpuClusterID string
+		if settings := instance.GpuSettings; settings != nil {
+			gpuClusterID = settings.GpuClusterId
+		}
+		if gpuClusterID != *expectedID {
+			return fmt.Errorf("Unexpected GPU cluster ID, actual = %v, expected = %v", gpuClusterID, *expectedID)
 		}
 		return nil
 	}
@@ -4187,6 +4229,52 @@ func testAccComputeInstance_filesystem(fs, instance string) string {
 		v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, fs, instance)
+}
+
+func testAccComputeInstance_GpuCluster(gpuCluster, instance string) string {
+	return fmt.Sprintf(`
+	data "yandex_compute_image" "ubuntu" {
+		family = "ubuntu-2004-lts"
+	}
+
+	resource "yandex_compute_gpu_cluster" "foobar" {
+		name              = "%s"
+        interconnect_type = "infiniband"
+		zone              = "ru-central1-a"
+	}
+
+	resource "yandex_compute_instance" "foobar" {
+		name = "%s"
+		zone = "ru-central1-a"
+		platform_id = "gpu-standard-v3"
+
+		resources {
+			gpus   = 8
+			cores  = 224
+			memory = 952
+		}
+
+		boot_disk {
+			initialize_params {
+				image_id = data.yandex_compute_image.ubuntu.id
+			}
+		}
+
+		network_interface {
+			subnet_id = yandex_vpc_subnet.inst-test-subnet.id
+		}
+
+		gpu_cluster_id = yandex_compute_gpu_cluster.foobar.id
+	}
+
+	resource "yandex_vpc_network" "inst-test-network" {}
+
+	resource "yandex_vpc_subnet" "inst-test-subnet" {
+		zone           = "ru-central1-a"
+		network_id     = yandex_vpc_network.inst-test-network.id
+		v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, gpuCluster, instance)
 }
 
 func testAccComputeInstance_attachFilesystem(fs, newFs, instance string) string {

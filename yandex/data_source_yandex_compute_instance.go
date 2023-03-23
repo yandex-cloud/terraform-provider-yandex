@@ -439,6 +439,12 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"gpu_cluster_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -562,6 +568,10 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	if err := d.Set("filesystem", filesystems); err != nil {
 		return err
+	}
+
+	if instance.GpuSettings != nil {
+		d.Set("gpu_cluster_id", instance.GpuSettings.GpuClusterId)
 	}
 
 	d.SetId(instance.Id)

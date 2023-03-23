@@ -7,6 +7,9 @@ FEATURES:
 * logging: support data_stream attribute
 * mysql: fix host recreation when assigning public ip
 * postgresql: add `database` and `user` attributes to `yandex_mdb_postgresql_cluster` data source
+* **New Resource** `yandex_compute_gpu_cluster`
+* **New Data Source** `yandex_compute_gpu_cluster`
+* compute: add `gpu_cluster_id` attribute in `yandex_compute_instance` resource and data source
 
 ENHANCEMENTS:
 * add `pool_mode` attribute to `settings` in `yandex_mdb_postgresql_user`

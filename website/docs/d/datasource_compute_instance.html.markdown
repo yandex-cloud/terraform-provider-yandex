@@ -54,10 +54,11 @@ The following arguments are supported:
 * `network_interface.0.nat_ip_address` - An assigned external IP address if the instance has NAT enabled.
 * `secondary_disk` - List of secondary disks attached to the instance. Structure is documented below.
 * `scheduling_policy` - Scheduling policy configuration. The structure is documented below.
-* `service_account_id` - ID of the service account authorized for this instance. 
+* `service_account_id` - ID of the service account authorized for this instance.
 * `created_at` - Instance creation timestamp.
 * `placement_policy` - The placement policy configuration. The structure is documented below.
 * `local_disk` - List of local disks that are attached to the instance. Structure is documented below.
+* `gpu_cluster_id` - ID of GPU cluster if instance is part of it.
 * `metadata_options` - Options allow user to configure access to instance's metadata
 
 ---

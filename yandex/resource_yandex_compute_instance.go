@@ -590,6 +590,13 @@ func resourceYandexComputeInstance() *schema.Resource {
 					},
 				},
 			},
+
+			"gpu_cluster_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -755,6 +762,10 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		"type": "ssh",
 		"host": connIP,
 	})
+
+	if instance.GpuSettings != nil {
+		d.Set("gpu_cluster_id", instance.GpuSettings.GpuClusterId)
+	}
 
 	return nil
 }
@@ -1443,6 +1454,11 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'filesystem' object of api request: %s", err)
 	}
 
+	gpuSettingsSpec, err := expandInstanceGpuSettingsSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'gpu_settings' object of api request: %s", err)
+	}
+
 	req := &compute.CreateInstanceRequest{
 		FolderId:              folderID,
 		Hostname:              d.Get("hostname").(string),
@@ -1463,6 +1479,7 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		LocalDiskSpecs:        localDisks,
 		MetadataOptions:       metadataOptions,
 		FilesystemSpecs:       filesystemSpecs,
+		GpuSettings:           gpuSettingsSpec,
 	}
 
 	return req, nil

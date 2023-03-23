@@ -103,6 +103,8 @@ The following arguments are supported:
 
 * `filesystem` - (Optional) List of filesystems that are attached to the instance. Structure is documented below.
 
+* `gpu_cluster_id` - (Optional) ID of the GPU cluster to attach this instance to. The GPU cluster must exist in the same zone as the instance.
+
 ---
 
 The `resources` block supports:

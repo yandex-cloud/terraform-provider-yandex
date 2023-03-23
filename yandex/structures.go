@@ -862,6 +862,15 @@ func expandInstanceFilesystemSpecs(d *schema.ResourceData) ([]*compute.AttachedF
 	return fsSpecs, nil
 }
 
+func expandInstanceGpuSettingsSpec(d *schema.ResourceData) (*compute.GpuSettings, error) {
+	if v, ok := d.GetOk("gpu_cluster_id"); ok {
+		return &compute.GpuSettings{
+			GpuClusterId: v.(string),
+		}, nil
+	}
+	return nil, nil
+}
+
 func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
 	schedulingPolicy := make([]map[string]interface{}, 0, 1)
 	schedulingMap := map[string]interface{}{
