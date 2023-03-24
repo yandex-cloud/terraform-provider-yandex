@@ -1,4 +1,10 @@
 ## 0.89.0 (Unreleased)
+FEATURES:
+* mongodb: `resources` section for `yandex_mdb_mongodb_cluster` is now deprecated
+* mongodb: add new sections `resources_mongod`, `resources_mongos`, `resources_mongocfg`, `resources_mongoinfra` for `yandex_mdb_mongodb_cluster`
+* mongodb: add support `MONGOINFRA` host type
+* mongodb: allow changing settings for `MONGOS` and `MONGOCFG` host types
+
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 
 

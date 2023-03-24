@@ -26,8 +26,10 @@ var supportedVersions = map[string]bool{
 }
 
 type MongodbSpecHelper struct {
-	FlattenResources func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error)
+	FlattenResources func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error)
 	FlattenMongod    func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
+	FlattenMongos    func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
+	FlattenMongocfg  func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
 	Expand           func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec
 }
 
@@ -36,19 +38,44 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 	case "5.0-enterprise":
 		{
 			return &MongodbSpecHelper{
-
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
@@ -95,13 +122,123 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							result["set_parameter"] = []map[string]interface{}{set_parameter_data}
 						}
 
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
 						return []map[string]interface{}{result}, nil
 					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					config := mongo_config.MongodConfig5_0Enterprise{}
+					configMongod := mongo_config.MongodConfig5_0Enterprise{}
+					configMongos := mongo_config.MongosConfig5_0Enterprise{}
+					configMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise{}
 
 					security := mongo_config.MongodConfig5_0Enterprise_Security{}
 					if enable_encryption := d.Get("cluster_config.0.mongod.0.security.0.enable_encryption"); enable_encryption != nil {
@@ -124,8 +261,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						kmip.SetKeyIdentifier(key_identifier.(string))
 					}
 					security.SetKmip(&kmip)
-					config.SetSecurity(&security)
-
+					configMongod.SetSecurity(&security)
 					audit_log := mongo_config.MongodConfig5_0Enterprise_AuditLog{}
 					if filter := d.Get("cluster_config.0.mongod.0.audit_log.0.filter"); filter != nil {
 						audit_log.SetFilter(filter.(string))
@@ -134,28 +270,133 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					//if rt := d.Get("cluster_config.0.mongod.0.audit_log.0.runtime_configuration"); rt != nil {
 					//	audit_log.SetRuntimeConfiguration(&wrappers.BoolValue{Value: rt.(bool)})
 					//}
-					config.SetAuditLog(&audit_log)
+					configMongod.SetAuditLog(&audit_log)
 
 					set_paramenter := mongo_config.MongodConfig5_0Enterprise_SetParameter{}
 					if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
 						set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
 					}
-					config.SetSetParameter(&set_paramenter)
+					configMongod.SetSetParameter(&set_paramenter)
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig5_0Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig5_0Enterprise_OperationProfiling{}
 
-					resources := expandMongoDBResources(d)
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig5_0_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig5_0Enterprise_OperationProfiling_Mode(modeInt))
+						}
 
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig5_0Enterprise_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig5_0Enterprise_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig5_0Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig5_0Enterprise_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig5_0Enterprise_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec5_0Enterprise_Mongod
+					var mongos *mongodb.MongodbSpec5_0Enterprise_Mongos
+					var mongocfg *mongodb.MongodbSpec5_0Enterprise_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec5_0Enterprise_MongoInfra
+					mongod = &mongodb.MongodbSpec5_0Enterprise_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec5_0Enterprise_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec5_0Enterprise_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec5_0Enterprise_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_5_0Enterprise{
 						MongodbSpec_5_0Enterprise: &mongodb.MongodbSpec5_0Enterprise{
-							Mongod: &mongodb.MongodbSpec5_0Enterprise_Mongod{
-								Config:    &config,
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec5_0Enterprise_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec5_0Enterprise_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -165,37 +406,291 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 		{
 			return &MongodbSpecHelper{
 
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongod := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0.Mongod
+					if mongod != nil {
+						user_config := mongod.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					resources := expandMongoDBResources(d)
+					configMongod := mongo_config.MongodConfig5_0{}
+					configMongos := mongo_config.MongosConfig5_0{}
+					configMongoCfg := mongo_config.MongoCfgConfig5_0{}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig5_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig5_0_OperationProfiling{}
+
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig5_0_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig5_0_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig5_0_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig5_0_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig5_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig5_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig5_0_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig5_0_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig5_0_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig5_0_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig5_0_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig5_0_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec5_0_Mongod
+					var mongos *mongodb.MongodbSpec5_0_Mongos
+					var mongocfg *mongodb.MongodbSpec5_0_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec5_0_MongoInfra
+					mongod = &mongodb.MongodbSpec5_0_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec5_0_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec5_0_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec5_0_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
+
 					return &mongodb.ConfigSpec_MongodbSpec_5_0{
 						MongodbSpec_5_0: &mongodb.MongodbSpec5_0{
-							Mongod: &mongodb.MongodbSpec5_0_Mongod{
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec5_0_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec5_0_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -204,19 +699,44 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 	case "4.4-enterprise":
 		{
 			return &MongodbSpecHelper{
-
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
@@ -229,8 +749,8 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 
 						if security := user_config.GetSecurity(); security != nil {
 							flattenSecurity := map[string]interface{}{}
-							if enableEncryption := security.GetEnableEncryption(); enableEncryption != nil {
-								flattenSecurity["enable_encryption"] = enableEncryption.GetValue()
+							if enableEncription := security.GetEnableEncryption(); enableEncription != nil {
+								flattenSecurity["enable_encryption"] = enableEncription.GetValue()
 							}
 							if kmip := security.GetKmip(); kmip != nil {
 								flattenKmip := map[string]interface{}{}
@@ -260,13 +780,123 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							result["set_parameter"] = []map[string]interface{}{set_parameter_data}
 						}
 
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
 						return []map[string]interface{}{result}, nil
 					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					config := mongo_config.MongodConfig4_4Enterprise{}
+					configMongod := mongo_config.MongodConfig4_4Enterprise{}
+					configMongos := mongo_config.MongosConfig4_4Enterprise{}
+					configMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise{}
 
 					security := mongo_config.MongodConfig4_4Enterprise_Security{}
 					if enable_encryption := d.Get("cluster_config.0.mongod.0.security.0.enable_encryption"); enable_encryption != nil {
@@ -289,34 +919,142 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						kmip.SetKeyIdentifier(key_identifier.(string))
 					}
 					security.SetKmip(&kmip)
-					config.SetSecurity(&security)
-
+					configMongod.SetSecurity(&security)
 					audit_log := mongo_config.MongodConfig4_4Enterprise_AuditLog{}
 					if filter := d.Get("cluster_config.0.mongod.0.audit_log.0.filter"); filter != nil {
 						audit_log.SetFilter(filter.(string))
 					}
-					config.SetAuditLog(&audit_log)
+					// Note: right now runtime_configuration unsupported, so we should comment this statement
+					//if rt := d.Get("cluster_config.0.mongod.0.audit_log.0.runtime_configuration"); rt != nil {
+					//	audit_log.SetRuntimeConfiguration(&wrappers.BoolValue{Value: rt.(bool)})
+					//}
+					configMongod.SetAuditLog(&audit_log)
 
 					set_paramenter := mongo_config.MongodConfig4_4Enterprise_SetParameter{}
 					if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
 						set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
 					}
-					config.SetSetParameter(&set_paramenter)
+					configMongod.SetSetParameter(&set_paramenter)
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig4_4Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig4_4Enterprise_OperationProfiling{}
 
-					resources := expandMongoDBResources(d)
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig4_4Enterprise_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig4_4Enterprise_OperationProfiling_Mode(modeInt))
+						}
 
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig4_4Enterprise_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig4_4Enterprise_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig4_4Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig4_4Enterprise_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig4_4Enterprise_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec4_4Enterprise_Mongod
+					var mongos *mongodb.MongodbSpec4_4Enterprise_Mongos
+					var mongocfg *mongodb.MongodbSpec4_4Enterprise_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec4_4Enterprise_MongoInfra
+					mongod = &mongodb.MongodbSpec4_4Enterprise_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec4_4Enterprise_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec4_4Enterprise_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec4_4Enterprise_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_4_4Enterprise{
 						MongodbSpec_4_4Enterprise: &mongodb.MongodbSpec4_4Enterprise{
-							Mongod: &mongodb.MongodbSpec4_4Enterprise_Mongod{
-								Config:    &config,
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec4_4Enterprise_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec4_4Enterprise_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -326,37 +1064,291 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 		{
 			return &MongodbSpecHelper{
 
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongod := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4.Mongod
+					if mongod != nil {
+						user_config := mongod.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					resources := expandMongoDBResources(d)
+					configMongod := mongo_config.MongodConfig4_4{}
+					configMongos := mongo_config.MongosConfig4_4{}
+					configMongoCfg := mongo_config.MongoCfgConfig4_4{}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig4_4_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig4_4_OperationProfiling{}
+
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig4_4_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig4_4_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig4_4_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig4_4_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig4_4_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig4_4_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig4_4_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig4_4_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig4_4_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig4_4_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig4_4_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig4_4_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec4_4_Mongod
+					var mongos *mongodb.MongodbSpec4_4_Mongos
+					var mongocfg *mongodb.MongodbSpec4_4_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec4_4_MongoInfra
+					mongod = &mongodb.MongodbSpec4_4_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec4_4_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec4_4_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec4_4_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_4_4{
 						MongodbSpec_4_4: &mongodb.MongodbSpec4_4{
-							Mongod: &mongodb.MongodbSpec4_4_Mongod{
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec4_4_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec4_4_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -366,37 +1358,291 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 		{
 			return &MongodbSpecHelper{
 
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongod := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2.Mongod
+					if mongod != nil {
+						user_config := mongod.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					resources := expandMongoDBResources(d)
+					configMongod := mongo_config.MongodConfig4_2{}
+					configMongos := mongo_config.MongosConfig4_2{}
+					configMongoCfg := mongo_config.MongoCfgConfig4_2{}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig4_2_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig4_2_OperationProfiling{}
+
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig4_2_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig4_2_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig4_2_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig4_2_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig4_2_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig4_2_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig4_2_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig4_2_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig4_2_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig4_2_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig4_2_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig4_2_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec4_2_Mongod
+					var mongos *mongodb.MongodbSpec4_2_Mongos
+					var mongocfg *mongodb.MongodbSpec4_2_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec4_2_MongoInfra
+					mongod = &mongodb.MongodbSpec4_2_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec4_2_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec4_2_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec4_2_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_4_2{
 						MongodbSpec_4_2: &mongodb.MongodbSpec4_2{
-							Mongod: &mongodb.MongodbSpec4_2_Mongod{
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec4_2_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec4_2_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -406,37 +1652,291 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 		{
 			return &MongodbSpecHelper{
 
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongod := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0.Mongod
+					if mongod != nil {
+						user_config := mongod.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					resources := expandMongoDBResources(d)
+					configMongod := mongo_config.MongodConfig4_0{}
+					configMongos := mongo_config.MongosConfig4_0{}
+					configMongoCfg := mongo_config.MongoCfgConfig4_0{}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig4_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig4_0_OperationProfiling{}
+
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig4_0_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig4_0_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig4_0_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig4_0_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig4_0_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig4_0_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig4_0_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig4_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig4_0_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig4_0_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig4_0_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig4_0_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig4_0_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig4_0_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig4_0_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec4_0_Mongod
+					var mongos *mongodb.MongodbSpec4_0_Mongos
+					var mongocfg *mongodb.MongodbSpec4_0_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec4_0_MongoInfra
+					mongod = &mongodb.MongodbSpec4_0_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec4_0_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec4_0_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec4_0_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_4_0{
 						MongodbSpec_4_0: &mongodb.MongodbSpec4_0{
-							Mongod: &mongodb.MongodbSpec4_0_Mongod{
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec4_0_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec4_0_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -446,37 +1946,291 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 		{
 			return &MongodbSpecHelper{
 
-				FlattenResources: func(c *mongodb.ClusterConfig) ([]map[string]interface{}, error) {
+				FlattenResources: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
 					spec := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
-					if spec.Mongod != nil {
-						return flattenMongoDBResources(spec.Mongod.Resources), nil
+					resources := map[string]interface{}{}
+					if _, ok := d.GetOk("resources"); ok {
+						if spec.Mongod != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongod.Resources)
+							return resources, nil
+						}
+						if spec.Mongos != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongos.Resources)
+							return resources, nil
+						}
+						if spec.Mongocfg != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+							return resources, nil
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+							return resources, nil
+						}
+					} else {
+						if spec.Mongod != nil {
+							resources["resources_mongod"] = flattenMongoDBResources(spec.Mongod.Resources)
+						}
+						if spec.Mongos != nil {
+							resources["resources_mongos"] = flattenMongoDBResources(spec.Mongos.Resources)
+						}
+						if spec.Mongocfg != nil {
+							resources["resources_mongocfg"] = flattenMongoDBResources(spec.Mongocfg.Resources)
+						}
+						if spec.Mongoinfra != nil {
+							resources["resources_mongoinfra"] = flattenMongoDBResources(spec.Mongoinfra.Resources)
+						}
 					}
-					if spec.Mongos != nil {
-						return flattenMongoDBResources(spec.Mongos.Resources), nil
+					if len(resources) == 0 {
+						return nil, fmt.Errorf("Non empty service not found in mongo spec")
 					}
-					if spec.Mongocfg != nil {
-						return flattenMongoDBResources(spec.Mongocfg.Resources), nil
-					}
-					return nil, fmt.Errorf("Non empty service not found in mongo spec")
+					return resources, nil
 				},
 
 				FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongod := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6.Mongod
+					if mongod != nil {
+						user_config := mongod.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := user_config.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := user_config.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
+									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
+										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+
+							if journal := storage.GetJournal(); journal != nil {
+								flattenJournal := map[string]interface{}{}
+								if commitInterval := journal.GetCommitInterval(); commitInterval != nil {
+									flattenJournal["commit_interval"] = commitInterval.GetValue()
+								}
+								flattenStorage["journal"] = []map[string]interface{}{flattenJournal}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := user_config.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6.Mongos
+					if mongos != nil {
+						userConfig := mongos.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+						return []map[string]interface{}{result}, nil
+					}
+					return []map[string]interface{}{}, nil
+				},
+
+				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
+					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6.Mongocfg
+					if mongocfg != nil {
+						userConfig := mongocfg.GetConfig().GetUserConfig()
+						result := map[string]interface{}{}
+
+						if net := userConfig.GetNet(); net != nil {
+							flattenNet := map[string]interface{}{}
+							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
+								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							result["net"] = []map[string]interface{}{flattenNet}
+						}
+
+						if storage := userConfig.GetStorage(); storage != nil {
+							flattenStorage := map[string]interface{}{}
+							if wiredTiger := storage.GetWiredTiger(); wiredTiger != nil {
+								flattenWiredTiger := map[string]interface{}{}
+								if engineConfig := wiredTiger.GetEngineConfig(); engineConfig != nil {
+									if cacheSize := engineConfig.GetCacheSizeGb(); cacheSize != nil {
+										flattenWiredTiger["cache_size_gb"] = cacheSize.GetValue()
+									}
+								}
+								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
+							}
+							result["storage"] = []map[string]interface{}{flattenStorage}
+						}
+
+						if opProfiling := userConfig.GetOperationProfiling(); opProfiling != nil {
+							flattenOpProfiling := map[string]interface{}{}
+							if mode := opProfiling.GetMode(); mode != 0 {
+								flattenOpProfiling["mode"] = mode.String()
+							}
+							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
+								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
+							}
+							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
+						}
+
+						return []map[string]interface{}{result}, nil
+					}
 					return []map[string]interface{}{}, nil
 				},
 
 				Expand: func(d *schema.ResourceData) mongodb.ConfigSpec_MongodbSpec {
-					resources := expandMongoDBResources(d)
+					configMongod := mongo_config.MongodConfig3_6{}
+					configMongos := mongo_config.MongosConfig3_6{}
+					configMongoCfg := mongo_config.MongoCfgConfig3_6{}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
+						netMongod := mongo_config.MongodConfig3_6_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
+							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongod.SetNet(&netMongod)
+					}
+
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
+						opProfilingMongod := mongo_config.MongodConfig3_6_OperationProfiling{}
+
+						if mode, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongodConfig3_6_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongod.SetMode(mongo_config.MongodConfig3_6_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongod.SetOperationProfiling(&opProfilingMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
+						engineConfigMongod := mongo_config.MongodConfig3_6_Storage_WiredTiger_EngineConfig{}
+						collectionConfigMongod := mongo_config.MongodConfig3_6_Storage_WiredTiger_CollectionConfig{}
+						journalMongod := mongo_config.MongodConfig3_6_Storage_Journal{}
+						wiredTigerMongod := mongo_config.MongodConfig3_6_Storage_WiredTiger{
+							EngineConfig:     &engineConfigMongod,
+							CollectionConfig: &collectionConfigMongod,
+						}
+						storageMongod := mongo_config.MongodConfig3_6_Storage{
+							WiredTiger: &wiredTigerMongod,
+							Journal:    &journalMongod,
+						}
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
+							blockCompressorInt := mongo_config.MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
+							collectionConfigMongod.SetBlockCompressor(
+								mongo_config.MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
+							)
+						}
+
+						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
+							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
+						}
+						configMongod.SetStorage(&storageMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
+
+						netMongos := mongo_config.MongosConfig3_6_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
+							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongos.SetNet(&netMongos)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.net"); ok {
+						netMongoCfg := mongo_config.MongoCfgConfig3_6_Network{}
+						if maxConnections, ok := d.GetOk("cluster_config.0.mongocfg.0.net.0.max_incoming_connections"); ok {
+							netMongoCfg.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						configMongoCfg.SetNet(&netMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling"); ok {
+						opProfilingMongoCfg := mongo_config.MongoCfgConfig3_6_OperationProfiling{}
+						if mode, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.mode"); ok {
+							modeInt := mongo_config.MongoCfgConfig3_6_OperationProfiling_Mode_value[strings.ToUpper(mode.(string))]
+							opProfilingMongoCfg.SetMode(mongo_config.MongoCfgConfig3_6_OperationProfiling_Mode(modeInt))
+						}
+
+						if opThreshold, ok := d.GetOk("cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"); ok {
+							opProfilingMongoCfg.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
+						}
+						configMongoCfg.SetOperationProfiling(&opProfilingMongoCfg)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongocfg.0.storage"); ok {
+						engineConfigMongoCfg := mongo_config.MongoCfgConfig3_6_Storage_WiredTiger_EngineConfig{}
+						wiredTigerMongoCfg := mongo_config.MongoCfgConfig3_6_Storage_WiredTiger{EngineConfig: &engineConfigMongoCfg}
+						storageMongoCfg := mongo_config.MongoCfgConfig3_6_Storage{WiredTiger: &wiredTigerMongoCfg}
+
+						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+						}
+						configMongoCfg.SetStorage(&storageMongoCfg)
+					}
+					hostTypes := getSetOfHostTypes(d)
+					var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+					var mongod *mongodb.MongodbSpec3_6_Mongod
+					var mongos *mongodb.MongodbSpec3_6_Mongos
+					var mongocfg *mongodb.MongodbSpec3_6_MongoCfg
+					var mongoinfra *mongodb.MongodbSpec3_6_MongoInfra
+					mongod = &mongodb.MongodbSpec3_6_Mongod{
+						Config:    &configMongod,
+						Resources: resourcesMongod,
+					}
+
+					if _, ok := hostTypes["MONGOS"]; ok {
+						mongos = &mongodb.MongodbSpec3_6_Mongos{
+							Config:    &configMongos,
+							Resources: resourcesMongos,
+						}
+					}
+					if _, ok := hostTypes["MONGOCFG"]; ok {
+						mongocfg = &mongodb.MongodbSpec3_6_MongoCfg{
+							Config:    &configMongoCfg,
+							Resources: resourcesMongoCfg,
+						}
+					}
+					if _, ok := hostTypes["MONGOINFRA"]; ok {
+						mongoinfra = &mongodb.MongodbSpec3_6_MongoInfra{
+							ConfigMongocfg: &configMongoCfg,
+							ConfigMongos:   &configMongos,
+							Resources:      resourcesMongoInfra,
+						}
+					}
 					return &mongodb.ConfigSpec_MongodbSpec_3_6{
 						MongodbSpec_3_6: &mongodb.MongodbSpec3_6{
-							Mongod: &mongodb.MongodbSpec3_6_Mongod{
-								Resources: resources,
-							},
-							Mongos: &mongodb.MongodbSpec3_6_Mongos{
-								Resources: resources,
-							},
-							Mongocfg: &mongodb.MongodbSpec3_6_MongoCfg{
-								Resources: resources,
-							},
+							Mongod:     mongod,
+							Mongos:     mongos,
+							Mongocfg:   mongocfg,
+							Mongoinfra: mongoinfra,
 						},
 					}
 				},
@@ -486,10 +2240,45 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 	return nil
 }
 
+func getResources(d *schema.ResourceData) (*mongodb.Resources, *mongodb.Resources, *mongodb.Resources, *mongodb.Resources) {
+	// migration from resource to resource_*
+	if _, ok := d.GetOk("resources_mongod"); !ok {
+		resources := expandMongoDBResources(d)
+		return resources, resources, resources, resources
+	} else {
+		return expandMongoDBResourcesWithType(d, "resources_mongod"),
+			expandMongoDBResourcesWithType(d, "resources_mongos"),
+			expandMongoDBResourcesWithType(d, "resources_mongocfg"),
+			expandMongoDBResourcesWithType(d, "resources_mongoinfra")
+	}
+}
+
+func getSetOfHostTypes(d *schema.ResourceData) map[string]struct{} {
+	hosts := d.Get("host").([]interface{})
+
+	var hostTypes = make(map[string]struct{})
+
+	for _, host := range hosts {
+		hostConfig := host.(map[string]interface{})
+		hostTypes[strings.ToUpper(hostConfig["type"].(string))] = struct{}{}
+	}
+	return hostTypes
+}
+
 func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
 	mongodbSpecHelper := GetMongodbSpecHelper(cc.Version)
 
 	flattenMongod, err := mongodbSpecHelper.FlattenMongod(cc, d)
+	if err != nil {
+		return nil, err
+	}
+
+	flattenMongos, err := mongodbSpecHelper.FlattenMongos(cc, d)
+	if err != nil {
+		return nil, err
+	}
+
+	flattenMongocfg, err := mongodbSpecHelper.FlattenMongocfg(cc, d)
 	if err != nil {
 		return nil, err
 	}
@@ -510,7 +2299,9 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 					"data_transfer": cc.Access.DataTransfer,
 				},
 			},
-			"mongod": flattenMongod,
+			"mongod":   flattenMongod,
+			"mongos":   flattenMongos,
+			"mongocfg": flattenMongocfg,
 		},
 	}
 	return flattenConfig, nil
@@ -630,7 +2421,7 @@ func expandMongoDBHosts(d *schema.ResourceData) ([]*mongodb.HostSpec, error) {
 func expandMongoDBHost(config map[string]interface{}) *mongodb.HostSpec {
 	host := &mongodb.HostSpec{}
 	if v, ok := config["type"]; ok {
-		host.Type = mongodb.Host_Type(mongodb.Host_Type_value[v.(string)])
+		host.Type = mongodb.Host_Type(mongodb.Host_Type_value[strings.ToUpper(v.(string))])
 	}
 
 	if v, ok := config["zone_id"]; ok {
@@ -813,12 +2604,18 @@ func expandMongoDBDatabases(d *schema.ResourceData) ([]*mongodb.DatabaseSpec, er
 }
 
 func expandMongoDBResources(d *schema.ResourceData) *mongodb.Resources {
-	res := mongodb.Resources{
-		DiskSize:         toBytes(d.Get("resources.0.disk_size").(int)),
-		DiskTypeId:       d.Get("resources.0.disk_type_id").(string),
-		ResourcePresetId: d.Get("resources.0.resource_preset_id").(string),
-	}
+	return expandMongoDBResourcesWithType(d, "resources")
+}
 
+func expandMongoDBResourcesWithType(d *schema.ResourceData, hostType string) *mongodb.Resources {
+	if _, ok := d.GetOk(hostType); !ok {
+		return nil
+	}
+	res := mongodb.Resources{
+		DiskSize:         toBytes(d.Get(hostType + ".0.disk_size").(int)),
+		DiskTypeId:       d.Get(hostType + ".0.disk_type_id").(string),
+		ResourcePresetId: d.Get(hostType + ".0.resource_preset_id").(string),
+	}
 	return &res
 }
 

@@ -49,9 +49,21 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
     }
   }
 
-  resources {
-    resource_preset_id = "b1.nano"
+  resources_mongod {
+    resource_preset_id = "s2.small"
     disk_size          = 16
+    disk_type_id       = "network-hdd"
+  }
+
+  resources_mongos {
+    resource_preset_id = "s2.small"
+    disk_size          = 14
+    disk_type_id       = "network-hdd"
+  }
+
+  resources_mongocfg {
+    resource_preset_id = "s2.small"
+    disk_size          = 14
     disk_type_id       = "network-hdd"
   }
 
@@ -84,7 +96,15 @@ The following arguments are supported:
 
 * `host` - (Required) A host of the MongoDB cluster. The structure is documented below.
 
-* `resources` - (Required) Resources allocated to hosts of the MongoDB cluster. The structure is documented below.
+* `resources_mongod` - (Optional) Resources allocated to `mongod` hosts of the MongoDB cluster. The structure is documented below.
+
+* `resources_mongocfg` - (Optional) Resources allocated to `mongocfg` hosts of the MongoDB cluster. The structure is documented below.
+
+* `resources_mongos` - (Optional) Resources allocated to `mongos` hosts of the MongoDB cluster. The structure is documented below.
+
+* `resources_mongoinfra` - (Optional) Resources allocated to `mongoinfra` hosts of the MongoDB cluster. The structure is documented below.
+
+* `resources` - (**DEPRECATED**, use `resources_*` instead) Resources allocated to hosts of the MongoDB cluster. The structure is documented below.
 
 - - -
 
@@ -125,7 +145,7 @@ The `backup_window_start` block supports:
 
 * `minutes` - (Optional) The minute at which backup will be started.
 
-The `resources` block supports:
+The `resources`, `resources_mongod`, `resources_mongos`, `resources_mongocfg`, `resources_mongoinfra`,  blocks supports:
 
 * `resources_preset_id` - (Required) The ID of the preset for computational resources available to a MongoDB host (CPU, memory etc.). 
   For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts).
@@ -171,7 +191,7 @@ The `host` block supports:
 
 * `shard_name` - (Optional) The name of the shard to which the host belongs.
 
-* `type` - (Optional) type of mongo daemon which runs on this host (mongod, mongos or monogcfg). Defaults to mongod.
+* `type` - (Optional) type of mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to mongod.
 
 The `access` block supports:
 
@@ -198,6 +218,38 @@ The `mongod` block supports:
   (see the [setParameter](https://www.mongodb.com/docs/manual/reference/configuration-options/#setparameter-option) option). 
   The structure is documented below.
 
+* `operation_profiling` - (Optional) A set of profiling settings
+  (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option). 
+  The structure is documented below.
+
+* `net` - (Optional) A set of network settings
+  (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option). 
+  The structure is documented below.
+
+* `storage` - (Optional) A set of storage settings
+  (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option). 
+  The structure is documented below.
+
+The `mongocfg` block supports:
+
+* `operation_profiling` - (Optional) A set of profiling settings
+  (see the [operationProfiling](https://www.mongodb.com/docs/manual/reference/configuration-options/#operationprofiling-options) option).
+  The structure is documented below.
+
+* `net` - (Optional) A set of network settings
+  (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).
+  The structure is documented below.
+
+* `storage` - (Optional) A set of storage settings
+  (see the [storage](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage-options) option).
+  The structure is documented below.
+
+The `mongos` block supports:
+
+* `net` - (Optional) A set of network settings
+  (see the [net](https://www.mongodb.com/docs/manual/reference/configuration-options/#net-options) option).
+  The structure is documented below.
+
 
 The `security` block supports:
 
@@ -222,6 +274,53 @@ The `set_parameter` block supports:
 * `audit_authorization_success` - (Optional) Enables the auditing of authorization successes. Can be either true or false.
   For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess)
   description in the official documentation. Available only in enterprise edition.
+
+
+The `operation_profiling` block supports:
+
+* `mode` - (Optional) Specifies which operations should be profiled. The following profiler levels are available: off, slow_op, all.
+  For more information, see the [operationProfiling.mode](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.mode)
+  description in the official documentation.
+
+* `slow_op_threshold` - (Optional) The slow operation time threshold, in milliseconds. Operations that run for longer than this threshold are considered slow.
+  For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs)
+  description in the official documentation.
+
+
+The `net` block supports:
+
+* `max_incoming_connections` - (Optional) The maximum number of simultaneous connections that host will accept.
+  For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections)
+  description in the official documentation.
+
+
+The `storage` block supports:
+
+* `wired_tiger` - (Optional) The WiredTiger engine settings.
+  (see the [storage.wiredTiger](https://www.mongodb.com/docs/manual/reference/configuration-options/#storage.wiredtiger-options) option).
+  These settings available only on `mongod` hosts. The structure is documented below.
+
+* `journal` - (Optional) The durability journal to ensure data files remain valid and recoverable.
+  The structure is documented below.
+
+
+The `wired_tiger` block supports:
+
+* `cache_size_gb` - (Optional) Defines the maximum size of the internal cache that WiredTiger will use for all data.
+  For more information, see the [storage.wiredTiger.engineConfig.cacheSizeGB](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB)
+  description in the official documentation.
+
+* `block_compressor` - (Optional) Specifies the default compression for collection data. You can override this on a per-collection basis when creating collections.
+  Available compressors are: none, snappy, zlib, zstd (Available starting MongoDB 4.2). This setting available only on `mongod` hosts.
+  For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor)
+  description in the official documentation.
+
+
+The `journal` block supports:
+
+* `commit_interval` - (Optional) The maximum amount of time in milliseconds that the mongod process allows between journal operations.
+  For more information, see the [storage.journal.commitIntervalMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.journal.commitIntervalMs)
+  description in the official documentation.
 
 
 The `kmip` block supports:

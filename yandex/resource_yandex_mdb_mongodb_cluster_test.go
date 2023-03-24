@@ -109,10 +109,12 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	{{- end}}
 	} 
 {{end}}
+{{if .BackupWindow}}
     backup_window_start {
       hours = {{.BackupWindow.hours}}
       minutes = {{.BackupWindow.minutes}}
     }
+{{end}}
 {{if .Mongod}}
     mongod {
 {{if .Mongod.AuditLog}}
@@ -121,6 +123,57 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
       }
       set_parameter {
         audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
+      }
+{{end}}
+{{if .Mongod.Net}}
+      net {
+        max_incoming_connections = "{{.Mongod.Net.MaxConnections}}"
+      }
+{{end}}
+{{if .Mongod.Storage}}
+	storage {
+	{{if .Mongod.Storage.Journal}}
+      journal {
+        commit_interval = "{{.Mongod.Storage.Journal.CommitInterval}}"
+      }
+	{{end}}
+	{{if .Mongod.Storage.WiredTiger}}
+      wired_tiger {
+        block_compressor = "{{.Mongod.Storage.WiredTiger.Compressor}}"
+      }
+	{{end}}
+	}
+{{end}}
+{{if .Mongod.OperationProfiling}}
+	operation_profiling {
+        mode = "{{.Mongod.OperationProfiling.Mode}}"
+        slow_op_threshold = "{{.Mongod.OperationProfiling.OpThreshold}}"
+	}
+{{end}}
+    }
+{{end}}
+
+{{if .Mongos}}
+    mongos {
+{{if .Mongos.Net}}
+      net {
+        max_incoming_connections = "{{.Mongos.Net.MaxConnections}}"
+      }
+{{end}}
+    }
+{{end}}
+
+{{if .MongoCfg}}
+    mongocfg {
+{{if .MongoCfg.Net}}
+      net {
+        max_incoming_connections = "{{.MongoCfg.Net.MaxConnections}}"
+      }
+{{end}}
+{{if .MongoCfg.OperationProfiling}}
+      operation_profiling {
+        mode = "{{.MongoCfg.OperationProfiling.Mode}}"
+        slow_op_threshold = "{{.MongoCfg.OperationProfiling.OpThreshold}}"
       }
 {{end}}
     }
@@ -148,20 +201,59 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 {{- end}}
 
+{{if .Resources}}
   resources {
     resource_preset_id = "{{.Resources.ResourcePresetId}}"
     disk_size          = {{.Resources.DiskSize}}
     disk_type_id       = "{{.Resources.DiskTypeId}}"
   }
+{{end}}
+
+{{if .ResourcesMongod}}
+  resources_mongod {
+    resource_preset_id = "{{.ResourcesMongod.ResourcePresetId}}"
+    disk_size          = {{.ResourcesMongod.DiskSize}}
+    disk_type_id       = "{{.ResourcesMongod.DiskTypeId}}"
+  }
+{{end}}
+
+{{if .ResourcesMongoCfg}}
+  resources_mongocfg {
+    resource_preset_id = "{{.ResourcesMongoCfg.ResourcePresetId}}"
+    disk_size          = {{.ResourcesMongoCfg.DiskSize}}
+    disk_type_id       = "{{.ResourcesMongoCfg.DiskTypeId}}"
+  }
+{{end}}
+
+{{if .ResourcesMongos}}
+  resources_mongos {
+    resource_preset_id = "{{.ResourcesMongos.ResourcePresetId}}"
+    disk_size          = {{.ResourcesMongos.DiskSize}}
+    disk_type_id       = "{{.ResourcesMongos.DiskTypeId}}"
+  }
+{{end}}
+
+{{if .ResourcesMongoInfra}}
+  resources_mongoinfra {
+    resource_preset_id = "{{.ResourcesMongoInfra.ResourcePresetId}}"
+    disk_size          = {{.ResourcesMongoInfra.DiskSize}}
+    disk_type_id       = "{{.ResourcesMongoInfra.DiskTypeId}}"
+  }
+{{end}}
+
 
 {{range $i, $r := .Hosts}}
   host {
     zone_id   = "{{$r.ZoneId}}"
     subnet_id = "{{$r.SubnetId}}"
+{{if $r.Type}}
+	type 	  = "{{$r.Type}}"
+{{end}}
   }
 {{end}}
 
   security_group_ids = [{{range $i, $r := .SecurityGroupIds}}{{if $i}}, {{end}}"{{.}}"{{end}}]
+
 
   maintenance_window {
     type = "{{.MaintenanceWindow.Type}}"
@@ -222,6 +314,83 @@ var s2Small26hdd = mongodb.Resources{
 	ResourcePresetId: "s2.small",
 	DiskSize:         toBytes(26),
 	DiskTypeId:       "network-hdd",
+}
+
+var mongoHosts = []mongodb.Host{
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+	},
+}
+
+var shardedMongoInfraHosts = []mongodb.Host{
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOD,
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		Type:     mongodb.Host_MONGOD,
+	},
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOINFRA,
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		Type:     mongodb.Host_MONGOINFRA,
+	},
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOINFRA,
+	},
+}
+
+var shardedMongoCfgHosts = []mongodb.Host{
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOD,
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		Type:     mongodb.Host_MONGOD,
+	},
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOCFG,
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		Type:     mongodb.Host_MONGOCFG,
+	},
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOCFG,
+	},
+	{
+		ZoneId:   "ru-central1-b",
+		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		Type:     mongodb.Host_MONGOS,
+	},
+	{
+		ZoneId:   "ru-central1-a",
+		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		Type:     mongodb.Host_MONGOS,
+	},
 }
 
 func init() {
@@ -319,15 +488,12 @@ func create4_2ConfigData() map[string]interface{} {
 				},
 			},
 		},
-		"Resources": &mongodb.Resources{
+		"ResourcesMongod": &mongodb.Resources{
 			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
 			DiskSize:         s2Micro16hdd.DiskSize >> 30,
 			DiskTypeId:       s2Micro16hdd.DiskTypeId,
 		},
-		"Hosts": []map[string]interface{}{
-			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
-			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
-		},
+		"Hosts":            mongoHosts,
 		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
 		"MaintenanceWindow": map[string]interface{}{
 			"Type": "WEEKLY",
@@ -480,7 +646,7 @@ func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 							},
 						},
 					},
-					"Resources": &mongodb.Resources{
+					"ResourcesMongod": &mongodb.Resources{
 						ResourcePresetId: s2Small26hdd.ResourcePresetId,
 						DiskSize:         s2Small26hdd.DiskSize >> 30,
 						DiskTypeId:       s2Small26hdd.DiskTypeId,
@@ -546,6 +712,21 @@ func create5_0_enterpriseConfigData() map[string]interface{} {
 			"SetParameter": map[string]interface{}{
 				"AuditAuthorizationSuccess": true,
 			},
+			"Net": map[string]interface{}{
+				"MaxConnections": 16,
+			},
+			"OperationProfiling": map[string]interface{}{
+				"Mode":        "ALL",
+				"OpThreshold": 1000,
+			},
+			"Storage": map[string]interface{}{
+				"WiredTiger": map[string]interface{}{
+					"Compressor": "ZLIB",
+				},
+				"Journal": map[string]interface{}{
+					"CommitInterval": 404,
+				},
+			},
 		},
 		"Databases": []string{"testdb"},
 		"Users": []*mongodb.UserSpec{
@@ -559,15 +740,12 @@ func create5_0_enterpriseConfigData() map[string]interface{} {
 				},
 			},
 		},
-		"Resources": &mongodb.Resources{
+		"ResourcesMongod": &mongodb.Resources{
 			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
 			DiskSize:         s2Micro16hdd.DiskSize >> 30,
 			DiskTypeId:       s2Micro16hdd.DiskTypeId,
 		},
-		"Hosts": []map[string]interface{}{
-			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
-			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
-		},
+		"Hosts":            mongoHosts,
 		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
 		"MaintenanceWindow": map[string]interface{}{
 			"Type": "WEEKLY",
@@ -589,6 +767,11 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 
 	var testCluster mongodb.Cluster
 	folderID := getExampleFolderID()
+	newResources := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(30),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -624,6 +807,16 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.audit_log.0.filter", auditLogFilter),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -646,6 +839,26 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 						"SetParameter": map[string]interface{}{
 							"AuditAuthorizationSuccess": false,
 						},
+						"Net": map[string]interface{}{
+							"MaxConnections": 22,
+						},
+						"OperationProfiling": map[string]interface{}{
+							"Mode":        "SLOW_OP",
+							"OpThreshold": 2000,
+						},
+						"Storage": map[string]interface{}{
+							"WiredTiger": map[string]interface{}{
+								"Compressor": "SNAPPY",
+							},
+							"Journal": map[string]interface{}{
+								"CommitInterval": 407,
+							},
+						},
+					},
+					"ResourcesMongod": &mongodb.Resources{
+						ResourcePresetId: newResources.ResourcePresetId,
+						DiskSize:         newResources.DiskSize >> 30,
+						DiskTypeId:       newResources.DiskTypeId,
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -654,7 +867,7 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
-						"Resources":                 &s2Micro16hdd,
+						"Resources":                 &newResources,
 						"AuditLogFilter":            "{}",
 						"AuditAuthorizationSuccess": false,
 					}),
@@ -671,6 +884,791 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.audit_log.0.filter", "{}"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "false"),
+
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "22"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode", "SLOW_OP"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "2000"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "SNAPPY"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "407"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+
+// minimal configs for creation mongodb cluster
+func create5_0V1ConfigData() map[string]interface{} {
+	return map[string]interface{}{
+		"Version":     "5.0",
+		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Environment": "PRESTABLE",
+		"Mongod":      map[string]interface{}{},
+		"Databases":   []string{"testdb"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "john",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "testdb",
+					},
+				},
+			},
+		},
+		"ResourcesMongod": &mongodb.Resources{
+			ResourcePresetId: s2Small26hdd.ResourcePresetId,
+			DiskSize:         s2Small26hdd.DiskSize >> 30,
+			DiskTypeId:       s2Small26hdd.DiskTypeId,
+		},
+		"ResourcesMongoCfg": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         toBytes(11) >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"ResourcesMongos": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         toBytes(12) >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"ResourcesMongoInfra": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         toBytes(13) >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "WEEKLY",
+			"Day":  "FRI",
+			"Hour": 20,
+		},
+	}
+}
+
+func create5_0V0ConfigData() map[string]interface{} {
+	return map[string]interface{}{
+		"Version":     "5.0",
+		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Environment": "PRESTABLE",
+		"Mongod":      map[string]interface{}{},
+		"Mongos":      map[string]interface{}{},
+		"MongoCfg":    map[string]interface{}{},
+		"Databases":   []string{"testdb"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "john",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "testdb",
+					},
+				},
+			},
+		},
+		"Resources": &mongodb.Resources{
+			ResourcePresetId: s2Small26hdd.ResourcePresetId,
+			DiskSize:         s2Small26hdd.DiskSize >> 30,
+			DiskTypeId:       s2Small26hdd.DiskTypeId,
+		},
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "WEEKLY",
+			"Day":  "FRI",
+			"Hour": 20,
+		},
+	}
+}
+
+// 3 tests for check backward compatibility and upgrade to new resources
+func TestAccMDBMongoDBCluster_5_0NotShardedV0(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V0ConfigData()
+	configData["Hosts"] = mongoHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	newResourcesV0 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(28),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	newResourcesV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(30),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources": &s2Small26hdd,
+					}),
+				),
+			},
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Resources": &mongodb.Resources{
+						ResourcePresetId: newResourcesV0.ResourcePresetId,
+						DiskSize:         newResourcesV0.DiskSize >> 30,
+						DiskTypeId:       newResourcesV0.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources": &newResourcesV0,
+					}),
+				),
+			},
+			{ // Migrate resources v0 to v1
+				Config: func() string {
+					delete(configData, "Resources")
+					return makeConfig(t, &configData, &map[string]interface{}{
+						"ResourcesMongod": &mongodb.Resources{
+							ResourcePresetId: newResourcesV1.ResourcePresetId,
+							DiskSize:         newResourcesV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesV1.DiskTypeId,
+						},
+					})
+				}(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &newResourcesV1,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+func TestAccMDBMongoDBCluster_5_0ShardedCfgV0(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V0ConfigData()
+	configData["Hosts"] = shardedMongoCfgHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	newResources := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(27),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongodV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(28),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongosV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(29),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongoCfgV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(30),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources": &s2Small26hdd,
+					}),
+				),
+			},
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Resources": &mongodb.Resources{
+						ResourcePresetId: newResources.ResourcePresetId,
+						DiskSize:         newResources.DiskSize >> 30,
+						DiskTypeId:       newResources.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":   &newResources,
+						"ResourcesMongoCfg": &s2Small26hdd,
+						"ResourcesMongos":   &s2Small26hdd,
+					}),
+				),
+			},
+			{ // Migrate to resources V1
+				Config: func() string {
+					delete(configData, "Resources")
+					return makeConfig(t, &configData, &map[string]interface{}{
+						"ResourcesMongod": &mongodb.Resources{
+							ResourcePresetId: newResourcesMongodV1.ResourcePresetId,
+							DiskSize:         newResourcesMongodV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesMongodV1.DiskTypeId,
+						},
+						"ResourcesMongos": &mongodb.Resources{
+							ResourcePresetId: newResourcesMongosV1.ResourcePresetId,
+							DiskSize:         newResourcesMongosV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesMongosV1.DiskTypeId,
+						},
+						"ResourcesMongoCfg": &mongodb.Resources{
+							ResourcePresetId: newResourcesMongoCfgV1.ResourcePresetId,
+							DiskSize:         newResourcesMongoCfgV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesMongoCfgV1.DiskTypeId,
+						},
+					})
+				}(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":   &newResourcesMongodV1,
+						"ResourcesMongos":   &newResourcesMongosV1,
+						"ResourcesMongoCfg": &newResourcesMongoCfgV1,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+func TestAccMDBMongoDBCluster_5_0ShardedInfraV0(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V0ConfigData()
+	configData["Hosts"] = shardedMongoInfraHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	newResources := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(27),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	newResourcesMongodV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(29),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	newResourcesMongoInfraV1 := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(28),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"Resources": &s2Small26hdd,
+					}),
+				),
+			},
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Resources": &mongodb.Resources{
+						ResourcePresetId: newResources.ResourcePresetId,
+						DiskSize:         newResources.DiskSize >> 30,
+						DiskTypeId:       newResources.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":     &newResources,
+						"ResourcesMongoInfra": &s2Small26hdd,
+					}),
+				),
+			},
+			{ // Migrate to resources V1
+				Config: func() string {
+					delete(configData, "Resources")
+					return makeConfig(t, &configData, &map[string]interface{}{
+						"ResourcesMongod": &mongodb.Resources{
+							ResourcePresetId: newResourcesMongodV1.ResourcePresetId,
+							DiskSize:         newResourcesMongodV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesMongodV1.DiskTypeId,
+						},
+						"ResourcesMongoInfra": &mongodb.Resources{
+							ResourcePresetId: newResourcesMongoInfraV1.ResourcePresetId,
+							DiskSize:         newResourcesMongoInfraV1.DiskSize >> 30,
+							DiskTypeId:       newResourcesMongoInfraV1.DiskTypeId,
+						},
+					})
+				}(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":     &newResourcesMongodV1,
+						"ResourcesMongoInfra": &newResourcesMongoInfraV1,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+
+func TestAccMDBMongoDBCluster_5_0NotShardedV1(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V1ConfigData()
+	delete(configData, "ResourcesMongos")
+	delete(configData, "ResourcesMongoCfg")
+	delete(configData, "ResourcesMongoInfra")
+	configData["Hosts"] = mongoHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	newResources := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(30),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &s2Small26hdd,
+					}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongod": &mongodb.Resources{
+						ResourcePresetId: newResources.ResourcePresetId,
+						DiskSize:         newResources.DiskSize >> 30,
+						DiskTypeId:       newResources.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &newResources,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Mongod": map[string]interface{}{
+						"Net": map[string]interface{}{
+							"MaxConnections": 16,
+						},
+						"OperationProfiling": map[string]interface{}{
+							"Mode":        "ALL",
+							"OpThreshold": 1000,
+						},
+						"Storage": map[string]interface{}{
+							"WiredTiger": map[string]interface{}{
+								"Compressor": "ZLIB",
+							},
+							"Journal": map[string]interface{}{
+								"CommitInterval": 404,
+							},
+						},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+func TestAccMDBMongoDBCluster_5_0ShardedCfgV1(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V1ConfigData()
+	delete(configData, "ResourcesMongoInfra")
+	configData["Hosts"] = shardedMongoCfgHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	oldResourcesMongos := mongodb.Resources{
+		ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+		DiskSize:         toBytes(12),
+		DiskTypeId:       s2Micro16hdd.DiskTypeId,
+	}
+	oldResourcesMongoCfg := mongodb.Resources{
+		ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+		DiskSize:         toBytes(11),
+		DiskTypeId:       s2Micro16hdd.DiskTypeId,
+	}
+
+	newResourcesMongod := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(28),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongos := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(29),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongoCfg := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(30),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":   &s2Small26hdd,
+						"ResourcesMongos":   &oldResourcesMongos,
+						"ResourcesMongoCfg": &oldResourcesMongoCfg,
+					}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.0.mode"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongod": &mongodb.Resources{
+						ResourcePresetId: newResourcesMongod.ResourcePresetId,
+						DiskSize:         newResourcesMongod.DiskSize >> 30,
+						DiskTypeId:       newResourcesMongod.DiskTypeId,
+					},
+					"ResourcesMongos": &mongodb.Resources{
+						ResourcePresetId: newResourcesMongos.ResourcePresetId,
+						DiskSize:         newResourcesMongos.DiskSize >> 30,
+						DiskTypeId:       newResourcesMongos.DiskTypeId,
+					},
+					"ResourcesMongoCfg": &mongodb.Resources{
+						ResourcePresetId: newResourcesMongoCfg.ResourcePresetId,
+						DiskSize:         newResourcesMongoCfg.DiskSize >> 30,
+						DiskTypeId:       newResourcesMongoCfg.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":   &newResourcesMongod,
+						"ResourcesMongos":   &newResourcesMongos,
+						"ResourcesMongoCfg": &newResourcesMongoCfg,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			{ // Update mongod, mongos, mongocfg configs
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Mongod": map[string]interface{}{
+						"Net": map[string]interface{}{
+							"MaxConnections": 16,
+						},
+						"OperationProfiling": map[string]interface{}{
+							"Mode":        "ALL",
+							"OpThreshold": 1000,
+						},
+						"Storage": map[string]interface{}{
+							"WiredTiger": map[string]interface{}{
+								"Compressor": "ZLIB",
+							},
+							"Journal": map[string]interface{}{
+								"CommitInterval": 404,
+							},
+						},
+					},
+					"Mongos": map[string]interface{}{
+						"Net": map[string]interface{}{
+							"MaxConnections": 32,
+						},
+					},
+					"MongoCfg": map[string]interface{}{
+						"OperationProfiling": map[string]interface{}{
+							"Mode":        "SLOW_OP",
+							"OpThreshold": 1024,
+						},
+						"Net": map[string]interface{}{
+							"MaxConnections": 64,
+						},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
+
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "64"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.0.mode", "SLOW_OP"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1024"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+func TestAccMDBMongoDBCluster_5_0ShardedInfraV1(t *testing.T) {
+	t.Parallel()
+
+	configData := create5_0V1ConfigData()
+	delete(configData, "ResourcesMongos")
+	delete(configData, "ResourcesMongoCfg")
+	configData["Hosts"] = shardedMongoInfraHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	oldResourcesMongoInfra := mongodb.Resources{
+		ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+		DiskSize:         toBytes(13),
+		DiskTypeId:       s2Micro16hdd.DiskTypeId,
+	}
+
+	newResourcesMongod := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(29),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+	newResourcesMongoInfra := mongodb.Resources{
+		ResourcePresetId: s2Small26hdd.ResourcePresetId,
+		DiskSize:         toBytes(28),
+		DiskTypeId:       s2Small26hdd.DiskTypeId,
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, nil),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":     &s2Small26hdd,
+						"ResourcesMongoInfra": &oldResourcesMongoInfra,
+					}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckCreatedAtAttr(mongodbResource),
+					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
+				),
+			},
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongod": &mongodb.Resources{
+						ResourcePresetId: newResourcesMongod.ResourcePresetId,
+						DiskSize:         newResourcesMongod.DiskSize >> 30,
+						DiskTypeId:       newResourcesMongod.DiskTypeId,
+					},
+					"ResourcesMongoInfra": &mongodb.Resources{
+						ResourcePresetId: newResourcesMongoInfra.ResourcePresetId,
+						DiskSize:         newResourcesMongoInfra.DiskSize >> 30,
+						DiskTypeId:       newResourcesMongoInfra.DiskTypeId,
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod":     &newResourcesMongod,
+						"ResourcesMongoInfra": &newResourcesMongoInfra,
+					}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// todo: add test on mongos and mongocfg config after add functionality to public api
+			{ // Update resources
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"Mongod": map[string]interface{}{
+						"Net": map[string]interface{}{
+							"MaxConnections": 16,
+						},
+						"OperationProfiling": map[string]interface{}{
+							"Mode":        "ALL",
+							"OpThreshold": 1000,
+						},
+						"Storage": map[string]interface{}{
+							"WiredTiger": map[string]interface{}{
+								"Compressor": "ZLIB",
+							},
+							"Journal": map[string]interface{}{
+								"CommitInterval": 404,
+							},
+						},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -825,8 +1823,27 @@ func supportTestResources(actual *mongodb.Resources, expected *mongodb.Resources
 }
 
 func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map[string]interface{}) resource.TestCheckFunc {
-	//TODO for future updates: test for different resources (mongod, mongos and mongocfg)
-	expectedResources := expected["Resources"].(*mongodb.Resources)
+	var expectedResourcesMongod, expectedResourcesMongocfg, expectedResourcesMongos, expectedResourcesMongoinfra *mongodb.Resources
+	if expectedResources, ok := expected["Resources"]; ok {
+		expectedResourcesMongod = expectedResources.(*mongodb.Resources)
+		expectedResourcesMongocfg = expectedResources.(*mongodb.Resources)
+		expectedResourcesMongos = expectedResources.(*mongodb.Resources)
+		expectedResourcesMongoinfra = expectedResources.(*mongodb.Resources)
+	} else {
+		if expectedResources, ok := expected["ResourcesMongod"]; ok {
+			expectedResourcesMongod = expectedResources.(*mongodb.Resources)
+		}
+		if expectedResources, ok := expected["ResourcesMongos"]; ok {
+			expectedResourcesMongos = expectedResources.(*mongodb.Resources)
+		}
+		if expectedResources, ok := expected["ResourcesMongoCfg"]; ok {
+			expectedResourcesMongocfg = expectedResources.(*mongodb.Resources)
+		}
+		if expectedResources, ok := expected["ResourcesMongoInfra"]; ok {
+			expectedResourcesMongoinfra = expectedResources.(*mongodb.Resources)
+		}
+	}
+
 	return func(s *terraform.State) error {
 		switch r.Config.Version {
 		case "5.0-enterprise":
@@ -834,7 +1851,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 					if err != nil {
 						return err
 					}
@@ -856,7 +1873,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -865,7 +1882,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -877,7 +1903,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -886,7 +1912,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -895,7 +1921,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -907,7 +1942,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -916,7 +1951,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -925,7 +1960,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -937,7 +1981,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -946,7 +1990,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -955,7 +1999,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -967,7 +2020,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -976,7 +2029,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -985,7 +2038,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -997,7 +2059,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_0).Mongodb_4_0
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -1006,7 +2068,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -1015,7 +2077,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err
@@ -1027,7 +2098,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_3_6).Mongodb_3_6
 				d := mongo.Mongod
 				if d != nil {
-					err := supportTestResources(d.Resources, expectedResources)
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
 
 					if err != nil {
 						return err
@@ -1036,7 +2107,7 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				s := mongo.Mongos
 				if s != nil {
-					err := supportTestResources(s.Resources, expectedResources)
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
 
 					if err != nil {
 						return err
@@ -1045,7 +2116,16 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 				cfg := mongo.Mongocfg
 				if cfg != nil {
-					err := supportTestResources(cfg.Resources, expectedResources)
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
 
 					if err != nil {
 						return err

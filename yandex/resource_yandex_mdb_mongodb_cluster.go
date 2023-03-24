@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -137,17 +138,109 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Computed: true,
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Default:      "MONGOD",
+							ValidateFunc: validation.StringInSlice([]string{"MONGOS", "MONGOINFRA", "MONGOD", "MONGOCFG"}, true),
+							StateFunc:    stateToUpper,
 						},
 					},
 				},
 			},
 			"resources": {
+				Type:          schema.TypeList,
+				Optional:      true,
+				MaxItems:      1,
+				Deprecated:    useResourceInstead("`resources`", "`resources_mongo*`"),
+				ExactlyOneOf:  []string{"resources_mongod"},
+				ConflictsWith: []string{"resources_mongod", "resources_mongoinfra", "resources_mongocfg", "resources_mongos"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_preset_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"disk_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"resources_mongod": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_preset_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"disk_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"resources_mongoinfra": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				MaxItems:     1,
+				RequiredWith: []string{"resources_mongod"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_preset_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"disk_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"resources_mongocfg": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				MaxItems:     1,
+				RequiredWith: []string{"resources_mongod"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"resource_preset_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"disk_size": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"disk_type_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"resources_mongos": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				MaxItems:     1,
+				RequiredWith: []string{"resources_mongod", "resources_mongocfg"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"resource_preset_id": {
@@ -305,6 +398,165 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 											},
 										},
 									},
+									"operation_profiling": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"mode": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													StateFunc:    stateToUpper,
+													ValidateFunc: validation.StringInSlice([]string{"OFF", "SLOW_OP", "ALL"}, true),
+												},
+												"slow_op_threshold": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"net": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_incoming_connections": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"storage": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"wired_tiger": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"cache_size_gb": {
+																Type:     schema.TypeFloat,
+																Optional: true,
+															},
+															"block_compressor": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																StateFunc:    stateToUpper,
+																ValidateFunc: validation.StringInSlice([]string{"NONE", "ZLIB", "SNAPPY", "ZSTD"}, true),
+															},
+														},
+													},
+												},
+												"journal": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"commit_interval": {
+																Type:     schema.TypeInt,
+																Optional: true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"mongocfg": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"operation_profiling": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"mode": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.StringInSlice([]string{"OFF", "SLOW_OP", "ALL"}, true),
+												},
+												"slow_op_threshold": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"net": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_incoming_connections": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
+									"storage": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"wired_tiger": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"cache_size_gb": {
+																Type:     schema.TypeFloat,
+																Optional: true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"mongos": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"net": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"max_incoming_connections": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -407,6 +659,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			},
 		},
 	}
+}
+
+func stateToUpper(val interface{}) string {
+	return strings.ToUpper(val.(string))
 }
 
 func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb.CreateClusterRequest, error) {
@@ -693,12 +949,14 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 	}
 
 	mongodbSpecHelper := GetMongodbSpecHelper(cluster.Config.Version)
-	flattenResources, err := mongodbSpecHelper.FlattenResources(cluster.Config)
+	flattenResources, err := mongodbSpecHelper.FlattenResources(cluster.Config, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set("resources", flattenResources); err != nil {
-		return diag.FromErr(err)
+	for k, v := range flattenResources {
+		if err := d.Set(k, v); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	expandUsers, err := expandMongoDBUserSpecs(d)
@@ -951,13 +1209,38 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		return err
 	}
 
-	if d.HasChange("resources") {
+	if d.HasChange("resources_mongoinfra") {
+		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.resources", flattendVersion(version))
+		updatePath = append(updatePath, resourcesSpecPath)
+	}
+
+	if d.HasChange("resources_mongocfg") {
+		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.resources", flattendVersion(version))
+		updatePath = append(updatePath, resourcesSpecPath)
+	}
+
+	if d.HasChange("resources_mongod") || d.HasChange("resources") {
 		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
+		updatePath = append(updatePath, resourcesSpecPath)
+	}
+
+	if d.HasChange("resources_mongos") {
+		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.resources", flattendVersion(version))
 		updatePath = append(updatePath, resourcesSpecPath)
 	}
 
 	if d.HasChange("cluster_config.0.mongod") {
 		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.config", flattendVersion(version))
+		updatePath = append(updatePath, configSpecPath)
+	}
+
+	if d.HasChange("cluster_config.0.mongos") {
+		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.config", flattendVersion(version))
+		updatePath = append(updatePath, configSpecPath)
+	}
+
+	if d.HasChange("cluster_config.0.mongocfg") {
+		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.config", flattendVersion(version))
 		updatePath = append(updatePath, configSpecPath)
 	}
 

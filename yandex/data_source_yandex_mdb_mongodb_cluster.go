@@ -21,6 +21,7 @@ func convertToOptional(originalSchema map[string]*schema.Schema) map[string]*sch
 	for key, value := range originalSchema {
 		newItem := *value
 		newItem.Required = false
+		newItem.ExactlyOneOf = []string{}
 		newItem.Optional = true
 		newItem.ForceNew = false
 
