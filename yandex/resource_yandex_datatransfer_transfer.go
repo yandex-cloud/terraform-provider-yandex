@@ -361,7 +361,14 @@ func resourceYandexDatatransferTransferRead(d *schema.ResourceData, meta interfa
 		log.Printf("[ERROR] failed set field warning: %s", err)
 		return err
 	}
-
+	if err := d.Set("source_id", resp.GetSource().GetId()); err != nil {
+		log.Printf("[ERROR] failed set field source_id: %s", err)
+		return err
+	}
+	if err := d.Set("target_id", resp.GetTarget().GetId()); err != nil {
+		log.Printf("[ERROR] failed set field target_id: %s", err)
+		return err
+	}
 	if err := d.Set("on_create_activate_mode", internalMessageActivateMode); err != nil {
 		log.Printf("[ERROR] failed set field activate_mode: %s", err)
 		return err

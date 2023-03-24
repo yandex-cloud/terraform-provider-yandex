@@ -112,10 +112,9 @@ func dataTransferTargetEndpointImportStep() resource.TestStep {
 
 func dataTransferTransferImportStep() resource.TestStep {
 	return resource.TestStep{
-		ResourceName:            transferResourceName,
-		ImportState:             true,
-		ImportStateVerify:       true,
-		ImportStateVerifyIgnore: []string{"source_id", "target_id"},
+		ResourceName:      transferResourceName,
+		ImportState:       true,
+		ImportStateVerify: true,
 	}
 }
 

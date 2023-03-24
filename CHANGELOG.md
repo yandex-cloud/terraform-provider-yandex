@@ -1,4 +1,6 @@
 ## 0.89.0 (Unreleased)
+BUG FIXES:
+* datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 
 
 ## 0.88.0 (March 23, 2023)
 FEATURES:
