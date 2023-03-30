@@ -695,9 +695,9 @@ func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
 	})
 }
 
-func create5_0_enterpriseConfigData() map[string]interface{} {
+func create6_0_enterpriseConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "5.0-enterprise",
+		"Version":     "6.0-enterprise",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Lables":      map[string]string{"test_key": "test_value"},
@@ -757,10 +757,10 @@ func create5_0_enterpriseConfigData() map[string]interface{} {
 }
 
 // Test that a MongoDB Cluster can be created, updated and destroyed
-func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0_enterpriseConfigData()
+	configData := create6_0_enterpriseConfigData()
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
 	auditLogFilter := ((configData["Mongod"].(map[string]interface{}))["AuditLog"].(map[string]interface{}))["Filter"].(string)
@@ -903,9 +903,9 @@ func TestAccMDBMongoDBCluster_5_0_enterprise(t *testing.T) {
 }
 
 // minimal configs for creation mongodb cluster
-func create5_0V1ConfigData() map[string]interface{} {
+func create6_0V1ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "5.0",
+		"Version":     "6.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Mongod":      map[string]interface{}{},
@@ -950,9 +950,9 @@ func create5_0V1ConfigData() map[string]interface{} {
 	}
 }
 
-func create5_0V0ConfigData() map[string]interface{} {
+func create6_0V0ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "5.0",
+		"Version":     "6.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Mongod":      map[string]interface{}{},
@@ -985,10 +985,10 @@ func create5_0V0ConfigData() map[string]interface{} {
 }
 
 // 3 tests for check backward compatibility and upgrade to new resources
-func TestAccMDBMongoDBCluster_5_0NotShardedV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V0ConfigData()
+	configData := create6_0V0ConfigData()
 	configData["Hosts"] = mongoHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1065,10 +1065,10 @@ func TestAccMDBMongoDBCluster_5_0NotShardedV0(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_5_0ShardedCfgV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V0ConfigData()
+	configData := create6_0V0ConfigData()
 	configData["Hosts"] = shardedMongoCfgHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1169,10 +1169,10 @@ func TestAccMDBMongoDBCluster_5_0ShardedCfgV0(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_5_0ShardedInfraV0(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0ShardedInfraV0(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V0ConfigData()
+	configData := create6_0V0ConfigData()
 	configData["Hosts"] = shardedMongoInfraHosts
 	clusterName := configData["ClusterName"].(string)
 	version := configData["Version"].(string)
@@ -1264,10 +1264,10 @@ func TestAccMDBMongoDBCluster_5_0ShardedInfraV0(t *testing.T) {
 	})
 }
 
-func TestAccMDBMongoDBCluster_5_0NotShardedV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V1ConfigData()
+	configData := create6_0V1ConfigData()
 	delete(configData, "ResourcesMongos")
 	delete(configData, "ResourcesMongoCfg")
 	delete(configData, "ResourcesMongoInfra")
@@ -1373,10 +1373,10 @@ func TestAccMDBMongoDBCluster_5_0NotShardedV1(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_5_0ShardedCfgV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V1ConfigData()
+	configData := create6_0V1ConfigData()
 	delete(configData, "ResourcesMongoInfra")
 	configData["Hosts"] = shardedMongoCfgHosts
 	clusterName := configData["ClusterName"].(string)
@@ -1548,10 +1548,10 @@ func TestAccMDBMongoDBCluster_5_0ShardedCfgV1(t *testing.T) {
 		},
 	})
 }
-func TestAccMDBMongoDBCluster_5_0ShardedInfraV1(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 	t.Parallel()
 
-	configData := create5_0V1ConfigData()
+	configData := create6_0V1ConfigData()
 	delete(configData, "ResourcesMongos")
 	delete(configData, "ResourcesMongoCfg")
 	configData["Hosts"] = shardedMongoInfraHosts
@@ -1846,6 +1846,58 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 
 	return func(s *terraform.State) error {
 		switch r.Config.Version {
+		case "6.0-enterprise":
+			{
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise
+				d := mongo.Mongod
+				if d != nil {
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
+					if err != nil {
+						return err
+					}
+					if expectedValue, ok := expected["AuditLogFilter"]; ok {
+						actual := d.Config.UserConfig.AuditLog.Filter
+						expected := expectedValue.(string)
+						if actual != expected {
+							return fmt.Errorf("Expected audit log filter '%s', got '%s'", expected, actual)
+						}
+					}
+					if expectedValue, ok := expected["AuditAuthorizationSuccess"]; ok {
+						expected := expectedValue.(bool)
+						actual := d.Config.UserConfig.SetParameter.AuditAuthorizationSuccess.Value
+						if actual != expected {
+							return fmt.Errorf("Expected audit_authorization_success '%t', got '%t'", expected, actual)
+						}
+					}
+				}
+
+				s := mongo.Mongos
+				if s != nil {
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				cfg := mongo.Mongocfg
+				if cfg != nil {
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
+
+					if err != nil {
+						return err
+					}
+				}
+			}
 		case "5.0-enterprise":
 			{
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
@@ -1901,6 +1953,45 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 		case "4.4-enterprise":
 			{
 				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+				d := mongo.Mongod
+				if d != nil {
+					err := supportTestResources(d.Resources, expectedResourcesMongod)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				s := mongo.Mongos
+				if s != nil {
+					err := supportTestResources(s.Resources, expectedResourcesMongos)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				cfg := mongo.Mongocfg
+				if cfg != nil {
+					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
+
+					if err != nil {
+						return err
+					}
+				}
+
+				infra := mongo.Mongoinfra
+				if infra != nil {
+					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
+
+					if err != nil {
+						return err
+					}
+				}
+			}
+		case "6.0":
+			{
+				mongo := r.Config.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)

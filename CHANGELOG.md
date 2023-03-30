@@ -4,6 +4,7 @@ FEATURES:
 * mongodb: add new sections `resources_mongod`, `resources_mongos`, `resources_mongocfg`, `resources_mongoinfra` for `yandex_mdb_mongodb_cluster`
 * mongodb: add support `MONGOINFRA` host type
 * mongodb: allow changing settings for `MONGOS` and `MONGOCFG` host types
+* mongodb: support `6.0` enterprise and community versions in `yandex_mdb_mongodb_cluster`
 
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 

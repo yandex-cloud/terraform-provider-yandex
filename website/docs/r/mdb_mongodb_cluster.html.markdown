@@ -108,7 +108,7 @@ The following arguments are supported:
 
 - - -
 
-* `version` - (Optional) Version of the MongoDB server software. Can be either `4.0`, `4.2`, `4.4`, `4.4-enterprise`, `5.0` and `5.0-enterprise`.
+* `version` - (Optional) Version of the MongoDB server software. Can be either `4.2`, `4.4`, `4.4-enterprise`, `5.0`, `5.0-enterprise`, `6.0` and `6.0-enterprise`.
 
 * `description` - (Optional) Description of the MongoDB cluster.
 
