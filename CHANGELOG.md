@@ -8,7 +8,7 @@ FEATURES:
 
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 
-
+* yandex message queue: fixed invalid VisibilityTimeout in queue settings when `visibility_timeout_seconds` attribute was set to `0`
 ## 0.88.0 (March 23, 2023)
 FEATURES:
 * **New Resource** `yandex_monitoring_dashboard`

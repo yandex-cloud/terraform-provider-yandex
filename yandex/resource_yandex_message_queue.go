@@ -187,6 +187,10 @@ func resourceYandexMessageQueueCreate(d *schema.ResourceData, meta interface{}) 
 
 	for k, s := range queueResource.Schema {
 		if attrKey, ok := sqsQueueAttributeMap[k]; ok {
+			if k == "visibility_timeout_seconds" { // NOTE(maxijer@): if visibility_timeout_seconds is set to '0', GetOk will not return its value, so we have to handle it separately
+				attributes[attrKey] = aws.String(strconv.Itoa(d.Get(k).(int)))
+				continue
+			}
 			if value, ok := d.GetOk(k); ok {
 				switch s.Type {
 				case schema.TypeInt:

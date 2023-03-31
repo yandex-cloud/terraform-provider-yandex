@@ -49,6 +49,13 @@ func TestAccMessageQueue_basic(t *testing.T) {
 					testAccCheckMessageQueueDefaultAttributes(&queueAttributes),
 				),
 			},
+			{
+				Config: testAccMessageQueueConfigWithZeroVisibilityTimeoutSeconds(randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMessageQueueExists(resourceName, &queueAttributes),
+					testAccCheckMessageQueueVisibilityZero(&queueAttributes),
+				),
+			},
 		},
 	})
 }
@@ -424,6 +431,35 @@ func testAccCheckMessageQueueRedriverAttributes(queueAttributes *map[string]*str
 	}
 }
 
+func testAccCheckMessageQueueVisibilityZero(queueAttributes *map[string]*string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// checking if attributes match our overrides
+		for key, valuePointer := range *queueAttributes {
+			value := aws.StringValue(valuePointer)
+			if key == "VisibilityTimeout" && value != "0" {
+				return fmt.Errorf("VisibilityTimeout (%s) was not set to 0", value)
+			}
+			if key == "MessageRetentionPeriod" && value != "86400" {
+				return fmt.Errorf("MessageRetentionPeriod (%s) was not set to 345600", value)
+			}
+
+			if key == "MaximumMessageSize" && value != "2048" {
+				return fmt.Errorf("MaximumMessageSize (%s) was not set to 262144", value)
+			}
+
+			if key == "DelaySeconds" && value != "90" {
+				return fmt.Errorf("DelaySeconds (%s) was not set to 0", value)
+			}
+
+			if key == "ReceiveMessageWaitTimeSeconds" && value != "10" {
+				return fmt.Errorf("ReceiveMessageWaitTimeSeconds (%s) was not set to 0", value)
+			}
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckMessageQueueOverrideAttributes(queueAttributes *map[string]*string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// checking if attributes match our overrides
@@ -567,6 +603,22 @@ resource "yandex_message_queue" "queue" {
   message_retention_seconds  = 86400
   receive_wait_time_seconds  = 10
   visibility_timeout_seconds = 60
+
+  access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+}
+`, randInt) + testAccCommonIamDependenciesEditorConfig(randInt)
+}
+
+func testAccMessageQueueConfigWithZeroVisibilityTimeoutSeconds(randInt int) string {
+	return fmt.Sprintf(`
+resource "yandex_message_queue" "queue" {
+  name                       = "message-queue-%d"
+  delay_seconds              = 90
+  max_message_size           = 2048
+  message_retention_seconds  = 86400
+  receive_wait_time_seconds  = 10
+  visibility_timeout_seconds = 0
 
   access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
