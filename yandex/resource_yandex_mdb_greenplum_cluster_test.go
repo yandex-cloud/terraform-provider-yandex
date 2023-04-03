@@ -364,7 +364,7 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
 
   greenplum_config = {
     max_connections                   = 395
-    max_slot_wal_keep_size            = 1048576 
+    max_slot_wal_keep_size            = 1048576
     gp_workfile_limit_per_segment     = 0
     gp_workfile_limit_per_query       = 0
     gp_workfile_limit_files_per_query = 100000
@@ -385,7 +385,7 @@ func testAccMDBGreenplumClusterConfigStep2(name string, description string) stri
 
   greenplum_config = {
     max_connections                   = 395
-    max_slot_wal_keep_size            = 1048576 
+    max_slot_wal_keep_size            = 1048576
     gp_workfile_limit_per_segment     = 0
     gp_workfile_limit_per_query       = 0
     gp_workfile_limit_files_per_query = 100000
@@ -409,7 +409,7 @@ func testAccMDBGreenplumClusterConfigStep4(name string, description string) stri
 
   greenplum_config = {
     max_connections                   = 400
-    max_slot_wal_keep_size            = 1048576 
+    max_slot_wal_keep_size            = 1048576
     gp_workfile_limit_per_segment     = 0
     gp_workfile_limit_per_query       = 0
     gp_workfile_limit_files_per_query = 100000
@@ -429,7 +429,7 @@ func testAccMDBGreenplumClusterConfigStep5(name string, description string) stri
 
   greenplum_config = {
     max_connections                   = 400
-    max_slot_wal_keep_size            = 1048576 
+    max_slot_wal_keep_size            = 1048576
     gp_workfile_limit_per_segment     = 0
     gp_workfile_limit_per_query       = 0
     gp_workfile_limit_files_per_query = 100000
@@ -451,7 +451,7 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 
   greenplum_config = {
     max_connections                   = 400
-    max_slot_wal_keep_size            = 1048576 
+    max_slot_wal_keep_size            = 1048576
     gp_workfile_limit_per_segment     = 0
     gp_workfile_limit_per_query       = 0
     gp_workfile_limit_files_per_query = 100000

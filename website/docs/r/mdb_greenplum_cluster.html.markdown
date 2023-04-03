@@ -219,14 +219,15 @@ $ terraform import yandex_mdb_greenplum_cluster.foo cluster_id
 
 ## Greenplum cluster settings
 
-| Setting name and type \ Greenplum version | 6.17 | 6.19 |
-| ------------------------------------------| ---- | ---- |
-| max_connections : integer | supported | supported |
-| max_prepared_transactions : integer | supported | supported |
-| gp_workfile_limit_per_query : integer | supported | supported |
-| gp_workfile_limit_files_per_query : integer | supported | supported |
-| max_slot_wal_keep_size : integer | supported | supported |
-| gp_workfile_limit_per_segment : integer | supported | supported |
-| gp_workfile_compression : boolean | supported | supported |
-| max_statement_mem : integer | - | supported |
-| log_statement : one of<br>  - 0: " LOG_STATEMENT_UNSPECIFIED"<br>  - 1: " LOG_STATEMENT_NONE"<br>  - 2: " LOG_STATEMENT_DDL"<er>  - 3: " LOG_STATEMENT_MOD"<br>  - 4: " LOG_STATEMENT_ALL"  | - | supported |
+| Setting name and type \ Greenplum version      | 6.19      | 6.22      |
+| -----------------------------------------------| --------- | --------- |
+| gp_add_column_inherits_table_setting : boolean | -         | supported |
+| gp_workfile_compression : boolean              | supported | supported |
+| gp_workfile_limit_files_per_query : integer    | supported | supported |
+| gp_workfile_limit_per_segment : integer        | supported | supported |
+| gp_workfile_limit_per_query : integer          | supported | supported |
+| log_statement : one of<br>  - 0: " LOG_STATEMENT_UNSPECIFIED"<br>  - 1: " LOG_STATEMENT_NONE"<br>  - 2: " LOG_STATEMENT_DDL"<er>  - 3: " LOG_STATEMENT_MOD"<br>  - 4: " LOG_STATEMENT_ALL"  | supported | supported |
+| max_connections : integer             | supported | supported |
+| max_prepared_transactions : integer   | supported | supported |
+| max_slot_wal_keep_size : integer      | supported | supported |
+| max_statement_mem : integer           | supported | supported |

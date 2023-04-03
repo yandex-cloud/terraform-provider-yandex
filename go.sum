@@ -1240,8 +1240,12 @@ github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778/go.mod h1:2MuV+tbUrU1z
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yandex-cloud/go-genproto v0.0.0-20230313091643-1b34b32615e2 h1:lj7j36CQGHcR2MwnXdSY8NX9YSb2ZDpGtB4s3dYy7MM=
 github.com/yandex-cloud/go-genproto v0.0.0-20230313091643-1b34b32615e2/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20230327090837-1b6e8a947b68 h1:xzYQKedNVtvApkmCdi81SMTnCQt0ozfEBtYmheD0g58=
+github.com/yandex-cloud/go-genproto v0.0.0-20230327090837-1b6e8a947b68/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20230313092059-6ef6567e9d36 h1:IXf80ZAhm00D8CRe8m/YF9DglQpw47mJJl+UKcPZ6O8=
 github.com/yandex-cloud/go-sdk v0.0.0-20230313092059-6ef6567e9d36/go.mod h1:v5pygm/XH7Q5FPbeOoYvfrbvWNcBFJs6ziA2d10ZTbY=
+github.com/yandex-cloud/go-sdk v0.0.0-20230327091142-6a814278a381 h1:vzGqECqX4PM3Afg+bCNxD79+kWKHSuVQDXJCLKFdcjk=
+github.com/yandex-cloud/go-sdk v0.0.0-20230327091142-6a814278a381/go.mod h1:J4ki5Sultdnm8sGeHzOjkNkkMlfBBw2oZw18DmAXZrQ=
 github.com/ydb-platform/terraform-provider-ydb v0.0.0-20230123171258-1a80b4185d46 h1:D8osHawDfaV7h/hM/VYWzXTAb7avVYFzncTs+dg7/14=
 github.com/ydb-platform/terraform-provider-ydb v0.0.0-20230123171258-1a80b4185d46/go.mod h1:d8Kfhx5xHAy/scH4hrdxON5d8W4Jn02A7az5dzrACPU=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20221215182650-986f9d10542f h1:BBczNIM1MJHT7XkIUA8pThXWxJvxoBjcWvne3xwe2RI=

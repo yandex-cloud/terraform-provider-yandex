@@ -5,6 +5,7 @@ FEATURES:
 * mongodb: add support `MONGOINFRA` host type
 * mongodb: allow changing settings for `MONGOS` and `MONGOCFG` host types
 * mongodb: support `6.0` enterprise and community versions in `yandex_mdb_mongodb_cluster`
+* greenplum: add new 6.22 Greenplum version and remove old 6.17 Greenplum version
 
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 
