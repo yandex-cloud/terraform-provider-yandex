@@ -262,8 +262,9 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 3),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.fqdn"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttrSet(mysqlResource, "host.2.fqdn"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 				),
 			},
@@ -276,12 +277,12 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
 
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.zone", "ru-central1-c"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.zone", "ru-central1-c"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-b"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-a"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
 					testAccMDBMysqlGetHostNames(mysqlResource, hostNames),
@@ -294,10 +295,10 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttrSet(mysqlResource, "host.0.replication_source"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.replication_source_name", "nb"),
 					resource.TestCheckResourceAttrSet(mysqlResource, "host.1.replication_source"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "nc"),
-					resource.TestCheckResourceAttrSet(mysqlResource, "host.3.replication_source"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.replication_source_name", "nb"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.1.replication_source_name", "na"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -307,9 +308,9 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
-					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.3.assign_public_ip", "false"),
 					testAccMDBMysqlCompareHostNames(mysqlResource, hostNames),
 				),
@@ -321,8 +322,8 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.backup_priority", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.backup_priority", "5"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.backup_priority", "10"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -332,8 +333,8 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMySQLClusterExists(mysqlResource, &cluster),
 					resource.TestCheckResourceAttr(mysqlResource, "name", mysqlName),
+					resource.TestCheckResourceAttr(mysqlResource, "host.0.priority", "10"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.priority", "5"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.priority", "10"),
 				),
 			},
 			mdbMysqlClusterImportStep(mysqlResource),
@@ -986,20 +987,19 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 func testAccMDBMysqlClusterHA(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-    
-    assign_public_ip = true
+	zone      = "ru-central1-a"
+	subnet_id = yandex_vpc_subnet.foo_a.id
   }
 
   host {
     zone      = "ru-central1-b"
     subnet_id = yandex_vpc_subnet.foo_b.id
+	assign_public_ip = true
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo_a.id
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 `)
 }
@@ -1007,56 +1007,57 @@ func testAccMDBMysqlClusterHA(name string) string {
 func testAccMDBMysqlClusterHA2(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-
-    assign_public_ip = true
+	zone      = "ru-central1-a"
+	subnet_id = yandex_vpc_subnet.foo_a.id
   }
-
-  host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-  }
-
+	
   host {
     zone      = "ru-central1-b"
     subnet_id = yandex_vpc_subnet.foo_b.id
+	assign_public_ip = true
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo_a.id
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
+  }
+
+  host {
+    zone      = "ru-central1-c"
+    subnet_id = yandex_vpc_subnet.foo_c.id
   }
 `)
 }
 
 func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
+
+  host {
+	zone                    = "ru-central1-a"
+	subnet_id               = yandex_vpc_subnet.foo_a.id
+	name                    = "nd"
+	replication_source_name = "nb"
+  }
+
+  host {
+    zone      				= "ru-central1-b"
+    subnet_id 				= yandex_vpc_subnet.foo_b.id
+    name      				= "nc"
+	replication_source_name = "na"
+	assign_public_ip 		= true
+  }
+
   host {
     zone             = "ru-central1-c"
     subnet_id        = yandex_vpc_subnet.foo_c.id
     name             = "na"
-    assign_public_ip = true
   }
 
-  host {
-    zone                    = "ru-central1-c"
-    subnet_id               = yandex_vpc_subnet.foo_c.id
-    name                    = "nb"
-    replication_source_name = "nc"
-  }
 
   host {
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.foo_b.id
-    name      = "nc"
-  }
-
-  host {
-    zone                    = "ru-central1-a"
-    subnet_id               = yandex_vpc_subnet.foo_a.id
-    name                    = "nd"
-    replication_source_name = "nb"
+    zone 		= "ru-central1-c"
+    subnet_id   = yandex_vpc_subnet.foo_c.id
+    name        = "nb"
   }
 `)
 }
@@ -1064,30 +1065,30 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
 func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-    zone             = "ru-central1-c"
-    subnet_id        = yandex_vpc_subnet.foo_c.id
-    name             = "na"
+	zone                    = "ru-central1-a"
+	subnet_id               = yandex_vpc_subnet.foo_a.id
+	name                    = "nd"
+	replication_source_name = "nb"
+	assign_public_ip 		= true
   }
 
   host {
-    zone                    = "ru-central1-c"
-    subnet_id               = yandex_vpc_subnet.foo_c.id
-    name                    = "nb"
-    replication_source_name = "nc"
+	zone      				= "ru-central1-b"
+	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	name      				= "nc"
+	replication_source_name = "na"
   }
 
   host {
-    zone             = "ru-central1-b"
-    subnet_id        = yandex_vpc_subnet.foo_b.id
-    name             = "nc"
-	assign_public_ip = true
+	zone             = "ru-central1-c"
+	subnet_id        = yandex_vpc_subnet.foo_c.id
+	name             = "na"
   }
 
   host {
-    zone                    = "ru-central1-a"
-    subnet_id               = yandex_vpc_subnet.foo_a.id
-    name                    = "nd"
-    replication_source_name = "nb"
+	zone 		= "ru-central1-c"
+	subnet_id   = yandex_vpc_subnet.foo_c.id
+	name        = "nb"
   }
 `)
 }
@@ -1095,30 +1096,32 @@ func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
 func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-    name      = "na"
+	zone                    = "ru-central1-a"
+	subnet_id               = yandex_vpc_subnet.foo_a.id
+	name                    = "nd"
+	replication_source_name = "nb"
+	backup_priority 		= 10
   }
 
   host {
-    zone            = "ru-central1-c"
-    subnet_id       = yandex_vpc_subnet.foo_c.id
-    name            = "nb"
-    backup_priority = 5
+	zone      				= "ru-central1-b"
+	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	name      				= "nc"
+	replication_source_name = "na"
+	assign_public_ip 		= true
+	backup_priority 		= 5
   }
 
   host {
-    zone             = "ru-central1-b"
-    subnet_id        = yandex_vpc_subnet.foo_b.id
-    name             = "nc"
-    assign_public_ip = true
+	zone             = "ru-central1-c"
+	subnet_id        = yandex_vpc_subnet.foo_c.id
+	name             = "na"
   }
 
   host {
-    zone            = "ru-central1-a"
-    subnet_id       = yandex_vpc_subnet.foo_a.id
-    name            = "nd"
-    backup_priority = 10
+	zone 		= "ru-central1-c"
+	subnet_id   = yandex_vpc_subnet.foo_c.id
+	name        = "nb"
   }
 `)
 }
@@ -1126,30 +1129,32 @@ func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 func testAccMDBMysqlClusterWithPriorities(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-    name      = "na"
+	zone                    = "ru-central1-a"
+	subnet_id               = yandex_vpc_subnet.foo_a.id
+	name                    = "nd"
+	replication_source_name = "nb"
+	priority 				= 10
   }
 
   host {
-    zone      = "ru-central1-c"
-    subnet_id = yandex_vpc_subnet.foo_c.id
-    name      = "nb"
-    priority  = 5
+	zone      				= "ru-central1-b"
+	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	name      				= "nc"
+	replication_source_name = "na"
+	assign_public_ip 		= true
+	priority 				= 5
   }
 
   host {
-    zone             = "ru-central1-b"
-    subnet_id        = yandex_vpc_subnet.foo_b.id
-    name             = "nc"
-    assign_public_ip = true
+	zone             = "ru-central1-c"
+	subnet_id        = yandex_vpc_subnet.foo_c.id
+	name             = "na"
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo_a.id
-    name      = "nd"
-    priority  = 10
+	zone 		= "ru-central1-c"
+	subnet_id   = yandex_vpc_subnet.foo_c.id
+	name        = "nb"
   }
 `)
 }
