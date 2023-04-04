@@ -86,6 +86,8 @@ The `extension` block supports:
 
 * `version` - (Optional) Version of the extension.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the database. Can either be `true`, `false` or `unspecified`.
+
 
 ## Import
 

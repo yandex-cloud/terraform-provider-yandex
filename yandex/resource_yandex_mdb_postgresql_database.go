@@ -5,7 +5,11 @@ import (
 	"log"
 	"time"
 
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
@@ -84,6 +88,12 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 					},
 				},
 			},
+			"deletion_protection": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "unspecified",
+				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),
+			},
 		},
 	}
 }
@@ -155,6 +165,10 @@ func expandPgDatabaseSpec(d *schema.ResourceData) (*postgresql.DatabaseSpec, err
 		out.Extensions = expandPGExtensions(es)
 	}
 
+	if v, ok := d.GetOk("deletion_protection"); ok {
+		out.DeletionProtection = mdbPGTristateBooleanName[v.(string)]
+	}
+
 	return out, nil
 }
 
@@ -184,6 +198,8 @@ func resourceYandexMDBPostgreSQLDatabaseRead(d *schema.ResourceData, meta interf
 	d.Set("lc_type", db.LcCtype)
 	d.Set("template_db", db.TemplateDb)
 	d.Set("extension", flattenPGExtensions(db.Extensions))
+	d.Set("deletion_protection", mdbPGResolveTristateBoolean(db.DeletionProtection))
+
 	return nil
 }
 
@@ -199,12 +215,24 @@ func resourceYandexMDBPostgreSQLDatabaseUpdate(d *schema.ResourceData, meta inte
 		extensions = expandPGExtensions(es)
 	}
 
+	var deletionProtection *wrappers.BoolValue
+	if v, ok := d.GetOk("deletion_protection"); ok {
+		deletionProtection = mdbPGTristateBooleanName[v.(string)]
+	}
+
+	updateMask := &fieldmaskpb.FieldMask{Paths: []string{"cluster_id", "database_name", "new_database_name", "extensions"}}
+	if deletionProtection != nil {
+		updateMask.Paths = append(updateMask.Paths, "deletion_protection")
+	}
+
 	oldName, newName := d.GetChange("name")
 	request := &postgresql.UpdateDatabaseRequest{
-		ClusterId:       clusterID,
-		DatabaseName:    oldName.(string),
-		NewDatabaseName: newName.(string),
-		Extensions:      extensions,
+		ClusterId:          clusterID,
+		DatabaseName:       oldName.(string),
+		NewDatabaseName:    newName.(string),
+		Extensions:         extensions,
+		DeletionProtection: deletionProtection,
+		UpdateMask:         updateMask,
 	}
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Sending PostgreSQL database update request: %+v", request)

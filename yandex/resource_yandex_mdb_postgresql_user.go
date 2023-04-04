@@ -101,6 +101,12 @@ func resourceYandexMDBPostgreSQLUser() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"deletion_protection": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "unspecified",
+				ValidateFunc: validation.StringInSlice([]string{"true", "false", "unspecified"}, false),
+			},
 		},
 	}
 }
@@ -188,6 +194,10 @@ func expandPgUserSpec(d *schema.ResourceData) (*postgresql.UserSpec, error) {
 		}
 	}
 
+	if v, ok := d.GetOk("deletion_protection"); ok {
+		user.DeletionProtection = mdbPGTristateBooleanName[v.(string)]
+	}
+
 	return user, nil
 }
 
@@ -228,7 +238,9 @@ func resourceYandexMDBPostgreSQLUserRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
+
 	d.Set("settings", settings)
+	d.Set("deletion_protection", mdbPGResolveTristateBoolean(user.DeletionProtection))
 
 	return nil
 }
@@ -260,6 +272,14 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 		}
 	}
 
+	if user.DeletionProtection != nil {
+		updatePath = append(updatePath, "deletion_protection")
+	}
+
+	if len(updatePath) == 0 && user.DeletionProtection == nil {
+		updatePath = []string{"name"}
+	}
+
 	if len(updatePath) == 0 {
 		return nil
 	}
@@ -269,16 +289,18 @@ func resourceYandexMDBPostgreSQLUserUpdate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("error while adding owner permissions to user in PostgreSQL Cluster %q: %s", clusterID, err)
 	}
+
 	request := &postgresql.UpdateUserRequest{
-		ClusterId:   clusterID,
-		UserName:    user.Name,
-		Password:    user.Password,
-		Permissions: userPermissions,
-		ConnLimit:   user.ConnLimit.GetValue(),
-		Login:       user.Login,
-		Grants:      user.Grants,
-		Settings:    user.Settings,
-		UpdateMask:  &fieldmaskpb.FieldMask{Paths: updatePath},
+		ClusterId:          clusterID,
+		UserName:           user.Name,
+		Password:           user.Password,
+		Permissions:        userPermissions,
+		ConnLimit:          user.ConnLimit.GetValue(),
+		Login:              user.Login,
+		Grants:             user.Grants,
+		Settings:           user.Settings,
+		DeletionProtection: user.DeletionProtection,
+		UpdateMask:         &fieldmaskpb.FieldMask{Paths: updatePath},
 	}
 
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {

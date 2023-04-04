@@ -6,6 +6,7 @@ FEATURES:
 * mongodb: allow changing settings for `MONGOS` and `MONGOCFG` host types
 * mongodb: support `6.0` enterprise and community versions in `yandex_mdb_mongodb_cluster`
 * greenplum: add new 6.22 Greenplum version and remove old 6.17 Greenplum version
+* postgresql: add `deletion_protection` attribute to `yandex_mdb_postgresql_user` and `yandex_mdb_postgresql_database` resources
 
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 

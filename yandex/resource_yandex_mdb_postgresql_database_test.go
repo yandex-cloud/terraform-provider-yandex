@@ -32,6 +32,7 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "owner", "alice"),
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "lc_collate", "en_US.UTF-8"),
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "lc_type", "en_US.UTF-8"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName, "deletion_protection", "unspecified"),
 					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb", make([]string, 0)),
 				),
 			},
@@ -40,6 +41,7 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 				Config: testAccMDBPostgreSQLDatabaseConfigStep2(clusterName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "renamed_testdb", make([]string, 0)),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName, "deletion_protection", "true"),
 				),
 			},
 			mdbPostgreSQLDatabaseImportStep(pgDatabaseResourceName),
@@ -47,6 +49,7 @@ func TestAccMDBPostgreSQLDatabase_full(t *testing.T) {
 				Config: testAccMDBPostgreSQLDatabaseConfigStep3(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgDatabaseResourceName, "name", "testdb"),
+					resource.TestCheckResourceAttr(pgDatabaseResourceName, "deletion_protection", "false"),
 					testAccCheckMDBPostgreSQLClusterHasDatabase(t, "testdb", []string{"uuid-ossp", "xml2"}),
 				),
 			},
@@ -156,11 +159,12 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 func testAccMDBPostgreSQLDatabaseConfigStep2(name string) string {
 	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
 resource "yandex_mdb_postgresql_database" "testdb" {
-	cluster_id = yandex_mdb_postgresql_cluster.foo.id
-	name       = "renamed_testdb"
-	owner      = yandex_mdb_postgresql_user.alice.name
-	lc_collate = "en_US.UTF-8"
-	lc_type    = "en_US.UTF-8"
+	cluster_id 			= yandex_mdb_postgresql_cluster.foo.id
+	name       			= "renamed_testdb"
+	owner      			= yandex_mdb_postgresql_user.alice.name
+	lc_collate 			= "en_US.UTF-8"
+	lc_type    			= "en_US.UTF-8"
+	deletion_protection = "true"
 }
 `
 }
@@ -169,11 +173,12 @@ resource "yandex_mdb_postgresql_database" "testdb" {
 func testAccMDBPostgreSQLDatabaseConfigStep3(name string) string {
 	return testAccMDBPostgreSQLDatabaseConfigStep0(name) + `
 resource "yandex_mdb_postgresql_database" "testdb" {
-	cluster_id = yandex_mdb_postgresql_cluster.foo.id
-	name       = "testdb"
-	owner      = yandex_mdb_postgresql_user.alice.name
-	lc_collate = "en_US.UTF-8"
-	lc_type    = "en_US.UTF-8"
+	cluster_id 			= yandex_mdb_postgresql_cluster.foo.id
+	name       			= "testdb"
+	owner      			= yandex_mdb_postgresql_user.alice.name
+	lc_collate 			= "en_US.UTF-8"
+	lc_type    			= "en_US.UTF-8"
+	deletion_protection = "false"
 
 	extension {
 		name    = "uuid-ossp"

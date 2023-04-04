@@ -84,6 +84,10 @@ func testAccDataSourceMDBPGDatabaseAttributesCheck(datasourceName string, resour
 				"template_db",
 				"template_db",
 			},
+			{
+				"deletion_protection",
+				"deletion_protection",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -160,7 +164,7 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 		name      = "a"
 		zone      = "ru-central1-a"
 		subnet_id  = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
-		}
+	}
 }
 
 resource "yandex_mdb_postgresql_user" "alice" {

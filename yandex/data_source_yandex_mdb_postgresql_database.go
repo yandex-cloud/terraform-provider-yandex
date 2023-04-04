@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
@@ -52,6 +53,11 @@ func dataSourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 						},
 					},
 				},
+			},
+			"deletion_protection": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"unspecified", "true", "false"}, false),
 			},
 		},
 	}

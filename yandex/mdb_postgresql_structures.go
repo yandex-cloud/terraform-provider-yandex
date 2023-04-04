@@ -11,6 +11,7 @@ import (
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/objx"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1/config"
@@ -1585,6 +1586,22 @@ func parsePostgreSQLPoolingMode(s string) (postgresql.ConnectionPoolerConfig_Poo
 	}
 
 	return postgresql.ConnectionPoolerConfig_PoolingMode(v), nil
+}
+
+var mdbPGTristateBooleanName = map[string]*wrappers.BoolValue{
+	"true":        wrapperspb.Bool(true),
+	"false":       wrapperspb.Bool(false),
+	"unspecified": nil,
+}
+
+func mdbPGResolveTristateBoolean(value *wrappers.BoolValue) string {
+	if value == nil {
+		return "unspecified"
+	}
+	if value.Value {
+		return "true"
+	}
+	return "false"
 }
 
 var mdbPGUserSettingsTransactionIsolationName = map[int]string{

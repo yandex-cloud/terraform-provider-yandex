@@ -72,6 +72,10 @@ func testAccDataSourceMDBPGUserAttributesCheck(datasourceName string, resourceNa
 				"permission.#",
 				"permission.#",
 			},
+			{
+				"deletion_protection",
+				"deletion_protection",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -150,11 +154,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 }
 
 resource "yandex_mdb_postgresql_user" "alice" {
-	cluster_id = yandex_mdb_postgresql_cluster.foo.id
-	name       = "alice"
-	password   = "mysecurepassword"
-	login      = "true"
-	grants     = ["mdb_admin", "mdb_replication"]
+	cluster_id 			= yandex_mdb_postgresql_cluster.foo.id
+	name       			= "alice"
+	password   			= "mysecurepassword"
+	login      			= "true"
+	grants     			= ["mdb_admin", "mdb_replication"]
+	deletion_protection = "true"
 }
 
 data "yandex_mdb_postgresql_user" "alice" {

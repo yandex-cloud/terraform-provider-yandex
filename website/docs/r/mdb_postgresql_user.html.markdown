@@ -73,6 +73,8 @@ The following arguments are supported:
 
 * `settings` - (Optional) Map of user settings. List of settings is documented below.
 
+* `deletion_protection` - (Optional) Inhibits deletion of the user. Can either be `true`, `false` or `unspecified`.
+
 The `permission` block supports:
 
 * `database_name` - (Required) The name of the database that the permission grants access to.

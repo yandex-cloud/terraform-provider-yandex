@@ -43,6 +43,7 @@ exported:
 * `grants` - List of the user's grants.
 * `conn_limit` - The maximum number of connections per user.
 * `settings` - Map of user settings.
+* `deletion_protection` - Inhibits deletion of the user.
 
 The `permission` block supports:
 
