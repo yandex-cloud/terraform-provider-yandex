@@ -1,4 +1,6 @@
-## 0.89.0 (Unreleased)
+## 0.90.0 (Unreleased)
+
+## 0.89.0 (April 6, 2023)
 FEATURES:
 * mongodb: `resources` section for `yandex_mdb_mongodb_cluster` is now deprecated
 * mongodb: add new sections `resources_mongod`, `resources_mongos`, `resources_mongocfg`, `resources_mongoinfra` for `yandex_mdb_mongodb_cluster`
@@ -11,6 +13,7 @@ FEATURES:
 BUG FIXES:
 * datatransfer: fixed the setting of `source_id` and `target_id` on the transfer importing 
 * yandex message queue: fixed invalid VisibilityTimeout in queue settings when `visibility_timeout_seconds` attribute was set to `0`
+
 ## 0.88.0 (March 23, 2023)
 FEATURES:
 * **New Resource** `yandex_monitoring_dashboard`
