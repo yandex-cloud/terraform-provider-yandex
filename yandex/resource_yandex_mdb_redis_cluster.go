@@ -202,6 +202,10 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validateParsableValue(parsePersistenceMode),
 			},
+			"announce_hostnames": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"folder_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -377,6 +381,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		Sharded:            sharded,
 		TlsEnabled:         &wrappers.BoolValue{Value: d.Get("tls_enabled").(bool)},
 		PersistenceMode:    persistenceMode,
+		AnnounceHostnames:  d.Get("announce_hostnames").(bool),
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
@@ -412,6 +417,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	d.Set("sharded", cluster.Sharded)
 	d.Set("tls_enabled", cluster.TlsEnabled)
 	d.Set("persistence_mode", cluster.GetPersistenceMode().String())
+	d.Set("announce_hostnames", cluster.AnnounceHostnames)
 
 	resources, err := flattenRedisResources(cluster.Config.Resources)
 	if err != nil {
@@ -522,6 +528,16 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 		req.PersistenceMode = mode
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "persistence_mode")
+
+		onDone = append(onDone, func() {
+
+		})
+	}
+
+	if d.HasChange("announce_hostnames") {
+		req.AnnounceHostnames = d.Get("announce_hostnames").(bool)
+
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "announce_hostnames")
 
 		onDone = append(onDone, func() {
 

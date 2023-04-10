@@ -22,11 +22,11 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
 					"6.2", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
 			},
 		},
 	})
@@ -36,11 +36,11 @@ func TestAccDataSourceMDBRedisCluster_byID(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, nil, nil, persistenceMode,
 					"7.0", true),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, nil, nil, persistenceMode),
 			},
 		},
 	})
@@ -53,6 +53,7 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 	redisDesc := "Redis Cluster Terraform Datasource Test"
 	tlsEnabled := true
 	persistenceMode := "ON"
+	announceHostnames := true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -60,11 +61,11 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
 					"6.2", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
 			},
 		},
 	})
@@ -74,11 +75,11 @@ func TestAccDataSourceMDBRedisCluster_byName(t *testing.T) {
 		CheckDestroy: testAccCheckMDBRedisClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, persistenceMode,
+				Config: testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode,
 					"7.0", false),
 				Check: testAccDataSourceMDBRedisClusterCheck(
 					"data.yandex_mdb_redis_cluster.bar",
-					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, persistenceMode),
+					"yandex_mdb_redis_cluster.foo", redisName, redisDesc, &tlsEnabled, &announceHostnames, persistenceMode),
 			},
 		},
 	})
@@ -116,6 +117,7 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"sharded",
 			"tls_enabled",
 			"persistence_mode",
+			"announce_hostnames",
 			"config.0.timeout", // Cannot test full config, because API doesn't return password
 			"config.0.maxmemory_policy",
 			"config.0.notify_keyspace_events",
@@ -148,12 +150,16 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 }
 
 func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName string, redisName string, desc string,
-	tlsEnabled *bool, persistenceMode string) resource.TestCheckFunc {
+	tlsEnabled, announceHostnames *bool, persistenceMode string) resource.TestCheckFunc {
 	folderID := getExampleFolderID()
 	env := "PRESTABLE"
 	tlsEnabledStr := "false"
 	if tlsEnabled != nil && *tlsEnabled {
 		tlsEnabledStr = "true"
+	}
+	announceHostnamesStr := "false"
+	if announceHostnames != nil && *announceHostnames {
+		announceHostnamesStr = "true"
 	}
 	persistenceModeStr := "ON"
 	if persistenceMode == "OFF" {
@@ -171,6 +177,7 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "sharded", "false"),
 		resource.TestCheckResourceAttr(datasourceName, "tls_enabled", tlsEnabledStr),
 		resource.TestCheckResourceAttr(datasourceName, "persistence_mode", persistenceModeStr),
+		resource.TestCheckResourceAttr(datasourceName, "announce_hostnames", announceHostnamesStr),
 		resource.TestCheckResourceAttr(datasourceName, "host.#", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "host.0.fqdn"),
 		resource.TestCheckResourceAttr(datasourceName, "host.0.replica_priority", fmt.Sprintf("%d", defaultReplicaPriority)),
@@ -196,15 +203,15 @@ data "yandex_mdb_redis_cluster" "bar" {
 }
 `
 
-func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnabled *bool, persistenceMode, version string,
-	useDataID bool) string {
+func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnabled, announceHostnames *bool,
+	persistenceMode, version string, useDataID bool) string {
 	if useDataID {
 		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-			tlsEnabled, persistenceMode, version, "hm1.nano", 16, "", "", "",
+			tlsEnabled, announceHostnames, persistenceMode, version, "hm1.nano", 16, "", "", "",
 			[]*bool{nil}, []*int{nil}) + mdbRedisClusterByIDConfig
 	}
 
 	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-		tlsEnabled, persistenceMode, version, "hm1.nano", 16, "", "", "",
+		tlsEnabled, announceHostnames, persistenceMode, version, "hm1.nano", 16, "", "", "",
 		[]*bool{nil}, []*int{nil}) + mdbRedisClusterByNameConfig
 }

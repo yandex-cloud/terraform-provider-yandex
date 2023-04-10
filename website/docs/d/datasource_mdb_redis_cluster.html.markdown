@@ -52,6 +52,7 @@ exported:
 * `sharded` - Redis Cluster mode enabled/disabled.
 * `tls_enabled` - TLS support mode enabled/disabled.
 * `persistence_mode` - Persistence mode. 
+* `announce_hostnames` - Announce fqdn instead of ip address. 
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 
 The `config` block supports:

@@ -61,6 +61,9 @@ The following arguments are supported:
 * `persistence_mode` - Persistence mode of the Yandex Database cluster.
   Useful for SDK configuration.
 
+* `announce_hostnames` - Announce fqdn instead of ip address for the Yandex Database cluster.
+  Useful for SDK configuration.
+
 * `created_at` - The Yandex Database serverless cluster creation timestamp.
 
 * `status` - Status of the Yandex Database serverless cluster.

@@ -140,6 +140,8 @@ The following arguments are supported:
 
 * `persistence_mode` - (Optional) Persistence mode.
 
+* `announce_hostnames` - Announce fqdn instead of ip address.
+
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.

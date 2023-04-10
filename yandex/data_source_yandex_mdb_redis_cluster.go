@@ -157,6 +157,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"announce_hostnames": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -259,6 +263,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 	d.Set("description", cluster.Description)
 	d.Set("sharded", cluster.Sharded)
 	d.Set("tls_enabled", cluster.TlsEnabled)
+	d.Set("announce_hostnames", cluster.AnnounceHostnames)
 	err = d.Set("persistence_mode", cluster.GetPersistenceMode().String())
 	if err != nil {
 		return err

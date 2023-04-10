@@ -105,6 +105,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	updatedFlavor := "hm1.micro"
 	tlsEnabled := true
 	persistenceMode := "ON"
+	announceHostnames := true
 	normalLimits := "16777215 8388607 61"
 	pubsubLimits := "16777214 8388606 62"
 	normalUpdatedLimits := "16777212 8388605 63"
@@ -124,10 +125,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				// Create Redis Cluster
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 						[]*bool{nil}, []*int{nil}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -151,10 +152,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				// uncheck 'deletion_protection'
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 						[]*bool{nil}, []*int{nil}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 					),
 				},
@@ -162,10 +163,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				// check 'deletion_protection'
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", true,
-						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 						[]*bool{nil}, []*int{nil}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
 					),
 				},
@@ -173,28 +174,28 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				// check 'deletion_protection
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRODUCTION", true,
-						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 						[]*bool{nil}, []*int{nil}),
 					ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 				},
 				// uncheck 'deletion_protection'
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-						&tlsEnabled, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
 						[]*bool{nil}, []*int{nil}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
 				// Change some options
 				{
-					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, &announceHostnames, persistenceMode,
 						version, updatedFlavor, updatedDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
 						[]*bool{&pubIpSet}, []*int{&updatedReplicaPriority}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -214,11 +215,11 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 				mdbRedisClusterImportStep(redisResource),
 				// Add new host
 				{
-					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, &announceHostnames, persistenceMode,
 						version, updatedFlavor, updatedDiskSize, "",
 						[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -255,6 +256,8 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	diskTypeId := "local-ssd"
 	baseFlavor := "hm1.nano"
 	tlsEnabled := true
+	announceHostnames := true
+	announceHostnamesChanged := false
 	persistenceMode := "OFF"
 	persistenceModeChanged := "ON"
 	normalLimits := "16777215 8388607 61"
@@ -267,6 +270,12 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	updatedReplicaPriority := 51
 
 	for _, version := range []string{"6.2", "7.0"} {
+		// don't check disabling for 6.2 (limited in API) until we use rdsync
+		if version == "6.2" {
+			announceHostnamesChanged = true
+		} else {
+			announceHostnamesChanged = false
+		}
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -275,10 +284,10 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 				// Create Redis Cluster
 				{
 					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-						&tlsEnabled, persistenceMode, version, baseFlavor, baseDiskSize, diskTypeId, normalLimits, pubsubLimits,
+						&tlsEnabled, &announceHostnames, persistenceMode, version, baseFlavor, baseDiskSize, diskTypeId, normalLimits, pubsubLimits,
 						[]*bool{&pubIpUnset, &pubIpSet, &pubIpUnset}, []*int{&baseReplicaPriority, &updatedReplicaPriority, &baseReplicaPriority}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
@@ -305,11 +314,11 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 				mdbRedisClusterImportStep(redisResource),
 				// Change some options
 				{
-					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, persistenceModeChanged,
+					Config: testAccMDBRedisClusterConfigUpdated(redisName, redisDesc2, &tlsEnabled, &announceHostnamesChanged, persistenceModeChanged,
 						version, baseFlavor, baseDiskSize, diskTypeId, normalUpdatedLimits, pubsubUpdatedLimits,
 						[]*bool{&pubIpUnset, &pubIpSet, &pubIpSet}, []*int{nil, &baseReplicaPriority, &updatedReplicaPriority}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, persistenceModeChanged),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 3, tlsEnabled, announceHostnamesChanged, persistenceModeChanged),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -334,11 +343,11 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 				mdbRedisClusterImportStep(redisResource),
 				// Add new host
 				{
-					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, persistenceMode,
+					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, &announceHostnames, persistenceMode,
 						version, baseFlavor, baseDiskSize, diskTypeId,
 						[]*bool{&pubIpSet, nil, nil, nil}, []*int{&baseReplicaPriority, &updatedReplicaPriority, nil, &updatedReplicaPriority}),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 4, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResource, "name", redisName),
 						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResource, "description", redisDesc2),
@@ -379,6 +388,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
 	tlsEnabled := false
+	announceHostnames := false
 	persistenceMode := "ON"
 	persistenceModeChanged := "OFF"
 
@@ -393,7 +403,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 					Config: testAccMDBRedisShardedClusterConfig(redisName, redisDesc, persistenceMode, version,
 						baseDiskSize, diskTypeId),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceMode),
+						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, announceHostnames, persistenceMode),
 						resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -409,7 +419,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 					Config: testAccMDBRedisShardedClusterConfigUpdated(redisName, redisDesc, persistenceModeChanged, version,
 						baseDiskSize, ""),
 					Check: resource.ComposeTestCheckFunc(
-						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, persistenceModeChanged),
+						testAccCheckMDBRedisClusterExists(redisResourceSharded, &r, 3, tlsEnabled, announceHostnames, persistenceModeChanged),
 						resource.TestCheckResourceAttr(redisResourceSharded, "name", redisName),
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
@@ -444,7 +454,7 @@ func testAccCheckMDBRedisClusterDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tlsEnabled bool,
+func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tlsEnabled, announceHostnames bool,
 	persistenceMode string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -471,6 +481,10 @@ func testAccCheckMDBRedisClusterExists(n string, r *redis.Cluster, hosts int, tl
 
 		if found.TlsEnabled != tlsEnabled {
 			return fmt.Errorf("tls mode: found = %t; expected = %t", found.TlsEnabled, tlsEnabled)
+		}
+
+		if found.AnnounceHostnames != announceHostnames {
+			return fmt.Errorf("announceHostnames mode: found = %t; expected = %t", found.AnnounceHostnames, announceHostnames)
 		}
 
 		if found.GetPersistenceMode().String() != persistenceMode {
@@ -763,6 +777,14 @@ func getPersistenceMode(persistenceMode string) string {
 	return res
 }
 
+func getAnnounceHostnames(announceHostnames *bool) string {
+	res := ""
+	if announceHostnames != nil {
+		res = fmt.Sprintf(`announce_hostnames = "%t"`, *announceHostnames)
+	}
+	return res
+}
+
 func getNormalLimitStr(limit string) string {
 	res := ""
 	if limit != "" {
@@ -787,7 +809,8 @@ func getReplicaPriorityStr(priority *int) string {
 	return res
 }
 
-func testAccMDBRedisClusterConfigMain(name, desc, environment string, deletionProtection bool, tlsEnabled *bool,
+func testAccMDBRedisClusterConfigMain(name, desc, environment string, deletionProtection bool,
+	tlsEnabled, announceHostnames *bool,
 	persistenceMode, version, flavor string, diskSize int, diskTypeId, normalLimits, pubsubLimits string,
 	publicIPFlags []*bool, replicaPriorities []*int) string {
 	return fmt.Sprintf(redisVPCDependencies+`
@@ -796,6 +819,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   description = "%s"
   environment = "%s"
   network_id  = "${yandex_vpc_network.foo.id}"
+  %s
   %s
   %s
 
@@ -834,12 +858,13 @@ resource "yandex_mdb_redis_cluster" "foo" {
   
   deletion_protection = %t
 }
-`, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode), version,
+`, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
+		getAnnounceHostnames(announceHostnames), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
 		getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection)
 }
 
-func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled *bool, persistenceMode, version, flavor string,
+func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled, announceHostnames *bool, persistenceMode, version, flavor string,
 	diskSize int, diskTypeId, normalLimits, pubsubLimits string, publicIPFlags []*bool, replicaPriorities []*int) string {
 	return fmt.Sprintf(redisVPCDependencies+`
 resource "yandex_mdb_redis_cluster" "foo" {
@@ -847,6 +872,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
+  %s
   %s
   %s
 
@@ -881,12 +907,12 @@ resource "yandex_mdb_redis_cluster" "foo" {
     type = "ANYTIME"
   }
 }
-`, name, desc, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode), version,
+`, name, desc, getTlsEnabled(tlsEnabled), getAnnounceHostnames(announceHostnames), getPersistenceMode(persistenceMode), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits),
 		flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities))
 }
 
-func testAccMDBRedisClusterConfigAddedHost(name, desc string, tlsEnabled *bool, persistenceMode, version, flavor string,
+func testAccMDBRedisClusterConfigAddedHost(name, desc string, tlsEnabled, announceHostnames *bool, persistenceMode, version, flavor string,
 	diskSize int, diskTypeId string, publicIPFlags []*bool, replicaPriorities []*int) string {
 	ipCount := len(publicIPFlags)
 	newPublicIPFlag := publicIPFlags[ipCount-1]
@@ -899,6 +925,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.foo.id}"
+  %s
   %s
   %s
 
@@ -934,7 +961,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.sg-y.id}"]
 }
-`, name, desc, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode), version, flavor, diskSize,
+`, name, desc, getTlsEnabled(tlsEnabled), getAnnounceHostnames(announceHostnames), getPersistenceMode(persistenceMode), version, flavor, diskSize,
 		getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId, oldPublicIPFlags, oldReplicaPriorities),
 		getPublicIPStr(newPublicIPFlag), getReplicaPriorityStr(newReplicaPriority))
 }
