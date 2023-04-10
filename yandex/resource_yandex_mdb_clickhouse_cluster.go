@@ -2525,6 +2525,12 @@ func compareClusterResources(k, old, new string, updatedSchema *schema.ResourceD
 	log.Printf("[DEBUG] compareClusterResources: old=%s, new=%s, key=%s\n", old, new, k)
 	log.Printf("[DEBUG] original cluster schema: cluster=%v\n", originalClusterResources)
 
+	// originalClusterResources is nil for terraform plan and for first apply.
+	if originalClusterResources == nil {
+		log.Println("[DEBUG] original cluster resources is nil. default compare.")
+		return defaultResourcesCompare(old, new)
+	}
+
 	updatedClusterResources := expandClickHouseResources(updatedSchema, "clickhouse.0.resources.0")
 	log.Printf("[DEBUG] updated cluster schema: cluster=%v\n", updatedClusterResources)
 
@@ -2533,7 +2539,7 @@ func compareClusterResources(k, old, new string, updatedSchema *schema.ResourceD
 
 	dropShardsWithDefaultResources(originalClusterResources, updatedShardsResources)
 
-	log.Printf("[DEBUG] current shards schema after drop shards with default resources: sahrds=%v\n", updatedShardsResources)
+	log.Printf("[DEBUG] current shards schema after drop shards with default resources: shards=%v\n", updatedShardsResources)
 
 	hosts, err := expandClickHouseHosts(updatedSchema)
 	if err != nil || len(hosts) == 0 {

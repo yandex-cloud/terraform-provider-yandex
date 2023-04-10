@@ -1,4 +1,6 @@
 ## 0.90.0 (Unreleased)
+BUG FIXES:
+* clickhouse: fix bug with resource's configuration
 
 ## 0.89.0 (April 6, 2023)
 FEATURES:

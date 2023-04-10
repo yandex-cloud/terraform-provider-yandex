@@ -27,7 +27,6 @@ func isEqualResources(clusterResources *clickhouse.Resources, shardResources *cl
 	if clusterResources.GetDiskTypeId() != shardResources.GetDiskTypeId() {
 		log.Printf("[DEBUG] resource is diffrent by disk_type_id: cluster disk_type_id=%s, shard disk_type_id=%s\n", clusterResources.GetDiskTypeId(), shardResources.GetDiskTypeId())
 		return false
-
 	}
 	if clusterResources.GetResourcePresetId() != shardResources.GetResourcePresetId() {
 		log.Printf("[DEBUG] resource is diffrent by resource_preset_id: cluster resource_preset_id=%s, shard resource_preset_id=%s\n", clusterResources.GetResourcePresetId(), shardResources.GetResourcePresetId())
