@@ -32,6 +32,24 @@ func expandDatatransferEndpointSettings(d *schema.ResourceData) (*datatransfer.E
 		val.SetClickhouseTarget(clickhouseTarget)
 	}
 
+	if _, ok := d.GetOk("settings.0.kafka_source"); ok {
+		kafkaSource, err := expandDatatransferEndpointSettingsKafkaSource(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetKafkaSource(kafkaSource)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target"); ok {
+		kafkaTarget, err := expandDatatransferEndpointSettingsKafkaTarget(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetKafkaTarget(kafkaTarget)
+	}
+
 	if _, ok := d.GetOk("settings.0.mongo_source"); ok {
 		mongoSource, err := expandDatatransferEndpointSettingsMongoSource(d)
 		if err != nil {
@@ -417,6 +435,15 @@ func expandDatatransferEndpointSettingsPostgresSourceObjectTransferSettings(d *s
 		val.SetSequenceOwnedBy(vv)
 	}
 
+	if v, ok := d.GetOk("settings.0.postgres_source.0.object_transfer_settings.0.sequence_set"); ok {
+		vv, err := parseDatatransferEndpointObjectTransferStage(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSequenceSet(vv)
+	}
+
 	if v, ok := d.GetOk("settings.0.postgres_source.0.object_transfer_settings.0.table"); ok {
 		vv, err := parseDatatransferEndpointObjectTransferStage(v.(string))
 		if err != nil {
@@ -767,6 +794,15 @@ func expandDatatransferEndpointSettingsMysqlSourceObjectTransferSettings(d *sche
 		}
 
 		val.SetRoutine(vv)
+	}
+
+	if v, ok := d.GetOk("settings.0.mysql_source.0.object_transfer_settings.0.tables"); ok {
+		vv, err := parseDatatransferEndpointObjectTransferStage(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTables(vv)
 	}
 
 	if v, ok := d.GetOk("settings.0.mysql_source.0.object_transfer_settings.0.trigger"); ok {
@@ -1273,6 +1309,718 @@ func expandDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resource
 	return val, nil
 }
 
+func expandDatatransferEndpointSettingsKafkaTarget(d *schema.ResourceData) (*endpoint.KafkaTarget, error) {
+	val := new(endpoint.KafkaTarget)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.auth"); ok {
+		auth, err := expandDatatransferEndpointSettingsKafkaTargetAuth(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAuth(auth)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.connection"); ok {
+		connection, err := expandDatatransferEndpointSettingsKafkaTargetConnection(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnection(connection)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.topic_settings"); ok {
+		topicSettings, err := expandDatatransferEndpointSettingsKafkaTargetTopicSettings(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTopicSettings(topicSettings)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetTopicSettings(d *schema.ResourceData) (*endpoint.KafkaTargetTopicSettings, error) {
+	val := new(endpoint.KafkaTargetTopicSettings)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.topic_settings.0.topic"); ok {
+		topic, err := expandDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTopic(topic)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.topic_settings.0.topic_prefix"); ok {
+		val.SetTopicPrefix(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d *schema.ResourceData) (*endpoint.KafkaTargetTopic, error) {
+	val := new(endpoint.KafkaTargetTopic)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.topic_settings.0.topic.0.save_tx_order"); ok {
+		val.SetSaveTxOrder(v.(bool))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.topic_settings.0.topic.0.topic_name"); ok {
+		val.SetTopicName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetConnection(d *schema.ResourceData) (*endpoint.KafkaConnectionOptions, error) {
+	val := new(endpoint.KafkaConnectionOptions)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.connection.0.cluster_id"); ok {
+		val.SetClusterId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise"); ok {
+		onPremise, err := expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremise(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetOnPremise(onPremise)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremise(d *schema.ResourceData) (*endpoint.OnPremiseKafka, error) {
+	val := new(endpoint.OnPremiseKafka)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.broker_urls"); ok {
+		val.SetBrokerUrls(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode"); ok {
+		tlsMode, err := expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTlsMode(tlsMode)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode(d *schema.ResourceData) (*endpoint.TLSMode, error) {
+	val := new(endpoint.TLSMode)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode.0.disabled"); ok {
+		disabled, err := expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeDisabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDisabled(disabled)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode.0.enabled"); ok {
+		enabled, err := expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetEnabled(enabled)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabled(d *schema.ResourceData) (*endpoint.TLSConfig, error) {
+	val := new(endpoint.TLSConfig)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate"); ok {
+		val.SetCaCertificate(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeDisabled(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetAuth(d *schema.ResourceData) (*endpoint.KafkaAuth, error) {
+	val := new(endpoint.KafkaAuth)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.auth.0.no_auth"); ok {
+		noAuth, err := expandDatatransferEndpointSettingsKafkaTargetAuthNoAuth(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetNoAuth(noAuth)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl"); ok {
+		sasl, err := expandDatatransferEndpointSettingsKafkaTargetAuthSasl(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSasl(sasl)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetAuthSasl(d *schema.ResourceData) (*endpoint.KafkaSaslSecurity, error) {
+	val := new(endpoint.KafkaSaslSecurity)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl.0.mechanism"); ok {
+		vv, err := parseDatatransferEndpointKafkaMechanism(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMechanism(vv)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl.0.password"); ok {
+		password, err := expandDatatransferEndpointSettingsKafkaTargetAuthSaslPassword(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPassword(password)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl.0.user"); ok {
+		val.SetUser(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetAuthSaslPassword(d *schema.ResourceData) (*endpoint.Secret, error) {
+	val := new(endpoint.Secret)
+
+	if v, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl.0.password.0.raw"); ok {
+		val.SetRaw(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetAuthNoAuth(d *schema.ResourceData) (*endpoint.NoAuth, error) {
+	val := new(endpoint.NoAuth)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSource(d *schema.ResourceData) (*endpoint.KafkaSource, error) {
+	val := new(endpoint.KafkaSource)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.auth"); ok {
+		auth, err := expandDatatransferEndpointSettingsKafkaSourceAuth(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAuth(auth)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.connection"); ok {
+		connection, err := expandDatatransferEndpointSettingsKafkaSourceConnection(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetConnection(connection)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser"); ok {
+		parser, err := expandDatatransferEndpointSettingsKafkaSourceParser(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetParser(parser)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.topic_name"); ok {
+		val.SetTopicName(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.transformer"); ok {
+		transformer, err := expandDatatransferEndpointSettingsKafkaSourceTransformer(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTransformer(transformer)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceTransformer(d *schema.ResourceData) (*endpoint.DataTransformationOptions, error) {
+	val := new(endpoint.DataTransformationOptions)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.buffer_flush_interval"); ok {
+		val.SetBufferFlushInterval(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.buffer_size"); ok {
+		val.SetBufferSize(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.cloud_function"); ok {
+		val.SetCloudFunction(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.invocation_timeout"); ok {
+		val.SetInvocationTimeout(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.number_of_retries"); ok {
+		val.SetNumberOfRetries(int64(v.(int)))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.transformer.0.service_account_id"); ok {
+		val.SetServiceAccountId(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParser(d *schema.ResourceData) (*endpoint.Parser, error) {
+	val := new(endpoint.Parser)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.audit_trails_v1_parser"); ok {
+		auditTrailsV1Parser, err := expandDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetAuditTrailsV1Parser(auditTrailsV1Parser)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.cloud_logging_parser"); ok {
+		cloudLoggingParser, err := expandDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCloudLoggingParser(cloudLoggingParser)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser"); ok {
+		jsonParser, err := expandDatatransferEndpointSettingsKafkaSourceParserJsonParser(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetJsonParser(jsonParser)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser"); ok {
+		tskvParser, err := expandDatatransferEndpointSettingsKafkaSourceParserTskvParser(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTskvParser(tskvParser)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserTskvParser(d *schema.ResourceData) (*endpoint.GenericParserCommon, error) {
+	val := new(endpoint.GenericParserCommon)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.add_rest_column"); ok {
+		val.SetAddRestColumn(v.(bool))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema"); ok {
+		dataSchema, err := expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDataSchema(dataSchema)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.null_keys_allowed"); ok {
+		val.SetNullKeysAllowed(v.(bool))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema(d *schema.ResourceData) (*endpoint.DataSchema, error) {
+	val := new(endpoint.DataSchema)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields"); ok {
+		fields, err := expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFields(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetFields(fields)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.json_fields"); ok {
+		val.SetJsonFields(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFields(d *schema.ResourceData) (*endpoint.FieldList, error) {
+	val := new(endpoint.FieldList)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields"); ok {
+		fields, err := expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFieldsSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetFields(fields)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFieldsSlice(d *schema.ResourceData) ([]*endpoint.ColSchema, error) {
+	count := d.Get("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.#").(int)
+	slice := make([]*endpoint.ColSchema, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFields(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFields(d *schema.ResourceData, indexes ...interface{}) (*endpoint.ColSchema, error) {
+	val := new(endpoint.ColSchema)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.%d.key", indexes...)); ok {
+		val.SetKey(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.%d.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.%d.path", indexes...)); ok {
+		val.SetPath(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.%d.required", indexes...)); ok {
+		val.SetRequired(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields.0.fields.%d.type", indexes...)); ok {
+		vv, err := parseDatatransferEndpointColumnType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(vv)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserJsonParser(d *schema.ResourceData) (*endpoint.GenericParserCommon, error) {
+	val := new(endpoint.GenericParserCommon)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.add_rest_column"); ok {
+		val.SetAddRestColumn(v.(bool))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema"); ok {
+		dataSchema, err := expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDataSchema(dataSchema)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.null_keys_allowed"); ok {
+		val.SetNullKeysAllowed(v.(bool))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema(d *schema.ResourceData) (*endpoint.DataSchema, error) {
+	val := new(endpoint.DataSchema)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields"); ok {
+		fields, err := expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFields(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetFields(fields)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.json_fields"); ok {
+		val.SetJsonFields(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFields(d *schema.ResourceData) (*endpoint.FieldList, error) {
+	val := new(endpoint.FieldList)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields"); ok {
+		fields, err := expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFieldsSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetFields(fields)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFieldsSlice(d *schema.ResourceData) ([]*endpoint.ColSchema, error) {
+	count := d.Get("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.#").(int)
+	slice := make([]*endpoint.ColSchema, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFields(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFields(d *schema.ResourceData, indexes ...interface{}) (*endpoint.ColSchema, error) {
+	val := new(endpoint.ColSchema)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.%d.key", indexes...)); ok {
+		val.SetKey(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.%d.name", indexes...)); ok {
+		val.SetName(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.%d.path", indexes...)); ok {
+		val.SetPath(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.%d.required", indexes...)); ok {
+		val.SetRequired(v.(bool))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields.0.fields.%d.type", indexes...)); ok {
+		vv, err := parseDatatransferEndpointColumnType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(vv)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(d *schema.ResourceData) (*endpoint.CloudLoggingParser, error) {
+	val := new(endpoint.CloudLoggingParser)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(d *schema.ResourceData) (*endpoint.AuditTrailsV1Parser, error) {
+	val := new(endpoint.AuditTrailsV1Parser)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceConnection(d *schema.ResourceData) (*endpoint.KafkaConnectionOptions, error) {
+	val := new(endpoint.KafkaConnectionOptions)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.connection.0.cluster_id"); ok {
+		val.SetClusterId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise"); ok {
+		onPremise, err := expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremise(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetOnPremise(onPremise)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremise(d *schema.ResourceData) (*endpoint.OnPremiseKafka, error) {
+	val := new(endpoint.OnPremiseKafka)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.broker_urls"); ok {
+		val.SetBrokerUrls(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode"); ok {
+		tlsMode, err := expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetTlsMode(tlsMode)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode(d *schema.ResourceData) (*endpoint.TLSMode, error) {
+	val := new(endpoint.TLSMode)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.disabled"); ok {
+		disabled, err := expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeDisabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetDisabled(disabled)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.enabled"); ok {
+		enabled, err := expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabled(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetEnabled(enabled)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabled(d *schema.ResourceData) (*endpoint.TLSConfig, error) {
+	val := new(endpoint.TLSConfig)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.enabled.0.ca_certificate"); ok {
+		val.SetCaCertificate(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeDisabled(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceAuth(d *schema.ResourceData) (*endpoint.KafkaAuth, error) {
+	val := new(endpoint.KafkaAuth)
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.auth.0.no_auth"); ok {
+		noAuth, err := expandDatatransferEndpointSettingsKafkaSourceAuthNoAuth(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetNoAuth(noAuth)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl"); ok {
+		sasl, err := expandDatatransferEndpointSettingsKafkaSourceAuthSasl(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSasl(sasl)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceAuthSasl(d *schema.ResourceData) (*endpoint.KafkaSaslSecurity, error) {
+	val := new(endpoint.KafkaSaslSecurity)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl.0.mechanism"); ok {
+		vv, err := parseDatatransferEndpointKafkaMechanism(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMechanism(vv)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl.0.password"); ok {
+		password, err := expandDatatransferEndpointSettingsKafkaSourceAuthSaslPassword(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetPassword(password)
+	}
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl.0.user"); ok {
+		val.SetUser(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceAuthSaslPassword(d *schema.ResourceData) (*endpoint.Secret, error) {
+	val := new(endpoint.Secret)
+
+	if v, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl.0.password.0.raw"); ok {
+		val.SetRaw(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaSourceAuthNoAuth(d *schema.ResourceData) (*endpoint.NoAuth, error) {
+	val := new(endpoint.NoAuth)
+
+	return val, nil
+}
+
 func expandDatatransferEndpointSettingsClickhouseTarget(d *schema.ResourceData) (*endpoint.ClickhouseTarget, error) {
 	val := new(endpoint.ClickhouseTarget)
 
@@ -1773,6 +2521,18 @@ func flattenDatatransferEndpointSettings(d *schema.ResourceData, v *datatransfer
 	}
 	m["clickhouse_target"] = clickhouseTarget
 
+	kafkaSource, err := flattenDatatransferEndpointSettingsKafkaSource(d, v.GetKafkaSource())
+	if err != nil {
+		return nil, err
+	}
+	m["kafka_source"] = kafkaSource
+
+	kafkaTarget, err := flattenDatatransferEndpointSettingsKafkaTarget(d, v.GetKafkaTarget())
+	if err != nil {
+		return nil, err
+	}
+	m["kafka_target"] = kafkaTarget
+
 	mongoSource, err := flattenDatatransferEndpointSettingsMongoSource(d, v.GetMongoSource())
 	if err != nil {
 		return nil, err
@@ -1968,6 +2728,7 @@ func flattenDatatransferEndpointSettingsPostgresSourceObjectTransferSettings(d *
 	m["rule"] = v.GetRule().String()
 	m["sequence"] = v.GetSequence().String()
 	m["sequence_owned_by"] = v.GetSequenceOwnedBy().String()
+	m["sequence_set"] = v.GetSequenceSet().String()
 	m["table"] = v.GetTable().String()
 	m["trigger"] = v.GetTrigger().String()
 	m["type"] = v.GetType().String()
@@ -2205,6 +2966,7 @@ func flattenDatatransferEndpointSettingsMysqlSourceObjectTransferSettings(d *sch
 	m := make(map[string]interface{})
 
 	m["routine"] = v.GetRoutine().String()
+	m["tables"] = v.GetTables().String()
 	m["trigger"] = v.GetTrigger().String()
 	m["view"] = v.GetView().String()
 
@@ -2607,6 +3369,600 @@ func flattenDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resourc
 
 	m["collection_name"] = v.GetCollectionName()
 	m["database_name"] = v.GetDatabaseName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTarget(d *schema.ResourceData, v *endpoint.KafkaTarget) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	auth, err := flattenDatatransferEndpointSettingsKafkaTargetAuth(d, v.GetAuth())
+	if err != nil {
+		return nil, err
+	}
+	m["auth"] = auth
+
+	connection, err := flattenDatatransferEndpointSettingsKafkaTargetConnection(d, v.GetConnection())
+	if err != nil {
+		return nil, err
+	}
+	m["connection"] = connection
+	m["security_groups"] = v.GetSecurityGroups()
+
+	topicSettings, err := flattenDatatransferEndpointSettingsKafkaTargetTopicSettings(d, v.GetTopicSettings())
+	if err != nil {
+		return nil, err
+	}
+	m["topic_settings"] = topicSettings
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetTopicSettings(d *schema.ResourceData, v *endpoint.KafkaTargetTopicSettings) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	topic, err := flattenDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d, v.GetTopic())
+	if err != nil {
+		return nil, err
+	}
+	m["topic"] = topic
+	m["topic_prefix"] = v.GetTopicPrefix()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d *schema.ResourceData, v *endpoint.KafkaTargetTopic) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["save_tx_order"] = v.GetSaveTxOrder()
+	m["topic_name"] = v.GetTopicName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetConnection(d *schema.ResourceData, v *endpoint.KafkaConnectionOptions) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["cluster_id"] = v.GetClusterId()
+
+	onPremise, err := flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremise(d, v.GetOnPremise())
+	if err != nil {
+		return nil, err
+	}
+	m["on_premise"] = onPremise
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremise(d *schema.ResourceData, v *endpoint.OnPremiseKafka) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["broker_urls"] = v.GetBrokerUrls()
+	m["subnet_id"] = v.GetSubnetId()
+
+	tlsMode, err := flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode(d, v.GetTlsMode())
+	if err != nil {
+		return nil, err
+	}
+	m["tls_mode"] = tlsMode
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsMode(d *schema.ResourceData, v *endpoint.TLSMode) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	disabled, err := flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeDisabled(d, v.GetDisabled())
+	if err != nil {
+		return nil, err
+	}
+	m["disabled"] = disabled
+
+	enabled, err := flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabled(d, v.GetEnabled())
+	if err != nil {
+		return nil, err
+	}
+	m["enabled"] = enabled
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeEnabled(d *schema.ResourceData, v *endpoint.TLSConfig) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["ca_certificate"] = v.GetCaCertificate()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetConnectionOnPremiseTlsModeDisabled(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetAuth(d *schema.ResourceData, v *endpoint.KafkaAuth) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	noAuth, err := flattenDatatransferEndpointSettingsKafkaTargetAuthNoAuth(d, v.GetNoAuth())
+	if err != nil {
+		return nil, err
+	}
+	m["no_auth"] = noAuth
+
+	sasl, err := flattenDatatransferEndpointSettingsKafkaTargetAuthSasl(d, v.GetSasl())
+	if err != nil {
+		return nil, err
+	}
+	m["sasl"] = sasl
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetAuthSasl(d *schema.ResourceData, v *endpoint.KafkaSaslSecurity) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["mechanism"] = v.GetMechanism().String()
+	if password, ok := d.GetOk("settings.0.kafka_target.0.auth.0.sasl.0.password.0.raw"); ok {
+		m["password"] = []map[string]interface{}{{"raw": password}}
+	}
+	m["user"] = v.GetUser()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetAuthNoAuth(d *schema.ResourceData, v *endpoint.NoAuth) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSource(d *schema.ResourceData, v *endpoint.KafkaSource) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	auth, err := flattenDatatransferEndpointSettingsKafkaSourceAuth(d, v.GetAuth())
+	if err != nil {
+		return nil, err
+	}
+	m["auth"] = auth
+
+	connection, err := flattenDatatransferEndpointSettingsKafkaSourceConnection(d, v.GetConnection())
+	if err != nil {
+		return nil, err
+	}
+	m["connection"] = connection
+
+	parser, err := flattenDatatransferEndpointSettingsKafkaSourceParser(d, v.GetParser())
+	if err != nil {
+		return nil, err
+	}
+	m["parser"] = parser
+	m["security_groups"] = v.GetSecurityGroups()
+	m["topic_name"] = v.GetTopicName()
+
+	transformer, err := flattenDatatransferEndpointSettingsKafkaSourceTransformer(d, v.GetTransformer())
+	if err != nil {
+		return nil, err
+	}
+	m["transformer"] = transformer
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceTransformer(d *schema.ResourceData, v *endpoint.DataTransformationOptions) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["buffer_flush_interval"] = v.GetBufferFlushInterval()
+	m["buffer_size"] = v.GetBufferSize()
+	m["cloud_function"] = v.GetCloudFunction()
+	m["invocation_timeout"] = v.GetInvocationTimeout()
+	m["number_of_retries"] = v.GetNumberOfRetries()
+	m["service_account_id"] = v.GetServiceAccountId()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParser(d *schema.ResourceData, v *endpoint.Parser) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	auditTrailsV1Parser, err := flattenDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(d, v.GetAuditTrailsV1Parser())
+	if err != nil {
+		return nil, err
+	}
+	m["audit_trails_v1_parser"] = auditTrailsV1Parser
+
+	cloudLoggingParser, err := flattenDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(d, v.GetCloudLoggingParser())
+	if err != nil {
+		return nil, err
+	}
+	m["cloud_logging_parser"] = cloudLoggingParser
+
+	jsonParser, err := flattenDatatransferEndpointSettingsKafkaSourceParserJsonParser(d, v.GetJsonParser())
+	if err != nil {
+		return nil, err
+	}
+	m["json_parser"] = jsonParser
+
+	tskvParser, err := flattenDatatransferEndpointSettingsKafkaSourceParserTskvParser(d, v.GetTskvParser())
+	if err != nil {
+		return nil, err
+	}
+	m["tskv_parser"] = tskvParser
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserTskvParser(d *schema.ResourceData, v *endpoint.GenericParserCommon) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["add_rest_column"] = v.GetAddRestColumn()
+
+	dataSchema, err := flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema(d, v.GetDataSchema())
+	if err != nil {
+		return nil, err
+	}
+	m["data_schema"] = dataSchema
+	m["null_keys_allowed"] = v.GetNullKeysAllowed()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchema(d *schema.ResourceData, v *endpoint.DataSchema) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	fields, err := flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFields(d, v.GetFields())
+	if err != nil {
+		return nil, err
+	}
+	m["fields"] = fields
+	m["json_fields"] = v.GetJsonFields()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFields(d *schema.ResourceData, v *endpoint.FieldList) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	fields, err := flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFieldsSlice(d, v.GetFields())
+	if err != nil {
+		return nil, err
+	}
+	m["fields"] = fields
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFieldsSlice(d *schema.ResourceData, v []*endpoint.ColSchema) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFields(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserTskvParserDataSchemaFieldsFields(d *schema.ResourceData, v *endpoint.ColSchema) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["key"] = v.GetKey()
+	m["name"] = v.GetName()
+	m["path"] = v.GetPath()
+	m["required"] = v.GetRequired()
+	m["type"] = v.GetType().String()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserJsonParser(d *schema.ResourceData, v *endpoint.GenericParserCommon) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["add_rest_column"] = v.GetAddRestColumn()
+
+	dataSchema, err := flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema(d, v.GetDataSchema())
+	if err != nil {
+		return nil, err
+	}
+	m["data_schema"] = dataSchema
+	m["null_keys_allowed"] = v.GetNullKeysAllowed()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchema(d *schema.ResourceData, v *endpoint.DataSchema) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	fields, err := flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFields(d, v.GetFields())
+	if err != nil {
+		return nil, err
+	}
+	m["fields"] = fields
+	m["json_fields"] = v.GetJsonFields()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFields(d *schema.ResourceData, v *endpoint.FieldList) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	fields, err := flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFieldsSlice(d, v.GetFields())
+	if err != nil {
+		return nil, err
+	}
+	m["fields"] = fields
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFieldsSlice(d *schema.ResourceData, v []*endpoint.ColSchema) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFields(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserJsonParserDataSchemaFieldsFields(d *schema.ResourceData, v *endpoint.ColSchema) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["key"] = v.GetKey()
+	m["name"] = v.GetName()
+	m["path"] = v.GetPath()
+	m["required"] = v.GetRequired()
+	m["type"] = v.GetType().String()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserCloudLoggingParser(d *schema.ResourceData, v *endpoint.CloudLoggingParser) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceParserAuditTrailsV1Parser(d *schema.ResourceData, v *endpoint.AuditTrailsV1Parser) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceConnection(d *schema.ResourceData, v *endpoint.KafkaConnectionOptions) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["cluster_id"] = v.GetClusterId()
+
+	onPremise, err := flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremise(d, v.GetOnPremise())
+	if err != nil {
+		return nil, err
+	}
+	m["on_premise"] = onPremise
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremise(d *schema.ResourceData, v *endpoint.OnPremiseKafka) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["broker_urls"] = v.GetBrokerUrls()
+	m["subnet_id"] = v.GetSubnetId()
+
+	tlsMode, err := flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode(d, v.GetTlsMode())
+	if err != nil {
+		return nil, err
+	}
+	m["tls_mode"] = tlsMode
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsMode(d *schema.ResourceData, v *endpoint.TLSMode) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	disabled, err := flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeDisabled(d, v.GetDisabled())
+	if err != nil {
+		return nil, err
+	}
+	m["disabled"] = disabled
+
+	enabled, err := flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabled(d, v.GetEnabled())
+	if err != nil {
+		return nil, err
+	}
+	m["enabled"] = enabled
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeEnabled(d *schema.ResourceData, v *endpoint.TLSConfig) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["ca_certificate"] = v.GetCaCertificate()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceConnectionOnPremiseTlsModeDisabled(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceAuth(d *schema.ResourceData, v *endpoint.KafkaAuth) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	noAuth, err := flattenDatatransferEndpointSettingsKafkaSourceAuthNoAuth(d, v.GetNoAuth())
+	if err != nil {
+		return nil, err
+	}
+	m["no_auth"] = noAuth
+
+	sasl, err := flattenDatatransferEndpointSettingsKafkaSourceAuthSasl(d, v.GetSasl())
+	if err != nil {
+		return nil, err
+	}
+	m["sasl"] = sasl
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceAuthSasl(d *schema.ResourceData, v *endpoint.KafkaSaslSecurity) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["mechanism"] = v.GetMechanism().String()
+	if password, ok := d.GetOk("settings.0.kafka_source.0.auth.0.sasl.0.password.0.raw"); ok {
+		m["password"] = []map[string]interface{}{{"raw": password}}
+	}
+	m["user"] = v.GetUser()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaSourceAuthNoAuth(d *schema.ResourceData, v *endpoint.NoAuth) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
 
 	return []map[string]interface{}{m}, nil
 }
@@ -3061,6 +4417,30 @@ func parseDatatransferEndpointClickhouseCleanupPolicy(str string) (endpoint.Clic
 		)
 	}
 	return endpoint.ClickhouseCleanupPolicy(val), nil
+}
+
+func parseDatatransferEndpointColumnType(str string) (endpoint.ColumnType, error) {
+	val, ok := endpoint.ColumnType_value[str]
+	if !ok {
+		return endpoint.ColumnType(0), fmt.Errorf(
+			"value for 'transfer_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(endpoint.ColumnType_value)),
+			str,
+		)
+	}
+	return endpoint.ColumnType(val), nil
+}
+
+func parseDatatransferEndpointKafkaMechanism(str string) (endpoint.KafkaMechanism, error) {
+	val, ok := endpoint.KafkaMechanism_value[str]
+	if !ok {
+		return endpoint.KafkaMechanism(0), fmt.Errorf(
+			"value for 'transfer_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(endpoint.KafkaMechanism_value)),
+			str,
+		)
+	}
+	return endpoint.KafkaMechanism(val), nil
 }
 
 func parseDatatransferEndpointObjectTransferStage(str string) (endpoint.ObjectTransferStage, error) {

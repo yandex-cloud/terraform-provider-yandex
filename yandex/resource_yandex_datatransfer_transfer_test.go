@@ -356,3 +356,148 @@ func testAccDataTransferConfigMain(templateParams dataTransferTerraformTemplateP
 	_ = template.Execute(buffer, templateParams)
 	return buffer.String()
 }
+
+func TestAccDataTransferKafkaSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const kafkaSourceEndpointResourceName = "kafka-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.kafka_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigKafkaSource(kafkaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigKafkaSource("new-kafka-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-kafka-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigKafkaSource(name, description string) string {
+	return fmt.Sprintf(`
+		resource "yandex_datatransfer_endpoint" "kafka_source" {
+  name        = "%s"
+  description = "%s"
+  settings {
+    kafka_source {
+      security_groups = []
+      topic_name      = "topic-name"
+
+      auth {
+        no_auth {}
+      }
+      connection {
+        on_premise {
+          broker_urls = [
+            "localhost:1234",
+          ]
+          tls_mode {
+            disabled {}
+          }
+        }
+      }
+      parser {
+        json_parser {
+          add_rest_column   = false
+          null_keys_allowed = false
+          data_schema {
+            fields {
+              fields {
+                key      = false
+                name     = "123123"
+                required = false
+                type     = "ANY"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`, name, description)
+}
+
+func TestAccDataTransferKafkaTargetEndpoint(t *testing.T) {
+	t.Parallel()
+	const kafkaSourceEndpointResourceName = "kafka-target"
+	const fullResourceName = "yandex_datatransfer_endpoint.kafka_target"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigKafkaTarget(kafkaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigKafkaTarget("new-kafka-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-kafka-target-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.kafka_target.0.auth.0.sasl.0.password."},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigKafkaTarget(name, description string) string {
+	return fmt.Sprintf(`resource "yandex_datatransfer_endpoint" "kafka_target" {
+    name        = "%s"
+  	description = "%s"
+    settings {
+        kafka_target {
+            security_groups = []
+            auth {
+                sasl {
+                    mechanism = "KAFKA_MECHANISM_SHA256"
+                    user      = "user"
+					password  {
+						raw = "password"
+					  }
+                }
+            }
+            connection {
+                on_premise {
+                    broker_urls = [
+                        "localhost:9999",
+                    ]
+                    tls_mode {
+                        enabled {
+                            ca_certificate = "123123123123"
+                        }
+                    }
+                }
+            }
+            topic_settings {
+                topic_prefix = "topic-prefix"
+            }
+        }
+    }
+}`, name, description)
+}

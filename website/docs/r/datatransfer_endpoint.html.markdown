@@ -66,6 +66,12 @@ The following arguments are supported:
 
 The `settings` block supports:
 
+* `clickhouse_source` - (Optional) Settings specific to the ClickHouse source endpoint.
+* `clickhouse_target` - (Optional) Settings specific to the ClickHouse target endpoint.
+* `kafka_source` - (Optional) Settings specific to the Kafka source endpoint.
+* `kafka_target` - (Optional) Settings specific to the Kafka target endpoint.
+* `mongo_source` - (Optional) Settings specific to the MongoDB source endpoint.
+* `mongo_target` - (Optional) Settings specific to the MongoDB target endpoint.
 * `postgres_source` - (Optional) Settings specific to the PostgreSQL source endpoint.
 * `postgres_target` - (Optional) Settings specific to the PostgreSQL target endpoint.
 * `mysql_source` - (Optional) Settings specific to the MySQL source endpoint.
@@ -241,6 +247,67 @@ The `sharding` block supports exactly one of the following attributes:
 
 The `column_value_hash` block supports:
 * `column_name` - The name of the column to calculate hash from.
+
+---
+
+The `kafka_source` block supports:
+* `connection` - (Required) Connection settings. 
+* `auth` - (Required) Authentication data.
+* `topic_name` - (Required) Full source topic name. 
+* `transformer` - (Optional) Transform data with a custom Cloud Function.
+* `parser` - (Optional) Data parsing parameters. If not set, the source messages are read in raw.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+  
+The `kafka_target` block supports:
+* `connection` - (Required) Connection settings.
+* `auth` - (Required) Authentication data.
+* `topic_settings` - (Required) Target topic settings.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+
+The `topic_settings` block supports exactly one of the following attributes:
+* `topic_prefix` - Topic name prefix. Messages will be sent to topic with name <topic_prefix>.<schema>.<table_name>.
+* `topic` - All messages will be sent to one topic. The structure is documented below.
+
+The `topic` block supports:
+* `topic_name` - Full topic name
+* `save_tx_order` - Not to split events queue into separate per-table queues.
+
+The `connection` block supports exactly one of the following attributes:
+* `cluster_id` - Identifier of the Managed Kafka cluster.
+* `on_premise` - Connection settings of the on-premise Kafka server.
+
+The `on_premise` block supports:
+* `broker_urls` (Required) List of Kafka broker URLs.
+* `subnet_id` (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `tls_mode`  (Optional) TLS settings for the server connection. Empty implies plaintext connection. The structure is documented below.
+
+The `auth` block supports exactly one of the following attributes:
+* `no_auth` - Connection without authentication data.
+* `sasl` - Authentication using sasl.
+
+---
+
+The `parser` block supports exactly one of the following attributes:
+* `audit_trails_v1_parser` - Parse Audit Trails data. Empty struct.
+* `cloud_logging_parser` - Parse Cloud Logging data. Empty struct.
+* `json_parser` - Parse data in json format.
+* `tskv_parser` - Parse data if tskv format.
+
+The `json_parser` and `tskv_parser` blocks supports:
+* `data_schema` - (Required) Data parsing scheme.The structure is documented below.
+* `add_rest_column` - Add fields, that are not in the schema, into the _rest column.
+* `null_keys_allowed` - Allow null keys. If `false` - null keys will be putted to unparsed data
+
+The `data_schema` block supports exactly one of the following attributes:
+* `fields`  - Description of the data schema in the array of `fields` structure (documented below).
+* `json_fields`- Description of the data schema as JSON specification.
+ 
+The `fields` block supports:
+* `name` - (Required) Field name.
+* `type` - (Required) Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`, `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.
+* `path` - Path to the field.
+* `required` - Mark field as required.
+* `key` -Mark field as Primary Key.
 
 ---
 

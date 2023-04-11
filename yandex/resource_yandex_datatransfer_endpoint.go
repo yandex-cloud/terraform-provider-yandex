@@ -221,7 +221,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"clickhouse_target": {
 							Type:     schema.TypeList,
@@ -435,7 +435,567 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
+						"kafka_source": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auth": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"no_auth": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.auth.0.sasl"},
+												},
+												"sasl": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"mechanism": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validateParsableValue(parseDatatransferEndpointKafkaMechanism),
+																Computed:     true,
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.auth.0.no_auth"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cluster_id": {
+													Type:          schema.TypeString,
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.connection.0.on_premise"},
+												},
+												"on_premise": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"broker_urls": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"subnet_id": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"tls_mode": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"disabled": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.enabled"},
+																		},
+																		"enabled": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"ca_certificate": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.connection.0.on_premise.0.tls_mode.0.disabled"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.connection.0.cluster_id"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"parser": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"audit_trails_v1_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.cloud_logging_parser", "settings.0.kafka_source.0.parser.0.json_parser", "settings.0.kafka_source.0.parser.0.tskv_parser"},
+												},
+												"cloud_logging_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.audit_trails_v1_parser", "settings.0.kafka_source.0.parser.0.json_parser", "settings.0.kafka_source.0.parser.0.tskv_parser"},
+												},
+												"json_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_rest_column": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"data_schema": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fields": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"fields": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"name": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"path": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"required": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"type": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateParsableValue(parseDatatransferEndpointColumnType),
+																									Computed:     true,
+																								},
+																							},
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.json_fields"},
+																		},
+																		"json_fields": {
+																			Type:          schema.TypeString,
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.json_parser.0.data_schema.0.fields"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"null_keys_allowed": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.audit_trails_v1_parser", "settings.0.kafka_source.0.parser.0.cloud_logging_parser", "settings.0.kafka_source.0.parser.0.tskv_parser"},
+												},
+												"tskv_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_rest_column": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"data_schema": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fields": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"fields": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"name": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"path": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"required": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"type": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateParsableValue(parseDatatransferEndpointColumnType),
+																									Computed:     true,
+																								},
+																							},
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.json_fields"},
+																		},
+																		"json_fields": {
+																			Type:          schema.TypeString,
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.tskv_parser.0.data_schema.0.fields"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"null_keys_allowed": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_source.0.parser.0.audit_trails_v1_parser", "settings.0.kafka_source.0.parser.0.cloud_logging_parser", "settings.0.kafka_source.0.parser.0.json_parser"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"topic_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"transformer": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"buffer_flush_interval": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"buffer_size": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"cloud_function": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"invocation_timeout": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+												"number_of_retries": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+												},
+												"service_account_id": {
+													Type:     schema.TypeString,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+						},
+						"kafka_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auth": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"no_auth": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.auth.0.sasl"},
+												},
+												"sasl": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"mechanism": {
+																Type:         schema.TypeString,
+																Optional:     true,
+																ValidateFunc: validateParsableValue(parseDatatransferEndpointKafkaMechanism),
+																Computed:     true,
+															},
+															"password": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"raw": {
+																			Sensitive: true,
+																			Type:      schema.TypeString,
+																			Optional:  true,
+																			Computed:  true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"user": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.auth.0.no_auth"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"connection": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"cluster_id": {
+													Type:          schema.TypeString,
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.connection.0.on_premise"},
+												},
+												"on_premise": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"broker_urls": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"subnet_id": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"tls_mode": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"disabled": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode.0.enabled"},
+																		},
+																		"enabled": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"ca_certificate": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.kafka_target.0.connection.0.on_premise.0.tls_mode.0.disabled"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.connection.0.cluster_id"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"topic_settings": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"topic": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"save_tx_order": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"topic_name": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.topic_settings.0.topic_prefix"},
+												},
+												"topic_prefix": {
+													Type:          schema.TypeString,
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.topic_settings.0.topic"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mongo_source": {
 							Type:     schema.TypeList,
@@ -614,7 +1174,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mongo_target": {
 							Type:     schema.TypeList,
@@ -761,7 +1321,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mysql_source": {
 							Type:     schema.TypeList,
@@ -877,6 +1437,12 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
 													Computed:     true,
 												},
+												"tables": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
+												},
 												"trigger": {
 													Type:         schema.TypeString,
 													Optional:     true,
@@ -936,7 +1502,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"mysql_target": {
 							Type:     schema.TypeList,
@@ -1072,7 +1638,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target"},
 						},
 						"postgres_source": {
 							Type:     schema.TypeList,
@@ -1260,6 +1826,12 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
 													Computed:     true,
 												},
+												"sequence_set": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validateParsableValue(parseDatatransferEndpointObjectTransferStage),
+													Computed:     true,
+												},
 												"table": {
 													Type:         schema.TypeString,
 													Optional:     true,
@@ -1331,7 +1903,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target"},
 						},
 						"postgres_target": {
 							Type:     schema.TypeList,
@@ -1452,7 +2024,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source"},
 						},
 					},
 				},
@@ -1797,6 +2369,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 									terraformAttributeName: "trigger",
 									children:               nil,
 								},
+								{
+									protobufFieldName:      "tables",
+									terraformAttributeName: "tables",
+									children:               nil,
+								},
 							},
 						},
 					},
@@ -1920,6 +2497,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 									children:               nil,
 								},
 								{
+									protobufFieldName:      "sequence_set",
+									terraformAttributeName: "sequence_set",
+									children:               nil,
+								},
+								{
 									protobufFieldName:      "table",
 									terraformAttributeName: "table",
 									children:               nil,
@@ -1952,6 +2534,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 								{
 									protobufFieldName:      "view",
 									terraformAttributeName: "view",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "materialized_view",
+									terraformAttributeName: "materialized_view",
 									children:               nil,
 								},
 								{
@@ -1989,10 +2576,236 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 									terraformAttributeName: "cast",
 									children:               nil,
 								},
+							},
+						},
+					},
+				},
+				{
+					protobufFieldName:      "kafka_source",
+					terraformAttributeName: "kafka_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
 								{
-									protobufFieldName:      "materialized_view",
-									terraformAttributeName: "materialized_view",
+									protobufFieldName:      "cluster_id",
+									terraformAttributeName: "cluster_id",
 									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "broker_urls",
+											terraformAttributeName: "broker_urls",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "auth",
+							terraformAttributeName: "auth",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "sasl",
+									terraformAttributeName: "sasl",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "mechanism",
+											terraformAttributeName: "mechanism",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "no_auth",
+									terraformAttributeName: "no_auth",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "topic_name",
+							terraformAttributeName: "topic_name",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "transformer",
+							terraformAttributeName: "transformer",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "cloud_function",
+									terraformAttributeName: "cloud_function",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "service_account_id",
+									terraformAttributeName: "service_account_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "number_of_retries",
+									terraformAttributeName: "number_of_retries",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "buffer_size",
+									terraformAttributeName: "buffer_size",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "buffer_flush_interval",
+									terraformAttributeName: "buffer_flush_interval",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "invocation_timeout",
+									terraformAttributeName: "invocation_timeout",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "parser",
+							terraformAttributeName: "parser",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "json_parser",
+									terraformAttributeName: "json_parser",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "data_schema",
+											terraformAttributeName: "data_schema",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "fields",
+													terraformAttributeName: "fields",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "fields",
+															terraformAttributeName: "fields",
+															children:               nil,
+														},
+													},
+												},
+												{
+													protobufFieldName:      "json_fields",
+													terraformAttributeName: "json_fields",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "null_keys_allowed",
+											terraformAttributeName: "null_keys_allowed",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "add_rest_column",
+											terraformAttributeName: "add_rest_column",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "audit_trails_v1_parser",
+									terraformAttributeName: "audit_trails_v1_parser",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "cloud_logging_parser",
+									terraformAttributeName: "cloud_logging_parser",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "tskv_parser",
+									terraformAttributeName: "tskv_parser",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "data_schema",
+											terraformAttributeName: "data_schema",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "fields",
+													terraformAttributeName: "fields",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "fields",
+															terraformAttributeName: "fields",
+															children:               nil,
+														},
+													},
+												},
+												{
+													protobufFieldName:      "json_fields",
+													terraformAttributeName: "json_fields",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "null_keys_allowed",
+											terraformAttributeName: "null_keys_allowed",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "add_rest_column",
+											terraformAttributeName: "add_rest_column",
+											children:               nil,
+										},
+									},
 								},
 							},
 						},
@@ -2566,6 +3379,131 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							protobufFieldName:      "cleanup_policy",
 							terraformAttributeName: "cleanup_policy",
 							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "kafka_target",
+					terraformAttributeName: "kafka_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "connection",
+							terraformAttributeName: "connection",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "cluster_id",
+									terraformAttributeName: "cluster_id",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "on_premise",
+									terraformAttributeName: "on_premise",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "broker_urls",
+											terraformAttributeName: "broker_urls",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "tls_mode",
+											terraformAttributeName: "tls_mode",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "disabled",
+													terraformAttributeName: "disabled",
+													children:               nil,
+												},
+												{
+													protobufFieldName:      "enabled",
+													terraformAttributeName: "enabled",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "ca_certificate",
+															terraformAttributeName: "ca_certificate",
+															children:               nil,
+														},
+													},
+												},
+											},
+										},
+										{
+											protobufFieldName:      "subnet_id",
+											terraformAttributeName: "subnet_id",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "auth",
+							terraformAttributeName: "auth",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "sasl",
+									terraformAttributeName: "sasl",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "user",
+											terraformAttributeName: "user",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "password",
+											terraformAttributeName: "password",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "raw",
+													terraformAttributeName: "raw",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "mechanism",
+											terraformAttributeName: "mechanism",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "no_auth",
+									terraformAttributeName: "no_auth",
+									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "topic_settings",
+							terraformAttributeName: "topic_settings",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "topic",
+									terraformAttributeName: "topic",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "topic_name",
+											terraformAttributeName: "topic_name",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "save_tx_order",
+											terraformAttributeName: "save_tx_order",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "topic_prefix",
+									terraformAttributeName: "topic_prefix",
+									children:               nil,
+								},
+							},
 						},
 					},
 				},

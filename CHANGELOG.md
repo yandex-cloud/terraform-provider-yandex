@@ -1,7 +1,8 @@
 ## 0.90.0 (Unreleased)
 FEATURES:
 * redis: support `announce_hostnames` in `yandex_mdb_redis_cluster`
-
+* datatransfer: added `kafka_source` and `kafka_target` endpoints
+* 
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
 
