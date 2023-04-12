@@ -24,26 +24,6 @@ type PostgreSQLHostSpec struct {
 }
 
 func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) {
-	poolerConf, err := flattenPGPoolerConfig(c.PoolerConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	resources, err := flattenPGResources(c.Resources)
-	if err != nil {
-		return nil, err
-	}
-
-	performanceDiagnostics, err := flattenPGPerformanceDiagnostics(c.PerformanceDiagnostics)
-	if err != nil {
-		return nil, err
-	}
-
-	access, err := flattenPGAccess(c.Access)
-	if err != nil {
-		return nil, err
-	}
-
 	settings, err := flattenPGSettings(c)
 	if err != nil {
 		return nil, err
@@ -52,42 +32,41 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	out := map[string]interface{}{}
 	out["autofailover"] = c.GetAutofailover().GetValue()
 	out["version"] = c.Version
-	out["pooler_config"] = poolerConf
-	out["resources"] = resources
+	out["pooler_config"] = flattenPGPoolerConfig(c.PoolerConfig)
+	out["resources"] = flattenPGResources(c.Resources)
 	out["backup_window_start"] = flattenMDBBackupWindowStart(c.BackupWindowStart)
 	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
-	out["performance_diagnostics"] = performanceDiagnostics
-	out["access"] = access
+	out["performance_diagnostics"] = flattenPGPerformanceDiagnostics(c.PerformanceDiagnostics)
+	out["access"] = flattenPGAccess(c.Access)
 	out["postgresql_config"] = settings
 
 	return []interface{}{out}, nil
 }
 
-func flattenPGPoolerConfig(c *postgresql.ConnectionPoolerConfig) ([]interface{}, error) {
+func flattenPGPoolerConfig(c *postgresql.ConnectionPoolerConfig) []interface{} {
 	if c == nil {
-		return nil, nil
+		return nil
 	}
 
 	out := map[string]interface{}{}
-
 	out["pool_discard"] = c.GetPoolDiscard().GetValue()
 	out["pooling_mode"] = c.GetPoolingMode().String()
 
-	return []interface{}{out}, nil
+	return []interface{}{out}
 }
 
-func flattenPGResources(r *postgresql.Resources) ([]interface{}, error) {
+func flattenPGResources(r *postgresql.Resources) []interface{} {
 	out := map[string]interface{}{}
 	out["resource_preset_id"] = r.ResourcePresetId
 	out["disk_size"] = toGigabytes(r.DiskSize)
 	out["disk_type_id"] = r.DiskTypeId
 
-	return []interface{}{out}, nil
+	return []interface{}{out}
 }
 
-func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]interface{}, error) {
+func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []interface{} {
 	if p == nil {
-		return nil, nil
+		return nil
 	}
 
 	out := map[string]interface{}{}
@@ -96,7 +75,7 @@ func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) ([]in
 	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
 
-	return []interface{}{out}, nil
+	return []interface{}{out}
 }
 
 func flattenPGSettingsSPL(settings map[string]string, c *postgresql.ClusterConfig) map[string]string {
@@ -264,19 +243,18 @@ func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 	return nil, nil
 }
 
-func flattenPGAccess(a *postgresql.Access) ([]interface{}, error) {
+func flattenPGAccess(a *postgresql.Access) []interface{} {
 	if a == nil {
-		return nil, nil
+		return nil
 	}
 
 	out := map[string]interface{}{}
-
 	out["data_lens"] = a.DataLens
 	out["web_sql"] = a.WebSql
 	out["serverless"] = a.Serverless
 	out["data_transfer"] = a.DataTransfer
 
-	return []interface{}{out}, nil
+	return []interface{}{out}
 }
 
 func flattenPGUsers(us []*postgresql.User, passwords map[string]string,
