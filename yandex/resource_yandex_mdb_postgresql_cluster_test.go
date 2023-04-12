@@ -21,7 +21,8 @@ import (
 )
 
 const (
-	pgResource = "yandex_mdb_postgresql_cluster.foo"
+	pgResource        = "yandex_mdb_postgresql_cluster.foo"
+	pgRestoreBackupId = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
 )
 
 var postgresql_versions = [...]string{"11", "11-1c", "12", "12-1c", "13", "13-1c", "14", "14-1c", "15"}
@@ -449,6 +450,7 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 
 	var cluster postgresql.Cluster
 	clusterResource := "yandex_mdb_postgresql_cluster.foo"
+	clusterName := acctest.RandomWithPrefix("postgresql-restored-cluster")
 	folderId := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
@@ -457,11 +459,11 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 		CheckDestroy: testAccCheckMDBPGClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBPGClusterConfigRestore(true),
+				Config: testAccMDBPGClusterConfigRestore(clusterName, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 
-					resource.TestCheckResourceAttr(clusterResource, "name", "PostgreSQL-Restored-Cluster"),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "folder_id", folderId),
 					resource.TestCheckResourceAttr(clusterResource, "description", "PostgreSQL Cluster Restore Test"),
 					resource.TestCheckResourceAttr(clusterResource, "config.0.access.0.web_sql", "true"),
@@ -482,7 +484,7 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 			},
 			// Uncheck deletion_protection
 			{
-				Config: testAccMDBPGClusterConfigRestore(false),
+				Config: testAccMDBPGClusterConfigRestore(clusterName, false),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
 
@@ -1580,18 +1582,17 @@ func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string
 `, version)
 }
 
-func testAccMDBPGClusterConfigRestore(deletionProtection bool) string {
+func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection bool) string {
 	return fmt.Sprintf(pgVPCDependencies+`	  
 	resource "yandex_mdb_postgresql_cluster" "foo" {
-		name        = "PostgreSQL-Restored-Cluster"
+		name        = "%s"
 		description = "PostgreSQL Cluster Restore Test"
 		environment = "PRODUCTION"
 		network_id  = yandex_vpc_network.mdb-pg-test-net.id
 		folder_id = "%s"
 
 		restore {
-			backup_id = "c9qsctum8nuh960087vb:c9qn3oppmns8djr68l5d"
-			time = "2022-12-14T11:45:30"
+			backup_id = "%s"
 		}
 	  
 		labels = {
@@ -1628,5 +1629,5 @@ func testAccMDBPGClusterConfigRestore(deletionProtection bool) string {
 		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
 		deletion_protection = %t
 	  }
-`, getExampleFolderID(), deletionProtection)
+`, clusterName, getExampleFolderID(), pgRestoreBackupId, deletionProtection)
 }

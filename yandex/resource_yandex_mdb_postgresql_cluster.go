@@ -699,14 +699,16 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *postgresql.CreateClusterRequest, backupID string) error {
 	config := meta.(*Config)
 
-	timeBackup := time.Now()
+	var timeBackup *timestamp.Timestamp = nil
 	timeInclusive := false
 
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
-		var err error
-		timeBackup, err = parseStringToTime(backupTime.(string))
+		time, err := parseStringToTime(backupTime.(string))
 		if err != nil {
 			return fmt.Errorf("Error while parsing restore.0.time to create PostgreSQL Cluster from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+		timeBackup = &timestamp.Timestamp{
+			Seconds: time.Unix(),
 		}
 	}
 
@@ -717,10 +719,8 @@ func resourceYandexMDBPostgreSQLClusterRestore(d *schema.ResourceData, meta inte
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 	request := &postgresql.RestoreClusterRequest{
-		BackupId: backupID,
-		Time: &timestamp.Timestamp{
-			Seconds: timeBackup.Unix(),
-		},
+		BackupId:           backupID,
+		Time:               timeBackup,
 		TimeInclusive:      timeInclusive,
 		Name:               createClusterRequest.Name,
 		Description:        createClusterRequest.Description,
