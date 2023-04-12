@@ -22,6 +22,173 @@ const (
 	yandexMDBClickHouseClusterUpdateTimeout = 90 * time.Minute
 )
 
+var schemaResources = map[string]*schema.Schema{
+	"resource_preset_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"disk_size": {
+		Type:     schema.TypeInt,
+		Optional: true,
+		Computed: true,
+	},
+	"disk_type_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+}
+var schemaConfig = map[string]*schema.Schema{
+	"log_level":                       {Type: schema.TypeString, Optional: true, Computed: true},
+	"max_connections":                 {Type: schema.TypeInt, Optional: true, Computed: true},
+	"max_concurrent_queries":          {Type: schema.TypeInt, Optional: true, Computed: true},
+	"keep_alive_timeout":              {Type: schema.TypeInt, Optional: true, Computed: true},
+	"uncompressed_cache_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
+	"mark_cache_size":                 {Type: schema.TypeInt, Optional: true, Computed: true},
+	"max_table_size_to_drop":          {Type: schema.TypeInt, Optional: true, Computed: true},
+	"max_partition_size_to_drop":      {Type: schema.TypeInt, Optional: true, Computed: true},
+	"timezone":                        {Type: schema.TypeString, Optional: true, Computed: true},
+	"geobase_uri":                     {Type: schema.TypeString, Optional: true, Computed: true},
+	"query_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
+	"query_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
+	"query_thread_log_enabled":        {Type: schema.TypeBool, Optional: true, Computed: true},
+	"query_thread_log_retention_size": {Type: schema.TypeInt, Optional: true, Computed: true},
+	"query_thread_log_retention_time": {Type: schema.TypeInt, Optional: true, Computed: true},
+	"part_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
+	"part_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true},
+	"metric_log_enabled":              {Type: schema.TypeBool, Optional: true, Computed: true},
+	"metric_log_retention_size":       {Type: schema.TypeInt, Optional: true, Computed: true},
+	"metric_log_retention_time":       {Type: schema.TypeInt, Optional: true, Computed: true},
+	"trace_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true},
+	"trace_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
+	"trace_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
+	"text_log_enabled":                {Type: schema.TypeBool, Optional: true, Computed: true},
+	"text_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
+	"text_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true},
+	"text_log_level":                  {Type: schema.TypeString, Optional: true, Computed: true},
+	"background_pool_size":            {Type: schema.TypeInt, Optional: true, Computed: true},
+	"background_schedule_pool_size":   {Type: schema.TypeInt, Optional: true, Computed: true},
+	"background_fetches_pool_size":    {Type: schema.TypeInt, Optional: true, Computed: true},
+	"default_database":                {Type: schema.TypeString, Optional: true, Computed: true},
+	"total_memory_profiler_step":      {Type: schema.TypeInt, Optional: true, Computed: true},
+	"merge_tree": {
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"replicated_deduplication_window":                           {Type: schema.TypeInt, Optional: true, Computed: true},
+				"replicated_deduplication_window_seconds":                   {Type: schema.TypeInt, Optional: true, Computed: true},
+				"parts_to_delay_insert":                                     {Type: schema.TypeInt, Optional: true, Computed: true},
+				"parts_to_throw_insert":                                     {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_replicated_merges_in_queue":                            {Type: schema.TypeInt, Optional: true, Computed: true},
+				"number_of_free_entries_in_pool_to_lower_max_size_of_merge": {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_bytes_to_merge_at_min_space_in_pool":                   {Type: schema.TypeInt, Optional: true, Computed: true},
+				"min_bytes_for_wide_part":                                   {Type: schema.TypeInt, Optional: true, Computed: true},
+				"min_rows_for_wide_part":                                    {Type: schema.TypeInt, Optional: true, Computed: true},
+				"ttl_only_drop_parts":                                       {Type: schema.TypeBool, Optional: true, Computed: true},
+			},
+		},
+	},
+	"kafka": {
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"security_protocol": {Type: schema.TypeString, Optional: true, Computed: true},
+				"sasl_mechanism":    {Type: schema.TypeString, Optional: true, Computed: true},
+				"sasl_username":     {Type: schema.TypeString, Optional: true, Computed: true},
+				"sasl_password":     {Type: schema.TypeString, Optional: true, Sensitive: true, Computed: true},
+			},
+		},
+	},
+	"kafka_topic": {
+		Type:     schema.TypeList,
+		MinItems: 0,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"name": {Type: schema.TypeString, Required: true},
+				"settings": {
+					Type:     schema.TypeList,
+					MinItems: 0,
+					MaxItems: 1,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"security_protocol": {Type: schema.TypeString, Optional: true},
+							"sasl_mechanism":    {Type: schema.TypeString, Optional: true},
+							"sasl_username":     {Type: schema.TypeString, Optional: true},
+							"sasl_password":     {Type: schema.TypeString, Optional: true, Sensitive: true},
+						},
+					},
+				},
+			},
+		},
+	},
+	"rabbitmq": {
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"username": {Type: schema.TypeString, Optional: true, Computed: true},
+				"password": {Type: schema.TypeString, Optional: true, Sensitive: true, Computed: true},
+				"vhost":    {Type: schema.TypeString, Optional: true, Computed: true},
+			},
+		},
+	},
+	"compression": {
+		Type:     schema.TypeList,
+		MinItems: 0,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"method":              {Type: schema.TypeString, Required: true},
+				"min_part_size":       {Type: schema.TypeInt, Required: true},
+				"min_part_size_ratio": {Type: schema.TypeFloat, Required: true},
+			},
+		},
+	},
+	"graphite_rollup": {
+		Type:     schema.TypeList,
+		MinItems: 0,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"name": {Type: schema.TypeString, Required: true},
+				"pattern": {
+					Type:     schema.TypeList,
+					MinItems: 1,
+					Optional: true,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"regexp":   {Type: schema.TypeString, Optional: true, Computed: true},
+							"function": {Type: schema.TypeString, Required: true},
+							"retention": {
+								Type:     schema.TypeList,
+								MinItems: 0,
+								Optional: true,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"age":       {Type: schema.TypeInt, Required: true},
+										"precision": {Type: schema.TypeInt, Required: true},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+}
+
 func resourceYandexMDBClickHouseCluster() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexMDBClickHouseClusterCreate,
@@ -74,154 +241,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"log_level":                       {Type: schema.TypeString, Optional: true, Computed: true},
-									"max_connections":                 {Type: schema.TypeInt, Optional: true, Computed: true},
-									"max_concurrent_queries":          {Type: schema.TypeInt, Optional: true, Computed: true},
-									"keep_alive_timeout":              {Type: schema.TypeInt, Optional: true, Computed: true},
-									"uncompressed_cache_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
-									"mark_cache_size":                 {Type: schema.TypeInt, Optional: true, Computed: true},
-									"max_table_size_to_drop":          {Type: schema.TypeInt, Optional: true, Computed: true},
-									"max_partition_size_to_drop":      {Type: schema.TypeInt, Optional: true, Computed: true},
-									"timezone":                        {Type: schema.TypeString, Optional: true, Computed: true},
-									"geobase_uri":                     {Type: schema.TypeString, Optional: true, Computed: true},
-									"query_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
-									"query_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
-									"query_thread_log_enabled":        {Type: schema.TypeBool, Optional: true, Computed: true},
-									"query_thread_log_retention_size": {Type: schema.TypeInt, Optional: true, Computed: true},
-									"query_thread_log_retention_time": {Type: schema.TypeInt, Optional: true, Computed: true},
-									"part_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
-									"part_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true},
-									"metric_log_enabled":              {Type: schema.TypeBool, Optional: true, Computed: true},
-									"metric_log_retention_size":       {Type: schema.TypeInt, Optional: true, Computed: true},
-									"metric_log_retention_time":       {Type: schema.TypeInt, Optional: true, Computed: true},
-									"trace_log_enabled":               {Type: schema.TypeBool, Optional: true, Computed: true},
-									"trace_log_retention_size":        {Type: schema.TypeInt, Optional: true, Computed: true},
-									"trace_log_retention_time":        {Type: schema.TypeInt, Optional: true, Computed: true},
-									"text_log_enabled":                {Type: schema.TypeBool, Optional: true, Computed: true},
-									"text_log_retention_size":         {Type: schema.TypeInt, Optional: true, Computed: true},
-									"text_log_retention_time":         {Type: schema.TypeInt, Optional: true, Computed: true},
-									"text_log_level":                  {Type: schema.TypeString, Optional: true, Computed: true},
-									"background_pool_size":            {Type: schema.TypeInt, Optional: true, Computed: true},
-									"background_schedule_pool_size":   {Type: schema.TypeInt, Optional: true, Computed: true},
-									"background_fetches_pool_size":    {Type: schema.TypeInt, Optional: true, Computed: true},
-									"default_database":                {Type: schema.TypeString, Optional: true, Computed: true},
-									"total_memory_profiler_step":      {Type: schema.TypeInt, Optional: true, Computed: true},
-									"merge_tree": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"replicated_deduplication_window":                           {Type: schema.TypeInt, Optional: true, Computed: true},
-												"replicated_deduplication_window_seconds":                   {Type: schema.TypeInt, Optional: true, Computed: true},
-												"parts_to_delay_insert":                                     {Type: schema.TypeInt, Optional: true, Computed: true},
-												"parts_to_throw_insert":                                     {Type: schema.TypeInt, Optional: true, Computed: true},
-												"max_replicated_merges_in_queue":                            {Type: schema.TypeInt, Optional: true, Computed: true},
-												"number_of_free_entries_in_pool_to_lower_max_size_of_merge": {Type: schema.TypeInt, Optional: true, Computed: true},
-												"max_bytes_to_merge_at_min_space_in_pool":                   {Type: schema.TypeInt, Optional: true, Computed: true},
-												"min_bytes_for_wide_part":                                   {Type: schema.TypeInt, Optional: true, Computed: true},
-												"min_rows_for_wide_part":                                    {Type: schema.TypeInt, Optional: true, Computed: true},
-												"ttl_only_drop_parts":                                       {Type: schema.TypeBool, Optional: true, Computed: true},
-											},
-										},
-									},
-									"kafka": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"security_protocol": {Type: schema.TypeString, Optional: true, Computed: true},
-												"sasl_mechanism":    {Type: schema.TypeString, Optional: true, Computed: true},
-												"sasl_username":     {Type: schema.TypeString, Optional: true, Computed: true},
-												"sasl_password":     {Type: schema.TypeString, Optional: true, Sensitive: true, Computed: true},
-											},
-										},
-									},
-									"kafka_topic": {
-										Type:     schema.TypeList,
-										MinItems: 0,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {Type: schema.TypeString, Required: true},
-												"settings": {Type: schema.TypeList,
-													MinItems: 0,
-													MaxItems: 1,
-													Optional: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"security_protocol": {Type: schema.TypeString, Optional: true},
-															"sasl_mechanism":    {Type: schema.TypeString, Optional: true},
-															"sasl_username":     {Type: schema.TypeString, Optional: true},
-															"sasl_password":     {Type: schema.TypeString, Optional: true, Sensitive: true},
-														},
-													},
-												},
-											},
-										},
-									},
-									"rabbitmq": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"username": {Type: schema.TypeString, Optional: true, Computed: true},
-												"password": {Type: schema.TypeString, Optional: true, Sensitive: true, Computed: true},
-												"vhost":    {Type: schema.TypeString, Optional: true, Computed: true},
-											},
-										},
-									},
-									"compression": {
-										Type:     schema.TypeList,
-										MinItems: 0,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"method":              {Type: schema.TypeString, Required: true},
-												"min_part_size":       {Type: schema.TypeInt, Required: true},
-												"min_part_size_ratio": {Type: schema.TypeFloat, Required: true},
-											},
-										},
-									},
-									"graphite_rollup": {
-										Type:     schema.TypeList,
-										MinItems: 0,
-										Optional: true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"name": {Type: schema.TypeString, Required: true},
-												"pattern": {
-													Type:     schema.TypeList,
-													MinItems: 1,
-													Optional: true,
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"regexp":   {Type: schema.TypeString, Optional: true, Computed: true},
-															"function": {Type: schema.TypeString, Required: true},
-															"retention": {
-																Type:     schema.TypeList,
-																MinItems: 0,
-																Optional: true,
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"age":       {Type: schema.TypeInt, Required: true},
-																		"precision": {Type: schema.TypeInt, Required: true},
-																	},
-																},
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-								},
+								Schema: schemaConfig,
 							},
 						},
 						"resources": {
@@ -231,23 +251,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Computed:         true,
 							DiffSuppressFunc: compareClusterResources,
 							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"resource_preset_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"disk_size": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-									"disk_type_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-								},
+								Schema: schemaResources,
 							},
 						},
 					},
@@ -444,23 +448,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"resource_preset_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"disk_size": {
-										Type:     schema.TypeInt,
-										Optional: true,
-										Computed: true,
-									},
-									"disk_type_id": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-								},
+								Schema: schemaResources,
 							},
 						},
 					},
