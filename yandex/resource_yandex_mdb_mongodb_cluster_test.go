@@ -21,6 +21,8 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 )
 
+const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:c9qhh0gi4hn06qkdoqke"
+
 const mongodbResource = "yandex_mdb_mongodb_cluster.foo"
 
 const mongodbVPCDependencies = `
@@ -90,6 +92,15 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{- end}}
   environment = "{{.Environment}}"
   network_id  = "${yandex_vpc_network.foo.id}"
+
+{{if .Restore}}
+  restore {
+	backup_id = "{{.Restore.BackupId}}"
+	{{if .Restore.Time}}
+	time = "{{.Restore.Time}}"
+	{{end}}
+  }
+{{end}}
 
 {{if .Lables}}
   labels = {
@@ -499,6 +510,54 @@ func create4_2ConfigData() map[string]interface{} {
 			"Type": "WEEKLY",
 			"Day":  "FRI",
 			"Hour": 20,
+		},
+		"DeletionProtection": true,
+	}
+}
+
+func createRestoreConfigData() map[string]interface{} {
+	return map[string]interface{}{
+		"Version":     "6.0",
+		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Restore": map[string]string{
+			"BackupId": mongodbRestoreBackupId,
+		},
+		"Environment": "PRESTABLE",
+		"Lables":      map[string]string{"test_key": "test_value"},
+		"BackupWindow": map[string]int64{
+			"hours":   3,
+			"minutes": 4,
+		},
+		"Access": map[string]bool{
+			"data_lens":     true,
+			"data_transfer": true,
+		},
+		"Databases": []string{"db1"},
+		"Users": []*mongodb.UserSpec{
+			{
+				Name:     "user1",
+				Password: "password",
+				Permissions: []*mongodb.Permission{
+					{
+						DatabaseName: "db1",
+						Roles:        []string{"readWrite"},
+					},
+					{
+						DatabaseName: "admin",
+						Roles:        []string{"mdbShardingManager", "mdbMonitor"},
+					},
+				},
+			},
+		},
+		"ResourcesMongod": &mongodb.Resources{
+			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+			DiskSize:         s2Micro16hdd.DiskSize >> 30,
+			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"Hosts":            mongoHosts,
+		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
+		"MaintenanceWindow": map[string]interface{}{
+			"Type": "ANYTIME",
 		},
 		"DeletionProtection": true,
 	}
@@ -1679,12 +1738,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 	t.Parallel()
 
-	configData := create4_2ConfigData()
-	configData["restore"] = map[string]string{
-		"time":      "2022-12-15T14:50:30",
-		"backup_id": "c9qf8ieda2tv19mbman9:c9qrtj74fdapfrvu68k5",
-	}
-
+	configData := createRestoreConfigData()
 	clusterName := configData["ClusterName"].(string)
 
 	var r mongodb.Cluster
@@ -1708,14 +1762,12 @@ func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
-					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
-					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"john": {"testdb"}}),
+					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"db1"}),
+					testAccCheckMDBMongoDBClusterHasUsers(mongodbResource, map[string][]string{"user1": {"db1", "admin"}}),
 					testAccCheckMDBMongoDBClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckCreatedAtAttr(mongodbResource),
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "1"),
-					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
-					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
-					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
 				),
 			},

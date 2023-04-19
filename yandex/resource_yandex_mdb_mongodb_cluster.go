@@ -799,12 +799,14 @@ func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.Resour
 func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interface{}, createClusterRequest *mongodb.CreateClusterRequest, backupID string) diag.Diagnostics {
 	config := meta.(*Config)
 
-	timeBackup := time.Now()
+	var timeBackup *mongodb.RestoreClusterRequest_RecoveryTargetSpec = nil
 	if backupTime, ok := d.GetOk("restore.0.time"); ok {
-		var err error
-		timeBackup, err = parseStringToTime(backupTime.(string))
+		time, err := parseStringToTime(backupTime.(string))
 		if err != nil {
 			return diag.Errorf("Error while parsing restore.0.time to create MongoDB Clsuter from backup %v, value: %v error: %s", backupID, backupTime, err)
+		}
+		timeBackup = &mongodb.RestoreClusterRequest_RecoveryTargetSpec{
+			Timestamp: time.Unix(),
 		}
 	}
 
@@ -812,10 +814,8 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 	defer cancel()
 
 	request := &mongodb.RestoreClusterRequest{
-		BackupId: backupID,
-		RecoveryTargetSpec: &mongodb.RestoreClusterRequest_RecoveryTargetSpec{
-			Timestamp: timeBackup.Unix(),
-		},
+		BackupId:           backupID,
+		RecoveryTargetSpec: timeBackup,
 		Name:               createClusterRequest.Name,
 		Description:        createClusterRequest.Description,
 		Labels:             createClusterRequest.Labels,
@@ -856,17 +856,6 @@ func resourceYandexMDBMongodbClusterRestore(d *schema.ResourceData, meta interfa
 
 	if _, err := op.Response(); err != nil {
 		return diag.Errorf("MongoDB Cluster creationg from backup %v failed: %s", backupID, err)
-	}
-
-	hostSpecs, err := expandMongoDBHosts(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	for _, hs := range hostSpecs {
-		if err := createMongoDBHost(ctx, config, d, hs); err != nil {
-			return diag.Errorf("MongoDB Cluster %v hosts creation from backup %v failed: %s", d.Id(), backupID, err)
-		}
 	}
 
 	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
