@@ -666,8 +666,8 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
 	res["text_log_level"] = c.EffectiveConfig.TextLogLevel.String()
 
-	if c.EffectiveConfig.BackgroundSchedulePoolSize != nil {
-		res["background_pool_size"] = c.EffectiveConfig.BackgroundSchedulePoolSize.Value
+	if c.EffectiveConfig.BackgroundPoolSize != nil {
+		res["background_pool_size"] = c.EffectiveConfig.BackgroundPoolSize.Value
 	}
 
 	if c.EffectiveConfig.BackgroundSchedulePoolSize != nil {

@@ -1038,12 +1038,12 @@ func resourceYandexMDBClickHouseClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	log.Printf("[DEBUG] read cluster resources: %v\n", chResources)
+	log.Printf("[DEBUG] read cluster clickhouse resources: %v\n", chResources)
 	chConfig, err := flattenClickHouseConfig(d, cluster.Config.Clickhouse.Config)
 	if err != nil {
 		return err
 	}
-
+	log.Printf("[DEBUG] read cluster clickhouse config: %v\n", chConfig)
 	err = d.Set("clickhouse", []map[string]interface{}{
 		{
 			"resources": chResources,

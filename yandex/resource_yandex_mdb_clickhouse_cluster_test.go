@@ -709,6 +709,54 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 	})
 }
 
+func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
+	t.Parallel()
+
+	var r clickhouse.Cluster
+	chName := acctest.RandomWithPrefix("tf-clickhouse")
+	folderID := getExampleFolderID()
+	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
+	rInt := acctest.RandInt()
+
+	backgroundPoolSize := 16
+	updatedBackgroundPoolSize := 24
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create ClickHouse Cluster with background_pool_size
+			{
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, rInt, chVersion, backgroundPoolSize),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+					// @TODO maybe in future need to check all clickhouse configs but now I add only one which related with bug
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", strconv.Itoa(backgroundPoolSize)),
+
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Update background_pool_size
+			{
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, rInt, chVersion, updatedBackgroundPoolSize),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "version", chVersion),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", strconv.Itoa(updatedBackgroundPoolSize)),
+
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+		},
+	})
+}
+
 func testAccCheckMDBClickHouseClusterDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -2993,6 +3041,40 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 }
 `, name, version, preset, diskSize)
+}
+
+func testAccMDBClickHouseClusterConfig(name, bucket string, randInt int, version string, backgroundPoolSize int) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo"{
+  name           = "%s"
+  description    = "ClickHouse Cluster update Terraform Test"
+  environment    = "PRESTABLE"
+  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  admin_password = "strong_password"
+  version        = "%s"
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  clickhouse {
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = 32
+    }
+	config {
+      background_pool_size = %d
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+}
+`, name, version, backgroundPoolSize)
 }
 
 func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {

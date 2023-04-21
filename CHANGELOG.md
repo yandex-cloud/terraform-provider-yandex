@@ -5,6 +5,7 @@ FEATURES:
 * 
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
+* clickhouse: fix bug with setting background_pool_size in config
 * mongodb: fix `yandex_mdb_mongodb_cluster` restore test
 * docs: updated description for `yandex_compute_snapshot_schedule`
 
