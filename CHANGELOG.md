@@ -6,6 +6,7 @@ FEATURES:
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
 * mongodb: fix `yandex_mdb_mongodb_cluster` restore test
+* docs: updated description for `yandex_compute_snapshot_schedule`
 
 ## 0.89.0 (April 6, 2023)
 FEATURES:
