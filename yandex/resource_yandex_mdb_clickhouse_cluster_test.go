@@ -224,36 +224,10 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowWeekly),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
-					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
-				),
-			},
-			mdbClickHouseClusterImportStep(chResource),
-			// check 'deletion_protection'
-			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt, MaintenanceWindowWeekly),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
-					resource.TestCheckResourceAttr(chResource, "deletion_protection", "true"),
-				),
-			},
 			// test 'deletion_protection
 			{
 				Config:      testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRODUCTION", true, bucketName, rInt, MaintenanceWindowWeekly),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
-			},
-			mdbClickHouseClusterImportStep(chResource),
-			// uncheck 'deletion_protection'
-			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowWeekly),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
-					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
-				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Change some options
@@ -302,6 +276,7 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResource),
 					resource.TestCheckResourceAttr(chResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(chResource, "cloud_storage.0.enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "deletion_protection", "false"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -2153,6 +2128,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   cloud_storage {
     enabled = true
   }
+
+  deletion_protection = false
 }
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
