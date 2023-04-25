@@ -2,12 +2,12 @@
 FEATURES:
 * redis: support `announce_hostnames` in `yandex_mdb_redis_cluster`
 * datatransfer: added `kafka_source` and `kafka_target` endpoints
-* 
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
 * clickhouse: fix bug with setting background_pool_size in config
 * mongodb: fix `yandex_mdb_mongodb_cluster` restore test
 * docs: updated description for `yandex_compute_snapshot_schedule`
+* **New Resource** `yandex_ydb_table`
 
 ## 0.89.0 (April 6, 2023)
 FEATURES:

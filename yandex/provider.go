@@ -327,6 +327,9 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_database_dedicated":                       resourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                      resourceYandexYDBDatabaseServerless(),
 			"yandex_ydb_topic":                                    resourceYandexYDBTopic(),
+			"yandex_ydb_table":                                    resourceYandexYDBTable(),
+			"yandex_ydb_table_changefeed":                         resourceYandexYDBTableChangefeed(),
+			"yandex_ydb_table_index":                              resourceYandexYDBTableIndex(),
 		},
 	}
 
