@@ -7,6 +7,9 @@ BUG FIXES:
 * clickhouse: fix bug with setting background_pool_size in config
 * mongodb: fix `yandex_mdb_mongodb_cluster` restore test
 * docs: updated description for `yandex_compute_snapshot_schedule`
+* certificate-manager: fix import for `yandex_cm_certificate`
+* certificate-manager: add tests for self-managed `yandex_cm_certificate`
+* certificate-manager: fix documentation
 * **New Resource** `yandex_ydb_table`
 
 ## 0.89.0 (April 6, 2023)

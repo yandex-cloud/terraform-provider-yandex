@@ -118,6 +118,11 @@ The `self_managed` block supports:
 
 ~> **NOTE:** Only one type `private_key` or `private_key_lockbox_secret` should be specified.
 
+The `private_key_lockbox_secret` block supports:
+
+* `id` - (Required) Lockbox secret Id.
+* `key` - (Required) Key of the Lockbox secret, the value of which contains the private key of the certificate.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -163,5 +168,5 @@ timeouts:
 A certificate can be imported using the `id` of the resource, e.g.:
 
 ```
-$ terraform import yandex_cm_certificate.default <certificate_id>
+$ terraform import yandex_cm_certificate.default certificate_id
 ```

@@ -28,6 +28,9 @@ func resourceYandexCMCertificate() *schema.Resource {
 		ReadContext:   resourceYandexCMCertificateRead,
 		UpdateContext: resourceYandexCMCertificateUpdate,
 		DeleteContext: resourceYandexCMCertificateDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexCMCertificateDefaultTimeout),
@@ -566,6 +569,10 @@ func yandexCMCertificateRead(id string, view certificatemanager.CertificateView,
 		}
 		if err := d.Set("not_before", getTimestamp(resp.NotBefore)); err != nil {
 			log.Printf("[ERROR] failed set field not_before: %s", err)
+			return resource.NonRetryableError(err)
+		}
+		if err := d.Set("deletion_protection", resp.DeletionProtection); err != nil {
+			log.Printf("[ERROR] failed set field deletion_protection: %s", err)
 			return resource.NonRetryableError(err)
 		}
 
