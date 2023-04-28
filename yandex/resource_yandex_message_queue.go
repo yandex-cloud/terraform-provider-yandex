@@ -325,7 +325,7 @@ func resourceYandexMessageQueueReadImpl(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			log.Printf("[ERROR] Found %s", awsErr.Code())
-			if awsErr.Code() == sqs.ErrCodeQueueDoesNotExist {
+			if awsErr.Code() == sqs.ErrCodeQueueDoesNotExist || isAWSSQSErr(err, "AccessDeniedException") {
 				d.SetId("")
 				log.Printf("[DEBUG] Message queue (%s) was not found", d.Get("name").(string))
 				return nil

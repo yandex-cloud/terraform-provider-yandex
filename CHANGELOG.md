@@ -11,6 +11,7 @@ BUG FIXES:
 * certificate-manager: add tests for self-managed `yandex_cm_certificate`
 * certificate-manager: fix documentation
 * **New Resource** `yandex_ydb_table`
+* yandex-message-queue: fixed queue creation after manual deletion
 
 ## 0.89.0 (April 6, 2023)
 FEATURES:
