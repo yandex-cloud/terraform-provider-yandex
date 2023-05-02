@@ -260,6 +260,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{if $r.Type}}
 	type 	  = "{{$r.Type}}"
 {{end}}
+{{if $r.ShardName}}
+	shard_name 	  = "{{$r.ShardName}}"
+{{end}}
   }
 {{end}}
 
@@ -1735,6 +1738,135 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 	})
 }
 
+func TestAccMDBMongoDBCluster_enableSharding(t *testing.T) {
+	t.Parallel()
+
+	configData := create6_0V1ConfigData()
+	delete(configData, "ResourcesMongos")
+	delete(configData, "ResourcesMongoCfg")
+	delete(configData, "ResourcesMongoInfra")
+	configData["Hosts"] = mongoHosts
+	clusterName := configData["ClusterName"].(string)
+	version := configData["Version"].(string)
+
+	resourcesMongoInfra := mongodb.Resources{
+		ResourcePresetId: s2Micro16hdd.ResourcePresetId,
+		DiskSize:         toBytes(13),
+		DiskTypeId:       s2Micro16hdd.DiskTypeId,
+	}
+
+	var testCluster mongodb.Cluster
+	folderID := getExampleFolderID()
+
+	updateHosts := []mongodb.Host{
+		{
+			ZoneId:    "ru-central1-a",
+			SubnetId:  "${yandex_vpc_subnet.foo.id}",
+			Type:      mongodb.Host_MONGOD,
+			ShardName: "rs02",
+		},
+		{
+			ZoneId:   "ru-central1-a",
+			SubnetId: "${yandex_vpc_subnet.foo.id}",
+			Type:     mongodb.Host_MONGOINFRA,
+		},
+		{
+			ZoneId:   "ru-central1-b",
+			SubnetId: "${yandex_vpc_subnet.bar.id}",
+			Type:     mongodb.Host_MONGOINFRA,
+		},
+		{
+			ZoneId:   "ru-central1-a",
+			SubnetId: "${yandex_vpc_subnet.foo.id}",
+			Type:     mongodb.Host_MONGOINFRA,
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			testAccCheckMDBMongoDBClusterDestroy,
+			testAccCheckVPCNetworkDestroy,
+		),
+		Steps: []resource.TestStep{
+			// Create
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ClusterDescription": "enableSharding",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &s2Small26hdd,
+					}),
+					resource.TestCheckResourceAttr(mongodbResource, "sharded", "false"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// EnableSharding
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongoInfra": &mongodb.Resources{
+						ResourcePresetId: resourcesMongoInfra.ResourcePresetId,
+						DiskSize:         resourcesMongoInfra.DiskSize >> 30,
+						DiskTypeId:       resourcesMongoInfra.DiskTypeId,
+					},
+					"Hosts": shardedMongoInfraHosts,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &s2Small26hdd,
+						"ResourcesMongoInfra": &mongodb.Resources{
+							ResourcePresetId: resourcesMongoInfra.ResourcePresetId,
+							DiskSize:         resourcesMongoInfra.DiskSize,
+							DiskTypeId:       resourcesMongoInfra.DiskTypeId,
+						},
+					}),
+					testAccCheckMDBMongoDBClusterHasShards(mongodbResource, []string{"rs01"}),
+					resource.TestCheckResourceAttr(mongodbResource, "sharded", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// delete and add shard
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"ResourcesMongoInfra": &mongodb.Resources{
+						ResourcePresetId: resourcesMongoInfra.ResourcePresetId,
+						DiskSize:         resourcesMongoInfra.DiskSize >> 30,
+						DiskTypeId:       resourcesMongoInfra.DiskTypeId,
+					},
+					"Hosts": updateHosts,
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 4),
+					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
+					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					testAccCheckMDBMongoDBClusterHasRightVersion(&testCluster, version),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"ResourcesMongod": &s2Small26hdd,
+						"ResourcesMongoInfra": &mongodb.Resources{
+							ResourcePresetId: resourcesMongoInfra.ResourcePresetId,
+							DiskSize:         resourcesMongoInfra.DiskSize,
+							DiskTypeId:       resourcesMongoInfra.DiskTypeId,
+						},
+					}),
+					testAccCheckMDBMongoDBClusterHasShards(mongodbResource, []string{"rs02"}),
+					resource.TestCheckResourceAttr(mongodbResource, "sharded", "true"),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+		},
+	})
+}
+
 func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 	t.Parallel()
 
@@ -2374,6 +2506,45 @@ func testAccCheckMDBMongoDBClusterHasDatabases(r string, databases []string) res
 		sort.Strings(databases)
 		if fmt.Sprintf("%v", dbs) != fmt.Sprintf("%v", databases) {
 			return fmt.Errorf("Cluster has wrong databases, %v. Expected %v", dbs, databases)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBMongoDBClusterHasShards(r string, shards []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[r]
+		if !ok {
+			return fmt.Errorf("Not found: %s", r)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().MongoDB().Cluster().ListShards(context.Background(), &mongodb.ListClusterShardsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		var shrds []string
+		for _, d := range resp.Shards {
+			shrds = append(shrds, d.Name)
+		}
+
+		if len(shrds) != len(shards) {
+			return fmt.Errorf("Expected %d shards, found %d", len(shards), len(shrds))
+		}
+
+		sort.Strings(shrds)
+		sort.Strings(shards)
+		if fmt.Sprintf("%v", shrds) != fmt.Sprintf("%v", shards) {
+			return fmt.Errorf("Cluster has wrong shards, %v. Expected %v", shrds, shards)
 		}
 
 		return nil

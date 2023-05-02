@@ -900,6 +900,27 @@ func listMongodbHosts(ctx context.Context, config *Config, d *schema.ResourceDat
 	return hosts, nil
 }
 
+func listMongodbShards(ctx context.Context, config *Config, d *schema.ResourceData) ([]*mongodb.Shard, error) {
+	var shards []*mongodb.Shard
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().MongoDB().Cluster().ListShards(ctx, &mongodb.ListClusterShardsRequest{
+			ClusterId: d.Id(),
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error while getting list of shards for '%s': %s", d.Id(), err)
+		}
+		shards = append(shards, resp.Shards...)
+		if resp.NextPageToken == "" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return shards, nil
+}
+
 func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 	cluster, err := config.sdk.MDB().MongoDB().Cluster().Get(ctx, &mongodb.GetClusterRequest{
@@ -1059,6 +1080,9 @@ func resourceYandexMDBMongodbClusterUpdate(ctx context.Context, d *schema.Resour
 	}
 
 	if d.HasChange("host") {
+		if err := updateMongoDBClusterShards(ctx, d, meta); err != nil {
+			return diag.FromErr(err)
+		}
 		if err := updateMongoDBClusterHosts(ctx, d, meta); err != nil {
 			return diag.FromErr(err)
 		}
@@ -1197,13 +1221,25 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return err
 	}
+	types := getSetOfHostTypes(d)
+	var sharded bool
+	if sharded = d.Get("sharded").(bool); !sharded && mapContainsOneOfKeys(types, []string{
+		mongodb.Host_MONGOINFRA.String(),
+		mongodb.Host_MONGOS.String(),
+		mongodb.Host_MONGOCFG.String(),
+	}) {
+		err := enableShardingMongoDB(ctx, config, d)
+		if err != nil {
+			return err
+		}
+	}
 
-	if d.HasChange("resources_mongoinfra") {
+	if sharded && d.HasChange("resources_mongoinfra") {
 		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.resources", flattendVersion(version))
 		updatePath = append(updatePath, resourcesSpecPath)
 	}
 
-	if d.HasChange("resources_mongocfg") {
+	if sharded && d.HasChange("resources_mongocfg") {
 		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.resources", flattendVersion(version))
 		updatePath = append(updatePath, resourcesSpecPath)
 	}
@@ -1213,7 +1249,7 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		updatePath = append(updatePath, resourcesSpecPath)
 	}
 
-	if d.HasChange("resources_mongos") {
+	if sharded && d.HasChange("resources_mongos") {
 		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.resources", flattendVersion(version))
 		updatePath = append(updatePath, resourcesSpecPath)
 	}
@@ -1350,21 +1386,69 @@ func updateMongoDBClusterHosts(ctx context.Context, d *schema.ResourceData, meta
 
 	toDelete, toAdd := mongodbHostsDiff(currHosts, targetHosts)
 
+	for _, hs := range toAdd {
+		for _, h := range hs {
+			err = createMongoDBHost(ctx, config, d, h)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+
 	for _, hs := range toDelete {
 		for _, h := range hs {
-			err := deleteMongoDBHost(ctx, config, d, h)
+			err = deleteMongoDBHost(ctx, config, d, h)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	for _, hs := range toAdd {
-		for _, h := range hs {
-			err := createMongoDBHost(ctx, config, d, h)
-			if err != nil {
-				return err
-			}
+	return nil
+}
+
+func updateMongoDBClusterShards(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	var currShards = make(map[string]struct{})
+	var targetShards = make(map[string][]*mongodb.HostSpec)
+
+	shards, err := listMongodbShards(ctx, config, d)
+	if err != nil {
+		return err
+	}
+	for _, shard := range shards {
+		currShards[shard.Name] = struct{}{}
+	}
+	targetHosts, err := expandMongoDBHosts(d)
+	if err != nil {
+		return err
+	}
+	for _, h := range targetHosts {
+		if h.Type == mongodb.Host_MONGOD {
+			targetShards[h.ShardName] = append(targetShards[h.ShardName], h)
+		}
+	}
+
+	if _, hasHostWithEmptyShard := targetShards[""]; len(targetShards) <= 2 && hasHostWithEmptyShard {
+		targetShards[shards[0].Name] = append(targetShards[shards[0].Name], targetShards[""]...)
+		delete(targetShards, "")
+	}
+
+	toDelete, toAdd := mongodbShardsDiff(currShards, targetShards)
+
+	for _, shName := range toAdd {
+		err = createMongoDBShard(ctx, config, d, shName, targetShards[shName])
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, shName := range toDelete {
+		err = deleteMongoDBShard(ctx, config, d, shName)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -1499,17 +1583,107 @@ func deleteMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceDa
 	return nil
 }
 
+func createMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, hosts []*mongodb.HostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MongoDB().Cluster().AddShard(ctx, &mongodb.AddClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: shardName,
+			HostSpecs: hosts,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to add shard to MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while adding shard to MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deleteMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MongoDB().Cluster().DeleteShard(ctx, &mongodb.DeleteClusterShardRequest{
+			ClusterId: d.Id(),
+			ShardName: shardName,
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to delete shard from MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while deleting shard from MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func enableShardingMongoDB(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	_, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra := getResources(d)
+	hosts, err := expandMongoDBHosts(d)
+	if err != nil {
+		return fmt.Errorf("Error while expanding hosts on enable sharding MongoDB Cluster : %s", err)
+	}
+	var hostsWithoutD []*mongodb.HostSpec
+	for _, host := range hosts {
+		if host.Type != mongodb.Host_MONGOD {
+			hostsWithoutD = append(hostsWithoutD, host)
+		}
+	}
+	var mongoinfra *mongodb.EnableClusterShardingRequest_MongoInfra
+	var mongocfg *mongodb.EnableClusterShardingRequest_MongoCfg
+	var mongos *mongodb.EnableClusterShardingRequest_Mongos
+	if resourcesMongoInfra != nil {
+		mongoinfra = &mongodb.EnableClusterShardingRequest_MongoInfra{
+			Resources: resourcesMongoInfra,
+		}
+	}
+	if resourcesMongos != nil {
+		mongos = &mongodb.EnableClusterShardingRequest_Mongos{
+			Resources: resourcesMongos,
+		}
+	}
+	if resourcesMongoCfg != nil {
+		mongocfg = &mongodb.EnableClusterShardingRequest_MongoCfg{
+			Resources: resourcesMongoCfg,
+		}
+	}
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().MongoDB().Cluster().EnableSharding(ctx, &mongodb.EnableClusterShardingRequest{
+		ClusterId:  d.Id(),
+		Mongoinfra: mongoinfra,
+		Mongos:     mongos,
+		Mongocfg:   mongocfg,
+		HostSpecs:  hostsWithoutD,
+	}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to enable sharding MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while enabling sharding MongoDB Cluster %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
 func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec) (map[string][]string, map[string][]*mongodb.HostSpec) {
 	m := map[string][]*mongodb.HostSpec{}
 
 	for _, h := range targetHosts {
 		key := h.Type.String() + h.ZoneId + h.SubnetId
+		if h.Type == mongodb.Host_MONGOD {
+			key = key + h.ShardName
+		}
 		m[key] = append(m[key], h)
 	}
 
 	toDelete := map[string][]string{}
 	for _, h := range currHosts {
 		key := h.Type.String() + h.ZoneId + h.SubnetId
+		if h.Type == mongodb.Host_MONGOD {
+			key = key + h.ShardName
+		}
 		hs, ok := m[key]
 		if !ok {
 			toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
@@ -1525,6 +1699,23 @@ func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec
 	for _, hs := range m {
 		for _, h := range hs {
 			toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
+		}
+	}
+
+	return toDelete, toAdd
+}
+
+func mongodbShardsDiff(currShards map[string]struct{}, targetShards map[string][]*mongodb.HostSpec) ([]string, []string) {
+	var toDelete []string
+	for shardName := range currShards {
+		if _, ok := targetShards[shardName]; !ok {
+			toDelete = append(toDelete, shardName)
+		}
+	}
+	var toAdd []string
+	for shardName := range targetShards {
+		if _, ok := currShards[shardName]; !ok {
+			toAdd = append(toAdd, shardName)
 		}
 	}
 
@@ -1572,4 +1763,13 @@ func mongodbChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*mongodb.
 		}
 	}
 	return result
+}
+
+func mapContainsOneOfKeys(set map[string]struct{}, keys []string) bool {
+	for _, key := range keys {
+		if _, ok := set[key]; ok {
+			return true
+		}
+	}
+	return false
 }

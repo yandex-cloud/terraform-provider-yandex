@@ -2,6 +2,9 @@
 FEATURES:
 * redis: support `announce_hostnames` in `yandex_mdb_redis_cluster`
 * datatransfer: added `kafka_source` and `kafka_target` endpoints
+* mongodb: add the ability to enable sharding in created clusters
+* mongodb: support for adding and deleting shards in a sharded mongodb
+
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
 * clickhouse: fix bug with setting background_pool_size in config
