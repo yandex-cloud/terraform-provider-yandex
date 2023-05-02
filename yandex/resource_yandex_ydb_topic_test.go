@@ -53,6 +53,15 @@ func testAccYDBTopicConfig(
 	resource "yandex_ydb_topic" "%s" {
 		name = "%s"
 		database_endpoint = "${yandex_ydb_database_serverless.%s.ydb_full_endpoint}"
+		supported_codecs = ["gzip"]
+		consumer {
+			name = "consumer"
+			supported_codecs = ["gzip"]
+		}
+		retention_period_hours = 12
+		partition_write_speed_kbps = 128
+		metering_mode = "reserved_capacity"
+		partitions_count = 4
 	}
 	`,
 		subnetsConfig,
