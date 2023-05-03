@@ -34,7 +34,7 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the virtual host. Provided by the client when the virtual host is created.
 
-* `"http_router_id` - (Required) The ID of the HTTP router to which the virtual host belongs.
+* `http_router_id` - (Required) The ID of the HTTP router to which the virtual host belongs.
 
 * `authority` - (Optional) A list of domains (host/authority header) that will be matched to this virtual host. Wildcard
   hosts are supported in the form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
