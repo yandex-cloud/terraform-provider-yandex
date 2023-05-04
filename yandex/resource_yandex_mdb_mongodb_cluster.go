@@ -1235,23 +1235,31 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if sharded && d.HasChange("resources_mongoinfra") {
-		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.resources", flattendVersion(version))
-		updatePath = append(updatePath, resourcesSpecPath)
+		if compareResources(d, "resources", "resources_mongoinfra") {
+			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.resources", flattendVersion(version))
+			updatePath = append(updatePath, resourcesSpecPath)
+		}
 	}
 
 	if sharded && d.HasChange("resources_mongocfg") {
-		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.resources", flattendVersion(version))
-		updatePath = append(updatePath, resourcesSpecPath)
+		if compareResources(d, "resources", "resources_mongocfg") {
+			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.resources", flattendVersion(version))
+			updatePath = append(updatePath, resourcesSpecPath)
+		}
 	}
 
 	if d.HasChange("resources_mongod") || d.HasChange("resources") {
-		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
-		updatePath = append(updatePath, resourcesSpecPath)
+		if compareResources(d, "resources", "resources_mongod") {
+			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
+			updatePath = append(updatePath, resourcesSpecPath)
+		}
 	}
 
 	if sharded && d.HasChange("resources_mongos") {
-		resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.resources", flattendVersion(version))
-		updatePath = append(updatePath, resourcesSpecPath)
+		if compareResources(d, "resources", "resources_mongos") {
+			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.resources", flattendVersion(version))
+			updatePath = append(updatePath, resourcesSpecPath)
+		}
 	}
 
 	if d.HasChange("cluster_config.0.mongod") {
@@ -1768,6 +1776,38 @@ func mongodbChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*mongodb.
 func mapContainsOneOfKeys(set map[string]struct{}, keys []string) bool {
 	for _, key := range keys {
 		if _, ok := set[key]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// func to compare resources for migrate from resources to resources_*
+func compareResources(d *schema.ResourceData, cfg1, cfg2 string) bool {
+	if d.HasChange(cfg1) != d.HasChange(cfg2) {
+		return true
+	}
+	cfg1Delete, cfg1Add := d.GetChange(cfg1)
+	cfg2Delete, cfg2Add := d.GetChange(cfg2)
+
+	var resourcesOld, resourcesNew map[string]interface{}
+	if len(cfg1Delete.([]interface{})) == 1 && len(cfg2Add.([]interface{})) == 1 {
+		resourcesOld = cfg1Delete.([]interface{})[0].(map[string]interface{})
+		resourcesNew = cfg2Add.([]interface{})[0].(map[string]interface{})
+	} else if len(cfg2Delete.([]interface{})) == 1 && len(cfg1Add.([]interface{})) == 1 {
+		resourcesOld = cfg2Delete.([]interface{})[0].(map[string]interface{})
+		resourcesNew = cfg1Add.([]interface{})[0].(map[string]interface{})
+	} else {
+		return true
+	}
+
+	if len(resourcesOld) != len(resourcesNew) {
+		return true
+	}
+
+	for k, vOld := range resourcesOld {
+		vNew := resourcesNew[k]
+		if vNew != vOld {
 			return true
 		}
 	}
