@@ -1,4 +1,6 @@
-## 0.90.0 (Unreleased)
+## 0.91.0 (Unreleased)
+
+## 0.90.0 (May 4, 2023)
 FEATURES:
 * redis: support `announce_hostnames` in `yandex_mdb_redis_cluster`
 * datatransfer: added `kafka_source` and `kafka_target` endpoints
