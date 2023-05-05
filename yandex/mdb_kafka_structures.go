@@ -846,22 +846,23 @@ func flattenKafkaTopicConfig3(topicConfig *kafka.TopicConfig3) map[string]interf
 	return result
 }
 
+func flattenKafkaUserPermissions(user *kafka.User) *schema.Set {
+	result := schema.NewSet(kafkaUserPermissionHash, nil)
+	for _, perm := range user.Permissions {
+		p := map[string]interface{}{}
+		p["topic_name"] = perm.TopicName
+		p["role"] = perm.Role.String()
+		result.Add(p)
+	}
+	return result
+}
+
 func flattenKafkaUsers(users []*kafka.User, passwords map[string]string) *schema.Set {
 	result := schema.NewSet(kafkaUserHash, nil)
-
 	for _, user := range users {
 		u := map[string]interface{}{}
 		u["name"] = user.Name
-
-		perms := schema.NewSet(kafkaUserPermissionHash, nil)
-		for _, perm := range user.Permissions {
-			p := map[string]interface{}{}
-			p["topic_name"] = perm.TopicName
-			p["role"] = perm.Role.String()
-			perms.Add(p)
-		}
-		u["permission"] = perms
-
+		u["permission"] = flattenKafkaUserPermissions(user)
 		if p, ok := passwords[user.Name]; ok {
 			u["password"] = p
 		}

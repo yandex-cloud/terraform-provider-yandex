@@ -1,4 +1,7 @@
 ## 0.91.0 (Unreleased)
+FEATURES:
+* mdb: Kafka user management via dedicated resource `yandex_mdb_kafka_user` is implemented
+
 BUG FIXES:
 * mongodb: fix migrate from  `resources` to `resources_*` without changes
 

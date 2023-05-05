@@ -205,7 +205,7 @@ The following arguments are supported:
 
 * `config` - (Required) Configuration of the Kafka cluster. The structure is documented below.
 
-* `user` - (Optional) A user of the Kafka cluster. The structure is documented below.
+* `user` - (Deprecated) To manage users, please switch to using a separate resource type `yandex_mdb_kafka_user`.
 
 * `topic` - (Deprecated) To manage topics, please switch to using a separate resource type `yandex_mdb_kafka_topic`.
 
@@ -299,7 +299,8 @@ The `access` block supports:
 
 * `data_transfer` - Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
-The `user` block supports:
+The `user` block is deprecated. To manage users, please switch to using a separate resource type
+`yandex_mdb_kafka_user`. The `user` block supports:
 
 * `name` - (Required) The name of the user.
 

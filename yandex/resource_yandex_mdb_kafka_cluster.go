@@ -88,10 +88,11 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Deprecated: useResourceInstead("topic", "yandex_mdb_kafka_topic"),
 			},
 			"user": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Set:      kafkaUserHash,
-				Elem:     resourceYandexMDBKafkaUser(),
+				Type:       schema.TypeSet,
+				Optional:   true,
+				Set:        kafkaUserHash,
+				Elem:       resourceYandexMDBKafkaClusterUserBlock(),
+				Deprecated: useResourceInstead("user", "yandex_mdb_kafka_user"),
 			},
 			"folder_id": {
 				Type:     schema.TypeString,
@@ -298,7 +299,7 @@ func resourceYandexMDBKafkaClusterTopicBlock() *schema.Resource {
 	}
 }
 
-func resourceYandexMDBKafkaUser() *schema.Resource {
+func resourceYandexMDBKafkaClusterUserBlock() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -748,18 +749,24 @@ func resourceYandexMDBKafkaClusterRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	dUsers, err := expandKafkaUsers(d)
-	if err != nil {
-		return err
-	}
-	passwords := kafkaUsersPasswords(dUsers)
+	if len(d.Get("user").(*schema.Set).List()) == 0 {
+		if err := d.Set("user", schema.NewSet(kafkaUserHash, nil)); err != nil {
+			return err
+		}
+	} else {
+		dUsers, err := expandKafkaUsers(d)
+		if err != nil {
+			return err
+		}
+		passwords := kafkaUsersPasswords(dUsers)
 
-	users, err := listKafkaUsers(ctx, config, d.Id())
-	if err != nil {
-		return err
-	}
-	if err := d.Set("user", flattenKafkaUsers(users, passwords)); err != nil {
-		return err
+		users, err := listKafkaUsers(ctx, config, d.Id())
+		if err != nil {
+			return err
+		}
+		if err := d.Set("user", flattenKafkaUsers(users, passwords)); err != nil {
+			return err
+		}
 	}
 
 	hosts, err := listKafkaHosts(ctx, config, d.Id())
@@ -1226,12 +1233,15 @@ func createKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData
 		return config.sdk.MDB().Kafka().User().Create(ctx, req)
 	})
 	if err != nil {
-		return fmt.Errorf("error while requesting API to create user in Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to create user %q in Kafka Cluster %q: %s", userSpec.Name, d.Id(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while adding user to Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while waiting for Kafka user %q in cluster %q create operation: %s", userSpec.Name, d.Id(), err)
+	}
+	if _, err = op.Response(); err != nil {
+		return fmt.Errorf("kafka user %q creation failed in cluster %q: %s", userSpec.Name, d.Id(), err)
 	}
 	log.Printf("[DEBUG] Finished creating Kafka user %q", userSpec.Name)
 	return nil
@@ -1270,7 +1280,7 @@ func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceDat
 					Permissions: user.Permissions,
 					UpdateMask:  &field_mask.FieldMask{Paths: updatePaths},
 				}
-				err = updateKafkaUser(ctx, config, d, req)
+				err = updateKafkaUser(ctx, config, req)
 				if err != nil {
 					return err
 				}
@@ -1280,18 +1290,17 @@ func updateKafkaUsers(ctx context.Context, config *Config, d *schema.ResourceDat
 	return nil
 }
 
-func updateKafkaUser(ctx context.Context, config *Config, d *schema.ResourceData, req *kafka.UpdateUserRequest) error {
+func updateKafkaUser(ctx context.Context, config *Config, req *kafka.UpdateUserRequest) error {
 	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
 		log.Printf("[DEBUG] Updating Kafka user %q: %+v", req.UserName, req)
 		return config.sdk.MDB().Kafka().User().Update(ctx, req)
 	})
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update user in Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to update user %q in Kafka Cluster %q: %s", req.UserName, req.ClusterId, err)
 	}
-
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating user in Kafka Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while updating user %q in Kafka Cluster %q: %s", req.UserName, req.ClusterId, err)
 	}
 	log.Printf("[DEBUG] Finished updating Kafka user %q", req.UserName)
 	return nil

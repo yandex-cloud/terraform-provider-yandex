@@ -73,13 +73,13 @@ func dataSourceYandexMDBKafkaCluster() *schema.Resource {
 			"topic": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     resourceYandexMDBKafkaTopic(),
+				Elem:     resourceYandexMDBKafkaClusterTopicBlock(),
 			},
 			"user": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Set:      kafkaUserHash,
-				Elem:     resourceYandexMDBKafkaUser(),
+				Elem:     resourceYandexMDBKafkaClusterUserBlock(),
 			},
 			"security_group_ids": {
 				Type:     schema.TypeSet,

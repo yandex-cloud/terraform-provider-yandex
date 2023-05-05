@@ -28,7 +28,14 @@ data "yandex_mdb_kafka_topic" "baz" {
 }
 `
 
-func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
+const mdbKafkaUserDataSourceConfig = `
+data "yandex_mdb_kafka_user" "bax" {
+	cluster_id = yandex_mdb_kafka_cluster.foo.id
+	name = "alice"
+}
+`
+
+func TestAccDataSourceMDBKafkaClusterAndTopicAndUser(t *testing.T) {
 	t.Parallel()
 
 	clusterName := acctest.RandomWithPrefix("ds-kf-by-id")
@@ -36,6 +43,7 @@ func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
 	resourceName := "yandex_mdb_kafka_cluster.foo"
 	clusterDatasource := "data.yandex_mdb_kafka_cluster.bar"
 	topicDatasource := "data.yandex_mdb_kafka_topic.baz"
+	userDatasource := "data.yandex_mdb_kafka_user.bax"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -67,6 +75,9 @@ func TestAccDataSourceMDBKafkaClusterAndTopic(t *testing.T) {
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.max_message_bytes", "777216"),
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.segment_bytes", "134217728"),
 					resource.TestCheckResourceAttr(topicDatasource, "topic_config.0.flush_ms", "9223372036854775807"),
+
+					resource.TestCheckResourceAttr(userDatasource, "password", "password"),
+					resource.TestCheckResourceAttr(userDatasource, "permission.#", "1"),
 				),
 			},
 		},
