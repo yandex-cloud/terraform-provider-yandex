@@ -1066,7 +1066,7 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
 
 	newResourcesV1 := mongodb.Resources{
 		ResourcePresetId: s2Small26hdd.ResourcePresetId,
-		DiskSize:         toBytes(30),
+		DiskSize:         toBytes(28),
 		DiskTypeId:       s2Small26hdd.DiskTypeId,
 	}
 	resource.Test(t, resource.TestCase{
@@ -1145,7 +1145,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 	}
 	newResourcesMongodV1 := mongodb.Resources{
 		ResourcePresetId: s2Small26hdd.ResourcePresetId,
-		DiskSize:         toBytes(28),
+		DiskSize:         toBytes(27),
 		DiskTypeId:       s2Small26hdd.DiskTypeId,
 	}
 	newResourcesMongosV1 := mongodb.Resources{

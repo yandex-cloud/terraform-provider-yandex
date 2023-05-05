@@ -84,9 +84,9 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the MongoDB cluster. Provided by the client when the cluster is created.
 
-* `network_id` - (Required) ID of the network, to which the MongoDB cluster belongs.
+* `network_id` - (Required, ForceNew) ID of the network, to which the MongoDB cluster belongs.
 
-* `environment` - (Required) Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
+* `environment` - (Required, ForceNew) Deployment environment of the MongoDB cluster. Can be either `PRESTABLE` or `PRODUCTION`.
 
 * `cluster_config` - (Required) Configuration of the MongoDB subcluster. The structure is documented below.
 
@@ -108,17 +108,16 @@ The following arguments are supported:
 
 - - -
 
-* `version` - (Optional) Version of the MongoDB server software. Can be either `4.2`, `4.4`, `4.4-enterprise`, `5.0`, `5.0-enterprise`, `6.0` and `6.0-enterprise`.
-
 * `description` - (Optional) Description of the MongoDB cluster.
-
-* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it
-    is not provided, the default provider folder is used.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the MongoDB cluster.
 
+* `folder_id` - (Optional) The ID of the folder that the resource belongs to. If it
+  is not provided, the default provider folder is used.
 
 * `security_group_ids` - (Optional) A set of ids of security groups assigned to hosts of the cluster.
+
+* `maintenance_window` - (Optional) Maintenance window settings of the MongoDB cluster. The structure is documented below.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 - - -
@@ -129,15 +128,19 @@ The following arguments are supported:
 
 The `cluster_config` block supports:
 
-* `version` - (Required) Version of MongoDB (either 5.0, 4.4, 4.2 or 4.0).
+* `version` - (Required) Version of the MongoDB server software. Can be either `4.2`, `4.4`, `4.4-enterprise`, `5.0`, `5.0-enterprise`, `6.0` and `6.0-enterprise`.
 
-* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken. Can be either `5.0`, `4.4`, `4.2` and `4.0`.
+* `feature_compatibility_version` - (Optional) Feature compatibility version of MongoDB. If not provided version is taken. Can be either `6.0`, `5.0`, `4.4` and `4.2`.
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 * `access` - (Optional) Access policy to the MongoDB cluster. The structure is documented below.
 
 * `mongod` - (Optional) Configuration of the mongod service. The structure is documented below.
+
+* `mongocfg` - (Optional) Configuration of the mongocfg service. The structure is documented below.
+
+* `mongos` - (Optional) Configuration of the mongos service. The structure is documented below.
 
 The `backup_window_start` block supports:
 
@@ -189,7 +192,7 @@ The `host` block supports:
   
 * `assign_public_ip` -(Optional)  Should this host have assigned public IP assigned. Can be either `true` or `false`.
 
-* `shard_name` - (Optional) The name of the shard to which the host belongs.
+* `shard_name` - (Optional) The name of the shard to which the host belongs. Only for sharded cluster.
 
 * `type` - (Optional) type of mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to mongod.
 
@@ -268,6 +271,10 @@ The `audit_log` block supports:
   For more information see [auditLog.filter](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.filter)
   description in the official documentation. Available only in enterprise edition.
 
+* `runtime_configuration` - (Optional) Specifies if a node allows runtime configuration of audit filters and the auditAuthorizationSuccess variable.
+  For more information see [auditLog.runtimeConfiguration](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-auditLog.runtimeConfiguration)
+  description in the official documentation. Available only in enterprise edition.
+
 
 The `set_parameter` block supports:
 
@@ -311,7 +318,7 @@ The `wired_tiger` block supports:
   description in the official documentation.
 
 * `block_compressor` - (Optional) Specifies the default compression for collection data. You can override this on a per-collection basis when creating collections.
-  Available compressors are: none, snappy, zlib, zstd (Available starting MongoDB 4.2). This setting available only on `mongod` hosts.
+  Available compressors are: none, snappy, zlib, zstd. This setting available only on `mongod` hosts.
   For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor)
   description in the official documentation.
 
