@@ -243,38 +243,68 @@ func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schem
 	return result
 }
 
-// Takes the current list of hosts and the desirable list of hosts.
-// Returns the map of hostnames to delete grouped by shard,
-// and the map of hosts to add grouped by shard as well.
-// All the ZOOKEEPER hosts will reside under the key "zk".
-func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse.HostSpec) (map[string][]string, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.UpdateHostSpec) {
-	m := map[string][]*clickhouse.HostSpec{}
-	mKeys := []string{}
+func createKey(hostType clickhouse.Host_Type, zoneId, shardName string) string {
+	if hostType == clickhouse.Host_ZOOKEEPER {
+		shardName = "zk"
+	}
+	return hostType.String() + zoneId + shardName
+}
 
-	for _, h := range targetHosts {
-		shardName := "shard1"
-		if h.ShardName != "" {
-			shardName = h.ShardName
-		}
-		if h.Type == clickhouse.Host_ZOOKEEPER {
-			shardName = "zk"
-		}
-		key := h.Type.String() + h.ZoneId + shardName
-		m[key] = append(m[key], h)
-		mKeys = append(mKeys, key)
+func getKey(h *clickhouse.HostSpec) string {
+	if h == nil {
+		log.Println("[ERROR] host is nil. failed create key")
+		return ""
+	}
+	shardName := "shard1"
+	if h.ShardName != "" {
+		shardName = h.ShardName
+	}
+	key := createKey(h.Type, h.ZoneId, shardName)
+
+	return key
+}
+
+func getKeyChangesHosts(h *clickhouse.Host) string {
+	if h == nil {
+		log.Println("[ERROR] host is nil. failed create key")
+		return ""
 	}
 
+	key := createKey(h.Type, h.ZoneId, h.ShardName)
+	return key
+}
+
+func getHostsToAdd(keysHosts map[string][]*clickhouse.HostSpec, mKeys []string) map[string][]*clickhouse.HostSpec {
+	toAdd := map[string][]*clickhouse.HostSpec{}
+
+	for _, key := range mKeys {
+		hs, ok := keysHosts[key]
+		if !ok {
+			continue
+		}
+		for _, h := range hs {
+			if h.Type == clickhouse.Host_ZOOKEEPER {
+				toAdd["zk"] = append(toAdd["zk"], h)
+			} else {
+				toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
+			}
+			break
+		}
+	}
+
+	return toAdd
+}
+
+func getChangesHosts(currHosts []*clickhouse.Host, keysHosts map[string][]*clickhouse.HostSpec) (map[string][]string, map[string]*clickhouse.UpdateHostSpec) {
 	toDelete := map[string][]string{}
 	toUpdate := map[string]*clickhouse.UpdateHostSpec{}
+
 	for _, h := range currHosts {
-		shardName := h.ShardName
-		if h.Type == clickhouse.Host_ZOOKEEPER {
-			shardName = "zk"
-		}
-		key := h.Type.String() + h.ZoneId + shardName
-		hs, ok := m[key]
+		key := getKeyChangesHosts(h)
+
+		hs, ok := keysHosts[key]
 		if !ok {
-			toDelete[shardName] = append(toDelete[h.ShardName], h.Name)
+			toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
 		} else {
 			updateRequired := false
 			uh := &clickhouse.UpdateHostSpec{HostName: h.Name, UpdateMask: &field_mask.FieldMask{}}
@@ -288,26 +318,31 @@ func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse
 			}
 		}
 		if len(hs) > 1 {
-			m[key] = hs[1:]
+			keysHosts[key] = hs[1:]
 		} else {
-			delete(m, key)
+			delete(keysHosts, key)
 		}
 	}
 
-	toAdd := map[string][]*clickhouse.HostSpec{}
-	for _, key := range mKeys {
-		hs, ok := m[key]
-		if !ok {
-			continue
-		}
-		for _, h := range hs {
-			if h.Type == clickhouse.Host_ZOOKEEPER {
-				toAdd["zk"] = append(toAdd["zk"], h)
-			} else {
-				toAdd[h.ShardName] = append(toAdd[h.ShardName], h)
-			}
-		}
+	return toDelete, toUpdate
+}
+
+// Takes the current list of hosts and the desirable list of hosts.
+// Returns the map of hostnames to delete grouped by shard,
+// and the map of hosts to add grouped by shard as well.
+// All the ZOOKEEPER hosts will reside under the key "zk".
+func clickHouseHostsDiff(currHosts []*clickhouse.Host, targetHosts []*clickhouse.HostSpec) (map[string][]string, map[string][]*clickhouse.HostSpec, map[string]*clickhouse.UpdateHostSpec) {
+	keysHosts := map[string][]*clickhouse.HostSpec{}
+	var mKeys []string
+
+	for _, h := range targetHosts {
+		key := getKey(h)
+		keysHosts[key] = append(keysHosts[key], h)
+		mKeys = append(mKeys, key)
 	}
+
+	toDelete, toUpdate := getChangesHosts(currHosts, keysHosts)
+	toAdd := getHostsToAdd(keysHosts, mKeys)
 
 	return toDelete, toAdd, toUpdate
 }

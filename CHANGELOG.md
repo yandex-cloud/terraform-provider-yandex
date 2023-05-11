@@ -4,6 +4,7 @@ FEATURES:
 
 BUG FIXES:
 * mongodb: fix migrate from  `resources` to `resources_*` without changes
+* clickhouse: fix bug with count zookeepers
 
 ## 0.90.0 (May 4, 2023)
 FEATURES:

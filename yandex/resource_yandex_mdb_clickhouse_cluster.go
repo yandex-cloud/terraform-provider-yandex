@@ -943,6 +943,8 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 	}
 
 	_, toAdd, _ := clickHouseHostsDiff(nil, hosts)
+	log.Printf("[DEBUG] hosts to add: %v\n", toAdd)
+
 	firstHosts := toAdd["zk"]
 	firstShard := ""
 	delete(toAdd, "zk")
@@ -1511,6 +1513,10 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	toDelete, toAdd, toUpdate := clickHouseHostsDiff(currHosts, targetHosts)
+
+	log.Printf("[DEBUG] hosts to delete: %v\n", toDelete)
+	log.Printf("[DEBUG] hosts to add: %v\n", toAdd)
+	log.Printf("[DEBUG] hosts to update: %v\n", toUpdate)
 
 	for _, h := range toUpdate {
 		err = updateClickHouseHost(ctx, config, d, h)

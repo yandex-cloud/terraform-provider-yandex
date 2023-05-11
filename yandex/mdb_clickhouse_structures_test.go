@@ -1,12 +1,11 @@
 package yandex
 
 import (
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/genproto/protobuf/field_mask"
-	"google.golang.org/protobuf/types/known/wrapperspb"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 )
 
@@ -23,7 +22,7 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 		toUpdate map[string]*clickhouse.UpdateHostSpec
 	}{
 		{
-			name: "simple case add host",
+			name: "add shard to another subnet",
 			args: args{
 				currHostsSingleHost,
 				targetHostsTwoHosts,
@@ -42,7 +41,464 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
 		},
 		{
-			name: "add host and zk",
+			name: "add 2 host (one shard) in 1 subnet and 3 zk in 1 subnet",
+			args: args{
+				nil,
+				[]*clickhouse.HostSpec{
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+			},
+			toDelete: map[string][]string{},
+			toAdd: map[string][]*clickhouse.HostSpec{
+				"shard1": {
+					{
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+				},
+				"zk": {
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+			},
+			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
+		},
+		{
+			name: "add 2 host (two shards in 1 subnet) and 3 zk in 1 subnet",
+			args: args{
+				nil,
+				[]*clickhouse.HostSpec{
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard2",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+			},
+			toDelete: map[string][]string{},
+			toAdd: map[string][]*clickhouse.HostSpec{
+				"shard1": {
+					{
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+				},
+				"shard2": {
+					{
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard2",
+						SubnetId:  "subnet-a",
+					},
+				},
+				"zk": {
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+			},
+			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
+		},
+		{
+			name: "add 2 host (one shard in different subnets) and 3 zk in 2 subnets",
+			args: args{
+				nil,
+				targetHostsZooIn2Subnets,
+			},
+			toDelete: map[string][]string{},
+			toAdd: map[string][]*clickhouse.HostSpec{
+				"shard1": {
+					{
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						ZoneId:    "ru-central1-b",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-b",
+					},
+				},
+				"zk": {
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+			},
+			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
+		},
+		{
+			name: "exists 2 hosts(2 shards in 1 subnets) and 3 zk in 1 subnets. move to another subnet",
+			args: args{
+				[]*clickhouse.Host{
+					{
+						Name:      "first_host",
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Name:      "second_host",
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard2",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+				[]*clickhouse.HostSpec{
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-b",
+						ShardName: "shard1",
+						SubnetId:  "subnet-b",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-b",
+						ShardName: "shard2",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+				},
+			},
+			toDelete: map[string][]string{
+				"shard1": {"first_host"},
+				"shard2": {"second_host"},
+				"zk":     {"", "", ""},
+			},
+			toAdd: map[string][]*clickhouse.HostSpec{
+				"shard1": {
+					{
+						ZoneId:    "ru-central1-b",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-b",
+					},
+				},
+				"shard2": {
+					{
+						ZoneId:    "ru-central1-b",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard2",
+						SubnetId:  "subnet-b",
+					},
+				},
+				"zk": {
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+				},
+			},
+			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
+		},
+		{
+			name: "exists 2 hosts(2 shards in 1 subnets) and 3 zk in 1 subnets. full change subnets and add hosts",
+			args: args{
+				[]*clickhouse.Host{
+					{
+						Name:      "host1",
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Name:      "host2",
+						ZoneId:    "ru-central1-a",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard2",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+				},
+				[]*clickhouse.HostSpec{
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard1",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-a",
+						ShardName: "shard2",
+						SubnetId:  "subnet-a",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-b",
+						ShardName: "shard1",
+						SubnetId:  "subnet-b",
+					},
+					{
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ZoneId:    "ru-central1-b",
+						ShardName: "shard2",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-a",
+						ShardName: "zk",
+						SubnetId:  "subnet-a",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-c",
+						ShardName: "zk",
+						SubnetId:  "subnet-c",
+					},
+				},
+			},
+			toDelete: map[string][]string{
+				"zk": {"", ""},
+			},
+			toAdd: map[string][]*clickhouse.HostSpec{
+				"shard1": {
+					{
+						ZoneId:    "ru-central1-b",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard1",
+						SubnetId:  "subnet-b",
+					},
+				},
+				"shard2": {
+					{
+						ZoneId:    "ru-central1-b",
+						Type:      clickhouse.Host_CLICKHOUSE,
+						ShardName: "shard2",
+						SubnetId:  "subnet-b",
+					},
+				},
+				"zk": {
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-b",
+						ShardName: "zk",
+						SubnetId:  "subnet-b",
+					},
+
+					{
+						Type:      clickhouse.Host_ZOOKEEPER,
+						ZoneId:    "ru-central1-c",
+						ShardName: "zk",
+						SubnetId:  "subnet-c",
+					},
+				},
+			},
+			toUpdate: map[string]*clickhouse.UpdateHostSpec{},
+		},
+		{
+			name: "exist 1 host, add 1 shard in another subnet and 3 zk in different subnet",
 			args: args{
 				currHostsSingleHost,
 				targetHostsHA,
@@ -236,5 +692,41 @@ var targetHostsHA = []*clickhouse.HostSpec{
 		ZoneId:    "ru-central1-c",
 		ShardName: "zk",
 		SubnetId:  "subnet-c",
+	},
+}
+
+var targetHostsZooIn2Subnets = []*clickhouse.HostSpec{
+	{
+		Type:      clickhouse.Host_CLICKHOUSE,
+		ZoneId:    "ru-central1-a",
+		ShardName: "shard1",
+		SubnetId:  "subnet-a",
+	},
+	{
+		Type:      clickhouse.Host_CLICKHOUSE,
+		ZoneId:    "ru-central1-b",
+		ShardName: "shard1",
+		SubnetId:  "subnet-b",
+	},
+
+	{
+		Type:      clickhouse.Host_ZOOKEEPER,
+		ZoneId:    "ru-central1-a",
+		ShardName: "zk",
+		SubnetId:  "subnet-a",
+	},
+
+	{
+		Type:      clickhouse.Host_ZOOKEEPER,
+		ZoneId:    "ru-central1-b",
+		ShardName: "zk",
+		SubnetId:  "subnet-b",
+	},
+
+	{
+		Type:      clickhouse.Host_ZOOKEEPER,
+		ZoneId:    "ru-central1-a",
+		ShardName: "zk",
+		SubnetId:  "subnet-a",
 	},
 }
