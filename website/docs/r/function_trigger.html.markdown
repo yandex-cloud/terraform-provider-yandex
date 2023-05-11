@@ -74,6 +74,7 @@ The following arguments are supported:
 
 * `timer` - [Timer](https://cloud.yandex.com/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present
 * `timer.0.cron_expression` - Cron expression for timer for Yandex Cloud Functions Trigger
+* `timer.0.payload` - Payload to be passed to function
 
 * `logging` - [Logging](https://cloud.yandex.com/docs/functions/concepts/trigger/logging) settings definition for Yandex Cloud Functions Trigger, if present
 * `logging.0.group_id` - Logging group ID for Yandex Cloud Functions Trigger

@@ -11,6 +11,7 @@ FEATURES:
 * datatransfer: added `kafka_source` and `kafka_target` endpoints
 * mongodb: add the ability to enable sharding in created clusters
 * mongodb: support for adding and deleting shards in a sharded mongodb
+* serverless: support `payload` for timer triggers
 
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration

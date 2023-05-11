@@ -309,6 +309,11 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+						"payload": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -611,6 +616,9 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		timer := triggers.Trigger_Timer{
 			CronExpression: d.Get("timer.0.cron_expression").(string),
+		}
+		if v, ok := d.GetOk("timer.0.payload"); ok {
+			timer.Payload = v.(string)
 		}
 
 		if retrySettings != nil || dlqSettings != nil {
@@ -970,6 +978,7 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 	} else if timer := trig.GetRule().GetTimer(); timer != nil {
 		t := map[string]interface{}{
 			"cron_expression": timer.CronExpression,
+			"payload":         timer.Payload,
 		}
 
 		err := d.Set(triggerTypeTimer, []map[string]interface{}{t})

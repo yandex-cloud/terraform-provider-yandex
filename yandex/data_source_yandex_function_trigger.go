@@ -146,6 +146,10 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"payload": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
