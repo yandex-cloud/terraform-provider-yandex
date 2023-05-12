@@ -263,6 +263,9 @@ func performYandexLoggingGroupRead(d *schema.ResourceData, config *Config) (*log
 }
 
 func flattenYandexLoggingGroup(d *schema.ResourceData, group *logging.LogGroup) error {
+	if group == nil {
+		return nil
+	}
 	d.Set("name", group.Name)
 	d.Set("folder_id", group.FolderId)
 	d.Set("retention_period", formatDuration(group.RetentionPeriod))
