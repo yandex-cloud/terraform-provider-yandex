@@ -81,6 +81,7 @@ func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
 					resource.TestCheckResourceAttrSet(triggerResource, "folder_id"),
 					resource.TestCheckResourceAttrSet(triggerResource, "timer.0.cron_expression"),
+					resource.TestCheckResourceAttrSet(triggerResource, "timer.0.payload"),
 					testYandexFunctionTriggerContainsLabel(&trigger, labelKey, labelValue),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
@@ -455,6 +456,7 @@ resource "yandex_function_trigger" "test-trigger" {
   }
   timer {
     cron_expression = "* * * * ? *"
+    payload = "payload-value"
   }
   function {
     id                 = yandex_function.tf-test.id

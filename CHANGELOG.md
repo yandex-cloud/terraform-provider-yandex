@@ -1,7 +1,11 @@
 ## 0.91.0 (Unreleased)
+FEATURES:
+* mdb: Kafka user management via dedicated resource `yandex_mdb_kafka_user` is implemented
+
 BUG FIXES:
 * mongodb: fix migrate from  `resources` to `resources_*` without changes
 * logging: fix refresh failure if logging group has been deleted externally
+* clickhouse: fix bug with count zookeepers
 
 ## 0.90.0 (May 4, 2023)
 FEATURES:
@@ -9,6 +13,7 @@ FEATURES:
 * datatransfer: added `kafka_source` and `kafka_target` endpoints
 * mongodb: add the ability to enable sharding in created clusters
 * mongodb: support for adding and deleting shards in a sharded mongodb
+* serverless: support `payload` for timer triggers
 
 BUG FIXES:
 * clickhouse: fix bug with resource's configuration
