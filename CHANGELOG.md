@@ -6,6 +6,7 @@ BUG FIXES:
 * mongodb: fix migrate from  `resources` to `resources_*` without changes
 * logging: fix refresh failure if logging group has been deleted externally
 * clickhouse: fix bug with count zookeepers
+* kafka: fix bug in terraform acc tests, data source kafka cluster test.
 
 ## 0.90.0 (May 4, 2023)
 FEATURES:
