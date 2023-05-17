@@ -35,6 +35,41 @@ const (
 
 var StorageEndpointUrl = getStorageEndpointUrl()
 
+type mockClickhouseConfig struct {
+	logLevel                    string
+	maxConnections              int
+	maxConcurrentQueries        int
+	keepAliveTimeout            int
+	uncompressedCacheSize       int
+	markCacheSize               int
+	maxTableSizeToDrop          int
+	maxPartitionSizeToDrop      int
+	timezone                    string
+	geobaseUri                  string
+	queryLogRetentionSize       int
+	queryLogRetentionTime       int
+	queryThreadLogEnabled       bool
+	queryThreadLogRetentionSize int
+	queryThreadLogRetentionTime int
+	partLogRetentionSize        int
+	partLogRetentionTime        int
+	metricLogEnabled            bool
+	metricLogRetentionSize      int
+	metricLogRetentionTime      int
+	traceLogEnabled             bool
+	traceLogRetentionSize       int
+	traceLogRetentionTime       int
+	textLogEnabled              bool
+	textLogRetentionSize        int
+	textLogRetentionTime        int
+	textLogLevel                string
+	backgroundPoolSize          int
+	backgroundSchedulePoolSize  int
+	backgroundFetchesPoolSize   int
+	defaultDatabase             string
+	totalMemoryProfilerStep     int
+}
+
 func getStorageEndpointUrl() string {
 	rawUrl := os.Getenv("YC_STORAGE_ENDPOINT_URL")
 	const protocol = "https://"
@@ -144,7 +179,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "TRACE"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
@@ -187,7 +221,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "TRACE"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
@@ -238,7 +271,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "DEBUG"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "12000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
@@ -630,10 +662,6 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
 
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
-
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
@@ -668,10 +696,6 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
 
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
-
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
@@ -693,37 +717,162 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
 
-	backgroundPoolSize := 16
-	updatedBackgroundPoolSize := 24
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
-			// Create ClickHouse Cluster with background_pool_size
 			{
-				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, rInt, chVersion, backgroundPoolSize),
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 1", rInt, chVersion, mockClickhouseConfig{
+					logLevel:                    "TRACE",
+					maxConnections:              512,
+					maxConcurrentQueries:        100,
+					keepAliveTimeout:            123000,
+					uncompressedCacheSize:       8096,
+					markCacheSize:               8096,
+					maxTableSizeToDrop:          1024,
+					maxPartitionSizeToDrop:      1024,
+					timezone:                    "UTC",
+					geobaseUri:                  "",
+					queryLogRetentionSize:       1024,
+					queryLogRetentionTime:       123000,
+					queryThreadLogEnabled:       false,
+					queryThreadLogRetentionSize: 1024,
+					queryThreadLogRetentionTime: 123000,
+					partLogRetentionSize:        1024,
+					partLogRetentionTime:        123000,
+					metricLogEnabled:            true,
+					metricLogRetentionSize:      1024,
+					metricLogRetentionTime:      123000,
+					traceLogEnabled:             true,
+					traceLogRetentionSize:       1024,
+					traceLogRetentionTime:       123000,
+					textLogEnabled:              true,
+					textLogRetentionSize:        1024,
+					textLogRetentionTime:        123000,
+					textLogLevel:                "WARNING",
+					backgroundPoolSize:          16,
+					backgroundSchedulePoolSize:  32,
+					backgroundFetchesPoolSize:   8,
+					defaultDatabase:             "default",
+					totalMemoryProfilerStep:     4194304,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					// @TODO maybe in future need to check all clickhouse configs but now I add only one which related with bug
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", strconv.Itoa(backgroundPoolSize)),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "TRACE"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_connections", "512"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_concurrent_queries", "100"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.keep_alive_timeout", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.uncompressed_cache_size", "8096"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.mark_cache_size", "8096"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_table_size_to_drop", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_partition_size_to_drop", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.timezone", "UTC"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_uri", ""),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_enabled", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.part_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.part_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_size", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_time", "123000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_level", "WARNING"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "32"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// Update background_pool_size
 			{
-				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, rInt, chVersion, updatedBackgroundPoolSize),
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 2", rInt, chVersion, mockClickhouseConfig{
+					logLevel:                    "WARNING",
+					maxConnections:              1024,
+					maxConcurrentQueries:        200,
+					keepAliveTimeout:            246000,
+					uncompressedCacheSize:       16192,
+					markCacheSize:               16192,
+					maxTableSizeToDrop:          2048,
+					maxPartitionSizeToDrop:      2048,
+					timezone:                    "UTC",
+					geobaseUri:                  "",
+					queryLogRetentionSize:       2048,
+					queryLogRetentionTime:       246000,
+					queryThreadLogEnabled:       true,
+					queryThreadLogRetentionSize: 2048,
+					queryThreadLogRetentionTime: 246000,
+					partLogRetentionSize:        2048,
+					partLogRetentionTime:        246000,
+					metricLogEnabled:            true,
+					metricLogRetentionSize:      2048,
+					metricLogRetentionTime:      246000,
+					traceLogEnabled:             true,
+					traceLogRetentionSize:       2048,
+					traceLogRetentionTime:       246000,
+					textLogEnabled:              true,
+					textLogRetentionSize:        2048,
+					textLogRetentionTime:        246000,
+					textLogLevel:                "ERROR",
+					backgroundPoolSize:          32,
+					backgroundSchedulePoolSize:  64,
+					backgroundFetchesPoolSize:   16,
+					defaultDatabase:             "new_default",
+					totalMemoryProfilerStep:     4194303,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", strconv.Itoa(updatedBackgroundPoolSize)),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.log_level", "WARNING"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_connections", "1024"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_concurrent_queries", "200"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.keep_alive_timeout", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.uncompressed_cache_size", "16192"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.mark_cache_size", "16192"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_table_size_to_drop", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.max_partition_size_to_drop", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.timezone", "UTC"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.geobase_uri", ""),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_thread_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.part_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.part_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.metric_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_enabled", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.trace_log_retention_size", "2048"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_retention_time", "246000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_level", "ERROR"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "32"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "64"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -1285,36 +1434,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
 
     config {
-      log_level                       = "TRACE"
-      max_connections                 = 1000
-      max_concurrent_queries          = 100
-      keep_alive_timeout              = 1233000
-      uncompressed_cache_size         = 8096
-      mark_cache_size                 = 8096
-      max_table_size_to_drop          = 1024
-      max_partition_size_to_drop      = 10324
-      timezone                        = "UTC"
-      geobase_uri                     = ""
-      query_log_retention_size        = 1024
-      query_log_retention_time        = 123000
-      query_thread_log_enabled        = true
-      query_thread_log_retention_size = 1024
-      query_thread_log_retention_time = 123000
-      part_log_retention_size         = 1024
-      part_log_retention_time         = 1223000
-      metric_log_enabled              = true
-      metric_log_retention_size       = 1024
-      metric_log_retention_time       = 123000
-      trace_log_enabled               = true
-      trace_log_retention_size        = 1024
-      trace_log_retention_time        = 123000
-      text_log_enabled                = true
-      text_log_retention_size         = 1024
-      text_log_retention_time         = 123000
-      text_log_level                  = "TRACE"
-      background_pool_size            = 32
-      background_schedule_pool_size   = 32
-
       merge_tree {
         replicated_deduplication_window                           = 1000
         replicated_deduplication_window_seconds                   = 1000
@@ -1483,252 +1602,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
   service_account_id = "${yandex_iam_service_account.sa.id}"
 
-  maintenance_window {
-    %s
-  }
-
-  access {
-	web_sql       = true
-	data_lens     = true
-	metrika       = true
-	serverless    = true
-	data_transfer = true
-	yandex_query  = true
-  }
-
-  deletion_protection = %t
-}
-`, name, desc, environment, chVersion, maintenanceWindow, deletionProtection)
-}
-
-//nolint:unused
-func testAccMDBClickHouseClusterConfigUpdateCloudStorage(name, desc, environment string, deletionProtection bool, bucket string, randInt int, maintenanceWindow string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
-resource "yandex_mdb_clickhouse_cluster" "foo" {
-  depends_on = [
-    yandex_storage_object.test_ml_model
-  ]
-
-  name           = "%s"
-  description    = "%s"
-  environment    = "%s"
-  version        = "%s"
-  network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
-  admin_password = "strong_password"
-
-  labels = {
-    test_key = "test_value"
-  }
-
-  clickhouse {
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 16
-    }
-
-    config {
-      log_level                       = "TRACE"
-      max_connections                 = 1000
-      max_concurrent_queries          = 100
-      keep_alive_timeout              = 1233000
-      uncompressed_cache_size         = 8096
-      mark_cache_size                 = 8096
-      max_table_size_to_drop          = 1024
-      max_partition_size_to_drop      = 10324
-      timezone                        = "UTC"
-      geobase_uri                     = ""
-      query_log_retention_size        = 1024
-      query_log_retention_time        = 123000
-      query_thread_log_enabled        = true
-      query_thread_log_retention_size = 1024
-      query_thread_log_retention_time = 123000
-      part_log_retention_size         = 1024
-      part_log_retention_time         = 1223000
-      metric_log_enabled              = true
-      metric_log_retention_size       = 1024
-      metric_log_retention_time       = 123000
-      trace_log_enabled               = true
-      trace_log_retention_size        = 1024
-      trace_log_retention_time        = 123000
-      text_log_enabled                = true
-      text_log_retention_size         = 1024
-      text_log_retention_time         = 123000
-      text_log_level                  = "TRACE"
-      background_pool_size            = 32
-      background_schedule_pool_size   = 32
-
-      merge_tree {
-        replicated_deduplication_window                           = 1000
-        replicated_deduplication_window_seconds                   = 1000
-        parts_to_delay_insert                                     = 110001
-        parts_to_throw_insert                                     = 11000
-        max_replicated_merges_in_queue                            = 11000
-        number_of_free_entries_in_pool_to_lower_max_size_of_merge = 15
-        max_bytes_to_merge_at_min_space_in_pool                   = 11000
-      }
-
-      kafka {
-        security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-        sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
-        sasl_username     = "user1"
-        sasl_password     = "pass1"
-      }
-
-      kafka_topic {
-        name = "topic1"
-        settings {
-          security_protocol = "SECURITY_PROTOCOL_SSL"
-          sasl_mechanism    = "SASL_MECHANISM_SCRAM_SHA_256"
-          sasl_username     = "user2"
-          sasl_password     = "pass22"
-        }
-      }
-
-      rabbitmq {
-        username = "rabbit_user"
-        password = "rabbit_pass"
-      }
-
-      compression {
-        method              = "LZ4"
-        min_part_size       = 1024
-        min_part_size_ratio = 0.5
-      }
-
-      graphite_rollup {
-        name = "rollup1"
-        pattern {
-          regexp   = "abc"
-          function = "func1"
-          retention {
-            age       = 1000
-            precision = 3
-          }
-        }
-      }
-    }
-  }
-
-  database {
-    name = "testdb"
-  }
-
-  user {
-    name     = "john"
-    password = "password"
-    permission {
-      database_name = "testdb"
-    }
-    settings {
-      add_http_cors_header                               = true
-      allow_ddl                                          = false
-      compile                                            = false
-      compile_expressions                                = false
-      connect_timeout                                    = 42000
-      count_distinct_implementation                      = "uniq_combined_64"
-      distinct_overflow_mode                             = "unspecified"
-      distributed_aggregation_memory_efficient           = false
-      distributed_ddl_task_timeout                       = 0
-      distributed_product_mode                           = "unspecified"
-      empty_result_for_aggregation_by_empty_set          = false
-      enable_http_compression                            = false
-      fallback_to_stale_replicas_for_distributed_queries = false
-      force_index_by_date                                = false
-      force_primary_key                                  = false
-      group_by_overflow_mode                             = "unspecified"
-      group_by_two_level_threshold                       = 0
-      group_by_two_level_threshold_bytes                 = 0
-      http_connection_timeout                            = 0
-      http_headers_progress_interval                     = 0
-      http_receive_timeout                               = 0
-      http_send_timeout                                  = 0
-      input_format_defaults_for_omitted_fields           = false
-      input_format_values_interpret_expressions          = false
-      insert_quorum                                      = 0
-      insert_quorum_timeout                              = 0
-      join_overflow_mode                                 = "unspecified"
-      join_use_nulls                                     = false
-      joined_subquery_requires_alias                     = false
-      low_cardinality_allow_in_native_format             = false
-      max_ast_depth                                      = 0
-      max_ast_elements                                   = 0
-      max_block_size                                     = 0
-      max_bytes_before_external_group_by                 = 0
-      max_bytes_before_external_sort                     = 0
-      max_bytes_in_distinct                              = 0
-      max_bytes_in_join                                  = 0
-      max_bytes_in_set                                   = 0
-      max_bytes_to_read                                  = 0
-      max_bytes_to_sort                                  = 0
-      max_bytes_to_transfer                              = 0
-      max_columns_to_read                                = 0
-      max_execution_time                                 = 0
-      max_expanded_ast_elements                          = 0
-      max_insert_block_size                              = 0
-      max_memory_usage                                   = 0
-      max_memory_usage_for_user                          = 0
-      max_network_bandwidth                              = 0
-      max_network_bandwidth_for_user                     = 0
-      max_query_size                                     = 0
-      max_replica_delay_for_distributed_queries          = 0
-      max_result_bytes                                   = 0
-      max_result_rows                                    = 0
-      max_rows_in_distinct                               = 0
-      max_rows_in_join                                   = 0
-      max_rows_in_set                                    = 0
-      max_rows_to_group_by                               = 0
-      max_rows_to_read                                   = 0
-      max_rows_to_sort                                   = 0
-      max_rows_to_transfer                               = 0
-      max_temporary_columns                              = 0
-      max_temporary_non_const_columns                    = 0
-      max_threads                                        = 0
-      merge_tree_max_bytes_to_use_cache                  = 0
-      merge_tree_max_rows_to_use_cache                   = 0
-      merge_tree_min_bytes_for_concurrent_read           = 0
-      merge_tree_min_rows_for_concurrent_read            = 0
-      min_bytes_to_use_direct_io                         = 0
-      min_count_to_compile                               = 0
-      min_count_to_compile_expression                    = 0
-      min_execution_speed                                = 0
-      min_execution_speed_bytes                          = 0
-      min_insert_block_size_bytes                        = 0
-      min_insert_block_size_rows                         = 0
-      output_format_json_quote_64bit_integers            = false
-      output_format_json_quote_denormals                 = false
-      priority                                           = 0
-      quota_mode                                         = "unspecified"
-      read_overflow_mode                                 = "unspecified"
-      readonly                                           = 0
-      receive_timeout                                    = 0
-      replication_alter_partitions_sync                  = 0
-      result_overflow_mode                               = "unspecified"
-      select_sequential_consistency                      = false
-      send_progress_in_http_headers                      = false
-      send_timeout                                       = 0
-      set_overflow_mode                                  = "unspecified"
-      skip_unavailable_shards                            = false
-      sort_overflow_mode                                 = "unspecified"
-      timeout_overflow_mode                              = "unspecified"
-      transfer_overflow_mode                             = "unspecified"
-      transform_null_in                                  = false
-      use_uncompressed_cache                             = false
-    }
-  }
-
-  host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-  }
-
-  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
-  service_account_id = "${yandex_iam_service_account.sa.id}"
-
-  cloud_storage {
-    enabled = false
-  }
   maintenance_window {
     %s
   }
@@ -1769,36 +1642,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     }
 
     config {
-      log_level                       = "DEBUG"
-      max_connections                 = 2048
-      max_concurrent_queries          = 400
-      keep_alive_timeout              = 10
-      uncompressed_cache_size         = 8589934592
-      mark_cache_size                 = 5368709120
-      max_table_size_to_drop          = 5368709120
-      max_partition_size_to_drop      = 5368709120
-      timezone                        = "UTC"
-      geobase_uri                     = ""
-      query_log_retention_size        = 1073741824
-      query_log_retention_time        = 2592000000
-      query_thread_log_enabled        = true
-      query_thread_log_retention_size = 536870912
-      query_thread_log_retention_time = 2592000000
-      part_log_retention_size         = 536870912
-      part_log_retention_time         = 2592000000
-      metric_log_enabled              = true
-      metric_log_retention_size       = 536870912
-      metric_log_retention_time       = 2592000000
-      trace_log_enabled               = true
-      trace_log_retention_size        = 536870912
-      trace_log_retention_time        = 2592000000
-      text_log_enabled                = true
-      text_log_retention_size         = 536870912
-      text_log_retention_time         = 2592000000
-      text_log_level                  = "ERROR"
-      background_pool_size            = 64
-      background_schedule_pool_size   = 64
-
       merge_tree {
         replicated_deduplication_window                           = 100
         replicated_deduplication_window_seconds                   = 604800
@@ -3020,11 +2863,11 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 `, name, version, preset, diskSize)
 }
 
-func testAccMDBClickHouseClusterConfig(name, bucket string, randInt int, version string, backgroundPoolSize int) string {
+func testAccMDBClickHouseClusterConfig(name, bucket, desc string, randInt int, version string, config mockClickhouseConfig) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo"{
   name           = "%s"
-  description    = "ClickHouse Cluster update Terraform Test"
+  description    = "%s"
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
@@ -3041,7 +2884,39 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
       disk_size          = 32
     }
 	config {
-      background_pool_size = %d
+      	log_level		                = "%s"
+		max_connections                 = %d
+		max_concurrent_queries          = %d
+		keep_alive_timeout              = %d
+		uncompressed_cache_size         = %d
+		mark_cache_size                 = %d
+		max_table_size_to_drop          = %d
+		max_partition_size_to_drop      = %d
+		timezone                        = "%s"
+		geobase_uri                     = "%s"
+		query_log_retention_size        = %d
+		query_log_retention_time        = %d
+		query_thread_log_enabled        = %t
+		query_thread_log_retention_size = %d
+		query_thread_log_retention_time = %d
+		part_log_retention_size         = %d
+		part_log_retention_time         = %d
+		metric_log_enabled              = %t
+		metric_log_retention_size       = %d
+		metric_log_retention_time       = %d
+		trace_log_enabled               = %t
+		trace_log_retention_size        = %d
+		trace_log_retention_time        = %d
+		text_log_enabled                = %t
+		text_log_retention_size         = %d
+		text_log_retention_time         = %d
+		text_log_level                  = "%s"
+		background_pool_size            = %d
+		background_schedule_pool_size   = %d
+
+		background_fetches_pool_size 	= %d
+		default_database 				= "%s"
+		total_memory_profiler_step 		= %d
     }
   }
 
@@ -3051,7 +2926,39 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
 }
-`, name, version, backgroundPoolSize)
+`, name, desc, version,
+		config.logLevel,
+		config.maxConnections,
+		config.maxConcurrentQueries,
+		config.keepAliveTimeout,
+		config.uncompressedCacheSize,
+		config.markCacheSize,
+		config.maxTableSizeToDrop,
+		config.maxPartitionSizeToDrop,
+		config.timezone,
+		config.geobaseUri,
+		config.queryLogRetentionSize,
+		config.queryLogRetentionTime,
+		config.queryThreadLogEnabled,
+		config.queryThreadLogRetentionSize,
+		config.queryThreadLogRetentionTime,
+		config.partLogRetentionSize,
+		config.partLogRetentionTime,
+		config.metricLogEnabled,
+		config.metricLogRetentionSize,
+		config.metricLogRetentionTime,
+		config.textLogEnabled,
+		config.textLogRetentionSize,
+		config.textLogRetentionTime,
+		config.textLogEnabled,
+		config.textLogRetentionSize,
+		config.textLogRetentionTime,
+		config.textLogLevel,
+		config.backgroundPoolSize,
+		config.backgroundSchedulePoolSize,
+		config.backgroundFetchesPoolSize,
+		config.defaultDatabase,
+		config.totalMemoryProfilerStep)
 }
 
 func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {
@@ -3079,10 +2986,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_size          = 16
     }
 	config {
-		background_fetches_pool_size = 8
-		default_database = "default"
-		total_memory_profiler_step = 4194304
-
 		merge_tree {
 			min_bytes_for_wide_part = 0
 			min_rows_for_wide_part = 0
