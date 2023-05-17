@@ -307,7 +307,7 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	if mw != nil {
+	if mw != nil && mw.GetAnytime() == nil {
 		err = updateRedisMaintenanceWindow(ctx, config, d, mw)
 		if err != nil {
 			return err
