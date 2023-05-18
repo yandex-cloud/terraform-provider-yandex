@@ -31,7 +31,7 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 			"hours":   3,
 			"minutes": 4,
 		},
-		"Version":   "4.2",
+		"Version":   "6.0",
 		"Databases": []string{"testdb"},
 		"Users": []*mongodb.UserSpec{
 			{

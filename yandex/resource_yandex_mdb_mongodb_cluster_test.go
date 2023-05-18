@@ -476,9 +476,9 @@ func mdbMongoDBClusterImportStep() resource.TestStep {
 	}
 }
 
-func create4_2ConfigData() map[string]interface{} {
+func create6_0ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "4.2",
+		"Version":     "6.0",
 		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
 		"Environment": "PRESTABLE",
 		"Lables":      map[string]string{"test_key": "test_value"},
@@ -567,10 +567,10 @@ func createRestoreConfigData() map[string]interface{} {
 }
 
 // Test that a MongoDB Cluster can be created, updated and destroyed
-func TestAccMDBMongoDBCluster_4_2(t *testing.T) {
+func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 	t.Parallel()
 
-	configData := create4_2ConfigData()
+	configData := create6_0ConfigData()
 	clusterName := configData["ClusterName"].(string)
 
 	var r mongodb.Cluster

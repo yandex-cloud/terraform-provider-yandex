@@ -1,5 +1,7 @@
 ## 0.92.0 (Unreleased)
 FEATURES:
+* mongodb: update mongodb version in tests from deprecated `4.2` to actual `6.0`
+
 BUG FIXES:
 
 ## 0.91.0 (May 18, 2023)
