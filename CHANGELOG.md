@@ -1,4 +1,8 @@
-## 0.91.0 (Unreleased)
+## 0.92.0 (Unreleased)
+FEATURES:
+BUG FIXES:
+
+## 0.91.0 (May 18, 2023)
 FEATURES:
 * mdb: Kafka user management via dedicated resource `yandex_mdb_kafka_user` is implemented
 * clickhouse: minor refactoring of clickhouse tests
