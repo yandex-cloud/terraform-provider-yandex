@@ -285,7 +285,7 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 func TestFlattenDataprocClusterConfig(t *testing.T) {
 	cluster := &dataproc.Cluster{
 		Config: &dataproc.ClusterConfig{
-			VersionId: "1.4",
+			VersionId: "2.0",
 			Hadoop: &dataproc.HadoopConfig{
 				Services:      []dataproc.HadoopConfig_Service{dataproc.HadoopConfig_HDFS, dataproc.HadoopConfig_YARN},
 				Properties:    map[string]string{"prop1": "val1", "prop2": "val2"},
@@ -363,7 +363,7 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 
 	expected := []map[string]interface{}{
 		{
-			"version_id": "1.4",
+			"version_id": "2.0",
 			"hadoop": []map[string]interface{}{
 				{
 					"services":        []string{"HDFS", "YARN"},
@@ -456,10 +456,12 @@ type dataprocTFConfigParams struct {
 	CurrentBucket      string
 	Description        string
 	FolderID           string
+	GatewayName        string
 	Labels             string
 	Name               string
 	NetworkName        string
 	Properties         string
+	RouteTableName     string
 	SA1Name            string
 	SA2Name            string
 	SAId               string
@@ -487,19 +489,21 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 	}
 
 	return dataprocTFConfigParams{
-		Bucket1:       acctest.RandomWithPrefix("tf-dataproc"),
-		Bucket2:       acctest.RandomWithPrefix("tf-dataproc"),
-		CurrentBucket: "yandex_storage_bucket.tf-dataproc-1.bucket",
-		Description:   description,
-		FolderID:      folderID,
-		Name:          clusterName,
-		NetworkName:   acctest.RandomWithPrefix("tf-dataproc"),
-		SA1Name:       acctest.RandomWithPrefix("tf-dataproc"),
-		SA2Name:       acctest.RandomWithPrefix("tf-dataproc"),
-		SAId:          "yandex_iam_service_account.tf-dataproc-sa.id",
-		SSHKey:        string(sshKey),
-		SubnetName:    acctest.RandomWithPrefix("tf-dataproc"),
-		Zone:          testDataprocZone,
+		Bucket1:        acctest.RandomWithPrefix("tf-dataproc"),
+		Bucket2:        acctest.RandomWithPrefix("tf-dataproc"),
+		CurrentBucket:  "yandex_storage_bucket.tf-dataproc-1.bucket",
+		Description:    description,
+		FolderID:       folderID,
+		Name:           clusterName,
+		NetworkName:    acctest.RandomWithPrefix("tf-dataproc"),
+		SA1Name:        acctest.RandomWithPrefix("tf-dataproc"),
+		SA2Name:        acctest.RandomWithPrefix("tf-dataproc"),
+		SAId:           "yandex_iam_service_account.tf-dataproc-sa.id",
+		SSHKey:         string(sshKey),
+		SubnetName:     acctest.RandomWithPrefix("tf-dataproc"),
+		GatewayName:    acctest.RandomWithPrefix("tf-dataproc"),
+		RouteTableName: acctest.RandomWithPrefix("tf-dataproc"),
+		Zone:           testDataprocZone,
 		Labels: `{
 				created_by = "terraform"
 			}`,
@@ -564,7 +568,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description",
 						"Dataproc Cluster created by Terraform"),
 					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket1),
-					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "1.4"),
+					resource.TestCheckResourceAttr(resourceName, "cluster_config.0.version_id", "2.0"),
 					testAccCheckCreatedAtAttr(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "deletion_protection", "false"),
@@ -722,11 +726,27 @@ resource "yandex_vpc_network" "tf-dataproc-net" {
   name = "{{.NetworkName}}"
 }
 
+resource "yandex_vpc_gateway" "tf-nat-gateway" {
+  name      = "{{.GatewayName}}"
+  shared_egress_gateway {}
+}
+
+resource "yandex_vpc_route_table" "tf-route-table" {
+  name       = "{{.RouteTableName}}"
+  network_id = yandex_vpc_network.tf-dataproc-net.id
+
+  static_route {
+    destination_prefix = "0.0.0.0/0"
+    gateway_id         = yandex_vpc_gateway.tf-nat-gateway.id
+  }
+}
+
 resource "yandex_vpc_subnet" "tf-dataproc-subnet" {
   name           = "{{.SubnetName}}"
   zone           = "{{.Zone}}"
   network_id     = yandex_vpc_network.tf-dataproc-net.id
   v4_cidr_blocks = ["10.1.0.0/24"]
+  route_table_id = yandex_vpc_route_table.tf-route-table.id
 }
 
 resource "yandex_iam_service_account" "tf-dataproc-sa" {
@@ -795,7 +815,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
   deletion_protection = {{.DeletionProtection}}
 
   cluster_config {
-    version_id = "1.4"
+    version_id = "2.0"
 
     hadoop {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]

@@ -27,7 +27,7 @@ resource "yandex_dataproc_cluster" "foo" {
 
   cluster_config {
     # Certain cluster version can be set, but better to use default value (last stable version)
-    # version_id = "1.4"
+    # version_id = "2.0"
 
     hadoop {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]
