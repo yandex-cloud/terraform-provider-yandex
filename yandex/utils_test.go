@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -229,6 +230,54 @@ func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
 		}
 		return nil
 	}
+}
+
+func testAccCheckBoolValue(resourceName, attributePath string, expectedValue bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		actualValue, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		parseBool, err := strconv.ParseBool(actualValue)
+		if err != nil {
+			return err
+		}
+		if !parseBool == expectedValue {
+			return fmt.Errorf("stored value: '%t' doesn't match expected value: '%t'", parseBool, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckAttributeWithSuppress(suppressDiff schema.SchemaDiffSuppressFunc, resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("can't find %s in state", resourceName)
+		}
+
+		startTime, ok := rs.Primary.Attributes[attributePath]
+		if !ok {
+			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
+		}
+
+		if !suppressDiff("", expectedValue, startTime, nil) {
+			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", startTime, expectedValue)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckDuration(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
+	return testAccCheckAttributeWithSuppress(shouldSuppressDiffForTimeDuration, resourceName, attributePath, expectedValue)
 }
 
 func testAccCheckResourceIDField(resourceName string, idFieldName string) resource.TestCheckFunc {

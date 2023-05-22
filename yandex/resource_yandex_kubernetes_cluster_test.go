@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -1068,30 +1067,6 @@ func testAccCheckMaintenanceWindow(resourceFullName string, maintenanceWindowPre
 		"duration":   regexp.MustCompile(fmt.Sprintf("\\Q%v\\E|\\Q%v\\E", duration, du)),
 	}
 	return resource.TestMatchTypeSetElemNestedAttrs(resourceFullName, maintenanceWindowPrefix+"*", m)
-}
-
-func testAccCheckAttributeWithSuppress(suppressDiff schema.SchemaDiffSuppressFunc, resourceName string, attributePath string, expectedValue string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("can't find %s in state", resourceName)
-		}
-
-		startTime, ok := rs.Primary.Attributes[attributePath]
-		if !ok {
-			return fmt.Errorf("can't find '%s' attr for %s resource", attributePath, resourceName)
-		}
-
-		if !suppressDiff("", expectedValue, startTime, nil) {
-			return fmt.Errorf("stored value: '%s' doesn't match expected value: '%s'", startTime, expectedValue)
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckDuration(resourceName, attributePath, expectedValue string) resource.TestCheckFunc {
-	return testAccCheckAttributeWithSuppress(shouldSuppressDiffForTimeDuration, resourceName, attributePath, expectedValue)
 }
 
 type maintenancePolicyType int

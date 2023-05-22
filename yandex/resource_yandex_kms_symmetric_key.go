@@ -16,7 +16,7 @@ const (
 	yandexKMSSymmetricKeyDefaultTimeout = 1 * time.Minute
 )
 
-func resourceYandexKMSSymmetricKeyKey() *schema.Resource {
+func resourceYandexKMSSymmetricKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexKMSSymmetricKeyCreate,
 		Read:   resourceYandexKMSSymmetricKeyRead,
@@ -32,6 +32,7 @@ func resourceYandexKMSSymmetricKeyKey() *schema.Resource {
 			Update: schema.DefaultTimeout(yandexKMSSymmetricKeyDefaultTimeout),
 			Delete: schema.DefaultTimeout(yandexKMSSymmetricKeyDefaultTimeout),
 		},
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -65,6 +66,12 @@ func resourceYandexKMSSymmetricKeyKey() *schema.Resource {
 				ValidateFunc: validateParsableValue(parseKmsDefaultAlgorithm),
 			},
 
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Default:  false,
+				Optional: true,
+			},
+
 			"rotation_period": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -89,7 +96,6 @@ func resourceYandexKMSSymmetricKeyKey() *schema.Resource {
 		},
 	}
 }
-
 func resourceYandexKMSSymmetricKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -117,12 +123,13 @@ func resourceYandexKMSSymmetricKeyCreate(d *schema.ResourceData, meta interface{
 	}
 
 	req := &kms.CreateSymmetricKeyRequest{
-		FolderId:         folderID,
-		Name:             d.Get("name").(string),
-		Description:      d.Get("description").(string),
-		Labels:           labels,
-		DefaultAlgorithm: defaultAlgorithm,
-		RotationPeriod:   rotationPeriod,
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		DefaultAlgorithm:   defaultAlgorithm,
+		RotationPeriod:     rotationPeriod,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	op, err := config.sdk.WrapOperation(config.sdk.KMS().SymmetricKey().Create(ctx, req))
@@ -175,6 +182,7 @@ func resourceYandexKMSSymmetricKeyRead(d *schema.ResourceData, meta interface{})
 	d.Set("default_algorithm", kms.SymmetricAlgorithm_name[int32(key.DefaultAlgorithm)])
 	d.Set("rotation_period", formatDuration(key.GetRotationPeriod()))
 	d.Set("status", strings.ToLower(key.Status.String()))
+	d.Set("deletion_protection", key.DeletionProtection)
 
 	if err := d.Set("labels", key.Labels); err != nil {
 		return err
@@ -235,6 +243,12 @@ func resourceYandexKMSSymmetricKeyUpdate(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return err
 		}
+	}
+
+	deletionProtectionName := "deletion_protection"
+	if d.HasChange(deletionProtectionName) {
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, deletionProtectionName)
+		req.DeletionProtection = d.Get(deletionProtectionName).(bool)
 	}
 
 	//TODO support update Status

@@ -3,6 +3,8 @@ FEATURES:
 * mongodb: update mongodb version in tests from deprecated `4.2` to actual `6.0`
 * organizationmanager: saml user organization membership management via dedicated resource `yandex_organizationmanager_saml_federation_user_account` is implemented
 * dataproc: update dataproc tests
+* kms: add `deletion_protection` attribute  in `yandex_kms_symmetric_key` resource
+* **New Data Source:** `yandex_kms_symmetric_key`
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added

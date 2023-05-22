@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 )
 
@@ -45,7 +44,7 @@ func TestAccKMSSymmetricKey_basic(t *testing.T) {
 					testAccCheckKMSSymmetricKeyExists(
 						"yandex_kms_symmetric_key.key-b", &symmetricKey2),
 					testAccCheckKMSSymmetricKeyExists(
-						"yandex_kms_symmetric_key.key-b", &symmetricKey3),
+						"yandex_kms_symmetric_key.key-c", &symmetricKey3),
 					testAccCheckDuration("yandex_kms_symmetric_key.key-a", "rotation_period", "24h"),
 					testAccCheckDuration("yandex_kms_symmetric_key.key-b", "rotation_period", "8760h"),
 					testAccCheckDuration("yandex_kms_symmetric_key.key-c", "rotation_period", ""),
@@ -68,6 +67,65 @@ func TestAccKMSSymmetricKey_basic(t *testing.T) {
 				ResourceName:      "yandex_kms_symmetric_key.key-c",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccKMSSymmetricKey_deletion_protection(t *testing.T) {
+	t.Parallel()
+
+	var symmetricKey1 kms.SymmetricKey
+	var symmetricKey2 kms.SymmetricKey
+	var symmetricKey3 kms.SymmetricKey
+
+	key1Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	key2Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+	key3Name := fmt.Sprintf("tf-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKMSSymmetricKeyDestroy,
+
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKMSSymmetricKey_deletion_protection(key1Name, key2Name, key3Name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKMSSymmetricKeyExists(
+						"yandex_kms_symmetric_key.key-a", &symmetricKey1),
+					testAccCheckKMSSymmetricKeyExists(
+						"yandex_kms_symmetric_key.key-b", &symmetricKey2),
+					testAccCheckKMSSymmetricKeyExists(
+						"yandex_kms_symmetric_key.key-c", &symmetricKey3),
+					testAccCheckBoolValue("yandex_kms_symmetric_key.key-a", "deletion_protection", true),
+					testAccCheckBoolValue("yandex_kms_symmetric_key.key-b", "deletion_protection", false),
+					testAccCheckBoolValue("yandex_kms_symmetric_key.key-c", "deletion_protection", false),
+					testAccCheckCreatedAtAttr("yandex_kms_symmetric_key.key-a"),
+					testAccCheckCreatedAtAttr("yandex_kms_symmetric_key.key-b"),
+					testAccCheckCreatedAtAttr("yandex_kms_symmetric_key.key-c"),
+				),
+			},
+			{
+				ResourceName:      "yandex_kms_symmetric_key.key-a",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "yandex_kms_symmetric_key.key-b",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:      "yandex_kms_symmetric_key.key-c",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccKmsSymmetricKeyDeletionProtection_update(key1Name, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckBoolValue("yandex_kms_symmetric_key.key-a", "deletion_protection", false),
+				),
 			},
 		},
 	})
@@ -289,6 +347,40 @@ resource "yandex_kms_symmetric_key" "key-c" {
 }
 
 `, key1Name, key2Name, key3Name)
+}
+
+//revive:disable:var-naming
+func testAccKMSSymmetricKey_deletion_protection(key1Name, key2Name, key3Name string) string {
+	return fmt.Sprintf(`
+resource "yandex_kms_symmetric_key" "key-a" {
+  name                = "%s"
+  description         = "description for key-a"
+  deletion_protection = true
+}
+
+resource "yandex_kms_symmetric_key" "key-b" {
+  name                = "%s"
+  description         = "description for key-b"
+  deletion_protection = false
+
+}
+
+resource "yandex_kms_symmetric_key" "key-c" {
+  name        = "%s"
+  description = "description for key-c"
+}
+
+`, key1Name, key2Name, key3Name)
+}
+
+func testAccKmsSymmetricKeyDeletionProtection_update(keyName string, deletionProtection bool) string {
+	return fmt.Sprintf(`
+resource "yandex_kms_symmetric_key" "key-a" {
+  name                = "%s"
+  description         = "update deletion protection for key-a"
+  deletion_protection = "%t"
+}
+`, keyName, deletionProtection)
 }
 
 func testAccKMSSymmetricKey_update(key1Name, key2Name, key3Name string) string {
