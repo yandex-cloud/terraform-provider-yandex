@@ -331,6 +331,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"tags": tagsSchema(),
 						"enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
@@ -526,7 +527,16 @@ func resourceYandexStorageBucket() *schema.Resource {
 					},
 				},
 			},
+			"tags": tagsSchema(),
 		},
+	}
+}
+
+func tagsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
 }
 
@@ -746,6 +756,7 @@ func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interfa
 		{"lifecycle_rule", resourceYandexStorageBucketLifecycleUpdate},
 		{"server_side_encryption_configuration", resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate},
 		{"object_lock_configuration", resourceYandexStorageBucketObjectLockConfigurationUpdate},
+		{"tags", resourceYandexStorageBucketTagsUpdate},
 	}
 
 	for _, property := range resourceProperties {
@@ -937,13 +948,15 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	config := meta.(*Config)
 	s3Client, err := getS3Client(d, config)
 
+	bucketAWS := aws.String(d.Id())
+
 	if err != nil {
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
 	resp, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.HeadBucket(&s3.HeadBucketInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil {
@@ -967,7 +980,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the policy
 	pol, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketPolicy(&s3.GetBucketPolicyInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
@@ -998,7 +1011,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	corsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketCors(&s3.GetBucketCorsInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
@@ -1035,7 +1048,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the website configuration
 	wsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketWebsite(&s3.GetBucketWebsiteInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil && !isAWSErr(err, "NotImplemented", "") && !isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
@@ -1119,7 +1132,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketAcl(&s3.GetBucketAclInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 
@@ -1154,7 +1167,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	versioningResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketVersioning(&s3.GetBucketVersioningInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil {
@@ -1179,7 +1192,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the Object Lock Configuration
 	objectLockConfigResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetObjectLockConfiguration(&s3.GetObjectLockConfigurationInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil &&
@@ -1230,7 +1243,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the logging configuration
 	loggingResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketLogging(&s3.GetBucketLoggingInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 
@@ -1257,7 +1270,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the lifecycle configuration
 	lifecycleResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketLifecycleConfiguration(&s3.GetBucketLifecycleConfigurationInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil && !isAWSErr(err, "NoSuchLifecycleConfiguration", "") {
@@ -1374,11 +1387,11 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	encryptionResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
 		return s3Client.GetBucketEncryption(&s3.GetBucketEncryptionInput{
-			Bucket: aws.String(d.Id()),
+			Bucket: bucketAWS,
 		})
 	})
 	if err != nil && !isAWSErr(err, "ServerSideEncryptionConfigurationNotFoundError", "encryption configuration was not found") {
-		return fmt.Errorf("error getting S3 Bucket encryption: %s", err)
+		return fmt.Errorf("error getting S3 Bucket encryption: %w", err)
 	}
 
 	serverSideEncryptionConfiguration := make([]map[string]interface{}, 0)
@@ -1387,6 +1400,22 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 	if err := d.Set("server_side_encryption_configuration", serverSideEncryptionConfiguration); err != nil {
 		return fmt.Errorf("error setting server_side_encryption_configuration: %s", err)
+	}
+
+	getBucketTagging, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3Client.GetBucketTagging(&s3.GetBucketTaggingInput{
+			Bucket: bucketAWS,
+		})
+	})
+	if err != nil {
+		return fmt.Errorf("error getting S3 Bucket tags: %w", err)
+	}
+
+	tags := getBucketTagging.(*s3.GetBucketTaggingOutput)
+	tagsNormalized := storageBucketTaggingNormalize(tags.TagSet)
+	err = d.Set("tags", tagsNormalized)
+	if err != nil {
+		return fmt.Errorf("error setting S3 Bucket tags: %w", err)
 	}
 
 	return nil
@@ -1851,6 +1880,97 @@ func resourceYandexStorageBucketVersioningUpdate(s3conn *s3.S3, d *schema.Resour
 	}
 
 	return nil
+}
+
+type yandexStorageTaggingHandleFunc func([]*s3.Tag) error
+
+func resourceYandexStorageHandleTagsUpdate(
+	d *schema.ResourceData,
+	entityType string,
+	onUpdate yandexStorageTaggingHandleFunc,
+	onDelete func() error,
+) error {
+	tagsOldRaw, tagsNewRaw := d.GetChange("tags")
+
+	var (
+		needUpdate, needDelete bool
+	)
+
+	tagsOld := convertTypesMap(tagsOldRaw)
+	tagsNew := convertTypesMap(tagsNewRaw)
+
+	if len(tagsNew) == 0 {
+		needDelete = true
+	} else if len(tagsOld) != len(tagsNew) {
+		needUpdate = true
+	} else {
+		for k, v := range tagsNew {
+			oldv, ok := tagsOld[k]
+
+			if !ok || v != oldv {
+				log.Printf("[DEBUG] for key %s found new value: %s (old: %s)", k, oldv, v)
+
+				needUpdate = true
+				break
+			}
+		}
+	}
+
+	if !needUpdate && !needDelete {
+		log.Printf("[DEBUG] Skipping Storage S3 %s tags update/delete since no changes were made", entityType)
+		return nil
+	}
+
+	var err error
+	switch {
+	case needUpdate:
+		tags := storageBucketTaggingFromMap(tagsNew)
+
+		err = onUpdate(tags)
+	case needDelete:
+		err = onDelete()
+	}
+
+	return err
+}
+
+func resourceYandexStorageBucketTagsUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	bucket := aws.String(d.Get("bucket").(string))
+
+	onUpdate := func(tags []*s3.Tag) error {
+		log.Printf("[INFO] Updating Storage S3 bucket tags with %v", tags)
+
+		request := &s3.PutBucketTaggingInput{
+			Bucket: bucket,
+			Tagging: &s3.Tagging{
+				TagSet: tags,
+			},
+		}
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3conn.PutBucketTagging(request)
+		})
+		if err != nil {
+			log.Printf("[ERROR] Unable to update Storage S3 bucket tags: %s", err)
+		}
+		return err
+	}
+
+	onDelete := func() error {
+		log.Printf("[INFO] Deleting Storage S3 bucket tags")
+
+		request := &s3.DeleteBucketTaggingInput{
+			Bucket: bucket,
+		}
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3conn.DeleteBucketTagging(request)
+		})
+		if err != nil {
+			log.Printf("[ERROR] Unable to delete Storage S3 bucket tags: %s", err)
+		}
+		return err
+	}
+
+	return resourceYandexStorageHandleTagsUpdate(d, "bucket", onUpdate, onDelete)
 }
 
 func resourceYandexStorageBucketObjectLockConfigurationUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
@@ -2730,4 +2850,53 @@ func getAnonymousAccessFlagsSDK(value interface{}) *storagepb.AnonymousAccessFla
 	}
 
 	return accessFlags
+}
+
+func storageBucketTaggingNormalize(tags []*s3.Tag) map[string]string {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	out := make(map[string]string, len(tags))
+	for _, tag := range tags {
+		out[*tag.Key] = *tag.Value
+	}
+
+	return out
+}
+
+func storageBucketTaggingFromMap(tags map[string]string) []*s3.Tag {
+	out := make([]*s3.Tag, 0, len(tags))
+	for k, v := range tags {
+		out = append(out, &s3.Tag{
+			Key:   aws.String(k),
+			Value: aws.String(v),
+		})
+	}
+
+	return out
+}
+
+func convertTypesMap(in interface{}) map[string]string {
+	if in == nil {
+		return nil
+	}
+
+	typedValue, ok := in.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	out := make(map[string]string, len(typedValue))
+
+	for k, v := range typedValue {
+		value, ok := v.(string)
+		if !ok {
+			continue
+		}
+
+		out[k] = value
+	}
+
+	return out
 }

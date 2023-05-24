@@ -908,6 +908,42 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionYears(t *testing.T) {
 	})
 }
 
+func TestAccStorageBucket_Tagging(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	expectedTags := []*s3.Tag{{
+		Key:   aws.String("some"),
+		Value: aws.String("value"),
+	}}
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageBucketDestroy,
+		ErrorCheck:      checkErrorSkipNotImplemented(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketWithTags(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketTagsConfiguration(resourceName, expectedTags),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+				),
+			},
+			{
+				Config: testAccStorageBucketConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					testAccCheckStorageBucketTagsConfiguration(resourceName, nil),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestStorageBucketName(t *testing.T) {
 	validNames := []string{
 		"foobar",
@@ -1327,6 +1363,28 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 	}
 }
 
+func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := s.RootModule().Resources[n]
+		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+		out, err := conn.GetBucketTagging(&s3.GetBucketTaggingInput{
+			Bucket: aws.String(rs.Primary.ID),
+		})
+		if err != nil {
+			return fmt.Errorf("GetBucketTagging error: %v", err)
+		}
+
+		if !reflect.DeepEqual(out.TagSet, config) {
+			return fmt.Errorf("comparing tags failed: expected: %v, got %v", config, out.TagSet)
+		}
+		return nil
+	}
+}
+
 func testAccCheckStorageBucketObjectLockConfiguration(n string, config *s3.ObjectLockConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
@@ -1586,6 +1644,17 @@ func testAccStorageBucketWebsiteConfigWithError(randInt int) string {
 
 	return newBucketConfigBuilder(randInt).
 		addStatement(website).
+		asEditor().
+		render()
+}
+
+func testAccStorageBucketWithTags(randInt int) string {
+	const tagging = `tags = {
+		some = "value"
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(tagging).
 		asEditor().
 		render()
 }

@@ -5,6 +5,7 @@ FEATURES:
 * dataproc: update dataproc tests
 * kms: add `deletion_protection` attribute  in `yandex_kms_symmetric_key` resource
 * **New Data Source:** `yandex_kms_symmetric_key`
+* storage: added bucket and object `tagging`
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added

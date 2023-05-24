@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -330,6 +332,50 @@ func TestAccStorageObject_LegalHoldOff(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_Tagging(t *testing.T) {
+	var obj s3.GetObjectOutput
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_object.test"
+
+	tags := []*s3.Tag{
+		{
+			Key:   aws.String("A"),
+			Value: aws.String("B"),
+		},
+		{
+			Key:   aws.String("Test"),
+			Value: aws.String("Test"),
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		ErrorCheck:      checkErrorSkipNotImplemented(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectTagsPreConfig(rInt, tags),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectTagging(resourceName, &obj, tags),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+				),
+			},
+			{
+				Config: testAccStorageObjectTagsPostConfig(rInt, tags),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectTagging(resourceName, &obj, nil),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckStorageObjectDestroy(s *terraform.State) error {
 	return testAccCheckStorageObjectDestroyWithProvider(s, testAccProvider)
 }
@@ -442,6 +488,61 @@ func testAccCheckStorageObjectLockRetention(obj *s3.GetObjectOutput, modeWant st
 		want := aws.TimeValue(untilWant)
 		if !want.Equal(untilGot) {
 			return fmt.Errorf("wrong result object_lock_retain_until_date %q; want %q", untilGot, want)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags []*s3.Tag) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		switch {
+		case len(tags) > 0 && obj.TagCount == nil:
+			return fmt.Errorf("no object tags found but expected %d", len(tags))
+		case *obj.TagCount != int64(len(tags)):
+			return fmt.Errorf("expected tags count %d got %d", len(tags), *obj.TagCount)
+		}
+
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("no storage object ID is set")
+		}
+
+		s3conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config))
+		if err != nil {
+			return err
+		}
+
+		out, err := s3conn.GetObjectTagging(
+			&s3.GetObjectTaggingInput{
+				Bucket: aws.String(rs.Primary.Attributes["bucket"]),
+				Key:    aws.String(rs.Primary.Attributes["key"]),
+			})
+		if err != nil {
+			return fmt.Errorf("storage object error: %s", err)
+		}
+
+		got := out.TagSet
+		tagsMap := storageBucketTaggingNormalize(tags)
+		gotMap := storageBucketTaggingNormalize(got)
+
+		for k, v := range tagsMap {
+			gotV, ok := gotMap[k]
+			if !ok {
+				return fmt.Errorf("expected key not found: %s", k)
+			}
+
+			if k != gotV {
+				return fmt.Errorf(
+					"unequal values for key %s\nexp: %s got %s",
+					k, v, gotV,
+				)
+			}
 		}
 
 		return nil
@@ -595,4 +696,72 @@ resource "yandex_storage_object" "test" {
 `, status)
 
 	return bucketConfig + objectConfig
+}
+
+func testAccStorageObjectTagsPreConfig(randInt int, tags []*s3.Tag) string {
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
+
+	normalizedTags := storageBucketTaggingNormalize(tags)
+	var sb strings.Builder
+	for k, v := range normalizedTags {
+		// to keep indentation
+		sb.WriteString("\t\t")
+		sb.WriteString(k)
+		sb.WriteString(" = ")
+		sb.WriteString(strconv.Quote(v))
+		sb.WriteString("\n")
+	}
+
+	objectConfig := fmt.Sprintf(`
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+	
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+
+	key = "test-key"
+	tags = {
+%s
+	}
+	content = "some-content"
+}`, strings.TrimSuffix(sb.String(), "\n"))
+
+	return bucketConfig + objectConfig
+}
+
+func testAccStorageObjectTagsPostConfig(randInt int, tags []*s3.Tag) string {
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
+
+	const objectConfig = `
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+	
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+	
+	key     = "test-key"
+	content = "some-content"
+}`
+
+	return bucketConfig + objectConfig
+}
+
+func checkErrorSkipNotImplemented(t *testing.T) func(error) error {
+	return func(err error) error {
+		/*
+			Check error by just serching required word, because wrapped errors
+			does not contains origin error got from running our provider but
+			something like this:
+			unwrapping: *fmt.wrapError
+			unwrapping: *tfexec.unwrapper
+			unwrapping: *exec.ExitError
+			underlying error is: *exec.ExitError
+			and it looks like there' no chance to get typed error like awserr.Error
+		*/
+		if strings.Contains(err.Error(), "NotImplemented") {
+			t.Skipf("this functionality not implemented")
+		}
+
+		return err
+	}
 }

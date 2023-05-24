@@ -103,6 +103,7 @@ func resourceYandexStorageObject() *schema.Resource {
 				RequiredWith: []string{"object_lock_mode"},
 				ValidateFunc: validation.IsRFC3339Time,
 			},
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -155,9 +156,11 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Trying to create new storage object %q in bucket %q", key, bucket)
 
+	awsbucket := aws.String(bucket)
+	awskey := aws.String(key)
 	putObjectInput := &s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
+		Bucket: awsbucket,
+		Key:    awskey,
 		ACL:    aws.String(d.Get("acl").(string)),
 		Body:   body,
 	}
@@ -180,11 +183,34 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 		putObjectInput.SetObjectLockRetainUntilDate(untilDate)
 	}
 
+	log.Printf("[DEBUG] Sending putObjectInput %s", putObjectInput.String())
+
 	if _, err := s3conn.PutObject(putObjectInput); err != nil {
-		return fmt.Errorf("error putting object in bucket %q: %s", bucket, err)
+		return fmt.Errorf("error putting object in bucket %q: %w", bucket, err)
 	}
 
 	d.SetId(key)
+
+	// Use separate request to set tags since it allows to caught
+	// NotImplemented error.
+	if v, ok := d.GetOk("tags"); ok {
+		log.Println("[DEBUG] Trying to set tags for object")
+
+		tags := convertTypesMap(v)
+		s3tags := storageBucketTaggingFromMap(tags)
+
+		var req s3.PutObjectTaggingInput
+		req.Bucket = awsbucket
+		req.Key = awskey
+		req.Tagging = &s3.Tagging{
+			TagSet: s3tags,
+		}
+
+		if _, err = s3conn.PutObjectTagging(&req); err != nil {
+			log.Printf("[ERROR] Unable to put S3 Storage Object tags: %v", err)
+			return err
+		}
+	}
 
 	return resourceYandexStorageObjectRead(d, meta)
 }
@@ -230,6 +256,26 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("object_lock_retain_until_date", untilDate.Format(time.RFC3339))
 	}
 
+	tagsResponseRaw, err := retryFlakyS3Responses(func() (interface{}, error) {
+		return s3conn.GetObjectTagging(&s3.GetObjectTaggingInput{
+			Bucket:    aws.String(bucket),
+			Key:       aws.String(key),
+			VersionId: resp.VersionId,
+		})
+	})
+	if err != nil {
+		log.Printf("[ERROR] Unable to get S3 Storage Object Tagging: %s", err)
+		return err
+	}
+
+	tagsResponse := tagsResponseRaw.(*s3.GetObjectTaggingOutput)
+
+	tags := storageBucketTaggingNormalize(tagsResponse.TagSet)
+	err = d.Set("tags", tags)
+	if err != nil {
+		return fmt.Errorf("error setting S3 Storage Object Tagging: %w", err)
+	}
+
 	return nil
 }
 
@@ -250,6 +296,7 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 		"object_lock_legal_hold_status": resourceYandexStorageObjectLegalHoldUpdate,
 		"object_lock_mode":              resourceYandexStorageObjectRetentionUpdate,
 		"object_lock_retain_until_date": resourceYandexStorageObjectRetentionUpdate,
+		"tags":                          resourceYandexStorageObjectTaggingUpdate,
 	}
 
 	config := meta.(*Config)
@@ -322,6 +369,48 @@ func resourceYandexStorageObjectRetentionUpdate(s3conn *s3.S3, d *schema.Resourc
 		return fmt.Errorf("error putting storage object Retention: %s", err)
 	}
 	return nil
+}
+
+func resourceYandexStorageObjectTaggingUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+	bucket := aws.String(d.Get("bucket").(string))
+	key := aws.String(d.Get("key").(string))
+
+	onUpdate := func(tags []*s3.Tag) error {
+		log.Printf("[INFO] Updating Storage S3 object tags with %v", tags)
+
+		request := &s3.PutObjectTaggingInput{
+			Bucket: bucket,
+			Key:    key,
+			Tagging: &s3.Tagging{
+				TagSet: tags,
+			},
+		}
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3conn.PutObjectTagging(request)
+		})
+		if err != nil {
+			log.Printf("[ERROR] Unable to update Storage S3 object tags: %s", err)
+		}
+		return err
+	}
+
+	onDelete := func() error {
+		log.Printf("[INFO] Deleting Storage S3 object tags")
+
+		request := &s3.DeleteObjectTaggingInput{
+			Bucket: bucket,
+			Key:    key,
+		}
+		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3conn.DeleteObjectTagging(request)
+		})
+		if err != nil {
+			log.Printf("[ERROR] Unable to delete Storage S3 object tags: %s", err)
+		}
+		return err
+	}
+
+	return resourceYandexStorageHandleTagsUpdate(d, "object", onUpdate, onDelete)
 }
 
 func resourceYandexStorageObjectDelete(d *schema.ResourceData, meta interface{}) error {

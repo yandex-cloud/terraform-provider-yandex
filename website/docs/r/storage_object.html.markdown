@@ -19,6 +19,9 @@ resource "yandex_storage_object" "cute-cat-picture" {
   bucket = "cat-pictures"
   key    = "cute-cat"
   source = "/images/cats/cute-cat.jpg"
+  tags = {
+    test = "value"
+  }
 }
 ```
 
@@ -50,7 +53,9 @@ The following arguments are supported:
 
 * `object_lock_mode` - (Optional) Specifies a type of object lock. One of `["GOVERNANCE", "COMPLIANCE"]`. It must be set simultaneously with `object_lock_retain_until_date`. Requires `object_lock_configuration` to be enabled on a bucket.
 
-* `object_lock_retain_until_date` - (Optional) Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket. 
+* `object_lock_retain_until_date` - (Optional) Specifies date and time in RTC3339 format until which an object is to be locked. It must be set simultaneously with `object_lock_mode`. Requires `object_lock_configuration` to be enabled on a bucket.
+
+* `tags` - (Optional) Specifies an object tags.
 
 ## Attributes Reference
 

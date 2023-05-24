@@ -291,6 +291,19 @@ POLICY
 }
 ```
 
+### Bucket Tagging
+
+```hcl
+resource "yandex_storage_bucket" "b" {
+  bucket = "my-policy-bucket"
+
+  tags = {
+    test_key = "test_value"
+    other_key = "other_value"
+  }
+}
+```
+
 ### Bucket Max Size
 
 ```hcl
@@ -477,6 +490,10 @@ resource "yandex_storage_bucket" "all_settings" {
   https = {
     certificate_id = "<certificate_id>"
   }
+
+  tags = {
+    some_key = "some_value"
+  }
 }
 ```
 
@@ -655,6 +672,8 @@ The `anonymous_access_flags` object supports the following properties:
 The `https` object supports the following properties:
 
 * `certificate_id` — Id of the certificate in Certificate Manager, that will be used for bucket.
+
+The `tags` object for setting tags (or labels) for bucket. See [tags](https://cloud.yandex.ru/docs/storage/concepts/tags) for more information.
 
 ## Attributes Reference
 
