@@ -240,6 +240,31 @@ func TestAccDataSourceKubernetesNodeGroupIPv4DNSFQDN_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceKubernetesNodeGroupContainerNetwork_basic(t *testing.T) {
+	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupContainerNetwork_basic", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResource.ContainerRuntimeType = "containerd"
+	nodeResource.PodMTU = 8910
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, false, false),
+				),
+			},
+		},
+	})
+}
+
 const dataNodeGroupConfigTemplate = `
 data "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
   name = "${yandex_kubernetes_node_group.{{.NodeGroupResourceName}}.name}"

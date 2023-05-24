@@ -535,6 +535,31 @@ func TestAccKubernetesNodeGroup_containerRuntime_invalid(t *testing.T) {
 	})
 }
 
+func TestAccKubernetesNodeGroup_containerNetwork(t *testing.T) {
+	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerNetwork", true)
+	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResource.ResourceFullName(true)
+	nodeResource.ContainerRuntimeType = "containerd"
+	nodeResource.PodMTU = 8910
+
+	var ng k8s.NodeGroup
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResource),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
+					checkNodeGroupAttributes(&ng, &nodeResource, true, false),
+				),
+			},
+		},
+	})
+}
+
 type resourceNodeGroupInfo struct {
 	ClusterResourceName   string
 	NodeGroupResourceName string
@@ -578,6 +603,8 @@ type resourceNodeGroupInfo struct {
 
 	TemplateLabelKey   string
 	TemplateLabelValue string
+
+	PodMTU int
 }
 
 func nodeGroupInfo(clusterResourceName string) resourceNodeGroupInfo {
@@ -822,6 +849,12 @@ resource "yandex_kubernetes_node_group" "{{.NodeGroupResourceName}}" {
 	}
 	{{end}}
 
+    {{if .PodMTU}}
+    container_network {
+        pod_mtu = {{.PodMTU}}
+    }
+    {{end}}
+
     {{.NetworkInterfaces}}
 
     resources {
@@ -1039,6 +1072,11 @@ func checkNodeGroupAttributes(ng *k8s.NodeGroup, info *resourceNodeGroupInfo, rs
 				resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_runtime.0.type",
 					strings.ToLower(info.ContainerRuntimeType)),
 			)
+		}
+
+		if info.PodMTU != 0 {
+			resource.TestCheckResourceAttr(resourceFullName, "instance_template.0.container_network.0.pod_mtu",
+				strconv.Itoa(int(tpl.GetContainerNetworkSettings().GetPodMtu())))
 		}
 
 		if info.NetworkInterfaces != enableNAT {

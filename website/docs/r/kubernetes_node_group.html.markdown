@@ -147,6 +147,8 @@ If not set, default is used: {instance_group.id}-{instance.short_id}
 It may also contain another placeholders, see [Compute Instance group metadata doc](https://cloud.yandex.com/en-ru/docs/compute/api-ref/grpc/instance_group_service) for full list.
 
 * `labels` - (Optional) Labels that will be assigned to compute nodes (instances), created by the Node Group.
+
+* `container_network` - (Optional) Container network configuration. The structure is documented below.
 ---
 
 The `boot_disk` block supports:
@@ -272,6 +274,11 @@ The `deploy_policy` block supports:
 * `max_expansion` - The maximum number of instances that can be temporarily allocated above the group's target size during the update.
 * `max_unavailable` - The maximum number of running instances that can be taken offline during update.
 
+---
+
+The `container_network` block supports:
+
+* `pod_mtu` - MTU for pods.
 
 ## Attributes Reference
 

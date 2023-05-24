@@ -261,6 +261,22 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
+						"container_network": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"pod_mtu": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -806,6 +822,11 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		return nil, fmt.Errorf("error expanding metadata while creating Kubernetes node group: %s", err)
 	}
 
+	cns, err := getNodeGroupContainerNetworkSettings(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding container network while creating Kubernetes node group: %s", err)
+	}
+
 	tpl := &k8s.NodeTemplate{
 		PlatformId:               h.GetString("platform_id"),
 		ResourcesSpec:            getNodeGroupResourceSpec(d),
@@ -817,6 +838,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		PlacementPolicy:          getNodeGroupTemplatePlacementPolicy(d),
 		NetworkSettings:          ns,
 		ContainerRuntimeSettings: crs,
+		ContainerNetworkSettings: cns,
 		Name:                     h.GetString("name"),
 		Labels:                   labels,
 	}
@@ -947,6 +969,17 @@ func getNodeGroupContainerRuntimeSettings(d *schema.ResourceData) (*k8s.NodeTemp
 		}, nil
 	}
 	return nil, nil
+}
+
+func getNodeGroupContainerNetworkSettings(d *schema.ResourceData) (*k8s.NodeTemplate_ContainerNetworkSettings, error) {
+	if _, ok := d.GetOk("instance_template.0.container_network"); !ok {
+		return nil, nil
+	}
+	cns := &k8s.NodeTemplate_ContainerNetworkSettings{}
+	if podMTU, ok := d.GetOk("instance_template.0.container_network.0.pod_mtu"); ok {
+		cns.SetPodMtu(int64(podMTU.(int)))
+	}
+	return cns, nil
 }
 
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
@@ -1194,6 +1227,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"container_runtime":         flattenKubernetesNodeGroupTemplateContainerRuntime(ngTpl.GetContainerRuntimeSettings()),
 		"name":                      ngTpl.GetName(),
 		"labels":                    ngTpl.GetLabels(),
+		"container_network":         flattenKubernetesNodeGroupTemplateContainerNetwork(ngTpl.GetContainerNetworkSettings()),
 	}
 
 	return []map[string]interface{}{tpl}
@@ -1350,6 +1384,17 @@ func flattenKubernetesNodeGroupTemplateContainerRuntime(p *k8s.NodeTemplate_Cont
 	return []map[string]interface{}{
 		{
 			"type": strings.ToLower(p.GetType().String()),
+		},
+	}
+}
+
+func flattenKubernetesNodeGroupTemplateContainerNetwork(p *k8s.NodeTemplate_ContainerNetworkSettings) []map[string]interface{} {
+	if p == nil {
+		return []map[string]interface{}{}
+	}
+	return []map[string]interface{}{
+		{
+			"pod_mtu": int(p.GetPodMtu()),
 		},
 	}
 }

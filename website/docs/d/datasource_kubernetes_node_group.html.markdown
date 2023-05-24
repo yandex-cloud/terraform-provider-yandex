@@ -88,6 +88,8 @@ The `instance_template` block supports:
 
 * `name` - Name template of the instance.
 * `labels` - Labels assigned to compute nodes (instances), created by the Node Group.
+
+* `container_network` - Container network configuration. The structure is documented below.
 ---
 
 The `network_interface` block supports:
@@ -220,3 +222,6 @@ The `deploy_policy` block supports:
 
 ---
 
+The `container_network` block supports:
+
+* `pod_mtu` - MTU for pods.

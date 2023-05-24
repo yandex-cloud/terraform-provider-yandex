@@ -6,6 +6,7 @@ FEATURES:
 * kms: add `deletion_protection` attribute  in `yandex_kms_symmetric_key` resource
 * **New Data Source:** `yandex_kms_symmetric_key`
 * storage: added bucket and object `tagging`
+* k8s: add `container_network` attribute with `pod_mtu` to `node_group` resource and data source
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added
