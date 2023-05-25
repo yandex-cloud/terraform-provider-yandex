@@ -282,6 +282,7 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_lb_target_group":                                  resourceYandexLBTargetGroup(),
 			"yandex_lockbox_secret":                                   resourceYandexLockboxSecret(),
 			"yandex_lockbox_secret_version":                           resourceYandexLockboxSecretVersion(),
+			"yandex_lockbox_secret_iam_binding":                       resourceYandexLockboxSecretIAMBinding(),
 			"yandex_logging_group":                                    resourceYandexLoggingGroup(),
 			"yandex_mdb_clickhouse_cluster":                           resourceYandexMDBClickHouseCluster(),
 			"yandex_mdb_elasticsearch_cluster":                        resourceYandexMDBElasticsearchCluster(),
