@@ -231,6 +231,10 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 										Type:     schema.TypeBool,
 										Computed: true,
 									},
+									"audit_enabled": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
 								},
 							},
 						},

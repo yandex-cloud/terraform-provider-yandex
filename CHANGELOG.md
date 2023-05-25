@@ -7,6 +7,7 @@ FEATURES:
 * **New Data Source:** `yandex_kms_symmetric_key`
 * storage: added bucket and object `tagging`
 * k8s: add `container_network` attribute with `pod_mtu` to `node_group` resource and data source
+* k8s: add `audit_enabled` field to `master_logging` attribute in `cluster` resource and data source
 * **New Resource** `yandex_lockbox_secret_iam_binding`
 
 BUG FIXES:

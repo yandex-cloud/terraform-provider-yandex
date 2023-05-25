@@ -154,3 +154,4 @@ The `master_logging` block supports:
 * `kube_apiserver_enabled` - (Optional) Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
 * `cluster_autoscaler_enabled` - (Optional) Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.
 * `events_enabled` - (Optional) Boolean flag that specifies if kubernetes cluster events should be sent to Yandex Cloud Logging.
+* `audit_enabled` - (Optional) Boolean flag that specifies if kube-apiserver audit logs should be sent to Yandex Cloud Logging.

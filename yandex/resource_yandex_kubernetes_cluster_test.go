@@ -1011,6 +1011,7 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.kube_apiserver_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetKubeApiserverEnabled())),
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.cluster_autoscaler_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetClusterAutoscalerEnabled())),
 				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.events_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetEventsEnabled())),
+				resource.TestCheckResourceAttr(resourceFullName, "master.0.master_logging.0.audit_enabled", fmt.Sprintf("%t", master.GetMasterLogging().GetAuditEnabled())),
 			)
 		}
 
@@ -1280,6 +1281,7 @@ const masterLoggingTemplate = `
 		kube_apiserver_enabled = true
 		cluster_autoscaler_enabled = true
 		events_enabled = true
+		audit_enabled = true
 {{if .MasterLoggingLogGroupResourceName}}
 		log_group_id = yandex_logging_group.{{.MasterLoggingLogGroupResourceName}}.id
 {{end}}

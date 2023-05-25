@@ -46,6 +46,7 @@ resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
       kube_apiserver_enabled = true
       cluster_autoscaler_enabled = true
       events_enabled = true
+      audit_enabled = true
     }
   }
 
@@ -118,6 +119,7 @@ resource "yandex_kubernetes_cluster" "regional_cluster_resource_name" {
       kube_apiserver_enabled = true
       cluster_autoscaler_enabled = true
       events_enabled = true
+      audit_enabled = true
     }
   }
 
@@ -292,6 +294,7 @@ The `master_logging` block supports:
 * `kube_apiserver_enabled` - (Optional) Boolean flag that specifies if kube-apiserver logs should be sent to Yandex Cloud Logging.
 * `cluster_autoscaler_enabled` - (Optional) Boolean flag that specifies if cluster-autoscaler logs should be sent to Yandex Cloud Logging.
 * `events_enabled` - (Optional) Boolean flag that specifies if kubernetes cluster events should be sent to Yandex Cloud Logging.
+* `audit_enabled` - (Optional) Boolean flag that specifies if kube-apiserver audit logs should be sent to Yandex Cloud Logging.
 
 ~> **Note:** Only one of `log_group_id` or `folder_id` (or none) may be specified. If `log_group_id` is specified, logs will be sent to this specific Log group. If `folder_id` is specified, logs will be sent to **default** Log group of this folder. If none of two is specified, logs will be sent to **default** Log group of the **same** folder as Kubernetes cluster.
 

@@ -272,6 +272,11 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 										Optional: true,
 										Default:  false,
 									},
+									"audit_enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Default:  false,
+									},
 								},
 							},
 						},
@@ -791,6 +796,9 @@ func getKubernetesClusterMasterLogging(d *schema.ResourceData) (*k8s.MasterLoggi
 	if eventsEnabled, ok := d.GetOk("master.0.master_logging.0.events_enabled"); ok {
 		ml.EventsEnabled = eventsEnabled.(bool)
 	}
+	if auditEnabled, ok := d.GetOk("master.0.master_logging.0.audit_enabled"); ok {
+		ml.AuditEnabled = auditEnabled.(bool)
+	}
 
 	return ml, nil
 }
@@ -1028,6 +1036,7 @@ func (h *masterSchemaHelper) flattenMasterLogging(m *k8s.Master) {
 			"folder_id":                  ml.GetFolderId(),
 			"cluster_autoscaler_enabled": ml.GetClusterAutoscalerEnabled(),
 			"events_enabled":             ml.GetEventsEnabled(),
+			"audit_enabled":              ml.GetAuditEnabled(),
 		},
 	}
 }
