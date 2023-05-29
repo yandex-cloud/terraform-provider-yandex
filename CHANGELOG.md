@@ -9,6 +9,7 @@ FEATURES:
 * k8s: add `container_network` attribute with `pod_mtu` to `node_group` resource and data source
 * k8s: add `audit_enabled` field to `master_logging` attribute in `cluster` resource and data source
 * **New Resource** `yandex_lockbox_secret_iam_binding`
+* All supported subjects specified in docs for `*_iam_member`, `*_iam_binding` and other iam access policy resources 
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added

@@ -53,6 +53,9 @@ Each policy document configuration must have one or more `binding` blocks. Each 
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
   * **serviceAccount:{service_account_id}**: A unique service account ID.
+  * **federatedUser:{federated_user_id}:**: A unique saml federation user account ID.
+  * **group:{group_id}**: A unique group ID.
+
 
 ## Attributes Reference
 

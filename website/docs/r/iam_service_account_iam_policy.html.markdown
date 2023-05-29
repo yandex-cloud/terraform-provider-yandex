@@ -52,6 +52,10 @@ The following arguments are supported:
   Each entry can have one of the following values:
   * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
   * **serviceAccount:{service_account_id}**: A unique service account ID.
+  * **federatedUser:{federated_user_id}:**: A unique saml federation user account ID.
+  * **group:{group_id}**: A unique group ID.
+  * **system:{allUsers|allAuthenticatedUsers}**: see [system groups](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group)
+
 
 * `role` - (Required) The role that should be applied. Only one
     `yandex_iam_service_account_iam_binding` can be used per role.
