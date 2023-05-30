@@ -226,7 +226,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 						"nat": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Computed: true,
+							Default:  false,
 						},
 
 						"index": {

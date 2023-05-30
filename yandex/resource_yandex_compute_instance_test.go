@@ -1450,6 +1450,39 @@ func TestAccComputeInstance_GpuCluster(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_Nat(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+
+	var instanceName = acctest.RandomWithPrefix("tf-test")
+	var addressName = acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			// Create instance with a filesystem attached to it
+			{
+				Config: testAccComputeInstance_nat(addressName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNatAddress(&instance),
+				),
+			},
+			{
+				Config: testAccComputeInstance_remove_nat(addressName, instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstanceHasNoNatAddress(&instance),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 
@@ -4393,4 +4426,88 @@ func testAccComputeInstance_detachFilesystem(fs, newFs, instance string) string 
 		v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, fs, newFs, instance)
+}
+
+func testAccComputeInstance_nat(addressName, instanceName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+    family = "ubuntu-1804-lts"
+}
+resource "yandex_vpc_address" "test" {
+  name = "%s"
+  external_ipv4_address {
+    zone_id = "ru-central1-a"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  platform_id = "standard-v1"
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  resources {
+    cores  = 2
+    memory = 4
+  }
+
+  network_interface {
+    subnet_id      = "${yandex_vpc_subnet.inst-test-subnet.id}"
+    nat            = true
+    nat_ip_address = yandex_vpc_address.test.external_ipv4_address[0].address
+  }
+}
+`, addressName, instanceName)
+}
+
+func testAccComputeInstance_remove_nat(addressName, instanceName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+    family = "ubuntu-1804-lts"
+}
+resource "yandex_vpc_address" "test" {
+  name = "%s"
+  external_ipv4_address {
+    zone_id = "ru-central1-a"
+  }
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  platform_id = "standard-v1"
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  resources {
+    cores  = 2
+    memory = 4
+  }
+
+  network_interface {
+    subnet_id      = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+}
+`, addressName, instanceName)
 }

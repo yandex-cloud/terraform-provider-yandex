@@ -15,6 +15,7 @@ BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added
 * clickhouse: fix actual ClickHouse versions in tests
 * yandex_ydb_table: add option for disable auto partitioning by size
+* compute_instance: fix static ip address unbinding
 
 ## 0.91.0 (May 18, 2023)
 FEATURES:
