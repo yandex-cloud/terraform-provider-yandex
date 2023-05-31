@@ -8,6 +8,7 @@ FEATURES:
 * storage: added bucket and object `tagging`
 * k8s: add `container_network` attribute with `pod_mtu` to `node_group` resource and data source
 * k8s: add `audit_enabled` field to `master_logging` attribute in `cluster` resource and data source
+* clickhouse: minor refactoring of clickhouse tests
 * **New Resource** `yandex_lockbox_secret_iam_binding`
 * All supported subjects specified in docs for `*_iam_member`, `*_iam_binding` and other iam access policy resources 
 

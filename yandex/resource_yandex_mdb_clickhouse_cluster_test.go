@@ -35,7 +35,66 @@ const (
 
 var StorageEndpointUrl = getStorageEndpointUrl()
 
+type mockClickhouseConfigMergeTree struct {
+	replicatedDeduplicationWindow                  int
+	replicatedDeduplicationWindowSeconds           int
+	partsToDelayInsert                             int
+	partsToThrowInsert                             int
+	maxReplicatedMergesInQueue                     int
+	numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge int
+	maxBytesToMergeAtMinSpaceInPool                int
+	minBytesForWidePart                            int
+	minRowsForWidePart                             int
+	ttlOnlyDropParts                               bool
+}
+
+type mockClickhouseConfigKafka struct {
+	securityProtocol string
+	saslMechanism    string
+	saslUsername     string
+	saslPassword     string
+}
+
+type mockClickhouseConfigRabbitmq struct {
+	username string
+	password string
+	vhost    string
+}
+
+type mockClickhouseConfigCompression struct {
+	method           string
+	minPartSize      int
+	minPartSizeRatio float64
+}
+
+type mockClickhouseConfigKafkaTopic struct {
+	name     string
+	settings mockClickhouseConfigKafka
+}
+
+type mockRetention struct {
+	age       int
+	precision int
+}
+
+type mockPattern struct {
+	regexp    string
+	function  string
+	retention mockRetention
+}
+
+type mockGraphiteRollup struct {
+	name    string
+	pattern mockPattern
+}
+
 type mockClickhouseConfig struct {
+	mergeTree                   mockClickhouseConfigMergeTree
+	kafka                       mockClickhouseConfigKafka
+	kafkaTopic                  []mockClickhouseConfigKafkaTopic
+	rabbitmq                    []mockClickhouseConfigRabbitmq
+	compression                 []mockClickhouseConfigCompression
+	graphiteRollup              []mockGraphiteRollup
 	logLevel                    string
 	maxConnections              int
 	maxConcurrentQueries        int
@@ -160,8 +219,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 
 	var r clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse")
-	chDesc := "ClickHouse Cluster Terraform Test"
-	chDesc2 := "ClickHouse Cluster Terraform Test Updated"
 	folderID := getExampleFolderID()
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
@@ -173,16 +230,12 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with anytime maintenance_window
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", false, bucketName, rInt, MaintenanceWindowAnytime),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, "Step 1", "PRESTABLE", false, bucketName, rInt, MaintenanceWindowAnytime),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
+
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "service_account_id"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
@@ -215,16 +268,12 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Update ClickHouse Cluster with weekly maintenance_window
 			{
-				Config: testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRESTABLE", true, bucketName, rInt, MaintenanceWindowWeekly),
+				Config: testAccMDBClickHouseClusterConfigMain(chName, "Step 2", "PRESTABLE", true, bucketName, rInt, MaintenanceWindowWeekly),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11000"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "1"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
+
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "service_account_id"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
@@ -259,22 +308,18 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// test 'deletion_protection
 			{
-				Config:      testAccMDBClickHouseClusterConfigMain(chName, chDesc, "PRODUCTION", true, bucketName, rInt, MaintenanceWindowWeekly),
+				Config:      testAccMDBClickHouseClusterConfigMain(chName, "Step 3", "PRODUCTION", true, bucketName, rInt, MaintenanceWindowWeekly),
 				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Change some options
 			{
-				Config: testAccMDBClickHouseClusterConfigUpdated(chName, chDesc2, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigUpdated(chName, "Step 4", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "12000"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "2"),
+
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
@@ -314,12 +359,12 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Add host, creates implicit ZooKeeper subcluster
 			{
-				Config: testAccMDBClickHouseClusterConfigHA(chName, chDesc2, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigHA(chName, "Step 5", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
+
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					resource.TestCheckResourceAttrSet(chResource, "host.1.fqdn"),
@@ -367,13 +412,12 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Enable sql_user_management and sql_database_management - requires replacement
 			{
-				Config: testAccMDBClickHouseClusterConfigSqlManaged(chName, chDesc2, bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigSqlManaged(chName, "Step 6", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc2),
-					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
+
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
@@ -620,12 +664,11 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 	})
 }
 
-func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
+func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 	t.Parallel()
 
 	var r clickhouse.Cluster
 	chName := acctest.RandomWithPrefix("tf-clickhouse")
-	chDesc := "ClickHouse Cluster Terraform Test with specify user's settings"
 	folderID := getExampleFolderID()
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
@@ -637,12 +680,11 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster with specify user settings
 			{
-				Config: testAccMDBClickHouseClusterConfigExpandUserParams(chName, chDesc, "PRESTABLE", bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigExpandUserParams(chName, "Step 1", "PRESTABLE", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "0"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194304"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "0"),
@@ -661,22 +703,15 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
-
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
-
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "old_clickhouse"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			{
-				Config: testAccMDBClickHouseClusterConfigExpandUserParamsUpdated(chName, chDesc, "PRESTABLE", bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigExpandUserParamsUpdated(chName, "Step 2", "PRESTABLE", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
-					resource.TestCheckResourceAttr(chResource, "description", chDesc),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_concurrent_queries_for_user", "1"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_step", "4194301"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_profiler_sample_probability", "1"),
@@ -695,12 +730,6 @@ func TestAccMDBClickHouseCluster_FastCheckNewParams(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
-
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
-
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "clickhouse"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -717,46 +746,220 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
 
+	configForFirstStep := mockClickhouseConfig{
+		mergeTree: mockClickhouseConfigMergeTree{
+			replicatedDeduplicationWindow:                  1000,
+			replicatedDeduplicationWindowSeconds:           1000,
+			partsToDelayInsert:                             110001,
+			partsToThrowInsert:                             11001,
+			maxReplicatedMergesInQueue:                     11000,
+			numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: 15,
+			maxBytesToMergeAtMinSpaceInPool:                11000,
+			minBytesForWidePart:                            0,
+			minRowsForWidePart:                             0,
+			ttlOnlyDropParts:                               false,
+		},
+		kafka: mockClickhouseConfigKafka{
+			securityProtocol: "SECURITY_PROTOCOL_PLAINTEXT",
+			saslMechanism:    "SASL_MECHANISM_GSSAPI",
+			saslUsername:     "user1",
+			saslPassword:     "pass1",
+		},
+		kafkaTopic: []mockClickhouseConfigKafkaTopic{
+			{
+				name: "topic1",
+				settings: mockClickhouseConfigKafka{
+					securityProtocol: "SECURITY_PROTOCOL_SSL",
+					saslMechanism:    "SASL_MECHANISM_SCRAM_SHA_256",
+					saslUsername:     "user2",
+					saslPassword:     "pass22",
+				},
+			},
+		},
+		rabbitmq: []mockClickhouseConfigRabbitmq{
+			{
+				username: "rabbit_user",
+				password: "rabbit_pass",
+				vhost:    "old_clickhouse",
+			},
+		},
+		compression: []mockClickhouseConfigCompression{
+			{
+				method:           "LZ4",
+				minPartSize:      1024,
+				minPartSizeRatio: 0.5,
+			},
+		},
+		graphiteRollup: []mockGraphiteRollup{
+			{
+				name: "rollup1",
+				pattern: mockPattern{
+					regexp:   "abc",
+					function: "func1",
+					retention: mockRetention{
+						age:       1000,
+						precision: 3,
+					},
+				},
+			},
+		},
+		logLevel:                    "TRACE",
+		maxConnections:              512,
+		maxConcurrentQueries:        100,
+		keepAliveTimeout:            123000,
+		uncompressedCacheSize:       8096,
+		markCacheSize:               8096,
+		maxTableSizeToDrop:          1024,
+		maxPartitionSizeToDrop:      1024,
+		timezone:                    "UTC",
+		geobaseUri:                  "",
+		queryLogRetentionSize:       1024,
+		queryLogRetentionTime:       123000,
+		queryThreadLogEnabled:       false,
+		queryThreadLogRetentionSize: 1024,
+		queryThreadLogRetentionTime: 123000,
+		partLogRetentionSize:        1024,
+		partLogRetentionTime:        123000,
+		metricLogEnabled:            true,
+		metricLogRetentionSize:      1024,
+		metricLogRetentionTime:      123000,
+		traceLogEnabled:             true,
+		traceLogRetentionSize:       1024,
+		traceLogRetentionTime:       123000,
+		textLogEnabled:              true,
+		textLogRetentionSize:        1024,
+		textLogRetentionTime:        123000,
+		textLogLevel:                "WARNING",
+		backgroundPoolSize:          16,
+		backgroundSchedulePoolSize:  32,
+		backgroundFetchesPoolSize:   8,
+		defaultDatabase:             "default",
+		totalMemoryProfilerStep:     4194304,
+	}
+
+	configForSecondStep := mockClickhouseConfig{
+		mergeTree: mockClickhouseConfigMergeTree{
+			replicatedDeduplicationWindow:                  100,
+			replicatedDeduplicationWindowSeconds:           604800,
+			partsToDelayInsert:                             150,
+			partsToThrowInsert:                             12000,
+			maxReplicatedMergesInQueue:                     16,
+			numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: 8,
+			maxBytesToMergeAtMinSpaceInPool:                1048576,
+			minBytesForWidePart:                            512,
+			minRowsForWidePart:                             16,
+			ttlOnlyDropParts:                               true,
+		},
+		kafka: mockClickhouseConfigKafka{
+			securityProtocol: "SECURITY_PROTOCOL_PLAINTEXT",
+			saslMechanism:    "SASL_MECHANISM_GSSAPI",
+			saslUsername:     "user1",
+			saslPassword:     "pass1",
+		},
+		kafkaTopic: []mockClickhouseConfigKafkaTopic{
+			{
+				name: "topic1",
+				settings: mockClickhouseConfigKafka{
+					securityProtocol: "SECURITY_PROTOCOL_SSL",
+					saslMechanism:    "SASL_MECHANISM_SCRAM_SHA_256",
+					saslUsername:     "user2",
+					saslPassword:     "pass22",
+				},
+			},
+			{
+				name: "topic2",
+				settings: mockClickhouseConfigKafka{
+					securityProtocol: "SECURITY_PROTOCOL_SASL_PLAINTEXT",
+					saslMechanism:    "SASL_MECHANISM_PLAIN",
+					saslUsername:     "user2",
+					saslPassword:     "pass22",
+				},
+			},
+		},
+		rabbitmq: []mockClickhouseConfigRabbitmq{
+			{
+				username: "rabbit_user",
+				password: "rabbit_pass2",
+				vhost:    "clickhouse",
+			},
+		},
+		compression: []mockClickhouseConfigCompression{
+			{
+				method:           "LZ4",
+				minPartSize:      2024,
+				minPartSizeRatio: 0.3,
+			},
+			{
+				method:           "ZSTD",
+				minPartSize:      4048,
+				minPartSizeRatio: 0.77,
+			},
+		},
+		graphiteRollup: []mockGraphiteRollup{
+			{
+				name: "rollup1",
+				pattern: mockPattern{
+					regexp:   "abc",
+					function: "func1",
+					retention: mockRetention{
+						age:       1000,
+						precision: 3,
+					},
+				},
+			},
+			{
+				name: "rollup2",
+				pattern: mockPattern{
+					regexp:   "abc",
+					function: "func3",
+					retention: mockRetention{
+						age:       3000,
+						precision: 7,
+					},
+				},
+			},
+		},
+		logLevel:                    "WARNING",
+		maxConnections:              1024,
+		maxConcurrentQueries:        200,
+		keepAliveTimeout:            246000,
+		uncompressedCacheSize:       16192,
+		markCacheSize:               16192,
+		maxTableSizeToDrop:          2048,
+		maxPartitionSizeToDrop:      2048,
+		timezone:                    "UTC",
+		geobaseUri:                  "",
+		queryLogRetentionSize:       2048,
+		queryLogRetentionTime:       246000,
+		queryThreadLogEnabled:       true,
+		queryThreadLogRetentionSize: 2048,
+		queryThreadLogRetentionTime: 246000,
+		partLogRetentionSize:        2048,
+		partLogRetentionTime:        246000,
+		metricLogEnabled:            true,
+		metricLogRetentionSize:      2048,
+		metricLogRetentionTime:      246000,
+		traceLogEnabled:             true,
+		traceLogRetentionSize:       2048,
+		traceLogRetentionTime:       246000,
+		textLogEnabled:              true,
+		textLogRetentionSize:        2048,
+		textLogRetentionTime:        246000,
+		textLogLevel:                "ERROR",
+		backgroundPoolSize:          32,
+		backgroundSchedulePoolSize:  64,
+		backgroundFetchesPoolSize:   16,
+		defaultDatabase:             "new_default",
+		totalMemoryProfilerStep:     4194303,
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 1", rInt, chVersion, mockClickhouseConfig{
-					logLevel:                    "TRACE",
-					maxConnections:              512,
-					maxConcurrentQueries:        100,
-					keepAliveTimeout:            123000,
-					uncompressedCacheSize:       8096,
-					markCacheSize:               8096,
-					maxTableSizeToDrop:          1024,
-					maxPartitionSizeToDrop:      1024,
-					timezone:                    "UTC",
-					geobaseUri:                  "",
-					queryLogRetentionSize:       1024,
-					queryLogRetentionTime:       123000,
-					queryThreadLogEnabled:       false,
-					queryThreadLogRetentionSize: 1024,
-					queryThreadLogRetentionTime: 123000,
-					partLogRetentionSize:        1024,
-					partLogRetentionTime:        123000,
-					metricLogEnabled:            true,
-					metricLogRetentionSize:      1024,
-					metricLogRetentionTime:      123000,
-					traceLogEnabled:             true,
-					traceLogRetentionSize:       1024,
-					traceLogRetentionTime:       123000,
-					textLogEnabled:              true,
-					textLogRetentionSize:        1024,
-					textLogRetentionTime:        123000,
-					textLogLevel:                "WARNING",
-					backgroundPoolSize:          16,
-					backgroundSchedulePoolSize:  32,
-					backgroundFetchesPoolSize:   8,
-					defaultDatabase:             "default",
-					totalMemoryProfilerStep:     4194304,
-				}),
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 1", rInt, chVersion, configForFirstStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -792,49 +995,44 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.text_log_level", "WARNING"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "32"),
-
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window", "1000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "1000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_delay_insert", "110001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "11001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_replicated_merges_in_queue", "11000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_lower_max_size_of_merge", "15"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_min_space_in_pool", "11000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.security_protocol", "SECURITY_PROTOCOL_SSL"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_mechanism", "SASL_MECHANISM_SCRAM_SHA_256"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_username", "user2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass22"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "old_clickhouse"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			{
-				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 2", rInt, chVersion, mockClickhouseConfig{
-					logLevel:                    "WARNING",
-					maxConnections:              1024,
-					maxConcurrentQueries:        200,
-					keepAliveTimeout:            246000,
-					uncompressedCacheSize:       16192,
-					markCacheSize:               16192,
-					maxTableSizeToDrop:          2048,
-					maxPartitionSizeToDrop:      2048,
-					timezone:                    "UTC",
-					geobaseUri:                  "",
-					queryLogRetentionSize:       2048,
-					queryLogRetentionTime:       246000,
-					queryThreadLogEnabled:       true,
-					queryThreadLogRetentionSize: 2048,
-					queryThreadLogRetentionTime: 246000,
-					partLogRetentionSize:        2048,
-					partLogRetentionTime:        246000,
-					metricLogEnabled:            true,
-					metricLogRetentionSize:      2048,
-					metricLogRetentionTime:      246000,
-					traceLogEnabled:             true,
-					traceLogRetentionSize:       2048,
-					traceLogRetentionTime:       246000,
-					textLogEnabled:              true,
-					textLogRetentionSize:        2048,
-					textLogRetentionTime:        246000,
-					textLogLevel:                "ERROR",
-					backgroundPoolSize:          32,
-					backgroundSchedulePoolSize:  64,
-					backgroundFetchesPoolSize:   16,
-					defaultDatabase:             "new_default",
-					totalMemoryProfilerStep:     4194303,
-				}),
+				Config: testAccMDBClickHouseClusterConfig(chName, bucketName, "step 2", rInt, chVersion, configForSecondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -873,6 +1071,41 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window", "100"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "604800"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_delay_insert", "150"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.parts_to_throw_insert", "12000"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_replicated_merges_in_queue", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.number_of_free_entries_in_pool_to_lower_max_size_of_merge", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_bytes_to_merge_at_min_space_in_pool", "1048576"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.security_protocol", "SECURITY_PROTOCOL_SSL"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_mechanism", "SASL_MECHANISM_SCRAM_SHA_256"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_username", "user2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass22"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.name", "topic2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_SASL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_mechanism", "SASL_MECHANISM_PLAIN"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_username", "user2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_password", "pass22"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "clickhouse"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -1432,58 +1665,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
-
-    config {
-      merge_tree {
-        replicated_deduplication_window                           = 1000
-        replicated_deduplication_window_seconds                   = 1000
-        parts_to_delay_insert                                     = 110001
-        parts_to_throw_insert                                     = 11000
-        max_replicated_merges_in_queue                            = 11000
-        number_of_free_entries_in_pool_to_lower_max_size_of_merge = 15
-        max_bytes_to_merge_at_min_space_in_pool                   = 11000
-      }
-
-      kafka {
-        security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-        sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
-        sasl_username     = "user1"
-        sasl_password     = "pass1"
-      }
-
-      kafka_topic {
-        name = "topic1"
-        settings {
-          security_protocol = "SECURITY_PROTOCOL_SSL"
-          sasl_mechanism    = "SASL_MECHANISM_SCRAM_SHA_256"
-          sasl_username     = "user2"
-          sasl_password     = "pass22"
-        }
-      }
-
-      rabbitmq {
-        username = "rabbit_user"
-        password = "rabbit_pass"
-      }
-
-      compression {
-        method              = "LZ4"
-        min_part_size       = 1024
-        min_part_size_ratio = 0.5
-      }
-
-      graphite_rollup {
-        name = "rollup1"
-        pattern {
-          regexp   = "abc"
-          function = "func1"
-          retention {
-            age       = 1000
-            precision = 3
-          }
-        }
-      }
-    }
   }
 
   database {
@@ -1639,83 +1820,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
       disk_size          = 18
-    }
-
-    config {
-      merge_tree {
-        replicated_deduplication_window                           = 100
-        replicated_deduplication_window_seconds                   = 604800
-        parts_to_delay_insert                                     = 150
-        parts_to_throw_insert                                     = 12000
-        max_replicated_merges_in_queue                            = 16
-        number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
-        max_bytes_to_merge_at_min_space_in_pool                   = 1048576
-      }
-
-      kafka {
-        security_protocol = "SECURITY_PROTOCOL_PLAINTEXT"
-        sasl_mechanism    = "SASL_MECHANISM_GSSAPI"
-        sasl_username     = "user1"
-        sasl_password     = "pass2"
-      }
-
-      kafka_topic {
-        name = "topic1"
-        settings {
-          security_protocol = "SECURITY_PROTOCOL_SSL"
-          sasl_mechanism    = "SASL_MECHANISM_SCRAM_SHA_256"
-          sasl_username     = "user3"
-          sasl_password     = "pass3"
-        }
-      }
-
-      kafka_topic {
-        name = "topic2"
-        settings {
-          security_protocol = "SECURITY_PROTOCOL_SASL_PLAINTEXT"
-          sasl_mechanism    = "SASL_MECHANISM_PLAIN"
-        }
-      }
-
-      rabbitmq {
-        username = "rabbit_user"
-        password = "rabbit_pass2"
-      }
-
-      compression {
-        method              = "LZ4"
-        min_part_size       = 2024
-        min_part_size_ratio = 0.3
-      }
-
-      compression {
-        method              = "ZSTD"
-        min_part_size       = 4048
-        min_part_size_ratio = 0.77
-      }
-
-      graphite_rollup {
-        name = "rollup1"
-        pattern {
-          regexp   = "abcd"
-          function = "func2"
-          retention {
-            age       = 2000
-            precision = 5
-          }
-        }
-      }
-
-      graphite_rollup {
-        name = "rollup2"
-        pattern {
-          function = "func3"
-          retention {
-            age       = 3000
-            precision = 7
-          }
-        }
-      }
     }
   }
 
@@ -2883,7 +2987,23 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
       disk_type_id       = "network-ssd"
       disk_size          = 32
     }
-	config {
+
+	# config
+	%s
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+}
+`, name, desc, version, buildClickhouseConfig(config))
+}
+
+func buildClickhouseConfig(config mockClickhouseConfig) string {
+	return fmt.Sprintf(`
+config {
       	log_level		                = "%s"
 		max_connections                 = %d
 		max_concurrent_queries          = %d
@@ -2913,20 +3033,42 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 		text_log_level                  = "%s"
 		background_pool_size            = %d
 		background_schedule_pool_size   = %d
-
 		background_fetches_pool_size 	= %d
 		default_database 				= "%s"
 		total_memory_profiler_step 		= %d
-    }
-  }
 
-  host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-  }
-}
-`, name, desc, version,
+		merge_tree {
+			replicated_deduplication_window                           = %d
+			replicated_deduplication_window_seconds                   = %d
+			parts_to_delay_insert                                     = %d
+			parts_to_throw_insert                                     = %d
+			max_replicated_merges_in_queue                            = %d
+			number_of_free_entries_in_pool_to_lower_max_size_of_merge = %d
+			max_bytes_to_merge_at_min_space_in_pool                   = %d
+			min_bytes_for_wide_part 								  = %d
+            min_rows_for_wide_part 									  = %d
+            ttl_only_drop_parts 									  = %t
+		}
+		kafka {
+			security_protocol = "%s"
+			sasl_mechanism    = "%s"
+			sasl_username     = "%s"
+			sasl_password     = "%s"
+		}
+
+		# kafka_topics
+		%s
+
+		# rabbitmq
+		%s
+
+		# compression
+		%s
+
+		# graphite_rollup
+		%s
+    }
+`,
 		config.logLevel,
 		config.maxConnections,
 		config.maxConcurrentQueries,
@@ -2958,7 +3100,108 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 		config.backgroundSchedulePoolSize,
 		config.backgroundFetchesPoolSize,
 		config.defaultDatabase,
-		config.totalMemoryProfilerStep)
+		config.totalMemoryProfilerStep,
+		config.mergeTree.replicatedDeduplicationWindow,
+		config.mergeTree.replicatedDeduplicationWindowSeconds,
+		config.mergeTree.partsToDelayInsert,
+		config.mergeTree.partsToThrowInsert,
+		config.mergeTree.maxReplicatedMergesInQueue,
+		config.mergeTree.numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge,
+		config.mergeTree.maxBytesToMergeAtMinSpaceInPool,
+		config.mergeTree.minBytesForWidePart,
+		config.mergeTree.minRowsForWidePart,
+		config.mergeTree.ttlOnlyDropParts,
+		config.kafka.securityProtocol,
+		config.kafka.saslMechanism,
+		config.kafka.saslUsername,
+		config.kafka.saslPassword,
+		buildConfigForKafkaTopics(config.kafkaTopic),
+		buildConfigForRabbitmq(config.rabbitmq),
+		buildConfigForCompression(config.compression),
+		buildGraphiteRollup(config.graphiteRollup),
+	)
+}
+
+func buildConfigForKafkaTopics(topics []mockClickhouseConfigKafkaTopic) string {
+	var result string
+	for _, rawTopic := range topics {
+		result += fmt.Sprintf(`
+kafka_topic {
+	name = "%s"
+	settings {
+		security_protocol = "%s"
+		sasl_mechanism    = "%s"
+		sasl_username     = "%s"
+		sasl_password     = "%s"
+	}
+}
+`,
+			rawTopic.name,
+			rawTopic.settings.securityProtocol,
+			rawTopic.settings.saslMechanism,
+			rawTopic.settings.saslUsername,
+			rawTopic.settings.saslPassword)
+	}
+	return result
+}
+
+func buildConfigForRabbitmq(rabbitmq []mockClickhouseConfigRabbitmq) string {
+	var result string
+	for _, v := range rabbitmq {
+		result += fmt.Sprintf(`
+rabbitmq {
+        username = "%s"
+        password = "%s"
+		vhost 	 = "%s"
+}
+`,
+			v.username,
+			v.password,
+			v.vhost)
+	}
+	return result
+}
+
+func buildConfigForCompression(compression []mockClickhouseConfigCompression) string {
+	var result string
+	for _, v := range compression {
+		result += fmt.Sprintf(`
+compression {
+        method 				= "%s"
+        min_part_size 		= %d
+		min_part_size_ratio = %f
+}
+`,
+			v.method,
+			v.minPartSize,
+			v.minPartSizeRatio)
+	}
+	return result
+}
+
+func buildGraphiteRollup(graphiteRollup []mockGraphiteRollup) string {
+	var result string
+	for _, v := range graphiteRollup {
+		result += fmt.Sprintf(`
+graphite_rollup {
+        name = "%s"
+        pattern {
+          regexp   = "%s"
+          function = "%s"
+          retention {
+            age       = %d
+            precision = %d
+          }
+        }
+}
+`,
+			v.name,
+			v.pattern.regexp,
+			v.pattern.function,
+			v.pattern.retention.age,
+			&v.pattern.retention.precision)
+	}
+	return result
 }
 
 func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {
@@ -2985,16 +3228,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
-	config {
-		merge_tree {
-			min_bytes_for_wide_part = 0
-			min_rows_for_wide_part = 0
-			ttl_only_drop_parts = false
-		}
-		rabbitmq {
-			vhost = "old_clickhouse"
-		}
-	}
   }
 
   database {
@@ -3065,20 +3298,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
       disk_type_id       = "network-ssd"
       disk_size          = 16
     }
-	config {
-		background_fetches_pool_size = 16
-		default_database = "new_default"
-		total_memory_profiler_step = 4194303
-
-		merge_tree {
-			min_bytes_for_wide_part = 512
-			min_rows_for_wide_part = 16
-			ttl_only_drop_parts = true
-		}
-		rabbitmq {
-			vhost = "clickhouse"
-		}
-	}
   }
 
   database {
