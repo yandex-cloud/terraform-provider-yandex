@@ -1,4 +1,5 @@
-## 0.92.0 (Unreleased)
+## 0.93.0 (Unreleased)
+## 0.92.0 (May 31, 2023)
 FEATURES:
 * mongodb: update mongodb version in tests from deprecated `4.2` to actual `6.0`
 * organizationmanager: saml user organization membership management via dedicated resource `yandex_organizationmanager_saml_federation_user_account` is implemented
