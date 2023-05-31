@@ -29,6 +29,12 @@ resource "yandex_cdn_resource" "my_resource" {
     options {
         edge_cache_settings = 345600
         ignore_cookie = true
+  		static_request_headers = {
+          is-from-cdn = "yes"
+        }
+        static_response_headers = {
+          is-cdn = "yes"
+        }
     }
 }
 ```
@@ -87,8 +93,10 @@ Resource block supports following options:
 * `proxy_cache_methods_set` - allows caching for GET, HEAD and POST requests.
 
 * `disable_proxy_force_ranges` - disabling proxy force ranges.
+  
+* `static_request_headers` - set up custom headers that CDN servers will send in requests to origins.
 
-* `static_request_headers` - set up custom headers that CDN servers send in requests to origins.
+* `static_response_headers` - set up custom headers that CDN servers will send in response to clients.  
 
 * `custom_server_name` - wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS. Read-only.
 

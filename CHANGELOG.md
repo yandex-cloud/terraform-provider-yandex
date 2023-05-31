@@ -11,12 +11,14 @@ FEATURES:
 * clickhouse: minor refactoring of clickhouse tests
 * **New Resource** `yandex_lockbox_secret_iam_binding`
 * All supported subjects specified in docs for `*_iam_member`, `*_iam_binding` and other iam access policy resources 
+* cdn: added support to set custom headers in requests to origin in `static_request_headers`
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour deprecation notice added
 * clickhouse: fix actual ClickHouse versions in tests
 * yandex_ydb_table: add option for disable auto partitioning by size
 * compute_instance: fix static ip address unbinding
+* cdn: fix documentation
 
 ## 0.91.0 (May 18, 2023)
 FEATURES:

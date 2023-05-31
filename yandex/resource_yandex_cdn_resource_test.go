@@ -501,6 +501,35 @@ func TestAccCDNResource_optionStaticHeaders(t *testing.T) {
 	})
 }
 
+func TestAccCDNResource_optionStaticRequestHeaders(t *testing.T) {
+	folderID := getExampleFolderID()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_optionStaticRequestHeaders(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_request_headers.X-Tf-Check-1", "some test value #1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.static_request_headers.X-Tf-Check-2", "some test value #2"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+		},
+	})
+}
+
 func testSweepCDNResource(_ string) error {
 	conf, err := configForSweepers()
 	if err != nil {
@@ -640,6 +669,23 @@ resource "yandex_cdn_resource" "foobar_resource" {
 
 	options {
 		static_response_headers = {
+			X-Tf-Check-1 = "some test value #1"
+			X-Tf-Check-2 = "some test value #2"
+		}
+	}
+}
+`, resourceCNAME)
+}
+
+func testAccCDNResource_optionStaticRequestHeaders(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+
+	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
+
+	options {
+		static_request_headers = {
 			X-Tf-Check-1 = "some test value #1"
 			X-Tf-Check-2 = "some test value #2"
 		}

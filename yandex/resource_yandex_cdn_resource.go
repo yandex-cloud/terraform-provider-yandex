@@ -255,7 +255,7 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							Optional: true,
 						},
 						"static_request_headers": {
-							Type: schema.TypeList,
+							Type: schema.TypeMap,
 
 							Computed: true,
 							Optional: true,
@@ -592,7 +592,18 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		}
 	}
 
-	// TODO: Add option `static_request_headers`.
+	if rawOption, ok := d.GetOk("options.0.static_request_headers"); ok {
+		optionsSet = true
+
+		result.StaticRequestHeaders = &cdn.ResourceOptions_StringsMapOption{
+			Enabled: true,
+		}
+
+		result.StaticRequestHeaders.Value = make(map[string]string)
+		for k, v := range rawOption.(map[string]interface{}) {
+			result.StaticRequestHeaders.Value[k] = v.(string)
+		}
+	}
 
 	if rawOption, ok := d.GetOk("options.0.custom_server_name"); ok {
 		optionsSet = true
@@ -840,6 +851,10 @@ func flattenYandexCDNResourceOptions(options *cdn.ResourceOptions) []map[string]
 
 	if options.StaticHeaders != nil {
 		setIfEnabled("static_response_headers", options.StaticHeaders.Enabled, options.StaticHeaders.Value)
+	}
+
+	if options.StaticRequestHeaders != nil {
+		setIfEnabled("static_request_headers", options.StaticRequestHeaders.Enabled, options.StaticRequestHeaders.Value)
 	}
 
 	if options.CustomServerName != nil {
