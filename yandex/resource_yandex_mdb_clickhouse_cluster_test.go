@@ -13,12 +13,14 @@ import (
 
 	"google.golang.org/genproto/protobuf/field_mask"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
 const chVersion = "22.8"
@@ -34,100 +36,6 @@ const (
 )
 
 var StorageEndpointUrl = getStorageEndpointUrl()
-
-type mockClickhouseConfigMergeTree struct {
-	replicatedDeduplicationWindow                  int
-	replicatedDeduplicationWindowSeconds           int
-	partsToDelayInsert                             int
-	partsToThrowInsert                             int
-	maxReplicatedMergesInQueue                     int
-	numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge int
-	maxBytesToMergeAtMinSpaceInPool                int
-	minBytesForWidePart                            int
-	minRowsForWidePart                             int
-	ttlOnlyDropParts                               bool
-}
-
-type mockClickhouseConfigKafka struct {
-	securityProtocol string
-	saslMechanism    string
-	saslUsername     string
-	saslPassword     string
-}
-
-type mockClickhouseConfigRabbitmq struct {
-	username string
-	password string
-	vhost    string
-}
-
-type mockClickhouseConfigCompression struct {
-	method           string
-	minPartSize      int
-	minPartSizeRatio float64
-}
-
-type mockClickhouseConfigKafkaTopic struct {
-	name     string
-	settings mockClickhouseConfigKafka
-}
-
-type mockRetention struct {
-	age       int
-	precision int
-}
-
-type mockPattern struct {
-	regexp    string
-	function  string
-	retention mockRetention
-}
-
-type mockGraphiteRollup struct {
-	name    string
-	pattern mockPattern
-}
-
-type mockClickhouseConfig struct {
-	mergeTree                   mockClickhouseConfigMergeTree
-	kafka                       mockClickhouseConfigKafka
-	kafkaTopic                  []mockClickhouseConfigKafkaTopic
-	rabbitmq                    []mockClickhouseConfigRabbitmq
-	compression                 []mockClickhouseConfigCompression
-	graphiteRollup              []mockGraphiteRollup
-	logLevel                    string
-	maxConnections              int
-	maxConcurrentQueries        int
-	keepAliveTimeout            int
-	uncompressedCacheSize       int
-	markCacheSize               int
-	maxTableSizeToDrop          int
-	maxPartitionSizeToDrop      int
-	timezone                    string
-	geobaseUri                  string
-	queryLogRetentionSize       int
-	queryLogRetentionTime       int
-	queryThreadLogEnabled       bool
-	queryThreadLogRetentionSize int
-	queryThreadLogRetentionTime int
-	partLogRetentionSize        int
-	partLogRetentionTime        int
-	metricLogEnabled            bool
-	metricLogRetentionSize      int
-	metricLogRetentionTime      int
-	traceLogEnabled             bool
-	traceLogRetentionSize       int
-	traceLogRetentionTime       int
-	textLogEnabled              bool
-	textLogRetentionSize        int
-	textLogRetentionTime        int
-	textLogLevel                string
-	backgroundPoolSize          int
-	backgroundSchedulePoolSize  int
-	backgroundFetchesPoolSize   int
-	defaultDatabase             string
-	totalMemoryProfilerStep     int
-}
 
 func getStorageEndpointUrl() string {
 	rawUrl := os.Getenv("YC_STORAGE_ENDPOINT_URL")
@@ -746,211 +654,220 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
 
-	configForFirstStep := mockClickhouseConfig{
-		mergeTree: mockClickhouseConfigMergeTree{
-			replicatedDeduplicationWindow:                  1000,
-			replicatedDeduplicationWindowSeconds:           1000,
-			partsToDelayInsert:                             110001,
-			partsToThrowInsert:                             11001,
-			maxReplicatedMergesInQueue:                     11000,
-			numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: 15,
-			maxBytesToMergeAtMinSpaceInPool:                11000,
-			minBytesForWidePart:                            0,
-			minRowsForWidePart:                             0,
-			ttlOnlyDropParts:                               false,
+	configForFirstStep := &cfg.ClickhouseConfig{
+		MergeTree: &cfg.ClickhouseConfig_MergeTree{
+			ReplicatedDeduplicationWindow:                  &wrappers.Int64Value{Value: 1000},
+			ReplicatedDeduplicationWindowSeconds:           &wrappers.Int64Value{Value: 1000},
+			PartsToDelayInsert:                             &wrappers.Int64Value{Value: 110001},
+			PartsToThrowInsert:                             &wrappers.Int64Value{Value: 11001},
+			MaxReplicatedMergesInQueue:                     &wrappers.Int64Value{Value: 11000},
+			NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: &wrappers.Int64Value{Value: 15},
+			MaxBytesToMergeAtMinSpaceInPool:                &wrappers.Int64Value{Value: 11000},
+			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 0},
+			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 0},
+			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: false},
 		},
-		kafka: mockClickhouseConfigKafka{
-			securityProtocol: "SECURITY_PROTOCOL_PLAINTEXT",
-			saslMechanism:    "SASL_MECHANISM_GSSAPI",
-			saslUsername:     "user1",
-			saslPassword:     "pass1",
+		Kafka: &cfg.ClickhouseConfig_Kafka{
+			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
+			SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_GSSAPI,
+			SaslUsername:     "user1",
+			SaslPassword:     "pass1",
 		},
-		kafkaTopic: []mockClickhouseConfigKafkaTopic{
+		KafkaTopics: []*cfg.ClickhouseConfig_KafkaTopic{
 			{
-				name: "topic1",
-				settings: mockClickhouseConfigKafka{
-					securityProtocol: "SECURITY_PROTOCOL_SSL",
-					saslMechanism:    "SASL_MECHANISM_SCRAM_SHA_256",
-					saslUsername:     "user2",
-					saslPassword:     "pass22",
+				Name: "topic1",
+				Settings: &cfg.ClickhouseConfig_Kafka{
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SSL,
+					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_256,
+					SaslUsername:     "user2",
+					SaslPassword:     "pass22",
 				},
 			},
 		},
-		rabbitmq: []mockClickhouseConfigRabbitmq{
+		Rabbitmq: &cfg.ClickhouseConfig_Rabbitmq{
+			Username: "rabbit_user",
+			Password: "rabbit_pass",
+			Vhost:    "old_clickhouse",
+		},
+		Compression: []*cfg.ClickhouseConfig_Compression{
 			{
-				username: "rabbit_user",
-				password: "rabbit_pass",
-				vhost:    "old_clickhouse",
+				Method:           cfg.ClickhouseConfig_Compression_LZ4,
+				MinPartSize:      1024,
+				MinPartSizeRatio: 0.5,
 			},
 		},
-		compression: []mockClickhouseConfigCompression{
+		GraphiteRollup: []*cfg.ClickhouseConfig_GraphiteRollup{
 			{
-				method:           "LZ4",
-				minPartSize:      1024,
-				minPartSizeRatio: 0.5,
-			},
-		},
-		graphiteRollup: []mockGraphiteRollup{
-			{
-				name: "rollup1",
-				pattern: mockPattern{
-					regexp:   "abc",
-					function: "func1",
-					retention: mockRetention{
-						age:       1000,
-						precision: 3,
+				Name: "rollup1",
+				Patterns: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern{
+					{
+						Regexp:   "abc",
+						Function: "func1",
+						Retention: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern_Retention{
+							{
+								Age:       1000,
+								Precision: 3,
+							},
+						},
 					},
 				},
 			},
 		},
-		logLevel:                    "TRACE",
-		maxConnections:              512,
-		maxConcurrentQueries:        100,
-		keepAliveTimeout:            123000,
-		uncompressedCacheSize:       8096,
-		markCacheSize:               8096,
-		maxTableSizeToDrop:          1024,
-		maxPartitionSizeToDrop:      1024,
-		timezone:                    "UTC",
-		geobaseUri:                  "",
-		queryLogRetentionSize:       1024,
-		queryLogRetentionTime:       123000,
-		queryThreadLogEnabled:       false,
-		queryThreadLogRetentionSize: 1024,
-		queryThreadLogRetentionTime: 123000,
-		partLogRetentionSize:        1024,
-		partLogRetentionTime:        123000,
-		metricLogEnabled:            true,
-		metricLogRetentionSize:      1024,
-		metricLogRetentionTime:      123000,
-		traceLogEnabled:             true,
-		traceLogRetentionSize:       1024,
-		traceLogRetentionTime:       123000,
-		textLogEnabled:              true,
-		textLogRetentionSize:        1024,
-		textLogRetentionTime:        123000,
-		textLogLevel:                "WARNING",
-		backgroundPoolSize:          16,
-		backgroundSchedulePoolSize:  32,
-		backgroundFetchesPoolSize:   8,
-		defaultDatabase:             "default",
-		totalMemoryProfilerStep:     4194304,
+		LogLevel:                    cfg.ClickhouseConfig_TRACE,
+		MaxConnections:              &wrappers.Int64Value{Value: 512},
+		MaxConcurrentQueries:        &wrappers.Int64Value{Value: 100},
+		KeepAliveTimeout:            &wrappers.Int64Value{Value: 123000},
+		UncompressedCacheSize:       &wrappers.Int64Value{Value: 8096},
+		MarkCacheSize:               &wrappers.Int64Value{Value: 8096},
+		MaxTableSizeToDrop:          &wrappers.Int64Value{Value: 1024},
+		MaxPartitionSizeToDrop:      &wrappers.Int64Value{Value: 1024},
+		Timezone:                    "UTC",
+		GeobaseUri:                  "",
+		QueryLogRetentionSize:       &wrappers.Int64Value{Value: 1024},
+		QueryLogRetentionTime:       &wrappers.Int64Value{Value: 123000},
+		QueryThreadLogEnabled:       &wrappers.BoolValue{Value: false},
+		QueryThreadLogRetentionSize: &wrappers.Int64Value{Value: 1024},
+		QueryThreadLogRetentionTime: &wrappers.Int64Value{Value: 123000},
+		PartLogRetentionSize:        &wrappers.Int64Value{Value: 1024},
+		PartLogRetentionTime:        &wrappers.Int64Value{Value: 123000},
+		MetricLogEnabled:            &wrappers.BoolValue{Value: true},
+		MetricLogRetentionSize:      &wrappers.Int64Value{Value: 1024},
+		MetricLogRetentionTime:      &wrappers.Int64Value{Value: 123000},
+		TraceLogEnabled:             &wrappers.BoolValue{Value: true},
+		TraceLogRetentionSize:       &wrappers.Int64Value{Value: 1024},
+		TraceLogRetentionTime:       &wrappers.Int64Value{Value: 123000},
+		TextLogEnabled:              &wrappers.BoolValue{Value: true},
+		TextLogRetentionSize:        &wrappers.Int64Value{Value: 1024},
+		TextLogRetentionTime:        &wrappers.Int64Value{Value: 123000},
+		TextLogLevel:                cfg.ClickhouseConfig_WARNING,
+		BackgroundPoolSize:          &wrappers.Int64Value{Value: 16},
+		BackgroundSchedulePoolSize:  &wrappers.Int64Value{Value: 32},
+		BackgroundFetchesPoolSize:   &wrappers.Int64Value{Value: 8},
+		DefaultDatabase:             &wrappers.StringValue{Value: "default"},
+		TotalMemoryProfilerStep:     &wrappers.Int64Value{Value: 4194304},
 	}
 
-	configForSecondStep := mockClickhouseConfig{
-		mergeTree: mockClickhouseConfigMergeTree{
-			replicatedDeduplicationWindow:                  100,
-			replicatedDeduplicationWindowSeconds:           604800,
-			partsToDelayInsert:                             150,
-			partsToThrowInsert:                             12000,
-			maxReplicatedMergesInQueue:                     16,
-			numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: 8,
-			maxBytesToMergeAtMinSpaceInPool:                1048576,
-			minBytesForWidePart:                            512,
-			minRowsForWidePart:                             16,
-			ttlOnlyDropParts:                               true,
+	configForSecondStep := &cfg.ClickhouseConfig{
+		MergeTree: &cfg.ClickhouseConfig_MergeTree{
+			ReplicatedDeduplicationWindow:                  &wrappers.Int64Value{Value: 100},
+			ReplicatedDeduplicationWindowSeconds:           &wrappers.Int64Value{Value: 604800},
+			PartsToDelayInsert:                             &wrappers.Int64Value{Value: 150},
+			PartsToThrowInsert:                             &wrappers.Int64Value{Value: 12000},
+			MaxReplicatedMergesInQueue:                     &wrappers.Int64Value{Value: 16},
+			NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge: &wrappers.Int64Value{Value: 8},
+			MaxBytesToMergeAtMinSpaceInPool:                &wrappers.Int64Value{Value: 1048576},
+			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 512},
+			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 16},
+			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: true},
 		},
-		kafka: mockClickhouseConfigKafka{
-			securityProtocol: "SECURITY_PROTOCOL_PLAINTEXT",
-			saslMechanism:    "SASL_MECHANISM_GSSAPI",
-			saslUsername:     "user1",
-			saslPassword:     "pass1",
+		Kafka: &cfg.ClickhouseConfig_Kafka{
+			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
+			SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_GSSAPI,
+			SaslUsername:     "user1",
+			SaslPassword:     "pass1",
 		},
-		kafkaTopic: []mockClickhouseConfigKafkaTopic{
+		KafkaTopics: []*cfg.ClickhouseConfig_KafkaTopic{
 			{
-				name: "topic1",
-				settings: mockClickhouseConfigKafka{
-					securityProtocol: "SECURITY_PROTOCOL_SSL",
-					saslMechanism:    "SASL_MECHANISM_SCRAM_SHA_256",
-					saslUsername:     "user2",
-					saslPassword:     "pass22",
+				Name: "topic1",
+				Settings: &cfg.ClickhouseConfig_Kafka{
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SSL,
+					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_256,
+					SaslUsername:     "user2",
+					SaslPassword:     "pass22",
 				},
 			},
 			{
-				name: "topic2",
-				settings: mockClickhouseConfigKafka{
-					securityProtocol: "SECURITY_PROTOCOL_SASL_PLAINTEXT",
-					saslMechanism:    "SASL_MECHANISM_PLAIN",
-					saslUsername:     "user2",
-					saslPassword:     "pass22",
+				Name: "topic2",
+				Settings: &cfg.ClickhouseConfig_Kafka{
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SASL_PLAINTEXT,
+					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_PLAIN,
+					SaslUsername:     "user2",
+					SaslPassword:     "pass22",
 				},
 			},
 		},
-		rabbitmq: []mockClickhouseConfigRabbitmq{
+		Rabbitmq: &cfg.ClickhouseConfig_Rabbitmq{
+			Username: "rabbit_user",
+			Password: "rabbit_pass2",
+			Vhost:    "clickhouse",
+		},
+		Compression: []*cfg.ClickhouseConfig_Compression{
 			{
-				username: "rabbit_user",
-				password: "rabbit_pass2",
-				vhost:    "clickhouse",
+				Method:           cfg.ClickhouseConfig_Compression_LZ4,
+				MinPartSize:      2024,
+				MinPartSizeRatio: 0.3,
+			},
+			{
+				Method:           cfg.ClickhouseConfig_Compression_ZSTD,
+				MinPartSize:      4048,
+				MinPartSizeRatio: 0.77,
 			},
 		},
-		compression: []mockClickhouseConfigCompression{
+		GraphiteRollup: []*cfg.ClickhouseConfig_GraphiteRollup{
 			{
-				method:           "LZ4",
-				minPartSize:      2024,
-				minPartSizeRatio: 0.3,
-			},
-			{
-				method:           "ZSTD",
-				minPartSize:      4048,
-				minPartSizeRatio: 0.77,
-			},
-		},
-		graphiteRollup: []mockGraphiteRollup{
-			{
-				name: "rollup1",
-				pattern: mockPattern{
-					regexp:   "abc",
-					function: "func1",
-					retention: mockRetention{
-						age:       1000,
-						precision: 3,
+				Name: "rollup1",
+				Patterns: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern{
+					{
+						Regexp:   "abc",
+						Function: "func1",
+						Retention: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern_Retention{
+							{
+								Age:       1000,
+								Precision: 3,
+							},
+						},
 					},
 				},
 			},
 			{
-				name: "rollup2",
-				pattern: mockPattern{
-					regexp:   "abc",
-					function: "func3",
-					retention: mockRetention{
-						age:       3000,
-						precision: 7,
+				Name: "rollup2",
+				Patterns: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern{
+					{
+						Regexp:   "abc",
+						Function: "func3",
+						Retention: []*cfg.ClickhouseConfig_GraphiteRollup_Pattern_Retention{
+							{
+								Age:       3000,
+								Precision: 7,
+							},
+						},
 					},
 				},
 			},
 		},
-		logLevel:                    "WARNING",
-		maxConnections:              1024,
-		maxConcurrentQueries:        200,
-		keepAliveTimeout:            246000,
-		uncompressedCacheSize:       16192,
-		markCacheSize:               16192,
-		maxTableSizeToDrop:          2048,
-		maxPartitionSizeToDrop:      2048,
-		timezone:                    "UTC",
-		geobaseUri:                  "",
-		queryLogRetentionSize:       2048,
-		queryLogRetentionTime:       246000,
-		queryThreadLogEnabled:       true,
-		queryThreadLogRetentionSize: 2048,
-		queryThreadLogRetentionTime: 246000,
-		partLogRetentionSize:        2048,
-		partLogRetentionTime:        246000,
-		metricLogEnabled:            true,
-		metricLogRetentionSize:      2048,
-		metricLogRetentionTime:      246000,
-		traceLogEnabled:             true,
-		traceLogRetentionSize:       2048,
-		traceLogRetentionTime:       246000,
-		textLogEnabled:              true,
-		textLogRetentionSize:        2048,
-		textLogRetentionTime:        246000,
-		textLogLevel:                "ERROR",
-		backgroundPoolSize:          32,
-		backgroundSchedulePoolSize:  64,
-		backgroundFetchesPoolSize:   16,
-		defaultDatabase:             "new_default",
-		totalMemoryProfilerStep:     4194303,
+		LogLevel:                    cfg.ClickhouseConfig_WARNING,
+		MaxConnections:              &wrappers.Int64Value{Value: 1024},
+		MaxConcurrentQueries:        &wrappers.Int64Value{Value: 200},
+		KeepAliveTimeout:            &wrappers.Int64Value{Value: 246000},
+		UncompressedCacheSize:       &wrappers.Int64Value{Value: 16192},
+		MarkCacheSize:               &wrappers.Int64Value{Value: 16192},
+		MaxTableSizeToDrop:          &wrappers.Int64Value{Value: 2048},
+		MaxPartitionSizeToDrop:      &wrappers.Int64Value{Value: 2048},
+		Timezone:                    "UTC",
+		GeobaseUri:                  "",
+		QueryLogRetentionSize:       &wrappers.Int64Value{Value: 2048},
+		QueryLogRetentionTime:       &wrappers.Int64Value{Value: 246000},
+		QueryThreadLogEnabled:       &wrappers.BoolValue{Value: true},
+		QueryThreadLogRetentionSize: &wrappers.Int64Value{Value: 2048},
+
+		QueryThreadLogRetentionTime: &wrappers.Int64Value{Value: 246000},
+		PartLogRetentionSize:        &wrappers.Int64Value{Value: 2048},
+		PartLogRetentionTime:        &wrappers.Int64Value{Value: 246000},
+		MetricLogEnabled:            &wrappers.BoolValue{Value: true},
+		MetricLogRetentionSize:      &wrappers.Int64Value{Value: 2048},
+		MetricLogRetentionTime:      &wrappers.Int64Value{Value: 246000},
+		TraceLogEnabled:             &wrappers.BoolValue{Value: true},
+		TraceLogRetentionSize:       &wrappers.Int64Value{Value: 2048},
+		TraceLogRetentionTime:       &wrappers.Int64Value{Value: 246000},
+		TextLogEnabled:              &wrappers.BoolValue{Value: true},
+		TextLogRetentionSize:        &wrappers.Int64Value{Value: 2048},
+		TextLogRetentionTime:        &wrappers.Int64Value{Value: 246000},
+		TextLogLevel:                cfg.ClickhouseConfig_ERROR,
+		BackgroundPoolSize:          &wrappers.Int64Value{Value: 32},
+		BackgroundSchedulePoolSize:  &wrappers.Int64Value{Value: 64},
+		BackgroundFetchesPoolSize:   &wrappers.Int64Value{Value: 16},
+		DefaultDatabase:             &wrappers.StringValue{Value: "new_default"},
+		TotalMemoryProfilerStep:     &wrappers.Int64Value{Value: 4194303},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -2967,7 +2884,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 `, name, version, preset, diskSize)
 }
 
-func testAccMDBClickHouseClusterConfig(name, bucket, desc string, randInt int, version string, config mockClickhouseConfig) string {
+func testAccMDBClickHouseClusterConfig(name, bucket, desc string, randInt int, version string, config *cfg.ClickhouseConfig) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo"{
   name           = "%s"
@@ -3001,7 +2918,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 `, name, desc, version, buildClickhouseConfig(config))
 }
 
-func buildClickhouseConfig(config mockClickhouseConfig) string {
+func buildClickhouseConfig(config *cfg.ClickhouseConfig) string {
 	return fmt.Sprintf(`
 config {
       	log_level		                = "%s"
@@ -3037,24 +2954,11 @@ config {
 		default_database 				= "%s"
 		total_memory_profiler_step 		= %d
 
-		merge_tree {
-			replicated_deduplication_window                           = %d
-			replicated_deduplication_window_seconds                   = %d
-			parts_to_delay_insert                                     = %d
-			parts_to_throw_insert                                     = %d
-			max_replicated_merges_in_queue                            = %d
-			number_of_free_entries_in_pool_to_lower_max_size_of_merge = %d
-			max_bytes_to_merge_at_min_space_in_pool                   = %d
-			min_bytes_for_wide_part 								  = %d
-            min_rows_for_wide_part 									  = %d
-            ttl_only_drop_parts 									  = %t
-		}
-		kafka {
-			security_protocol = "%s"
-			sasl_mechanism    = "%s"
-			sasl_username     = "%s"
-			sasl_password     = "%s"
-		}
+		# merge_tree
+		%s
+
+		# kafka
+		%s
 
 		# kafka_topics
 		%s
@@ -3069,60 +2973,90 @@ config {
 		%s
     }
 `,
-		config.logLevel,
-		config.maxConnections,
-		config.maxConcurrentQueries,
-		config.keepAliveTimeout,
-		config.uncompressedCacheSize,
-		config.markCacheSize,
-		config.maxTableSizeToDrop,
-		config.maxPartitionSizeToDrop,
-		config.timezone,
-		config.geobaseUri,
-		config.queryLogRetentionSize,
-		config.queryLogRetentionTime,
-		config.queryThreadLogEnabled,
-		config.queryThreadLogRetentionSize,
-		config.queryThreadLogRetentionTime,
-		config.partLogRetentionSize,
-		config.partLogRetentionTime,
-		config.metricLogEnabled,
-		config.metricLogRetentionSize,
-		config.metricLogRetentionTime,
-		config.textLogEnabled,
-		config.textLogRetentionSize,
-		config.textLogRetentionTime,
-		config.textLogEnabled,
-		config.textLogRetentionSize,
-		config.textLogRetentionTime,
-		config.textLogLevel,
-		config.backgroundPoolSize,
-		config.backgroundSchedulePoolSize,
-		config.backgroundFetchesPoolSize,
-		config.defaultDatabase,
-		config.totalMemoryProfilerStep,
-		config.mergeTree.replicatedDeduplicationWindow,
-		config.mergeTree.replicatedDeduplicationWindowSeconds,
-		config.mergeTree.partsToDelayInsert,
-		config.mergeTree.partsToThrowInsert,
-		config.mergeTree.maxReplicatedMergesInQueue,
-		config.mergeTree.numberOfFreeEntriesInPoolToLowerMaxSizeOfMerge,
-		config.mergeTree.maxBytesToMergeAtMinSpaceInPool,
-		config.mergeTree.minBytesForWidePart,
-		config.mergeTree.minRowsForWidePart,
-		config.mergeTree.ttlOnlyDropParts,
-		config.kafka.securityProtocol,
-		config.kafka.saslMechanism,
-		config.kafka.saslUsername,
-		config.kafka.saslPassword,
-		buildConfigForKafkaTopics(config.kafkaTopic),
-		buildConfigForRabbitmq(config.rabbitmq),
-		buildConfigForCompression(config.compression),
-		buildGraphiteRollup(config.graphiteRollup),
+		config.LogLevel.String(),
+		config.MaxConnections.GetValue(),
+		config.MaxConcurrentQueries.GetValue(),
+		config.KeepAliveTimeout.GetValue(),
+		config.UncompressedCacheSize.GetValue(),
+		config.MarkCacheSize.GetValue(),
+		config.MaxTableSizeToDrop.GetValue(),
+		config.MaxPartitionSizeToDrop.GetValue(),
+		config.Timezone,
+		config.GeobaseUri,
+		config.QueryLogRetentionSize.GetValue(),
+		config.QueryLogRetentionTime.GetValue(),
+		config.QueryThreadLogEnabled.GetValue(),
+		config.QueryThreadLogRetentionSize.GetValue(),
+		config.QueryThreadLogRetentionTime.GetValue(),
+		config.PartLogRetentionSize.GetValue(),
+		config.PartLogRetentionTime.GetValue(),
+		config.MetricLogEnabled.GetValue(),
+		config.MetricLogRetentionSize.GetValue(),
+		config.MetricLogRetentionTime.GetValue(),
+		config.TextLogEnabled.GetValue(),
+		config.TextLogRetentionSize.GetValue(),
+		config.TextLogRetentionTime.GetValue(),
+		config.TextLogEnabled.GetValue(),
+		config.TextLogRetentionSize.GetValue(),
+		config.TextLogRetentionTime.GetValue(),
+		config.TextLogLevel.String(),
+		config.BackgroundPoolSize.GetValue(),
+		config.BackgroundSchedulePoolSize.GetValue(),
+		config.BackgroundFetchesPoolSize.GetValue(),
+		config.DefaultDatabase.GetValue(),
+		config.TotalMemoryProfilerStep.GetValue(),
+		buildConfigForMergeTree(config.MergeTree),
+		buildConfigForKafka(config.Kafka),
+		buildConfigForKafkaTopics(config.KafkaTopics),
+		buildConfigForRabbitmq(config.Rabbitmq),
+		buildConfigForCompression(config.Compression),
+		buildGraphiteRollup(config.GraphiteRollup),
 	)
 }
 
-func buildConfigForKafkaTopics(topics []mockClickhouseConfigKafkaTopic) string {
+func buildConfigForMergeTree(mergeTree *cfg.ClickhouseConfig_MergeTree) string {
+	return fmt.Sprintf(`
+merge_tree {
+			replicated_deduplication_window                           = %d
+			replicated_deduplication_window_seconds                   = %d
+			parts_to_delay_insert                                     = %d
+			parts_to_throw_insert                                     = %d
+			max_replicated_merges_in_queue                            = %d
+			number_of_free_entries_in_pool_to_lower_max_size_of_merge = %d
+			max_bytes_to_merge_at_min_space_in_pool                   = %d
+			min_bytes_for_wide_part 								  = %d
+            min_rows_for_wide_part 									  = %d
+            ttl_only_drop_parts 									  = %t
+		}
+`,
+		mergeTree.ReplicatedDeduplicationWindow.GetValue(),
+		mergeTree.ReplicatedDeduplicationWindowSeconds.GetValue(),
+		mergeTree.PartsToDelayInsert.GetValue(),
+		mergeTree.PartsToThrowInsert.GetValue(),
+		mergeTree.MaxReplicatedMergesInQueue.GetValue(),
+		mergeTree.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.GetValue(),
+		mergeTree.MaxBytesToMergeAtMinSpaceInPool.GetValue(),
+		mergeTree.MinBytesForWidePart.GetValue(),
+		mergeTree.MinRowsForWidePart.GetValue(),
+		mergeTree.TtlOnlyDropParts.GetValue())
+}
+
+func buildConfigForKafka(kafka *cfg.ClickhouseConfig_Kafka) string {
+	return fmt.Sprintf(`
+kafka {
+			security_protocol = "%s"
+			sasl_mechanism    = "%s"
+			sasl_username     = "%s"
+			sasl_password     = "%s"
+		}
+`,
+		kafka.SecurityProtocol.String(),
+		kafka.SaslMechanism.String(),
+		kafka.SaslUsername,
+		kafka.SaslPassword)
+}
+
+func buildConfigForKafkaTopics(topics []*cfg.ClickhouseConfig_KafkaTopic) string {
 	var result string
 	for _, rawTopic := range topics {
 		result += fmt.Sprintf(`
@@ -3136,33 +3070,29 @@ kafka_topic {
 	}
 }
 `,
-			rawTopic.name,
-			rawTopic.settings.securityProtocol,
-			rawTopic.settings.saslMechanism,
-			rawTopic.settings.saslUsername,
-			rawTopic.settings.saslPassword)
+			rawTopic.Name,
+			rawTopic.Settings.SecurityProtocol.String(),
+			rawTopic.Settings.SaslMechanism.String(),
+			rawTopic.Settings.SaslUsername,
+			rawTopic.Settings.SaslPassword)
 	}
 	return result
 }
 
-func buildConfigForRabbitmq(rabbitmq []mockClickhouseConfigRabbitmq) string {
-	var result string
-	for _, v := range rabbitmq {
-		result += fmt.Sprintf(`
+func buildConfigForRabbitmq(rabbitmq *cfg.ClickhouseConfig_Rabbitmq) string {
+	return fmt.Sprintf(`
 rabbitmq {
         username = "%s"
         password = "%s"
 		vhost 	 = "%s"
 }
 `,
-			v.username,
-			v.password,
-			v.vhost)
-	}
-	return result
+		rabbitmq.Username,
+		rabbitmq.Password,
+		rabbitmq.Vhost)
 }
 
-func buildConfigForCompression(compression []mockClickhouseConfigCompression) string {
+func buildConfigForCompression(compression []*cfg.ClickhouseConfig_Compression) string {
 	var result string
 	for _, v := range compression {
 		result += fmt.Sprintf(`
@@ -3172,14 +3102,14 @@ compression {
 		min_part_size_ratio = %f
 }
 `,
-			v.method,
-			v.minPartSize,
-			v.minPartSizeRatio)
+			v.Method.String(),
+			v.MinPartSize,
+			v.MinPartSizeRatio)
 	}
 	return result
 }
 
-func buildGraphiteRollup(graphiteRollup []mockGraphiteRollup) string {
+func buildGraphiteRollup(graphiteRollup []*cfg.ClickhouseConfig_GraphiteRollup) string {
 	var result string
 	for _, v := range graphiteRollup {
 		result += fmt.Sprintf(`
@@ -3195,11 +3125,11 @@ graphite_rollup {
         }
 }
 `,
-			v.name,
-			v.pattern.regexp,
-			v.pattern.function,
-			v.pattern.retention.age,
-			&v.pattern.retention.precision)
+			v.Name,
+			v.Patterns[0].Regexp,
+			v.Patterns[0].Function,
+			v.Patterns[0].Retention[0].Age,
+			v.Patterns[0].Retention[0].Precision)
 	}
 	return result
 }
