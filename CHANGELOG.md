@@ -1,4 +1,7 @@
 ## 0.93.0 (Unreleased)
+FEATURES:
+* provider: the default development, testing and building of the provider is now done with Go 1.18
+
 ## 0.92.0 (May 31, 2023)
 FEATURES:
 * mongodb: update mongodb version in tests from deprecated `4.2` to actual `6.0`
