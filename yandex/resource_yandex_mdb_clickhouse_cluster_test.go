@@ -156,7 +156,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "access.0.yandex_query", "true"),
 
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}},
 						map[string]map[string]interface{}{
 							"john": {
@@ -194,7 +193,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "access.0.yandex_query", "true"),
 
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}},
 						map[string]map[string]interface{}{
 							"john": {
@@ -231,7 +229,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}},
 						map[string]map[string]interface{}{
 							"john": {
@@ -265,20 +262,17 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// Add host, creates implicit ZooKeeper subcluster
+			// Check quota, schemas, model, users
 			{
-				Config: testAccMDBClickHouseClusterConfigHA(chName, "Step 5", bucketName, rInt),
+				Config: testAccMDBClickHouseClusterConfigUser(chName, "Step 5", bucketName, rInt),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 
 					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
-					resource.TestCheckResourceAttrSet(chResource, "host.1.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 19327352832),
-					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&r, "s2.micro", "network-ssd", 10737418240),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{"john": {"testdb"}, "mary": {"newdb", "testdb"}},
 						map[string]map[string]interface{}{
 							"john": {
@@ -328,7 +322,6 @@ func TestAccMDBClickHouseCluster_full(t *testing.T) {
 
 					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
 					testAccCheckMDBClickHouseClusterContainsLabel(&r, "test_key", "test_value"),
-					testAccCheckMDBClickHouseClusterHasResources(&r, "s2.micro", "network-ssd", 17179869184),
 					testAccCheckMDBClickHouseClusterHasUsers(chResource, map[string][]string{}, map[string]map[string]interface{}{}, map[string][]map[string]interface{}{}),
 					testAccCheckMDBClickHouseClusterHasDatabases(chResource, []string{}),
 					testAccCheckCreatedAtAttr(chResource)),
@@ -528,13 +521,34 @@ func TestAccMDBClickHouseCluster_cloud_storage(t *testing.T) {
 // Test that a ClickHouse Cluster version and resources could be updated simultaneously.
 func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 	var r clickhouse.Cluster
-	chName := acctest.RandomWithPrefix("tf-clickhouse-update")
+	chName := acctest.RandomWithPrefix("tf-clickhouse-cluster-resources")
 	folderID := getExampleFolderID()
 	bucketName := acctest.RandomWithPrefix("tf-test-clickhouse-bucket")
 	rInt := acctest.RandInt()
 
-	preset := "s2.micro"
-	updatedPreset := "s2.small"
+	firstStep := &clickhouse.Resources{
+		ResourcePresetId: "s2.micro",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         10737418240,
+	}
+
+	secondStep := &clickhouse.Resources{
+		ResourcePresetId: "s2.small",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         17179869184,
+	}
+
+	thirdStepCluster := &clickhouse.Resources{
+		ResourcePresetId: "s2.micro",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         19327352832,
+	}
+
+	thirdStepZookeeper := &clickhouse.Resources{
+		ResourcePresetId: "s2.micro",
+		DiskTypeId:       "network-ssd",
+		DiskSize:         10737418240,
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -543,29 +557,46 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterResource(chName, bucketName, rInt, chVersion, preset, 10),
+				Config: testAccMDBClickHouseClusterResources(chName, "Step 1", bucketName, rInt, chVersion, firstStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chVersion),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", preset),
-					testAccCheckMDBClickHouseClusterHasResources(&r, preset, "network-ssd", 10737418240),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", firstStep.ResourcePresetId),
+					testAccCheckMDBClickHouseClusterHasResources(&r, firstStep.ResourcePresetId, firstStep.DiskTypeId, firstStep.DiskSize),
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			// Update ClickHouse version and cluster resources
 			{
-				Config: testAccMDBClickHouseClusterResource(chName, bucketName, rInt, chUpdatedVersion, updatedPreset, 16),
+				Config: testAccMDBClickHouseClusterResources(chName, "Step 2", bucketName, rInt, chUpdatedVersion, secondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
 					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", updatedPreset),
-					testAccCheckMDBClickHouseClusterHasResources(&r, updatedPreset, "network-ssd", 17179869184),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", secondStep.ResourcePresetId),
+					testAccCheckMDBClickHouseClusterHasResources(&r, secondStep.ResourcePresetId, secondStep.DiskTypeId, secondStep.DiskSize),
 
 					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Add host, creates implicit ZooKeeper subclusters
+			{
+				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Step 3", bucketName, rInt, thirdStepCluster, thirdStepZookeeper),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+
+					resource.TestCheckResourceAttr(chResource, "security_group_ids.#", "1"),
+					resource.TestCheckResourceAttrSet(chResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttrSet(chResource, "host.1.fqdn"),
+					testAccCheckMDBClickHouseClusterHasResources(&r, thirdStepCluster.ResourcePresetId, thirdStepCluster.DiskTypeId, thirdStepCluster.DiskSize),
+					testAccCheckMDBClickHouseZooKeeperSubclusterHasResources(&r, thirdStepZookeeper.ResourcePresetId, thirdStepZookeeper.DiskTypeId, thirdStepZookeeper.DiskSize),
+					testAccCheckCreatedAtAttr(chResource),
+				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 		},
@@ -1736,7 +1767,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     resources {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
-      disk_size          = 18
+      disk_size          = 16
     }
   }
 
@@ -1998,7 +2029,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl)
 }
 
-func testAccMDBClickHouseClusterConfigHA(name, desc, bucket string, randInt int) string {
+func testAccMDBClickHouseClusterConfigUser(name, desc, bucket string, randInt int) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
@@ -2016,15 +2047,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     resources {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
-      disk_size          = 18
-    }
-  }
-
-  zookeeper {
-    resources {
-      resource_preset_id = "s2.micro"
-      disk_type_id       = "network-ssd"
-      disk_size          = 10
+      disk_size          = 16
     }
   }
 
@@ -2263,30 +2286,6 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
 
-  host {
-    type      = "CLICKHOUSE"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
-  }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
-  }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-b"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
-  }
-
-  host {
-    type      = "ZOOKEEPER"
-    zone      = "ru-central1-c"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
-  }
-
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
 
   format_schema {
@@ -2318,6 +2317,79 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 }
 `, name, desc, chVersion, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl, StorageEndpointUrl)
+}
+
+func testAccMDBClickHouseClusterResourceZookeepers(name, desc, bucket string, randInt int, resourcesCluster, resourcesZookeeper *clickhouse.Resources) string {
+	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+resource "yandex_mdb_clickhouse_cluster" "foo" {
+  name                     = "%s"
+  description              = "%s"
+  environment              = "PRESTABLE"
+  version                  = "%s"
+  network_id               = "${yandex_vpc_network.mdb-ch-test-net.id}"
+  copy_schema_on_new_hosts = true
+
+  clickhouse {
+    # resources
+	%s
+  }
+
+  zookeeper {
+    # resources
+	%s
+  }
+
+  database {
+    name = "testdb"
+  }
+
+  database {
+    name = "newdb"
+  }
+
+  user {
+    name     = "john"
+    password = "password"
+    permission {
+      database_name = "testdb"
+    }
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  host {
+    type      = "CLICKHOUSE"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+  }
+
+  host {
+    type      = "ZOOKEEPER"
+    zone      = "ru-central1-a"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+
+  host {
+    type      = "ZOOKEEPER"
+    zone      = "ru-central1-b"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-b.id}"
+  }
+
+  host {
+    type      = "ZOOKEEPER"
+    zone      = "ru-central1-c"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
+  }
+
+  security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+}
+`, name, desc, chVersion,
+		buildResources(resourcesCluster),
+		buildResources(resourcesZookeeper))
 }
 
 func testAccMDBClickHouseClusterConfigSharded(name string, clusterDiskSize int, firstShardDiskSize, secondShardDiskSize int, bucket string, randInt int) string {
@@ -2853,11 +2925,11 @@ resource "yandex_mdb_clickhouse_cluster" "keeper" {
 `, name, desc)
 }
 
-func testAccMDBClickHouseClusterResource(name, bucket string, randInt int, version string, preset string, diskSize int) string {
+func testAccMDBClickHouseClusterResources(name, desc, bucket string, randInt int, version string, resources *clickhouse.Resources) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo"{
   name           = "%s"
-  description    = "ClickHouse Cluster update Terraform Test"
+  description    = "%s"
   environment    = "PRESTABLE"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   admin_password = "strong_password"
@@ -2868,11 +2940,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 
   clickhouse {
-    resources {
-      resource_preset_id = "%s"
-      disk_type_id       = "network-ssd"
-      disk_size          = %d
-    }
+    # resources 
+	%s
   }
 
   host {
@@ -2881,7 +2950,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
 }
-`, name, version, preset, diskSize)
+`, name, desc, version, buildResources(resources))
 }
 
 func testAccMDBClickHouseClusterConfig(name, bucket, desc string, randInt int, version string, config *cfg.ClickhouseConfig) string {
@@ -2902,7 +2971,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     resources {
       resource_preset_id = "s2.micro"
       disk_type_id       = "network-ssd"
-      disk_size          = 32
+      disk_size          = 16
     }
 
 	# config
@@ -2916,6 +2985,19 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 }
 `, name, desc, version, buildClickhouseConfig(config))
+}
+
+func buildResources(resources *clickhouse.Resources) string {
+	return fmt.Sprintf(`
+resources {
+      resource_preset_id = "%s"
+      disk_type_id       = "%s"
+      disk_size          = %d
+    }
+`,
+		resources.ResourcePresetId,
+		resources.DiskTypeId,
+		toGigabytes(resources.DiskSize))
 }
 
 func buildClickhouseConfig(config *cfg.ClickhouseConfig) string {
