@@ -1,6 +1,8 @@
 package yandex
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/organizationmanager/v1/saml"
@@ -60,29 +62,5 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 		nextPageToken = listResp.NextPageToken
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.OrganizationManagerSAML().Federation().AddUserAccounts(
-		config.Context(),
-		&saml.AddFederatedUserAccountsRequest{
-			FederationId: federationID,
-			NameIds:      []string{nameID},
-		},
-	))
-
-	if err != nil {
-		return err
-	}
-
-	err = op.Wait(config.Context())
-	if err != nil {
-		return err
-	}
-
-	rawResp, err := op.Response()
-	if err != nil {
-		return err
-	}
-	addResp := rawResp.(*saml.AddFederatedUserAccountsResponse)
-	d.SetId(addResp.UserAccounts[0].Id)
-
-	return nil
+	return fmt.Errorf("Failed to resolve data source saml user account %s in saml federation %s", nameID, federationID)
 }

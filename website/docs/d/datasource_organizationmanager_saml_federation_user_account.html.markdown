@@ -11,7 +11,7 @@ description: |-
 Get information about a user of Yandex SAML Federation. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/organization/operations/federations/integration-common).
 
-~> **Note:** If terraform user has sufficient access and user specified in data source does not exist, it will be created. This behaviour will be **deprecated** in future releases. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
+~> **Note:** If terraform user had sufficient access and user specified in data source did not exist, it would be created. This behaviour will was **fixed**. Use resource `yandex_organizationmanager_saml_federation_user_account` to manage account lifecycle.
 
 ## Example Usage
 
