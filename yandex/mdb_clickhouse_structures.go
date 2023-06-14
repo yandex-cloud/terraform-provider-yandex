@@ -559,13 +559,27 @@ func flattenClickHouseResources(r *clickhouse.Resources) ([]map[string]interface
 func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_MergeTree) ([]map[string]interface{}, error) {
 	res := map[string]interface{}{}
 
-	res["replicated_deduplication_window"] = c.ReplicatedDeduplicationWindow.Value
-	res["replicated_deduplication_window_seconds"] = c.ReplicatedDeduplicationWindowSeconds.Value
-	res["parts_to_delay_insert"] = c.PartsToDelayInsert.Value
-	res["parts_to_throw_insert"] = c.PartsToThrowInsert.Value
-	res["max_replicated_merges_in_queue"] = c.MaxReplicatedMergesInQueue.Value
-	res["number_of_free_entries_in_pool_to_lower_max_size_of_merge"] = c.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.Value
-	res["max_bytes_to_merge_at_min_space_in_pool"] = c.MaxBytesToMergeAtMinSpaceInPool.Value
+	if c.ReplicatedDeduplicationWindow != nil {
+		res["replicated_deduplication_window"] = c.ReplicatedDeduplicationWindow.Value
+	}
+	if c.ReplicatedDeduplicationWindowSeconds != nil {
+		res["replicated_deduplication_window_seconds"] = c.ReplicatedDeduplicationWindowSeconds.Value
+	}
+	if c.PartsToDelayInsert != nil {
+		res["parts_to_delay_insert"] = c.PartsToDelayInsert.Value
+	}
+	if c.PartsToThrowInsert != nil {
+		res["parts_to_throw_insert"] = c.PartsToThrowInsert.Value
+	}
+	if c.MaxReplicatedMergesInQueue != nil {
+		res["max_replicated_merges_in_queue"] = c.MaxReplicatedMergesInQueue.Value
+	}
+	if c.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge != nil {
+		res["number_of_free_entries_in_pool_to_lower_max_size_of_merge"] = c.NumberOfFreeEntriesInPoolToLowerMaxSizeOfMerge.Value
+	}
+	if c.MaxBytesToMergeAtMinSpaceInPool != nil {
+		res["max_bytes_to_merge_at_min_space_in_pool"] = c.MaxBytesToMergeAtMinSpaceInPool.Value
+	}
 
 	if c.MinBytesForWidePart != nil {
 		res["min_bytes_for_wide_part"] = c.MinBytesForWidePart.Value
@@ -674,31 +688,80 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	res := map[string]interface{}{}
 
 	res["log_level"] = c.EffectiveConfig.LogLevel.String()
-	res["max_connections"] = c.EffectiveConfig.MaxConnections.Value
-	res["max_concurrent_queries"] = c.EffectiveConfig.MaxConcurrentQueries.Value
-	res["keep_alive_timeout"] = c.EffectiveConfig.KeepAliveTimeout.Value
-	res["uncompressed_cache_size"] = c.EffectiveConfig.UncompressedCacheSize.Value
-	res["mark_cache_size"] = c.EffectiveConfig.MarkCacheSize.Value
-	res["max_table_size_to_drop"] = c.EffectiveConfig.MaxTableSizeToDrop.Value
-	res["max_partition_size_to_drop"] = c.EffectiveConfig.MaxPartitionSizeToDrop.Value
+
+	if c.EffectiveConfig.MaxConnections != nil {
+		res["max_connections"] = c.EffectiveConfig.MaxConnections.Value
+	}
+	if c.EffectiveConfig.MaxConcurrentQueries != nil {
+		res["max_concurrent_queries"] = c.EffectiveConfig.MaxConcurrentQueries.Value
+	}
+	if c.EffectiveConfig.KeepAliveTimeout != nil {
+		res["keep_alive_timeout"] = c.EffectiveConfig.KeepAliveTimeout.Value
+	}
+	if c.EffectiveConfig.UncompressedCacheSize != nil {
+		res["uncompressed_cache_size"] = c.EffectiveConfig.UncompressedCacheSize.Value
+	}
+	if c.EffectiveConfig.MarkCacheSize != nil {
+		res["mark_cache_size"] = c.EffectiveConfig.MarkCacheSize.Value
+	}
+	if c.EffectiveConfig.MaxTableSizeToDrop != nil {
+		res["max_table_size_to_drop"] = c.EffectiveConfig.MaxTableSizeToDrop.Value
+	}
+	if c.EffectiveConfig.MaxPartitionSizeToDrop != nil {
+		res["max_partition_size_to_drop"] = c.EffectiveConfig.MaxPartitionSizeToDrop.Value
+	}
 	res["timezone"] = c.EffectiveConfig.Timezone
 	res["geobase_uri"] = c.EffectiveConfig.GeobaseUri
-	res["query_log_retention_size"] = c.EffectiveConfig.QueryLogRetentionSize.Value
-	res["query_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
-	res["query_thread_log_enabled"] = c.EffectiveConfig.QueryThreadLogEnabled.Value
-	res["query_thread_log_retention_size"] = c.EffectiveConfig.QueryThreadLogRetentionSize.Value
-	res["query_thread_log_retention_time"] = c.EffectiveConfig.QueryThreadLogRetentionTime.Value
-	res["part_log_retention_size"] = c.EffectiveConfig.PartLogRetentionSize.Value
-	res["part_log_retention_time"] = c.EffectiveConfig.PartLogRetentionTime.Value
-	res["metric_log_enabled"] = c.EffectiveConfig.MetricLogEnabled.Value
-	res["metric_log_retention_size"] = c.EffectiveConfig.MetricLogRetentionSize.Value
-	res["metric_log_retention_time"] = c.EffectiveConfig.MetricLogRetentionTime.Value
-	res["trace_log_enabled"] = c.EffectiveConfig.TraceLogEnabled.Value
-	res["trace_log_retention_size"] = c.EffectiveConfig.TraceLogRetentionSize.Value
-	res["trace_log_retention_time"] = c.EffectiveConfig.TraceLogRetentionTime.Value
-	res["text_log_enabled"] = c.EffectiveConfig.TextLogEnabled.Value
-	res["text_log_retention_size"] = c.EffectiveConfig.TextLogRetentionSize.Value
-	res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
+
+	if c.EffectiveConfig.QueryLogRetentionSize != nil {
+		res["query_log_retention_size"] = c.EffectiveConfig.QueryLogRetentionSize.Value
+	}
+
+	if c.EffectiveConfig.QueryLogRetentionTime != nil {
+		res["query_log_retention_time"] = c.EffectiveConfig.QueryLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.QueryThreadLogEnabled != nil {
+		res["query_thread_log_enabled"] = c.EffectiveConfig.QueryThreadLogEnabled.Value
+	}
+	if c.EffectiveConfig.QueryThreadLogRetentionSize != nil {
+		res["query_thread_log_retention_size"] = c.EffectiveConfig.QueryThreadLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.QueryThreadLogRetentionTime != nil {
+		res["query_thread_log_retention_time"] = c.EffectiveConfig.QueryThreadLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.PartLogRetentionSize != nil {
+		res["part_log_retention_size"] = c.EffectiveConfig.PartLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.PartLogRetentionTime != nil {
+		res["part_log_retention_time"] = c.EffectiveConfig.PartLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.MetricLogEnabled != nil {
+		res["metric_log_enabled"] = c.EffectiveConfig.MetricLogEnabled.Value
+	}
+	if c.EffectiveConfig.MetricLogRetentionSize != nil {
+		res["metric_log_retention_size"] = c.EffectiveConfig.MetricLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.MetricLogRetentionTime != nil {
+		res["metric_log_retention_time"] = c.EffectiveConfig.MetricLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.TraceLogEnabled != nil {
+		res["trace_log_enabled"] = c.EffectiveConfig.TraceLogEnabled.Value
+	}
+	if c.EffectiveConfig.TraceLogRetentionSize != nil {
+		res["trace_log_retention_size"] = c.EffectiveConfig.TraceLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.TraceLogRetentionTime != nil {
+		res["trace_log_retention_time"] = c.EffectiveConfig.TraceLogRetentionTime.Value
+	}
+	if c.EffectiveConfig.TextLogEnabled != nil {
+		res["text_log_enabled"] = c.EffectiveConfig.TextLogEnabled.Value
+	}
+	if c.EffectiveConfig.TextLogRetentionSize != nil {
+		res["text_log_retention_size"] = c.EffectiveConfig.TextLogRetentionSize.Value
+	}
+	if c.EffectiveConfig.TextLogRetentionTime != nil {
+		res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
+	}
 	res["text_log_level"] = c.EffectiveConfig.TextLogLevel.String()
 
 	if c.EffectiveConfig.BackgroundPoolSize != nil {

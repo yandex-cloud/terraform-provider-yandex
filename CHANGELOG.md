@@ -2,6 +2,7 @@
 FEATURES:
 * provider: the default development, testing and building of the provider is now done with Go 1.18
 * clickhouse: minor refactoring of clickhouse tests
+* clickhouse: add check Clickhouse config
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour fixed.
