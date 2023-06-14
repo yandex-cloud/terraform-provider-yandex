@@ -1,4 +1,6 @@
-## 0.93.0 (Unreleased)
+## 0.94.0 (Unreleased)
+
+## 0.93.0 (June 14, 2023)
 FEATURES:
 * provider: the default development, testing and building of the provider is now done with Go 1.18
 * clickhouse: minor refactoring of clickhouse tests
