@@ -2,7 +2,6 @@ package yandex
 
 import (
 	"fmt"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,11 +11,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
 )
-
-var supportedRedisVersions = map[string]bool{
-	"6.2": true,
-	"7.0": true,
-}
 
 type redisConfig struct {
 	timeout                       int64
@@ -194,91 +188,25 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res := redisConfig{
 		version: cc.Version,
 	}
-	switch rc := cc.RedisConfig.(type) {
-	case *redis.ClusterConfig_RedisConfig_5_0:
-		c := rc.RedisConfig_5_0.EffectiveConfig
-		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
-		res.timeout = c.GetTimeout().GetValue()
-		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
-		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
-		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
-		res.databases = c.GetDatabases().GetValue()
-		res.clientOutputBufferLimitNormal = limitToStr(
-			c.ClientOutputBufferLimitNormal.HardLimit,
-			c.ClientOutputBufferLimitNormal.SoftLimit,
-			c.ClientOutputBufferLimitNormal.SoftSeconds,
-		)
-		res.clientOutputBufferLimitPubsub = limitToStr(
-			c.ClientOutputBufferLimitPubsub.HardLimit,
-			c.ClientOutputBufferLimitPubsub.SoftLimit,
-			c.ClientOutputBufferLimitPubsub.SoftSeconds,
-		)
-	case *redis.ClusterConfig_RedisConfig_6_0:
-		c := rc.RedisConfig_6_0.EffectiveConfig
-		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
-		res.timeout = c.GetTimeout().GetValue()
-		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
-		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
-		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
-		res.databases = c.GetDatabases().GetValue()
-		res.clientOutputBufferLimitNormal = limitToStr(
-			c.ClientOutputBufferLimitNormal.HardLimit,
-			c.ClientOutputBufferLimitNormal.SoftLimit,
-			c.ClientOutputBufferLimitNormal.SoftSeconds,
-		)
-		res.clientOutputBufferLimitPubsub = limitToStr(
-			c.ClientOutputBufferLimitPubsub.HardLimit,
-			c.ClientOutputBufferLimitPubsub.SoftLimit,
-			c.ClientOutputBufferLimitPubsub.SoftSeconds,
-		)
-	case *redis.ClusterConfig_RedisConfig_6_2:
-		c := rc.RedisConfig_6_2.EffectiveConfig
-		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
-		res.timeout = c.GetTimeout().GetValue()
-		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
-		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
-		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
-		res.databases = c.GetDatabases().GetValue()
-		res.clientOutputBufferLimitNormal = limitToStr(
-			c.ClientOutputBufferLimitNormal.HardLimit,
-			c.ClientOutputBufferLimitNormal.SoftLimit,
-			c.ClientOutputBufferLimitNormal.SoftSeconds,
-		)
-		res.clientOutputBufferLimitPubsub = limitToStr(
-			c.ClientOutputBufferLimitPubsub.HardLimit,
-			c.ClientOutputBufferLimitPubsub.SoftLimit,
-			c.ClientOutputBufferLimitPubsub.SoftSeconds,
-		)
-	case *redis.ClusterConfig_RedisConfig_7_0:
-		c := rc.RedisConfig_7_0.EffectiveConfig
-		res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
-		res.timeout = c.GetTimeout().GetValue()
-		res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
-		res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
-		res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
-		res.databases = c.GetDatabases().GetValue()
-		res.clientOutputBufferLimitNormal = limitToStr(
-			c.ClientOutputBufferLimitNormal.HardLimit,
-			c.ClientOutputBufferLimitNormal.SoftLimit,
-			c.ClientOutputBufferLimitNormal.SoftSeconds,
-		)
-		res.clientOutputBufferLimitPubsub = limitToStr(
-			c.ClientOutputBufferLimitPubsub.HardLimit,
-			c.ClientOutputBufferLimitPubsub.SoftLimit,
-			c.ClientOutputBufferLimitPubsub.SoftSeconds,
-		)
-	}
+	c := cc.Redis.EffectiveConfig
+	res.maxmemoryPolicy = c.GetMaxmemoryPolicy().String()
+	res.timeout = c.GetTimeout().GetValue()
+	res.notifyKeyspaceEvents = c.GetNotifyKeyspaceEvents()
+	res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
+	res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
+	res.databases = c.GetDatabases().GetValue()
+	res.clientOutputBufferLimitNormal = limitToStr(
+		c.ClientOutputBufferLimitNormal.HardLimit,
+		c.ClientOutputBufferLimitNormal.SoftLimit,
+		c.ClientOutputBufferLimitNormal.SoftSeconds,
+	)
+	res.clientOutputBufferLimitPubsub = limitToStr(
+		c.ClientOutputBufferLimitPubsub.HardLimit,
+		c.ClientOutputBufferLimitPubsub.SoftLimit,
+		c.ClientOutputBufferLimitPubsub.SoftSeconds,
+	)
 
 	return res
-}
-
-func checkSupportedRedisVersion(version string) error {
-	_, ok := supportedRedisVersions[version]
-	if !ok {
-		expected := reflect.ValueOf(supportedRedisVersions).MapKeys()
-		return fmt.Errorf("Unsupported Redis version: required one of %v, got %s", expected, version)
-	}
-	return nil
 }
 
 func expandLimit(limit string) ([]*wrappers.Int64Value, error) {
@@ -297,9 +225,7 @@ func expandLimit(limit string) ([]*wrappers.Int64Value, error) {
 	return res, nil
 }
 
-func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, string, error) {
-	var cs redis.ConfigSpec_RedisSpec
-
+func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, error) {
 	var password string
 	if v, ok := d.GetOk("config.0.password"); ok {
 		password = v.(string)
@@ -334,11 +260,8 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 	if v, ok := d.GetOk("config.0.version"); ok {
 		version = v.(string)
 	}
-	err := checkSupportedRedisVersion(version)
-	if err != nil {
-		return nil, "", err
-	}
 
+	var err error
 	var expandedNormal []*wrappers.Int64Value
 	if v, ok := d.GetOk("config.0.client_output_buffer_limit_normal"); ok {
 		expandedNormal, err = expandLimit(v.(string))
@@ -354,98 +277,43 @@ func expandRedisConfig(d *schema.ResourceData) (*redis.ConfigSpec_RedisSpec, str
 		}
 	}
 
-	switch version {
-	case "6.2":
-		c := config.RedisConfig6_2{
-			Password:             password,
-			Timeout:              timeout,
-			NotifyKeyspaceEvents: notifyKeyspaceEvents,
-			SlowlogLogSlowerThan: slowlogLogSlowerThan,
-			SlowlogMaxLen:        slowlogMaxLen,
-			Databases:            databases,
-		}
-
-		if len(expandedNormal) != 0 {
-			normalLimit := &config.RedisConfig6_2_ClientOutputBufferLimit{
-				HardLimit:   expandedNormal[0],
-				SoftLimit:   expandedNormal[1],
-				SoftSeconds: expandedNormal[2],
-			}
-			c.SetClientOutputBufferLimitNormal(normalLimit)
-		}
-
-		if len(expandedPubsub) != 0 {
-			pubsubLimit := &config.RedisConfig6_2_ClientOutputBufferLimit{
-				HardLimit:   expandedPubsub[0],
-				SoftLimit:   expandedPubsub[1],
-				SoftSeconds: expandedPubsub[2],
-			}
-			c.SetClientOutputBufferLimitPubsub(pubsubLimit)
-		}
-
-		err := setMaxMemory6_2(&c, d)
-		if err != nil {
-			return nil, version, err
-		}
-
-		cs = &redis.ConfigSpec_RedisConfig_6_2{
-			RedisConfig_6_2: &c,
-		}
-	case "7.0":
-		c := config.RedisConfig7_0{
-			Password:             password,
-			Timeout:              timeout,
-			NotifyKeyspaceEvents: notifyKeyspaceEvents,
-			SlowlogLogSlowerThan: slowlogLogSlowerThan,
-			SlowlogMaxLen:        slowlogMaxLen,
-			Databases:            databases,
-		}
-
-		if len(expandedNormal) != 0 {
-			normalLimit := &config.RedisConfig7_0_ClientOutputBufferLimit{
-				HardLimit:   expandedNormal[0],
-				SoftLimit:   expandedNormal[1],
-				SoftSeconds: expandedNormal[2],
-			}
-			c.SetClientOutputBufferLimitNormal(normalLimit)
-		}
-
-		if len(expandedPubsub) != 0 {
-			pubsubLimit := &config.RedisConfig7_0_ClientOutputBufferLimit{
-				HardLimit:   expandedPubsub[0],
-				SoftLimit:   expandedPubsub[1],
-				SoftSeconds: expandedPubsub[2],
-			}
-			c.SetClientOutputBufferLimitPubsub(pubsubLimit)
-		}
-
-		err := setMaxMemory7_0(&c, d)
-		if err != nil {
-			return nil, version, err
-		}
-
-		cs = &redis.ConfigSpec_RedisConfig_7_0{
-			RedisConfig_7_0: &c,
-		}
+	c := config.RedisConfig{
+		Password:             password,
+		Timeout:              timeout,
+		NotifyKeyspaceEvents: notifyKeyspaceEvents,
+		SlowlogLogSlowerThan: slowlogLogSlowerThan,
+		SlowlogMaxLen:        slowlogMaxLen,
+		Databases:            databases,
 	}
 
-	return &cs, version, nil
-}
-
-func setMaxMemory6_2(c *config.RedisConfig6_2, d *schema.ResourceData) error {
-	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
-		mp, err := parseRedisMaxmemoryPolicy6_2(v.(string))
-		if err != nil {
-			return err
+	if len(expandedNormal) != 0 {
+		normalLimit := &config.RedisConfig_ClientOutputBufferLimit{
+			HardLimit:   expandedNormal[0],
+			SoftLimit:   expandedNormal[1],
+			SoftSeconds: expandedNormal[2],
 		}
-		c.MaxmemoryPolicy = mp
+		c.SetClientOutputBufferLimitNormal(normalLimit)
 	}
-	return nil
+
+	if len(expandedPubsub) != 0 {
+		pubsubLimit := &config.RedisConfig_ClientOutputBufferLimit{
+			HardLimit:   expandedPubsub[0],
+			SoftLimit:   expandedPubsub[1],
+			SoftSeconds: expandedPubsub[2],
+		}
+		c.SetClientOutputBufferLimitPubsub(pubsubLimit)
+	}
+
+	if err := setMaxMemory(&c, d); err != nil {
+		return nil, version, err
+	}
+
+	return &c, version, nil
 }
 
-func setMaxMemory7_0(c *config.RedisConfig7_0, d *schema.ResourceData) error {
+func setMaxMemory(c *config.RedisConfig, d *schema.ResourceData) error {
 	if v, ok := d.GetOk("config.0.maxmemory_policy"); ok {
-		mp, err := parseRedisMaxmemoryPolicy7_0(v.(string))
+		mp, err := parseRedisMaxmemoryPolicy(v.(string))
 		if err != nil {
 			return err
 		}
@@ -634,20 +502,11 @@ func parsePersistenceMode(p interface{}) (redis.Cluster_PersistenceMode, error) 
 	return redis.Cluster_PersistenceMode(v), nil
 }
 
-func parseRedisMaxmemoryPolicy6_2(s string) (config.RedisConfig6_2_MaxmemoryPolicy, error) {
-	v, ok := config.RedisConfig6_2_MaxmemoryPolicy_value[s]
+func parseRedisMaxmemoryPolicy(s string) (config.RedisConfig_MaxmemoryPolicy, error) {
+	v, ok := config.RedisConfig_MaxmemoryPolicy_value[s]
 	if !ok {
 		return 0, fmt.Errorf("value for 'maxmemory_policy' must be one of %s, not `%s`",
-			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig6_2_MaxmemoryPolicy_value)), s)
+			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig_MaxmemoryPolicy_value)), s)
 	}
-	return config.RedisConfig6_2_MaxmemoryPolicy(v), nil
-}
-
-func parseRedisMaxmemoryPolicy7_0(s string) (config.RedisConfig7_0_MaxmemoryPolicy, error) {
-	v, ok := config.RedisConfig7_0_MaxmemoryPolicy_value[s]
-	if !ok {
-		return 0, fmt.Errorf("value for 'maxmemory_policy' must be one of %s, not `%s`",
-			getJoinedKeys(getEnumValueMapKeys(config.RedisConfig7_0_MaxmemoryPolicy_value)), s)
-	}
-	return config.RedisConfig7_0_MaxmemoryPolicy(v), nil
+	return config.RedisConfig_MaxmemoryPolicy(v), nil
 }

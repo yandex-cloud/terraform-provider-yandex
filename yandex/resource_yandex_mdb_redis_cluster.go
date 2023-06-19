@@ -352,7 +352,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	}
 
 	configSpec := &redis.ConfigSpec{
-		RedisSpec: *conf,
+		Redis:     conf,
 		Resources: resources,
 		Version:   version,
 	}
@@ -586,7 +586,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if d.HasChange("config") {
-		conf, version, err := expandRedisConfig(d)
+		conf, _, err := expandRedisConfig(d)
 		if err != nil {
 			return err
 		}
@@ -595,14 +595,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			req.ConfigSpec = &redis.ConfigSpec{}
 		}
 
-		req.ConfigSpec.RedisSpec = *conf
-		updateFieldConfigName := ""
-		switch version {
-		case "6.2":
-			updateFieldConfigName = "redis_config_6_2"
-		case "7.0":
-			updateFieldConfigName = "redis_config_7_0"
-		}
+		req.ConfigSpec.Redis = conf
 		fields := [...]string{
 			"password",
 			"timeout",
@@ -616,7 +609,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"client_output_buffer_limit_pubsub",
 		}
 		for _, field := range fields {
-			fullPath := "config_spec." + updateFieldConfigName + "." + field
+			fullPath := "config_spec.redis." + field
 			if d.HasChange("config.0." + field) {
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, fullPath)
 			}
