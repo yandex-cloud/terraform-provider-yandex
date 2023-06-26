@@ -2,6 +2,8 @@
 FEATURES:
 * redis: update requests to grpcapi with unified config
 * provider: upgrade go-genproto to the latest version. This is needed for migrate redis to unified config.
+BUG FIXES:
+* vpc: security group rule import fixed
 
 ## 0.93.0 (June 14, 2023)
 FEATURES:
@@ -11,6 +13,7 @@ FEATURES:
 
 BUG FIXES:
 * organizationmanager: data source `yandex_organizationmanager_saml_federation_user_account` account creation behaviour fixed.
+
 
 ## 0.92.0 (May 31, 2023)
 FEATURES:

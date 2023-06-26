@@ -19,7 +19,7 @@ func resourceYandexVpcSecurityGroupRule() *schema.Resource {
 		Delete: resourceYandexVpcSecurityGroupRuleDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceYandexVpcSecurityGroupRuleImporterFunc,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -450,4 +450,16 @@ func writeSecurityGroupRuleToData(rule *vpc.SecurityGroupRule, data *schema.Reso
 	}
 
 	return nil
+}
+
+func resourceYandexVpcSecurityGroupRuleImporterFunc(data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	sgId, ruleId, err := deconstructResourceId(data.Id())
+	if err != nil {
+		return nil, err
+	}
+
+	data.Set("security_group_binding", sgId)
+	data.SetId(ruleId)
+
+	return []*schema.ResourceData{data}, nil
 }

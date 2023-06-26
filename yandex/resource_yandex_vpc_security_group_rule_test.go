@@ -48,6 +48,7 @@ func TestAccVPCSecurityGroupRule_cidrBlocks(t *testing.T) {
 					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
+			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
 		},
 	})
 }
@@ -84,6 +85,7 @@ func TestAccVPCSecurityGroupRule_securityGroupId(t *testing.T) {
 					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
+			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
 		},
 	})
 }
@@ -120,6 +122,7 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
+			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
 			{
 				Config: testVPCSecurityGroupRuleBasicWithSecurityGroupTarget_updated(networkName, sgName, sgName2),
 				Check: resource.ComposeTestCheckFunc(
@@ -134,6 +137,7 @@ func TestAccVPCSecurityGroupRule_update(t *testing.T) {
 					testAccCheckResourceAttrWithValueFactory(sgr1Name, "security_group_binding", sg1.GetId),
 				),
 			},
+			testVPCSecurityGroupRuleImportStep(sgr1Name, &sg1, &sgr1),
 		},
 	})
 }
@@ -248,5 +252,16 @@ func testAccCheckVPCSecurityGroupRuleExists(name string, securityGroup *vpc.Secu
 		}
 
 		return fmt.Errorf("security group rule not found")
+	}
+}
+
+func testVPCSecurityGroupRuleImportStep(resourceName string, securityGroup *vpc.SecurityGroup, securityGroupRule *vpc.SecurityGroupRule) resource.TestStep {
+	return resource.TestStep{
+		ResourceName: resourceName,
+		ImportStateIdFunc: func(*terraform.State) (string, error) {
+			return constructResourceId(securityGroup.Id, securityGroupRule.Id), nil
+		},
+		ImportState:       true,
+		ImportStateVerify: true,
 	}
 }
