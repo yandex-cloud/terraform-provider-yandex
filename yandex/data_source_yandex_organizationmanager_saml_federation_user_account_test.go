@@ -32,10 +32,21 @@ func TestAccDataSourceOrganizationManagerSamlFederationUserAccount_byNameID(t *t
 	})
 }
 
+const resourceSamlFederationUserAccountConfigTemplateByNameID = `
+resource "yandex_organizationmanager_saml_federation_user_account" account {
+  federation_id = yandex_organizationmanager_saml_federation.{{.ResourceName}}.id
+  name_id       = "{{.NameID}}"
+}
+`
+
 const dataSamlFederationUserAccountConfigTemplateByNameID = `
 data "yandex_organizationmanager_saml_federation_user_account" account {
   federation_id = yandex_organizationmanager_saml_federation.{{.ResourceName}}.id
   name_id       = "{{.NameID}}"
+
+  depends_on = [
+	yandex_organizationmanager_saml_federation_user_account.account
+  ]
 }
 `
 
@@ -43,6 +54,7 @@ func testAccDataSourceOrganizationManagerSamlFederationByNameId(info *resourceSa
 	m := info.Map()
 	config := templateConfig(samlFederationConfigTemplate, m)
 	m["NameID"] = nameID
+	config += templateConfig(resourceSamlFederationUserAccountConfigTemplateByNameID, m)
 	config += templateConfig(dataSamlFederationUserAccountConfigTemplateByNameID, m)
 	return config
 }

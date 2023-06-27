@@ -30,37 +30,24 @@ func dataSourceYandexOrganizationManagerSamlFederationUserAccountRead(d *schema.
 
 	federationID := d.Get("federation_id").(string)
 	nameID := d.Get("name_id").(string)
-	var nextPageToken string
-	for {
-		req := &saml.ListFederatedUserAccountsRequest{
-			FederationId: federationID,
-		}
-
-		if nextPageToken != "" {
-			req.PageToken = nextPageToken
-		}
-
-		listResp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(
-			config.Context(),
-			req,
-		)
-		if err != nil {
-			return err
-		}
-
-		for _, account := range listResp.UserAccounts {
-			if account.GetSamlUserAccount().GetNameId() == nameID {
-				d.SetId(account.Id)
-				return nil
-			}
-		}
-
-		if listResp.NextPageToken == "" {
-			break
-		}
-
-		nextPageToken = listResp.NextPageToken
+	req := &saml.ListFederatedUserAccountsRequest{
+		FederationId: federationID,
+		Filter:       fmt.Sprintf("name_id=%q", nameID),
 	}
 
-	return fmt.Errorf("Failed to resolve data source saml user account %s in saml federation %s", nameID, federationID)
+	listResp, err := config.sdk.OrganizationManagerSAML().Federation().ListUserAccounts(
+		config.Context(),
+		req,
+	)
+	if err != nil {
+		return err
+	}
+	if len(listResp.UserAccounts) != 1 {
+		return fmt.Errorf("Failed to resolve data source saml user account %s in saml federation %s", nameID, federationID)
+	}
+
+	userAccount := listResp.UserAccounts[0]
+	d.SetId(userAccount.Id)
+
+	return nil
 }

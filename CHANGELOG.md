@@ -5,6 +5,10 @@ FEATURES:
 BUG FIXES:
 * vpc: security group rule import fixed
 
+ENHANCEMENTS:
+* use ListUserAccounts filter parameter in `yandex_organizationmanager_saml_federation_user_account` data source instead of loop.
+* fixed `yandex_organizationmanager_saml_federation_user_account` data source acceptance tests.
+
 ## 0.93.0 (June 14, 2023)
 FEATURES:
 * provider: the default development, testing and building of the provider is now done with Go 1.18
