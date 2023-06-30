@@ -12,6 +12,7 @@ import (
 )
 
 const yandexResourceManagerCloudDefaultTimeout = time.Second * 60
+const yandexResourceManagerCloudUpdateAccessBindingsBatchSize = 1000
 
 var IamCloudSchema = map[string]*schema.Schema{
 	"cloud_id": {
@@ -38,21 +39,21 @@ func cloudIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	return nil
 }
 
-func (u *CloudIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	bindings, err := getCloudAccessBindings(u.Config, u.GetResourceID())
+func (u *CloudIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, error) {
+	bindings, err := getCloudAccessBindings(ctx, u.Config, u.GetResourceID())
 	if err != nil {
 		return nil, err
 	}
 	return &Policy{bindings}, nil
 }
 
-func (u *CloudIamUpdater) SetResourceIamPolicy(policy *Policy) error {
+func (u *CloudIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.cloudID,
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexResourceManagerCloudDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, yandexResourceManagerCloudDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Cloud().SetAccessBindings(ctx, req))
@@ -60,12 +61,40 @@ func (u *CloudIamUpdater) SetResourceIamPolicy(policy *Policy) error {
 		if reqID, ok := isRequestIDPresent(err); ok {
 			log.Printf("[DEBUG] request ID is %s\n", reqID)
 		}
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
+	}
+
+	return nil
+}
+
+func (u *CloudIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	bSize := yandexResourceManagerCloudUpdateAccessBindingsBatchSize
+	deltas := policy.Deltas
+	dLen := len(deltas)
+
+	for i := 0; i < countBatches(dLen, bSize); i++ {
+		req := &access.UpdateAccessBindingsRequest{
+			ResourceId:          u.cloudID,
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
+		}
+
+		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Cloud().UpdateAccessBindings(ctx, req))
+		if err != nil {
+			if reqID, ok := isRequestIDPresent(err); ok {
+				log.Printf("[DEBUG] request ID is %s\n", reqID)
+			}
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
 	}
 
 	return nil
@@ -83,10 +112,9 @@ func (u *CloudIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("cloud %q", u.cloudID)
 }
 
-func getCloudAccessBindings(config *Config, cloudID string) ([]*access.AccessBinding, error) {
+func getCloudAccessBindings(ctx context.Context, config *Config, cloudID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
-	ctx := config.Context()
 
 	for {
 		resp, err := config.sdk.ResourceManager().Cloud().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
@@ -96,7 +124,7 @@ func getCloudAccessBindings(config *Config, cloudID string) ([]*access.AccessBin
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for cloud %s: %s", cloudID, err)
+			return nil, fmt.Errorf("Error retrieving access bindings of cloud %s: %w", cloudID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

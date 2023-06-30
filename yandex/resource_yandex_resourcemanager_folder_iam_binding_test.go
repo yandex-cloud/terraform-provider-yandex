@@ -289,7 +289,7 @@ func testAccFolderExistingPolicy(folder *resourcemanager.Folder) resource.TestCh
 	return func(s *terraform.State) error {
 		c := testAccProvider.Meta().(*Config)
 
-		if _, err := getFolderAccessBindings(c, folder.Id); err != nil {
+		if _, err := getFolderAccessBindings(context.Background(), c, folder.Id); err != nil {
 			return err
 		}
 

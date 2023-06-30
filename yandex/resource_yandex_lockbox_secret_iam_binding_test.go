@@ -156,7 +156,7 @@ func getLockboxSecretResourceAccessBindings(s *terraform.State, resourceName str
 		return nil, fmt.Errorf("can't find %s in state", resourceName)
 	}
 
-	return getLockboxSecretAccessBindings(config, rs.Primary.ID)
+	return getLockboxSecretAccessBindings(config.Context(), config, rs.Primary.ID)
 }
 
 func testAccCheckLockboxSecretExists(name string, lockboxSecret *lockbox.Secret) resource.TestCheckFunc {

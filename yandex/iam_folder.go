@@ -3,11 +3,14 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 )
+
+const yandexResourceManagerFolderUpdateAccessBindingsBatchSize = 1000
 
 var IamFolderSchema = map[string]*schema.Schema{
 	"folder_id": {
@@ -38,31 +41,59 @@ func folderIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	return nil
 }
 
-func (u *FolderIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	bindings, err := getFolderAccessBindings(u.Config, u.GetResourceID())
+func (u *FolderIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, error) {
+	bindings, err := getFolderAccessBindings(ctx, u.Config, u.GetResourceID())
 	if err != nil {
 		return nil, err
 	}
 	return &Policy{bindings}, err
 }
 
-func (u *FolderIamUpdater) SetResourceIamPolicy(policy *Policy) error {
+func (u *FolderIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.folderID,
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexResourceManagerFolderDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, yandexResourceManagerFolderDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Folder().SetAccessBindings(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
+	}
+
+	return nil
+}
+
+func (u *FolderIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	bSize := yandexResourceManagerFolderUpdateAccessBindingsBatchSize
+	deltas := policy.Deltas
+	dLen := len(deltas)
+
+	for i := 0; i < countBatches(dLen, bSize); i++ {
+		req := &access.UpdateAccessBindingsRequest{
+			ResourceId:          u.folderID,
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
+		}
+
+		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ResourceManager().Folder().UpdateAccessBindings(ctx, req))
+		if err != nil {
+			if reqID, ok := isRequestIDPresent(err); ok {
+				log.Printf("[DEBUG] request ID is %s\n", reqID)
+			}
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
 	}
 
 	return nil
@@ -80,10 +111,9 @@ func (u *FolderIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("folder %q", u.folderID)
 }
 
-func getFolderAccessBindings(config *Config, folderID string) ([]*access.AccessBinding, error) {
+func getFolderAccessBindings(ctx context.Context, config *Config, folderID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
-	ctx := config.Context()
 
 	for {
 		resp, err := config.sdk.ResourceManager().Folder().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
@@ -93,7 +123,7 @@ func getFolderAccessBindings(config *Config, folderID string) ([]*access.AccessB
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for folder %s: %s", folderID, err)
+			return nil, fmt.Errorf("Error retrieving access bindings of for folder %s: %w", folderID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

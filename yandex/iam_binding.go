@@ -1,7 +1,9 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 	"time"
@@ -34,34 +36,32 @@ var accessBindingSchema = map[string]*schema.Schema{
 	},
 }
 
-func resourceAccessBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
-	return &schema.Resource{
-		Create: resourceAccessBindingCreate(newUpdaterFunc),
-		Read:   resourceAccessBindingRead(newUpdaterFunc, true),
-		Update: resourceAccessBindingUpdate(newUpdaterFunc),
-		Delete: resourceAccessBindingDelete(newUpdaterFunc),
-		Schema: mergeSchemas(accessBindingSchema, parentSpecificSchema),
+func resourceIamBinding(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, opts ...SchemaOption) *schema.Resource {
+	r := &schema.Resource{
+		CreateContext: resourceAccessBindingCreate(newUpdaterFunc),
+		ReadContext:   resourceAccessBindingRead(newUpdaterFunc, false),
+		UpdateContext: resourceAccessBindingUpdate(newUpdaterFunc),
+		DeleteContext: resourceAccessBindingDelete(newUpdaterFunc),
+		Schema:        mergeSchemas(accessBindingSchema, parentSpecificSchema),
 	}
-}
 
-func resourceIamBindingWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
-	r := resourceAccessBinding(parentSpecificSchema, newUpdaterFunc)
-	r.Importer = &schema.ResourceImporter{
-		State: iamBindingImport(resourceIDParser),
+	for _, opt := range opts {
+		opt(r)
 	}
+
 	return r
 }
 
-func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		p := getResourceIamBindings(d)
-		err = iamPolicyReadModifyWrite(updater, func(ep *Policy) error {
+		err = iamPolicyReadModifySet(ctx, updater, func(ep *Policy) error {
 			// Creating a binding does not remove existing members if they are not in the provided members list.
 			// This prevents removing existing permission without the user's knowledge.
 			// Instead, a diff is shown in that case after creation. Subsequent calls to update will remove any
@@ -70,7 +70,7 @@ func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			return nil
 		})
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		role := p[0].RoleId
@@ -80,30 +80,36 @@ func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			time.Sleep(time.Second * time.Duration(v.(int)))
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc, true)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, true)(ctx, d, meta)
 	}
 }
 
-func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc, check bool) schema.ReadFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc, check bool) schema.ReadContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		role := d.Get("role").(string)
 		eBindings := getResourceIamBindings(d)
 
-		p, err := updater.GetResourceIamPolicy()
+		p, err := updater.GetResourceIamPolicy(ctx)
 		if err != nil {
 			if isStatusWithCode(err, codes.NotFound) {
-				return fmt.Errorf("Binding for role %q not found for non-existent resource %s.", role, updater.DescribeResource())
+				if check {
+					return diag.FromErr(fmt.Errorf("Access bindings for role %q not found for non-existent resource %s.", role, updater.DescribeResource()))
+				} else {
+					log.Printf("[DEBUG]: Access bindings for role %q not found for non-existent resource %s, removing from state.", role, updater.DescribeResource())
+					d.SetId("")
+					return nil
+				}
 			}
 
-			return err
+			return diag.FromErr(err)
 		}
-		log.Printf("[DEBUG]: Retrieved policy for %s: %+v", updater.DescribeResource(), p)
+		log.Printf("[DEBUG]: Retrieved access bindings of %s: %+v", updater.DescribeResource(), p)
 
 		var mBindings []*access.AccessBinding
 		for _, b := range p.Bindings {
@@ -122,53 +128,63 @@ func resourceAccessBindingRead(newUpdaterFunc newResourceIamUpdaterFunc, check b
 			}
 		}
 
-		if check && len(mBindings) == 0 {
-			return fmt.Errorf("Binding for role %q not found in policy for %s.", role, updater.DescribeResource())
+		if len(mBindings) == 0 {
+			if check {
+				return diag.FromErr(fmt.Errorf("Access bindings for role %q not found in access bindings of %s.", role, updater.DescribeResource()))
+			} else {
+				log.Printf("[DEBUG]: Access bindings for role %q not found in access bindings of %s, removing from state.", role, updater.DescribeResource())
+				d.SetId("")
+				return nil
+			}
 		}
 
 		if err := d.Set("members", roleToMembersList(role, mBindings)); err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		return nil
 	}
 }
 
-func resourceAccessBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessBindingUpdate(newUpdaterFunc newResourceIamUpdaterFunc) schema.UpdateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		bindings := getResourceIamBindings(d)
 		role := d.Get("role").(string)
 
-		err = iamPolicyReadModifyWrite(updater, func(p *Policy) error {
+		err = iamPolicyReadModifySet(ctx, updater, func(p *Policy) error {
 			p.Bindings = removeRoleFromBindings(role, p.Bindings)
 			p.Bindings = append(p.Bindings, bindings...)
 			return nil
 		})
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc, true)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, true)(ctx, d, meta)
 	}
 }
 
-func resourceAccessBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceAccessBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		binding := getResourceIamBindings(d)
+		if len(binding) == 0 {
+			log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
+			return nil
+		}
 		role := binding[0].RoleId
 
-		err = iamPolicyReadModifyWrite(updater, func(p *Policy) error {
+		err = iamPolicyReadModifySet(ctx, updater, func(p *Policy) error {
 			p.Bindings = removeRoleFromBindings(role, p.Bindings)
 			return nil
 		})
@@ -178,15 +194,16 @@ func resourceAccessBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schem
 				log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
 				return nil
 			}
-			return err
+
+			return diag.FromErr(err)
 		}
 
-		return resourceAccessBindingRead(newUpdaterFunc, false)(d, meta)
+		return resourceAccessBindingRead(newUpdaterFunc, false)(ctx, d, meta)
 	}
 }
 
-func iamBindingImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
-	return func(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+func iamBindingImport(resourceIDParser resourceIDParserFunc) schema.StateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
 		if resourceIDParser == nil {
 			return nil, fmt.Errorf("Import not supported for this IAM resource")
 		}
@@ -194,7 +211,7 @@ func iamBindingImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
 		s := strings.Fields(d.Id())
 		if len(s) != 2 {
 			d.SetId("")
-			return nil, fmt.Errorf("Wrong number of parts to Binding id %s; expected 'resource_name role'", s)
+			return nil, fmt.Errorf("Import not supported for this IAM resource")
 		}
 		id, roleID := s[0], s[1]
 

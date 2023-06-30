@@ -157,5 +157,5 @@ func getKMSSymmetricKeyResourceAccessBindings(s *terraform.State, resourceName s
 		return nil, fmt.Errorf("can't find %s in state", resourceName)
 	}
 
-	return getKMSSymmetricKeyAccessBindings(config, rs.Primary.ID)
+	return getKMSSymmetricKeyAccessBindings(config.Context(), config, rs.Primary.ID)
 }

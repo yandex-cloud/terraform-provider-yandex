@@ -1,8 +1,10 @@
 package yandex
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"log"
 	"strings"
 	"time"
@@ -41,8 +43,8 @@ func validateIamMember(i interface{}, k string) (s []string, es []error) {
 	return
 }
 
-func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
-	return func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 		if resourceIDParser == nil {
 			return nil, errors.New("Import not supported for this IAM resource")
 		}
@@ -78,21 +80,19 @@ func iamMemberImport(resourceIDParser resourceIDParserFunc) schema.StateFunc {
 	}
 }
 
-func resourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc) *schema.Resource {
-	return &schema.Resource{
-		Create: resourceIamMemberCreate(newUpdaterFunc),
-		Read:   resourceIamMemberRead(newUpdaterFunc),
-		Delete: resourceIamMemberDelete(newUpdaterFunc),
+func resourceIamMember(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, opts ...SchemaOption) *schema.Resource {
+	r := &schema.Resource{
+		CreateContext: resourceIamMemberCreate(newUpdaterFunc),
+		ReadContext:   resourceIamMemberRead(newUpdaterFunc),
+		DeleteContext: resourceIamMemberDelete(newUpdaterFunc),
 
 		Schema: mergeSchemas(IamMemberBaseSchema, parentSpecificSchema),
 	}
-}
 
-func resourceIamMemberWithImport(parentSpecificSchema map[string]*schema.Schema, newUpdaterFunc newResourceIamUpdaterFunc, resourceIDParser resourceIDParserFunc) *schema.Resource {
-	r := resourceIamMember(parentSpecificSchema, newUpdaterFunc)
-	r.Importer = &schema.ResourceImporter{
-		State: iamMemberImport(resourceIDParser),
+	for _, opt := range opts {
+		opt(r)
 	}
+
 	return r
 }
 
@@ -103,52 +103,55 @@ func getResourceIamMember(d *schema.ResourceData) *access.AccessBinding {
 	return roleMemberToAccessBinding(role, member)
 }
 
-func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceIamMemberCreate(newUpdaterFunc newResourceIamUpdaterFunc) schema.CreateContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
-		p := getResourceIamMember(d)
-		err = iamPolicyReadModifyWrite(updater, func(ep *Policy) error {
-			// Merge the bindings together
-			ep.Bindings = mergeBindings(append(ep.Bindings, p))
-			return nil
+		member := getResourceIamMember(d)
+		err = iamPolicyReadModifyUpdate(ctx, updater, &PolicyDelta{
+			Deltas: []*access.AccessBindingDelta{
+				{
+					Action:        access.AccessBindingAction_ADD,
+					AccessBinding: member,
+				},
+			},
 		})
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
-		d.SetId(updater.GetResourceID() + "/" + p.RoleId + "/" + canonicalMember(p))
+		d.SetId(updater.GetResourceID() + "/" + member.RoleId + "/" + canonicalMember(member))
 
 		if v, ok := d.GetOk("sleep_after"); ok {
 			time.Sleep(time.Second * time.Duration(v.(int)))
 		}
 
-		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
+		return resourceIamMemberRead(newUpdaterFunc)(ctx, d, meta)
 	}
 }
 
-func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.ReadContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		eMember := getResourceIamMember(d)
-		p, err := updater.GetResourceIamPolicy()
+		p, err := updater.GetResourceIamPolicy(ctx)
 		if err != nil {
 			if isStatusWithCode(err, codes.NotFound) {
-				log.Printf("[DEBUG]: Binding of member %q with role %q does not exist for non-existent resource %s, removing from state.", canonicalMember(eMember), eMember.RoleId, updater.DescribeResource())
+				log.Printf("[DEBUG]: Access binding of member %q with role %q does not exist for non-existent resource %s, removing from state.", canonicalMember(eMember), eMember.RoleId, updater.DescribeResource())
 				d.SetId("")
 				return nil
 			}
-			return err
+			return diag.FromErr(err)
 		}
-		log.Printf("[DEBUG]: Retrieved policy for %s: %+v\n", updater.DescribeResource(), p)
+		log.Printf("[DEBUG]: Retrieved access bindings of %s: %+v\n", updater.DescribeResource(), p)
 		////
 		role := d.Get("role").(string)
 
@@ -161,7 +164,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 		}
 
 		if mBinding == nil {
-			log.Printf("[DEBUG]: Binding for role %q does not exist in policy of %s, removing member %q from state.", eMember.RoleId, updater.DescribeResource(), canonicalMember(eMember))
+			log.Printf("[DEBUG]: Access binding for role %q does not exist in access bindings of %s, removing member %q from state.", eMember.RoleId, updater.DescribeResource(), canonicalMember(eMember))
 			d.SetId("")
 			return nil
 		}
@@ -173,7 +176,7 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 			}
 		}
 		if member == "" {
-			log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in policy of %s, removing from state.", canonicalMember(eMember), eMember.RoleId, updater.DescribeResource())
+			log.Printf("[DEBUG]: Member %q for binding for role %q does not exist in access bindings of %s, removing from state.", canonicalMember(eMember), eMember.RoleId, updater.DescribeResource())
 			d.SetId("")
 			return nil
 		}
@@ -183,51 +186,33 @@ func resourceIamMemberRead(newUpdaterFunc newResourceIamUpdaterFunc) schema.Read
 	}
 }
 
-func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteFunc {
-	return func(d *schema.ResourceData, meta interface{}) error {
+func resourceIamMemberDelete(newUpdaterFunc newResourceIamUpdaterFunc) schema.DeleteContextFunc {
+	return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 		config := meta.(*Config)
 		updater, err := newUpdaterFunc(d, config)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		member := getResourceIamMember(d)
-		role := member.RoleId
 
-		err = iamPolicyReadModifyWrite(updater, func(p *Policy) error {
-			var toRemovePos []int
-			for pos, b := range p.Bindings {
-				if b.RoleId != role {
-					continue
-				}
-				if b.Subject.Type != member.Subject.Type || b.Subject.Id != member.Subject.Id {
-					continue
-				}
-				toRemovePos = append(toRemovePos, pos)
-				break
-			}
-
-			if len(toRemovePos) == 0 {
-				log.Printf("[DEBUG]: Binding for role %q does not exist in policy of project %q, so member %q can't be on it.", member.RoleId, updater.GetResourceID(), canonicalMember(member))
-				return nil
-			}
-
-			for _, pos := range toRemovePos {
-				p.Bindings = append(p.Bindings[:pos], p.Bindings[pos+1:]...)
-			}
-
-			return nil
-
+		err = iamPolicyReadModifyUpdate(ctx, updater, &PolicyDelta{
+			Deltas: []*access.AccessBindingDelta{
+				{
+					Action:        access.AccessBindingAction_REMOVE,
+					AccessBinding: member,
+				},
+			},
 		})
 		if err != nil {
 			if isStatusWithCode(err, codes.NotFound) {
 				log.Printf("[DEBUG]: Member %q for binding for role %q does not exist for non-existent resource %q.", canonicalMember(member), member.RoleId, updater.GetResourceID())
 				return nil
 			}
-			return err
+			return diag.FromErr(err)
 		}
 
-		return resourceIamMemberRead(newUpdaterFunc)(d, meta)
+		return resourceIamMemberRead(newUpdaterFunc)(ctx, d, meta)
 	}
 }
 

@@ -8,6 +8,9 @@ BUG FIXES:
 ENHANCEMENTS:
 * use ListUserAccounts filter parameter in `yandex_organizationmanager_saml_federation_user_account` data source instead of loop.
 * fixed `yandex_organizationmanager_saml_federation_user_account` data source acceptance tests.
+* `*_iam_member`, `*_iam_binding`, `*_iam_policy` resources are now context-aware
+* Error messages and handling updated for `*_iam_member`, `*_iam_binding`, `*_iam_policy` resources
+* `*_iam_member` resources now use update-access-bindings method instead of set-access-bindings
 
 ## 0.93.0 (June 14, 2023)
 FEATURES:

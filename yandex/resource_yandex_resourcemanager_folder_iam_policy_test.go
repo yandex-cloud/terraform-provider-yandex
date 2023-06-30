@@ -112,7 +112,7 @@ func testAccCheckYandexResourceManagerFolderIamPolicyDestroy(s *terraform.State)
 
 		folderID := rs.Primary.Attributes["folder_id"]
 
-		bindings, err := getFolderAccessBindings(config, folderID)
+		bindings, err := getFolderAccessBindings(config.Context(), config, folderID)
 		if err != nil && bindings != nil && len(bindings) > 0 {
 			return fmt.Errorf("Folder '%s' policy hasn't been deleted", folderID)
 		}
@@ -133,7 +133,7 @@ func testAccCheckYandexResourceManagerFolderIamPolicy(n string, policy *Policy) 
 
 		config := testAccProvider.Meta().(*Config)
 
-		bindings, err := getFolderAccessBindings(config, rs.Primary.ID)
+		bindings, err := getFolderAccessBindings(config.Context(), config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}

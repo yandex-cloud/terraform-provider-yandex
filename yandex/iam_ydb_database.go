@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,6 +12,7 @@ import (
 )
 
 const yandexIAMYDBDefaultTimeout = 1 * time.Minute
+const yandexIAMYDBUpdateAccessBindingsBatchSize = 1000
 
 var IamYDBDatabaseSchema = map[string]*schema.Schema{
 	"database_id": {
@@ -37,31 +39,59 @@ func ydbDatabaseIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	return nil
 }
 
-func (u *YDBDatabaseIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	bindings, err := getYDBDatabaseAccessBindings(u.Config, u.GetResourceID())
+func (u *YDBDatabaseIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, error) {
+	bindings, err := getYDBDatabaseAccessBindings(ctx, u.Config, u.GetResourceID())
 	if err != nil {
 		return nil, err
 	}
 	return &Policy{bindings}, nil
 }
 
-func (u *YDBDatabaseIamUpdater) SetResourceIamPolicy(policy *Policy) error {
+func (u *YDBDatabaseIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.databaseID,
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexIAMYDBDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, yandexIAMYDBDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.YDB().Database().SetAccessBindings(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
+	}
+
+	return nil
+}
+
+func (u *YDBDatabaseIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	bSize := yandexIAMYDBUpdateAccessBindingsBatchSize
+	deltas := policy.Deltas
+	dLen := len(deltas)
+
+	for i := 0; i < countBatches(dLen, bSize); i++ {
+		req := &access.UpdateAccessBindingsRequest{
+			ResourceId:          u.databaseID,
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
+		}
+
+		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.YDB().Database().UpdateAccessBindings(ctx, req))
+		if err != nil {
+			if reqID, ok := isRequestIDPresent(err); ok {
+				log.Printf("[DEBUG] request ID is %s\n", reqID)
+			}
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
 	}
 
 	return nil
@@ -79,10 +109,9 @@ func (u *YDBDatabaseIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("YDB Database '%s'", u.databaseID)
 }
 
-func getYDBDatabaseAccessBindings(config *Config, databaseID string) ([]*access.AccessBinding, error) {
+func getYDBDatabaseAccessBindings(ctx context.Context, config *Config, databaseID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
-	ctx := config.Context()
 
 	for {
 		resp, err := config.sdk.YDB().Database().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
@@ -92,7 +121,7 @@ func getYDBDatabaseAccessBindings(config *Config, databaseID string) ([]*access.
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for YDB Database %s: %s", databaseID, err)
+			return nil, fmt.Errorf("Error retrieving access bindings of YDB Database %s: %w", databaseID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

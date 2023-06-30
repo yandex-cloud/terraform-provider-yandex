@@ -286,7 +286,7 @@ func groupIamMemberImportStep(resourceName string, group *organizationmanager.Gr
 func testAccCheckGroupIam(group *organizationmanager.Group, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)
-		bindings, err := getGroupAccessBindings(config, group.Id)
+		bindings, err := getGroupAccessBindings(config.Context(), config, group.Id)
 		if err != nil {
 			return err
 		}

@@ -158,5 +158,5 @@ func getContainerRegistryResourceAccessBindings(s *terraform.State, resourceName
 		return nil, fmt.Errorf("can't find %s in state", resourceName)
 	}
 
-	return getContainerRegistryAccessBindings(config, rs.Primary.ID)
+	return getContainerRegistryAccessBindings(config.Context(), config, rs.Primary.ID)
 }

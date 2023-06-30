@@ -107,7 +107,7 @@ func getFolderIamPolicyByFolderID(folderID string, config *Config) (*Policy, err
 		folderID: folderID,
 		Config:   config,
 	}
-	return f.GetResourceIamPolicy()
+	return f.GetResourceIamPolicy(config.Context())
 }
 
 func checkWithState(fn func() resource.TestCheckFunc) resource.TestCheckFunc {
@@ -157,7 +157,7 @@ func testAccCheckServerlessContainerIam(resourceName, role string, members []str
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
 
-		bindings, err := getServerlessContainerAccessBindings(config, rs.Primary.ID)
+		bindings, err := getServerlessContainerAccessBindings(config.Context(), config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ func testAccCheckServiceAccountIam(resourceName, role string, members []string) 
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
 
-		bindings, err := getServiceAccountAccessBindings(config, rs.Primary.ID)
+		bindings, err := getServiceAccountAccessBindings(config.Context(), config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}

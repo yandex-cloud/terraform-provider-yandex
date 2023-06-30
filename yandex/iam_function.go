@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,6 +12,7 @@ import (
 )
 
 const yandexIAMFunctionDefaultTimeout = 1 * time.Minute
+const yandexFunctionUpdateAccessBindingsBatchSize = 1000
 
 var IamFunctionSchema = map[string]*schema.Schema{
 	"function_id": {
@@ -37,7 +39,7 @@ func functionIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	return nil
 }
 
-func (u *FunctionIamUpdater) GetResourceIamPolicy() (*Policy, error) {
+func (u *FunctionIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, error) {
 	bindings, err := getFunctionAccessBindings(u.Config, u.GetResourceID())
 	if err != nil {
 		return nil, err
@@ -45,23 +47,51 @@ func (u *FunctionIamUpdater) GetResourceIamPolicy() (*Policy, error) {
 	return &Policy{bindings}, nil
 }
 
-func (u *FunctionIamUpdater) SetResourceIamPolicy(policy *Policy) error {
+func (u *FunctionIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.functionID,
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexIAMFunctionDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, yandexIAMFunctionDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Functions().Function().SetAccessBindings(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
+	}
+
+	return nil
+}
+
+func (u *FunctionIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	bSize := yandexResourceManagerCloudUpdateAccessBindingsBatchSize
+	deltas := policy.Deltas
+	dLen := len(deltas)
+
+	for i := 0; i < countBatches(dLen, bSize); i++ {
+		req := &access.UpdateAccessBindingsRequest{
+			ResourceId:          u.functionID,
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
+		}
+
+		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.Serverless().Functions().Function().UpdateAccessBindings(ctx, req))
+		if err != nil {
+			if reqID, ok := isRequestIDPresent(err); ok {
+				log.Printf("[DEBUG] request ID is %s\n", reqID)
+			}
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
 	}
 
 	return nil
@@ -92,7 +122,7 @@ func getFunctionAccessBindings(config *Config, functionID string) ([]*access.Acc
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for function %s: %s", functionID, err)
+			return nil, fmt.Errorf("Error retrieving access bindings of function %s: %w", functionID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

@@ -157,5 +157,5 @@ func getYDBDatabaseResourceAccessBindings(s *terraform.State, resourceName strin
 		return nil, fmt.Errorf("can't find %s in state", resourceName)
 	}
 
-	return getYDBDatabaseAccessBindings(config, rs.Primary.ID)
+	return getYDBDatabaseAccessBindings(config.Context(), config, rs.Primary.ID)
 }

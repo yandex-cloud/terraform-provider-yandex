@@ -164,7 +164,7 @@ func testAccCheckCloudIam(resourceName, role string, members []string) resource.
 
 		cloudID := strings.SplitN(rs.Primary.ID, "/", 2)[0]
 
-		bindings, err := getCloudAccessBindings(config, cloudID)
+		bindings, err := getCloudAccessBindings(config.Context(), config, cloudID)
 		if err != nil {
 			return err
 		}

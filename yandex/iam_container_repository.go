@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -11,6 +12,7 @@ import (
 )
 
 const yandexIAMContainerRepositoryDefaultTimeout = 1 * time.Minute
+const yandexIAMContainerRepositoryUpdateAccessBindingsBatchSize = 1000
 
 var IamContainerRepositorySchema = map[string]*schema.Schema{
 	"repository_id": {
@@ -37,31 +39,59 @@ func containerRepositoryIDParseFunc(d *schema.ResourceData, _ *Config) error {
 	return nil
 }
 
-func (u *ContainerRepositoryIamUpdater) GetResourceIamPolicy() (*Policy, error) {
-	bindings, err := getContainerRepositoryAccessBindings(u.Config, u.GetResourceID())
+func (u *ContainerRepositoryIamUpdater) GetResourceIamPolicy(ctx context.Context) (*Policy, error) {
+	bindings, err := getContainerRepositoryAccessBindings(ctx, u.Config, u.GetResourceID())
 	if err != nil {
 		return nil, err
 	}
 	return &Policy{bindings}, nil
 }
 
-func (u *ContainerRepositoryIamUpdater) SetResourceIamPolicy(policy *Policy) error {
+func (u *ContainerRepositoryIamUpdater) SetResourceIamPolicy(ctx context.Context, policy *Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.repositoryID,
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), yandexIAMContainerRepositoryDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, yandexIAMContainerRepositoryDefaultTimeout)
 	defer cancel()
 
 	op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ContainerRegistry().Repository().SetAccessBindings(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error setting IAM policy for %s: %s", u.DescribeResource(), err)
+		return fmt.Errorf("Error setting access bindings of %s: %w", u.DescribeResource(), err)
+	}
+
+	return nil
+}
+
+func (u *ContainerRepositoryIamUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *PolicyDelta) error {
+	bSize := yandexIAMContainerRepositoryUpdateAccessBindingsBatchSize
+	deltas := policy.Deltas
+	dLen := len(deltas)
+
+	for i := 0; i < countBatches(dLen, bSize); i++ {
+		req := &access.UpdateAccessBindingsRequest{
+			ResourceId:          u.repositoryID,
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
+		}
+
+		op, err := u.Config.sdk.WrapOperation(u.Config.sdk.ContainerRegistry().Repository().UpdateAccessBindings(ctx, req))
+		if err != nil {
+			if reqID, ok := isRequestIDPresent(err); ok {
+				log.Printf("[DEBUG] request ID is %s\n", reqID)
+			}
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("Error updating access bindings of %s: %w", u.DescribeResource(), err)
+		}
 	}
 
 	return nil
@@ -79,10 +109,9 @@ func (u *ContainerRepositoryIamUpdater) DescribeResource() string {
 	return fmt.Sprintf("Container Repository '%s'", u.repositoryID)
 }
 
-func getContainerRepositoryAccessBindings(config *Config, repositoryID string) ([]*access.AccessBinding, error) {
+func getContainerRepositoryAccessBindings(ctx context.Context, config *Config, repositoryID string) ([]*access.AccessBinding, error) {
 	bindings := []*access.AccessBinding{}
 	pageToken := ""
-	ctx := config.Context()
 
 	for {
 		resp, err := config.sdk.ContainerRegistry().Repository().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
@@ -92,7 +121,7 @@ func getContainerRepositoryAccessBindings(config *Config, repositoryID string) (
 		})
 
 		if err != nil {
-			return nil, fmt.Errorf("Error retrieving IAM access bindings for Container Repository %s: %s", repositoryID, err)
+			return nil, fmt.Errorf("Error retrieving access bindings of Container Repository %s: %w", repositoryID, err)
 		}
 
 		bindings = append(bindings, resp.AccessBindings...)

@@ -267,9 +267,16 @@ func handleNotFoundError(err error, d *schema.ResourceData, resourceName string)
 	return fmt.Errorf("error reading %s: %s", resourceName, err)
 }
 
+// isStatusWithCode checks if any nested error matches provided code
 func isStatusWithCode(err error, code codes.Code) bool {
 	grpcStatus, ok := status.FromError(err)
-	return ok && grpcStatus.Code() == code
+	check := ok && grpcStatus.Code() == code
+
+	nestedErr := errors.Unwrap(err)
+	if nestedErr != nil {
+		return isStatusWithCode(nestedErr, code) || check
+	}
+	return check
 }
 
 func isRequestIDPresent(err error) (string, bool) {
@@ -378,6 +385,14 @@ func removeRoleFromBindings(roleForRemove string, bindings []*access.AccessBindi
 	}
 
 	return rb
+}
+
+func countBatches(size, batchSize int) int {
+	iterations := size / batchSize
+	if size%batchSize > 0 {
+		iterations++
+	}
+	return iterations
 }
 
 func (p Policy) String() string {
@@ -969,4 +984,11 @@ func expandEnum(keyName string, value string, enumValues map[string]int32) (*int
 		return nil, fmt.Errorf("value for '%s' must be one of %s, not `%s`",
 			keyName, getJoinedKeys(getEnumValueMapKeys(enumValues)), value)
 	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

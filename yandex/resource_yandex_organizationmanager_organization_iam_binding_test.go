@@ -221,7 +221,7 @@ func testAccCheckOrganizationIam(resourceName, role string, members []string) re
 
 		organizationID := strings.SplitN(rs.Primary.ID, "/", 2)[0]
 
-		bindings, err := getOrganizationAccessBindings(config, organizationID)
+		bindings, err := getOrganizationAccessBindings(config.Context(), config, organizationID)
 		if err != nil {
 			return err
 		}
