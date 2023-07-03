@@ -58,7 +58,7 @@ The following arguments are supported:
 
 * `schedule_policy` - (Required) Schedule policy of the snapshot schedule.
 * `disk_ids` - (Optional) IDs of the disk for snapshot schedule.
-* `retention_period` - (Optional) Time duration applied to snapshots created by this snapshot schedule.
+* `retention_period` - (Optional) Time duration applied to snapshots created by this snapshot schedule. This is a signed sequence of decimal numbers, each with optional fraction and a unit suffix. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". Examples: "300ms", "1.5h" or "2h45m".
 * `snapshot_count` - (Optional) Maximum number of snapshots for every disk of the snapshot schedule.
 * `snapshot_spec` - (Optional) Additional attributes for snapshots created by this snapshot schedule.
 
@@ -83,7 +83,7 @@ The `schedule_policy` block supports:
 
 * `expression` - (Required) Cron expression to schedule snapshots (in cron format "* * * * *").
 
-* `start_at` - (Optional) Time to start the snapshot schedule (in format RFC3339 "2006-01-02T15:04:05Z07:00"). If empty current time will be used.
+* `start_at` - (Optional) Time to start the snapshot schedule (in format RFC3339 "2006-01-02T15:04:05Z07:00"). If empty current time will be used. Unlike an `expression` that specifies regularity rules, the `start_at` parameter determines from what point these rules will be applied.
 
 ## Attributes Reference
 

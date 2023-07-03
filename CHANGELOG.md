@@ -5,6 +5,7 @@ FEATURES:
 BUG FIXES:
 * vpc: security group rule import fixed
 * datatransfer: added `serializer` field for `kafka_target` endpoints
+* docs: updated description for `yandex_compute_snapshot_schedule`
 
 ENHANCEMENTS:
 * use ListUserAccounts filter parameter in `yandex_organizationmanager_saml_federation_user_account` data source instead of loop.
