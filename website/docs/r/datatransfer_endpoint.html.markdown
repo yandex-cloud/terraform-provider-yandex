@@ -263,6 +263,7 @@ The `kafka_target` block supports:
 * `auth` - (Required) Authentication data.
 * `topic_settings` - (Required) Target topic settings.
 * `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `serializer` - (Required) Data serialization settings.
 
 The `topic_settings` block supports exactly one of the following attributes:
 * `topic_prefix` - Topic name prefix. Messages will be sent to topic with name <topic_prefix>.<schema>.<table_name>.
@@ -322,6 +323,15 @@ The `alt_names` block supports:
 * `from_name`
 * `to_name`
 
+---
+
+The `serializer` block supports exactly one of the following attributes:
+* `serializer_auto` - Empty block. Select data serialization format automatically.
+* `serializer_json` - Empty block. Serialize data in json format.
+* `serializer_debezium` - Serialize data in json format. The structure is documented below.
+
+The `serializer_debezium` block supports:
+* `serializer_parameters` - A list of debezium parameters set by the structure of the `key` and `value` string fields.
 ## Attributes Reference
 
 * `id` - (Computed) Identifier of a new Data Transfer endpoint.

@@ -957,6 +957,63 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 										Optional: true,
 										Computed: true,
 									},
+									"serializer": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"serializer_auto": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.serializer.0.serializer_debezium", "settings.0.kafka_target.0.serializer.0.serializer_json"},
+												},
+												"serializer_debezium": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"serializer_parameters": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"value": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.serializer.0.serializer_auto", "settings.0.kafka_target.0.serializer.0.serializer_json"},
+												},
+												"serializer_json": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.kafka_target.0.serializer.0.serializer_auto", "settings.0.kafka_target.0.serializer.0.serializer_debezium"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
 									"topic_settings": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -3502,6 +3559,33 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 									protobufFieldName:      "topic_prefix",
 									terraformAttributeName: "topic_prefix",
 									children:               nil,
+								},
+							},
+						},
+						{
+							protobufFieldName:      "serializer",
+							terraformAttributeName: "serializer",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "serializer_auto",
+									terraformAttributeName: "serializer_auto",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "serializer_json",
+									terraformAttributeName: "serializer_json",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "serializer_debezium",
+									terraformAttributeName: "serializer_debezium",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "serializer_parameters",
+											terraformAttributeName: "serializer_parameters",
+											children:               nil,
+										},
+									},
 								},
 							},
 						},

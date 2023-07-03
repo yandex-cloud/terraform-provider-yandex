@@ -497,6 +497,10 @@ func testAccDataTransferConfigKafkaTarget(name, description string) string {
             topic_settings {
                 topic_prefix = "topic-prefix"
             }
+			serializer {
+				serializer_json{
+                }
+			}
         }
     }
 }`, name, description)

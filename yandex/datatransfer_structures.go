@@ -1334,6 +1334,15 @@ func expandDatatransferEndpointSettingsKafkaTarget(d *schema.ResourceData) (*end
 		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
 	}
 
+	if _, ok := d.GetOk("settings.0.kafka_target.0.serializer"); ok {
+		serializer, err := expandDatatransferEndpointSettingsKafkaTargetSerializer(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSerializer(serializer)
+	}
+
 	if _, ok := d.GetOk("settings.0.kafka_target.0.topic_settings"); ok {
 		topicSettings, err := expandDatatransferEndpointSettingsKafkaTargetTopicSettings(d)
 		if err != nil {
@@ -1375,6 +1384,96 @@ func expandDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d *schema.R
 	if v, ok := d.GetOk("settings.0.kafka_target.0.topic_settings.0.topic.0.topic_name"); ok {
 		val.SetTopicName(v.(string))
 	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializer(d *schema.ResourceData) (*endpoint.Serializer, error) {
+	val := new(endpoint.Serializer)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.serializer.0.serializer_auto"); ok {
+		serializerAuto, err := expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerAuto(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSerializerAuto(serializerAuto)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.serializer.0.serializer_debezium"); ok {
+		serializerDebezium, err := expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebezium(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSerializerDebezium(serializerDebezium)
+	}
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.serializer.0.serializer_json"); ok {
+		serializerJson, err := expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerJson(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSerializerJson(serializerJson)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerJson(d *schema.ResourceData) (*endpoint.SerializerJSON, error) {
+	val := new(endpoint.SerializerJSON)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebezium(d *schema.ResourceData) (*endpoint.SerializerDebezium, error) {
+	val := new(endpoint.SerializerDebezium)
+
+	if _, ok := d.GetOk("settings.0.kafka_target.0.serializer.0.serializer_debezium.0.serializer_parameters"); ok {
+		serializerParameters, err := expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParametersSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetSerializerParameters(serializerParameters)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParametersSlice(d *schema.ResourceData) ([]*endpoint.DebeziumSerializerParameter, error) {
+	count := d.Get("settings.0.kafka_target.0.serializer.0.serializer_debezium.0.serializer_parameters.#").(int)
+	slice := make([]*endpoint.DebeziumSerializerParameter, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParameters(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParameters(d *schema.ResourceData, indexes ...interface{}) (*endpoint.DebeziumSerializerParameter, error) {
+	val := new(endpoint.DebeziumSerializerParameter)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_target.0.serializer.0.serializer_debezium.0.serializer_parameters.%d.key", indexes...)); ok {
+		val.SetKey(v.(string))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.kafka_target.0.serializer.0.serializer_debezium.0.serializer_parameters.%d.value", indexes...)); ok {
+		val.SetValue(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsKafkaTargetSerializerSerializerAuto(d *schema.ResourceData) (*endpoint.SerializerAuto, error) {
+	val := new(endpoint.SerializerAuto)
 
 	return val, nil
 }
@@ -3393,6 +3492,12 @@ func flattenDatatransferEndpointSettingsKafkaTarget(d *schema.ResourceData, v *e
 	m["connection"] = connection
 	m["security_groups"] = v.GetSecurityGroups()
 
+	serializer, err := flattenDatatransferEndpointSettingsKafkaTargetSerializer(d, v.GetSerializer())
+	if err != nil {
+		return nil, err
+	}
+	m["serializer"] = serializer
+
 	topicSettings, err := flattenDatatransferEndpointSettingsKafkaTargetTopicSettings(d, v.GetTopicSettings())
 	if err != nil {
 		return nil, err
@@ -3428,6 +3533,100 @@ func flattenDatatransferEndpointSettingsKafkaTargetTopicSettingsTopic(d *schema.
 
 	m["save_tx_order"] = v.GetSaveTxOrder()
 	m["topic_name"] = v.GetTopicName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializer(d *schema.ResourceData, v *endpoint.Serializer) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	serializerAuto, err := flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerAuto(d, v.GetSerializerAuto())
+	if err != nil {
+		return nil, err
+	}
+	m["serializer_auto"] = serializerAuto
+
+	serializerDebezium, err := flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebezium(d, v.GetSerializerDebezium())
+	if err != nil {
+		return nil, err
+	}
+	m["serializer_debezium"] = serializerDebezium
+
+	serializerJson, err := flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerJson(d, v.GetSerializerJson())
+	if err != nil {
+		return nil, err
+	}
+	m["serializer_json"] = serializerJson
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerJson(d *schema.ResourceData, v *endpoint.SerializerJSON) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebezium(d *schema.ResourceData, v *endpoint.SerializerDebezium) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	serializerParameters, err := flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParametersSlice(d, v.GetSerializerParameters())
+	if err != nil {
+		return nil, err
+	}
+	m["serializer_parameters"] = serializerParameters
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParametersSlice(d *schema.ResourceData, v []*endpoint.DebeziumSerializerParameter) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParameters(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerDebeziumSerializerParameters(d *schema.ResourceData, v *endpoint.DebeziumSerializerParameter) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["key"] = v.GetKey()
+	m["value"] = v.GetValue()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsKafkaTargetSerializerSerializerAuto(d *schema.ResourceData, v *endpoint.SerializerAuto) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
 
 	return []map[string]interface{}{m}, nil
 }

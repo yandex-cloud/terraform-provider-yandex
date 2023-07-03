@@ -4,6 +4,7 @@ FEATURES:
 * provider: upgrade go-genproto to the latest version. This is needed for migrate redis to unified config.
 BUG FIXES:
 * vpc: security group rule import fixed
+* datatransfer: added `serializer` field for `kafka_target` endpoints
 
 ENHANCEMENTS:
 * use ListUserAccounts filter parameter in `yandex_organizationmanager_saml_federation_user_account` data source instead of loop.
