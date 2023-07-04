@@ -14,6 +14,9 @@ ENHANCEMENTS:
 * Error messages and handling updated for `*_iam_member`, `*_iam_binding`, `*_iam_policy` resources
 * `*_iam_member` resources now use update-access-bindings method instead of set-access-bindings
 
+BUG FIXES:
+* lockbox: better examples for `yandex_lockbox_secret_version` data source
+
 ## 0.93.0 (June 14, 2023)
 FEATURES:
 * provider: the default development, testing and building of the provider is now done with Go 1.18
