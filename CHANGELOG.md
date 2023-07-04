@@ -1,4 +1,6 @@
-## 0.94.0 (Unreleased)
+## 0.95.0 (Unreleased)
+
+## 0.94.0 (July 4, 2023)
 FEATURES:
 * redis: update requests to grpcapi with unified config
 * provider: upgrade go-genproto to the latest version. This is needed for migrate redis to unified config.
