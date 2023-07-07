@@ -1,6 +1,7 @@
 ## 0.95.0 (Unreleased)
 FEATURES:
 * storage: allow `transition`/`noncurrent_version_transition` to `ICE` storage class in bucket lifecycle config.
+* datatransfer: added `ydb_source` and `ydb_target` endpoints
 BUG FIXES:
 * certificate-manager: fixed problem with read `deletion_protection` to `data.yandex_cm_certificate`
 

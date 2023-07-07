@@ -435,7 +435,7 @@ func testAccDataTransferConfigKafkaSource(name, description string) string {
 
 func TestAccDataTransferKafkaTargetEndpoint(t *testing.T) {
 	t.Parallel()
-	const kafkaSourceEndpointResourceName = "kafka-target"
+	const kafkaTargetEndpointResourceName = "kafka-target"
 	const fullResourceName = "yandex_datatransfer_endpoint.kafka_target"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -443,9 +443,9 @@ func TestAccDataTransferKafkaTargetEndpoint(t *testing.T) {
 		CheckDestroy: testAccCheckDataTransferDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataTransferConfigKafkaTarget(kafkaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Config: testAccDataTransferConfigKafkaTarget(kafkaTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "name", kafkaTargetEndpointResourceName+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
 				),
 			},
@@ -501,6 +501,115 @@ func testAccDataTransferConfigKafkaTarget(name, description string) string {
 				serializer_json{
                 }
 			}
+        }
+    }
+}`, name, description)
+}
+
+func TestAccDataTransferYDBSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const ydbSourceEndpointResourceName = "ydb-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.ydb_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigYdbSource(ydbSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", ydbSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigYdbSource("new-ydb-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ydb-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.ydb_source.0.sa_key_content."},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigYdbSource(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "ydb_source" {
+  name        = "%s"
+  description = "%s"
+  settings {
+    ydb_source {
+      database = "xyz"
+      instance = "my-cute-ydb.cloud.yandex.ru:2135"
+      service_account_id = "ajet9lupach"
+      paths = [
+        "path1/a/b/c",
+        "path2/a/b/c",
+        "path3/a/b/c",
+      ]
+      subnet_id="mycuteydbsubnet"
+      security_groups = []
+	  sa_key_content = "secretsecretsecret"
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
+	t.Parallel()
+	const ydbTargetEndpointResourceName = "ydb-target"
+	const fullResourceName = "yandex_datatransfer_endpoint.ydb_target"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigYdbTarget(ydbTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", ydbTargetEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigYdbTarget("new-ydb-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ydb-target-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.ydb_target.0.sa_key_content."},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigYdbTarget(name, description string) string {
+	return fmt.Sprintf(`resource "yandex_datatransfer_endpoint" "ydb_target" {
+    name        = "%s"
+  	description = "%s"
+    settings {
+        ydb_target {
+          database = "xyz"
+          instance = "my-cute-ydb.cloud.yandex.ru"
+          service_account_id = "ajet9lupach"
+          path = "/bushido/logs"
+          subnet_id="mycuteydbsubnet"
+          security_groups = []
+	      sa_key_content = "secretsecretsecret"
+          cleanup_policy = "YDB_CLEANUP_POLICY_DROP"
         }
     }
 }`, name, description)

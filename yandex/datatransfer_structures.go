@@ -104,9 +104,104 @@ func expandDatatransferEndpointSettings(d *schema.ResourceData) (*datatransfer.E
 		val.SetPostgresTarget(postgresTarget)
 	}
 
+	if _, ok := d.GetOk("settings.0.ydb_source"); ok {
+		ydbSource, err := expandDatatransferEndpointSettingsYdbSource(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetYdbSource(ydbSource)
+	}
+
+	if _, ok := d.GetOk("settings.0.ydb_target"); ok {
+		ydbTarget, err := expandDatatransferEndpointSettingsYdbTarget(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetYdbTarget(ydbTarget)
+	}
+
 	empty := new(datatransfer.EndpointSettings)
 	if proto.Equal(val, empty) {
 		return nil, nil
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsYdbTarget(d *schema.ResourceData) (*endpoint.YdbTarget, error) {
+	val := new(endpoint.YdbTarget)
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.cleanup_policy"); ok {
+		vv, err := parseDatatransferEndpointYdbCleanupPolicy(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCleanupPolicy(vv)
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.database"); ok {
+		val.SetDatabase(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.instance"); ok {
+		val.SetInstance(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.path"); ok {
+		val.SetPath(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.sa_key_content"); ok {
+		val.SetSaKeyContent(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.service_account_id"); ok {
+		val.SetServiceAccountId(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_target.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsYdbSource(d *schema.ResourceData) (*endpoint.YdbSource, error) {
+	val := new(endpoint.YdbSource)
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.database"); ok {
+		val.SetDatabase(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.instance"); ok {
+		val.SetInstance(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.paths"); ok {
+		val.SetPaths(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.sa_key_content"); ok {
+		val.SetSaKeyContent(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.security_groups"); ok {
+		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.service_account_id"); ok {
+		val.SetServiceAccountId(v.(string))
+	}
+
+	if v, ok := d.GetOk("settings.0.ydb_source.0.subnet_id"); ok {
+		val.SetSubnetId(v.(string))
 	}
 
 	return val, nil
@@ -2668,6 +2763,55 @@ func flattenDatatransferEndpointSettings(d *schema.ResourceData, v *datatransfer
 	}
 	m["postgres_target"] = postgresTarget
 
+	ydbSource, err := flattenDatatransferEndpointSettingsYdbSource(d, v.GetYdbSource())
+	if err != nil {
+		return nil, err
+	}
+	m["ydb_source"] = ydbSource
+
+	ydbTarget, err := flattenDatatransferEndpointSettingsYdbTarget(d, v.GetYdbTarget())
+	if err != nil {
+		return nil, err
+	}
+	m["ydb_target"] = ydbTarget
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsYdbTarget(d *schema.ResourceData, v *endpoint.YdbTarget) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["cleanup_policy"] = v.GetCleanupPolicy().String()
+	m["database"] = v.GetDatabase()
+	m["instance"] = v.GetInstance()
+	m["path"] = v.GetPath()
+	m["sa_key_content"] = v.GetSaKeyContent()
+	m["security_groups"] = v.GetSecurityGroups()
+	m["service_account_id"] = v.GetServiceAccountId()
+	m["subnet_id"] = v.GetSubnetId()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsYdbSource(d *schema.ResourceData, v *endpoint.YdbSource) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["database"] = v.GetDatabase()
+	m["instance"] = v.GetInstance()
+	m["paths"] = v.GetPaths()
+	m["sa_key_content"] = v.GetSaKeyContent()
+	m["security_groups"] = v.GetSecurityGroups()
+	m["service_account_id"] = v.GetServiceAccountId()
+	m["subnet_id"] = v.GetSubnetId()
+
 	return []map[string]interface{}{m}, nil
 }
 
@@ -4652,4 +4796,16 @@ func parseDatatransferEndpointObjectTransferStage(str string) (endpoint.ObjectTr
 		)
 	}
 	return endpoint.ObjectTransferStage(val), nil
+}
+
+func parseDatatransferEndpointYdbCleanupPolicy(str string) (endpoint.YdbCleanupPolicy, error) {
+	val, ok := endpoint.YdbCleanupPolicy_value[str]
+	if !ok {
+		return endpoint.YdbCleanupPolicy(0), fmt.Errorf(
+			"value for 'transfer_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(endpoint.YdbCleanupPolicy_value)),
+			str,
+		)
+	}
+	return endpoint.YdbCleanupPolicy(val), nil
 }

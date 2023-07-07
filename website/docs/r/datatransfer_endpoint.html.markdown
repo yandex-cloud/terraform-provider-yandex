@@ -76,6 +76,8 @@ The `settings` block supports:
 * `postgres_target` - (Optional) Settings specific to the PostgreSQL target endpoint.
 * `mysql_source` - (Optional) Settings specific to the MySQL source endpoint.
 * `mysql_target` - (Optional) Settings specific to the MySQL target endpoint.
+* `ydb_source` - (Optional) Settings specific to the YDB source endpoint.
+* `ydb_target` - (Optional) Settings specific to the YDB target endpoint.
 
 For the documentation of the specific endpoint settings see below.
 
@@ -337,6 +339,53 @@ The `serializer_debezium` block supports:
 * `id` - (Computed) Identifier of a new Data Transfer endpoint.
 * `created_at` - (Computed) Data Transfer endpoint creation timestamp.
 * `author` - (Computed) Identifier of the IAM user account of the user who created the endpoint.
+
+---
+
+The `ydb_source` block supports:
+* `database` -- (Required) Database path in YDB where tables are stored. Example: "/ru/transfer_manager/prod/data-transfer-yt".
+* `instance` -- (Optional) Instance of YDB. Example: "my-cute-ydb.cloud.yandex.ru:2135".
+* `service_account_id` -- (Optional) Service account ID for interaction with database.
+* `paths` -- (Optional) A list of paths which should be uploaded. When not specified, all available tables are uploaded.
+* `subnet_id` -- (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `sa_key_content` -- (Optional, Sensitive) Authentication key.
+
+The `ydb_target` block supports:
+* `database` -- (Required) Database path in YDB where tables are stored. Example: "/ru/transfer_manager/prod/data-transfer-yt".
+* `instance` -- (Optional) Instance of YDB. Example: "my-cute-ydb.cloud.yandex.ru:2135".
+* `service_account_id` -- (Optional) Service account ID for interaction with database.
+* `path` -- (Optional) A path where resulting tables are stored.
+* `subnet_id` -- (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `sa_key_content` -- (Optional, Sensitive) Authentication key.
+* `cleanup_policy` -- (Optional) How to clean collections when activating the transfer. One of "YDB_CLEANUP_POLICY_DISABLED" or "YDB_CLEANUP_POLICY_DROP".
+
+* `connection` - (Required) Connection settings.
+* `auth` - (Required) Authentication data.
+* `topic_settings` - (Required) Target topic settings.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
+
+The `topic_settings` block supports exactly one of the following attributes:
+* `topic_prefix` - Topic name prefix. Messages will be sent to topic with name <topic_prefix>.<schema>.<table_name>.
+* `topic` - All messages will be sent to one topic. The structure is documented below.
+
+The `topic` block supports:
+* `topic_name` - Full topic name
+* `save_tx_order` - Not to split events queue into separate per-table queues.
+
+The `connection` block supports exactly one of the following attributes:
+* `cluster_id` - Identifier of the Managed Kafka cluster.
+* `on_premise` - Connection settings of the on-premise Kafka server.
+
+The `on_premise` block supports:
+* `broker_urls` (Required) List of Kafka broker URLs.
+* `subnet_id` (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `tls_mode`  (Optional) TLS settings for the server connection. Empty implies plaintext connection. The structure is documented below.
+
+The `auth` block supports exactly one of the following attributes:
+* `no_auth` - Connection without authentication data.
+* `sasl` - Authentication using sasl.
 
 ## Import
 
