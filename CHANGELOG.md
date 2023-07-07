@@ -1,4 +1,6 @@
 ## 0.95.0 (Unreleased)
+FEATURES:
+* storage: allow `transition`/`noncurrent_version_transition` to `ICE` storage class in bucket lifecycle config.
 
 ## 0.94.0 (July 4, 2023)
 FEATURES:

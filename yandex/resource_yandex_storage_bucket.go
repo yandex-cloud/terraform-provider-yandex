@@ -32,11 +32,13 @@ import (
 const (
 	storageClassStandard = s3.StorageClassStandardIa
 	storageClassCold     = "COLD"
+	storageClassIce      = "ICE"
 )
 
 var storageClassSet = []string{
 	storageClassStandard,
 	storageClassCold,
+	storageClassIce,
 }
 
 func resourceYandexStorageBucket() *schema.Resource {

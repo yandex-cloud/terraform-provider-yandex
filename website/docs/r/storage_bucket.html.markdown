@@ -615,7 +615,7 @@ The `transition` object supports the following
 
 * `days` - (Optional) Specifies the number of days after object creation when the specific rule action takes effect.
 
-* `storage_class` - (Required) Specifies the storage class to which you want the object to transition. Can only be `COLD` or `STANDARD_IA`.
+* `storage_class` - (Required) Specifies the storage class to which you want the object to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].
 
 The `noncurrent_version_expiration` object supports the following
 
@@ -625,7 +625,7 @@ The `noncurrent_version_transition` object supports the following
 
 * `days` - (Required) Specifies the number of days noncurrent object versions transition.
 
-* `storage_class` - (Required) Specifies the storage class to which you want the noncurrent object versions to transition. Can only be `COLD` or `STANDARD_IA`.
+* `storage_class` - (Required) Specifies the storage class to which you want the noncurrent object versions to transition. Supported values: [`STANDARD_IA`, `COLD`, `ICE`].
 
 The `server_side_encryption_configuration` object supports the following:
 
@@ -654,7 +654,7 @@ Extended parameters of the bucket:
 * `max_size` - (Optional) The size of bucket, in bytes. See [size limiting](https://cloud.yandex.com/en-ru/docs/storage/operations/buckets/limit-max-volume) for more information.
 
 * `default_storage_class` - (Optional) Storage class which is used for storing objects by default.
-Available values are: "STANDARD", "COLD". Default is `"STANDARD"`.
+Available values are: "STANDARD", "COLD", "ICE". Default is `"STANDARD"`.
 See [storage class](https://cloud.yandex.com/en-ru/docs/storage/concepts/storage-class) for more inforamtion.
 
 * `anonymous_access_flags` - (Optional) Provides various access to objects.

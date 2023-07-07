@@ -1955,6 +1955,38 @@ func testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(r
 		render()
 }
 
+func testAccStorageBucketConfigWithTransitionToIceStorage(randInt int) string {
+	const lifecycle = `lifecycle_rule {
+	enabled = true
+	id      = "id1"
+
+	transition {
+      days          = 30
+      storage_class = "ICE"
+    }
+}`
+	return newBucketConfigBuilder(randInt).
+		addStatement(lifecycle).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(randInt int) string {
+	const lifecycle = `lifecycle_rule {
+	enabled = true
+	id      = "id1"
+
+	noncurrent_version_transition {
+      days          = 30
+      storage_class = "ICE"
+    }
+}`
+	return newBucketConfigBuilder(randInt).
+		addStatement(lifecycle).
+		asAdmin().
+		render()
+}
+
 func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
 	const sse = `server_side_encryption_configuration {
 		rule {
@@ -2199,6 +2231,48 @@ func TestAccStorageBucket_LifecycleRule_AbortIncompleteMultipartUploadDays_NoExp
 				Config: testAccStorageBucketConfigLifecycleRuleAbortIncompleteMultipartUploadDays(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_LifecycleRule_TransitionToIceStorage(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		IDRefreshName:     resourceName,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithTransitionToIceStorage(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.transition.0.storage_class", "ICE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		IDRefreshName:     resourceName,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_transition.0.storage_class", "ICE"),
 				),
 			},
 		},
