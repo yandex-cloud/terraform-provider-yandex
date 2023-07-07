@@ -1,6 +1,8 @@
 ## 0.95.0 (Unreleased)
 FEATURES:
 * storage: allow `transition`/`noncurrent_version_transition` to `ICE` storage class in bucket lifecycle config.
+BUG FIXES:
+* certificate-manager: fixed problem with read `deletion_protection` to `data.yandex_cm_certificate`
 
 ## 0.94.0 (July 4, 2023)
 FEATURES:

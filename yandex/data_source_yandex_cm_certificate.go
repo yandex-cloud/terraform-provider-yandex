@@ -52,6 +52,10 @@ func dataSourceYandexCMCertificate() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"type": {
 				Type:     schema.TypeString,
 				Computed: true,
