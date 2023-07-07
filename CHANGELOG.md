@@ -8,6 +8,11 @@ BUG FIXES:
 FEATURES:
 * redis: update requests to grpcapi with unified config
 * provider: upgrade go-genproto to the latest version. This is needed for migrate redis to unified config.
+* **New Resource:** `yandex_kms_asymmetric_encryption_key`
+* **New Resource:** `yandex_kms_asymmetric_signature_key`
+* **New Resource:** `yandex_kms_asymmetric_encryption_key_iam_binding`
+* **New Resource:** `yandex_kms_asymmetric_signature_key_iam_binding`
+* 
 BUG FIXES:
 * vpc: security group rule import fixed
 * datatransfer: added `serializer` field for `kafka_target` endpoints

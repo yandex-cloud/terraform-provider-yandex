@@ -23,6 +23,8 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/k8s/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	kmsasymmetricencryption "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
+	kmsasymmetricsignature "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricsignature"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
@@ -736,6 +738,24 @@ func parseKmsDefaultAlgorithm(algo string) (kms.SymmetricAlgorithm, error) {
 			getJoinedKeys(getEnumValueMapKeys(kms.SymmetricAlgorithm_value)), algo)
 	}
 	return kms.SymmetricAlgorithm(val), nil
+}
+
+func parseKmsAsymmetricEncryptionAlgorithm(algo string) (kmsasymmetricencryption.AsymmetricEncryptionAlgorithm, error) {
+	val, ok := kmsasymmetricencryption.AsymmetricEncryptionAlgorithm_value[algo]
+	if !ok {
+		return kmsasymmetricencryption.AsymmetricEncryptionAlgorithm(0), fmt.Errorf("value for 'encryption_algorithm' should be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(kmsasymmetricencryption.AsymmetricEncryptionAlgorithm_value)), algo)
+	}
+	return kmsasymmetricencryption.AsymmetricEncryptionAlgorithm(val), nil
+}
+
+func parseKmsAsymmetricSignatureAlgorithm(algo string) (kmsasymmetricsignature.AsymmetricSignatureAlgorithm, error) {
+	val, ok := kmsasymmetricsignature.AsymmetricSignatureAlgorithm_value[algo]
+	if !ok {
+		return kmsasymmetricsignature.AsymmetricSignatureAlgorithm(0), fmt.Errorf("value for 'signature_algorithm' should be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(kmsasymmetricsignature.AsymmetricSignatureAlgorithm_value)), algo)
+	}
+	return kmsasymmetricsignature.AsymmetricSignatureAlgorithm(val), nil
 }
 
 func expandInstanceSchedulingPolicy(d *schema.ResourceData) (*compute.SchedulingPolicy, error) {
