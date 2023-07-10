@@ -4,6 +4,7 @@ FEATURES:
 * datatransfer: added `ydb_source` and `ydb_target` endpoints
 BUG FIXES:
 * certificate-manager: fixed problem with read `deletion_protection` to `data.yandex_cm_certificate`
+* `terraform-provider-ydb` add ttl support for integral types of columns
 
 ## 0.94.0 (July 4, 2023)
 FEATURES:
