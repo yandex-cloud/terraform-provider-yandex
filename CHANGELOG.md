@@ -1,7 +1,10 @@
-## 0.95.0 (Unreleased)
+## 0.96.0 (Unreleased)
+
+## 0.95.0 (July 13, 2023)
 FEATURES:
 * storage: allow `transition`/`noncurrent_version_transition` to `ICE` storage class in bucket lifecycle config.
 * datatransfer: added `ydb_source` and `ydb_target` endpoints
+
 BUG FIXES:
 * certificate-manager: fixed problem with read `deletion_protection` to `data.yandex_cm_certificate`
 * `terraform-provider-ydb` add ttl support for integral types of columns
@@ -14,11 +17,12 @@ FEATURES:
 * **New Resource:** `yandex_kms_asymmetric_signature_key`
 * **New Resource:** `yandex_kms_asymmetric_encryption_key_iam_binding`
 * **New Resource:** `yandex_kms_asymmetric_signature_key_iam_binding`
-* 
+
 BUG FIXES:
 * vpc: security group rule import fixed
 * datatransfer: added `serializer` field for `kafka_target` endpoints
 * docs: updated description for `yandex_compute_snapshot_schedule`
+* lockbox: better examples for `yandex_lockbox_secret_version` data source
 
 ENHANCEMENTS:
 * use ListUserAccounts filter parameter in `yandex_organizationmanager_saml_federation_user_account` data source instead of loop.
@@ -26,9 +30,6 @@ ENHANCEMENTS:
 * `*_iam_member`, `*_iam_binding`, `*_iam_policy` resources are now context-aware
 * Error messages and handling updated for `*_iam_member`, `*_iam_binding`, `*_iam_policy` resources
 * `*_iam_member` resources now use update-access-bindings method instead of set-access-bindings
-
-BUG FIXES:
-* lockbox: better examples for `yandex_lockbox_secret_version` data source
 
 ## 0.93.0 (June 14, 2023)
 FEATURES:
