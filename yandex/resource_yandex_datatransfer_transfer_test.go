@@ -548,15 +548,12 @@ resource "yandex_datatransfer_endpoint" "ydb_source" {
     ydb_source {
       database = "xyz"
       instance = "my-cute-ydb.cloud.yandex.ru:2135"
-      service_account_id = "ajet9lupach"
       paths = [
         "path1/a/b/c",
         "path2/a/b/c",
         "path3/a/b/c",
       ]
-      subnet_id="mycuteydbsubnet"
       security_groups = []
-	  sa_key_content = "secretsecretsecret"
     }
   }
 }
@@ -604,11 +601,8 @@ func testAccDataTransferConfigYdbTarget(name, description string) string {
         ydb_target {
           database = "xyz"
           instance = "my-cute-ydb.cloud.yandex.ru"
-          service_account_id = "ajet9lupach"
           path = "/bushido/logs"
-          subnet_id="mycuteydbsubnet"
           security_groups = []
-	      sa_key_content = "secretsecretsecret"
           cleanup_policy = "YDB_CLEANUP_POLICY_DROP"
         }
     }
