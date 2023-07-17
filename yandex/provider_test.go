@@ -186,6 +186,33 @@ func TestProviderOrganizationId(t *testing.T) {
 	assert.Equal(t, org, conf.OrganizationID)
 }
 
+func TestProviderSharedCredentialsFileAndProfile(t *testing.T) {
+	testProvider := Provider()
+
+	raw := map[string]interface{}{
+		"token":                   "any_string_like_a_oauth",
+		"shared_credentials_file": "test-fixtures/shared-credentials-file",
+		"profile":                 "prod-profile",
+	}
+
+	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	if diags != nil && diags.HasError() {
+		for _, d := range diags {
+			if d.Severity == diag.Error {
+				t.Fatalf("error configuring provider: %s", d.Summary)
+			}
+		}
+	}
+
+	if err := testProvider.InternalValidate(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	conf := testProvider.Meta().(*Config)
+	assert.Equal(t, "test-fixtures/shared-credentials-file", conf.SharedCredentialsFile)
+	assert.Equal(t, "prod-profile", conf.Profile)
+}
+
 func testAccPreCheck(t *testing.T) {
 	for _, varName := range testAccEnvVars {
 		if val := os.Getenv(varName); val == "" {

@@ -133,3 +133,57 @@ func Test_iamKeyFromJSONContent(t *testing.T) {
 	_, err = iamKeyFromJSONContent(string(content))
 	require.NoError(t, err)
 }
+
+func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
+	config := Config{
+		Endpoint:              testConfigEndpoint,
+		FolderID:              testConfigFolder,
+		CloudID:               testConfigCloudID,
+		Zone:                  testConfigZone,
+		Token:                 testConfigToken,
+		StorageEndpoint:       defaultStorageEndpoint,
+		SharedCredentialsFile: "test-fixtures/shared-credentials-file",
+		Profile:               "prod-profile",
+	}
+
+	err := config.initAndValidate(context.Background(), testTerraformVersion, false)
+
+	if err != nil {
+		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
+	}
+	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
+	credentials, err := config.defaultS3Client.Config.Credentials.Get()
+	if err != nil {
+		return
+	}
+	assert.Equal(t, "YCAJEv2kbbNCegBdWneshv6Fa", credentials.AccessKeyID)
+	assert.Equal(t, "YCMw-QhGTK40ulcCnr1v0EsTOKZwdNv0EsTOKZwdN", credentials.SecretAccessKey)
+}
+
+func TestConfigInitDefaultS3Client_PreferAccessKeysFromConfig(t *testing.T) {
+	config := Config{
+		Endpoint:              testConfigEndpoint,
+		FolderID:              testConfigFolder,
+		CloudID:               testConfigCloudID,
+		Zone:                  testConfigZone,
+		Token:                 testConfigToken,
+		StorageEndpoint:       defaultStorageEndpoint,
+		StorageAccessKey:      "access-key",
+		StorageSecretKey:      "secret-key",
+		SharedCredentialsFile: "test-fixtures/shared-credentials-file",
+		Profile:               "prod-profile",
+	}
+
+	err := config.initAndValidate(context.Background(), testTerraformVersion, false)
+
+	if err != nil {
+		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
+	}
+	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
+	credentials, err := config.defaultS3Client.Config.Credentials.Get()
+	if err != nil {
+		return
+	}
+	assert.Equal(t, "access-key", credentials.AccessKeyID)
+	assert.Equal(t, "secret-key", credentials.SecretAccessKey)
+}

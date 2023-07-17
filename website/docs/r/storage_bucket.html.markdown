@@ -503,13 +503,17 @@ The following arguments are supported:
 
 * `bucket` - (Optional, Forces new resource) The name of the bucket. If omitted, Terraform will assign a random, unique name.
 
-* `bucket_prefix` - (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. Conflicts with `bucket`.
+* `bucket_prefix` - (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix.
+  Conflicts with `bucket`.
 
-* `access_key` - (Optional) The access key to use when applying changes. If omitted, `storage_access_key` specified in provider config is used.
+* `access_key` - (Optional) The access key to use when applying changes. If omitted, `storage_access_key` specified in
+  provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in provider config is used.
+* `secret_key` - (Optional) The secret key to use when applying changes. If omitted, `storage_secret_key` specified in
+  provider config (explicitly or within `shared_credentials_file`) is used.
 
-* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply. Defaults to `private`. Conflicts with `grant`.
+* `acl` - (Optional) The [predefined ACL](https://cloud.yandex.com/docs/storage/concepts/acl#predefined_acls) to apply.
+  Defaults to `private`. Conflicts with `grant`.
 
 ~> **Note:** To change ACL after creation, service account with `storage.admin` role should be used, though this role is not necessary to create a bucket with any ACL.
 

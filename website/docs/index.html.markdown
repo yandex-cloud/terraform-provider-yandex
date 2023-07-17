@@ -90,6 +90,52 @@ The following keys can be used to configure the provider.
 
   This can also be specified using environment variable `YC_MESSAGE_QUEUE_SECRET_KEY`.
 
+* `shared_credentials_file` - (Optional) Shared credentials file path. Supported keys: [`storage_access_key`, `storage_secret_key`].
+
+~> **NOTE**  `storage_access_key`/`storage_secret_key` from the shared credentials file are used only when the provider and a storage data/resource do not have an
+access/secret keys explicitly specified.
+
+* `profile` - (Optional) Profile to use in the shared credentials file. Default value is `default`.
+
+### Shared credentials file
+Shared credentials file must contain key/value credential pairs for different profiles in a specific format.
+
+* Profile is specified in square brackets on a separate line (`[{profile_name}]`).
+* Secret variables are specified in the `{key}={value}` format, one secret per line.
+
+Every secret belongs to the closest profile above in the file.
+
+You can find a configuration example below.
+#### shared_credential_file:
+```
+[prod]
+storage_access_key = prod_access_key_here
+storage_secret_key = prod_secret_key_here
+
+[testing]
+storage_access_key = testing_access_key_here
+storage_secret_key = testing_secret_key_here
+
+[default]
+storage_access_key = default_access_key_here
+storage_secret_key = default_secret_key_here
+```
+#### terraform:
+```hcl
+hcl
+// Configure the Yandex.Cloud provider
+provider "yandex" {
+  token                    = "auth_token_here"
+  service_account_key_file = "path_to_service_account_key_file"
+  cloud_id                 = "cloud_id_here"
+  folder_id                = "folder_id_here"
+  zone                     = "ru-central1-a"
+  shared_credentials_file  = "path_to_shared_credentials_file"
+  profile                  = "testing"
+}
+```
+
+
 [yandex-cloud]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#cloud
 [yandex-folder]: https://cloud.yandex.com/docs/resource-manager/concepts/resources-hierarchy#folder
 [yandex-zone]: https://cloud.yandex.com/docs/overview/concepts/geo-scope

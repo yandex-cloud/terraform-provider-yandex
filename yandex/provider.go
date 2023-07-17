@@ -143,6 +143,17 @@ func provider(emptyFolder bool) *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_SECRET_KEY", nil),
 				Description: descriptions["ymq_secret_key"],
 			},
+			"shared_credentials_file": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["shared_credentials_file"],
+			},
+			"profile": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "default",
+				Description: descriptions["profile"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -423,6 +434,10 @@ var descriptions = map[string]string{
 
 	"ymq_secret_key": "Yandex.Cloud Message Queue service secret key. \n" +
 		"Used when a message queue resource doesn't have a secret key explicitly specified.",
+
+	"shared_credentials_file": "Path to shared credentials file.",
+
+	"profile": "Profile to use in the shared credentials file. Default value is `default`.",
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool) (interface{}, diag.Diagnostics) {
@@ -444,6 +459,8 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 		YMQEndpoint:                    d.Get("ymq_endpoint").(string),
 		YMQAccessKey:                   d.Get("ymq_access_key").(string),
 		YMQSecretKey:                   d.Get("ymq_secret_key").(string),
+		SharedCredentialsFile:          d.Get("shared_credentials_file").(string),
+		Profile:                        d.Get("profile").(string),
 		userAgent:                      p.UserAgent("terraform-provider-yandex", version.ProviderVersion),
 	}
 

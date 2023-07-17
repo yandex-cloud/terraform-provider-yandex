@@ -60,13 +60,17 @@ type Config struct {
 	YMQAccessKey string
 	YMQSecretKey string
 
+	SharedCredentialsFile string
+	Profile               string
+
 	// contextWithClientTraceID is a context that has client-trace-id in its metadata
 	// It is initialized from stopContext at the same time as ycsdk.SDK
 	contextWithClientTraceID context.Context
 
-	userAgent       string
-	sdk             *ycsdk.SDK
-	defaultS3Client *s3.S3
+	userAgent         string
+	sdk               *ycsdk.SDK
+	sharedCredentials *SharedCredentials
+	defaultS3Client   *s3.S3
 }
 
 // this function return context with added client trace id
@@ -135,24 +139,51 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		grpc.WithUserAgent(c.userAgent),
 		grpc.WithDefaultCallOptions(grpc.Header(&headerMD)),
 		grpc.WithUnaryInterceptor(interceptorChain))
-
-	if err == nil {
-		err = c.initializeDefaultS3Client()
+	if err != nil {
+		return err
 	}
 
-	return err
+	err = c.initSharedCredentials()
+	if err != nil {
+		return err
+	}
+
+	return c.initializeDefaultS3Client()
 }
 
-func (c *Config) initializeDefaultS3Client() (err error) {
-	if c.StorageEndpoint == "" || (c.StorageAccessKey == "" && c.StorageSecretKey == "") {
+func (c *Config) initSharedCredentials() error {
+	if c.SharedCredentialsFile == "" {
 		return nil
 	}
 
-	if c.StorageAccessKey == "" || c.StorageSecretKey == "" {
+	sharedCredentialsProvider := SharedCredentialsProvider{c.SharedCredentialsFile, c.Profile}
+	sharedCredentials, err := sharedCredentialsProvider.Retrieve()
+	if err != nil {
+		return err
+	}
+	c.sharedCredentials = sharedCredentials
+	return nil
+}
+
+func (c *Config) resolveStorageAccessKeys() (string, string) {
+	if c.sharedCredentials == nil || (c.StorageAccessKey != "" && c.StorageSecretKey != "") {
+		return c.StorageAccessKey, c.StorageSecretKey
+	}
+
+	return c.sharedCredentials.StorageAccessKey, c.sharedCredentials.StorageSecretKey
+}
+
+func (c *Config) initializeDefaultS3Client() (err error) {
+	accessKey, secretKey := c.resolveStorageAccessKeys()
+	if c.StorageEndpoint == "" || (accessKey == "" && secretKey == "") {
+		return nil
+	}
+
+	if accessKey == "" || secretKey == "" {
 		return fmt.Errorf("both storage access key and storage secret key should be specified or not specified")
 	}
 
-	c.defaultS3Client, err = newS3Client(c.StorageEndpoint, c.StorageAccessKey, c.StorageSecretKey)
+	c.defaultS3Client, err = newS3Client(c.StorageEndpoint, accessKey, secretKey)
 
 	return err
 }

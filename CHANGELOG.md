@@ -1,4 +1,8 @@
 ## 0.96.0 (Unreleased)
+FEATURES:
+* added `shared_credentials_file` and `profile` provider properties
+* storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
+
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
 
