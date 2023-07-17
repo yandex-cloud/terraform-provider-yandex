@@ -1,4 +1,6 @@
 ## 0.96.0 (Unreleased)
+BUG FIXES:
+* compute: fixed problem with changing health check type for `yandex_compute_instance_group`
 
 ## 0.95.0 (July 13, 2023)
 FEATURES:

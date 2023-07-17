@@ -743,7 +743,6 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Optional: true,
-							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"port": {
@@ -756,6 +755,7 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 
 						"http_options": {
 							Type:     schema.TypeList,
+							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
