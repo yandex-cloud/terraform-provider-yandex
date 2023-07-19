@@ -61,7 +61,6 @@ func resourceYandexCMCertificate() *schema.Resource {
 				Optional:      true,
 				MinItems:      1,
 				Elem:          &schema.Schema{Type: schema.TypeString},
-				Computed:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"self_managed"},
 			},
@@ -535,9 +534,14 @@ func yandexCMCertificateRead(id string, view certificatemanager.CertificateView,
 			log.Printf("[ERROR] failed set field type: %s", err)
 			return resource.NonRetryableError(err)
 		}
-		if err := d.Set("domains", resp.Domains); err != nil {
-			log.Printf("[ERROR] failed set field domains: %s", err)
-			return resource.NonRetryableError(err)
+		if fromDataSource {
+			// In the resource, this value might differ from the original `domains`, so we don't set it
+			// We could decide to set the output domains to another attribute.
+			// Or use DiffSuppressFunc, to change the way domains are compared.
+			if err := d.Set("domains", resp.Domains); err != nil {
+				log.Printf("[ERROR] failed set field domains: %s", err)
+				return resource.NonRetryableError(err)
+			}
 		}
 		if err := d.Set("status", resp.Status.String()); err != nil {
 			log.Printf("[ERROR] failed set field status: %s", err)
