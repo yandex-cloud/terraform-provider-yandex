@@ -165,6 +165,8 @@ The `config` block supports:
   
 * `databases` - (Optional) Number of databases (changing requires redis-server restart).
 
+* `maxmemory_percent` - (Optional) Redis maxmemory usage in percent
+
 * `version` - (Required) Version of Redis (6.2).
 
 * `client_output_buffer_limit_normal` - (Optional) Normal clients output buffer limits.

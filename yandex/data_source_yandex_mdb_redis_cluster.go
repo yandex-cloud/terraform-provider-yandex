@@ -74,6 +74,10 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"maxmemory_percent": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"version": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -279,6 +283,7 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 			"slowlog_log_slower_than":           conf.slowlogLogSlowerThan,
 			"slowlog_max_len":                   conf.slowlogMaxLen,
 			"databases":                         conf.databases,
+			"maxmemory_percent":                 conf.maxmemoryPercent,
 			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
 			"client_output_buffer_limit_pubsub": conf.clientOutputBufferLimitPubsub,
 		},

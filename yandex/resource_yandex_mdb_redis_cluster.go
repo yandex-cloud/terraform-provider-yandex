@@ -99,6 +99,10 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Optional: true,
 							Computed: true,
 						},
+						"maxmemory_percent": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 						"client_output_buffer_limit_normal": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -438,6 +442,7 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 			"slowlog_log_slower_than":           conf.slowlogLogSlowerThan,
 			"slowlog_max_len":                   conf.slowlogMaxLen,
 			"databases":                         conf.databases,
+			"maxmemory_percent":                 conf.maxmemoryPercent,
 			"version":                           conf.version,
 			"password":                          password,
 			"client_output_buffer_limit_normal": conf.clientOutputBufferLimitNormal,
@@ -604,6 +609,7 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"slowlog_log_slower_than",
 			"slowlog_max_len",
 			"databases",
+			"maxmemory_percent",
 			"version",
 			"client_output_buffer_limit_normal",
 			"client_output_buffer_limit_pubsub",

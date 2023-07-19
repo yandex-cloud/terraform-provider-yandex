@@ -137,7 +137,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits),
+							normalLimits, pubsubLimits, 75),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -204,7 +204,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65),
 						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -231,7 +231,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.1.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65),
 						testAccCheckMDBRedisClusterHasResources(&r, updatedFlavor, updatedDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -302,7 +302,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
 							"Elg", 5000, 10, 15, version,
-							normalLimits, pubsubLimits),
+							normalLimits, pubsubLimits, 75),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
@@ -333,7 +333,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.2.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -365,7 +365,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "host.3.replica_priority", fmt.Sprintf("%d", updatedReplicaPriority)),
 						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
 							"Ex", 6000, 12, 17, version,
-							normalUpdatedLimits, pubsubUpdatedLimits),
+							normalUpdatedLimits, pubsubUpdatedLimits, 65),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
@@ -541,7 +541,7 @@ func testAccCheckMDBRedisClusterHasShards(r *redis.Cluster, shards []string) res
 
 func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy string, timeout int64,
 	notifyKeyspaceEvents string, slowlogLogSlowerThan, slowlogMaxLen, databases int64,
-	version, clientOutputBufferLimitNormal, clientOutputBufferLimitPubsub string) resource.TestCheckFunc {
+	version, clientOutputBufferLimitNormal, clientOutputBufferLimitPubsub string, maxmemoryPercent int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		c := extractRedisConfig(r.Config)
 		if c.maxmemoryPolicy != maxmemoryPolicy {
@@ -561,6 +561,9 @@ func testAccCheckMDBRedisClusterHasConfig(r *redis.Cluster, maxmemoryPolicy stri
 		}
 		if c.databases != databases {
 			return fmt.Errorf("expected config.databases '%d', got '%d'", databases, c.databases)
+		}
+		if c.maxmemoryPercent != maxmemoryPercent {
+			return fmt.Errorf("expected config.maxmemory_percent '%d', got '%d'", maxmemoryPercent, c.maxmemoryPercent)
 		}
 		if c.version != version {
 			return fmt.Errorf("expected config.version '%s', got '%s'", version, c.version)
@@ -835,6 +838,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_log_slower_than = 5000
 	slowlog_max_len = 10
 	databases = 15
+	maxmemory_percent = 75
 	version	= "%s"
 	%s
 	%s
@@ -888,6 +892,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_log_slower_than = 6000
 	slowlog_max_len = 12
 	databases = 17
+	maxmemory_percent = 65
 	version			 = "%s"
 	%s
 	%s
@@ -941,6 +946,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
 	slowlog_log_slower_than = 6000
 	slowlog_max_len = 12
 	databases = 17
+	maxmemory_percent = 65
 	version			 = "%s"
   }
 

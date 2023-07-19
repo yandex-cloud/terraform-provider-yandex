@@ -22,6 +22,7 @@ type redisConfig struct {
 	version                       string
 	clientOutputBufferLimitNormal string
 	clientOutputBufferLimitPubsub string
+	maxmemoryPercent              int64
 }
 
 const defaultReplicaPriority = 100
@@ -195,6 +196,7 @@ func extractRedisConfig(cc *redis.ClusterConfig) redisConfig {
 	res.slowlogLogSlowerThan = c.GetSlowlogLogSlowerThan().GetValue()
 	res.slowlogMaxLen = c.GetSlowlogMaxLen().GetValue()
 	res.databases = c.GetDatabases().GetValue()
+	res.maxmemoryPercent = c.GetMaxmemoryPercent().GetValue()
 	res.clientOutputBufferLimitNormal = limitToStr(
 		c.ClientOutputBufferLimitNormal.HardLimit,
 		c.ClientOutputBufferLimitNormal.SoftLimit,
@@ -256,6 +258,11 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		databases = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
+	var maxmemoryPercent *wrappers.Int64Value
+	if v, ok := d.GetOk("config.0.maxmemory_percent"); ok {
+		maxmemoryPercent = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
 	var version string
 	if v, ok := d.GetOk("config.0.version"); ok {
 		version = v.(string)
@@ -284,6 +291,7 @@ func expandRedisConfig(d *schema.ResourceData) (*config.RedisConfig, string, err
 		SlowlogLogSlowerThan: slowlogLogSlowerThan,
 		SlowlogMaxLen:        slowlogMaxLen,
 		Databases:            databases,
+		MaxmemoryPercent:     maxmemoryPercent,
 	}
 
 	if len(expandedNormal) != 0 {

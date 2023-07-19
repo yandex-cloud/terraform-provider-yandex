@@ -2,6 +2,7 @@
 FEATURES:
 * added `shared_credentials_file` and `profile` provider properties
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
+* redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
