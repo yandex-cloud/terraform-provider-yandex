@@ -35,6 +35,8 @@ The following arguments are supported:
 
 * `source` - (Optional, conflicts with `content` and `content_base64`) The path to a file that will be read and uploaded as raw bytes for the object content.
 
+* `source_hash` - (Optional) Used to trigger object update when the source content changes. So the only meaningful value is `filemd5("path/to/source")` (The value is only stored in state and not saved by Yandex Storage).
+
 * `content` - (Optional, conflicts with `source` and `content_base64`) Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text.
 
 * `content_base64` - (Optional, conflicts with `source` and `content`) Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file.

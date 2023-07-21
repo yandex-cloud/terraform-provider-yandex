@@ -130,6 +130,45 @@ func TestAccStorageObject_source(t *testing.T) {
 	})
 }
 
+func TestAccStorageObject_sourceHash(t *testing.T) {
+	var obj s3.GetObjectOutput
+	resourceName := "yandex_storage_object.test"
+	rInt := acctest.RandInt()
+
+	source := testAccStorageObjectCreateTempFile(t, "some_bucket_content")
+	defer os.Remove(source)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:        func() { testAccPreCheck(t) },
+		IDRefreshName:   resourceName,
+		IDRefreshIgnore: []string{"access_key", "secret_key"},
+		Providers:       testAccProviders,
+		CheckDestroy:    testAccCheckStorageObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageObjectConfigSourceHash(rInt, source),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectBody(&obj, "some_bucket_content"),
+				),
+			},
+			{
+				PreConfig: func() {
+					err := os.WriteFile(source, []byte("changed_bucket_content"), 0644)
+					if err != nil {
+						t.Fatal(err)
+					}
+				},
+				Config: testAccStorageObjectConfigSourceHash(rInt, source),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageObjectExists(resourceName, &obj),
+					testAccCheckStorageObjectBody(&obj, "changed_bucket_content"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccStorageObject_content(t *testing.T) {
 	var obj s3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
@@ -577,6 +616,25 @@ resource "yandex_storage_object" "test" {
 	
 	key     = "test-key"
 	source  = "%[1]s"
+}	
+`, source)
+
+	return bucketConfig + objectConfig
+}
+
+func testAccStorageObjectConfigSourceHash(randInt int, source string) string {
+	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
+
+	objectConfig := fmt.Sprintf(`
+resource "yandex_storage_object" "test" {
+	bucket = "${yandex_storage_bucket.test.bucket}"
+	
+	access_key = yandex_iam_service_account_static_access_key.sa-key.access_key
+	secret_key = yandex_iam_service_account_static_access_key.sa-key.secret_key
+	
+	key     = "test-key"
+	source  = "%[1]s"
+	source_hash = filemd5("%[1]s")
 }	
 `, source)
 

@@ -63,6 +63,11 @@ func resourceYandexStorageObject() *schema.Resource {
 				ConflictsWith: []string{"content", "content_base64"},
 			},
 
+			"source_hash": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"content": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -280,15 +285,8 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{}) error {
-	for _, key := range []string{
-		"source",
-		"content",
-		"content_base64",
-		"content_type",
-	} {
-		if d.HasChange(key) {
-			return resourceYandexStorageObjectCreate(d, meta)
-		}
+	if hasObjectContentChanged(d) {
+		return resourceYandexStorageObjectCreate(d, meta)
 	}
 
 	changeHandlers := map[string]func(*s3.S3, *schema.ResourceData) error{
@@ -317,6 +315,22 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	return nil
+}
+
+func hasObjectContentChanged(d *schema.ResourceData) bool {
+	for _, key := range []string{
+		"source",
+		"source_hash",
+		"content",
+		"content_base64",
+		"content_type",
+	} {
+		if d.HasChange(key) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func resourceYandexStorageObjectACLUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
