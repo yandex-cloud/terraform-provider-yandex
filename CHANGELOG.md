@@ -7,6 +7,7 @@ FEATURES:
 * storage: added `source_hash` property to `storage_object` resource
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
+* elasticsearch: changing `folder_id` attribute in `yandex_mdb_elasticsearch_cluster` moves Elasticsearch cluster to new folder
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
