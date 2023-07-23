@@ -9,6 +9,7 @@ FEATURES:
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 * elasticsearch: changing `folder_id` attribute in `yandex_mdb_elasticsearch_cluster` moves Elasticsearch cluster to new folder
 * kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
+* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
