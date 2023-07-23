@@ -6,6 +6,7 @@ FEATURES:
 * compute: support updating host_affinity_rules in the `yandex_compute_instance` resource.
 * storage: added `source_hash` property to `storage_object` resource
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
+* redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
