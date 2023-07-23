@@ -1063,6 +1063,10 @@ func sortMongoDBHosts(hosts []*mongodb.Host, specs []*mongodb.HostSpec) []*mongo
 func resourceYandexMDBMongodbClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	d.Partial(true)
 
+	if err := setMongoDBFolderID(ctx, d, meta); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err := updateMongodbClusterParams(ctx, d, meta); err != nil {
 		return diag.FromErr(err)
 	}
@@ -1812,4 +1816,49 @@ func compareResources(d *schema.ResourceData, cfg1, cfg2 string) bool {
 		}
 	}
 	return false
+}
+
+func setMongoDBFolderID(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	cluster, err := config.sdk.MDB().MongoDB().Cluster().Get(ctx, &mongodb.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+		request := &mongodb.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending MongoDB cluster move request: %+v", request)
+			return config.sdk.MDB().MongoDB().Cluster().Move(ctx, request)
+		})
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move MongoDB Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving MongoDB Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving MongoDB Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
+	}
+
+	return nil
 }
