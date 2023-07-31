@@ -297,11 +297,12 @@ func TestAccContainerRegistryIPPermission(t *testing.T) {
 	})
 }
 
-func importContainerRegistryIPPermissionID(registry *containerregistry.Registry) func(*terraform.State) (string, error) {
-	return func(s *terraform.State) (string, error) {
-		return registry.Id + containerRegistryIPPermissionIDSuffix, nil
-	}
-}
+// TODO: deadcode
+//func importContainerRegistryIPPermissionID(registry *containerregistry.Registry) func(*terraform.State) (string, error) {
+//	return func(s *terraform.State) (string, error) {
+//		return registry.Id + containerRegistryIPPermissionIDSuffix, nil
+//	}
+//}
 
 func testAccCheckContainerRegistryIPPermissionDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
@@ -313,6 +314,7 @@ func testAccCheckContainerRegistryIPPermissionDestroy(s *terraform.State) error 
 
 		containerRegistryService := config.sdk.ContainerRegistry().Registry()
 		listIPPermissionRequest := &containerregistry.ListIpPermissionRequest{
+			// TODO: SA1024: cutset contains duplicate characters (staticcheck)
 			RegistryId: strings.TrimRight(rs.Primary.ID, containerRegistryIPPermissionIDSuffix),
 		}
 		_, err := containerRegistryService.ListIpPermission(context.Background(), listIPPermissionRequest)

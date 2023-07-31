@@ -59,6 +59,7 @@ func dataSourceYandexMessageQueueRead(d *schema.ResourceData, meta interface{}) 
 	log.Printf("[INFO] Getting queue url of queue %s", name)
 
 	var urlOutput *sqs.GetQueueUrlOutput
+	// TODO: SA1019: resource.Retry is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 	err = resource.Retry(15*time.Second, func() *resource.RetryError {
 		urlOutput, err = ymqClient.GetQueueUrl(&sqs.GetQueueUrlInput{
 			QueueName: aws.String(name),
@@ -68,8 +69,10 @@ func dataSourceYandexMessageQueueRead(d *schema.ResourceData, meta interface{}) 
 			// Queue can be not found immediately after its creation.
 			// It can occur in not found or access denied exception.
 			if isAWSSQSErr(err, sqs.ErrCodeQueueDoesNotExist) || isAWSSQSErr(err, "AccessDeniedException") {
+				// TODO: SA1019: resource.RetryableError is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 				return resource.RetryableError(err)
 			}
+			// TODO: SA1019: resource.NonRetryableError is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 			return resource.NonRetryableError(err)
 		}
 		return nil

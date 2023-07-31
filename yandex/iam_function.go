@@ -12,7 +12,8 @@ import (
 )
 
 const yandexIAMFunctionDefaultTimeout = 1 * time.Minute
-const yandexFunctionUpdateAccessBindingsBatchSize = 1000
+
+// const yandexFunctionUpdateAccessBindingsBatchSize = 1000 // TODO: deadcode
 
 var IamFunctionSchema = map[string]*schema.Schema{
 	"function_id": {

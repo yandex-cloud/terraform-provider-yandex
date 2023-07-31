@@ -367,6 +367,7 @@ func expandResourceGenerateNonSkippedFields(fieldsInfo *objectFieldsInfo, d *sch
 	for field, fieldInfo := range fields {
 		if !fieldsInfo.skip(field) {
 			ph := path + field
+			// TODO: SA1019: d.GetOkExists is deprecated: usage is discouraged due to undefined behaviors and may be removed in a future version of the SDK (staticcheck)
 			value, ok := d.GetOkExists(ph)
 			if ok {
 				err = expandResourceGenerateOneField(fieldsInfo, fieldInfo, field, v, value, skipNil, ph)
@@ -402,6 +403,7 @@ func expandResourceGenerate(fieldsInfo *objectFieldsInfo, d *schema.ResourceData
 	for field, fieldInfo := range fields {
 		if !fieldsInfo.skip(field) {
 			ph := path + field
+			// TODO: SA1019: d.GetOkExists is deprecated: usage is discouraged due to undefined behaviors and may be removed in a future version of the SDK (staticcheck)
 			value, ok := d.GetOkExists(ph)
 			if ok {
 				err = expandResourceGenerateOneField(fieldsInfo, fieldInfo, field, v, value, skipNil, ph)

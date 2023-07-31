@@ -31,7 +31,19 @@ issues:
   exclude-rules:
     - linters:
         - staticcheck
-      text: "SA1019:"
+      text: "SA1019:" # Using a deprecated function, variable, constant or field
     - linters:
         - staticcheck
-      text: "SA4010:"
+      text: "SA4010:" # The result of append will never be observed anywhere
+    - linters:
+        - staticcheck
+      text: "SA4030:" # Ineffective attempt at generating random number
+    - linters:
+        - staticcheck
+      text: "SA1024:" # A string cutset contains duplicate characters
+    - linters:
+        - staticcheck
+      text: "SA4004:" # The loop exits unconditionally after one iteration
+    - linters:
+        - staticcheck
+      text: "SA4009" # A function argument is overwritten before its first use

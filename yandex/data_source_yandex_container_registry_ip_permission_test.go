@@ -55,7 +55,7 @@ func TestAccDataSourceContainerRegistryIPPermission(t *testing.T) {
 }
 
 func getAccDataContainerRegistryIPPermissionConfigByName(registryName string, push, pull []string) string {
-	return getAccDataContainerRegistryIPPermissionConfig(registryName, push, pull) + fmt.Sprintf(`
+	return getAccDataContainerRegistryIPPermissionConfig(registryName, push, pull) + `
 	data "yandex_container_registry_ip_permission" "my_ip_permission" {
 		registry_name = yandex_container_registry.my_registry.name
 
@@ -63,11 +63,11 @@ func getAccDataContainerRegistryIPPermissionConfigByName(registryName string, pu
 		depends_on = [
 			yandex_container_registry_ip_permission.my_ip_permission
 		]
-	}`)
+	}`
 }
 
 func getAccDataContainerRegistryIPPermissionConfigByID(registryName string, push, pull []string) string {
-	return getAccDataContainerRegistryIPPermissionConfig(registryName, push, pull) + fmt.Sprintf(`
+	return getAccDataContainerRegistryIPPermissionConfig(registryName, push, pull) + `
 	data "yandex_container_registry_ip_permission" "my_ip_permission" {
 		registry_id = yandex_container_registry.my_registry.id
 
@@ -75,7 +75,7 @@ func getAccDataContainerRegistryIPPermissionConfigByID(registryName string, push
 		depends_on = [
 			yandex_container_registry_ip_permission.my_ip_permission
 		]
-	}`)
+	}`
 }
 
 func getAccDataContainerRegistryIPPermissionConfig(registryName string, push, pull []string) string {

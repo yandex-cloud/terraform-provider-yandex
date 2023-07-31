@@ -103,6 +103,7 @@ func dataSourceYandexIotCoreBrokerRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	// TODO: SA4010: this result of append is never used, except maybe in other appends (staticcheck)
 	var passwords []string
 	for _, pass := range passResp.Passwords {
 		passwords = append(passwords, pass.Id)

@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -39,7 +38,7 @@ func TestComputeInstanceMigrateState(t *testing.T) {
 
 func TestComputeInstanceMigrateState_empty(t *testing.T) {
 	if os.Getenv(resource.TestEnvVar) == "" {
-		t.Skip(fmt.Sprintf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar))
+		t.Skipf("Network access not allowed; use %s=1 to enable", resource.TestEnvVar)
 	}
 	var is *terraform.InstanceState
 	var meta interface{}

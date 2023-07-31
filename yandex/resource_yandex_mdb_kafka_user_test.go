@@ -92,7 +92,7 @@ func TestAccMDBKafkaUser(t *testing.T) {
 					testAccCheckMDBKafkaClusterHasUser("events-user"),
 					testAccCheckMDBKafkaClusterHasUser("another-user"),
 					testAccCheckMDBKafkaUserHasPermissions("events-user", []*kafka.Permission{
-						&kafka.Permission{
+						{
 							TopicName: "raw_events",
 							Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
 						},

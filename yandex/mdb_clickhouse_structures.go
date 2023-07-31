@@ -14,6 +14,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -21,15 +22,15 @@ var originalClusterResources *clickhouse.Resources
 
 func isEqualResources(clusterResources *clickhouse.Resources, shardResources *clickhouse.Resources) bool {
 	if clusterResources.GetDiskSize() != shardResources.GetDiskSize() {
-		log.Printf("[DEBUG] resource is diffrent by disk_size: cluster disk_size=%d, shard disk_size=%d\n", clusterResources.GetDiskSize(), shardResources.GetDiskSize())
+		log.Printf("[DEBUG] resource is different by disk_size: cluster disk_size=%d, shard disk_size=%d\n", clusterResources.GetDiskSize(), shardResources.GetDiskSize())
 		return false
 	}
 	if clusterResources.GetDiskTypeId() != shardResources.GetDiskTypeId() {
-		log.Printf("[DEBUG] resource is diffrent by disk_type_id: cluster disk_type_id=%s, shard disk_type_id=%s\n", clusterResources.GetDiskTypeId(), shardResources.GetDiskTypeId())
+		log.Printf("[DEBUG] resource is different by disk_type_id: cluster disk_type_id=%s, shard disk_type_id=%s\n", clusterResources.GetDiskTypeId(), shardResources.GetDiskTypeId())
 		return false
 	}
 	if clusterResources.GetResourcePresetId() != shardResources.GetResourcePresetId() {
-		log.Printf("[DEBUG] resource is diffrent by resource_preset_id: cluster resource_preset_id=%s, shard resource_preset_id=%s\n", clusterResources.GetResourcePresetId(), shardResources.GetResourcePresetId())
+		log.Printf("[DEBUG] resource is different by resource_preset_id: cluster resource_preset_id=%s, shard resource_preset_id=%s\n", clusterResources.GetResourcePresetId(), shardResources.GetResourcePresetId())
 		return false
 	}
 	log.Println("[DEBUG] resources are equal")
@@ -124,6 +125,7 @@ func clickHouseUserHash(v interface{}) int {
 			p := flattenClickHouseUserSettings(settings)
 			buf.WriteString(fmt.Sprintf("%v-", p))
 			emptySettings = false
+			// TODO: SA4004: the surrounding loop is unconditionally terminated (staticcheck)
 			break
 		}
 	}
@@ -839,6 +841,7 @@ func expandClickHouseResources(d *schema.ResourceData, rootKey string) *clickhou
 
 func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_MergeTree, error) {
 	config := &clickhouseConfig.ClickhouseConfig_MergeTree{}
+	// TODO: SA1019: d.GetOkExists is deprecated: usage is discouraged due to undefined behaviors and may be removed in a future version of the SDK (staticcheck)
 	if v, ok := d.GetOkExists(rootKey + ".replicated_deduplication_window"); ok {
 		config.ReplicatedDeduplicationWindow = &wrappers.Int64Value{Value: int64(v.(int))}
 	}

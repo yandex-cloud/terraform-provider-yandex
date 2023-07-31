@@ -9,6 +9,9 @@ FEATURES:
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
 
+* ENHANCEMENTS:
+* provider: the default development, testing and building of the provider is now done with Go 1.20
+
 ## 0.95.0 (July 13, 2023)
 FEATURES:
 * storage: allow `transition`/`noncurrent_version_transition` to `ICE` storage class in bucket lifecycle config.
