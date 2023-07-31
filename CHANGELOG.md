@@ -5,7 +5,6 @@ FEATURES:
 * added `shared_credentials_file` and `profile` provider properties
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
 * redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
-* compute: support updating host_affinity_rules in the `yandex_compute_instance` resource.
 * storage: added `source_hash` property to `storage_object` resource 
 
 BUG FIXES:

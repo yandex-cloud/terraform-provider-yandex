@@ -103,7 +103,7 @@ func TestAccComputeInstance_basic1(t *testing.T) {
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_endpoint", "1"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_endpoint", "1"),
 					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.gce_http_token", "1"),
-					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_token", "2"),
+					resource.TestCheckResourceAttr(instanceResource, "metadata_options.0.aws_v1_http_token", "1"),
 				),
 			},
 			computeInstanceImportStep(),
@@ -1182,9 +1182,8 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 
 	var hostID = os.Getenv("COMPUTE_HOST_ID")
 	var hostGroupID = os.Getenv("COMPUTE_HOST_GROUP_ID")
-	var placementGroupID = os.Getenv("COMPUTE_PLACEMENT_GROUP_ID")
-	if hostID == "" || hostGroupID == "" || placementGroupID == "" {
-		t.Skip("Required vars COMPUTE_HOST_ID, COMPUTE_PLACEMENT_GROUP_ID and COMPUTE_HOST_GROUP_ID are not set.")
+	if hostID == "" || hostGroupID == "" {
+		t.Skip("Required vars COMPUTE_HOST_ID and COMPUTE_HOST_GROUP_ID are not set.")
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -1200,57 +1199,27 @@ func TestAccComputeInstance_placement_host_rules(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccComputeInstance_with_placement_host(instanceName, placementGroupID, hostID),
+				Config: testAccComputeInstance_placement_host(instanceName, hostID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostId": hostID}),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, placementGroupID),
 				),
 			},
 			{
-				Config: testAccComputeInstance_with_placement_hostgroup(instanceName, placementGroupID, hostGroupID),
+				Config: testAccComputeInstance_placement_hostgroup(instanceName, hostGroupID),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostGroupId": hostGroupID}),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, placementGroupID),
 				),
 			},
 			{
-				Config: testAccComputeInstance_with_placement_group(instanceName, placementGroupID),
+				Config: testAccComputeInstance_placement_empty(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists(
 						instanceResource, &instance),
 					testAccCheckComputeInstanceHasAffinityRules(&instance, nil),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, placementGroupID),
-				),
-			},
-			{
-				Config: testAccComputeInstance_with_placement_empty(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						instanceResource, &instance),
-					testAccCheckComputeInstanceHasAffinityRules(&instance, nil),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, ""),
-				),
-			},
-			{
-				Config: testAccComputeInstance_with_placement_hostgroup(instanceName, placementGroupID, hostGroupID),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						instanceResource, &instance),
-					testAccCheckComputeInstanceHasAffinityRules(&instance, map[string]string{"yc.hostGroupId": hostGroupID}),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, placementGroupID),
-				),
-			},
-			{
-				Config: testAccComputeInstance_with_placement_empty(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeInstanceExists(
-						instanceResource, &instance),
-					testAccCheckComputeInstanceHasAffinityRules(&instance, nil),
-					testAccCheckComputeInstanceHasPlacementGroupID(&instance, ""),
 				),
 			},
 		},
@@ -2004,16 +1973,6 @@ func testAccCheckComputeInstanceHasAffinityRules(instance *compute.Instance, rul
 	}
 }
 
-func testAccCheckComputeInstanceHasPlacementGroupID(instance *compute.Instance, placementGroupID string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		placement := instance.PlacementPolicy
-		if placement.PlacementGroupId != placementGroupID {
-			return fmt.Errorf("Unexpected placement group id: expected %q, got %q", placementGroupID, placement.PlacementGroupId)
-		}
-		return nil
-	}
-}
-
 func testAccCheckComputeInstanceHasLocalDisk(instance *compute.Instance, localDiskSize int64) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if len(instance.LocalDisks) != 1 {
@@ -2106,7 +2065,7 @@ resource "yandex_compute_instance" "foobar" {
 	gce_http_endpoint = 1
 	aws_v1_http_endpoint = 1
 	gce_http_token = 1
-	aws_v1_http_token = 2
+	aws_v1_http_token = 1
   }
 
   labels = {
@@ -4066,24 +4025,39 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 `, instance, nat1, addressStr1, nat2, addressStr2)
 }
 
-func testAccComputeInstance_with_placement_host(instance, placementGroupID string, hostID string) string {
-	return testAccComputeInstance_with_placement_policy(instance, placementGroupID, "yc.hostId", hostID)
+func testAccComputeInstance_placement_host(instance, hostID string) string {
+	return testAccComputeInstance_placement_host_rules(instance, "yc.hostId", hostID)
 }
 
-func testAccComputeInstance_with_placement_hostgroup(instance, placementGroupID string, hostGroupID string) string {
-	return testAccComputeInstance_with_placement_policy(instance, placementGroupID, "yc.hostGroupId", hostGroupID)
+func testAccComputeInstance_placement_hostgroup(instance, hostGroupID string) string {
+	return testAccComputeInstance_placement_host_rules(instance, "yc.hostGroupId", hostGroupID)
 }
 
-func testAccComputeInstance_with_placement_group(instance, placementGroupID string) string {
-	return testAccComputeInstance_with_placement_policy(instance, placementGroupID)
+func testAccComputeInstance_placement_empty(instance string) string {
+	return testAccComputeInstance_placement_host_rules(instance)
 }
 
-func testAccComputeInstance_with_placement_empty(instance string) string {
-	return testAccComputeInstance_with_placement_policy(instance, "")
-}
-
-func testAccComputeInstance_with_placement_policy(instance string, placementGroupID string, ruleOpts ...string) string {
-	placement := testAccComputeInstance_placement_policy(placementGroupID, ruleOpts...)
+func testAccComputeInstance_placement_host_rules(instance string, ruleOpts ...string) string {
+	var placement string
+	if ruleOpts == nil {
+		placement = `
+  placement_policy {
+    host_affinity_rules = []
+  }
+`
+	} else {
+		key := ruleOpts[0]
+		value := ruleOpts[1]
+		placement = fmt.Sprintf(`
+  placement_policy {
+    host_affinity_rules {
+        key = "%s"
+        op = "IN"
+        values = ["%s"]
+    }
+  }
+`, key, value)
+	}
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1804-lts"
@@ -4093,7 +4067,7 @@ resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic"
   platform_id = "standard-v2"
-  zone        = "ru-central1-c"
+  zone        = "ru-central1-b"
   allow_stopping_for_update = true
 
   resources {
@@ -4128,45 +4102,11 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, instance, placement)
-}
-
-func testAccComputeInstance_placement_policy(placementGroupID string, ruleOpts ...string) string {
-	var placementGroup string
-	var hostAffinity string
-
-	if placementGroupID == "" && ruleOpts == nil {
-		return ""
-	}
-
-	if placementGroupID != "" {
-		placementGroup = fmt.Sprintf(`
-placement_group_id = "%s"
-`, placementGroupID)
-	}
-
-	if ruleOpts != nil {
-		key := ruleOpts[0]
-		value := ruleOpts[1]
-		hostAffinity = fmt.Sprintf(`
-host_affinity_rules {
-	key = "%s"
-	op = "IN"
-	values = ["%s"]
-}
-`, key, value)
-	}
-
-	return fmt.Sprintf(`
-  placement_policy {
-	%s
-	%s
-}
-`, placementGroup, hostAffinity)
 }
 
 func testAccComputeInstance_with_folder(instance string, folderID string, allowRecreate bool) string {

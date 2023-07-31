@@ -901,10 +901,6 @@ func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]i
 }
 
 func flattenInstancePlacementPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
-	if len(instance.PlacementPolicy.HostAffinityRules) == 0 && instance.PlacementPolicy.PlacementGroupId == "" {
-		return nil, nil
-	}
-
 	placementPolicy := make([]map[string]interface{}, 0, 1)
 	var affinityRules []interface{}
 	for _, rule := range instance.PlacementPolicy.HostAffinityRules {
