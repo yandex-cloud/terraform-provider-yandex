@@ -1,4 +1,6 @@
-## 0.96.0 (Unreleased)
+## 0.97.0 (Unreleased)
+
+## 0.96.0 (July 31, 2023)
 FEATURES:
 * added `shared_credentials_file` and `profile` provider properties
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
@@ -9,7 +11,7 @@ FEATURES:
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
 
-* ENHANCEMENTS:
+ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.20
 
 ## 0.95.0 (July 13, 2023)
