@@ -2,7 +2,7 @@
 
 ## 0.96.1 (July 31, 2023)
 BUG FIXES:
-* compute: revoke host_affinity_rules in the `yandex_compute_instance` resource due to breaking changes in tf state.
+* compute: revoke support updating host_affinity_rules in the `yandex_compute_instance` resource due to breaking changes in tf state.
 
 ## 0.96.0 (July 31, 2023)
 FEATURES:
