@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/endpoint"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 )
 
 const testConfigToken = "some_special_secured_token"
@@ -141,7 +143,7 @@ func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
 		CloudID:               testConfigCloudID,
 		Zone:                  testConfigZone,
 		Token:                 testConfigToken,
-		StorageEndpoint:       defaultStorageEndpoint,
+		StorageEndpoint:       common.DefaultStorageEndpoint,
 		SharedCredentialsFile: "test-fixtures/shared-credentials-file",
 		Profile:               "prod-profile",
 	}
@@ -167,7 +169,7 @@ func TestConfigInitDefaultS3Client_PreferAccessKeysFromConfig(t *testing.T) {
 		CloudID:               testConfigCloudID,
 		Zone:                  testConfigZone,
 		Token:                 testConfigToken,
-		StorageEndpoint:       defaultStorageEndpoint,
+		StorageEndpoint:       common.DefaultStorageEndpoint,
 		StorageAccessKey:      "access-key",
 		StorageSecretKey:      "secret-key",
 		SharedCredentialsFile: "test-fixtures/shared-credentials-file",

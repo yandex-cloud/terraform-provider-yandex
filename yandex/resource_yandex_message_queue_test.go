@@ -3,6 +3,7 @@ package yandex
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"os"
 	"regexp"
 	"testing"
@@ -493,7 +494,7 @@ func testAccCheckMessageQueueOverrideAttributes(queueAttributes *map[string]*str
 func testAccMessageQueueSetTmpKeysForProvider() (cleanupFunc func(), err error) {
 	var endpoint string = os.Getenv("YC_ENDPOINT")
 	if endpoint == "" {
-		endpoint = defaultEndpoint
+		endpoint = common.DefaultEndpoint
 	}
 	config := Config{
 		Endpoint:  endpoint,

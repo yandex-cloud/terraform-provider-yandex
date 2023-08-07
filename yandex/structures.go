@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"log"
 	"sort"
 	"strconv"
@@ -1657,7 +1658,7 @@ func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4Address
 
 func expandAndValidateNetworkId(d *schema.ResourceData, config *Config) (string, error) {
 	networkID := d.Get("network_id").(string)
-	if config.Endpoint == defaultEndpoint && len(networkID) == 0 {
+	if config.Endpoint == common.DefaultEndpoint && len(networkID) == 0 {
 		return "", fmt.Errorf("empty network_id field")
 	}
 	return networkID, nil
