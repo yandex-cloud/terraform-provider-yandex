@@ -1,4 +1,6 @@
 ## 0.97.0 (Unreleased)
+ENHANCEMENTS:
+* combined provider via muxing (simultaneous support of terraform-plugin-sdk/v2 and terraform-plugin-framework).
 
 ## 0.96.1 (July 31, 2023)
 BUG FIXES:
