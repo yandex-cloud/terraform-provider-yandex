@@ -2,6 +2,9 @@
 ENHANCEMENTS:
 * combined provider via muxing (simultaneous support of terraform-plugin-sdk/v2 and terraform-plugin-framework).
 
+FEATURES:
+* k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source
+
 ## 0.96.1 (July 31, 2023)
 BUG FIXES:
 * compute: revoke support updating host_affinity_rules in the `yandex_compute_instance` resource due to breaking changes in tf state.

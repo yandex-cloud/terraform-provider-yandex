@@ -252,6 +252,18 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"gpu_settings": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gpu_cluster_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
