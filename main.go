@@ -46,7 +46,7 @@ func main() {
 	}
 
 	err = tf5server.Serve(
-		"",
+		"yandex-cloud/yandex",
 		muxServerFactory,
 		serveOpts...,
 	)

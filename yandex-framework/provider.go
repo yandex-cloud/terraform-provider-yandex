@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/providervalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -146,6 +147,14 @@ func (p *Provider) Schema(ctx context.Context, req provider.SchemaRequest, resp 
 				Sensitive:   true,
 				Description: common.Descriptions["ymq_secret_key"],
 			},
+			"shared_credentials_file": schema.StringAttribute{
+				Optional:    true,
+				Description: common.Descriptions["shared_credentials_file"],
+			},
+			"profile": schema.StringAttribute{
+				Optional:    true,
+				Description: common.Descriptions["profile"],
+			},
 		},
 	}
 }
@@ -157,6 +166,18 @@ func setToDefaultIfNeeded(field types.String, osEnvName string, defaultVal strin
 	field = types.StringValue(os.Getenv(osEnvName))
 	if len(field.ValueString()) == 0 {
 		field = types.StringValue(defaultVal)
+	}
+	return field
+}
+
+func setToDefaultBoolIfNeeded(field types.Bool, osEnvName string, defaultVal bool) types.Bool {
+	if field.IsUnknown() || field.IsNull() {
+		env := os.Getenv(osEnvName)
+		v, err := strconv.ParseBool(env)
+		if err != nil {
+			return types.BoolValue(v)
+		}
+		return types.BoolValue(defaultVal)
 	}
 	return field
 }
@@ -175,10 +196,16 @@ func setDefaults(config provider_config.State) provider_config.State {
 	config.StorageSecretKey = setToDefaultIfNeeded(config.StorageSecretKey, "YC_STORAGE_SECRET_KEY", "")
 	config.YMQEndpoint = setToDefaultIfNeeded(config.YMQEndpoint, "YC_MESSAGE_QUEUE_ENDPOINT", common.DefaultYMQEndpoint)
 	config.YMQAccessKey = setToDefaultIfNeeded(config.YMQAccessKey, "YC_MESSAGE_QUEUE_ACCESS_KEY", "")
-	config.StorageSecretKey = setToDefaultIfNeeded(config.YMQSecretKey, "YC_MESSAGE_QUEUE_SECRET_KEY", "")
+	config.YMQSecretKey = setToDefaultIfNeeded(config.YMQSecretKey, "YC_MESSAGE_QUEUE_SECRET_KEY", "")
+
+	config.Insecure = setToDefaultBoolIfNeeded(config.Insecure, "YC_INSECURE", false)
+	config.Plaintext = setToDefaultBoolIfNeeded(config.Plaintext, "YC_PLAINTEXT", false)
 
 	if config.MaxRetries.IsUnknown() || config.MaxRetries.IsNull() {
 		config.MaxRetries = types.Int64Value(common.DefaultMaxRetries)
+	}
+	if config.Profile.IsUnknown() || config.Profile.IsNull() {
+		config.Profile = types.StringValue("default")
 	}
 
 	return config

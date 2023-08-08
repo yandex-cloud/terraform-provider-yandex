@@ -60,9 +60,8 @@ type State struct {
 	YMQAccessKey types.String `tfsdk:"ymq_access_key"`
 	YMQSecretKey types.String `tfsdk:"ymq_secret_key"`
 
-	// TODO: configure values
-	//SharedCredentialsFile string
-	//Profile               string
+	SharedCredentialsFile types.String `tfsdk:"shared_credentials_file"`
+	Profile               types.String `tfsdk:"profile"`
 	//
 	//sharedCredentials *SharedCredentials
 	//defaultS3Client   *s3.S3

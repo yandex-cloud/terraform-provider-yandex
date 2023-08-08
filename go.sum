@@ -678,12 +678,8 @@ github.com/xen0n/gosmopolitan v1.2.1 h1:3pttnTuFumELBRSh+KQs1zcz4fN6Zy7aB0xlnQSn
 github.com/xen0n/gosmopolitan v1.2.1/go.mod h1:JsHq/Brs1o050OOdmzHeOr0N7OtlnKRAGAsElF8xBQA=
 github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM=
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
-github.com/yandex-cloud/go-genproto v0.0.0-20230628143002-ac2343960883 h1:SpNmg8Mg8g8ZEMw5+KRAzoS7YqBVtU3SAZpZyksHI6Y=
-github.com/yandex-cloud/go-genproto v0.0.0-20230628143002-ac2343960883/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-genproto v0.0.0-20230725160706-538fcd9b346d h1:dnmyG3PJbpYnA+prbtKwvSOdXnPjdmVmWX1wDpLFKPw=
 github.com/yandex-cloud/go-genproto v0.0.0-20230725160706-538fcd9b346d/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-sdk v0.0.0-20230628143705-2a8cf9425a6f h1:DgDp/VsBXaQIMjETqwvjV5gLKPkNi6Kx+YHrvZk2FVg=
-github.com/yandex-cloud/go-sdk v0.0.0-20230628143705-2a8cf9425a6f/go.mod h1:M517yqPsrvp315Pipjzg2Ghuw1Dm4rarRiqP9g9PBig=
 github.com/yandex-cloud/go-sdk v0.0.0-20230725174633-36e62072536f h1:y1BXDDRgKEzzqXSkG/CQKhK34BEKYuenyn1aZdry1CU=
 github.com/yandex-cloud/go-sdk v0.0.0-20230725174633-36e62072536f/go.mod h1:dnSew0wuJbgOmAZ6lW+axR8t/H9sCwoMcxUP9bw1N3I=
 github.com/ydb-platform/terraform-provider-ydb v0.0.12 h1:SCUSgXTx49aCLOkn77KRITNGzw2CGahs3Kf4vwCLgno=
