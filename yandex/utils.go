@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/c2h5oh/datasize"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -265,6 +266,10 @@ func handleNotFoundError(err error, d *schema.ResourceData, resourceName string)
 		return nil
 	}
 	return fmt.Errorf("error reading %s: %s", resourceName, err)
+}
+
+func handleNotFoundDiagError(err error, d *schema.ResourceData, resourceName string) diag.Diagnostics {
+	return diag.FromErr(handleNotFoundError(err, d, resourceName))
 }
 
 // isStatusWithCode checks if any nested error matches provided code

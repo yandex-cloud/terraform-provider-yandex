@@ -1,19 +1,9 @@
 package yandex
 
 import (
-	"archive/zip"
-	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/c2h5oh/datasize"
-	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
@@ -21,7 +11,6 @@ import (
 )
 
 const yandexFunctionDefaultTimeout = 10 * time.Minute
-const versionCreateSourceContentMaxBytes = 3670016
 
 func resourceYandexFunction() *schema.Resource {
 	return &schema.Resource{
@@ -223,7 +212,7 @@ func resourceYandexFunctionCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Function: %s", err)
 	}
 
-	versionReq, err := expandLastVersion(d)
+	versionReq, err := expandFunctionVersion(d)
 	if err != nil {
 		return err
 	}
@@ -317,7 +306,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	var versionReq *functions.CreateFunctionVersionRequest
 	if len(versionPartialPaths) != 0 {
-		versionReq, err = expandLastVersion(d)
+		versionReq, err = expandFunctionVersion(d)
 		if err != nil {
 			return err
 		}
@@ -405,90 +394,6 @@ func resourceYandexFunctionDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersionRequest, error) {
-	versionReq := &functions.CreateFunctionVersionRequest{}
-	versionReq.Runtime = d.Get("runtime").(string)
-	versionReq.Entrypoint = d.Get("entrypoint").(string)
-
-	versionReq.Resources = &functions.Resources{Memory: int64(int(datasize.MB.Bytes()) * d.Get("memory").(int))}
-	if v, ok := d.GetOk("execution_timeout"); ok {
-		i, err := strconv.ParseInt(v.(string), 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot define execution_timeout for Yandex Cloud Function: %s", err)
-		}
-		versionReq.ExecutionTimeout = &duration.Duration{Seconds: i}
-	}
-	if v, ok := d.GetOk("service_account_id"); ok {
-		versionReq.ServiceAccountId = v.(string)
-	}
-	if v, ok := d.GetOk("environment"); ok {
-		env, err := expandLabels(v)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot define environment variables for Yandex Cloud Function: %s", err)
-		}
-		if len(env) != 0 {
-			versionReq.Environment = env
-		}
-	}
-	if v, ok := d.GetOk("tags"); ok {
-		set := v.(*schema.Set)
-		for _, t := range set.List() {
-			v := t.(string)
-			versionReq.Tag = append(versionReq.Tag, v)
-		}
-	}
-	if _, ok := d.GetOk("package"); ok {
-		pkg := &functions.Package{
-			BucketName: d.Get("package.0.bucket_name").(string),
-			ObjectName: d.Get("package.0.object_name").(string),
-		}
-		if v, ok := d.GetOk("package.0.sha_256"); ok {
-			pkg.Sha256 = v.(string)
-		}
-		versionReq.PackageSource = &functions.CreateFunctionVersionRequest_Package{Package: pkg}
-	} else if _, ok := d.GetOk("content"); ok {
-		content, err := ZipPathToBytes(d.Get("content.0.zip_filename").(string))
-		if err != nil {
-			return nil, fmt.Errorf("Cannot define content for Yandex Cloud Function: %s", err)
-		}
-		if size := len(content); size > versionCreateSourceContentMaxBytes {
-			return nil, fmt.Errorf("Zip archive content size %v exceeds the maximum size %v, use object storage to upload the content", size, versionCreateSourceContentMaxBytes)
-		}
-		versionReq.PackageSource = &functions.CreateFunctionVersionRequest_Content{Content: content}
-	} else {
-		return nil, fmt.Errorf("Package or content option must be present for Yandex Cloud Function")
-	}
-	if v, ok := d.GetOk("secrets"); ok {
-		secretsList := v.([]interface{})
-
-		versionReq.Secrets = make([]*functions.Secret, len(secretsList))
-		for i, s := range secretsList {
-			secret := s.(map[string]interface{})
-
-			fs := &functions.Secret{}
-			if ID, ok := secret["id"]; ok {
-				fs.Id = ID.(string)
-			}
-			if versionID, ok := secret["version_id"]; ok {
-				fs.VersionId = versionID.(string)
-			}
-			if key, ok := secret["key"]; ok {
-				fs.Key = key.(string)
-			}
-			if environmentVariable, ok := secret["environment_variable"]; ok {
-				fs.Reference = &functions.Secret_EnvironmentVariable{EnvironmentVariable: environmentVariable.(string)}
-			}
-
-			versionReq.Secrets[i] = fs
-		}
-	}
-	if connectivity := expandFunctionConnectivity(d); connectivity != nil {
-		versionReq.Connectivity = connectivity
-	}
-
-	return versionReq, nil
-}
-
 func flattenYandexFunction(d *schema.ResourceData, function *functions.Function, version *functions.Version) error {
 	d.Set("name", function.Name)
 	d.Set("folder_id", function.FolderId)
@@ -503,137 +408,5 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 
 	d.Set("version", version.Id)
-	d.Set("image_size", version.ImageSize)
-	d.Set("loggroup_id", version.LogGroupId)
-	d.Set("runtime", version.Runtime)
-	d.Set("entrypoint", version.Entrypoint)
-	d.Set("service_account_id", version.ServiceAccountId)
-	d.Set("environment", version.Environment)
-
-	if version.Resources != nil {
-		d.Set("memory", int(version.Resources.Memory/int64(datasize.MB.Bytes())))
-	}
-	if version.ExecutionTimeout != nil && version.ExecutionTimeout.Seconds != 0 {
-		d.Set("execution_timeout", strconv.FormatInt(version.ExecutionTimeout.Seconds, 10))
-	}
-	if connectivity := flattenFunctionConnectivity(version.Connectivity); connectivity != nil {
-		d.Set("connectivity", connectivity)
-	}
-
-	tags := &schema.Set{F: schema.HashString}
-	for _, v := range version.Tags {
-		if v != "$latest" {
-			tags.Add(v)
-		}
-	}
-
-	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
-	return d.Set("tags", tags)
-}
-
-func zipPathToWriter(root string, buffer io.Writer) error {
-	rootDir := filepath.Dir(root)
-	zipWriter := zip.NewWriter(buffer)
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-
-		rel := strings.TrimPrefix(path, rootDir)
-		entry, err := zipWriter.Create(rel)
-		if err != nil {
-			return err
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		if _, err := io.Copy(entry, file); err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	err = zipWriter.Close()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func ZipPathToBytes(root string) ([]byte, error) {
-
-	// first, check if the path corresponds to already zipped file
-	info, err := os.Stat(root)
-	if err != nil {
-		return nil, err
-	}
-	if info.Mode().IsRegular() {
-		bytes, err := ioutil.ReadFile(root)
-		if err != nil {
-			return nil, err
-		}
-		if isZipContent(bytes) {
-			// file has already zipped, return its content
-			return bytes, nil
-		}
-	}
-
-	// correct path (make directory looks like a directory)
-	if info.Mode().IsDir() && !strings.HasSuffix(root, string(os.PathSeparator)) {
-		root = root + "/"
-	}
-
-	// do real zipping of the given path
-	var buffer bytes.Buffer
-	err = zipPathToWriter(root, &buffer)
-	if err != nil {
-		return nil, err
-	}
-	return buffer.Bytes(), nil
-}
-
-func isZipContent(buf []byte) bool {
-	return len(buf) > 3 &&
-		buf[0] == 0x50 && buf[1] == 0x4B &&
-		(buf[2] == 0x3 || buf[2] == 0x5 || buf[2] == 0x7) &&
-		(buf[3] == 0x4 || buf[3] == 0x6 || buf[3] == 0x8)
-}
-
-func flattenFunctionSecrets(secrets []*functions.Secret) []map[string]interface{} {
-	s := make([]map[string]interface{}, len(secrets))
-
-	for i, secret := range secrets {
-		s[i] = map[string]interface{}{
-			"id":                   secret.Id,
-			"version_id":           secret.VersionId,
-			"key":                  secret.Key,
-			"environment_variable": secret.GetEnvironmentVariable(),
-		}
-	}
-	return s
-}
-
-func expandFunctionConnectivity(d *schema.ResourceData) *functions.Connectivity {
-	if id, ok := d.GetOk("connectivity.0.network_id"); ok {
-		return &functions.Connectivity{NetworkId: id.(string)}
-	}
-	return nil
-}
-
-func flattenFunctionConnectivity(connectivity *functions.Connectivity) []interface{} {
-	if connectivity == nil || connectivity.NetworkId == "" {
-		return nil
-	}
-	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
+	return flattenYandexFunctionVersion(d, version)
 }
