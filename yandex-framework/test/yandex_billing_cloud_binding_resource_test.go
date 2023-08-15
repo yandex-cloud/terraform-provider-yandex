@@ -1,19 +1,36 @@
-package yandex
+package test
 
 import (
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
+
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 )
 
 const billingCloudBindingBindingResource = "yandex_billing_cloud_binding.test_cloud_binding_resource_binding"
+const billingCloudServiceInstanceBindingType = "cloud"
+
+func billingInstanceTestFirstBillingAccountId() string {
+	return os.Getenv("YC_BILLING_TEST_ACCOUNT_ID_1")
+}
+func billingInstanceTestSecondBillingAccountId() string {
+	return os.Getenv("YC_BILLING_TEST_ACCOUNT_ID_2")
+}
+
+const yandexBillingServiceInstanceBindingDefaultTimeout = 1 * time.Minute
 
 func init() {
 	resource.AddTestSweepers("yandex_billing_cloud_binding", &resource.Sweeper{
@@ -34,7 +51,7 @@ func testSweepBillingCloudBinding(_ string) error {
 	req := &billing.ListBillableObjectBindingsRequest{
 		BillingAccountId: billingInstanceTestFirstBillingAccountId(),
 	}
-	it := conf.sdk.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(conf.Context(), req)
+	it := conf.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(context.Background(), req)
 	result := &multierror.Error{}
 
 	for it.Next() {
@@ -50,12 +67,12 @@ func testSweepBillingCloudBinding(_ string) error {
 	return result.ErrorOrNil()
 }
 
-func sweepBillingCloudBinding(conf *Config, cloudId string) bool {
+func sweepBillingCloudBinding(conf *provider_config.Config, cloudId string) bool {
 	return sweepWithRetry(sweepBillingCloudBindingOnce, conf, "Billing Cloud Binding", cloudId)
 }
 
-func sweepBillingCloudBindingOnce(conf *Config, instanceId string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexBillingServiceInstanceBindingDefaultTimeout)
+func sweepBillingCloudBindingOnce(conf *provider_config.Config, instanceId string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), yandexBillingServiceInstanceBindingDefaultTimeout)
 	defer cancel()
 
 	billableObject := &billing.BillableObject{
@@ -66,7 +83,7 @@ func sweepBillingCloudBindingOnce(conf *Config, instanceId string) error {
 		BillingAccountId: billingInstanceTestSecondBillingAccountId(),
 		BillableObject:   billableObject,
 	}
-	op, err := conf.sdk.Billing().BillingAccount().BindBillableObject(ctx, req)
+	op, err := conf.SDK.Billing().BillingAccount().BindBillableObject(ctx, req)
 	return handleSweepOperation(ctx, conf, op, err)
 }
 
@@ -76,9 +93,9 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 	cloudId := getExampleCloudID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceBillingCloudBindingBindCloudToBillingAccount(firstBillingAccountId, cloudId),
@@ -89,7 +106,7 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 				),
 			},
 			{
-				ResourceName:      "yandex_billing_cloud_binding.test_cloud_binding_resource_binding",
+				ResourceName:      billingCloudBindingBindingResource,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -111,9 +128,9 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 	cloudId := getExampleCloudID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceBillingCloudBindingBindCloudToBillingAccount(firstBillingAccountId, cloudId),
@@ -132,7 +149,7 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 				),
 			},
 			{
-				ResourceName:      "yandex_billing_cloud_binding.test_cloud_binding_resource_binding",
+				ResourceName:      billingCloudBindingBindingResource,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -153,9 +170,9 @@ func TestAccResourceBillingCloudBinding_BindNonExistingCloudToExistingBillingAcc
 	cloudId := getExampleCloudID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceBillingCloudBindingBindCloudToBillingAccount(nonExistingBillingAccountId, cloudId),
@@ -170,9 +187,9 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToNonExistingBillingAcc
 	cloudId := fmt.Sprintf("non-existing-cloud-id-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceBillingCloudBindingBindCloudToBillingAccount(billingAccountId, cloudId),
@@ -187,9 +204,9 @@ func TestAccResourceBillingCloudBinding_BindNonExistingCloudToNonExistingBilling
 	cloudId := fmt.Sprintf("non-existing-cloud-id-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceBillingCloudBindingBindCloudToBillingAccount(billingAccountId, cloudId),
@@ -200,20 +217,20 @@ func TestAccResourceBillingCloudBinding_BindNonExistingCloudToNonExistingBilling
 }
 
 func testAccCheckBillingCloudBindingDestroy(s *terraform.State) error {
-	config := testAccProvider.Meta().(*Config)
+	config := testAccProvider.(*yandex_framework.Provider).GetConfig()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "yandex_billing_cloud_binding" {
 			continue
 		}
 
-		id, err := parseBindServiceInstanceId(rs.Primary.ID)
+		id, err := yandex_billing_cloud_binding.ParseBindServiceInstanceId(rs.Primary.ID)
 
 		if err != nil {
 			return err
 		}
 
-		it := config.sdk.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
+		it := config.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
 			context.Background(),
 			&billing.ListBillableObjectBindingsRequest{
 				BillingAccountId: billingInstanceTestFirstBillingAccountId(),
@@ -222,7 +239,7 @@ func testAccCheckBillingCloudBindingDestroy(s *terraform.State) error {
 
 		for it.Next() {
 			if it.Value().BillableObject.Type == billingCloudServiceInstanceBindingType &&
-				it.Value().BillableObject.Id == id.serviceInstanceId {
+				it.Value().BillableObject.Id == id.ServiceInstanceId {
 				return fmt.Errorf("Cloud still bound to billing account")
 			}
 		}
@@ -242,28 +259,28 @@ func testAccCheckBillingCloudBindingExists(name string) resource.TestCheckFunc {
 			return fmt.Errorf("No ID is set")
 		}
 
-		id, err := parseBindServiceInstanceId(rs.Primary.ID)
+		id, err := yandex_billing_cloud_binding.ParseBindServiceInstanceId(rs.Primary.ID)
 
 		if err != nil {
 			return err
 		}
 
-		config := testAccProvider.Meta().(*Config)
+		config := testAccProvider.(*yandex_framework.Provider).GetConfig()
 
-		it := config.sdk.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
+		it := config.SDK.Billing().BillingAccount().BillingAccountBillableObjectBindingsIterator(
 			context.Background(),
 			&billing.ListBillableObjectBindingsRequest{
-				BillingAccountId: id.billingAccountId,
+				BillingAccountId: id.BillingAccountId,
 			})
 
 		for it.Next() {
 			if it.Value().BillableObject.Type == billingCloudServiceInstanceBindingType &&
-				it.Value().BillableObject.Id == id.serviceInstanceId {
+				it.Value().BillableObject.Id == id.ServiceInstanceId {
 				return nil
 			}
 		}
 
-		return fmt.Errorf("Cloud bound to billing account not found")
+		return fmt.Errorf("cloud bound to billing account not found")
 	}
 }
 

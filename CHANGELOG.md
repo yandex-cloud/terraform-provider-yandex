@@ -1,6 +1,7 @@
 ## 0.97.0 (Unreleased)
 ENHANCEMENTS:
 * combined provider via muxing (simultaneous support of terraform-plugin-sdk/v2 and terraform-plugin-framework).
+* migrate yandex_billing_cloud_binding to terraform-plugin-framework provider
 
 FEATURES:
 * k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source

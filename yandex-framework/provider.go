@@ -18,6 +18,7 @@ import (
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
+	yandex_billing_cloud_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 )
 
 type saKeyValidator struct{}
@@ -229,11 +230,23 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 }
 
 func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return []func() resource.Resource{
+		func() resource.Resource {
+			return yandex_billing_cloud_binding.NewResource(
+				yandex_billing_cloud_binding.BindingServiceInstanceCloudType,
+				yandex_billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
+		},
+	}
 }
 
 func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		func() datasource.DataSource {
+			return yandex_billing_cloud_binding.NewDataSource(
+				yandex_billing_cloud_binding.BindingServiceInstanceCloudType,
+				yandex_billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
+		},
+	}
 }
 
 func (p *Provider) GetConfig() provider_config.Config {

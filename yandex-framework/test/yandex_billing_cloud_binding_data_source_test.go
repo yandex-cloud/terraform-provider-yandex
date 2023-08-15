@@ -1,4 +1,4 @@
-package yandex
+package test
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ func TestAccDataSourceBillingCloudBinding_BindExistingCloudToExistingBillingAcco
 	cloudId := getExampleCloudID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckBillingCloudBindingDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
+		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceBillingCloudBindingBindCloudToBillingAccount(firstBillingAccountId, cloudId),
@@ -43,8 +43,8 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingBillingAccountData(t *
 	cloudId := getExampleCloudID()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),
@@ -59,8 +59,8 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingCloudData(t *testing.T
 	cloudId := fmt.Sprintf("non-existing-cloud-id-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),
@@ -75,8 +75,8 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingBillingAccountNonExist
 	cloudId := fmt.Sprintf("non-existing-cloud-id-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV5ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),
