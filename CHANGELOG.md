@@ -22,6 +22,7 @@ FEATURES:
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
+* certificate-manager: in `yandex_cm_certificate` resource, `domains` is not `Computed`, to avoid unwanted updates
 
 ENHANCEMENTS:
 * provider: the default development, testing and building of the provider is now done with Go 1.20
