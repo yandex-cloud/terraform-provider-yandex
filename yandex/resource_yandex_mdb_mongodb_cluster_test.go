@@ -120,6 +120,11 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	{{- end}}
 	} 
 {{end}}
+{{if .PerformanceDiagnostics}}
+	performance_diagnostics {
+		enabled = "{{.PerformanceDiagnostics.enabled}}"
+	} 
+{{end}}
 {{if .BackupWindow}}
     backup_window_start {
       hours = {{.BackupWindow.hours}}
@@ -490,6 +495,9 @@ func create6_0ConfigData() map[string]interface{} {
 			"data_lens":     true,
 			"data_transfer": true,
 		},
+		"PerformanceDiagnostics": map[string]bool{
+			"enabled": true,
+		},
 		"Databases": []string{"testdb"},
 		"Users": []*mongodb.UserSpec{
 			{
@@ -534,6 +542,9 @@ func createRestoreConfigData() map[string]interface{} {
 		"Access": map[string]bool{
 			"data_lens":     true,
 			"data_transfer": true,
+		},
+		"PerformanceDiagnostics": map[string]bool{
+			"enabled": true,
 		},
 		"Databases": []string{"db1"},
 		"Users": []*mongodb.UserSpec{
@@ -590,6 +601,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.performance_diagnostics.0.enabled", "true"),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"testdb"}),
@@ -1892,6 +1904,7 @@ func TestAccMDBMongoDBCluster_restore(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.performance_diagnostics.0.enabled", "true"),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
 					testAccCheckMDBMongoDBClusterHasDatabases(mongodbResource, []string{"db1"}),

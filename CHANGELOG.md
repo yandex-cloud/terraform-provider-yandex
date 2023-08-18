@@ -1,4 +1,6 @@
 ## 0.98.0 (Unreleased)
+FEATURES:
+* mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
 
 ## 0.97.0 (August 16, 2023)
 FEATURES:

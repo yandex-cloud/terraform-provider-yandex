@@ -2963,6 +2963,11 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 					"data_transfer": cc.Access.DataTransfer,
 				},
 			},
+			"performance_diagnostics": []interface{}{
+				map[string]interface{}{
+					"enabled": cc.PerformanceDiagnostics.ProfilingEnabled,
+				},
+			},
 			"mongod":   flattenMongod,
 			"mongos":   flattenMongos,
 			"mongocfg": flattenMongocfg,
