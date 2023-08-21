@@ -261,6 +261,10 @@ func dataSourceYandexKubernetesNodeGroup() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+									"gpu_environment": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 								},
 							},
 						},

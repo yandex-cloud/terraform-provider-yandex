@@ -287,6 +287,8 @@ The `gpu_settings` block supports:
 
 * `gpu_cluster_id` - GPU cluster id.
 
+* `gpu_environment` - GPU environment. Values: `runc`, `runc_drivers_cuda`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

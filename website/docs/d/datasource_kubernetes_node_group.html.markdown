@@ -232,3 +232,5 @@ The `container_network` block supports:
 The `gpu_settings` block supports:
 
 * `gpu_cluster_id` - GPU cluster id.
+
+* `gpu_environment` - GPU environment. Values: `runc`, `runc_drivers_cuda`.

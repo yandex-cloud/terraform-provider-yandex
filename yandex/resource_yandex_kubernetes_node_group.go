@@ -289,6 +289,13 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 										Optional: true,
 										ForceNew: true,
 									},
+									"gpu_environment": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"runc", "runc_drivers_cuda"}, false),
+									},
 								},
 							},
 						},
@@ -1002,12 +1009,21 @@ func getNodeGroupContainerNetworkSettings(d *schema.ResourceData) (*k8s.NodeTemp
 }
 
 func getNodeGroupGPUSettings(d *schema.ResourceData) (*k8s.GpuSettings, error) {
-	if gpuClusterID, ok := d.GetOk("instance_template.0.gpu_settings.0.gpu_cluster_id"); ok {
-		return &k8s.GpuSettings{
-			GpuClusterId: gpuClusterID.(string),
-		}, nil
+	if _, ok := d.GetOk("instance_template.0.gpu_settings"); !ok {
+		return nil, nil
 	}
-	return nil, nil
+	gs := &k8s.GpuSettings{}
+	if gpuClusterID, ok := d.GetOk("instance_template.0.gpu_settings.0.gpu_cluster_id"); ok {
+		gs.SetGpuClusterId(gpuClusterID.(string))
+	}
+	if gpuEnvironment, ok := d.GetOk("instance_template.0.gpu_settings.0.gpu_environment"); ok {
+		typeVal, ok := k8s.GpuSettings_GpuEnvironment_value[strings.ToUpper(gpuEnvironment.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'gpu_environment' should be 'runc' or 'runc_drivers_cuda'', not '%s'", gpuEnvironment)
+		}
+		gs.SetGpuEnvironment(k8s.GpuSettings_GpuEnvironment(typeVal))
+	}
+	return gs, nil
 }
 
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
@@ -1432,9 +1448,14 @@ func flattenKubernetesNodeGroupTemplateGPUSettings(p *k8s.GpuSettings) []map[str
 	if p == nil {
 		return []map[string]interface{}{}
 	}
+	gpuEnvironment := ""
+	if p.GetGpuEnvironment() != k8s.GpuSettings_GPU_ENVIRONMENT_UNSPECIFIED {
+		gpuEnvironment = strings.ToLower(p.GetGpuEnvironment().String())
+	}
 	return []map[string]interface{}{
 		{
-			"gpu_cluster_id": p.GetGpuClusterId(),
+			"gpu_cluster_id":  p.GetGpuClusterId(),
+			"gpu_environment": gpuEnvironment,
 		},
 	}
 }

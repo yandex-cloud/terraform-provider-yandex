@@ -2,6 +2,9 @@
 FEATURES:
 * mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
 
+FEATURES:
+* k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
+
 ## 0.97.0 (August 16, 2023)
 FEATURES:
 * k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source
