@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"log"
 	"os"
 	"strconv"
@@ -38,7 +39,7 @@ func configForSweepers() (*Config, error) {
 
 	maxRetries, err := strconv.Atoi(os.Getenv("YC_MAX_RETRIES"))
 	if err != nil {
-		maxRetries = defaultMaxRetries
+		maxRetries = common.DefaultMaxRetries
 	}
 
 	zone := os.Getenv("YC_ZONE")

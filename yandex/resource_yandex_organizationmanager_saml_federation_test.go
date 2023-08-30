@@ -275,8 +275,8 @@ func newSamlFederationInfo() *resourceSamlFederationInfo {
 		SsoUrl:                   acctest.RandomWithPrefix("https://sso-url"),
 		CookieMaxAge:             duration,
 		ResourceName:             "foobar",
-		AutoCreateAccountOnLogin: rand.Intn(1) == 1,
-		CaseInsensitiveNameIds:   rand.Intn(1) == 1,
+		AutoCreateAccountOnLogin: rand.Intn(1) == 1, // TODO: SA4030: math/rand.Intn(n) generates a random value 0 <= x < n; that is, the generated values don't include n; rand.Intn(1) therefore always returns 0 (staticcheck)
+		CaseInsensitiveNameIds:   rand.Intn(1) == 1, // TODO: SA4030: math/rand.Intn(n) generates a random value 0 <= x < n; that is, the generated values don't include n; rand.Intn(1) therefore always returns 0 (staticcheck)
 		SecuritySettings:         generateFederationSecuritySettings(),
 		// Uncomment once labels are supported.
 		// LabelKey:       "label_key",

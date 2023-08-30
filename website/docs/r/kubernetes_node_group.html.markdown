@@ -149,6 +149,7 @@ It may also contain another placeholders, see [Compute Instance group metadata d
 * `labels` - (Optional) Labels that will be assigned to compute nodes (instances), created by the Node Group.
 
 * `container_network` - (Optional) Container network configuration. The structure is documented below.
+* `gpu_settings` - (Optional) GPU settings. The structure is documented below.
 ---
 
 The `boot_disk` block supports:
@@ -279,6 +280,14 @@ The `deploy_policy` block supports:
 The `container_network` block supports:
 
 * `pod_mtu` - MTU for pods.
+
+---
+
+The `gpu_settings` block supports:
+
+* `gpu_cluster_id` - GPU cluster id.
+
+* `gpu_environment` - GPU environment. Values: `runc`, `runc_drivers_cuda`.
 
 ## Attributes Reference
 

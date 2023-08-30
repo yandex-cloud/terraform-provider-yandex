@@ -4136,12 +4136,8 @@ resource "yandex_vpc_subnet" "inst-test-subnet" {
 }
 
 func testAccComputeInstance_placement_policy(placementGroupID string, ruleOpts ...string) string {
-	var placementGroup string
-	var hostAffinity string
-
-	if placementGroupID == "" && ruleOpts == nil {
-		return ""
-	}
+	placementGroup := "placement_group_id = \"\""
+	hostAffinity := "host_affinity_rules = []"
 
 	if placementGroupID != "" {
 		placementGroup = fmt.Sprintf(`

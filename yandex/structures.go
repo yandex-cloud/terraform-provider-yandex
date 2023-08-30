@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"log"
 	"sort"
 	"strconv"
@@ -901,10 +902,6 @@ func flattenInstanceSchedulingPolicy(instance *compute.Instance) ([]map[string]i
 }
 
 func flattenInstancePlacementPolicy(instance *compute.Instance) ([]map[string]interface{}, error) {
-	if len(instance.PlacementPolicy.HostAffinityRules) == 0 && instance.PlacementPolicy.PlacementGroupId == "" {
-		return nil, nil
-	}
-
 	placementPolicy := make([]map[string]interface{}, 0, 1)
 	var affinityRules []interface{}
 	for _, rule := range instance.PlacementPolicy.HostAffinityRules {
@@ -1661,7 +1658,7 @@ func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4Address
 
 func expandAndValidateNetworkId(d *schema.ResourceData, config *Config) (string, error) {
 	networkID := d.Get("network_id").(string)
-	if config.Endpoint == defaultEndpoint && len(networkID) == 0 {
+	if config.Endpoint == common.DefaultEndpoint && len(networkID) == 0 {
 		return "", fmt.Errorf("empty network_id field")
 	}
 	return networkID, nil

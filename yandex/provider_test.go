@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/stretchr/testify/assert"
@@ -55,7 +57,7 @@ var testUserID2 = "no user id"
 var testStorageEndpoint = "no.storage.endpoint"
 
 func init() {
-	testAccProvider = Provider()
+	testAccProvider = NewSDKProvider()
 	testAccProviders = map[string]*schema.Provider{
 		"yandex": testAccProvider,
 	}
@@ -77,13 +79,13 @@ func init() {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().InternalValidate(); err != nil {
+	if err := NewSDKProvider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProviderWithRawConfig(t *testing.T) {
-	testProvider := Provider()
+	testProvider := NewSDKProvider()
 
 	raw := map[string]interface{}{
 		"insecure": true,
@@ -111,7 +113,7 @@ func TestProviderDefaultValues(t *testing.T) {
 	envVars := []string{"YC_INSECURE", "YC_PLAINTEXT", "YC_ENDPOINT"}
 	saveEnvVariable := saveAndUnsetEnvVars(envVars)
 
-	testProvider := Provider()
+	testProvider := NewSDKProvider()
 
 	raw := map[string]interface{}{
 		"token": "any_string_like_a_oauth",
@@ -161,7 +163,7 @@ func TestProviderOrganizationId(t *testing.T) {
 		}
 	}()
 
-	testProvider := Provider()
+	testProvider := NewSDKProvider()
 
 	org := acctest.RandomWithPrefix("org")
 	raw := map[string]interface{}{
@@ -187,7 +189,7 @@ func TestProviderOrganizationId(t *testing.T) {
 }
 
 func TestProviderSharedCredentialsFileAndProfile(t *testing.T) {
-	testProvider := Provider()
+	testProvider := NewSDKProvider()
 
 	raw := map[string]interface{}{
 		"token":                   "any_string_like_a_oauth",
@@ -269,7 +271,7 @@ func setTestIDs() error {
 	// init sdk client based on env var
 	envEndpoint := os.Getenv("YC_ENDPOINT")
 	if envEndpoint == "" {
-		envEndpoint = defaultEndpoint
+		envEndpoint = common.DefaultEndpoint
 	}
 
 	providerConfig := &Config{

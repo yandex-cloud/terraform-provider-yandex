@@ -295,6 +295,20 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 								},
 							},
 						},
+						"performance_diagnostics": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+								},
+							},
+						},
 						"access": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -699,6 +713,12 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		configSpec.Access = &mongodb.Access{
 			DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
 			DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
+		}
+	}
+
+	if pd := d.Get("cluster_config.0.performance_diagnostics"); pd != nil {
+		configSpec.PerformanceDiagnostics = &mongodb.PerformanceDiagnosticsConfig{
+			ProfilingEnabled: d.Get("cluster_config.0.performance_diagnostics.0.enabled").(bool),
 		}
 	}
 
@@ -1186,6 +1206,9 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 			Version:           version,
 			MongodbSpec:       mongodbSpecHelper.Expand(d),
 			BackupWindowStart: expandMongoDBBackupWindowStart(d),
+			PerformanceDiagnostics: &mongodb.PerformanceDiagnosticsConfig{
+				ProfilingEnabled: d.Get("cluster_config.0.performance_diagnostics.0.enabled").(bool),
+			},
 			Access: &mongodb.Access{
 				DataLens:     d.Get("cluster_config.0.access.0.data_lens").(bool),
 				DataTransfer: d.Get("cluster_config.0.access.0.data_transfer").(bool),
@@ -1197,14 +1220,15 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 }
 
 var mdbMongodbUpdateFieldsMap = map[string]string{
-	"description":                          "description",
-	"labels":                               "labels",
-	"cluster_config.0.version":             "config_spec.version",
-	"cluster_config.0.access":              "config_spec.access",
-	"cluster_config.0.backup_window_start": "config_spec.backup_window_start",
-	"security_group_ids":                   "security_group_ids",
-	"deletion_protection":                  "deletion_protection",
-	"name":                                 "name",
+	"description":                              "description",
+	"labels":                                   "labels",
+	"cluster_config.0.version":                 "config_spec.version",
+	"cluster_config.0.access":                  "config_spec.access",
+	"cluster_config.0.backup_window_start":     "config_spec.backup_window_start",
+	"cluster_config.0.performance_diagnostics": "config_spec.performance_diagnostics",
+	"security_group_ids":                       "security_group_ids",
+	"deletion_protection":                      "deletion_protection",
+	"name":                                     "name",
 }
 
 func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {

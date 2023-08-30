@@ -12,6 +12,7 @@ import (
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	mongo_config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1/config"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -312,7 +313,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -359,7 +360,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig6_0Enterprise_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -605,7 +606,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig6_0_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -652,7 +653,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig6_0_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -973,7 +974,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -1020,7 +1021,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig5_0Enterprise_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -1266,7 +1267,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -1313,7 +1314,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig5_0_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -1631,7 +1632,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -1678,7 +1679,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig4_4Enterprise_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -1925,7 +1926,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -1972,7 +1973,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig4_4_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -2219,7 +2220,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -2266,7 +2267,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig4_2_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -2513,7 +2514,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig4_0_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -2560,7 +2561,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig4_0_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -2807,7 +2808,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							Journal:    &journalMongod,
 						}
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongod.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						if blockCompressor, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"); ok {
 							blockCompressorInt := mongo_config.MongodConfig3_6_Storage_WiredTiger_CollectionConfig_Compressor_value[strings.ToUpper(blockCompressor.(string))]
@@ -2854,7 +2855,7 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						storageMongoCfg := mongo_config.MongoCfgConfig3_6_Storage{WiredTiger: &wiredTigerMongoCfg}
 
 						if cacheSize, ok := d.GetOk("cluster_config.0.mongocfg.0.storage.0.wired_tiger.0.cache_size_gb"); ok {
-							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: float64(cacheSize.(float64))})
+							engineConfigMongoCfg.SetCacheSizeGb(&wrappers.DoubleValue{Value: cacheSize.(float64)})
 						}
 						configMongoCfg.SetStorage(&storageMongoCfg)
 					}
@@ -2960,6 +2961,11 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 				map[string]interface{}{
 					"data_lens":     cc.Access.DataLens,
 					"data_transfer": cc.Access.DataTransfer,
+				},
+			},
+			"performance_diagnostics": []interface{}{
+				map[string]interface{}{
+					"enabled": cc.PerformanceDiagnostics.ProfilingEnabled,
 				},
 			},
 			"mongod":   flattenMongod,

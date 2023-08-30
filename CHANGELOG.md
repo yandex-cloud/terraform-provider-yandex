@@ -1,10 +1,28 @@
-## 0.96.0 (Unreleased)
+## 0.98.0 (Unreleased)
+FEATURES:
+* mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
+
+FEATURES:
+* k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
+
+## 0.97.0 (August 16, 2023)
+FEATURES:
+* k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source
+
+ENHANCEMENTS:
+* combined provider via muxing (simultaneous support of `terraform-plugin-sdk/v2` and `terraform-plugin-framework`).
+* migrate `yandex_billing_cloud_binding` to `terraform-plugin-framework` provider
+
+## 0.96.1 (July 31, 2023)
+BUG FIXES:
+* compute: revoke support updating host_affinity_rules in the `yandex_compute_instance` resource due to breaking changes in tf state.
+
+## 0.96.0 (July 31, 2023)
 FEATURES:
 * added `shared_credentials_file` and `profile` provider properties
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
 * redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
-* compute: support updating host_affinity_rules in the `yandex_compute_instance` resource.
-* storage: added `source_hash` property to `storage_object` resource 
+* storage: added `source_hash` property to `storage_object` resource
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 * elasticsearch: changing `folder_id` attribute in `yandex_mdb_elasticsearch_cluster` moves Elasticsearch cluster to new folder
@@ -13,6 +31,10 @@ FEATURES:
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
+* certificate-manager: in `yandex_cm_certificate` resource, `domains` is not `Computed`, to avoid unwanted updates
+
+ENHANCEMENTS:
+* provider: the default development, testing and building of the provider is now done with Go 1.20
 
 ## 0.95.0 (July 13, 2023)
 FEATURES:

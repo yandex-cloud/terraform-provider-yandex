@@ -2231,23 +2231,24 @@ func createClickHouseZooKeeper(ctx context.Context, config *Config, d *schema.Re
 	return nil
 }
 
-func updateClickHouseMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *clickhouse.MaintenanceWindow) error {
-	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
-			ClusterId:         d.Id(),
-			MaintenanceWindow: mw,
-			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("error while requesting API to update maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	err = op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("error while updating maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
-	}
-	return nil
-}
+// TODO: deadcode
+//func updateClickHouseMaintenanceWindow(ctx context.Context, config *Config, d *schema.ResourceData, mw *clickhouse.MaintenanceWindow) error {
+//	op, err := config.sdk.WrapOperation(
+//		config.sdk.MDB().Clickhouse().Cluster().Update(ctx, &clickhouse.UpdateClusterRequest{
+//			ClusterId:         d.Id(),
+//			MaintenanceWindow: mw,
+//			UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
+//		}),
+//	)
+//	if err != nil {
+//		return fmt.Errorf("error while requesting API to update maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
+//	}
+//	err = op.Wait(ctx)
+//	if err != nil {
+//		return fmt.Errorf("error while updating maintenance window in ClickHouse Cluster %q: %s", d.Id(), err)
+//	}
+//	return nil
+//}
 
 func listClickHouseHosts(ctx context.Context, config *Config, id string) ([]*clickhouse.Host, error) {
 	hosts := []*clickhouse.Host{}

@@ -83,7 +83,10 @@ func resourceYandexContainerRegistryIPPermissionCreate(ctx context.Context, d *s
 		RegistryId:   registryId,
 		IpPermission: ipPermissions,
 	}
-	containerRegistryService.SetIpPermission(ctx, &setIPPermissionRequest)
+	_, err := containerRegistryService.SetIpPermission(ctx, &setIPPermissionRequest)
+	if err != nil {
+		log.Printf("[DEBUG] IP Permissions were not set for Container Registry: %v (err: %s)", registryId, err.Error())
+	}
 
 	d.SetId(registryId + containerRegistryIPPermissionIDSuffix)
 

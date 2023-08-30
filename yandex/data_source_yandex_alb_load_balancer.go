@@ -13,7 +13,7 @@ func dataSourceYandexALBLoadBalancer() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceYandexALBLoadBalancerRead,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: schema.ImportStatePassthrough, // TODO: SA1019: schema.ImportStatePassthrough is deprecated: Please use the context aware ImportStatePassthroughContext instead (staticcheck)
 		},
 
 		Timeouts: &schema.ResourceTimeout{

@@ -3,13 +3,14 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"google.golang.org/protobuf/encoding/protojson"
-	"log"
 )
 
 func dataSourceYandexCMCertificateContent() *schema.Resource {
@@ -78,6 +79,7 @@ func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.Res
 		}
 	}
 
+	// TODO: SA1019: resource.RetryContext is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutRead), func() *resource.RetryError {
 		if d.Get("wait_validation").(bool) {
 			req := &certificatemanager.GetCertificateRequest{
@@ -88,10 +90,12 @@ func dataSourceYandexCMCertificateContentRead(ctx context.Context, d *schema.Res
 
 			resp, err := config.sdk.Certificates().Certificate().Get(ctx, req)
 			if err != nil {
+				// TODO: SA1019: resource.NonRetryableError is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 				return resource.NonRetryableError(handleNotFoundError(err, d, fmt.Sprintf("certificate %q", id)))
 			}
 			if resp.Status == certificatemanager.Certificate_VALIDATING ||
 				resp.Status == certificatemanager.Certificate_RENEWING {
+				// TODO: SA1019: resource.RetryableError is deprecated: Use helper/retry package instead. This is required for migrating acceptance testing to terraform-plugin-testing. (staticcheck)
 				return resource.RetryableError(
 					fmt.Errorf("certificate still %s", certificatemanager.Certificate_Status_name[int32(resp.Status)]),
 				)

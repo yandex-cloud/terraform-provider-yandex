@@ -11,6 +11,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -30,6 +31,7 @@ func resourceALBAllocationPolicyLocationHash(v interface{}) int {
 		fmt.Fprintf(&buf, "%t-", v.(bool))
 	}
 
+	// TODO: SA1019: hashcode.String is deprecated: This will be removed in v2 without replacement. If you need its functionality, you can copy it, import crc32 directly, or reference the v1 package. (staticcheck)
 	return hashcode.String(buf.String())
 }
 

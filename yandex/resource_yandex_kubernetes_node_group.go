@@ -277,6 +277,28 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 								},
 							},
 						},
+						"gpu_settings": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gpu_cluster_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										ForceNew: true,
+									},
+									"gpu_environment": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Computed:     true,
+										ForceNew:     true,
+										ValidateFunc: validation.StringInSlice([]string{"runc", "runc_drivers_cuda"}, false),
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -826,7 +848,10 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error expanding container network while creating Kubernetes node group: %s", err)
 	}
-
+	gpuSettings, err := getNodeGroupGPUSettings(d)
+	if err != nil {
+		return nil, fmt.Errorf("error expanding gpu_settings while creating Kubernetes node group: %s", err)
+	}
 	tpl := &k8s.NodeTemplate{
 		PlatformId:               h.GetString("platform_id"),
 		ResourcesSpec:            getNodeGroupResourceSpec(d),
@@ -839,6 +864,7 @@ func getNodeGroupTemplate(d *schema.ResourceData) (*k8s.NodeTemplate, error) {
 		NetworkSettings:          ns,
 		ContainerRuntimeSettings: crs,
 		ContainerNetworkSettings: cns,
+		GpuSettings:              gpuSettings,
 		Name:                     h.GetString("name"),
 		Labels:                   labels,
 	}
@@ -980,6 +1006,24 @@ func getNodeGroupContainerNetworkSettings(d *schema.ResourceData) (*k8s.NodeTemp
 		cns.SetPodMtu(int64(podMTU.(int)))
 	}
 	return cns, nil
+}
+
+func getNodeGroupGPUSettings(d *schema.ResourceData) (*k8s.GpuSettings, error) {
+	if _, ok := d.GetOk("instance_template.0.gpu_settings"); !ok {
+		return nil, nil
+	}
+	gs := &k8s.GpuSettings{}
+	if gpuClusterID, ok := d.GetOk("instance_template.0.gpu_settings.0.gpu_cluster_id"); ok {
+		gs.SetGpuClusterId(gpuClusterID.(string))
+	}
+	if gpuEnvironment, ok := d.GetOk("instance_template.0.gpu_settings.0.gpu_environment"); ok {
+		typeVal, ok := k8s.GpuSettings_GpuEnvironment_value[strings.ToUpper(gpuEnvironment.(string))]
+		if !ok {
+			return nil, fmt.Errorf("value for 'gpu_environment' should be 'runc' or 'runc_drivers_cuda'', not '%s'", gpuEnvironment)
+		}
+		gs.SetGpuEnvironment(k8s.GpuSettings_GpuEnvironment(typeVal))
+	}
+	return gs, nil
 }
 
 func flattenNodeGroupSchemaData(ng *k8s.NodeGroup, d *schema.ResourceData) error {
@@ -1228,6 +1272,7 @@ func flattenKubernetesNodeGroupTemplate(ngTpl *k8s.NodeTemplate) []map[string]in
 		"name":                      ngTpl.GetName(),
 		"labels":                    ngTpl.GetLabels(),
 		"container_network":         flattenKubernetesNodeGroupTemplateContainerNetwork(ngTpl.GetContainerNetworkSettings()),
+		"gpu_settings":              flattenKubernetesNodeGroupTemplateGPUSettings(ngTpl.GetGpuSettings()),
 	}
 
 	return []map[string]interface{}{tpl}
@@ -1395,6 +1440,22 @@ func flattenKubernetesNodeGroupTemplateContainerNetwork(p *k8s.NodeTemplate_Cont
 	return []map[string]interface{}{
 		{
 			"pod_mtu": int(p.GetPodMtu()),
+		},
+	}
+}
+
+func flattenKubernetesNodeGroupTemplateGPUSettings(p *k8s.GpuSettings) []map[string]interface{} {
+	if p == nil {
+		return []map[string]interface{}{}
+	}
+	gpuEnvironment := ""
+	if p.GetGpuEnvironment() != k8s.GpuSettings_GPU_ENVIRONMENT_UNSPECIFIED {
+		gpuEnvironment = strings.ToLower(p.GetGpuEnvironment().String())
+	}
+	return []map[string]interface{}{
+		{
+			"gpu_cluster_id":  p.GetGpuClusterId(),
+			"gpu_environment": gpuEnvironment,
 		},
 	}
 }

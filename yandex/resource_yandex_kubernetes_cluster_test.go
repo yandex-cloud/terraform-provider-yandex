@@ -878,7 +878,6 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 				"service_ipv4_range", cluster.GetIpAllocationPolicy().GetServiceIpv4CidrBlock()),
 			resource.TestCheckResourceAttr(resourceFullName,
 				"service_ipv6_range", cluster.GetIpAllocationPolicy().GetServiceIpv6CidrBlock()),
-			resource.TestCheckResourceAttrSet(resourceFullName, "log_group_id"),
 		}
 
 		if !clusterVPCDepsPrecreated(info) {

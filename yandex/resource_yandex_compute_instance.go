@@ -457,6 +457,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"placement_group_id": {
@@ -465,6 +466,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 						},
 						"host_affinity_rules": {
 							Type:       schema.TypeList,
+							Computed:   true,
 							Optional:   true,
 							ConfigMode: schema.SchemaConfigModeAttr,
 							Elem: &schema.Resource{
@@ -731,10 +733,8 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	if placementPolicy != nil {
-		if err := d.Set("placement_policy", placementPolicy); err != nil {
-			return err
-		}
+	if err := d.Set("placement_policy", placementPolicy); err != nil {
+		return err
 	}
 
 	if err := d.Set("local_disk", localDisks); err != nil {

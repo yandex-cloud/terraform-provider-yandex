@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,145 +17,119 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/mutexkv"
 )
 
-const (
-	defaultMaxRetries      = 5
-	defaultEndpoint        = "api.cloud.yandex.net:443"
-	defaultStorageEndpoint = "storage.yandexcloud.net"
-	defaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
-	defaultRegion          = "ru-central1"
-)
-
 // Global MutexKV
 var mutexKV = mutexkv.NewMutexKV()
 
-func Provider() *schema.Provider {
-	return provider(false)
+func NewSDKProvider() *schema.Provider {
+	return sdkProvider(false)
 }
 
 func emptyFolderProvider() *schema.Provider {
-	return provider(true)
+	return sdkProvider(true)
 }
 
-func provider(emptyFolder bool) *schema.Provider {
+func sdkProvider(emptyFolder bool) *schema.Provider {
 	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_ENDPOINT", defaultEndpoint),
-				Description: descriptions["endpoint"],
+				Description: common.Descriptions["endpoint"],
 			},
 			"folder_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_FOLDER_ID", nil),
-				Description: descriptions["folder_id"],
+				Description: common.Descriptions["folder_id"],
 			},
 			"cloud_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_CLOUD_ID", nil),
-				Description: descriptions["cloud_id"],
+				Description: common.Descriptions["cloud_id"],
 			},
 			"organization_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_ORGANIZATION_ID", nil),
-				Description: descriptions["organization_id"],
+				Description: common.Descriptions["organization_id"],
 			},
 			"region_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_REGION", defaultRegion),
-				Description: descriptions["region"],
+				Description: common.Descriptions["region_id"],
 			},
 			"zone": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_ZONE", nil),
-				Description: descriptions["zone"],
+				Description: common.Descriptions["zone"],
 			},
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_TOKEN", nil),
-				Description: descriptions["token"],
+				Description: common.Descriptions["token"],
 			},
 			"service_account_key_file": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				DefaultFunc:   schema.EnvDefaultFunc("YC_SERVICE_ACCOUNT_KEY_FILE", nil),
-				Description:   descriptions["service_account_key_file"],
+				Description:   common.Descriptions["service_account_key_file"],
 				ConflictsWith: []string{"token"},
 				ValidateFunc:  validateSAKey,
 			},
 			"storage_endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_ENDPOINT_URL", defaultStorageEndpoint),
-				Description: descriptions["storage_endpoint"],
+				Description: common.Descriptions["storage_endpoint"],
 			},
 			"storage_access_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_ACCESS_KEY", nil),
-				Description: descriptions["storage_access_key"],
+				Description: common.Descriptions["storage_access_key"],
 			},
 			"storage_secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_STORAGE_SECRET_KEY", nil),
-				Description: descriptions["storage_secret_key"],
+				Description: common.Descriptions["storage_secret_key"],
 			},
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_INSECURE", false),
-				Description: descriptions["insecure"],
+				Description: common.Descriptions["insecure"],
 			},
 			"plaintext": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_PLAINTEXT", false),
-				Description: descriptions["plaintext"],
+				Description: common.Descriptions["plaintext"],
 			},
 			"max_retries": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Default:     defaultMaxRetries,
-				Description: descriptions["max_retries"],
+				Description: common.Descriptions["max_retries"],
 			},
 			"ymq_endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_ENDPOINT", defaultYMQEndpoint),
-				Description: descriptions["ymq_endpoint"],
+				Description: common.Descriptions["ymq_endpoint"],
 			},
 			"ymq_access_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_ACCESS_KEY", nil),
-				Description: descriptions["ymq_access_key"],
+				Description: common.Descriptions["ymq_access_key"],
 			},
 			"ymq_secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("YC_MESSAGE_QUEUE_SECRET_KEY", nil),
-				Description: descriptions["ymq_secret_key"],
+				Description: common.Descriptions["ymq_secret_key"],
 			},
 			"shared_credentials_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: descriptions["shared_credentials_file"],
+				Description: common.Descriptions["shared_credentials_file"],
 			},
 			"profile": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     "default",
-				Description: descriptions["profile"],
+				Description: common.Descriptions["profile"],
 			},
 		},
 
@@ -163,7 +140,6 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_alb_target_group":                                 dataSourceYandexALBTargetGroup(),
 			"yandex_alb_virtual_host":                                 dataSourceYandexALBVirtualHost(),
 			"yandex_api_gateway":                                      dataSourceYandexApiGateway(),
-			"yandex_billing_cloud_binding":                            dataSourceYandexBillingCloudBinding(),
 			"yandex_client_config":                                    dataSourceYandexClientConfig(),
 			"yandex_cdn_origin_group":                                 dataSourceYandexCDNOriginGroup(),
 			"yandex_cdn_resource":                                     dataSourceYandexCDNResource(),
@@ -247,7 +223,6 @@ func provider(emptyFolder bool) *schema.Provider {
 			"yandex_alb_target_group":                                 resourceYandexALBTargetGroup(),
 			"yandex_alb_virtual_host":                                 addPassthroughImport(withALBVirtualHostID(resourceYandexALBVirtualHost())),
 			"yandex_api_gateway":                                      resourceYandexApiGateway(),
-			"yandex_billing_cloud_binding":                            resourceYandexBillingCloudBinding(),
 			"yandex_container_registry":                               resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":                   resourceYandexContainerRegistryIAMBinding(),
 			"yandex_container_registry_ip_permission":                 resourceYandexContainerRegistryIPPermission(),
@@ -394,74 +369,58 @@ func wrapParseVirtualHostID(f crudFunc) crudFunc {
 	}
 }
 
-var descriptions = map[string]string{
-	"endpoint": "The API endpoint for Yandex.Cloud SDK client.",
+func setToDefaultIfNeeded(field string, osEnvName string, defaultVal string) string {
+	if len(field) != 0 {
+		return field
+	}
+	field = os.Getenv(osEnvName)
+	if len(field) == 0 {
+		field = defaultVal
+	}
+	return field
+}
 
-	"folder_id": "The default folder ID where resources will be placed.",
-
-	"cloud_id": "ID of Yandex.Cloud tenant.",
-
-	"region_id": "The region where operations will take place. Examples\n" +
-		"are ru-central1",
-
-	"zone": "The zone where operations will take place. Examples\n" +
-		"are ru-central1-a, ru-central2-c, etc.",
-
-	"token": "The access token for API operations.",
-
-	"service_account_key_file": "Either the path to or the contents of a Service Account key file in JSON format.",
-
-	"insecure": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted," +
-		"default value is `false`.",
-
-	"plaintext": "Disable use of TLS. Default value is `false`.",
-
-	"max_retries": "The maximum number of times an API request is being executed. \n" +
-		"If the API request still fails, an error is thrown.",
-
-	"storage_endpoint": "Yandex.Cloud storage service endpoint. Default is \n" + defaultStorageEndpoint,
-
-	"storage_access_key": "Yandex.Cloud storage service access key. \n" +
-		"Used when a storage data/resource doesn't have an access key explicitly specified.",
-
-	"storage_secret_key": "Yandex.Cloud storage service secret key. \n" +
-		"Used when a storage data/resource doesn't have a secret key explicitly specified.",
-
-	"ymq_endpoint": "Yandex.Cloud Message Queue service endpoint. Default is \n" + defaultYMQEndpoint,
-
-	"ymq_access_key": "Yandex.Cloud Message Queue service access key. \n" +
-		"Used when a message queue resource doesn't have an access key explicitly specified.",
-
-	"ymq_secret_key": "Yandex.Cloud Message Queue service secret key. \n" +
-		"Used when a message queue resource doesn't have a secret key explicitly specified.",
-
-	"shared_credentials_file": "Path to shared credentials file.",
-
-	"profile": "Profile to use in the shared credentials file. Default value is `default`.",
+func setToDefaultBoolIfNeeded(osEnvName string, defaultVal bool) bool {
+	field := os.Getenv(osEnvName)
+	v, err := strconv.ParseBool(field)
+	if err != nil {
+		return v
+	} else {
+		return defaultVal
+	}
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool) (interface{}, diag.Diagnostics) {
 	config := Config{
-		Token:                          d.Get("token").(string),
-		ServiceAccountKeyFileOrContent: d.Get("service_account_key_file").(string),
-		Region:                         d.Get("region_id").(string),
-		Zone:                           d.Get("zone").(string),
-		FolderID:                       d.Get("folder_id").(string),
-		CloudID:                        d.Get("cloud_id").(string),
-		OrganizationID:                 d.Get("organization_id").(string),
-		Endpoint:                       d.Get("endpoint").(string),
-		Plaintext:                      d.Get("plaintext").(bool),
-		Insecure:                       d.Get("insecure").(bool),
-		MaxRetries:                     d.Get("max_retries").(int),
-		StorageEndpoint:                d.Get("storage_endpoint").(string),
-		StorageAccessKey:               d.Get("storage_access_key").(string),
-		StorageSecretKey:               d.Get("storage_secret_key").(string),
-		YMQEndpoint:                    d.Get("ymq_endpoint").(string),
-		YMQAccessKey:                   d.Get("ymq_access_key").(string),
-		YMQSecretKey:                   d.Get("ymq_secret_key").(string),
-		SharedCredentialsFile:          d.Get("shared_credentials_file").(string),
-		Profile:                        d.Get("profile").(string),
-		userAgent:                      p.UserAgent("terraform-provider-yandex", version.ProviderVersion),
+		Endpoint:                       setToDefaultIfNeeded(d.Get("endpoint").(string), "YC_ENDPOINT", common.DefaultEndpoint),
+		FolderID:                       setToDefaultIfNeeded(d.Get("folder_id").(string), "YC_FOLDER_ID", ""),
+		CloudID:                        setToDefaultIfNeeded(d.Get("cloud_id").(string), "YC_CLOUD_ID", ""),
+		OrganizationID:                 setToDefaultIfNeeded(d.Get("organization_id").(string), "YC_ORGANIZATION_ID", ""),
+		Region:                         setToDefaultIfNeeded(d.Get("region_id").(string), "YC_REGION", common.DefaultRegion),
+		Zone:                           setToDefaultIfNeeded(d.Get("zone").(string), "YC_ZONE", ""),
+		Token:                          setToDefaultIfNeeded(d.Get("token").(string), "YC_TOKEN", ""),
+		ServiceAccountKeyFileOrContent: setToDefaultIfNeeded(d.Get("service_account_key_file").(string), "YC_SERVICE_ACCOUNT_KEY_FILE", ""),
+		StorageEndpoint:                setToDefaultIfNeeded(d.Get("storage_endpoint").(string), "YC_STORAGE_ENDPOINT_URL", common.DefaultStorageEndpoint),
+		StorageAccessKey:               setToDefaultIfNeeded(d.Get("storage_access_key").(string), "YC_STORAGE_ACCESS_KEY", ""),
+		StorageSecretKey:               setToDefaultIfNeeded(d.Get("storage_secret_key").(string), "YC_STORAGE_SECRET_KEY", ""),
+		YMQEndpoint:                    setToDefaultIfNeeded(d.Get("ymq_endpoint").(string), "YC_MESSAGE_QUEUE_ENDPOINT", common.DefaultYMQEndpoint),
+		YMQAccessKey:                   setToDefaultIfNeeded(d.Get("ymq_access_key").(string), "YC_MESSAGE_QUEUE_ACCESS_KEY", ""),
+		YMQSecretKey:                   setToDefaultIfNeeded(d.Get("ymq_secret_key").(string), "YC_MESSAGE_QUEUE_SECRET_KEY", ""),
+
+		Plaintext:             setToDefaultBoolIfNeeded("YC_PLAINTEXT", d.Get("plaintext").(bool)),
+		Insecure:              setToDefaultBoolIfNeeded("YC_INSECURE", d.Get("insecure").(bool)),
+		MaxRetries:            d.Get("max_retries").(int),
+		SharedCredentialsFile: d.Get("shared_credentials_file").(string),
+		Profile:               d.Get("profile").(string),
+		userAgent:             p.UserAgent("terraform-provider-yandex", version.ProviderVersion),
+	}
+
+	if len(config.Profile) == 0 {
+		config.Profile = "default"
+	}
+
+	if config.MaxRetries == 0 {
+		config.MaxRetries = common.DefaultMaxRetries
 	}
 
 	if emptyFolder {
@@ -503,6 +462,5 @@ func validateSAKey(v interface{}, k string) (warnings []string, errors []error) 
 	if err := json.Unmarshal([]byte(saKey), &f); err != nil {
 		errors = append(errors, fmt.Errorf("JSON in %q are not valid: %s", saKey, err))
 	}
-
 	return
 }
