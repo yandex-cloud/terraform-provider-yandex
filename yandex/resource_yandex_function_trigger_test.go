@@ -333,6 +333,8 @@ func TestAccYandexFunctionTrigger_logging(t *testing.T) {
 					testYandexFunctionExists("yandex_function.logging-src-fn", logSrcFn),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_cutoff", "5"),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
+					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
+					resource.TestCheckResourceAttr(triggerResource, "logging.0.stream_names.0", "stream"),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -778,6 +780,7 @@ resource "yandex_function_trigger" "test-trigger" {
     resource_ids   = [yandex_function.logging-src-fn.id]
     resource_types = ["serverless.function"]
     levels         = ["info"]
+    stream_names   = ["stream"]
   }
   function {
     id                 = yandex_function.tf-test.id

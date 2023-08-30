@@ -366,7 +366,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"resource_ids": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -375,7 +375,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"resource_types": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -384,7 +384,16 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"levels": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"stream_names": {
+							Type:     schema.TypeSet,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -688,6 +697,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			LogGroupId:   d.Get("logging.0.group_id").(string),
 			ResourceId:   convertStringSet(d.Get("logging.0.resource_ids").(*schema.Set)),
 			ResourceType: convertStringSet(d.Get("logging.0.resource_types").(*schema.Set)),
+			StreamName:   convertStringSet(d.Get("logging.0.stream_names").(*schema.Set)),
 			Levels:       levels,
 		}
 
@@ -1046,12 +1056,17 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 				levels.Add(l)
 			}
 		}
+		streamNames := &schema.Set{F: schema.HashString}
+		for _, name := range logging.StreamName {
+			streamNames.Add(name)
+		}
 
 		lg := map[string]interface{}{
 			"group_id":       logging.LogGroupId,
 			"resource_ids":   resourceIDs,
 			"resource_types": resourceTypes,
 			"levels":         levels,
+			"stream_names":   streamNames,
 		}
 		if batch := logging.GetBatchSettings(); batch != nil {
 			lg["batch_size"] = strconv.FormatInt(batch.Size, 10)

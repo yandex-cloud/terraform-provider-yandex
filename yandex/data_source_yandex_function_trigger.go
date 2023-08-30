@@ -213,6 +213,14 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 							MinItems: 0,
 						},
 
+						"stream_names": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Computed: true,
