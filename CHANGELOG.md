@@ -4,7 +4,7 @@ FEATURES:
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
 * redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
 * compute: support updating host_affinity_rules in the `yandex_compute_instance` resource.
-* storage: added `source_hash` property to `storage_object` resource
+* storage: added `source_hash` property to `storage_object` resource 
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 * elasticsearch: changing `folder_id` attribute in `yandex_mdb_elasticsearch_cluster` moves Elasticsearch cluster to new folder
