@@ -11,36 +11,6 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/dns/v1"
 )
 
-func TestIpv6AddressDiffSuppress(t *testing.T) {
-	cases := map[string]struct {
-		Old, New       string
-		ShouldSuppress bool
-	}{
-		"compact form should suppress diff": {
-			Old:            "2a03:b0c0:1:e0::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
-			ShouldSuppress: true,
-		},
-		"different address should not suppress diff": {
-			Old:            "2a03:b0c0:1:e00::29b:8001",
-			New:            "2a03:b0c0:0001:00e0:0000:0000:029b:8001",
-			ShouldSuppress: false,
-		},
-		"compact form should suppress diff 2": {
-			Old:            "fd12:3456:789a:1:0:0:0:1",
-			New:            "fd12:3456:789a:1::1",
-			ShouldSuppress: true,
-		},
-	}
-
-	for tn, tc := range cases {
-		shouldSuppress := ipv6Equal(tc.Old, tc.New)
-		if shouldSuppress != tc.ShouldSuppress {
-			t.Errorf("%s: expected %t", tn, tc.ShouldSuppress)
-		}
-	}
-}
-
 func TestAccDNSRecordSet_basic(t *testing.T) {
 	t.Parallel()
 

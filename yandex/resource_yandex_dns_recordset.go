@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -66,8 +65,7 @@ func resourceYandexDnsRecordSet() *schema.Resource {
 					Type:         schema.TypeString,
 					ValidateFunc: validation.StringLenBetween(1, 1024),
 				},
-				Set:              schema.HashString,
-				DiffSuppressFunc: dataDiffSuppressFunc,
+				Set: schema.HashString,
 			},
 		},
 	}
@@ -256,36 +254,4 @@ func resourceDnsRecordSetImportState(d *schema.ResourceData, _ interface{}) ([]*
 
 func rsId(d *schema.ResourceData) string {
 	return fmt.Sprintf("%s %s", d.Get("type").(string), d.Get("name"))
-}
-
-func dataDiffSuppressFunc(_, _, _ string, d *schema.ResourceData) bool {
-	if strings.ToUpper(d.Get("type").(string)) != "AAAA" {
-		return false
-	}
-	o, n := d.GetChange("data")
-	if o == nil || n == nil {
-		return false
-	}
-
-	oldList := convertStringSet(o.(*schema.Set))
-	newList := convertStringSet(n.(*schema.Set))
-
-	if len(oldList) != len(newList) {
-		return false
-	}
-
-	for i, oldIp := range oldList {
-		log.Printf("compare %s and %s", oldIp, newList[i])
-		if !ipv6Equal(oldIp, newList[i]) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func ipv6Equal(old, new string) bool {
-	ip1 := net.ParseIP(old)
-	ip2 := net.ParseIP(new)
-	return ip1.Equal(ip2)
 }

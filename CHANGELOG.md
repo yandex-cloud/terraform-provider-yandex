@@ -1,16 +1,23 @@
 ## 0.98.0 (Unreleased)
+
 FEATURES:
+
 * mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
 * serverless: support `stream_names` attribute in logging triggers
-
-FEATURES:
 * k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
 
+BUG FIXES:
+
+* fix `Provider produced inconsistent final plan` error with `resource_yandex_dns_recordset`
+
 ## 0.97.0 (August 16, 2023)
+
 FEATURES:
+
 * k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source
 
 ENHANCEMENTS:
+
 * combined provider via muxing (simultaneous support of `terraform-plugin-sdk/v2` and `terraform-plugin-framework`).
 * migrate `yandex_billing_cloud_binding` to `terraform-plugin-framework` provider
 
