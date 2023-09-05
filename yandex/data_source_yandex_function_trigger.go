@@ -62,6 +62,16 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"batch_size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -131,6 +141,15 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 
 						"delete": {
 							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},

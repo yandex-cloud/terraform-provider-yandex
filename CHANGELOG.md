@@ -4,6 +4,7 @@ FEATURES:
 
 * mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
 * serverless: support `stream_names` attribute in logging triggers
+* serverless: support batching in `IoT` and `S3` triggers
 * k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
 
 BUG FIXES:

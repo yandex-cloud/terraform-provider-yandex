@@ -204,6 +204,17 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -289,6 +300,17 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"delete": {
 							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
@@ -543,6 +565,12 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 
+		batch, err := expandBatchSettings(d, "iot.0")
+		if err != nil {
+			return err
+		}
+		iot.IotMessage.BatchSettings = batch
+
 		req.Rule = &triggers.Trigger_Rule{Rule: iot}
 	}
 
@@ -616,6 +644,11 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 
+		batch, err := expandBatchSettings(d, "object_storage.0")
+		if err != nil {
+			return err
+		}
+		storageTrigger.BatchSettings = batch
 		storageRule := &triggers.Trigger_Rule_ObjectStorage{ObjectStorage: storageTrigger}
 		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
 	}
@@ -903,6 +936,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"topic":       iot.MqttTopic,
 		}
 
+		if batch := iot.GetBatchSettings(); batch != nil {
+			i["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			i["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+
 		err := d.Set(triggerTypeIoT, []map[string]interface{}{i})
 		if err != nil {
 			return err
@@ -961,6 +999,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_CREATE_OBJECT: "create",
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_UPDATE_OBJECT: "update",
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_DELETE_OBJECT: "delete",
+		}
+
+		if batch := storage.GetBatchSettings(); batch != nil {
+			s["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			s["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
 		}
 
 		for _, t := range storage.EventType {

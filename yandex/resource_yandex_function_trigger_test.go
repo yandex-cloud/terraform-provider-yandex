@@ -196,6 +196,8 @@ func TestAccYandexFunctionTrigger_iot(t *testing.T) {
 					testCheckResourceAttrByPointer(triggerResource, "iot.0.registry_id", &registry.Id),
 					testCheckResourceAttrByPointer(triggerResource, "iot.0.device_id", &device.Id),
 					resource.TestCheckResourceAttrSet(triggerResource, "iot.0.topic"),
+					resource.TestCheckResourceAttr(triggerResource, "iot.0.batch_size", "3"),
+					resource.TestCheckResourceAttr(triggerResource, "iot.0.batch_cutoff", "20"),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -263,6 +265,8 @@ func TestAccYandexFunctionTrigger_object(t *testing.T) {
 					resource.TestCheckResourceAttr(triggerResource, "object_storage.0.create", "true"),
 					resource.TestCheckResourceAttr(triggerResource, "object_storage.0.update", "true"),
 					resource.TestCheckResourceAttr(triggerResource, "object_storage.0.delete", "true"),
+					resource.TestCheckResourceAttr(triggerResource, "object_storage.0.batch_size", "3"),
+					resource.TestCheckResourceAttr(triggerResource, "object_storage.0.batch_cutoff", "20"),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -558,6 +562,8 @@ resource "yandex_function_trigger" "test-trigger" {
     registry_id = yandex_iot_core_registry.test-registry.id
     device_id   = yandex_iot_core_device.test-device.id
     topic       = join("/", ["$devices", yandex_iot_core_device.test-device.id, "events"])
+    batch_cutoff = 20
+    batch_size   = 3
   }
   function {
     id                 = yandex_function.tf-test.id
@@ -643,6 +649,8 @@ resource "yandex_function_trigger" "test-trigger" {
     create    = true
     update    = true
     delete    = true
+    batch_cutoff = 20
+    batch_size   = 3
   }
   function {
     id                 = yandex_function.tf-test.id
