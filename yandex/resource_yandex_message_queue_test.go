@@ -497,13 +497,14 @@ func testAccMessageQueueSetTmpKeysForProvider() (cleanupFunc func(), err error) 
 		endpoint = common.DefaultEndpoint
 	}
 	config := Config{
-		Endpoint:  endpoint,
-		FolderID:  getExampleFolderID(),
-		CloudID:   getExampleCloudID(),
-		Zone:      os.Getenv("YC_ZONE"),
-		Token:     os.Getenv("YC_TOKEN"),
-		Plaintext: false,
-		Insecure:  false,
+		Endpoint:                       endpoint,
+		FolderID:                       getExampleFolderID(),
+		CloudID:                        getExampleCloudID(),
+		Zone:                           os.Getenv("YC_ZONE"),
+		Token:                          os.Getenv("YC_TOKEN"),
+		ServiceAccountKeyFileOrContent: os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE"),
+		Plaintext:                      false,
+		Insecure:                       false,
 	}
 
 	err = config.initAndValidate(context.Background(), testTerraformVersion, false)

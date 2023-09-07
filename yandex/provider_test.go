@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
@@ -37,11 +38,15 @@ var testAccProvider *schema.Provider
 var testAccEnvVars = []string{
 	"YC_FOLDER_ID",
 	"YC_ZONE",
-	"YC_TOKEN",
 	"YC_LOGIN",
 	"YC_LOGIN_2",
 	"YC_STORAGE_ENDPOINT_URL",
 	"YC_MESSAGE_QUEUE_ENDPOINT",
+}
+
+var testAccForAuthEnvVars = []string{
+	"YC_TOKEN",
+	"YC_SERVICE_ACCOUNT_KEY_FILE",
 }
 
 var testCloudID = "not initialized"
@@ -221,6 +226,13 @@ func testAccPreCheck(t *testing.T) {
 			t.Fatalf("%s must be set for acceptance tests", varName)
 		}
 	}
+
+	for _, varName := range testAccForAuthEnvVars {
+		if val := os.Getenv(varName); val != "" {
+			return
+		}
+	}
+	t.Fatalf("one of the variables: %s must be set for acceptance tests", strings.Join(testAccForAuthEnvVars, ", "))
 }
 
 func getExampleFolderName() string {
@@ -275,7 +287,8 @@ func setTestIDs() error {
 	}
 
 	providerConfig := &Config{
-		Token: os.Getenv("YC_TOKEN"),
+		Token:                          os.Getenv("YC_TOKEN"),
+		ServiceAccountKeyFileOrContent: os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE"),
 	}
 	credentials, err := providerConfig.credentials()
 	if err != nil {

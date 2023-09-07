@@ -22,9 +22,13 @@ const (
 type sweeperFunc func(*provider_config.Config, string) error
 
 func configForSweepers() (*provider_config.Config, error) {
-	token, cloudID, folderID := os.Getenv("YC_TOKEN"), os.Getenv("YC_CLOUD_ID"), os.Getenv("YC_FOLDER_ID")
-	if token == "" || folderID == "" {
-		return nil, fmt.Errorf("environmental variables: YC_TOKEN, YC_FOLDER_ID must be set")
+	token, saKeyFile := os.Getenv("YC_TOKEN"), os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE")
+	if token == "" && saKeyFile == "" {
+		return nil, fmt.Errorf("environmental variables YC_TOKEN or YC_SERVICE_ACCOUNT_KEY_FILE must be set")
+	}
+	cloudID, folderID := os.Getenv("YC_CLOUD_ID"), os.Getenv("YC_FOLDER_ID")
+	if folderID == "" {
+		return nil, fmt.Errorf("environmental variable: YC_FOLDER_ID must be set")
 	}
 
 	insecure, err := strconv.ParseBool(strings.ToLower(os.Getenv("YC_INSECURE")))
@@ -44,14 +48,15 @@ func configForSweepers() (*provider_config.Config, error) {
 
 	conf := &provider_config.Config{
 		ProviderState: provider_config.State{
-			Zone:            types.StringValue(zone),
-			Insecure:        types.BoolValue(insecure),
-			MaxRetries:      types.Int64Value(int64(maxRetries)),
-			Token:           types.StringValue(token),
-			CloudID:         types.StringValue(cloudID),
-			FolderID:        types.StringValue(folderID),
-			Endpoint:        types.StringValue(os.Getenv("YC_ENDPOINT")),
-			StorageEndpoint: types.StringValue(os.Getenv("YC_STORAGE_ENDPOINT_URL")),
+			Zone:                           types.StringValue(zone),
+			Insecure:                       types.BoolValue(insecure),
+			MaxRetries:                     types.Int64Value(int64(maxRetries)),
+			Token:                          types.StringValue(token),
+			ServiceAccountKeyFileOrContent: types.StringValue(saKeyFile),
+			CloudID:                        types.StringValue(cloudID),
+			FolderID:                       types.StringValue(folderID),
+			Endpoint:                       types.StringValue(os.Getenv("YC_ENDPOINT")),
+			StorageEndpoint:                types.StringValue(os.Getenv("YC_STORAGE_ENDPOINT_URL")),
 		},
 	}
 
