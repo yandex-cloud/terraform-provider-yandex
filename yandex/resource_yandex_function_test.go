@@ -380,6 +380,9 @@ resource "yandex_function" "test-function" {
   memory             = "%s"
   execution_timeout  = "%s"
   service_account_id = "${yandex_iam_service_account.test-account.id}"
+  depends_on = [
+	yandex_resourcemanager_folder_iam_binding.payload-viewer
+  ]
   environment = {
     %s = "%s"
   }
