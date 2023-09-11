@@ -1,4 +1,6 @@
-## 0.98.0 (Unreleased)
+## 0.99.0 (Unreleased)
+
+## 0.98.0 (September 11, 2023)
 
 FEATURES:
 
