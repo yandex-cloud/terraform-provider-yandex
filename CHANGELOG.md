@@ -25,7 +25,6 @@ FEATURES:
 * storage: added `source_hash` property to `storage_object` resource
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
-* elasticsearch: changing `folder_id` attribute in `yandex_mdb_elasticsearch_cluster` moves Elasticsearch cluster to new folder
 * kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
 * clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 

@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/elasticsearch/v1"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -512,10 +511,6 @@ func resourceYandexMDBElasticsearchClusterDelete(d *schema.ResourceData, meta in
 func resourceYandexMDBElasticsearchClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
 
-	if err := setElasticsearchFolderID(d, meta); err != nil {
-		return err
-	}
-
 	if err := updateElasticsearchClusterParams(d, meta); err != nil {
 		return err
 	}
@@ -785,52 +780,4 @@ func listElasticsearchHosts(ctx context.Context, config *Config, clusterID strin
 		pageToken = resp.NextPageToken
 	}
 	return hosts, nil
-}
-
-func setElasticsearchFolderID(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
-	defer cancel()
-
-	cluster, err := config.sdk.MDB().ElasticSearch().Cluster().Get(ctx, &elasticsearch.GetClusterRequest{
-		ClusterId: d.Id(),
-	})
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
-	}
-
-	folderID, ok := d.GetOk("folder_id")
-	if !ok {
-		return nil
-	}
-	if folderID == "" {
-		return nil
-	}
-
-	if cluster.FolderId != folderID {
-		request := &elasticsearch.MoveClusterRequest{
-			ClusterId:           d.Id(),
-			DestinationFolderId: folderID.(string),
-		}
-		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
-			log.Printf("[DEBUG] Sending Elasticsearch cluster move request: %+v", request)
-			return config.sdk.MDB().ElasticSearch().Cluster().Move(ctx, request)
-		})
-		if err != nil {
-			return fmt.Errorf("error while requesting API to move Elasticsearch Cluster %q to folder %v: %s", d.Id(), folderID, err)
-		}
-
-		err = op.Wait(ctx)
-		if err != nil {
-			return fmt.Errorf("error while moving Elasticsearch Cluster %q to folder %v: %s", d.Id(), folderID, err)
-		}
-
-		if _, err := op.Response(); err != nil {
-			return fmt.Errorf("moving Elasticsearch Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
-		}
-
-	}
-
-	return nil
 }
