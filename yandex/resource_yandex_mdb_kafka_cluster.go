@@ -98,7 +98,6 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"security_group_ids": {
 				Type:     schema.TypeSet,

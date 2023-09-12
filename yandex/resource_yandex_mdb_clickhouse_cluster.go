@@ -695,7 +695,6 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
