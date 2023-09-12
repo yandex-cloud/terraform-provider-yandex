@@ -1,5 +1,9 @@
 ## 0.99.0 (Unreleased)
 
+BUG FIXES:
+
+* docs: method of resetting `placement_policy` field in `compute_instance` resource
+
 ## 0.98.0 (September 11, 2023)
 
 FEATURES:

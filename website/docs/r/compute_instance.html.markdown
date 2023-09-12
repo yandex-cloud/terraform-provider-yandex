@@ -230,6 +230,14 @@ The `placement_policy` block supports:
 
 * `host_affinity_rules` - (Optional) List of host affinity rules. The structure is documented below.
 
+~> **NOTE:** Due to terraform limitations, simply deleting the `placement_policy` fields does not work. To reset the values of these fields, you need to set them empty:
+```
+placement_policy {
+    placement_group_id = ""
+    host_affinity_rules = []
+}
+```
+
 The `host_affinity_rules` block supports:
 
 * `key` - (Required) Affinity label or one of reserved values - `yc.hostId`, `yc.hostGroupId`.
