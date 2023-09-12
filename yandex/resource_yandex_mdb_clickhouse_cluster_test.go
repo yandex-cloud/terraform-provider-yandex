@@ -23,8 +23,8 @@ import (
 	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
-const chVersion = "22.8"
-const chUpdatedVersion = "23.3"
+const chVersion = "23.3"
+const chUpdatedVersion = "23.8"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
