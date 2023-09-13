@@ -223,6 +223,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_alb_target_group":                                 resourceYandexALBTargetGroup(),
 			"yandex_alb_virtual_host":                                 addPassthroughImport(withALBVirtualHostID(resourceYandexALBVirtualHost())),
 			"yandex_api_gateway":                                      resourceYandexApiGateway(),
+			"yandex_backup_policy":                                    resourceYandexBackupPolicy(),
 			"yandex_container_registry":                               resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":                   resourceYandexContainerRegistryIAMBinding(),
 			"yandex_container_registry_ip_permission":                 resourceYandexContainerRegistryIPPermission(),
