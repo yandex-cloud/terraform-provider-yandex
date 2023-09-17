@@ -2955,6 +2955,7 @@ func flattenMongoDBClusterConfig(cc *mongodb.ClusterConfig, d *schema.ResourceDa
 					"minutes": int(cc.BackupWindowStart.Minutes),
 				},
 			},
+			"backup_retain_period_days":     int(cc.GetBackupRetainPeriodDays().GetValue()),
 			"feature_compatibility_version": cc.FeatureCompatibilityVersion,
 			"version":                       cc.Version,
 			"access": []interface{}{
@@ -3295,6 +3296,13 @@ func expandMongoDBBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay
 	}
 
 	return &res
+}
+
+func expandMongoDBBackupRetainPeriod(d *schema.ResourceData) *wrappers.Int64Value {
+	if backupRetainPeriod, ok := d.GetOk("cluster_config.0.backup_retain_period_days"); ok {
+		return &wrappers.Int64Value{Value: int64(backupRetainPeriod.(int))}
+	}
+	return nil
 }
 
 func mongodbDatabasesDiff(currDBs []*mongodb.Database, targetDBs []*mongodb.DatabaseSpec) ([]string, []string) {

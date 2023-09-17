@@ -1,5 +1,9 @@
 ## 0.99.0 (Unreleased)
 
+FEATURES:
+
+* mongodb: support `backup_retain_period_days` in `yandex_mdb_mongodb_cluster`
+
 BUG FIXES:
 
 * docs: method of resetting `placement_policy` field in `compute_instance` resource
