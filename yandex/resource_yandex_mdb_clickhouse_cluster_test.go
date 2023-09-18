@@ -642,6 +642,11 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "false"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "0"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_final_threads", "0"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_import_nested_json", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_parallel_parsing", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.local_filesystem_read_method", "pread"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_read_buffer_size", "1048576"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -669,6 +674,11 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.cancel_http_readonly_queries_on_client_close", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.flatten_nested", "true"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_http_get_redirects", "1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_final_threads", "1"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_import_nested_json", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.input_format_parallel_parsing", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.local_filesystem_read_method", "read"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_read_buffer_size", "1048578"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -697,6 +707,11 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 0},
 			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 0},
 			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: false},
+			MergeWithTtlTimeout:                            &wrappers.Int64Value{Value: 100005},
+			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 100006},
+			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 100007},
+			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 1},
+			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 100008},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
@@ -744,38 +759,39 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 				},
 			},
 		},
-		LogLevel:                    cfg.ClickhouseConfig_TRACE,
-		MaxConnections:              &wrappers.Int64Value{Value: 512},
-		MaxConcurrentQueries:        &wrappers.Int64Value{Value: 100},
-		KeepAliveTimeout:            &wrappers.Int64Value{Value: 123000},
-		UncompressedCacheSize:       &wrappers.Int64Value{Value: 8096},
-		MarkCacheSize:               &wrappers.Int64Value{Value: 8096},
-		MaxTableSizeToDrop:          &wrappers.Int64Value{Value: 1024},
-		MaxPartitionSizeToDrop:      &wrappers.Int64Value{Value: 1024},
-		Timezone:                    "UTC",
-		GeobaseUri:                  "",
-		QueryLogRetentionSize:       &wrappers.Int64Value{Value: 1024},
-		QueryLogRetentionTime:       &wrappers.Int64Value{Value: 123000},
-		QueryThreadLogEnabled:       &wrappers.BoolValue{Value: false},
-		QueryThreadLogRetentionSize: &wrappers.Int64Value{Value: 1024},
-		QueryThreadLogRetentionTime: &wrappers.Int64Value{Value: 123000},
-		PartLogRetentionSize:        &wrappers.Int64Value{Value: 1024},
-		PartLogRetentionTime:        &wrappers.Int64Value{Value: 123000},
-		MetricLogEnabled:            &wrappers.BoolValue{Value: true},
-		MetricLogRetentionSize:      &wrappers.Int64Value{Value: 1024},
-		MetricLogRetentionTime:      &wrappers.Int64Value{Value: 123000},
-		TraceLogEnabled:             &wrappers.BoolValue{Value: true},
-		TraceLogRetentionSize:       &wrappers.Int64Value{Value: 1024},
-		TraceLogRetentionTime:       &wrappers.Int64Value{Value: 123000},
-		TextLogEnabled:              &wrappers.BoolValue{Value: true},
-		TextLogRetentionSize:        &wrappers.Int64Value{Value: 1024},
-		TextLogRetentionTime:        &wrappers.Int64Value{Value: 123000},
-		TextLogLevel:                cfg.ClickhouseConfig_WARNING,
-		BackgroundPoolSize:          &wrappers.Int64Value{Value: 16},
-		BackgroundSchedulePoolSize:  &wrappers.Int64Value{Value: 32},
-		BackgroundFetchesPoolSize:   &wrappers.Int64Value{Value: 8},
-		DefaultDatabase:             &wrappers.StringValue{Value: "default"},
-		TotalMemoryProfilerStep:     &wrappers.Int64Value{Value: 4194304},
+		LogLevel:                                cfg.ClickhouseConfig_TRACE,
+		MaxConnections:                          &wrappers.Int64Value{Value: 512},
+		MaxConcurrentQueries:                    &wrappers.Int64Value{Value: 100},
+		KeepAliveTimeout:                        &wrappers.Int64Value{Value: 123000},
+		UncompressedCacheSize:                   &wrappers.Int64Value{Value: 8096},
+		MarkCacheSize:                           &wrappers.Int64Value{Value: 8096},
+		MaxTableSizeToDrop:                      &wrappers.Int64Value{Value: 1024},
+		MaxPartitionSizeToDrop:                  &wrappers.Int64Value{Value: 1024},
+		Timezone:                                "UTC",
+		GeobaseUri:                              "",
+		QueryLogRetentionSize:                   &wrappers.Int64Value{Value: 1024},
+		QueryLogRetentionTime:                   &wrappers.Int64Value{Value: 123000},
+		QueryThreadLogEnabled:                   &wrappers.BoolValue{Value: false},
+		QueryThreadLogRetentionSize:             &wrappers.Int64Value{Value: 1024},
+		QueryThreadLogRetentionTime:             &wrappers.Int64Value{Value: 123000},
+		PartLogRetentionSize:                    &wrappers.Int64Value{Value: 1024},
+		PartLogRetentionTime:                    &wrappers.Int64Value{Value: 123000},
+		MetricLogEnabled:                        &wrappers.BoolValue{Value: true},
+		MetricLogRetentionSize:                  &wrappers.Int64Value{Value: 1024},
+		MetricLogRetentionTime:                  &wrappers.Int64Value{Value: 123000},
+		TraceLogEnabled:                         &wrappers.BoolValue{Value: true},
+		TraceLogRetentionSize:                   &wrappers.Int64Value{Value: 1024},
+		TraceLogRetentionTime:                   &wrappers.Int64Value{Value: 123000},
+		TextLogEnabled:                          &wrappers.BoolValue{Value: true},
+		TextLogRetentionSize:                    &wrappers.Int64Value{Value: 1024},
+		TextLogRetentionTime:                    &wrappers.Int64Value{Value: 123000},
+		TextLogLevel:                            cfg.ClickhouseConfig_WARNING,
+		BackgroundPoolSize:                      &wrappers.Int64Value{Value: 16},
+		BackgroundSchedulePoolSize:              &wrappers.Int64Value{Value: 32},
+		BackgroundFetchesPoolSize:               &wrappers.Int64Value{Value: 8},
+		BackgroundMessageBrokerSchedulePoolSize: &wrappers.Int64Value{Value: 9},
+		DefaultDatabase:                         &wrappers.StringValue{Value: "default"},
+		TotalMemoryProfilerStep:                 &wrappers.Int64Value{Value: 4194304},
 	}
 
 	configForSecondStep := &cfg.ClickhouseConfig{
@@ -790,6 +806,11 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MinBytesForWidePart:                            &wrappers.Int64Value{Value: 512},
 			MinRowsForWidePart:                             &wrappers.Int64Value{Value: 16},
 			TtlOnlyDropParts:                               &wrappers.BoolValue{Value: true},
+			MergeWithTtlTimeout:                            &wrappers.Int64Value{Value: 200010},
+			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 200012},
+			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 200014},
+			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 2},
+			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 200016},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
@@ -881,24 +902,25 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		QueryThreadLogEnabled:       &wrappers.BoolValue{Value: true},
 		QueryThreadLogRetentionSize: &wrappers.Int64Value{Value: 2048},
 
-		QueryThreadLogRetentionTime: &wrappers.Int64Value{Value: 246000},
-		PartLogRetentionSize:        &wrappers.Int64Value{Value: 2048},
-		PartLogRetentionTime:        &wrappers.Int64Value{Value: 246000},
-		MetricLogEnabled:            &wrappers.BoolValue{Value: true},
-		MetricLogRetentionSize:      &wrappers.Int64Value{Value: 2048},
-		MetricLogRetentionTime:      &wrappers.Int64Value{Value: 246000},
-		TraceLogEnabled:             &wrappers.BoolValue{Value: true},
-		TraceLogRetentionSize:       &wrappers.Int64Value{Value: 2048},
-		TraceLogRetentionTime:       &wrappers.Int64Value{Value: 246000},
-		TextLogEnabled:              &wrappers.BoolValue{Value: true},
-		TextLogRetentionSize:        &wrappers.Int64Value{Value: 2048},
-		TextLogRetentionTime:        &wrappers.Int64Value{Value: 246000},
-		TextLogLevel:                cfg.ClickhouseConfig_ERROR,
-		BackgroundPoolSize:          &wrappers.Int64Value{Value: 32},
-		BackgroundSchedulePoolSize:  &wrappers.Int64Value{Value: 64},
-		BackgroundFetchesPoolSize:   &wrappers.Int64Value{Value: 16},
-		DefaultDatabase:             &wrappers.StringValue{Value: "new_default"},
-		TotalMemoryProfilerStep:     &wrappers.Int64Value{Value: 4194303},
+		QueryThreadLogRetentionTime:             &wrappers.Int64Value{Value: 246000},
+		PartLogRetentionSize:                    &wrappers.Int64Value{Value: 2048},
+		PartLogRetentionTime:                    &wrappers.Int64Value{Value: 246000},
+		MetricLogEnabled:                        &wrappers.BoolValue{Value: true},
+		MetricLogRetentionSize:                  &wrappers.Int64Value{Value: 2048},
+		MetricLogRetentionTime:                  &wrappers.Int64Value{Value: 246000},
+		TraceLogEnabled:                         &wrappers.BoolValue{Value: true},
+		TraceLogRetentionSize:                   &wrappers.Int64Value{Value: 2048},
+		TraceLogRetentionTime:                   &wrappers.Int64Value{Value: 246000},
+		TextLogEnabled:                          &wrappers.BoolValue{Value: true},
+		TextLogRetentionSize:                    &wrappers.Int64Value{Value: 2048},
+		TextLogRetentionTime:                    &wrappers.Int64Value{Value: 246000},
+		TextLogLevel:                            cfg.ClickhouseConfig_ERROR,
+		BackgroundPoolSize:                      &wrappers.Int64Value{Value: 32},
+		BackgroundSchedulePoolSize:              &wrappers.Int64Value{Value: 64},
+		BackgroundFetchesPoolSize:               &wrappers.Int64Value{Value: 16},
+		BackgroundMessageBrokerSchedulePoolSize: &wrappers.Int64Value{Value: 17},
+		DefaultDatabase:                         &wrappers.StringValue{Value: "new_default"},
+		TotalMemoryProfilerStep:                 &wrappers.Int64Value{Value: 4194303},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -944,6 +966,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "32"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_message_broker_schedule_pool_size", "9"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
 
@@ -957,6 +980,11 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_ttl_timeout", "100005"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "100006"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "100007"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "100008"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
@@ -1017,6 +1045,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_pool_size", "32"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_schedule_pool_size", "64"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "16"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_message_broker_schedule_pool_size", "17"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
 
@@ -1030,6 +1059,11 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_bytes_for_wide_part", "512"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_rows_for_wide_part", "16"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.ttl_only_drop_parts", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_ttl_timeout", "200010"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "200012"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "200014"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "200016"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
@@ -2940,6 +2974,23 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 
   clickhouse {
+	merge_tree {
+		replicated_deduplication_window 						  = 100
+		replicated_deduplication_window_seconds 				  = 1000
+		parts_to_delay_insert 									  = 1000
+		parts_to_throw_insert 									  = 3000
+		max_replicated_merges_in_queue 							  = 1000
+		number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
+		max_bytes_to_merge_at_min_space_in_pool 			      = 1000000
+		min_bytes_for_wide_part 								  = 10485760
+		min_rows_for_wide_part 								      = 14400
+		ttl_only_drop_parts 									  = false
+		merge_with_ttl_timeout 									  = 14400
+		merge_with_recompression_ttl_timeout 					  = 14400
+		max_parts_in_total 										  = 100000
+		max_number_of_merges_with_ttl_in_pool 					  = 2
+		cleanup_delay_period 									  = 30
+	}
     # resources 
 	%s
   }
@@ -2949,6 +3000,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
   }
+
 }
 `, name, desc, version, buildResources(resources))
 }
@@ -3033,6 +3085,7 @@ config {
 		background_pool_size            = %d
 		background_schedule_pool_size   = %d
 		background_fetches_pool_size 	= %d
+        background_message_broker_schedule_pool_size = %d
 		default_database 				= "%s"
 		total_memory_profiler_step 		= %d
 
@@ -3085,6 +3138,7 @@ config {
 		config.BackgroundPoolSize.GetValue(),
 		config.BackgroundSchedulePoolSize.GetValue(),
 		config.BackgroundFetchesPoolSize.GetValue(),
+		config.BackgroundMessageBrokerSchedulePoolSize.GetValue(),
 		config.DefaultDatabase.GetValue(),
 		config.TotalMemoryProfilerStep.GetValue(),
 		buildConfigForMergeTree(config.MergeTree),
@@ -3109,6 +3163,11 @@ merge_tree {
 			min_bytes_for_wide_part 								  = %d
             min_rows_for_wide_part 									  = %d
             ttl_only_drop_parts 									  = %t
+			merge_with_ttl_timeout                                    = %d
+			merge_with_recompression_ttl_timeout                      = %d
+			max_parts_in_total                                     	  = %d
+			max_number_of_merges_with_ttl_in_pool                     = %d
+			cleanup_delay_period                                      = %d
 		}
 `,
 		mergeTree.ReplicatedDeduplicationWindow.GetValue(),
@@ -3120,7 +3179,13 @@ merge_tree {
 		mergeTree.MaxBytesToMergeAtMinSpaceInPool.GetValue(),
 		mergeTree.MinBytesForWidePart.GetValue(),
 		mergeTree.MinRowsForWidePart.GetValue(),
-		mergeTree.TtlOnlyDropParts.GetValue())
+		mergeTree.TtlOnlyDropParts.GetValue(),
+		mergeTree.MergeWithTtlTimeout.GetValue(),
+		mergeTree.MergeWithRecompressionTtlTimeout.GetValue(),
+		mergeTree.MaxPartsInTotal.GetValue(),
+		mergeTree.MaxNumberOfMergesWithTtlInPool.GetValue(),
+		mergeTree.CleanupDelayPeriod.GetValue(),
+	)
 }
 
 func buildConfigForKafka(kafka *cfg.ClickhouseConfig_Kafka) string {
@@ -3271,6 +3336,11 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  cancel_http_readonly_queries_on_client_close		 = false
 	  flatten_nested									 = false
 	  max_http_get_redirects							 = 0
+	  max_final_threads                                  = 0
+	  input_format_import_nested_json 				     = false
+	  input_format_parallel_parsing 				     = false
+	  local_filesystem_read_method                       = "pread"
+	  max_read_buffer_size                               = 1048576
     }
   }
 
@@ -3341,6 +3411,11 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  cancel_http_readonly_queries_on_client_close		 = true
 	  flatten_nested									 = true
 	  max_http_get_redirects							 = 1
+	  max_final_threads                                  = 1
+	  input_format_import_nested_json 				     = true
+	  input_format_parallel_parsing 				     = true
+	  local_filesystem_read_method                       = "read"
+	  max_read_buffer_size                               = 1048578
     }
   }
 

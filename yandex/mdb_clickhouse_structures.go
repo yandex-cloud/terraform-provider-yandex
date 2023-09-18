@@ -592,6 +592,21 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	if c.TtlOnlyDropParts != nil {
 		res["ttl_only_drop_parts"] = c.TtlOnlyDropParts.Value
 	}
+	if c.MergeWithTtlTimeout != nil {
+		res["merge_with_ttl_timeout"] = c.MergeWithTtlTimeout.Value
+	}
+	if c.MergeWithRecompressionTtlTimeout != nil {
+		res["merge_with_recompression_ttl_timeout"] = c.MergeWithRecompressionTtlTimeout.Value
+	}
+	if c.MaxPartsInTotal != nil {
+		res["max_parts_in_total"] = c.MaxPartsInTotal.Value
+	}
+	if c.MaxNumberOfMergesWithTtlInPool != nil {
+		res["max_number_of_merges_with_ttl_in_pool"] = c.MaxNumberOfMergesWithTtlInPool.Value
+	}
+	if c.CleanupDelayPeriod != nil {
+		res["cleanup_delay_period"] = c.CleanupDelayPeriod.Value
+	}
 
 	return []map[string]interface{}{res}, nil
 }
@@ -777,6 +792,9 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	if c.EffectiveConfig.BackgroundFetchesPoolSize != nil {
 		res["background_fetches_pool_size"] = c.EffectiveConfig.BackgroundFetchesPoolSize.Value
 	}
+	if c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize != nil {
+		res["background_message_broker_schedule_pool_size"] = c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize.Value
+	}
 	if c.EffectiveConfig.DefaultDatabase != nil && len(c.EffectiveConfig.DefaultDatabase.Value) != 0 {
 		res["default_database"] = c.EffectiveConfig.DefaultDatabase.Value
 	}
@@ -871,6 +889,21 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	}
 	if v, ok := d.GetOkExists(rootKey + ".ttl_only_drop_parts"); ok {
 		config.TtlOnlyDropParts = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".merge_with_ttl_timeout"); ok {
+		config.MergeWithTtlTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".merge_with_recompression_ttl_timeout"); ok {
+		config.MergeWithRecompressionTtlTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_parts_in_total"); ok {
+		config.MaxPartsInTotal = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_number_of_merges_with_ttl_in_pool"); ok {
+		config.MaxNumberOfMergesWithTtlInPool = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".cleanup_delay_period"); ok {
+		config.CleanupDelayPeriod = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	return config, nil
@@ -1101,6 +1134,9 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOk(rootKey + ".background_fetches_pool_size"); ok {
 		config.BackgroundFetchesPoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOk(rootKey + ".background_message_broker_schedule_pool_size"); ok {
+		config.BackgroundMessageBrokerSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 	if v, ok := d.GetOkExists(rootKey + ".default_database"); ok {
 		defaultDatabase, ok := v.(string)
 		if ok && len(defaultDatabase) != 0 {
@@ -1287,7 +1323,15 @@ var (
 		2: "keyed",
 		3: "keyed_by_ip",
 	}
-	UserSettings_QuotaMode_value = makeReversedMap(UserSettings_QuotaMode_name, clickhouse.UserSettings_QuotaMode_value)
+	UserSettings_QuotaMode_value                = makeReversedMap(UserSettings_QuotaMode_name, clickhouse.UserSettings_QuotaMode_value)
+	UserSettings_LocalFilesystemReadMethod_name = map[int32]string{
+		0: "unspecified",
+		1: "read",
+		2: "pread_threadpool",
+		3: "pread",
+		4: "nmap",
+	}
+	UserSettings_LocalFilesystemReadMethod_value = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
@@ -1356,6 +1400,20 @@ func getQuotaModeName(value clickhouse.UserSettings_QuotaMode) string {
 func getQuotaModeValue(name string) clickhouse.UserSettings_QuotaMode {
 	if value, ok := UserSettings_QuotaMode_value[name]; ok {
 		return clickhouse.UserSettings_QuotaMode(value)
+	}
+	return 0
+}
+
+func getLocalFilesystemReadMethodName(value clickhouse.UserSettings_LocalFilesystemReadMethod) string {
+	if name, ok := UserSettings_LocalFilesystemReadMethod_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_LocalFilesystemReadMethod_name[0]
+}
+
+func getLocalFilesystemReadMethodValue(name string) clickhouse.UserSettings_LocalFilesystemReadMethod {
+	if value, ok := UserSettings_LocalFilesystemReadMethod_value[name]; ok {
+		return clickhouse.UserSettings_LocalFilesystemReadMethod(value)
 	}
 	return 0
 }
@@ -1575,6 +1633,15 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 		result.QuotaMode = getQuotaModeValue(v.(string))
 	}
 
+	setSettingFromMapBool(us, "input_format_import_nested_json", &result.InputFormatImportNestedJson)
+	setSettingFromMapBool(us, "input_format_parallel_parsing", &result.InputFormatParallelParsing)
+	setSettingFromMapInt64(us, "max_final_threads", &result.MaxFinalThreads)
+	setSettingFromMapInt64(us, "max_read_buffer_size", &result.MaxReadBufferSize)
+
+	if v, ok := us["local_filesystem_read_method"]; ok {
+		result.LocalFilesystemReadMethod = getLocalFilesystemReadMethodValue(v.(string))
+	}
+
 	return result
 }
 
@@ -1741,6 +1808,15 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 
 	if v, ok := d.GetOk(rootKey + ".quota_mode"); ok {
 		result.QuotaMode = getQuotaModeValue(v.(string))
+	}
+
+	setSettingFromDataBool(d, rootKey+".input_format_import_nested_json", &result.InputFormatImportNestedJson)
+	setSettingFromDataBool(d, rootKey+".input_format_parallel_parsing", &result.InputFormatParallelParsing)
+	setSettingFromDataInt64(d, rootKey+".max_final_threads", &result.MaxFinalThreads)
+	setSettingFromDataInt64(d, rootKey+".max_read_buffer_size", &result.MaxReadBufferSize)
+
+	if v, ok := d.GetOk(rootKey + ".local_filesystem_read_method"); ok {
+		result.LocalFilesystemReadMethod = getLocalFilesystemReadMethodValue(v.(string))
 	}
 
 	return result
@@ -2031,6 +2107,16 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	}
 
 	result["quota_mode"] = getQuotaModeName(settings.QuotaMode)
+	if settings.MaxFinalThreads != nil {
+		result["max_final_threads"] = settings.MaxFinalThreads.Value
+	}
+	if settings.MaxReadBufferSize != nil {
+		result["max_read_buffer_size"] = settings.MaxReadBufferSize.Value
+	}
+	result["input_format_import_nested_json"] = falseOnNil(settings.InputFormatImportNestedJson)
+	result["input_format_parallel_parsing"] = falseOnNil(settings.InputFormatParallelParsing)
+
+	result["local_filesystem_read_method"] = getLocalFilesystemReadMethodName(settings.LocalFilesystemReadMethod)
 
 	return result
 }

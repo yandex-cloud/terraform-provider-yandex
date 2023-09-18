@@ -781,6 +781,19 @@ The `settings` block supports:
 * `flatten_nested` - (Optional) Sets the data format of a nested columns.
 
 * `max_http_get_redirects` - (Optional) Limits the maximum number of HTTP GET redirect hops for URL-engine tables.
+
+* `input_format_import_nested_json` - (Optional) Enables or disables the insertion of JSON data with nested objects.
+
+* `input_format_parallel_parsing` - (Optional) Enables or disables order-preserving parallel parsing of data formats. Supported only for TSV, TKSV, CSV and JSONEachRow formats.
+
+* `max_read_buffer_size` - (Optional) The maximum size of the buffer to read from the filesystem.
+
+* `max_final_threads` - (Optional) Sets the maximum number of parallel threads for the SELECT query data read phase with the FINAL modifier.
+
+* `local_filesystem_read_method` - (Optional) Method of reading data from local filesystem. Possible values: 
+  * `read` - abort query execution, return an error.
+  * `pread` - abort query execution, return an error.
+  * `pread_threadpool` - stop query execution, return partial result.
   If the parameter is set to 0 (default), no hops is allowed.
 
 The `quota` block supports:
@@ -883,7 +896,7 @@ The `config` block supports:
 `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`,
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
-`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `default_database`,
+`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `default_database`,
   `total_memory_profiler_step` - (Optional) ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
@@ -906,6 +919,11 @@ The `merge_tree` block supports:
 * `min_bytes_for_wide_part` - (Optional) Minimum number of bytes in a data part that can be stored in Wide format. You can set one, both or none of these settings.
 * `min_rows_for_wide_part` - (Optional) Minimum number of rows in a data part that can be stored in Wide format. You can set one, both or none of these settings.
 * `ttl_only_drop_parts` - (Optional) Enables or disables complete dropping of data parts where all rows are expired in MergeTree tables.
+* `merge_with_ttl_timeout` - (Optional) Minimum delay in seconds before repeating a merge with delete TTL. Default value: 14400 seconds (4 hours).
+* `merge_with_recompression_ttl_timeout` - (Optional) Minimum delay in seconds before repeating a merge with recompression TTL. Default value: 14400 seconds (4 hours).
+* `max_parts_in_total` - (Optional) Maximum number of parts in all partitions.
+* `max_number_of_merges_with_ttl_in_pool` - (Optional) When there is more than specified number of merges with TTL entries in pool, do not assign new merge with TTL. 
+* `cleanup_delay_period` - (Optional) Minimum period to clean old queue logs, blocks hashes and parts.
 
 The `kafka` block supports:
 
