@@ -14,6 +14,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
 const (
@@ -705,7 +706,6 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -1214,6 +1214,10 @@ func resourceYandexMDBClickHouseClusterUpdate(d *schema.ResourceData, meta inter
 	backupOriginalClusterResource(d)
 
 	d.Partial(true)
+
+	if err := setClickHouseFolderID(d, meta); err != nil {
+		return err
+	}
 
 	if err := updateClickHouseClusterParams(d, meta); err != nil {
 		return err
@@ -2641,4 +2645,52 @@ func compareClusterResources(k, old, new string, updatedSchema *schema.ResourceD
 	}
 	log.Println("[DEBUG] compareClusterResources: shard for first host not specify in current shard resources schema. default compare.")
 	return defaultResourcesCompare(old, new)
+}
+
+func setClickHouseFolderID(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	cluster, err := config.sdk.MDB().Clickhouse().Cluster().Get(ctx, &clickhouse.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+		request := &clickhouse.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending ClickHouse cluster move request: %+v", request)
+			return config.sdk.MDB().Clickhouse().Cluster().Move(ctx, request)
+		})
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move ClickHouse Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving ClickHouse Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving ClickHouse Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
+	}
+
+	return nil
 }

@@ -214,7 +214,6 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -490,6 +489,10 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
+
+	if err := setRedisFolderID(d, meta); err != nil {
+		return err
+	}
 
 	if d.HasChange("resources.0.disk_type_id") {
 		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
@@ -1043,5 +1046,53 @@ func resourceYandexMDBRedisClusterDelete(d *schema.ResourceData, meta interface{
 	}
 
 	log.Printf("[DEBUG] Finished deleting Redis Cluster %q", d.Id())
+	return nil
+}
+
+func setRedisFolderID(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	cluster, err := config.sdk.MDB().Redis().Cluster().Get(ctx, &redis.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+		request := &redis.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending Redis cluster move request: %+v", request)
+			return config.sdk.MDB().Redis().Cluster().Move(ctx, request)
+		})
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move Redis Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving Redis Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving Redis Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
+	}
+
 	return nil
 }

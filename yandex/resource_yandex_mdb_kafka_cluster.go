@@ -98,7 +98,6 @@ func resourceYandexMDBKafkaCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"security_group_ids": {
 				Type:     schema.TypeSet,
@@ -803,6 +802,10 @@ func resourceYandexMDBKafkaClusterUpdate(d *schema.ResourceData, meta interface{
 
 	d.Partial(true)
 
+	if err := setKafkaFolderID(d, meta); err != nil {
+		return err
+	}
+
 	if err := updateKafkaClusterParams(d, meta); err != nil {
 		return err
 	}
@@ -1357,4 +1360,52 @@ func sortKafkaTopics(topics []*kafka.Topic, specs []*kafka.TopicSpec) {
 			}
 		}
 	}
+}
+
+func setKafkaFolderID(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
+	defer cancel()
+
+	cluster, err := config.sdk.MDB().Kafka().Cluster().Get(ctx, &kafka.GetClusterRequest{
+		ClusterId: d.Id(),
+	})
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Id()))
+	}
+
+	folderID, ok := d.GetOk("folder_id")
+	if !ok {
+		return nil
+	}
+	if folderID == "" {
+		return nil
+	}
+
+	if cluster.FolderId != folderID {
+		request := &kafka.MoveClusterRequest{
+			ClusterId:           d.Id(),
+			DestinationFolderId: folderID.(string),
+		}
+		op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+			log.Printf("[DEBUG] Sending Kafka cluster move request: %+v", request)
+			return config.sdk.MDB().Kafka().Cluster().Move(ctx, request)
+		})
+		if err != nil {
+			return fmt.Errorf("error while requesting API to move Kafka Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		err = op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("error while moving Kafka Cluster %q to folder %v: %s", d.Id(), folderID, err)
+		}
+
+		if _, err := op.Response(); err != nil {
+			return fmt.Errorf("moving Kafka Cluster %q to folder %v failed: %s", d.Id(), folderID, err)
+		}
+
+	}
+
+	return nil
 }

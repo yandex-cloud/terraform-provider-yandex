@@ -4,6 +4,10 @@ FEATURES:
 
 * clickhouse: added `input_format_import_nested_json`, `input_format_parallel_parsing`, `max_read_buffer_size`, `max_final_threads`, `local_filesystem_read_method` for user settings, `input_format_import_nested_json` for server configuration, `merge_with_ttl_timeout`, `merge_with_recompression_ttl_timeout`, `max_parts_in_total`, `max_number_of_merges_with_ttl_in_pool`, `cleanup_delay_period` for merge tree configuration
 * mongodb: support `backup_retain_period_days` in `yandex_mdb_mongodb_cluster`
+* mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
+* redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
+* kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
+* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 
 BUG FIXES:
 
@@ -45,7 +49,6 @@ FEATURES:
 * added `shared_credentials_file` and `profile` provider properties
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
 * redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
-* compute: support updating host_affinity_rules in the `yandex_compute_instance` resource.
 * storage: added `source_hash` property to `storage_object` resource
 
 BUG FIXES:
