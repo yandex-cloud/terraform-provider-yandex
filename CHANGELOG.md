@@ -1,6 +1,10 @@
 ## 0.98.0 (Unreleased)
 FEATURES:
 * mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
+* mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
+* redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
+* kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
+* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 
 FEATURES:
 * k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
@@ -23,10 +27,6 @@ FEATURES:
 * storage: support configuration of `storage_access_key`/`storage_secret_key` keys from shared credentials file
 * redis: support `maxmemory_percent` in `yandex_mdb_redis_cluster`
 * storage: added `source_hash` property to `storage_object` resource
-* mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
-* redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
-* kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
-* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 
 BUG FIXES:
 * compute: fixed problem with changing health check type for `yandex_compute_instance_group`
