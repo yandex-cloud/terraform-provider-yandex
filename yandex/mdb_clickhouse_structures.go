@@ -941,7 +941,8 @@ func expandClickhouseKafkaTopicsSettings(d *schema.ResourceData, rootKey string)
 	topics := d.Get(rootKey).([]interface{})
 
 	for i := range topics {
-		settings, err := expandClickhouseKafkaSettings(d, rootKey+fmt.Sprintf(".%d.settings.0", i))
+		var topicKey = rootKey + fmt.Sprintf(".%d.settings.0", i)
+		settings, err := expandClickhouseKafkaSettings(d, topicKey)
 		if err != nil {
 			return nil, err
 		}

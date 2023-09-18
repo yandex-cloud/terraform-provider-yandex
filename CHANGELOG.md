@@ -9,6 +9,7 @@ BUG FIXES:
 
 * docs: method of resetting `placement_policy` field in `compute_instance` resource
 * backup: added `yandex_backup_policy` resource
+* clickhouse: fix reset secrets to default for `kafka_topics` on cluster update
 
 ## 0.98.0 (September 11, 2023)
 
@@ -18,6 +19,7 @@ FEATURES:
 * serverless: support `stream_names` attribute in logging triggers
 * serverless: support batching in `IoT` and `S3` triggers
 * k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
+* clickhouse: fix reset secrets to default for `kafka_topics` on cluster update
 
 BUG FIXES:
 

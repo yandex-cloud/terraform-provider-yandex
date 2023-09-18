@@ -1276,7 +1276,6 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"version":                 "config_spec.version",
 	"access":                  "config_spec.access",
 	"backup_window_start":     "config_spec.backup_window_start",
-	"clickhouse":              "config_spec.clickhouse",
 	"admin_password":          "config_spec.admin_password",
 	"sql_user_management":     "config_spec.sql_user_management",
 	"sql_database_management": "config_spec.sql_database_management",
@@ -1285,6 +1284,73 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"service_account_id":      "service_account_id",
 	"maintenance_window":      "maintenance_window",
 	"deletion_protection":     "deletion_protection",
+}
+
+var mdbClickHouseConfigUpdateFieldsMaps = []string{
+	"config_spec.clickhouse.config.merge_tree",
+	"config_spec.clickhouse.config.rabbitmq",
+	"config_spec.clickhouse.config.compression",
+	"config_spec.clickhouse.config.dictionaries",
+	"config_spec.clickhouse.config.graphite_rollup",
+	"config_spec.clickhouse.config.background_pool_size",
+	"config_spec.clickhouse.config.background_schedule_pool_size",
+	"config_spec.clickhouse.config.background_fetches_pool_size",
+	"config_spec.clickhouse.config.background_move_pool_size",
+	"config_spec.clickhouse.config.background_distributed_schedule_pool_size",
+	"config_spec.clickhouse.config.background_buffer_flush_schedule_pool_size",
+	"config_spec.clickhouse.config.background_message_broker_schedule_pool_size",
+	"config_spec.clickhouse.config.background_common_pool_size",
+	"config_spec.clickhouse.config.log_level",
+	"config_spec.clickhouse.config.query_log_retention_size",
+	"config_spec.clickhouse.config.query_log_retention_time",
+	"config_spec.clickhouse.config.query_thread_log_enabled",
+	"config_spec.clickhouse.config.query_thread_log_retention_size",
+	"config_spec.clickhouse.config.query_thread_log_retention_time",
+	"config_spec.clickhouse.config.query_views_log_enabled",
+	"config_spec.clickhouse.config.query_views_log_retention_size",
+	"config_spec.clickhouse.config.query_views_log_retention_time",
+	"config_spec.clickhouse.config.part_log_retention_size",
+	"config_spec.clickhouse.config.part_log_retention_time",
+	"config_spec.clickhouse.config.metric_log_enabled",
+	"config_spec.clickhouse.config.metric_log_retention_size",
+	"config_spec.clickhouse.config.metric_log_retention_time",
+	"config_spec.clickhouse.config.asynchronous_metric_log_enabled",
+	"config_spec.clickhouse.config.asynchronous_metric_log_retention_size",
+	"config_spec.clickhouse.config.asynchronous_metric_log_retention_time",
+	"config_spec.clickhouse.config.trace_log_enabled",
+	"config_spec.clickhouse.config.trace_log_retention_size",
+	"config_spec.clickhouse.config.trace_log_retention_time",
+	"config_spec.clickhouse.config.text_log_enabled",
+	"config_spec.clickhouse.config.text_log_retention_size",
+	"config_spec.clickhouse.config.text_log_retention_time",
+	"config_spec.clickhouse.config.text_log_level",
+	"config_spec.clickhouse.config.opentelemetry_span_log_enabled",
+	"config_spec.clickhouse.config.opentelemetry_span_log_retention_size",
+	"config_spec.clickhouse.config.opentelemetry_span_log_retention_time",
+	"config_spec.clickhouse.config.session_log_enabled",
+	"config_spec.clickhouse.config.session_log_retention_size",
+	"config_spec.clickhouse.config.session_log_retention_time",
+	"config_spec.clickhouse.config.zookeeper_log_enabled",
+	"config_spec.clickhouse.config.zookeeper_log_retention_size",
+	"config_spec.clickhouse.config.zookeeper_log_retention_time",
+	"config_spec.clickhouse.config.asynchronous_insert_log_enabled",
+	"config_spec.clickhouse.config.asynchronous_insert_log_retention_size",
+	"config_spec.clickhouse.config.asynchronous_insert_log_retention_time",
+	"config_spec.clickhouse.config.max_connections",
+	"config_spec.clickhouse.config.max_concurrent_queries",
+	"config_spec.clickhouse.config.keep_alive_timeout",
+	"config_spec.clickhouse.config.uncompressed_cache_size",
+	"config_spec.clickhouse.config.mark_cache_size",
+	"config_spec.clickhouse.config.max_table_size_to_drop",
+	"config_spec.clickhouse.config.max_partition_size_to_drop",
+	"config_spec.clickhouse.config.builtin_dictionaries_reload_interval",
+	"config_spec.clickhouse.config.timezone",
+	"config_spec.clickhouse.config.geobase_uri",
+	"config_spec.clickhouse.config.geobase_enabled",
+	"config_spec.clickhouse.config.default_database",
+	"config_spec.clickhouse.config.total_memory_profiler_step",
+	"config_spec.clickhouse.config.total_memory_tracker_sample_probability",
+	"config_spec.clickhouse.config.background_merges_mutations_concurrency_ratio",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
@@ -1332,6 +1398,22 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 
 			})
 		}
+	}
+
+	if d.HasChange("clickhouse.0.resources") {
+		updatePath = append(updatePath, "config_spec.clickhouse.config.resources")
+	}
+
+	if d.HasChange("clickhouse.0.config") {
+		// update all clickhouse config settings, except kafka*
+		updatePath = append(updatePath, mdbClickHouseConfigUpdateFieldsMaps...)
+	}
+	if d.HasChange("clickhouse.0.config.0.kafka") {
+		updatePath = append(updatePath, "config_spec.clickhouse.config.kafka")
+	}
+	if d.HasChange("clickhouse.0.config.0.kafka_topic") {
+		// Update all kafka_topics even if there is change in one of them
+		updatePath = append(updatePath, "config_spec.clickhouse.config.kafka_topics")
 	}
 
 	// We only can apply this if ZK subcluster already exists
