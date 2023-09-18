@@ -56,6 +56,8 @@ The following arguments are supported:
 * `iot.0.registry_id` - IoT Registry ID for Yandex Cloud Functions Trigger
 * `iot.0.device_id` - IoT Device ID for Yandex Cloud Functions Trigger
 * `iot.0.topic` - IoT Topic for Yandex Cloud Functions Trigger
+* `iot.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `iot.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
 * `message_queue` - [Message Queue](https://cloud.yandex.com/docs/functions/concepts/trigger/ymq-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `message_queue.0.queue_id` - Message Queue ID for Yandex Cloud Functions Trigger
@@ -71,6 +73,8 @@ The following arguments are supported:
 * `object_storage.0.create` - Boolean flag for setting create event for Yandex Cloud Functions Trigger
 * `object_storage.0.update` - Boolean flag for setting update event for Yandex Cloud Functions Trigger
 * `object_storage.0.delete` - Boolean flag for setting delete event for Yandex Cloud Functions Trigger
+* `object_storage.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `object_storage.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
 * `timer` - [Timer](https://cloud.yandex.com/docs/functions/concepts/trigger/timer) settings definition for Yandex Cloud Functions Trigger, if present
 * `timer.0.cron_expression` - Cron expression for timer for Yandex Cloud Functions Trigger
@@ -81,6 +85,7 @@ The following arguments are supported:
 * `logging.0.resource_ids` - Resource ID filter setting for Yandex Cloud Functions Trigger
 * `logging.0.resource_types` - Resource type filter setting for Yandex Cloud Functions Trigger
 * `logging.0.levels` - Logging level filter setting for Yandex Cloud Functions Trigger
+* `logging.0.stream_names` - Logging stream name filter setting for Yandex Cloud Functions Trigger
 * `logging.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `logging.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 

@@ -2,10 +2,11 @@ package yandex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	"strconv"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -213,6 +214,9 @@ resource "yandex_serverless_container" "test-container" {
   execution_timeout  = "%s"
   concurrency        = %d
   service_account_id = "${yandex_iam_service_account.test-account.id}"
+  depends_on = [
+	yandex_resourcemanager_folder_iam_binding.payload-viewer
+  ]
   secrets {
     id = yandex_lockbox_secret.secret.id
     version_id = yandex_lockbox_secret_version.secret_version.id

@@ -27,9 +27,13 @@ func TestMain(m *testing.M) {
 }
 
 func configForSweepers() (*Config, error) {
-	token, cloudID, folderID := os.Getenv("YC_TOKEN"), os.Getenv("YC_CLOUD_ID"), os.Getenv("YC_FOLDER_ID")
-	if token == "" || folderID == "" {
-		return nil, fmt.Errorf("environmental variables: YC_TOKEN, YC_FOLDER_ID must be set")
+	token, saKeyFile := os.Getenv("YC_TOKEN"), os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE")
+	if token == "" && saKeyFile == "" {
+		return nil, fmt.Errorf("environmental variables YC_TOKEN or YC_SERVICE_ACCOUNT_KEY_FILE must be set")
+	}
+	cloudID, folderID := os.Getenv("YC_CLOUD_ID"), os.Getenv("YC_FOLDER_ID")
+	if folderID == "" {
+		return nil, fmt.Errorf("environmental variable: YC_FOLDER_ID must be set")
 	}
 
 	insecure, err := strconv.ParseBool(strings.ToLower(os.Getenv("YC_INSECURE")))
@@ -48,14 +52,15 @@ func configForSweepers() (*Config, error) {
 	}
 
 	conf := &Config{
-		Zone:            zone,
-		Insecure:        insecure,
-		MaxRetries:      maxRetries,
-		Token:           token,
-		CloudID:         cloudID,
-		FolderID:        folderID,
-		Endpoint:        os.Getenv("YC_ENDPOINT"),
-		StorageEndpoint: os.Getenv("YC_STORAGE_ENDPOINT_URL"),
+		Zone:                           zone,
+		Insecure:                       insecure,
+		MaxRetries:                     maxRetries,
+		Token:                          token,
+		ServiceAccountKeyFileOrContent: saKeyFile,
+		CloudID:                        cloudID,
+		FolderID:                       folderID,
+		Endpoint:                       os.Getenv("YC_ENDPOINT"),
+		StorageEndpoint:                os.Getenv("YC_STORAGE_ENDPOINT_URL"),
 	}
 
 	err = conf.initAndValidate(context.Background(), "", true)

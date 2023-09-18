@@ -204,6 +204,17 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -292,6 +303,17 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -366,7 +388,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"resource_ids": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -375,7 +397,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"resource_types": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -384,7 +406,16 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 
 						"levels": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+							MinItems: 0,
+						},
+
+						"stream_names": {
+							Type:     schema.TypeSet,
+							Optional: true,
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
@@ -534,6 +565,12 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 
+		batch, err := expandBatchSettings(d, "iot.0")
+		if err != nil {
+			return err
+		}
+		iot.IotMessage.BatchSettings = batch
+
 		req.Rule = &triggers.Trigger_Rule{Rule: iot}
 	}
 
@@ -607,6 +644,11 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			}
 		}
 
+		batch, err := expandBatchSettings(d, "object_storage.0")
+		if err != nil {
+			return err
+		}
+		storageTrigger.BatchSettings = batch
 		storageRule := &triggers.Trigger_Rule_ObjectStorage{ObjectStorage: storageTrigger}
 		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
 	}
@@ -688,6 +730,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 			LogGroupId:   d.Get("logging.0.group_id").(string),
 			ResourceId:   convertStringSet(d.Get("logging.0.resource_ids").(*schema.Set)),
 			ResourceType: convertStringSet(d.Get("logging.0.resource_types").(*schema.Set)),
+			StreamName:   convertStringSet(d.Get("logging.0.stream_names").(*schema.Set)),
 			Levels:       levels,
 		}
 
@@ -893,6 +936,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			"topic":       iot.MqttTopic,
 		}
 
+		if batch := iot.GetBatchSettings(); batch != nil {
+			i["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			i["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+
 		err := d.Set(triggerTypeIoT, []map[string]interface{}{i})
 		if err != nil {
 			return err
@@ -951,6 +999,11 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_CREATE_OBJECT: "create",
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_UPDATE_OBJECT: "update",
 			triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_DELETE_OBJECT: "delete",
+		}
+
+		if batch := storage.GetBatchSettings(); batch != nil {
+			s["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			s["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
 		}
 
 		for _, t := range storage.EventType {
@@ -1046,12 +1099,17 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 				levels.Add(l)
 			}
 		}
+		streamNames := &schema.Set{F: schema.HashString}
+		for _, name := range logging.StreamName {
+			streamNames.Add(name)
+		}
 
 		lg := map[string]interface{}{
 			"group_id":       logging.LogGroupId,
 			"resource_ids":   resourceIDs,
 			"resource_types": resourceTypes,
 			"levels":         levels,
+			"stream_names":   streamNames,
 		}
 		if batch := logging.GetBatchSettings(); batch != nil {
 			lg["batch_size"] = strconv.FormatInt(batch.Size, 10)

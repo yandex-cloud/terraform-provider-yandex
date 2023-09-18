@@ -131,6 +131,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
       minutes = {{.BackupWindow.minutes}}
     }
 {{end}}
+{{if .BackupRetainPeriodDays}}
+    backup_retain_period_days = {{.BackupRetainPeriodDays}}
+{{end}}
 {{if .Mongod}}
     mongod {
 {{if .Mongod.AuditLog}}
@@ -491,6 +494,7 @@ func create6_0ConfigData() map[string]interface{} {
 			"hours":   3,
 			"minutes": 4,
 		},
+		"BackupRetainPeriodDays": 10,
 		"Access": map[string]bool{
 			"data_lens":     true,
 			"data_transfer": true,
@@ -601,6 +605,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "10"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.performance_diagnostics.0.enabled", "true"),
 					testAccCheckMDBMongoDBClusterHasRightVersion(&r, configData["Version"].(string)),
 					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"Resources": &s2Micro16hdd}),
@@ -657,7 +662,8 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 			mdbMongoDBClusterImportStep(),
 			{
 				Config: makeConfig(t, &configData, &map[string]interface{}{
-					"MaintenanceWindow": map[string]interface{}{"Type": "ANYTIME"},
+					"MaintenanceWindow":      map[string]interface{}{"Type": "ANYTIME"},
+					"BackupRetainPeriodDays": "20",
 					"SecurityGroupIds": []string{
 						"${yandex_vpc_security_group.sg-x.id}",
 						"${yandex_vpc_security_group.sg-y.id}",
@@ -686,6 +692,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					testAccCheckCreatedAtAttr(mongodbResource),
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "ANYTIME"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "20"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),

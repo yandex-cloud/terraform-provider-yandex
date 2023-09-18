@@ -1,19 +1,39 @@
-## 0.98.0 (Unreleased)
+## 0.99.0 (Unreleased)
+
 FEATURES:
-* mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
+
+* mongodb: support `backup_retain_period_days` in `yandex_mdb_mongodb_cluster`
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 * kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
 * clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 
+BUG FIXES:
+
+* docs: method of resetting `placement_policy` field in `compute_instance` resource
+* backup: added `yandex_backup_policy` resource
+
+## 0.98.0 (September 11, 2023)
+
 FEATURES:
+
+* mongodb: support `performance_diagnostics` in `yandex_mdb_mongodb_cluster`
+* serverless: support `stream_names` attribute in logging triggers
+* serverless: support batching in `IoT` and `S3` triggers
 * k8s: added `gpu_environment` property to `gpu_settings` attribute of `node_group` resource and data source
 
+BUG FIXES:
+
+* fix `Provider produced inconsistent final plan` error with `resource_yandex_dns_recordset`
+
 ## 0.97.0 (August 16, 2023)
+
 FEATURES:
+
 * k8s: added `gpu_settings` attribute with `gpu_cluster_id` to `node_group` resource and data source
 
 ENHANCEMENTS:
+
 * combined provider via muxing (simultaneous support of `terraform-plugin-sdk/v2` and `terraform-plugin-framework`).
 * migrate `yandex_billing_cloud_binding` to `terraform-plugin-framework` provider
 
