@@ -15,11 +15,9 @@ import (
 
 func init() {
 	resource.AddTestSweepers("yandex_backup_policy", &resource.Sweeper{
-		Name: "yandex_backup_policy",
-		F:    testSweepBackupPolicy,
-		Dependencies: []string{
-			"yandex_backup_policy",
-		},
+		Name:         "yandex_backup_policy",
+		F:            testSweepBackupPolicy,
+		Dependencies: []string{},
 	})
 }
 
