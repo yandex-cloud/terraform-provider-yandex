@@ -2974,22 +2974,24 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
   }
 
   clickhouse {
-	merge_tree {
-		replicated_deduplication_window 						  = 100
-		replicated_deduplication_window_seconds 				  = 1000
-		parts_to_delay_insert 									  = 1000
-		parts_to_throw_insert 									  = 3000
-		max_replicated_merges_in_queue 							  = 1000
-		number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
-		max_bytes_to_merge_at_min_space_in_pool 			      = 1000000
-		min_bytes_for_wide_part 								  = 10485760
-		min_rows_for_wide_part 								      = 14400
-		ttl_only_drop_parts 									  = false
-		merge_with_ttl_timeout 									  = 14400
-		merge_with_recompression_ttl_timeout 					  = 14400
-		max_parts_in_total 										  = 100000
-		max_number_of_merges_with_ttl_in_pool 					  = 2
-		cleanup_delay_period 									  = 30
+	config {
+		merge_tree {
+			replicated_deduplication_window 						  = 100
+			replicated_deduplication_window_seconds 				  = 1000
+			parts_to_delay_insert 									  = 1000
+			parts_to_throw_insert 									  = 3000
+			max_replicated_merges_in_queue 							  = 1000
+			number_of_free_entries_in_pool_to_lower_max_size_of_merge = 8
+			max_bytes_to_merge_at_min_space_in_pool 			      = 1000000
+			min_bytes_for_wide_part 								  = 10485760
+			min_rows_for_wide_part 								      = 14400
+			ttl_only_drop_parts 									  = false
+			merge_with_ttl_timeout 									  = 14400
+			merge_with_recompression_ttl_timeout 					  = 14400
+			max_parts_in_total 										  = 100000
+			max_number_of_merges_with_ttl_in_pool 					  = 2
+			cleanup_delay_period 									  = 30
+		}
 	}
     # resources 
 	%s

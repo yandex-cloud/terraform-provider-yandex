@@ -1401,7 +1401,7 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("clickhouse.0.resources") {
-		updatePath = append(updatePath, "config_spec.clickhouse.config.resources")
+		updatePath = append(updatePath, "config_spec.clickhouse.resources")
 	}
 
 	if d.HasChange("clickhouse.0.config") {
