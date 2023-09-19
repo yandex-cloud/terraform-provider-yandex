@@ -13,6 +13,7 @@ BUG FIXES:
 
 * docs: method of resetting `placement_policy` field in `compute_instance` resource
 * backup: added `yandex_backup_policy` resource
+* clickhouse: fix cluster version upgrade
 * clickhouse: fix reset secrets to default for `kafka_topics` on cluster update
 
 ## 0.98.0 (September 11, 2023)
