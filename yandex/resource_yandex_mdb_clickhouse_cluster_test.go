@@ -557,7 +557,7 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create ClickHouse Cluster
 			{
-				Config: testAccMDBClickHouseClusterResources(chName, "Step 1", bucketName, rInt, chVersion, firstStep),
+				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chVersion, firstStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -568,9 +568,22 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
-			// Update ClickHouse version and cluster resources
+			// Update ClickHouse version only
 			{
-				Config: testAccMDBClickHouseClusterResources(chName, "Step 2", bucketName, rInt, chUpdatedVersion, secondStep),
+				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chUpdatedVersion, firstStep),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
+					resource.TestCheckResourceAttr(chResource, "name", chName),
+					resource.TestCheckResourceAttr(chResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(chResource, "version", chUpdatedVersion),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.resources.0.resource_preset_id", firstStep.ResourcePresetId),
+
+					testAccCheckCreatedAtAttr(chResource)),
+			},
+			mdbClickHouseClusterImportStep(chResource),
+			// Downgrade ClickHouse version and cluster resources
+			{
+				Config: testAccMDBClickHouseClusterResources(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, chUpdatedVersion, secondStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -584,7 +597,7 @@ func TestAccMDBClickHouseCluster_ClusterResources(t *testing.T) {
 			mdbClickHouseClusterImportStep(chResource),
 			// Add host, creates implicit ZooKeeper subclusters
 			{
-				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Step 3", bucketName, rInt, thirdStepCluster, thirdStepZookeeper),
+				Config: testAccMDBClickHouseClusterResourceZookeepers(chName, "Cluster for TestAccMDBClickHouseCluster_ClusterResources", bucketName, rInt, thirdStepCluster, thirdStepZookeeper),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 5),
 					resource.TestCheckResourceAttr(chResource, "name", chName),

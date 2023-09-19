@@ -1273,7 +1273,6 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 	"name":                    "name",
 	"description":             "description",
 	"labels":                  "labels",
-	"version":                 "config_spec.version",
 	"access":                  "config_spec.access",
 	"backup_window_start":     "config_spec.backup_window_start",
 	"admin_password":          "config_spec.admin_password",
@@ -1356,7 +1355,7 @@ var mdbClickHouseConfigUpdateFieldsMaps = []string{
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	if d.HasChanges("resources", "version") {
+	if d.HasChanges("version") {
 		oldVersion, newVersion := d.GetChange("version")
 		log.Printf("[DEBUG] Pre-updating ClickHouse Cluster %q version %q -> %q", d.Id(), oldVersion, newVersion)
 
@@ -1436,6 +1435,8 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 			}
 		}
 	}
+
+	log.Printf("[DEBUG] update request: %v", req)
 
 	if len(updatePath) == 0 {
 		return nil
