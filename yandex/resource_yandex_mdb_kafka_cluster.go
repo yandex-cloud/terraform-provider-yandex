@@ -331,6 +331,12 @@ func resourceYandexMDBKafkaPermission() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"allow_hosts": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				Optional: true,
+			},
 		},
 	}
 }

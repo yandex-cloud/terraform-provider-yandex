@@ -71,13 +71,30 @@ func parseKafkaSaslMechanism(e string) (kafka.SaslMechanism, error) {
 	return kafka.SaslMechanism(v), nil
 }
 
-func parseKafkaPermission(e string) (kafka.Permission_AccessRole, error) {
+func parseKafkaPermissionRole(e string) (kafka.Permission_AccessRole, error) {
 	v, ok := kafka.Permission_AccessRole_value[e]
 	if !ok {
 		return 0, fmt.Errorf("value for 'role' must be one of %s, not `%s`",
 			getJoinedKeys(getEnumValueMapKeys(kafka.Permission_AccessRole_value)), e)
 	}
 	return kafka.Permission_AccessRole(v), nil
+}
+
+func parseSetToStringArray(set interface{}) []string {
+	if set == nil {
+		return nil
+	}
+	schemaSet := set.(*schema.Set)
+	return convertStringSet(schemaSet)
+}
+
+func parseKafkaPermissionAllowHosts(allowHosts interface{}) []string {
+	result := parseSetToStringArray(allowHosts)
+	if len(result) == 0 {
+		return nil
+	}
+	sort.Strings(result)
+	return result
 }
 
 func parseKafkaTopicCleanupPolicy(e string) (TopicCleanupPolicy, error) {
@@ -106,11 +123,7 @@ func parseIntKafkaConfigParam(d *schema.ResourceData, paramName string, retErr *
 }
 
 func parseSslCipherSuites(sslCipherSuites interface{}) []string {
-	if sslCipherSuites == nil {
-		return nil
-	}
-	set := sslCipherSuites.(*schema.Set)
-	return convertStringSet(set)
+	return parseSetToStringArray(sslCipherSuites)
 }
 
 func parseSaslEnabledMechanisms(saslEnabledMechanisms interface{}) ([]kafka.SaslMechanism, error) {
@@ -484,6 +497,9 @@ func expandKafkaUsers(d *schema.ResourceData) ([]*kafka.UserSpec, error) {
 		}
 		result = append(result, user)
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Name < result[j].Name
+	})
 	return result, nil
 }
 
@@ -516,14 +532,18 @@ func expandKafkaPermissions(ps *schema.Set) ([]*kafka.Permission, error) {
 			permission.TopicName = v.(string)
 		}
 		if v, ok := m["role"]; ok {
-			role, err := parseKafkaPermission(v.(string))
+			role, err := parseKafkaPermissionRole(v.(string))
 			if err != nil {
 				return nil, err
 			}
 			permission.Role = role
 		}
+		if v, ok := m["allow_hosts"]; ok {
+			permission.AllowHosts = parseKafkaPermissionAllowHosts(v)
+		}
 		result = append(result, permission)
 	}
+	sortPermissions(result)
 	return result, nil
 }
 
@@ -719,7 +739,8 @@ func kafkaUserHash(v interface{}) int {
 		buf.WriteString(fmt.Sprintf("%s-", p.(string)))
 	}
 	if ps, ok := m["permission"]; ok {
-		buf.WriteString(fmt.Sprintf("%v-", ps.(*schema.Set).List()))
+		permissions, _ := expandKafkaPermissions(ps.(*schema.Set))
+		buf.WriteString(fmt.Sprintf("%s-", UserPermissionsToStr(permissions)))
 	}
 	return hashcode.String(buf.String())
 }
@@ -733,7 +754,42 @@ func kafkaUserPermissionHash(v interface{}) int {
 	if r, ok := m["role"]; ok {
 		buf.WriteString(fmt.Sprintf("%v-", r))
 	}
+	if allowHosts, ok := m["allow_hosts"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", AllowHostsSortedToStr(parseKafkaPermissionAllowHosts(allowHosts))))
+	}
 	return hashcode.String(buf.String())
+}
+
+func AllowHostsSortedToStr(allowHosts []string) string {
+	if len(allowHosts) == 0 {
+		return ""
+	}
+	sort.Strings(allowHosts)
+	return strings.Join(allowHosts, ",")
+}
+
+func sortPermissions(permissions []*kafka.Permission) {
+	sort.Slice(permissions, func(i, j int) bool {
+		permFirst := permissions[i]
+		permSecond := permissions[j]
+		return permFirst.TopicName < permSecond.TopicName ||
+			(permFirst.TopicName == permSecond.TopicName && permFirst.Role.String() < permSecond.Role.String()) ||
+			(permFirst.TopicName == permSecond.TopicName && permFirst.Role.String() == permSecond.Role.String() &&
+				AllowHostsSortedToStr(permFirst.GetAllowHosts()) < AllowHostsSortedToStr(permSecond.GetAllowHosts()))
+	})
+}
+
+func userPermissionToStr(permission *kafka.Permission) string {
+	return fmt.Sprintf("%s:%s:[%s]", permission.TopicName, permission.Role.String(), AllowHostsSortedToStr(permission.GetAllowHosts()))
+}
+
+func UserPermissionsToStr(permissions []*kafka.Permission) string {
+	sortPermissions(permissions)
+	strPermissionsSlice := []string{}
+	for _, permission := range permissions {
+		strPermissionsSlice = append(strPermissionsSlice, userPermissionToStr(permission))
+	}
+	return strings.Join(strPermissionsSlice, ",")
 }
 
 func kafkaHostHash(v interface{}) int {
@@ -852,6 +908,9 @@ func flattenKafkaUserPermissions(user *kafka.User) *schema.Set {
 		p := map[string]interface{}{}
 		p["topic_name"] = perm.TopicName
 		p["role"] = perm.Role.String()
+		if len(perm.GetAllowHosts()) > 0 {
+			p["allow_hosts"] = convertStringArrToInterface(perm.GetAllowHosts())
+		}
 		result.Add(p)
 	}
 	return result
