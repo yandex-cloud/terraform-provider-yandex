@@ -63,6 +63,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     permission {
       topic_name = "input"
       role = "ACCESS_ROLE_PRODUCER"
+      allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
     }
   }
 
@@ -146,6 +147,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     permission {
       topic_name = "input"
       role = "ACCESS_ROLE_PRODUCER"
+      allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
     }
   }
 
@@ -313,6 +315,8 @@ The `permission` block supports:
 * `topic_name` - (Required) The name of the topic that the permission grants access to.
 
 * `role` - (Required) The role type to grant to the topic.
+
+* `allow_hosts` - (Optional) Set of hosts, to which this permission grants access to.
 
 The `topic` block is deprecated. To manage topics, please switch to using a separate resource type
 `yandex_mdb_kafka_topic`. The `topic` block supports:

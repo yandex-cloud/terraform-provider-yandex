@@ -46,6 +46,7 @@ resource "yandex_mdb_kafka_user" user_events {
   permission {
     topic_name = "events"
     role       = "ACCESS_ROLE_CONSUMER"
+    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"]
   }
   permission {
     topic_name = "events"
@@ -69,6 +70,8 @@ The `permission` block supports:
 * `topic_name` - (Required) The name of the topic that the permission grants access to.
 
 * `role` - (Required) The role type to grant to the topic.
+
+* `allow_hosts` - (Optional) Set of hosts, to which this permission grants access to.
 
 ## Import
 

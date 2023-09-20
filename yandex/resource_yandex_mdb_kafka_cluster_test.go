@@ -335,26 +335,29 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		},
 		UserSpecs: []*kafka.UserSpec{
 			{
-				Name:     "bob",
-				Password: "password",
-				Permissions: []*kafka.Permission{
-					{
-						TopicName: "final",
-						Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
-					},
-					{
-						TopicName: "raw_events",
-						Role:      kafka.Permission_ACCESS_ROLE_CONSUMER,
-					},
-				},
-			},
-			{
 				Name:     "alice",
 				Password: "password",
 				Permissions: []*kafka.Permission{
 					{
-						TopicName: "raw_events",
-						Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
+						TopicName:  "raw_events",
+						Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+						AllowHosts: nil,
+					},
+				},
+			},
+			{
+				Name:     "bob",
+				Password: "password",
+				Permissions: []*kafka.Permission{
+					{
+						TopicName:  "final",
+						Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+						AllowHosts: nil,
+					},
+					{
+						TopicName:  "raw_events",
+						Role:       kafka.Permission_ACCESS_ROLE_CONSUMER,
+						AllowHosts: nil,
 					},
 				},
 			},

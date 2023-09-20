@@ -3,8 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"sort"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -45,12 +43,14 @@ func TestBuildKafkaUserSpec(t *testing.T) {
 		"password": "test_pwd",
 		"permission": []interface{}{
 			map[string]interface{}{
-				"topic_name": "topic1",
-				"role":       "ACCESS_ROLE_PRODUCER",
+				"topic_name":  "topic1",
+				"role":        "ACCESS_ROLE_PRODUCER",
+				"allow_hosts": []interface{}{"host1", "host2"},
 			},
 			map[string]interface{}{
-				"topic_name": "topic2",
-				"role":       "ACCESS_ROLE_CONSUMER",
+				"topic_name":  "topic2",
+				"role":        "ACCESS_ROLE_CONSUMER",
+				"allow_hosts": []interface{}{"host3", "host4"},
 			},
 		},
 	}
@@ -66,12 +66,14 @@ func TestBuildKafkaUserSpec(t *testing.T) {
 		Password: "test_pwd",
 		Permissions: []*kafka.Permission{
 			{
-				TopicName: "topic1",
-				Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
+				TopicName:  "topic1",
+				Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+				AllowHosts: []string{"host1", "host2"},
 			},
 			{
-				TopicName: "topic2",
-				Role:      kafka.Permission_ACCESS_ROLE_CONSUMER,
+				TopicName:  "topic2",
+				Role:       kafka.Permission_ACCESS_ROLE_CONSUMER,
+				AllowHosts: []string{"host3", "host4"},
 			},
 		},
 	}
@@ -93,13 +95,27 @@ func TestAccMDBKafkaUser(t *testing.T) {
 					testAccCheckMDBKafkaClusterHasUser("another-user"),
 					testAccCheckMDBKafkaUserHasPermissions("events-user", []*kafka.Permission{
 						{
-							TopicName: "raw_events",
-							Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
+							TopicName:  "raw_events",
+							Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+							AllowHosts: []string{"host1.db.yandex.net", "host2.db.yandex.net"},
+						},
+						{
+							TopicName:  "raw_events",
+							Role:       kafka.Permission_ACCESS_ROLE_CONSUMER,
+							AllowHosts: []string{"host3.db.yandex.net"},
+						},
+					}),
+					testAccCheckMDBKafkaUserHasPermissions("another-user", []*kafka.Permission{
+						{
+							TopicName:  "raw_events",
+							Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+							AllowHosts: []string{"host3.db.yandex.net"},
 						},
 					}),
 				),
 			},
 			mdbKafkaUserImportStep("yandex_mdb_kafka_user.events_user"),
+			mdbKafkaUserImportStep("yandex_mdb_kafka_user.another_user"),
 			{
 				Config: testAccMDBKafkaUserConfigStep2(clusterName),
 				Check: resource.ComposeTestCheckFunc(
@@ -107,8 +123,9 @@ func TestAccMDBKafkaUser(t *testing.T) {
 					testAccCheckMDBKafkaClusterDoesNotHaveUser("another-user"),
 					testAccCheckMDBKafkaUserHasPermissions("events-user", []*kafka.Permission{
 						{
-							TopicName: "raw_events",
-							Role:      kafka.Permission_ACCESS_ROLE_PRODUCER,
+							TopicName:  "raw_events",
+							Role:       kafka.Permission_ACCESS_ROLE_PRODUCER,
+							AllowHosts: []string{"host1.db.yandex.net", "host2.db.yandex.net", "host3.db.yandex.net", "host4.db.yandex.net"},
 						},
 						{
 							TopicName: "raw_events",
@@ -181,8 +198,14 @@ resource "yandex_mdb_kafka_user" events_user {
   name       = "events-user"
   password   = "test-password-123"
   permission {
-	topic_name = "raw_events"
-	role       = "ACCESS_ROLE_PRODUCER"
+	topic_name  = "raw_events"
+	role        = "ACCESS_ROLE_PRODUCER"
+    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net"] 
+  }
+  permission {
+	topic_name  = "raw_events"
+	role        = "ACCESS_ROLE_CONSUMER"
+    allow_hosts = ["host3.db.yandex.net"]
   }
 }
 
@@ -191,8 +214,9 @@ resource "yandex_mdb_kafka_user" another_user {
   name       = "another-user"
   password   = "test-password-123"
   permission {
-	topic_name = "raw_events"
-	role       = "ACCESS_ROLE_PRODUCER"
+	topic_name  = "raw_events"
+	role        = "ACCESS_ROLE_PRODUCER"
+    allow_hosts = ["host3.db.yandex.net"]
   }
 }
 `
@@ -205,8 +229,9 @@ resource "yandex_mdb_kafka_user" events_user {
   name       = "events-user"
   password   = "test-password-1234"
   permission {
-	topic_name = "raw_events"
-	role       = "ACCESS_ROLE_PRODUCER"
+	topic_name  = "raw_events"
+	role        = "ACCESS_ROLE_PRODUCER"
+    allow_hosts = ["host1.db.yandex.net", "host2.db.yandex.net", "host3.db.yandex.net", "host4.db.yandex.net"]
   }
   permission {
 	topic_name = "raw_events"
@@ -260,34 +285,11 @@ func testAccCheckMDBKafkaUserHasPermissions(userName string, permissions []*kafk
 			return err
 		}
 		actualUserPermissions := user.GetPermissions()
-		permissionsStr := userPermissionsToStr(permissions)
-		actualUserPermissionsStr := userPermissionsToStr(actualUserPermissions)
+		permissionsStr := UserPermissionsToStr(permissions)
+		actualUserPermissionsStr := UserPermissionsToStr(actualUserPermissions)
 		if permissionsStr != actualUserPermissionsStr {
 			return fmt.Errorf("user %q has permissions %q, expected: %q", userName, actualUserPermissionsStr, permissionsStr)
 		}
 		return nil
 	}
-}
-
-func sortPermissions(permissions []*kafka.Permission) []*kafka.Permission {
-	sort.Slice(permissions, func(i, j int) bool {
-		permFirst := permissions[i]
-		permSecond := permissions[j]
-		return permFirst.TopicName < permSecond.TopicName ||
-			(permFirst.TopicName == permSecond.TopicName && permFirst.Role.String() < permSecond.Role.String())
-	})
-	return permissions
-}
-
-func userPermissionToStr(permission *kafka.Permission) string {
-	return permission.TopicName + ":" + permission.Role.String()
-}
-
-func userPermissionsToStr(permissions []*kafka.Permission) string {
-	permissions = sortPermissions(permissions)
-	strPermissionsSlice := []string{}
-	for _, permission := range permissions {
-		strPermissionsSlice = append(strPermissionsSlice, userPermissionToStr(permission))
-	}
-	return strings.Join(strPermissionsSlice, ",")
 }
