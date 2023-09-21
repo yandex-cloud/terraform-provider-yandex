@@ -27,11 +27,27 @@ resource "yandex_api_gateway" "test-api-gateway" {
   connectivity {
     network_id = "<dynamic network id>"
   }
+  variables = {
+    installation = "prod"
+  }
+  canary {
+    weight    = 20
+    variables = {
+      installation = "dev"
+    }
+  }
   spec = <<-EOT
 openapi: "3.0.0"
 info:
   version: 1.0.0
   title: Test API
+x-yc-apigateway:
+  variables:
+    installation:
+      default: "prod"
+      enum:
+       - "prod"
+       - "dev"
 paths:
   /hello:
     get:
@@ -58,7 +74,7 @@ paths:
         http_headers:
           'Content-Type': "text/plain"
         content:
-          'text/plain': "Hello again, {user}!\n"
+          'text/plain': "Hello again, {user} from ${apigw.installation} release!\n"
 EOT
 }
 ```
@@ -75,6 +91,10 @@ The following arguments are supported:
 * `custom_domains` - (Optional) Set of custom domains to be attached to Yandex API Gateway.
 * `connectivity` - (Optional) Gateway connectivity. If specified the gateway will be attached to specified network.
 * `connectivity.0.network_id` - Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.
+* `variables` - (Optional) A set of values for variables in gateway specification.
+* `canary` - (Optional) Canary release settings of gateway.
+* `canary.0.weight` - Percentage of requests, which will be processed by canary release.
+* `canary.0.variables` - A list of values for variables in gateway specification of canary release.
 
 
 ## Attributes Reference

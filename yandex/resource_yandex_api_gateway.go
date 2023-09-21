@@ -3,10 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
@@ -121,6 +123,34 @@ func resourceYandexApiGateway() *schema.Resource {
 					},
 				},
 			},
+
+			"variables": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"canary": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"weight": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							ValidateFunc: validation.IntBetween(0, 99),
+						},
+						"variables": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -193,6 +223,8 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		Spec: &apigateway.CreateApiGatewayRequest_OpenapiSpec{
 			OpenapiSpec: d.Get("spec").(string),
 		},
+		Variables: expandApiGatewayVariables(d),
+		Canary:    expandApiGatewayCanary(d),
 	}
 
 	if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
@@ -237,6 +269,14 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		updatePaths = append(updatePaths, "connectivity")
 	}
 
+	if d.HasChange("variables") {
+		updatePaths = append(updatePaths, "variables")
+	}
+
+	if d.HasChange("canary") {
+		updatePaths = append(updatePaths, "canary")
+	}
+
 	if len(updatePaths) != 0 {
 		req := apigateway.UpdateApiGatewayRequest{
 			ApiGatewayId: d.Id(),
@@ -247,6 +287,8 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			Spec: &apigateway.UpdateApiGatewayRequest_OpenapiSpec{
 				OpenapiSpec: d.Get("spec").(string),
 			},
+			Variables: expandApiGatewayVariables(d),
+			Canary:    expandApiGatewayCanary(d),
 		}
 
 		if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
@@ -360,6 +402,12 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	if connectivity := flattenApiGatewayConnectivity(apiGateway.Connectivity); connectivity != nil {
 		d.Set("connectivity", connectivity)
 	}
+	if variables := flattenApiGatewayVariables(apiGateway.Variables); variables != nil {
+		d.Set("variables", variables)
+	}
+	if canary := flattenApiGatewayCanary(apiGateway.Canary); canary != nil {
+		d.Set("canary", canary)
+	}
 
 	domains := make([]string, len(apiGateway.AttachedDomains))
 	for i, domain := range apiGateway.AttachedDomains {
@@ -421,4 +469,77 @@ func flattenApiGatewayConnectivity(connectivity *apigateway.Connectivity) []inte
 		return nil
 	}
 	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
+}
+
+func expandApiGatewayVariables(d *schema.ResourceData) map[string]*apigateway.VariableInput {
+	v, ok := d.GetOk("variables")
+	if !ok {
+		return nil
+	}
+	return expandVariables(v)
+}
+
+func expandVariables(v interface{}) map[string]*apigateway.VariableInput {
+	result := make(map[string]*apigateway.VariableInput)
+	for key, value := range v.(map[string]interface{}) {
+		var variable *apigateway.VariableInput
+		if v, err := strconv.ParseInt(value.(string), 10, 64); err == nil {
+			variable = &apigateway.VariableInput{VariableValue: &apigateway.VariableInput_IntValue{IntValue: v}}
+		} else if v, err := strconv.ParseFloat(value.(string), 64); err == nil {
+			variable = &apigateway.VariableInput{VariableValue: &apigateway.VariableInput_DoubleValue{DoubleValue: v}}
+		} else if v, err := strconv.ParseBool(value.(string)); err == nil {
+			variable = &apigateway.VariableInput{VariableValue: &apigateway.VariableInput_BoolValue{BoolValue: v}}
+		} else {
+			variable = &apigateway.VariableInput{VariableValue: &apigateway.VariableInput_StringValue{StringValue: value.(string)}}
+		}
+		result[key] = variable
+	}
+	return result
+}
+
+func flattenApiGatewayVariables(variables map[string]*apigateway.VariableInput) map[string]interface{} {
+	result := make(map[string]interface{})
+	for key, value := range variables {
+		var variable string
+		switch value.VariableValue.(type) {
+		case *apigateway.VariableInput_IntValue:
+			variable = strconv.FormatInt(value.GetIntValue(), 10)
+		case *apigateway.VariableInput_DoubleValue:
+			variable = strconv.FormatFloat(value.GetDoubleValue(), 'f', -1, 64)
+		case *apigateway.VariableInput_BoolValue:
+			variable = strconv.FormatBool(value.GetBoolValue())
+		default:
+			variable = value.GetStringValue()
+		}
+		result[key] = variable
+	}
+	if len(result) == 0 {
+		return nil
+	}
+	return result
+}
+
+func expandApiGatewayCanary(d *schema.ResourceData) *apigateway.Canary {
+	w, okW := d.GetOk("canary.0.weight")
+	variables, okV := d.GetOk("canary.0.variables")
+	weight, okI := w.(int)
+	if !okW || !okV || !okI {
+		return nil
+	}
+	return &apigateway.Canary{
+		Weight:    int64(weight),
+		Variables: expandVariables(variables),
+	}
+}
+
+func flattenApiGatewayCanary(canary *apigateway.Canary) []interface{} {
+	if canary == nil || len(canary.Variables) == 0 {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"weight":    canary.Weight,
+			"variables": flattenApiGatewayVariables(canary.Variables),
+		},
+	}
 }

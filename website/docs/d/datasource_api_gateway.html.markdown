@@ -43,3 +43,7 @@ The following attributes are exported:
 * `custom_domains` - Set of custom domains attached to Yandex API Gateway. Each set item has the following properties: `domain_id`, `fqdn`, `certificate_id`.
 * `connectivity` - Gateway connectivity. If specified the gateway will be attached to specified network.
 * `connectivity.0.network_id` - Network the gateway will have access to. It's essential to specify network with subnets in all availability zones.
+* `variables` - A set of values for variables in gateway specification.
+* `canary` - Canary release settings of gateway.
+* `canary.0.weight` - Percentage of requests, which will be processed by canary release.
+* `canary.0.variables` - A list of values for variables in gateway specification of canary release.
