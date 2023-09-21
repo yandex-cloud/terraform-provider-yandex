@@ -18,9 +18,11 @@ import (
 const apiGatewayResource = "yandex_api_gateway.test-api-gateway"
 const specFile = "test-fixtures/serverless/main.yaml"
 const specFileUpdated = "test-fixtures/serverless/main_updated.yaml"
+const specFileParametrized = "test-fixtures/serverless/canary.yaml"
 
 var spec string
 var specUpdated string
+var specParametrized string
 
 func init() {
 	resource.AddTestSweepers("yandex_api_gateway", &resource.Sweeper{
@@ -32,6 +34,8 @@ func init() {
 	spec = string(fileBytes)
 	fileBytes, _ = ioutil.ReadFile(specFileUpdated)
 	specUpdated = string(fileBytes)
+	fileBytes, _ = ioutil.ReadFile(specFileParametrized)
+	specParametrized = string(fileBytes)
 }
 
 func testSweepAPIGateway(_ string) error {
@@ -248,6 +252,58 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	})
 }
 
+func TestAccYandexAPIGateway_canary(t *testing.T) {
+	t.Parallel()
+
+	var apiGateway apigateway.ApiGateway
+	params := testYandexAPIGatewayParameters{}
+	params.name = acctest.RandomWithPrefix("tf-api-gateway")
+	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
+	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
+	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
+
+	createConfig := fmt.Sprintf(`
+resource "yandex_api_gateway" "test-api-gateway" {
+  name        = "%s"
+  description = "%s"
+  variables   = {
+    installation = "prod"
+  }
+  canary      {
+    weight    = 20
+    variables = {
+      installation = "dev"
+      int = 7
+      bool = false
+      double = 7.7
+    }
+  }
+  spec = <<EOF
+%sEOF
+}`, params.name, params.desc, specParametrized)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexAPIGatewayDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: createConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testYandexAPIGatewayExists(apiGatewayResource, &apiGateway),
+					testYandexAPIGatewayContainsStringVariable(&apiGateway, "installation", "prod"),
+					testYandexAPIGatewayContainsCanaryWithStringVariable(&apiGateway, 20, map[string]interface{}{
+						"installation": "dev",
+						"int":          int64(7),
+						"bool":         false,
+						"double":       7.7,
+					}),
+				),
+			},
+		},
+	})
+}
+
 func basicYandexAPIGatewayTestStep(apiGatewayName, apiGatewayDesc, labelKey, labelValue string, spec string, apiGateway *apigateway.ApiGateway) resource.TestStep {
 	return resource.TestStep{
 		Config: testYandexAPIGatewayBasic(apiGatewayName, apiGatewayDesc, labelKey, labelValue, spec),
@@ -324,6 +380,53 @@ func testYandexAPIGatewayContainsLabel(apiGateway *apigateway.ApiGateway, key st
 		}
 		if v != value {
 			return fmt.Errorf("Incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testYandexAPIGatewayContainsStringVariable(apiGateway *apigateway.ApiGateway, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := apiGateway.Variables[key]
+		if !ok {
+			return fmt.Errorf("expected variable with key '%s' not found", key)
+		}
+		if v.GetStringValue() != value {
+			return fmt.Errorf("incorrect string variable value for key '%s': expected '%s' but found '%s'", key, value, v.GetStringValue())
+		}
+		return nil
+	}
+}
+
+func testYandexAPIGatewayContainsCanaryWithStringVariable(apiGateway *apigateway.ApiGateway, weight int64, variables map[string]interface{}) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		c := apiGateway.Canary
+		if c == nil {
+			return fmt.Errorf("expected canary not found")
+		}
+		if c.Weight != weight {
+			return fmt.Errorf("incorrect canary weight: expected '%d' but found '%d'", weight, c.Weight)
+		}
+		for key, value := range variables {
+			var actualValue interface{}
+			v, ok := c.Variables[key]
+			if !ok {
+				return fmt.Errorf("expected canary variable with key '%s' not found", key)
+			}
+			switch value.(type) {
+			case string:
+				actualValue = v.GetStringValue()
+			case int64:
+				actualValue = v.GetIntValue()
+			case bool:
+				actualValue = v.GetBoolValue()
+			case float64:
+				actualValue = v.GetDoubleValue()
+			}
+			if actualValue != value {
+				fmt.Printf("Actual type: %T, Expected type: %T", actualValue, value)
+				return fmt.Errorf("incorrect canary string variable value for key '%s': expected '%v' but found '%v'", key, value, actualValue)
+			}
 		}
 		return nil
 	}
