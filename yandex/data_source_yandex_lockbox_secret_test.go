@@ -11,40 +11,59 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 )
 
-func TestAccDataSourceLockboxSecret_basic(t *testing.T) {
+func TestAccDataSourceLockboxSecret_byID(t *testing.T) {
 	secretName := "a" + acctest.RandString(10)
 	secretDesc := "Terraform Test"
-	folderID := getExampleFolderID()
-	basicData := "data.yandex_lockbox_secret.basic_secret"
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
 		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
 		Steps: []resource.TestStep{
 			{
-				// Create secret
-				Config: testAccLockboxSecretResourceAndData(secretName, secretDesc),
-				Check: resource.ComposeTestCheckFunc(
-					testAccDataSourceLockboxSecretExists(basicData),
-					testAccCheckResourceIDField(basicData, "secret_id"),
-					resource.TestCheckResourceAttr(basicData, "folder_id", folderID),
-					resource.TestCheckResourceAttr(basicData, "name", secretName),
-					resource.TestCheckResourceAttr(basicData, "description", secretDesc),
-					resource.TestCheckResourceAttr(basicData, "deletion_protection", "false"),
-					resource.TestCheckResourceAttr(basicData, "labels.%", "2"),
-					resource.TestCheckResourceAttr(basicData, "labels.key1", "value1"),
-					resource.TestCheckResourceAttr(basicData, "labels.key2", "value2"),
-					resource.TestCheckResourceAttr(basicData, "status",
-						lockbox.Secret_Status_name[int32(lockbox.Secret_ACTIVE)]),
-					testAccCheckCreatedAtAttr(basicData),
-					//showResourceAttributes(basicData),
-				),
+				Config: testAccDataSourceSecretConfig(secretName, secretDesc, true),
+				Check:  testAccDataSourceSecretCheck(secretName, secretDesc),
 			},
 		},
 	})
 }
 
-func testAccLockboxSecretResourceAndData(name, desc string) string {
+func TestAccDataSourceLockboxSecret__byName(t *testing.T) {
+	secretName := "a" + acctest.RandString(10)
+	secretDesc := "Terraform Test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceSecretConfig(secretName, secretDesc, false),
+				Check:  testAccDataSourceSecretCheck(secretName, secretDesc),
+			},
+		},
+	})
+}
+
+func testAccDataSourceSecretCheck(secretName string, secretDesc string) resource.TestCheckFunc {
+	basicData := "data.yandex_lockbox_secret.basic_secret"
+	folderID := getExampleFolderID()
+	return resource.ComposeTestCheckFunc(
+		testAccDataSourceLockboxSecretExists(basicData),
+		testAccCheckResourceIDField(basicData, "secret_id"),
+		resource.TestCheckResourceAttr(basicData, "folder_id", folderID),
+		resource.TestCheckResourceAttr(basicData, "name", secretName),
+		resource.TestCheckResourceAttr(basicData, "description", secretDesc),
+		resource.TestCheckResourceAttr(basicData, "deletion_protection", "false"),
+		resource.TestCheckResourceAttr(basicData, "labels.%", "2"),
+		resource.TestCheckResourceAttr(basicData, "labels.key1", "value1"),
+		resource.TestCheckResourceAttr(basicData, "labels.key2", "value2"),
+		resource.TestCheckResourceAttr(basicData, "status",
+			lockbox.Secret_Status_name[int32(lockbox.Secret_ACTIVE)]),
+		testAccCheckCreatedAtAttr(basicData),
+		//showResourceAttributes(basicData),
+	)
+}
+
+func testAccLockboxSecretResourceConfig(name, desc string) string {
 	return fmt.Sprintf(`
 resource "yandex_lockbox_secret" "basic_secret" {
   name        = "%v"
@@ -54,11 +73,27 @@ resource "yandex_lockbox_secret" "basic_secret" {
     key2 = "value2"
   }
 }
+`, name, desc)
+}
 
+const secretLockboxDataByByIDConfig = `
 data "yandex_lockbox_secret" "basic_secret" {
   secret_id = yandex_lockbox_secret.basic_secret.id
 }
-`, name, desc)
+`
+
+const secretLockboxDataByNameConfig = `
+data "yandex_lockbox_secret" "basic_secret" {
+  name = yandex_lockbox_secret.basic_secret.name
+}
+`
+
+func testAccDataSourceSecretConfig(secretName string, secretDescription string, withDataID bool) string {
+	if withDataID {
+		return testAccLockboxSecretResourceConfig(secretName, secretDescription) + secretLockboxDataByByIDConfig
+	} else {
+		return testAccLockboxSecretResourceConfig(secretName, secretDescription) + secretLockboxDataByNameConfig
+	}
 }
 
 func testAccDataSourceLockboxSecretExists(name string) resource.TestCheckFunc {

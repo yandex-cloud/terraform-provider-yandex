@@ -27,7 +27,11 @@ output "my_secret_created_at" {
 
 The following arguments are supported:
 
-* `secret_id` - (Required) The Yandex Cloud Lockbox secret ID.
+* `secret_id` - (Optional) The Yandex Cloud Lockbox secret ID.
+* `name` - (Optional) Name of the Lockbox secret.
+* `folder_id` - (Optional) Folder that the secret belongs to. If value is omitted, the default provider folder is used.
+
+~> **NOTE:** One of `secret_id` or `name` should be specified.
 
 ## Attributes Reference
 
