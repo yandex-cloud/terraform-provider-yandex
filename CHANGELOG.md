@@ -14,6 +14,9 @@ BUG FIXES:
 * clickhouse: fix cluster version upgrade
 * clickhouse: fix reset secrets to default for `kafka_topics` on cluster update
 
+ENHANCEMENTS:
+* getting lockbox data source via `name` and `folder_id`
+
 ## 0.98.0 (September 11, 2023)
 
 FEATURES:

@@ -2,10 +2,11 @@ package yandex
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexLockboxSecret() *schema.Resource {
@@ -17,10 +18,9 @@ func dataSourceYandexLockboxSecret() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"secret_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
-
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -84,6 +84,7 @@ func dataSourceYandexLockboxSecret() *schema.Resource {
 
 			"folder_id": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
@@ -103,6 +104,7 @@ func dataSourceYandexLockboxSecret() *schema.Resource {
 
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
@@ -115,5 +117,30 @@ func dataSourceYandexLockboxSecret() *schema.Resource {
 }
 
 func dataSourceYandexLockboxSecretRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return yandexLockboxSecretRead(d.Get("secret_id").(string), true, ctx, d, meta)
+	config := meta.(*Config)
+	err := checkOneOf(d, "secret_id", "name")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	secretId := d.Get("secret_id").(string)
+	_, secretNameOk := d.GetOk("name")
+
+	if secretNameOk {
+		secretId, err = resolveSecretIDByName(ctx, d, config)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	return yandexLockboxSecretRead(secretId, true, ctx, d, meta)
+}
+
+func resolveSecretIDByName(ctx context.Context, d *schema.ResourceData, config *Config) (string, error) {
+	secretId, err := resolveObjectID(ctx, config, d, sdkresolvers.SecretResolver)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve secret by name: %v ", err)
+	}
+	if err := d.Set("secret_id", secretId); err != nil {
+		return "", fmt.Errorf("failed to set field 'secret_id': %v ", err)
+	}
+	return secretId, nil
 }

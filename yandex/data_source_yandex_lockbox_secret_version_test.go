@@ -22,17 +22,21 @@ func TestAccDataSourceLockboxVersion_basic(t *testing.T) {
 		CheckDestroy:      testAccCheckYandexLockboxSecretAllDestroyed,
 		Steps: []resource.TestStep{
 			{
-				// Create secret
-				Config: testAccLockboxSecretVersionResourceAndData(secretName),
+				Config: testAccLockboxSecretVersionKeyResource(secretName, BASIC_VERSION1_RESOURCE_AND_DATA),
 				Check: resource.ComposeTestCheckFunc(
 					testAccDataSourceLockboxSecretVersionExists(basicData1),
-					testAccDataSourceLockboxSecretVersionExists(basicData2),
 					testAccCheckResourceIDField(basicData1, "version_id"),
-					testAccCheckResourceIDField(basicData2, "version_id"),
 					testAccCheckYandexLockboxVersionStateEntries(basicData1, []*lockboxEntryCheck{
 						{Key: "key1", Val: "val1"},
 						{Key: "key2", Val: "val2"},
 					}),
+				),
+			},
+			{
+				Config: testAccLockboxSecretVersionKeyResource(secretName, BASIC_VERSION2_RESOURCE_AND_DATA),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDataSourceLockboxSecretVersionExists(basicData2),
+					testAccCheckResourceIDField(basicData2, "version_id"),
 					testAccCheckYandexLockboxVersionStateEntries(basicData2, []*lockboxEntryCheck{
 						{Key: "key2", Val: "val2"},
 						{Key: "key3", Val: "val3"},
@@ -43,12 +47,15 @@ func TestAccDataSourceLockboxVersion_basic(t *testing.T) {
 	})
 }
 
-func testAccLockboxSecretVersionResourceAndData(name string) string {
+func testAccLockboxSecretVersionKeyResource(name string, secret_version_config string) string {
 	return fmt.Sprintf(`
 resource "yandex_lockbox_secret" "basic_secret" {
   name        = "%v"
 }
+`, name) + secret_version_config
+}
 
+const BASIC_VERSION1_RESOURCE_AND_DATA = `
 resource "yandex_lockbox_secret_version" "basic_version1" {
   secret_id   = yandex_lockbox_secret.basic_secret.id
   entries {
@@ -61,6 +68,12 @@ resource "yandex_lockbox_secret_version" "basic_version1" {
   }
 }
 
+data "yandex_lockbox_secret_version" "basic_version1" {
+  secret_id = yandex_lockbox_secret.basic_secret.id
+  version_id = yandex_lockbox_secret_version.basic_version1.id
+}
+`
+const BASIC_VERSION2_RESOURCE_AND_DATA = `
 resource "yandex_lockbox_secret_version" "basic_version2" {
   secret_id   = yandex_lockbox_secret.basic_secret.id
   entries {
@@ -73,17 +86,11 @@ resource "yandex_lockbox_secret_version" "basic_version2" {
   }
 }
 
-data "yandex_lockbox_secret_version" "basic_version1" {
-  secret_id = yandex_lockbox_secret.basic_secret.id
-  version_id = yandex_lockbox_secret_version.basic_version1.id
-}
-
 data "yandex_lockbox_secret_version" "basic_version2" {
   secret_id = yandex_lockbox_secret.basic_secret.id
   version_id = yandex_lockbox_secret_version.basic_version2.id
 }
-`, name)
-}
+`
 
 func testAccDataSourceLockboxSecretVersionExists(name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
