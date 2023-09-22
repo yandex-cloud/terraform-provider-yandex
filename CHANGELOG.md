@@ -1,14 +1,16 @@
-## 0.99.0 (Unreleased)
+## 0.100.0 (Unreleased)
+
+## 0.99.0 (September 22, 2023)
 
 FEATURES:
 
 * clickhouse: added `input_format_import_nested_json`, `input_format_parallel_parsing`, `max_read_buffer_size`, `max_final_threads`, `local_filesystem_read_method` for user settings, `input_format_import_nested_json` for server configuration, `merge_with_ttl_timeout`, `merge_with_recompression_ttl_timeout`, `max_parts_in_total`, `max_number_of_merges_with_ttl_in_pool`, `cleanup_delay_period` for merge tree configuration
+* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 * serverless: added `variables` and `canary` attribute to `api_gateway` resource and data source
 * mongodb: support `backup_retain_period_days` in `yandex_mdb_mongodb_cluster`
 * mongodb: changing `folder_id` attribute in `yandex_mdb_mongodb_cluster` moves MongoDB cluster to new folder
 * redis: changing `folder_id` attribute in `yandex_mdb_redis_cluster` moves Redis cluster to new folder
 * kafka: changing `folder_id` attribute in `yandex_mdb_kafka_cluster` moves Kafka cluster to new folder
-* clickhouse: changing `folder_id` attribute in `yandex_mdb_clickhouse_cluster` moves ClickHouse cluster to new folder
 * kafka: add `allow_hosts` attribute for kafka user permission in `yandex_mdb_kafka_user` and `yandex_mdb_kafka_cluster` resources and data sources
 
 BUG FIXES:
