@@ -909,7 +909,7 @@ func flattenKafkaUserPermissions(user *kafka.User) *schema.Set {
 		p["topic_name"] = perm.TopicName
 		p["role"] = perm.Role.String()
 		if len(perm.GetAllowHosts()) > 0 {
-			p["allow_hosts"] = convertStringArrToInterface(perm.GetAllowHosts())
+			p["allow_hosts"] = convertStringArrToSchemaSet(perm.GetAllowHosts())
 		}
 		result.Add(p)
 	}

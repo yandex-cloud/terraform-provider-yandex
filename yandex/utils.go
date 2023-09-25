@@ -304,6 +304,14 @@ func convertStringArrToInterface(sslice []string) []interface{} {
 	return islice
 }
 
+func convertStringArrToSchemaSet(sslice []string) *schema.Set {
+	result := schema.NewSet(schema.HashString, nil)
+	for _, sliceElement := range sslice {
+		result.Add(sliceElement)
+	}
+	return result
+}
+
 func mergeSchemas(a, b map[string]*schema.Schema) map[string]*schema.Schema {
 	merged := make(map[string]*schema.Schema, len(a)+len(b))
 
