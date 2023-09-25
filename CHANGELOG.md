@@ -1,5 +1,11 @@
 ## 0.100.0 (Unreleased)
 
+## 0.99.1 (September 25, 2023)
+
+BUG FIXES:
+
+* kafka: fix for `allow_hosts` attribute processing
+
 ## 0.99.0 (September 22, 2023)
 
 FEATURES:
