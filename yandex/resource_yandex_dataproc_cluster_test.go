@@ -432,11 +432,11 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 						{
 							"max_hosts_count":        20,
 							"preemptible":            true,
-							"warmup_duration":        121,
-							"stabilization_duration": 122,
-							"measurement_duration":   123,
-							"cpu_utilization_target": 82.0,
-							"decommission_timeout":   65,
+							"warmup_duration":        "121",
+							"stabilization_duration": "122",
+							"measurement_duration":   "123",
+							"cpu_utilization_target": "82",
+							"decommission_timeout":   "65",
 						},
 					},
 					"subnet_id":        "subnet-777",
@@ -638,8 +638,57 @@ func TestAccDataprocCluster(t *testing.T) {
 							}
 							subnet_id = yandex_vpc_subnet.tf-dataproc-subnet.id
 							hosts_count = 1
+							autoscaling_config {
+								max_hosts_count = 2
+							}
 						}`
 				})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDataprocClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "name", clusterName+"-updated"),
+					resource.TestCheckResourceAttr(resourceName, "description",
+						"Dataproc Cluster created by Terraform updated"),
+					resource.TestCheckResourceAttr(resourceName, "bucket", templateParams.Bucket2),
+					resource.TestCheckResourceAttr(resourceName, "labels.created_by", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "labels.updated_by", "terraform"),
+					testAccCheckDataprocClusterProperties(&cluster, updatedProperties),
+					testAccCheckDataprocSubclusters(resourceName, map[string]*dataproc.Subcluster{
+						"main": {
+							Name: "main",
+							Role: dataproc.Role_MASTERNODE,
+							Resources: &dataproc.Resources{
+								ResourcePresetId: "s2.small",
+								DiskTypeId:       "network-hdd",
+								DiskSize:         24 * (1 << 30),
+							},
+							HostsCount: 1,
+						},
+						"data-renamed": {
+							Name: "data-renamed",
+							Role: dataproc.Role_DATANODE,
+							Resources: &dataproc.Resources{
+								ResourcePresetId: "s2.small",
+								DiskTypeId:       "network-hdd",
+								DiskSize:         32 * (1 << 30),
+							},
+							HostsCount: 2,
+						},
+						"compute-1": {
+							Name: "compute-1",
+							Role: dataproc.Role_COMPUTENODE,
+							Resources: &dataproc.Resources{
+								ResourcePresetId: "s2.small",
+								DiskTypeId:       "network-hdd",
+								DiskSize:         24 * (1 << 30),
+							},
+							HostsCount: 1,
+						},
+					}),
+				),
+			},
+			dataprocClusterImportStep(resourceName),
+			{
+				Config: testAccDataprocClusterConfig(t, templateParams),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDataprocClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "name", clusterName+"-updated"),
@@ -770,6 +819,34 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-manager-2" {
 	folder_id   = "{{.FolderID}}"
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
 	role        = "mdb.dataproc.agent"
+	sleep_after = 30
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-1" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
+	role        = "dataproc.provisioner"
+	sleep_after = 30
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-2" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
+	role        = "dataproc.provisioner"
+	sleep_after = 30
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-1" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
+	role        = "monitoring.viewer"
+	sleep_after = 30
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-2" {
+	folder_id   = "{{.FolderID}}"
+	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
+	role        = "monitoring.viewer"
 	sleep_after = 30
 }
 

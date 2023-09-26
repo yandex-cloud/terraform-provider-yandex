@@ -1,5 +1,8 @@
 ## 0.100.0 (Unreleased)
 
+BUG FIXES:
+* dataproc: fix autoscaling subcluster update
+
 ## 0.99.1 (September 25, 2023)
 
 BUG FIXES:

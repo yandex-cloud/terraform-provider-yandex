@@ -127,29 +127,34 @@ func resourceYandexDataprocCluster() *schema.Resource {
 													Default:  false,
 												},
 												"measurement_duration": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default:  -1,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
 												},
 												"warmup_duration": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default:  -1,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
 												},
 												"stabilization_duration": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default:  -1,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
 												},
 												"cpu_utilization_target": {
-													Type:     schema.TypeFloat,
-													Optional: true,
-													Default:  -1,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
 												},
 												"decommission_timeout": {
-													Type:     schema.TypeInt,
-													Optional: true,
-													Default:  -1,
+													Type:         schema.TypeString,
+													Optional:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
 												},
 											},
 										},
@@ -472,12 +477,17 @@ func prepareDataprocCreateClusterRequest(d *schema.ResourceData, meta *Config) (
 		return nil, fmt.Errorf("error while expanding labels on Data Proc Cluster create: %s", err)
 	}
 
+	configSpec, err := expandDataprocCreateClusterConfigSpec(d)
+	if err != nil {
+		return nil, fmt.Errorf("error while expanding config on Data Proc Cluster create: %s", err)
+	}
+
 	req := dataproc.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
 		Description:        d.Get("description").(string),
 		Labels:             labels,
-		ConfigSpec:         expandDataprocCreateClusterConfigSpec(d),
+		ConfigSpec:         configSpec,
 		ZoneId:             zoneID,
 		ServiceAccountId:   d.Get("service_account_id").(string),
 		Bucket:             d.Get("bucket").(string),
@@ -700,7 +710,10 @@ func partitionDataprocSubclustersByAction(d *schema.ResourceData, subclusters []
 				updateReqs = append(updateReqs, req)
 			}
 		} else {
-			req := getDataprocSubclusterCreateRequest(clusterID, subclusterSpec)
+			req, err := getDataprocSubclusterCreateRequest(clusterID, subclusterSpec)
+			if err != nil {
+				return nil, nil, nil, err
+			}
 			createReqs = append(createReqs, req)
 		}
 	}
@@ -717,8 +730,11 @@ func partitionDataprocSubclustersByAction(d *schema.ResourceData, subclusters []
 	return createReqs, updateReqs, deleteReqs, nil
 }
 
-func getDataprocSubclusterCreateRequest(clusterID string, element interface{}) *dataproc.CreateSubclusterRequest {
-	createSpec := expandDataprocSubclusterSpec(element)
+func getDataprocSubclusterCreateRequest(clusterID string, element interface{}) (*dataproc.CreateSubclusterRequest, error) {
+	createSpec, err := expandDataprocSubclusterSpec(element)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dataproc.CreateSubclusterRequest{
 		ClusterId:         clusterID,
@@ -728,7 +744,7 @@ func getDataprocSubclusterCreateRequest(clusterID string, element interface{}) *
 		SubnetId:          createSpec.SubnetId,
 		HostsCount:        createSpec.HostsCount,
 		AutoscalingConfig: createSpec.AutoscalingConfig,
-	}
+	}, nil
 }
 
 func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*dataproc.UpdateSubclusterRequest, error) {
@@ -744,7 +760,11 @@ func getDataprocSubclusterUpdateRequest(d *schema.ResourceData, path string) (*d
 	}
 	autoscalingConfigs := subclusterSpec["autoscaling_config"].([]interface{})
 	if len(autoscalingConfigs) > 0 {
-		req.AutoscalingConfig = expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+		autoscalingConfig, err := expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+		if err != nil {
+			return nil, err
+		}
+		req.AutoscalingConfig = autoscalingConfig
 	}
 
 	constFields := []string{"role", "subnet_id"}

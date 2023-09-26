@@ -1304,12 +1304,16 @@ type dayMaintenanceWindow struct {
 	duration  *duration.Duration
 }
 
-func expandDataprocCreateClusterConfigSpec(d *schema.ResourceData) *dataproc.CreateClusterConfigSpec {
+func expandDataprocCreateClusterConfigSpec(d *schema.ResourceData) (*dataproc.CreateClusterConfigSpec, error) {
+	subclusters, err := expandDataprocSubclustersSpec(d)
+	if err != nil {
+		return nil, err
+	}
 	return &dataproc.CreateClusterConfigSpec{
 		VersionId:       d.Get("cluster_config.0.version_id").(string),
 		Hadoop:          expandDataprocHadoopConfig(d),
-		SubclustersSpec: expandDataprocSubclustersSpec(d),
-	}
+		SubclustersSpec: subclusters,
+	}, nil
 }
 
 func expandDataprocHadoopConfig(d *schema.ResourceData) *dataproc.HadoopConfig {
@@ -1345,18 +1349,22 @@ func expandDataprocSSHPublicKeys(d *schema.ResourceData) []string {
 	return convertStringSet(v)
 }
 
-func expandDataprocSubclustersSpec(d *schema.ResourceData) []*dataproc.CreateSubclusterConfigSpec {
+func expandDataprocSubclustersSpec(d *schema.ResourceData) ([]*dataproc.CreateSubclusterConfigSpec, error) {
 	rootKey := "cluster_config.0.subcluster_spec"
 	list := d.Get(rootKey).([]interface{})
 	subclusters := make([]*dataproc.CreateSubclusterConfigSpec, len(list))
 	for index, element := range list {
-		subclusters[index] = expandDataprocSubclusterSpec(element)
+		subcluster, err := expandDataprocSubclusterSpec(element)
+		if err != nil {
+			return nil, err
+		}
+		subclusters[index] = subcluster
 	}
 
-	return subclusters
+	return subclusters, nil
 }
 
-func expandDataprocSubclusterSpec(element interface{}) *dataproc.CreateSubclusterConfigSpec {
+func expandDataprocSubclusterSpec(element interface{}) (*dataproc.CreateSubclusterConfigSpec, error) {
 	subclusterSpec := element.(map[string]interface{})
 	roleName := subclusterSpec["role"].(string)
 	roleID := dataproc.Role_value[roleName]
@@ -1373,11 +1381,15 @@ func expandDataprocSubclusterSpec(element interface{}) *dataproc.CreateSubcluste
 	if v, ok := subclusterSpec["autoscaling_config"]; ok {
 		autoscalingConfigs := v.([]interface{})
 		if len(autoscalingConfigs) > 0 {
-			subcluster.AutoscalingConfig = expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+			autoscalingConfig, err := expandDataprocAutoscalingConfig(autoscalingConfigs[0])
+			if err != nil {
+				return nil, err
+			}
+			subcluster.AutoscalingConfig = autoscalingConfig
 		}
 	}
 
-	return subcluster
+	return subcluster, nil
 }
 
 func expandDataprocResources(r interface{}) *dataproc.Resources {
@@ -1396,7 +1408,25 @@ func expandDataprocResources(r interface{}) *dataproc.Resources {
 	return resources
 }
 
-func expandDataprocAutoscalingConfig(r interface{}) *dataproc.AutoscalingConfig {
+func stringToDuration(s string) (*duration.Duration, error) {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return nil, err
+	}
+	return &duration.Duration{Seconds: int64(i)}, nil
+}
+
+func expandAutoscalingDurationField(autoscalingConfigMap map[string]interface{}, fieldName string) (*duration.Duration, error) {
+	if v, ok := autoscalingConfigMap[fieldName]; ok {
+		durationSeconds := v.(string)
+		if durationSeconds != "" {
+			return stringToDuration(durationSeconds)
+		}
+	}
+	return nil, nil
+}
+
+func expandDataprocAutoscalingConfig(r interface{}) (*dataproc.AutoscalingConfig, error) {
 	autoscalingConfig := &dataproc.AutoscalingConfig{}
 	autoscalingConfigMap := r.(map[string]interface{})
 	log.Printf("[DEBUG] autoscalingConfigMap = %v", autoscalingConfigMap)
@@ -1408,37 +1438,49 @@ func expandDataprocAutoscalingConfig(r interface{}) *dataproc.AutoscalingConfig 
 	if v, ok := autoscalingConfigMap["preemptible"]; ok {
 		autoscalingConfig.Preemptible = v.(bool)
 	}
-	if v, ok := autoscalingConfigMap["measurement_duration"]; ok {
-		durationSeconds := v.(int)
-		if durationSeconds >= 0 {
-			autoscalingConfig.MeasurementDuration = &duration.Duration{Seconds: int64(durationSeconds)}
-		}
+
+	durationValue, err := expandAutoscalingDurationField(autoscalingConfigMap, "measurement_duration")
+	if err != nil {
+		return nil, err
 	}
-	if v, ok := autoscalingConfigMap["warmup_duration"]; ok {
-		durationSeconds := v.(int)
-		if durationSeconds >= 0 {
-			autoscalingConfig.WarmupDuration = &duration.Duration{Seconds: int64(durationSeconds)}
-		}
+	autoscalingConfig.MeasurementDuration = durationValue
+
+	durationValue, err = expandAutoscalingDurationField(autoscalingConfigMap, "warmup_duration")
+	if err != nil {
+		return nil, err
 	}
-	if v, ok := autoscalingConfigMap["stabilization_duration"]; ok {
-		durationSeconds := v.(int)
-		if durationSeconds >= 0 {
-			autoscalingConfig.StabilizationDuration = &duration.Duration{Seconds: int64(durationSeconds)}
-		}
+	autoscalingConfig.WarmupDuration = durationValue
+
+	durationValue, err = expandAutoscalingDurationField(autoscalingConfigMap, "stabilization_duration")
+	if err != nil {
+		return nil, err
 	}
+	autoscalingConfig.StabilizationDuration = durationValue
+
 	if v, ok := autoscalingConfigMap["cpu_utilization_target"]; ok {
-		if v.(float64) >= 0 {
-			autoscalingConfig.CpuUtilizationTarget = v.(float64)
+		value := v.(string)
+		if value != "" {
+			valueInt, err := strconv.Atoi(value)
+			if err != nil {
+				return nil, err
+			}
+
+			autoscalingConfig.CpuUtilizationTarget = float64(valueInt)
 		}
 	}
 	if v, ok := autoscalingConfigMap["decommission_timeout"]; ok {
-		durationSeconds := v.(int)
-		if durationSeconds >= 0 {
-			autoscalingConfig.DecommissionTimeout = int64(durationSeconds)
+		durationSeconds := v.(string)
+		if durationSeconds != "" {
+			durationSecondsInt, err := strconv.Atoi(durationSeconds)
+			if err != nil {
+				return nil, err
+			}
+
+			autoscalingConfig.DecommissionTimeout = int64(durationSecondsInt)
 		}
 	}
 
-	return autoscalingConfig
+	return autoscalingConfig, nil
 }
 
 func flattenDataprocClusterConfig(cluster *dataproc.Cluster, subclusters []*dataproc.Subcluster) []map[string]interface{} {
@@ -1508,11 +1550,11 @@ func flattenDataprocAutoscalingConfig(r *dataproc.AutoscalingConfig) []map[strin
 
 	res["max_hosts_count"] = int(r.MaxHostsCount)
 	res["preemptible"] = r.Preemptible
-	res["measurement_duration"] = int(r.MeasurementDuration.Seconds)
-	res["warmup_duration"] = int(r.WarmupDuration.Seconds)
-	res["stabilization_duration"] = int(r.StabilizationDuration.Seconds)
-	res["cpu_utilization_target"] = r.CpuUtilizationTarget
-	res["decommission_timeout"] = int(r.DecommissionTimeout)
+	res["measurement_duration"] = strconv.Itoa(int(r.MeasurementDuration.Seconds))
+	res["warmup_duration"] = strconv.Itoa(int(r.WarmupDuration.Seconds))
+	res["stabilization_duration"] = strconv.Itoa(int(r.StabilizationDuration.Seconds))
+	res["cpu_utilization_target"] = strconv.FormatFloat(r.CpuUtilizationTarget, 'f', 0, 64)
+	res["decommission_timeout"] = strconv.Itoa(int(r.DecommissionTimeout))
 
 	return []map[string]interface{}{res}
 }
