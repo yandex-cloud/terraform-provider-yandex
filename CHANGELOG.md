@@ -1,5 +1,9 @@
 ## 0.100.0 (Unreleased)
 
+FEATURES:
+
+* hadoop: support `initialization_action` section
+
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update
 

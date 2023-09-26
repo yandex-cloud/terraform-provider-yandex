@@ -215,6 +215,37 @@ func resourceYandexDataprocCluster() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
+
+									"initialization_action": {
+										Type:     schema.TypeList,
+										Optional: true,
+										ForceNew: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"uri": {
+													Type:     schema.TypeString,
+													Required: true,
+													ForceNew: true,
+												},
+												"args": {
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Computed: true,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"timeout": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ForceNew:     true,
+													Computed:     true,
+													ValidateFunc: ConvertableToInt(),
+												},
+											},
+										},
+									},
 								},
 							},
 						},

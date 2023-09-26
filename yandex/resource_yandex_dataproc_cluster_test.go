@@ -115,6 +115,16 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 						"services":        []interface{}{"HDFS", "YARN"},
 						"properties":      map[string]interface{}{"prop1": "val1", "prop2": "val2"},
 						"ssh_public_keys": []interface{}{"id_rsa.pub", "id_dsa.pub"},
+						"initialization_action": []interface{}{
+							map[string]interface{}{
+								"uri":     "s3a://initact1.sh",
+								"timeout": "100",
+								"args":    []interface{}{"arg1", "arg2"},
+							},
+							map[string]interface{}{
+								"uri": "s3a://initact2.sh",
+							},
+						},
 					},
 				},
 				"subcluster_spec": []interface{}{
@@ -212,6 +222,17 @@ func TestExpandDataprocClusterConfig(t *testing.T) {
 				Services:      []dataproc.HadoopConfig_Service{dataproc.HadoopConfig_HDFS, dataproc.HadoopConfig_YARN},
 				Properties:    map[string]string{"prop1": "val1", "prop2": "val2"},
 				SshPublicKeys: []string{"id_rsa.pub", "id_dsa.pub"},
+				InitializationActions: []*dataproc.InitializationAction{
+					{
+						Uri:     "s3a://initact1.sh",
+						Args:    []string{"arg1", "arg2"},
+						Timeout: 100,
+					},
+					{
+						Uri:  "s3a://initact2.sh",
+						Args: []string{},
+					},
+				},
 			},
 			SubclustersSpec: []*dataproc.CreateSubclusterConfigSpec{
 				{
@@ -290,6 +311,17 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 				Services:      []dataproc.HadoopConfig_Service{dataproc.HadoopConfig_HDFS, dataproc.HadoopConfig_YARN},
 				Properties:    map[string]string{"prop1": "val1", "prop2": "val2"},
 				SshPublicKeys: []string{"id_rsa.pub", "id_dsa.pub"},
+				InitializationActions: []*dataproc.InitializationAction{
+					{
+						Uri:     "s3a://initact1.sh",
+						Args:    []string{"arg1", "arg2"},
+						Timeout: 100,
+					},
+					{
+						Uri:  "s3a://initact2.sh",
+						Args: []string{},
+					},
+				},
 			},
 		},
 	}
@@ -369,6 +401,18 @@ func TestFlattenDataprocClusterConfig(t *testing.T) {
 					"services":        []string{"HDFS", "YARN"},
 					"properties":      map[string]string{"prop1": "val1", "prop2": "val2"},
 					"ssh_public_keys": []string{"id_rsa.pub", "id_dsa.pub"},
+					"initialization_action": []interface{}{
+						map[string]interface{}{
+							"uri":     "s3a://initact1.sh",
+							"timeout": "100",
+							"args":    []string{"arg1", "arg2"},
+						},
+						map[string]interface{}{
+							"uri":     "s3a://initact2.sh",
+							"timeout": "0",
+							"args":    []string{},
+						},
+					},
 				},
 			},
 			"subcluster_spec": []interface{}{
@@ -457,6 +501,7 @@ type dataprocTFConfigParams struct {
 	Description        string
 	FolderID           string
 	GatewayName        string
+	InitActions        string
 	Labels             string
 	Name               string
 	NetworkName        string
@@ -489,9 +534,14 @@ func defaultDataprocConfigParams(t *testing.T) dataprocTFConfigParams {
 	}
 
 	return dataprocTFConfigParams{
-		Bucket1:        acctest.RandomWithPrefix("tf-dataproc"),
-		Bucket2:        acctest.RandomWithPrefix("tf-dataproc"),
-		CurrentBucket:  "yandex_storage_bucket.tf-dataproc-1.bucket",
+		Bucket1:       acctest.RandomWithPrefix("tf-dataproc"),
+		Bucket2:       acctest.RandomWithPrefix("tf-dataproc"),
+		CurrentBucket: "yandex_storage_bucket.tf-dataproc-1.bucket",
+		InitActions: `
+            initialization_action {
+				uri = "s3a://${yandex_storage_bucket.tf-dataproc-1.bucket}/${yandex_storage_object.initact-script.key}"
+	            args = ["arg1, arg2"]
+            }`,
 		Description:    description,
 		FolderID:       folderID,
 		Name:           clusterName,
@@ -604,6 +654,7 @@ func TestAccDataprocCluster(t *testing.T) {
 					cfg.Name += "-updated"
 					cfg.Description += " updated"
 					cfg.CurrentBucket = "yandex_storage_bucket.tf-dataproc-2.bucket"
+					cfg.InitActions = ""
 					cfg.SAId = "yandex_iam_service_account.tf-dataproc-sa-2.id"
 					cfg.Labels = `{
 							created_by = "terraform"
@@ -873,6 +924,14 @@ resource "yandex_storage_bucket" "tf-dataproc-1" {
   secret_key = yandex_iam_service_account_static_access_key.tf-dataproc-sa-static-key.secret_key
 }
 
+resource "yandex_storage_object" "initact-script" {
+  bucket = yandex_storage_bucket.tf-dataproc-1.bucket
+  access_key = yandex_iam_service_account_static_access_key.tf-dataproc-sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.tf-dataproc-sa-static-key.secret_key
+  key    = "initact.sh"
+  content = "#!/bin/bash \necho Hello world"
+}
+
 resource "yandex_storage_bucket" "tf-dataproc-2" {
   bucket     = "{{.Bucket2}}"
   access_key = yandex_iam_service_account_static_access_key.tf-dataproc-sa-static-key.access_key
@@ -898,6 +957,7 @@ resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
       services = ["HDFS", "YARN", "SPARK", "TEZ", "MAPREDUCE", "HIVE"]
       properties = {{.Properties}}
       ssh_public_keys = ["{{.SSHKey}}"]
+      {{.InitActions}}
     }
 
 	{{.Subcluster1}}

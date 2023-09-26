@@ -1309,19 +1309,28 @@ func expandDataprocCreateClusterConfigSpec(d *schema.ResourceData) (*dataproc.Cr
 	if err != nil {
 		return nil, err
 	}
+	hadoop, err := expandDataprocHadoopConfig(d)
+	if err != nil {
+		return nil, err
+	}
 	return &dataproc.CreateClusterConfigSpec{
 		VersionId:       d.Get("cluster_config.0.version_id").(string),
-		Hadoop:          expandDataprocHadoopConfig(d),
+		Hadoop:          hadoop,
 		SubclustersSpec: subclusters,
 	}, nil
 }
 
-func expandDataprocHadoopConfig(d *schema.ResourceData) *dataproc.HadoopConfig {
-	return &dataproc.HadoopConfig{
-		Services:      expandDataprocServices(d),
-		Properties:    expandDataprocProperties(d),
-		SshPublicKeys: expandDataprocSSHPublicKeys(d),
+func expandDataprocHadoopConfig(d *schema.ResourceData) (*dataproc.HadoopConfig, error) {
+	initActions, err := expandDataprocInitActions(d)
+	if err != nil {
+		return nil, err
 	}
+	return &dataproc.HadoopConfig{
+		Services:              expandDataprocServices(d),
+		Properties:            expandDataprocProperties(d),
+		SshPublicKeys:         expandDataprocSSHPublicKeys(d),
+		InitializationActions: initActions,
+	}, nil
 }
 
 func expandDataprocServices(d *schema.ResourceData) []dataproc.HadoopConfig_Service {
@@ -1347,6 +1356,37 @@ func expandDataprocProperties(d *schema.ResourceData) map[string]string {
 func expandDataprocSSHPublicKeys(d *schema.ResourceData) []string {
 	v := d.Get("cluster_config.0.hadoop.0.ssh_public_keys").(*schema.Set)
 	return convertStringSet(v)
+}
+
+func expandDataprocInitActions(d *schema.ResourceData) ([]*dataproc.InitializationAction, error) {
+	list := d.Get("cluster_config.0.hadoop.0.initialization_action").([]interface{})
+	initActions := make([]*dataproc.InitializationAction, len(list))
+	for index, element := range list {
+		elementMap := element.(map[string]interface{})
+		initAction := &dataproc.InitializationAction{
+			Uri: elementMap["uri"].(string),
+		}
+
+		if elementMap["timeout"].(string) != "" {
+			timeout, err := strconv.Atoi(elementMap["timeout"].(string))
+			if err != nil {
+				return nil, err
+			}
+			initAction.Timeout = int64(timeout)
+		}
+
+		argsList := elementMap["args"].([]interface{})
+		if argsList != nil {
+			args := make([]string, len(argsList))
+			for listIndex, arg := range argsList {
+				args[listIndex] = arg.(string)
+			}
+			initAction.Args = args
+		}
+
+		initActions[index] = initAction
+	}
+	return initActions, nil
 }
 
 func expandDataprocSubclustersSpec(d *schema.ResourceData) ([]*dataproc.CreateSubclusterConfigSpec, error) {
@@ -1496,11 +1536,24 @@ func flattenDataprocClusterConfig(cluster *dataproc.Cluster, subclusters []*data
 func flattenDataprocHadoopConfig(config *dataproc.HadoopConfig) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"services":        flattenDataprocServices(config.Services),
-			"properties":      config.Properties,
-			"ssh_public_keys": config.SshPublicKeys,
+			"services":              flattenDataprocServices(config.Services),
+			"properties":            config.Properties,
+			"ssh_public_keys":       config.SshPublicKeys,
+			"initialization_action": flattenInitActions(config.InitializationActions),
 		},
 	}
+}
+
+func flattenInitActions(actions []*dataproc.InitializationAction) []interface{} {
+	result := make([]interface{}, len(actions))
+	for index, action := range actions {
+		result[index] = map[string]interface{}{
+			"uri":     action.Uri,
+			"args":    action.Args,
+			"timeout": strconv.Itoa(int(action.Timeout)),
+		}
+	}
+	return result
 }
 
 func flattenDataprocServices(services []dataproc.HadoopConfig_Service) []string {
