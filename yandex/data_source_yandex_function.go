@@ -142,6 +142,55 @@ func dataSourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"async_invocation": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"retries_count": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ymq_success_target": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"arn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"ymq_failure_target": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"arn": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }

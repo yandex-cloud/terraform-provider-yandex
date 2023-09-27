@@ -32,6 +32,18 @@ resource "yandex_function" "test-function" {
   content {
     zip_filename = "function.zip"
   }
+  async_invocation {
+    retries_count = "3"
+    services_account_id = "ajeihp9qsfg2l6f838kk"
+    ymq_failure_target {
+      service_account_id = "ajeqr0pjpbrkovcqb76m"
+      arn = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:fail"
+    }
+    ymq_success_target {
+      service_account_id = "ajeqr0pjpbrkovcqb76m"
+      arn = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:success"
+    }
+  }
 }
 ```
 
@@ -66,7 +78,9 @@ The following arguments are supported:
 * `package.0.object_name` - Name of the object in the bucket that stores the code for the version.
 
 * `content` - Version deployment content for Yandex Cloud Function code. Can be only one `package` or `content` section. Either `package` or `content` section must be specified.
-* `content.0.zip_filename` - Filename to zip archive for the version. 
+* `content.0.zip_filename` - Filename to zip archive for the version.
+
+* `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.
 
 
 ## Attributes Reference
@@ -89,3 +103,17 @@ The `secrets` block supports:
 * `key` - (Required) Secret's entries key which value will be stored in environment variable.
 
 * `environment_variable` - (Required) Function's environment variable in which secret's value will be stored.
+
+---
+
+The `async_invocation` block supports:
+
+* `retries_count` - Maximum number of retries for async invocation
+* `service_account_id` - Service account used for async invocation
+* `ymq_success_target` - Target for successful async invocation
+* `ymq_failure_target` - Target for unsuccessful async invocation
+
+Both `ymq_success_target` and `ymq_failure_target` blocks supports:
+
+* `arn` - YMQ ARN
+* `service_account_id` - Service account used for writing result to queue

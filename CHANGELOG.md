@@ -3,6 +3,7 @@
 FEATURES:
 
 * hadoop: support `initialization_action` section
+* serverless: add `async_invocation` attribute in `yandex_function` resources and data sources
 
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update

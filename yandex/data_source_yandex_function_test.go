@@ -92,6 +92,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 		secretValue:  "tf-function-secret-value",
 	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
+	params.maxAsyncRetries = "2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -119,6 +120,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(functionDataSource, "secrets.0.version_id"),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.key", params.secret.secretKey),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.environment_variable", params.secret.secretEnvVar),
+					resource.TestCheckResourceAttr(functionDataSource, "async_invocation.0.retries_count", params.maxAsyncRetries),
 					testAccCheckCreatedAtAttr(functionDataSource),
 				),
 			},
@@ -201,6 +203,9 @@ resource "yandex_function" "test-function" {
   content {
     zip_filename = "%s"
   }
+  async_invocation {
+    retries_count = "%s"
+  }
 }
 
 resource "yandex_iam_service_account" "test-account" {
@@ -241,6 +246,7 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.secret.secretKey,
 		params.secret.secretEnvVar,
 		params.zipFilename,
+		params.maxAsyncRetries,
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,

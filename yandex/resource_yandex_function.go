@@ -208,6 +208,58 @@ func resourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"async_invocation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"retries_count": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"ymq_success_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"arn": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+						"ymq_failure_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"arn": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -485,6 +537,20 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 	if connectivity := expandFunctionConnectivity(d); connectivity != nil {
 		versionReq.Connectivity = connectivity
 	}
+	if v, ok := d.GetOk("async_invocation.0"); ok {
+		asyncConfig := v.(map[string]interface{})
+		config := &functions.AsyncInvocationConfig{}
+
+		if maxRetries, ok := asyncConfig["retries_count"]; ok {
+			config.RetriesCount = int64(maxRetries.(int))
+		}
+		if saID, ok := asyncConfig["service_account_id"]; ok {
+			config.ServiceAccountId = saID.(string)
+		}
+		config.SuccessTarget = expandFunctionAsyncYMQTarget(d, "ymq_success_target")
+		config.FailureTarget = expandFunctionAsyncYMQTarget(d, "ymq_failure_target")
+		versionReq.AsyncInvocationConfig = config
+	}
 
 	return versionReq, nil
 }
@@ -518,6 +584,9 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 	if connectivity := flattenFunctionConnectivity(version.Connectivity); connectivity != nil {
 		d.Set("connectivity", connectivity)
+	}
+	if asyncConfig := flattenFunctionAsyncConfig(version.AsyncInvocationConfig); asyncConfig != nil {
+		d.Set("async_invocation", asyncConfig)
 	}
 
 	tags := &schema.Set{F: schema.HashString}
@@ -636,4 +705,55 @@ func flattenFunctionConnectivity(connectivity *functions.Connectivity) []interfa
 		return nil
 	}
 	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
+}
+
+func expandFunctionAsyncYMQTarget(d *schema.ResourceData, targetType string) *functions.AsyncInvocationConfig_ResponseTarget {
+	if v, ok := d.GetOk("async_invocation.0." + targetType + ".0"); ok {
+		ymqSuccess := v.(map[string]interface{})
+		saID := ymqSuccess["service_account_id"].(string)
+		arn := ymqSuccess["arn"].(string)
+
+		return &functions.AsyncInvocationConfig_ResponseTarget{
+			Target: &functions.AsyncInvocationConfig_ResponseTarget_YmqTarget{
+				YmqTarget: &functions.YMQTarget{
+					ServiceAccountId: saID,
+					QueueArn:         arn,
+				},
+			},
+		}
+	}
+	return &functions.AsyncInvocationConfig_ResponseTarget{
+		Target: &functions.AsyncInvocationConfig_ResponseTarget_EmptyTarget{},
+	}
+}
+
+func flattenFunctionAsyncConfig(config *functions.AsyncInvocationConfig) []interface{} {
+	if config == nil {
+		return nil
+	}
+	res := map[string]interface{}{"retries_count": config.RetriesCount}
+	if config.ServiceAccountId != "" {
+		res["service_account_id"] = config.ServiceAccountId
+	}
+	if successTarget := flattenFunctionAsyncResponseTarget(config.SuccessTarget); successTarget != nil {
+		res["ymq_success_target"] = successTarget
+	}
+	if failureTarget := flattenFunctionAsyncResponseTarget(config.SuccessTarget); failureTarget != nil {
+		res["ymq_failure_target"] = failureTarget
+	}
+	return []interface{}{res}
+}
+
+func flattenFunctionAsyncResponseTarget(target *functions.AsyncInvocationConfig_ResponseTarget) []interface{} {
+	switch s := target.Target.(type) {
+	case *functions.AsyncInvocationConfig_ResponseTarget_YmqTarget:
+		return []interface{}{
+			map[string]interface{}{
+				"service_account_id": s.YmqTarget.ServiceAccountId,
+				"arn":                s.YmqTarget.QueueArn,
+			},
+		}
+	default:
+		return nil
+	}
 }
