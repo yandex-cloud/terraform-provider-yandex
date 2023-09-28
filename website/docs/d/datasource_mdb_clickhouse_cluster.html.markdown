@@ -235,6 +235,15 @@ The `settings` block supports:
   * `read` - abort query execution, return an error.
   * `pread` - abort query execution, return an error.
   * `pread_threadpool` - stop query execution, return partial result.
+* `remote_filesystem_read_method` - (Optional)  Method of reading data from remote filesystem, one of: `read`, `threadpool`.
+* `max_read_buffer_size` - (Optional) The maximum size of the buffer to read from the filesystem. 
+* `insert_keeper_max_retries` - (Optional) The setting sets the maximum number of retries for ClickHouse Keeper (or ZooKeeper) requests during insert into replicated MergeTree. Only Keeper requests which failed due to network error, Keeper session timeout, or request timeout are considered for retries.
+* `max_temporary_data_on_disk_size_for_user` - (Optional) The maximum amount of data consumed by temporary files on disk in bytes for all concurrently running user queries. Zero means unlimited.
+* `max_temporary_data_on_disk_size_for_query` - (Optional) The maximum amount of data consumed by temporary files on disk in bytes for all concurrently running queries. Zero means unlimited. 
+* `max_parser_depth` - (Optional) Limits maximum recursion depth in the recursive descent parser. Allows controlling the stack size. Zero means unlimited.
+* `memory_overcommit_ratio_denominator` - (Optional) It represents soft memory limit in case when hard limit is reached on user level. This value is used to compute overcommit ratio for the query. Zero means skip the query. 
+* `memory_overcommit_ratio_denominator_for_user` - (Optional) It represents soft memory limit in case when hard limit is reached on global level. This value is used to compute overcommit ratio for the query. Zero means skip the query.
+* `memory_usage_overcommit_max_wait_microseconds` - (Optional) Maximum time thread will wait for memory to be freed in the case of memory overcommit on a user level. If the timeout is reached and memory is not freed, an exception is thrown. 
 
 The `quota` block supports:
 
@@ -310,7 +319,7 @@ The `config` block supports:
 `query_log_retention_time`, `query_thread_log_enabled`, `query_thread_log_retention_size`, `query_thread_log_retention_time`,
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
-`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `default_database`,
+`text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_merges_mutations_concurrency_ratio`,  `default_database`,
 `total_memory_profiler_step` - ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
@@ -338,6 +347,11 @@ The `merge_tree` block supports:
 * `max_parts_in_total` - (Optional) Maximum number of parts in all partitions.
 * `max_number_of_merges_with_ttl_in_pool` - (Optional) When there is more than specified number of merges with TTL entries in pool, do not assign new merge with TTL. 
 * `cleanup_delay_period` - (Optional) Minimum period to clean old queue logs, blocks hashes and parts.
+* `number_of_free_entries_in_pool_to_execute_mutation` - (Optional) 
+* `max_avg_part_size_for_too_many_parts` - (Optional) The `too many parts` check according to `parts_to_delay_insert` and `parts_to_throw_insert` will be active only if the average part size (in the relevant partition) is not larger than the specified threshold. If it is larger than the specified threshold, the INSERTs will be neither delayed or rejected. This allows to have hundreds of terabytes in a single table on a single server if the parts are successfully merged to larger parts. This does not affect the thresholds on inactive parts or total parts.
+* `min_age_to_force_merge_seconds` - (Optional) Merge parts if every part in the range is older than the value of `min_age_to_force_merge_seconds`.
+* `min_age_to_force_merge_on_partition_only` - (Optional) Whether min_age_to_force_merge_seconds should be applied only on the entire partition and not on subset.
+* `merge_selecting_sleep_ms` - (Optional) Sleep time for merge selecting when no part is selected. A lower setting triggers selecting tasks in background_schedule_pool frequently, which results in a large number of requests to ClickHouse Keeper in large-scale clusters.
 
 The `kafka` block supports:
 
@@ -345,6 +359,9 @@ The `kafka` block supports:
 * `sasl_mechanism` - SASL mechanism used in kafka authentication.
 * `sasl_username` - Username on kafka server.
 * `sasl_password` - User password on kafka server.
+* `enable_ssl_certificate_verification` - (Optional) enable verification of SSL certificates.
+* `max_poll_interval_ms` - (Optional) Maximum allowed time between calls to consume messages (e.g., rd_kafka_consumer_poll()) for high-level consumers. If this interval is exceeded the consumer is considered failed and the group will rebalance in order to reassign the partitions to another consumer group member.
+* `session_timeout_ms` - (Optional) Client group session and failure detection timeout. The consumer sends periodic heartbeats (heartbeat.interval.ms) to indicate its liveness to the broker. If no hearts are received by the broker for a group member within the session timeout, the broker will remove the consumer from the group and trigger a rebalance. 
 
 The `kafka_topic` block supports:
 
@@ -356,6 +373,7 @@ The `compression` block supports:
 * `method` - Method: Compression method. Two methods are available: LZ4 and zstd.
 * `min_part_size` - Min part size: Minimum size (in bytes) of a data part in a table. ClickHouse only applies the rule to tables with data parts greater than or equal to the Min part size value.
 * `min_part_size_ratio` - Min part size ratio: Minimum table part size to total table size ratio. ClickHouse only applies the rule to tables in which this ratio is greater than or equal to the Min part size ratio value.
+* `level` - (Optional) Compression level for `ZSTD` method.
 
 The `rabbitmq` block supports:
 
@@ -379,6 +397,7 @@ The `cloud_storage` block supports:
 * `move_factor` - Sets the minimum free space ratio in the cluster storage. If the free space is lower than this value, the data is transferred to Yandex Object Storage. Acceptable values are 0 to 1, inclusive.
 * `data_cache_enabled` - Enables temporary storage in the cluster repository of data requested from the object repository.
 * `data_cache_max_size` - Defines the maximum amount of memory (in bytes) allocated in the cluster storage for temporary storage of data requested from the object storage.
+* `prefer_not_to_merge` - (Optional) Disables merging of data parts in `Yandex Object Storage`.
 
 The `maintenance_window` block supports:
 

@@ -34,7 +34,7 @@ require (
 	github.com/yandex-cloud/go-sdk v0.0.0-20230918120620-9e95f0816d79
 	github.com/ydb-platform/terraform-provider-ydb v0.0.13
 	golang.org/x/net v0.14.0
-	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d
+	google.golang.org/genproto v0.0.0-20230913181813-007df8e322eb
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230815205213-6bfd019c3878
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0

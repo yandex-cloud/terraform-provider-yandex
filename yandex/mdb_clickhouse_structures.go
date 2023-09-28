@@ -608,6 +608,18 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 		res["cleanup_delay_period"] = c.CleanupDelayPeriod.Value
 	}
 
+	if c.MaxAvgPartSizeForTooManyParts != nil {
+		res["max_avg_part_size_for_too_many_parts"] = c.MaxAvgPartSizeForTooManyParts.Value
+	}
+	if c.MinAgeToForceMergeSeconds != nil {
+		res["min_age_to_force_merge_seconds"] = c.MinAgeToForceMergeSeconds.Value
+	}
+	if c.MinAgeToForceMergeOnPartitionOnly != nil {
+		res["min_age_to_force_merge_on_partition_only"] = c.MinAgeToForceMergeOnPartitionOnly.Value
+	}
+	if c.MergeSelectingSleepMs != nil {
+		res["merge_selecting_sleep_ms"] = c.MergeSelectingSleepMs.Value
+	}
 	return []map[string]interface{}{res}, nil
 }
 
@@ -619,6 +631,15 @@ func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *c
 	res["sasl_username"] = c.SaslUsername
 	if v, ok := d.GetOk(keyPath + ".sasl_password"); ok {
 		res["sasl_password"] = v.(string)
+	}
+	if v, ok := d.GetOk(keyPath + ".enable_ssl_certificate_verification"); ok {
+		res["enable_ssl_certificate_verification"] = v.(bool)
+	}
+	if v, ok := d.GetOk(keyPath + ".max_poll_interval_ms"); ok {
+		res["max_poll_interval_ms"] = v.(int)
+	}
+	if v, ok := d.GetOk(keyPath + ".session_timeout_ms"); ok {
+		res["session_timeout_ms"] = v.(int)
 	}
 
 	return []map[string]interface{}{res}, nil
@@ -660,11 +681,15 @@ func flattenClickhouseCompressionSettings(c []*clickhouseConfig.ClickhouseConfig
 	var result []interface{}
 
 	for _, r := range c {
-		result = append(result, map[string]interface{}{
+		compressionSettings := map[string]interface{}{
 			"method":              r.Method.String(),
 			"min_part_size":       r.MinPartSize,
 			"min_part_size_ratio": r.MinPartSizeRatio,
-		})
+		}
+		if r.Level != nil && r.Level.GetValue() > 0 {
+			compressionSettings["level"] = r.Level.Value
+		}
+		result = append(result, compressionSettings)
 	}
 
 	return result, nil
@@ -729,6 +754,9 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	}
 	res["timezone"] = c.EffectiveConfig.Timezone
 	res["geobase_uri"] = c.EffectiveConfig.GeobaseUri
+	if c.EffectiveConfig.GeobaseEnabled != nil {
+		res["geobase_enabled"] = c.EffectiveConfig.GeobaseEnabled.Value
+	}
 
 	if c.EffectiveConfig.QueryLogRetentionSize != nil {
 		res["query_log_retention_size"] = c.EffectiveConfig.QueryLogRetentionSize.Value
@@ -779,6 +807,61 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	if c.EffectiveConfig.TextLogRetentionTime != nil {
 		res["text_log_retention_time"] = c.EffectiveConfig.TextLogRetentionTime.Value
 	}
+	// if c.EffectiveConfig.OpentelemetrySpanLogEnabled != nil {
+	// 	res["opentelemetry_span_log_enabled"] = c.EffectiveConfig.OpentelemetrySpanLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.OpentelemetrySpanLogRetentionSize != nil {
+	// 	res["opentelemetry_span_log_retention_size"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.OpentelemetrySpanLogRetentionTime != nil {
+	// 	res["opentelemetry_span_log_retention_time"] = c.EffectiveConfig.OpentelemetrySpanLogRetentionTime.Value
+	// }
+	// if c.EffectiveConfig.QueryViewsLogEnabled != nil {
+	// 	res["query_views_log_enabled"] = c.EffectiveConfig.QueryViewsLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.QueryViewsLogRetentionSize != nil {
+	// 	res["query_views_log_retention_size"] = c.EffectiveConfig.QueryViewsLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.QueryViewsLogRetentionTime != nil {
+	// 	res["query_views_log_retention_time"] = c.EffectiveConfig.QueryViewsLogRetentionTime.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousMetricLogEnabled != nil {
+	// 	res["asynchronous_metric_log_enabled"] = c.EffectiveConfig.AsynchronousMetricLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousMetricLogRetentionSize != nil {
+	// 	res["asynchronous_metric_log_retention_size"] = c.EffectiveConfig.AsynchronousMetricLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousMetricLogRetentionTime != nil {
+	// 	res["asynchronous_metric_log_retention_time"] = c.EffectiveConfig.AsynchronousMetricLogRetentionTime.Value
+	// }
+	// if c.EffectiveConfig.SessionLogEnabled != nil {
+	// 	res["session_log_enabled"] = c.EffectiveConfig.SessionLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.SessionLogRetentionSize != nil {
+	// 	res["session_log_retention_size"] = c.EffectiveConfig.SessionLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.SessionLogRetentionTime != nil {
+	// 	res["session_log_retention_time"] = c.EffectiveConfig.SessionLogRetentionTime.Value
+	// }
+	// if c.EffectiveConfig.ZookeeperLogEnabled != nil {
+	// 	res["zookeeper_log_enabled"] = c.EffectiveConfig.ZookeeperLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.ZookeeperLogRetentionSize != nil {
+	// 	res["zookeeper_log_retention_size"] = c.EffectiveConfig.ZookeeperLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.ZookeeperLogRetentionTime != nil {
+	// 	res["zookeeper_log_retention_time"] = c.EffectiveConfig.ZookeeperLogRetentionTime.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousInsertLogEnabled != nil {
+	// 	res["asynchronous_insert_log_enabled"] = c.EffectiveConfig.AsynchronousInsertLogEnabled.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousInsertLogRetentionSize != nil {
+	// 	res["asynchronous_insert_log_retention_size"] = c.EffectiveConfig.AsynchronousInsertLogRetentionSize.Value
+	// }
+	// if c.EffectiveConfig.AsynchronousInsertLogRetentionTime != nil {
+	// 	res["asynchronous_insert_log_retention_time"] = c.EffectiveConfig.AsynchronousInsertLogRetentionTime.Value
+	// }
+
 	res["text_log_level"] = c.EffectiveConfig.TextLogLevel.String()
 
 	if c.EffectiveConfig.BackgroundPoolSize != nil {
@@ -794,6 +877,9 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	}
 	if c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize != nil {
 		res["background_message_broker_schedule_pool_size"] = c.EffectiveConfig.BackgroundMessageBrokerSchedulePoolSize.Value
+	}
+	if c.EffectiveConfig.BackgroundMergesMutationsConcurrencyRatio != nil {
+		res["background_merges_mutations_concurrency_ratio"] = c.EffectiveConfig.BackgroundMergesMutationsConcurrencyRatio.Value
 	}
 	if c.EffectiveConfig.DefaultDatabase != nil && len(c.EffectiveConfig.DefaultDatabase.Value) != 0 {
 		res["default_database"] = c.EffectiveConfig.DefaultDatabase.Value
@@ -905,6 +991,18 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	if v, ok := d.GetOkExists(rootKey + ".cleanup_delay_period"); ok {
 		config.CleanupDelayPeriod = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".max_avg_part_size_for_too_many_parts"); ok {
+		config.MaxAvgPartSizeForTooManyParts = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".min_age_to_force_merge_seconds"); ok {
+		config.MinAgeToForceMergeSeconds = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".min_age_to_force_merge_on_partition_only"); ok {
+		config.MinAgeToForceMergeOnPartitionOnly = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".merge_selecting_sleep_ms"); ok {
+		config.MergeSelectingSleepMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 
 	return config, nil
 }
@@ -931,6 +1029,15 @@ func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*cli
 	}
 	if v, ok := d.GetOkExists(rootKey + ".sasl_password"); ok {
 		config.SaslPassword = v.(string)
+	}
+	if v, ok := d.GetOkExists(rootKey + ".enable_ssl_certificate_verification"); ok {
+		config.EnableSslCertificateVerification = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_poll_interval_ms"); ok {
+		config.MaxPollIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".session_timeout_ms"); ok {
+		config.SessionTimeoutMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	return config, nil
@@ -991,6 +1098,10 @@ func expandClickhouseCompressionSettings(d *schema.ResourceData, rootKey string)
 		}
 		if v, ok := d.GetOkExists(keyPrefix + ".min_part_size_ratio"); ok {
 			compression.MinPartSizeRatio = v.(float64)
+		}
+
+		if v, ok := d.GetOk(keyPrefix + ".level"); ok {
+			compression.Level = &wrapperspb.Int64Value{Value: int64(v.(int))}
 		}
 
 		result = append(result, compression)
@@ -1070,6 +1181,9 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOkExists(rootKey + ".geobase_uri"); ok {
 		config.GeobaseUri = v.(string)
 	}
+	if v, ok := d.GetOkExists(rootKey + ".geobase_enabled"); ok {
+		config.GeobaseEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	}
 	if v, ok := d.GetOkExists(rootKey + ".query_log_retention_size"); ok {
 		config.QueryLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
@@ -1118,6 +1232,60 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOkExists(rootKey + ".text_log_retention_time"); ok {
 		config.TextLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_enabled"); ok {
+	// 	config.OpentelemetrySpanLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_size"); ok {
+	// 	config.OpentelemetrySpanLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".opentelemetry_span_log_retention_time"); ok {
+	// 	config.OpentelemetrySpanLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_enabled"); ok {
+	// 	config.QueryViewsLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_size"); ok {
+	// 	config.QueryViewsLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".query_views_log_retention_time"); ok {
+	// 	config.QueryViewsLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_enabled"); ok {
+	// 	config.AsynchronousMetricLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_size"); ok {
+	// 	config.AsynchronousMetricLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_metric_log_retention_time"); ok {
+	// 	config.AsynchronousMetricLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".session_log_enabled"); ok {
+	// 	config.SessionLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".session_log_retention_size"); ok {
+	// 	config.SessionLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".session_log_retention_time"); ok {
+	// 	config.SessionLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_enabled"); ok {
+	// 	config.ZookeeperLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_size"); ok {
+	// 	config.ZookeeperLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".zookeeper_log_retention_time"); ok {
+	// 	config.ZookeeperLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_enabled"); ok {
+	// 	config.AsynchronousInsertLogEnabled = &wrappers.BoolValue{Value: v.(bool)}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_size"); ok {
+	// 	config.AsynchronousInsertLogRetentionSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
+	// if v, ok := d.GetOkExists(rootKey + ".asynchronous_insert_log_retention_time"); ok {
+	// 	config.AsynchronousInsertLogRetentionTime = &wrappers.Int64Value{Value: int64(v.(int))}
+	// }
 	if v, ok := d.GetOk(rootKey + ".text_log_level"); ok {
 		if val, err := expandEnum("text_log_level", v.(string), clickhouseConfig.ClickhouseConfig_LogLevel_value); val != nil && err == nil {
 			config.TextLogLevel = clickhouseConfig.ClickhouseConfig_LogLevel(*val)
@@ -1137,6 +1305,9 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	}
 	if v, ok := d.GetOk(rootKey + ".background_message_broker_schedule_pool_size"); ok {
 		config.BackgroundMessageBrokerSchedulePoolSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".background_merges_mutations_concurrency_ratio"); ok {
+		config.BackgroundMergesMutationsConcurrencyRatio = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 	if v, ok := d.GetOkExists(rootKey + ".default_database"); ok {
 		defaultDatabase, ok := v.(string)
@@ -1332,7 +1503,13 @@ var (
 		3: "pread",
 		4: "nmap",
 	}
-	UserSettings_LocalFilesystemReadMethod_value = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
+	UserSettings_RemoteFilesystemReadMethod_name = map[int32]string{
+		0: "unspecified",
+		1: "read",
+		2: "threadpool",
+	}
+	UserSettings_LocalFilesystemReadMethod_value  = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
+	UserSettings_RemoteFilesystemReadMethod_value = makeReversedMap(UserSettings_RemoteFilesystemReadMethod_name, clickhouse.UserSettings_RemoteFilesystemReadMethod_value)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
@@ -1415,6 +1592,20 @@ func getLocalFilesystemReadMethodName(value clickhouse.UserSettings_LocalFilesys
 func getLocalFilesystemReadMethodValue(name string) clickhouse.UserSettings_LocalFilesystemReadMethod {
 	if value, ok := UserSettings_LocalFilesystemReadMethod_value[name]; ok {
 		return clickhouse.UserSettings_LocalFilesystemReadMethod(value)
+	}
+	return 0
+}
+
+func getRemoteFilesystemReadMethodName(value clickhouse.UserSettings_RemoteFilesystemReadMethod) string {
+	if name, ok := UserSettings_RemoteFilesystemReadMethod_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_RemoteFilesystemReadMethod_name[0]
+}
+
+func getRemoteFilesystemReadMethodValue(name string) clickhouse.UserSettings_RemoteFilesystemReadMethod {
+	if value, ok := UserSettings_RemoteFilesystemReadMethod_value[name]; ok {
+		return clickhouse.UserSettings_RemoteFilesystemReadMethod(value)
 	}
 	return 0
 }
@@ -1642,6 +1833,16 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	if v, ok := us["local_filesystem_read_method"]; ok {
 		result.LocalFilesystemReadMethod = getLocalFilesystemReadMethodValue(v.(string))
 	}
+	if v, ok := us["remote_filesystem_read_method"]; ok {
+		result.RemoteFilesystemReadMethod = getRemoteFilesystemReadMethodValue(v.(string))
+	}
+	setSettingFromMapInt64(us, "insert_keeper_max_retries", &result.InsertKeeperMaxRetries)
+	setSettingFromMapInt64(us, "max_temporary_data_on_disk_size_for_user", &result.MaxTemporaryDataOnDiskSizeForUser)
+	setSettingFromMapInt64(us, "max_temporary_data_on_disk_size_for_query", &result.MaxTemporaryDataOnDiskSizeForQuery)
+	setSettingFromMapInt64(us, "max_parser_depth", &result.MaxParserDepth)
+	setSettingFromMapInt64(us, "memory_overcommit_ratio_denominator", &result.MemoryOvercommitRatioDenominator)
+	setSettingFromMapInt64(us, "memory_overcommit_ratio_denominator_for_user", &result.MemoryOvercommitRatioDenominatorForUser)
+	setSettingFromMapInt64(us, "memory_usage_overcommit_max_wait_microseconds", &result.MemoryUsageOvercommitMaxWaitMicroseconds)
 
 	return result
 }
@@ -1819,6 +2020,16 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	if v, ok := d.GetOk(rootKey + ".local_filesystem_read_method"); ok {
 		result.LocalFilesystemReadMethod = getLocalFilesystemReadMethodValue(v.(string))
 	}
+	if v, ok := d.GetOk(rootKey + ".remote_filesystem_read_method"); ok {
+		result.RemoteFilesystemReadMethod = getRemoteFilesystemReadMethodValue(v.(string))
+	}
+	setSettingFromDataInt64(d, rootKey+".insert_keeper_max_retries", &result.InsertKeeperMaxRetries)
+	setSettingFromDataInt64(d, rootKey+".max_temporary_data_on_disk_size_for_user", &result.MaxTemporaryDataOnDiskSizeForUser)
+	setSettingFromDataInt64(d, rootKey+".max_temporary_data_on_disk_size_for_query", &result.MaxTemporaryDataOnDiskSizeForQuery)
+	setSettingFromDataInt64(d, rootKey+".max_parser_depth", &result.MaxParserDepth)
+	setSettingFromDataInt64(d, rootKey+".memory_overcommit_ratio_denominator", &result.MemoryOvercommitRatioDenominator)
+	setSettingFromDataInt64(d, rootKey+".memory_overcommit_ratio_denominator_for_user", &result.MemoryOvercommitRatioDenominatorForUser)
+	setSettingFromDataInt64(d, rootKey+".memory_usage_overcommit_max_wait_microseconds", &result.MemoryUsageOvercommitMaxWaitMicroseconds)
 
 	return result
 }
@@ -2118,7 +2329,29 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	result["input_format_parallel_parsing"] = falseOnNil(settings.InputFormatParallelParsing)
 
 	result["local_filesystem_read_method"] = getLocalFilesystemReadMethodName(settings.LocalFilesystemReadMethod)
+	result["remote_filesystem_read_method"] = getRemoteFilesystemReadMethodName(settings.RemoteFilesystemReadMethod)
 
+	if settings.InsertKeeperMaxRetries != nil {
+		result["insert_keeper_max_retries"] = settings.InsertKeeperMaxRetries.Value
+	}
+	if settings.MaxTemporaryDataOnDiskSizeForUser != nil {
+		result["max_temporary_data_on_disk_size_for_user"] = settings.MaxTemporaryDataOnDiskSizeForUser.Value
+	}
+	if settings.MaxTemporaryDataOnDiskSizeForQuery != nil {
+		result["max_temporary_data_on_disk_size_for_query"] = settings.MaxTemporaryDataOnDiskSizeForQuery.Value
+	}
+	if settings.MaxParserDepth != nil {
+		result["max_parser_depth"] = settings.MaxParserDepth.Value
+	}
+	if settings.MemoryOvercommitRatioDenominator != nil {
+		result["memory_overcommit_ratio_denominator"] = settings.MemoryOvercommitRatioDenominator.Value
+	}
+	if settings.MemoryOvercommitRatioDenominatorForUser != nil {
+		result["memory_overcommit_ratio_denominator_for_user"] = settings.MemoryOvercommitRatioDenominatorForUser.Value
+	}
+	if settings.MemoryUsageOvercommitMaxWaitMicroseconds != nil {
+		result["memory_usage_overcommit_max_wait_microseconds"] = settings.MemoryUsageOvercommitMaxWaitMicroseconds.Value
+	}
 	return result
 }
 
@@ -2353,6 +2586,9 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 						}
 					}
 				}
+				if preferNotToMerge, ok := cloudStorageSpec["prefer_not_to_merge"]; ok {
+					result.SetPreferNotToMerge(&wrapperspb.BoolValue{Value: preferNotToMerge.(bool)})
+				}
 			}
 		}
 	}
@@ -2376,6 +2612,9 @@ func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]int
 					m["data_cache_max_size"] = cs.GetDataCacheMaxSize().Value
 				}
 			}
+		}
+		if cs.GetPreferNotToMerge() != nil {
+			m["prefer_not_to_merge"] = cs.GetPreferNotToMerge().Value
 		}
 	}
 
