@@ -192,7 +192,6 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			},
 
 			mdbGreenplumClusterImportStep(greenplumResource),
-			// TODO: Expand cluster and set params. Temporely disable the step due to expand timeouts, investigating.
 			// {
 			// 	Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
 			// 	Check: resource.ComposeTestCheckFunc(
@@ -319,7 +318,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   zone = "ru-central1-b"
   subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
   assign_public_ip = false
-  version = "6.22"
+  version = "6.25"
 
   labels = { test_key_create : "test_value_create" }
 
@@ -495,5 +494,4 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 // 	data_transfer = true
 //   }
 // }`
-//
 // }

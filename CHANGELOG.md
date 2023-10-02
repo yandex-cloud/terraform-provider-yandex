@@ -5,6 +5,7 @@ FEATURES:
 * clickhouse: added `remote_filesystem_read_method`, `max_read_buffer_size`, `insert_keeper_max_retries`, `max_temporary_data_on_disk_size_for_user`, `max_temporary_data_on_disk_size_for_query`, `max_parser_depth`, `memory_overcommit_ratio_denominator`, `memory_overcommit_ratio_denominator_for_user`, `memory_usage_overcommit_max_wait_microseconds` for user settings, `geobase_enabled`, `background_merges_mutations_concurrency_ratio` for server configuration, `max_avg_part_size_for_too_many_parts`, `min_age_to_force_merge_seconds`, `min_age_to_force_merge_on_partition_only`, `merge_selecting_sleep_ms` for merge tree configuration, `enable_ssl_certificate_verification`, `max_poll_interval_ms`, `session_timeout_ms` for kafka_topic configuration, `level` for compression configuration, `prefer_not_to_merge` for cloud storage configratuion
 * hadoop: support `initialization_action` section
 * serverless: add `async_invocation` attribute in `yandex_function` resources and data sources
+* greenplum: add Greenplum 6.25 support
 
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update

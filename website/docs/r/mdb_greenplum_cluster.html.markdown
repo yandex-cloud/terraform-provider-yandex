@@ -28,7 +28,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   zone_id            = "ru-central1-a"
   subnet_id          = yandex_vpc_subnet.foo.id
   assign_public_ip   = true
-  version            = "6.19"
+  version            = "6.22"
   master_host_count  = 2
   segment_host_count = 5
   segment_in_host    = 1
@@ -107,7 +107,7 @@ The following arguments are supported:
 
 * `environment` - (Required) Deployment environment of the Greenplum cluster. (PRODUCTION, PRESTABLE)
 
-* `version` - (Required) Version of the Greenplum cluster. (6.19)
+* `version` - (Required) Version of the Greenplum cluster. (6.22 or 6.25)
 
 
 * `master_host_count` - (Required) Number of hosts in master subcluster (1 or 2).
@@ -219,9 +219,9 @@ $ terraform import yandex_mdb_greenplum_cluster.foo cluster_id
 
 ## Greenplum cluster settings
 
-| Setting name and type \ Greenplum version      | 6.19      | 6.22      |
+| Setting name and type \ Greenplum version      | 6.22      | 6.25      |
 | -----------------------------------------------| --------- | --------- |
-| gp_add_column_inherits_table_setting : boolean | -         | supported |
+| gp_add_column_inherits_table_setting : boolean | supported | supported |
 | gp_workfile_compression : boolean              | supported | supported |
 | gp_workfile_limit_files_per_query : integer    | supported | supported |
 | gp_workfile_limit_per_segment : integer        | supported | supported |

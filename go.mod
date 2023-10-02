@@ -30,7 +30,6 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
-	github.com/yandex-cloud/go-genproto v0.0.0-20230920131617-c7fac32e24ac
 	github.com/yandex-cloud/go-sdk v0.0.0-20230918120620-9e95f0816d79
 	github.com/ydb-platform/terraform-provider-ydb v0.0.13
 	golang.org/x/net v0.14.0
@@ -217,6 +216,7 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
+	github.com/yandex-cloud/go-genproto v0.0.0-20230925082019-69c39f6e321d // indirect
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20230528143953-42c825ace222 // indirect
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.48.5 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect

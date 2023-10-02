@@ -697,9 +697,10 @@ github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
 github.com/yandex-cloud/go-genproto v0.0.0-20230828085742-c924b3bfee75 h1:KjMZBQ2aeVOmLBINoP4bvbdIPtjTh0YAzJV52UVzjv4=
 github.com/yandex-cloud/go-genproto v0.0.0-20230828085742-c924b3bfee75/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20230918115514-93a99045c9de h1:BZxUcHNdLoxwiFWQoTY5pmOmdGiHdjmpsITBCSBCYw8=
 github.com/yandex-cloud/go-genproto v0.0.0-20230918115514-93a99045c9de/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
-github.com/yandex-cloud/go-genproto v0.0.0-20230920131617-c7fac32e24ac h1:vUD+BrOqzQq0031bLHkL1V3bi8e6Sm6hyJpHuPtH0wo=
-github.com/yandex-cloud/go-genproto v0.0.0-20230920131617-c7fac32e24ac/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20230925082019-69c39f6e321d h1:dLbFf5gUHuypoSvBoIF1/ha4g/oqA1tb8uh0/OvH6mo=
+github.com/yandex-cloud/go-genproto v0.0.0-20230925082019-69c39f6e321d/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20230828093337-d401bc1eeaba h1:UJlD39M9NCGBbkdB809H+KeZuNc7vJz7g+eJnFBviY8=
 github.com/yandex-cloud/go-sdk v0.0.0-20230828093337-d401bc1eeaba/go.mod h1:me/lXmdpKSoG/HIxXWe85CX49TzkhaZNxBal+CVgVPc=
 github.com/yandex-cloud/go-sdk v0.0.0-20230918120620-9e95f0816d79 h1:LhStDM3zogjx+lUW3O90jakeLnRwSCsaPfRkPFMdpnA=
