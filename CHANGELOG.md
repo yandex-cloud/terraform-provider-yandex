@@ -9,6 +9,7 @@ FEATURES:
 
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update
+* yandex_ydb_table: add trim slashes in table path
 
 ## 0.99.1 (September 25, 2023)
 
