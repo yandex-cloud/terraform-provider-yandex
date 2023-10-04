@@ -134,6 +134,10 @@ The `cluster_config` block supports:
 
 * `backup_window_start` - (Optional) Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
+* `backup_retain_period_days` - (Optional) Retain period of automatically created backup in days.
+
+* `performance_diagnostics` - (Optional) Performance diagnostics to the MongoDB cluster. The structure is documented below.
+
 * `access` - (Optional) Access policy to the MongoDB cluster. The structure is documented below.
 
 * `mongod` - (Optional) Configuration of the mongod service. The structure is documented below.
@@ -195,6 +199,10 @@ The `host` block supports:
 * `shard_name` - (Optional) The name of the shard to which the host belongs. Only for sharded cluster.
 
 * `type` - (Optional) type of mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to mongod.
+
+The `performance_diagnostics` block supports:
+
+* `enabled` - (Optional) Enable or disable performance diagnostics.
 
 The `access` block supports:
 
