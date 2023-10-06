@@ -1335,7 +1335,6 @@ var mdbClickHouseUpdateFieldsMap = map[string]string{
 }
 
 var mdbClickHouseConfigUpdateFieldsMaps = []string{
-	"merge_tree",
 	"rabbitmq",
 	"compression",
 	"dictionaries",
@@ -1400,6 +1399,27 @@ var mdbClickHouseConfigUpdateFieldsMaps = []string{
 	"total_memory_profiler_step",
 	"total_memory_tracker_sample_probability",
 }
+var mdbClickhouseMergeTreeUpdateFields = []string{
+	"replicated_deduplication_window",
+	"replicated_deduplication_window_seconds",
+	"parts_to_delay_insert",
+	"parts_to_throw_insert",
+	"max_replicated_merges_in_queue",
+	"number_of_free_entries_in_pool_to_lower_max_size_of_merge",
+	"max_bytes_to_merge_at_min_space_in_pool",
+	"min_bytes_for_wide_part",
+	"min_rows_for_wide_part",
+	"ttl_only_drop_parts",
+	"merge_with_ttl_timeout",
+	"merge_with_recompression_ttl_timeout",
+	"max_parts_in_total",
+	"max_number_of_merges_with_ttl_in_pool",
+	"cleanup_delay_period",
+	"max_avg_part_size_for_too_many_parts",
+	"min_age_to_force_merge_seconds",
+	"min_age_to_force_merge_on_partition_only",
+	"merge_selecting_sleep_ms",
+}
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -1453,10 +1473,18 @@ func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.HasChange("clickhouse.0.config") {
+		var rootClickhouseConfigTfPath = "clickhouse.0.config.0."
 		// update clickhouse config settings, if there are a changes, except kafka*
 		for _, item := range mdbClickHouseConfigUpdateFieldsMaps {
-			if d.HasChange("clickhouse.0.config.0." + item) {
+			if d.HasChange(rootClickhouseConfigTfPath + item) {
 				updatePath = append(updatePath, "config_spec.clickhouse.config."+item)
+			}
+		}
+		if d.HasChange(rootClickhouseConfigTfPath + "merge_tree") {
+			for _, item := range mdbClickhouseMergeTreeUpdateFields {
+				if d.HasChange(rootClickhouseConfigTfPath + "merge_tree.0." + item) {
+					updatePath = append(updatePath, "config_spec.clickhouse.config.merge_tree."+item)
+				}
 			}
 		}
 	}
