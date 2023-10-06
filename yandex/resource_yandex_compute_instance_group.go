@@ -378,6 +378,32 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							},
 						},
 
+						"filesystem": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Set:      hashInstanceGroupFilesystem,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"filesystem_id": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+
+									"device_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+
+									"mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "READ_WRITE",
+										ValidateFunc: validation.StringInSlice([]string{"READ_WRITE", "READ_ONLY"}, false),
+									},
+								},
+							},
+						},
+
 						"scheduling_policy": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
@@ -1287,6 +1313,7 @@ func prepareUpdateInstanceGroupRequest(d *schema.ResourceData, meta *Config) (*i
 	var instanceGroupTemplateFieldsMap = map[string]string{
 		"instance_template.0.secondary_disk":    "instance_template.secondary_disk_specs",
 		"instance_template.0.network_interface": "instance_template.network_interface_specs",
+		"instance_template.0.filesystem":        "instance_template.filesystem",
 	}
 
 	for field, path := range instanceGroupTemplateFieldsMap {

@@ -328,6 +328,30 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							},
 						},
 
+						"filesystem": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Set:      hashInstanceGroupFilesystem,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"filesystem_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"device_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"mode": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+
 						"scheduling_policy": {
 							Type:     schema.TypeList,
 							Computed: true,

@@ -276,6 +276,8 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 	name := acctest.RandomWithPrefix("tf-test")
 	saName := acctest.RandomWithPrefix("tf-test")
 	sgName := acctest.RandomWithPrefix("tf-test")
+	fsName1 := acctest.RandomWithPrefix("tf-test")
+	fsName2 := acctest.RandomWithPrefix("tf-test")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -283,7 +285,7 @@ func TestAccComputeInstanceGroup_full(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceGroupConfigFull(name, saName, sgName),
+				Config: testAccComputeInstanceGroupConfigFull(name, saName, sgName, fsName1, fsName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupDefaultValues(&ig),
@@ -615,6 +617,11 @@ type Disk struct {
 	Type        string
 	Image       string
 	Snapshot    string
+}
+
+type Filesystem struct {
+	DeviceName string
+	Mode       string
 }
 
 func testAccComputeInstanceGroupConfigMain(igName string, saName string) string {
@@ -1126,7 +1133,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
-func testAccComputeInstanceGroupConfigFull(igName, saName, sgName string) string {
+func testAccComputeInstanceGroupConfigFull(igName, saName, sgName, fsName1, fsName2 string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1604-lts"
@@ -1181,6 +1188,17 @@ resource "yandex_compute_instance_group" "group1" {
       }
     }
 
+    filesystem {
+      filesystem_id = "${yandex_compute_filesystem.inst-group-test-fs.id}"
+      mode = "READ_WRITE"
+    }
+
+    filesystem {
+      device_name = "fs2"
+      filesystem_id = "${yandex_compute_filesystem.inst-group-test-fs2.id}"
+      mode = "READ_ONLY"
+    }
+
     network_interface {
       network_id         = "${yandex_vpc_network.inst-group-test-network.id}"
       subnet_ids         = ["${yandex_vpc_subnet.inst-group-test-subnet.id}"]
@@ -1211,6 +1229,26 @@ resource "yandex_compute_instance_group" "group1" {
     max_expansion    = 2
     max_deleting     = 1
     startup_duration = 5
+  }
+}
+
+resource "yandex_compute_filesystem" "inst-group-test-fs" {
+  name     = "%[5]s"
+  size     = 10
+  type     = "network-hdd"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+}
+
+resource "yandex_compute_filesystem" "inst-group-test-fs2" {
+  name     = "%[6]s"
+  size     = 15
+  type     = "network-ssd"
+
+  labels = {
+    my-label = "my-label-value-2"
   }
 }
 
@@ -1265,7 +1303,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
   role        = "editor"
   sleep_after = 30
 }
-`, getExampleFolderID(), igName, saName, sgName)
+`, getExampleFolderID(), igName, saName, sgName, fsName1, fsName2)
 }
 
 func testAccComputeInstanceGroupConfigAutocsale(igName string, saName string) string {
@@ -2358,6 +2396,20 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 			return err
 		}
 
+		if len(ig.InstanceTemplate.FilesystemSpecs) != 2 {
+			return fmt.Errorf("invalid number of filesystems in instance group %s", ig.Name)
+		}
+
+		fs0 := &Filesystem{Mode: "READ_WRITE"}
+		if err := checkFs(fmt.Sprintf("instancegroup %s attached file system #0", ig.Name), ig.InstanceTemplate.FilesystemSpecs[0], fs0); err != nil {
+			return err
+		}
+
+		fs1 := &Filesystem{DeviceName: "fs2", Mode: "READ_ONLY"}
+		if err := checkFs(fmt.Sprintf("instancegroup %s attached file system #1", ig.Name), ig.InstanceTemplate.FilesystemSpecs[1], fs1); err != nil {
+			return err
+		}
+
 		// NetworkInterfaceSpec
 		if len(ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()) != 1 {
 			return fmt.Errorf("expected 1 network_interface_spec, got %d", len(ig.GetInstanceTemplate().GetNetworkInterfaceSpecs()))
@@ -2486,6 +2538,16 @@ func checkDisk(name string, a *instancegroup.AttachedDiskSpec, d *Disk) error {
 	}
 	if d.Image != "" && a.DiskSpec.GetImageId() != d.Image {
 		return fmt.Errorf("invalid Image value in %s", name)
+	}
+	return nil
+}
+
+func checkFs(name string, spec *instancegroup.AttachedFilesystemSpec, f *Filesystem) error {
+	if f.Mode != "" && spec.Mode.String() != f.Mode {
+		return fmt.Errorf("invalid Mode value in %s", name)
+	}
+	if f.DeviceName != "" && spec.DeviceName != f.DeviceName {
+		return fmt.Errorf("invalid DeviceName value in %s", name)
 	}
 	return nil
 }

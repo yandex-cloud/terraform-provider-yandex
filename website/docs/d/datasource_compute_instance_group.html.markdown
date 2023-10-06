@@ -183,7 +183,8 @@ The `instance_template` block supports:
 * `boot_disk` - The specifications for boot disk that will be attached to the instance. The structure is documented below.
 * `network_settings` - Network acceleration settings. The structure is documented below.
 * `name` - Name template of the instance.
-* `hostname` - Hostname temaplate for the instance.
+* `hostname` - Hostname template for the instance.
+* `filesystem` -  An array with filesystems that will be attached to the instance. The structure is documented below.
 
 ---
 
@@ -193,6 +194,16 @@ The `boot_disk` block supports:
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `disk_id` - ID of the existing disk. To set use variables.
 * `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
+
+---
+
+The `filesystem` block supports:
+
+* `filesystem_id` - ID of the filesystem that should be attached.
+
+* `device_name` - Name of the device representing the filesystem on the instance.
+
+* `mode` - Mode of access to the filesystem that should be attached.
 
 ---
 

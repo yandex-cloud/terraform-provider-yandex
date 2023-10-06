@@ -6,6 +6,8 @@ FEATURES:
 * hadoop: support `initialization_action` section
 * serverless: add `async_invocation` attribute in `yandex_function` resources and data sources
 * greenplum: add Greenplum 6.25 support
+* compute: support `filesystem` in `compute_instance_group` resource and data source
+
 
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update

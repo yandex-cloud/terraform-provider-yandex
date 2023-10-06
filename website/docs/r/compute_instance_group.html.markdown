@@ -195,6 +195,8 @@ The `instance_template` block supports:
 
 * `network_settings` - (Optional) Network acceleration type for instance. The structure is documented below.
 
+* `filesystem` - (Optional) List of filesystems to attach to the instance. The structure is documented below.
+
 * `name` - (Optional) Name template of the instance.  
 In order to be unique it must contain at least one of instance unique placeholders:   
 {instance.short_id}   
@@ -508,6 +510,18 @@ The `network_interface` block supports:
 * `nat` - The instance's public address for accessing the internet over NAT.
 * `nat_ip_address` - The public IP address of the instance.
 * `nat_ip_version` - The IP version for the public address.
+
+---
+
+The `filesystem` block supports:
+
+* `filesystem_id` - (Required) ID of the filesystem that should be attached.
+
+* `device_name` - (Optional) Name of the device representing the filesystem on the instance.
+
+* `mode` - (Optional) Mode of access to the filesystem that should be attached. By default, filesystem is attached
+  in `READ_WRITE` mode.
+
 
 ## Timeouts
 

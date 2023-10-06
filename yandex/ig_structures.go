@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
 func flattenInstanceGroupInstanceTemplateResources(resSpec *instancegroup.ResourcesSpec) ([]map[string]interface{}, error) {
@@ -103,6 +105,17 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 		secondarySpecsList[i] = flattened
 	}
 	templateMap["secondary_disk"] = secondarySpecsList
+
+	filesystemSpecs := template.GetFilesystemSpecs()
+	filesystemSpecsList := make([]map[string]interface{}, len(filesystemSpecs))
+	for i, spec := range filesystemSpecs {
+		flattened, err := flattenInstanceGroupFilesystem(spec)
+		if err != nil {
+			return nil, err
+		}
+		filesystemSpecsList[i] = flattened
+	}
+	templateMap["filesystem"] = filesystemSpecsList
 
 	networkSpecs := template.GetNetworkInterfaceSpecs()
 	networkSpecsList := make([]map[string]interface{}, len(networkSpecs))
@@ -462,6 +475,29 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 	return ads, nil
 }
 
+func expandInstanceGroupTemplateAttachedFilesystemSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedFilesystemSpec, error) {
+	afs := &instancegroup.AttachedFilesystemSpec{}
+
+	if v, ok := d.GetOk(prefix + ".mode"); ok {
+		fsMode, err := parseInstanceGroupFilesystemMode(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		afs.Mode = fsMode
+	}
+
+	if v, ok := d.GetOk(prefix + ".device_name"); ok {
+		afs.DeviceName = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + ".filesystem_id"); ok {
+		afs.FilesystemId = v.(string)
+	}
+
+	return afs, nil
+}
+
 func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &instancegroup.AttachedDiskSpec_DiskSpec{}
 
@@ -519,14 +555,28 @@ func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix stri
 
 func expandInstanceGroupSecondaryDiskSpecs(d *schema.ResourceData, prefix string, config *Config) ([]*instancegroup.AttachedDiskSpec, error) {
 	secondaryDisksCount := d.Get(prefix + ".#").(int)
-	ads := make([]*instancegroup.AttachedDiskSpec, secondaryDisksCount)
+	afs := make([]*instancegroup.AttachedDiskSpec, secondaryDisksCount)
 
 	for i := 0; i < secondaryDisksCount; i++ {
 		disk, err := expandInstanceGroupTemplateAttachedDiskSpec(d, fmt.Sprintf(prefix+".%d", i), config)
 		if err != nil {
 			return nil, err
 		}
-		ads[i] = disk
+		afs[i] = disk
+	}
+	return afs, nil
+}
+
+func expandInstanceGroupFilesystemSpecs(d *schema.ResourceData, prefix string, config *Config) ([]*instancegroup.AttachedFilesystemSpec, error) {
+	filesystemsCount := d.Get(prefix + ".#").(int)
+	ads := make([]*instancegroup.AttachedFilesystemSpec, filesystemsCount)
+
+	for i := 0; i < filesystemsCount; i++ {
+		fs, err := expandInstanceGroupTemplateAttachedFilesystemSpec(d, fmt.Sprintf(prefix+".%d", i), config)
+		if err != nil {
+			return nil, err
+		}
+		ads[i] = fs
 	}
 	return ads, nil
 }
@@ -682,6 +732,11 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		return nil, fmt.Errorf("Error create 'secondary_disk' object of api request: %s", err)
 	}
 
+	filesystemSpecs, err := expandInstanceGroupFilesystemSpecs(d, prefix+".filesystem", config)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'filesystem' object of api request: %s", err)
+	}
+
 	nicSpecs, err := expandInstanceGroupNetworkInterfaceSpecs(d, prefix+".network_interface")
 	if err != nil {
 		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
@@ -720,6 +775,7 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		Name:                  name,
 		Hostname:              hostname,
 		PlacementPolicy:       placementPolicy,
+		FilesystemSpecs:       filesystemSpecs,
 	}
 
 	return template, nil
@@ -963,12 +1019,30 @@ func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) 
 	return bootDisk, nil
 }
 
+func flattenInstanceGroupFilesystem(filesystemSpec *instancegroup.AttachedFilesystemSpec) (map[string]interface{}, error) {
+	filesystem := map[string]interface{}{
+		"mode":          filesystemSpec.GetMode().String(),
+		"device_name":   filesystemSpec.GetDeviceName(),
+		"filesystem_id": filesystemSpec.GetFilesystemId(),
+	}
+
+	return filesystem, nil
+}
+
 func parseInstanceGroupDiskMode(mode string) (instancegroup.AttachedDiskSpec_Mode, error) {
 	val, ok := instancegroup.AttachedDiskSpec_Mode_value[mode]
 	if !ok {
 		return instancegroup.AttachedDiskSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
 	}
 	return instancegroup.AttachedDiskSpec_Mode(val), nil
+}
+
+func parseInstanceGroupFilesystemMode(mode string) (instancegroup.AttachedFilesystemSpec_Mode, error) {
+	val, ok := instancegroup.AttachedFilesystemSpec_Mode_value[mode]
+	if !ok {
+		return instancegroup.AttachedFilesystemSpec_MODE_UNSPECIFIED, fmt.Errorf("value for 'mode' should be 'READ_WRITE' or 'READ_ONLY', not '%s'", mode)
+	}
+	return instancegroup.AttachedFilesystemSpec_Mode(val), nil
 }
 
 func expandInstanceGroupNetworkSettings(v interface{}) (*instancegroup.NetworkSettings, error) {
@@ -1085,4 +1159,19 @@ func flattenInstanceGroupManagedInstances(instances []*instancegroup.ManagedInst
 	}
 
 	return res, nil
+}
+
+func hashInstanceGroupFilesystem(v interface{}) int {
+	var buf bytes.Buffer
+
+	fs := v.(map[string]interface{})
+	if v, ok := fs["filesystem_id"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := fs["mode"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+
+	return hashcode.String(buf.String())
+
 }
