@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/hashicorp/go-cty/cty"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"reflect"
 	"regexp"
 	"sort"
@@ -12,11 +14,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-cty/cty"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/vault/helper/pgpkeys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,19 +26,19 @@ import (
 )
 
 func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
-	diffAttributes map[string]*terraform.ResourceAttrDiff,
+	diffAttributes map[string]*terraform2.ResourceAttrDiff,
 ) *schema.ResourceData {
 	t.Helper()
 	ctx := context.Background()
 	internalMap := schema.InternalMap(schemaObject)
 
-	emptyState := terraform.NewInstanceStateShimmedFromValue(cty.ObjectVal(map[string]cty.Value{}), 1)
-	initialDiff, err := internalMap.Diff(ctx, emptyState.DeepCopy(), terraform.NewResourceConfigRaw(rawInitialState), nil, nil, true)
+	emptyState := terraform2.NewInstanceStateShimmedFromValue(cty.ObjectVal(map[string]cty.Value{}), 1)
+	initialDiff, err := internalMap.Diff(ctx, emptyState.DeepCopy(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(rawInitialState)), nil, nil, true)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
-	targetDiff := &terraform.InstanceDiff{Attributes: diffAttributes}
+	targetDiff := &terraform2.InstanceDiff{Attributes: diffAttributes}
 
 	resourceData, err := internalMap.Data(emptyState.MergeDiff(initialDiff), targetDiff)
 	if err != nil {

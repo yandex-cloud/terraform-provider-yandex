@@ -3,6 +3,10 @@ package test
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
+	yandex_billing_cloud_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 	"os"
 	"regexp"
 	"testing"
@@ -10,14 +14,9 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
-
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 const billingCloudBindingBindingResource = "yandex_billing_cloud_binding.test_cloud_binding_resource_binding"
@@ -94,7 +93,7 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -129,7 +128,7 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToExistingBillingAccoun
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -171,7 +170,7 @@ func TestAccResourceBillingCloudBinding_BindNonExistingCloudToExistingBillingAcc
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -188,7 +187,7 @@ func TestAccResourceBillingCloudBinding_BindExistingCloudToNonExistingBillingAcc
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -205,7 +204,7 @@ func TestAccResourceBillingCloudBinding_BindNonExistingCloudToNonExistingBilling
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
 		Steps: []resource.TestStep{
 			{

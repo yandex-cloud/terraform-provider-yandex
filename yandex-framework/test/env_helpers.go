@@ -3,6 +3,11 @@ package test
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
 	"log"
 	"os"
 	"strings"
@@ -11,8 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
-	"github.com/hashicorp/terraform-plugin-mux/tf5muxserver"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -20,7 +23,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
 )
 
@@ -28,14 +30,14 @@ const providerDefaultValueInsecure = false
 const providerDefaultValuePlaintext = false
 const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
 
-var testAccProviders map[string]tfprotov5.ProviderServer
-var testAccProviderFactories map[string]func() (tfprotov5.ProviderServer, error)
+var testAccProviders map[string]tfprotov6.ProviderServer
+var testAccProviderFactories map[string]func() (tfprotov6.ProviderServer, error)
 
 // WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
 // testAccCheck***Destroy functions tend to use static testAccProviderServer
-var testAccProviderEmptyFolder map[string]tfprotov5.ProviderServer
+var testAccProviderEmptyFolder map[string]tfprotov6.ProviderServer
 
-var testAccProviderServer tfprotov5.ProviderServer
+var testAccProviderServer tfprotov6.ProviderServer
 var testAccProvider provider.Provider
 
 var testAccEnvVars = []string{
@@ -64,12 +66,19 @@ var testUserID1 = "no user id"
 var testUserID2 = "no user id"
 var testStorageEndpoint = "no.storage.endpoint"
 
-func NewFrameworkProividerServer(ctx context.Context) (func() tfprotov5.ProviderServer, error) {
-	providers := []func() tfprotov5.ProviderServer{
-		providerserver.NewProtocol5(testAccProvider),
+func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
+	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
+		context.Background(),
+		yandex.NewSDKProvider().GRPCProvider,
+	)
+	providers := []func() tfprotov6.ProviderServer{
+		providerserver.NewProtocol6(testAccProvider),
+		func() tfprotov6.ProviderServer {
+			return upgradedSdkProvider
+		},
 	}
 
-	muxServer, err := tf5muxserver.NewMuxServer(ctx, providers...)
+	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,18 +88,22 @@ func NewFrameworkProividerServer(ctx context.Context) (func() tfprotov5.Provider
 
 func init() {
 	testAccProvider = yandex_framework.NewFrameworkProvider()
-	testAccProviderFunc, _ := NewFrameworkProividerServer(context.Background())
+	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
 	testAccProviderServer = testAccProviderFunc()
-	testAccProviderFactories = map[string]func() (tfprotov5.ProviderServer, error){
-		"yandex": func() (tfprotov5.ProviderServer, error) {
+	testAccProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+		"yandex": func() (tfprotov6.ProviderServer, error) {
 			return testAccProviderServer, nil
 		},
 	}
-	/*
-		testAccProviderEmptyFolder = map[string]provider.Provider{
-			"yandex": NewFrameworkProvider(),
+
+	if os.Getenv("TF_ACC") != "" {
+		if err := setTestIDs(); err != nil {
+			panic(err)
 		}
-	*/
+	}
+	//testAccProviderEmptyFolder = map[string]provider.Provider{
+	//	"yandex": NewFrameworkProvider(),
+	//}
 	if os.Getenv("TF_ACC") != "" {
 		if err := setTestIDs(); err != nil {
 			panic(err)
@@ -155,6 +168,10 @@ func getExampleUserLogin2() string {
 
 func getExampleStorageEndpoint() string {
 	return testStorageEndpoint
+}
+
+func getBillingAccountId() string {
+	return os.Getenv("YC_BILLING_TEST_ACCOUNT_ID_1")
 }
 
 func setTestIDs() error {

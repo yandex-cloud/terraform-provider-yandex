@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"reflect"
 	"sort"
 	"strings"
@@ -11,10 +12,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -894,7 +895,7 @@ func TestUpdateKafkaClusterTopics(t *testing.T) {
 			},
 		},
 	}
-	diffAttributes := map[string]*terraform.ResourceAttrDiff{
+	diffAttributes := map[string]*terraform2.ResourceAttrDiff{
 		"topic.#":                               {New: "3"},
 		"topic.0.name":                          {New: "sameTopic"},
 		"topic.0.partitions":                    {New: "1"},
@@ -974,7 +975,7 @@ func TestUpdateKafka3xClusterTopics(t *testing.T) {
 				},
 			},
 		}
-		diffAttributes := map[string]*terraform.ResourceAttrDiff{
+		diffAttributes := map[string]*terraform2.ResourceAttrDiff{
 			"topic.#":                               {New: "3"},
 			"topic.0.name":                          {New: "sameTopic"},
 			"topic.0.partitions":                    {New: "1"},

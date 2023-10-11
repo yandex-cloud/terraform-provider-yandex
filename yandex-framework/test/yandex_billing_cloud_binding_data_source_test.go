@@ -2,11 +2,12 @@ package test
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 const billingCloudBindingBindingDataSource = "data.yandex_billing_cloud_binding.test_cloud_binding_data_binding"
@@ -18,8 +19,10 @@ func TestAccDataSourceBillingCloudBinding_BindExistingCloudToExistingBillingAcco
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
-		CheckDestroy:             testAccCheckBillingCloudBindingDestroy,
+		ProtoV6ProviderFactories: testAccProviderFactories,
+		CheckDestroy: func(state *terraform.State) error {
+			return testAccCheckBillingCloudBindingDestroy(state)
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceBillingCloudBindingBindCloudToBillingAccount(firstBillingAccountId, cloudId),
@@ -44,7 +47,7 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingBillingAccountData(t *
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),
@@ -60,7 +63,7 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingCloudData(t *testing.T
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),
@@ -76,7 +79,7 @@ func TestAccDataSourceBillingCloudBinding_CheckNonExistingBillingAccountNonExist
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV5ProviderFactories: testAccProviderFactories,
+		ProtoV6ProviderFactories: testAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceBillingCloudBindingGetDataSource(billingAccountId, cloudId),

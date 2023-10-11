@@ -1,8 +1,8 @@
 package yandex
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"testing"

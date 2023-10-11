@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
 	"os"
 	"strings"
@@ -11,11 +12,11 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
@@ -63,6 +64,10 @@ var testStorageEndpoint = "no.storage.endpoint"
 
 func init() {
 	testAccProvider = NewSDKProvider()
+	testAccProvider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		return providerConfigure(context.Background(), d, testAccProvider, false, true)
+	}
+
 	testAccProviders = map[string]*schema.Provider{
 		"yandex": testAccProvider,
 	}
@@ -99,7 +104,7 @@ func TestProviderWithRawConfig(t *testing.T) {
 		"zone":     "ru-central1-a",
 	}
 
-	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -125,7 +130,7 @@ func TestProviderDefaultValues(t *testing.T) {
 		"zone":  "ru-central1-a",
 	}
 
-	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -176,7 +181,7 @@ func TestProviderOrganizationId(t *testing.T) {
 		"organization_id": org,
 	}
 
-	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -202,7 +207,7 @@ func TestProviderSharedCredentialsFileAndProfile(t *testing.T) {
 		"profile":                 "prod-profile",
 	}
 
-	diags := testProvider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
+	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {

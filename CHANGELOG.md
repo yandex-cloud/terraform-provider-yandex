@@ -9,10 +9,17 @@ FEATURES:
 * greenplum: add Greenplum 6.25 support
 * compute: support `filesystem` in `compute_instance_group` resource and data source
 
+* **New Resource:** `yandex_datasphere_community`
+* **New Resource:** `yandex_datasphere_project`
+* **New Resource:** `yandex_datasphere_community_iam_binding`
+* **New Resource:** `yandex_datasphere_project_iam_binding`
 
 BUG FIXES:
 * dataproc: fix autoscaling subcluster update
 * yandex_ydb_table: add trim slashes in table path
+
+ENHANCEMENTS:
+* migration: switched tests imports for helpers modules from SDKv2 to the testing module. [Following](https://developer.hashicorp.com/terraform/plugin/testing/migrating#migration-steps)
 
 ## 0.99.1 (September 25, 2023)
 

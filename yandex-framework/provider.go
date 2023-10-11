@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	yandex_datasphere_community "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/community"
+	yandex_datasphere_project "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/project"
 	"os"
 	"strconv"
 
@@ -229,23 +231,29 @@ func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
 	resp.DataSourceData = &p.config
 }
 
-func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		func() resource.Resource {
 			return yandex_billing_cloud_binding.NewResource(
 				yandex_billing_cloud_binding.BindingServiceInstanceCloudType,
 				yandex_billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
+		yandex_datasphere_project.NewResource,
+		yandex_datasphere_project.NewIamBinding,
+		yandex_datasphere_community.NewResource,
+		yandex_datasphere_community.NewIamBinding,
 	}
 }
 
-func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		func() datasource.DataSource {
 			return yandex_billing_cloud_binding.NewDataSource(
 				yandex_billing_cloud_binding.BindingServiceInstanceCloudType,
 				yandex_billing_cloud_binding.BindingServiceInstanceCloudIdFieldName)
 		},
+		yandex_datasphere_project.NewDataSource,
+		yandex_datasphere_community.NewDataSource,
 	}
 }
 

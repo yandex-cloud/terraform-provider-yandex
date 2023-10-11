@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
 	"os"
 	"strconv"
 	"strings"
@@ -14,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/version"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/mutexkv"
 )
 
 // Global MutexKV
@@ -332,7 +332,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 	}
 
 	provider.ConfigureContextFunc = func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		return providerConfigure(ctx, d, provider, emptyFolder)
+		return providerConfigure(ctx, d, provider, emptyFolder, false)
 	}
 
 	return provider
@@ -391,7 +391,9 @@ func setToDefaultBoolIfNeeded(osEnvName string, defaultVal bool) bool {
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool) (interface{}, diag.Diagnostics) {
+// testConfig is used to avoid using StopContext duo to tests are run in parallel and context is cancelled randomly in tests
+// there is same following issue https://github.com/hashicorp/terraform-plugin-sdk/issues/966
+func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Provider, emptyFolder bool, testConfig bool) (interface{}, diag.Diagnostics) {
 	config := Config{
 		Endpoint:                       setToDefaultIfNeeded(d.Get("endpoint").(string), "YC_ENDPOINT", common.DefaultEndpoint),
 		FolderID:                       setToDefaultIfNeeded(d.Get("folder_id").(string), "YC_FOLDER_ID", ""),
@@ -427,11 +429,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData, p *schema.Pr
 	if emptyFolder {
 		config.FolderID = ""
 	}
-
 	stopCtx, ok := schema.StopContext(ctx)
 	if !ok {
 		stopCtx = ctx
 	}
+	if testConfig {
+		stopCtx = context.Background()
+	}
+
 	terraformVersion := p.TerraformVersion
 	if terraformVersion == "" {
 		// Terraform 0.12 introduced this field to the protocol
