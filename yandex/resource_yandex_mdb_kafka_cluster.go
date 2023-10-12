@@ -943,6 +943,9 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.version":          "config_spec.version",
 	"config.0.brokers_count":    "config_spec.brokers_count",
 	"config.0.assign_public_ip": "config_spec.assign_public_ip",
+	"config.0.schema_registry":  "config_spec.schema_registry",
+	"config.0.unmanaged_topics": "config_spec.unmanaged_topics",
+	"config.0.access":           "config_spec.access",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
 	"config.0.kafka.0.resources.0.disk_type_id":                       "config_spec.kafka.resources.disk_type_id",
 	"config.0.kafka.0.resources.0.disk_size":                          "config_spec.kafka.resources.disk_size",
@@ -966,11 +969,9 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.kafka.0.kafka_config.0.ssl_cipher_suites":               "config_spec.kafka.kafka_config_{version}.ssl_cipher_suites",
 	"config.0.kafka.0.kafka_config.0.offsets_retention_minutes":       "config_spec.kafka.kafka_config_{version}.offsets_retention_minutes",
 	"config.0.kafka.0.kafka_config.0.sasl_enabled_mechanisms":         "config_spec.kafka.kafka_config_{version}.sasl_enabled_mechanisms",
-	"config.0.unmanaged_topics":                                       "config_spec.unmanaged_topics",
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
-	"config.0.access": "config_spec.access",
 }
 
 func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequest, error) {

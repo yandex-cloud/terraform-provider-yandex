@@ -1,5 +1,8 @@
 ## 0.101.0 (Unreleased)
 
+BUG FIXES:
+* kafka: fix bug with update of field `schema_registry` in `yandex_mdb_kafka_cluster` resource
+
 ## 0.100.0 (October 11, 2023)
 
 FEATURES:

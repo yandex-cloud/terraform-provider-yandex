@@ -1083,6 +1083,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.schema_registry", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
@@ -1318,7 +1319,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
 		unmanaged_topics = false
-		schema_registry  = false
+		schema_registry  = true
         access {
 	        data_transfer = false
         }
