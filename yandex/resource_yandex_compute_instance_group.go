@@ -709,6 +709,25 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"instance_tags_pool": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"tags": {
+										Type:     schema.TypeList,
+										Required: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -843,6 +862,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"ignore_health_checks": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -883,6 +906,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 							ForceNew: true,
+						},
+						"ignore_health_checks": {
+							Type:     schema.TypeBool,
+							Optional: true,
 						},
 					},
 				},
@@ -973,6 +1000,10 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 								},
 							},
+						},
+						"instance_tag": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},

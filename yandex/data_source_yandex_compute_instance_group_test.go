@@ -62,6 +62,23 @@ func TestAccDataSourceComputeInstanceGroup_AutoscaleByID(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceComputeInstanceGroup_InstanceTagsPool(t *testing.T) {
+	igName := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceComputeInstanceGroupInstanceTagsPoolConfig(igName, saName),
+				Check:  testAccDataSourceComputeInstanceGroupInstanceTagsPoolCheck("data.yandex_compute_instance_group.bar", "yandex_compute_instance_group.group1"),
+			},
+		},
+	})
+}
+
 const computeInstanceGroupDataByIDConfig = `
 data "yandex_compute_instance_group" "bar" {
   instance_group_id = "${yandex_compute_instance_group.group1.id}"
@@ -73,11 +90,15 @@ func testAccDataSourceComputeInstanceGroupConfig(igName string, saName string) s
 }
 
 func testAccDataSourceComputeInstanceGroupAutoscaleConfig(igName string, saName string) string {
-	return testAccComputeInstanceGroupConfigAutocsale(igName, saName) + computeInstanceGroupDataByIDConfig
+	return testAccComputeInstanceGroupConfigAutoScale(igName, saName) + computeInstanceGroupDataByIDConfig
 }
 
 func testAccDataSourceComputeInstanceGroupGpusConfig(igName string, saName string) string {
 	return testAccComputeInstanceGroupConfigGpus(igName, saName) + computeInstanceGroupDataByIDConfig
+}
+
+func testAccDataSourceComputeInstanceGroupInstanceTagsPoolConfig(igName string, saName string) string {
+	return testAccComputeInstanceGroupConfigInstanceTagsPool(igName, saName) + computeInstanceGroupDataByIDConfig
 }
 
 func testAttrsCheck(datasourceName string, resourceName string, testAttrs []string) resource.TestCheckFunc {
@@ -153,6 +174,21 @@ func testAccDataSourceComputeInstanceGroupAutoScaleCheck(datasourceName string, 
 func testAccDataSourceComputeInstanceGroupFixedScaleCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	instanceAttrsToTest := []string{
 		"scale_policy.0.fixed_scale.0.size",
+	}
+
+	instanceAttrsToTest = append(instanceAttrsToTest, baseAttrsToTest...)
+	return testAttrsCheck(datasourceName, resourceName, instanceAttrsToTest)
+}
+
+func testAccDataSourceComputeInstanceGroupInstanceTagsPoolCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
+	instanceAttrsToTest := []string{
+		"allocation_policy.0.instance_tags_pool.#",
+		"allocation_policy.0.instance_tags_pool.0.zone",
+		"allocation_policy.0.instance_tags_pool.0.tags",
+		"allocation_policy.0.instance_tags_pool.1.zone",
+		"allocation_policy.0.instance_tags_pool.1.tags",
+		"allocation_policy.0.instance_tags_pool.2.zone",
+		"allocation_policy.0.instance_tags_pool.2.tags",
 	}
 
 	instanceAttrsToTest = append(instanceAttrsToTest, baseAttrsToTest...)

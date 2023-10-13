@@ -293,8 +293,8 @@ The `instances` block supports:
 * `status_message` - The status message of the instance.
 * `zone_id` - The ID of the availability zone where the instance resides.
 * `network_interface` - An array with the network interfaces attached to the managed instance. The structure is documented below.
-* `status_changed_at` -The timestamp when the status of the managed instance was last changed.
-
+* `status_changed_at` - The timestamp when the status of the managed instance was last changed.
+* `instance_tag` - The instance tag.
 ---
 
 The `network_interface` block supports:
@@ -312,6 +312,14 @@ The `network_interface` block supports:
 The `allocation_policy` block supports:
 
 * `zones` - A list of availability zones.
+* `instance_tags_pool` - Array of availability zone IDs with list of instance tags.
+
+---
+
+The `instance_tags_pool` blocks supports:
+
+* `zone` - Availability zone.
+* `tags` - List of tags for instances in zone.
 
 ---
 
@@ -340,6 +348,7 @@ The `application_load_balancer` block supports:
 * `target_group_id` - The ID of the target group.
 * `status_message` - The status message of the target group.
 * `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+* `ignore_health_checks` - Do not wait load balancer health checks.
 
 
 ---
@@ -352,6 +361,7 @@ The `load_balancer` block supports:
 * `target_group_id` - The ID of the target group.
 * `status_message` - The status message of the target group.
 * `max_opening_traffic_duration` - Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+* `ignore_health_checks` - Do not wait load balancer health checks.
 
 ---
 

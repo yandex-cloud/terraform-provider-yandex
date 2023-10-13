@@ -3,6 +3,7 @@ package yandex
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -301,12 +302,28 @@ func flattenInstanceGroupAllocationPolicy(ig *instancegroup.InstanceGroup) ([]ma
 	res := map[string]interface{}{}
 
 	zones := &schema.Set{F: schema.HashString}
+	pools := make([]map[string]interface{}, 0, len(ig.AllocationPolicy.Zones))
 
 	for _, zone := range ig.AllocationPolicy.Zones {
 		zones.Add(zone.ZoneId)
+
+		if len(zone.GetInstanceTagsPool()) != 0 {
+			pool := make(map[string]interface{}, 2)
+			pool["zone"] = zone.ZoneId
+			tags := make([]string, len(zone.GetInstanceTagsPool()))
+			copy(tags, zone.GetInstanceTagsPool())
+			pool["tags"] = tags
+
+			pools = append(pools, pool)
+		}
 	}
 
+	sort.Slice(pools, func(i, j int) bool {
+		return pools[i]["zone"].(string) < pools[j]["zone"].(string)
+	})
+
 	res["zones"] = zones
+	res["instance_tags_pool"] = pools
 	return []map[string]interface{}{res}, nil
 }
 
@@ -384,6 +401,7 @@ func flattenInstanceGroupApplicationLoadBalancerSpec(ig *instancegroup.InstanceG
 	res["target_group_id"] = ig.ApplicationLoadBalancerState.GetTargetGroupId()
 	res["status_message"] = ig.ApplicationLoadBalancerState.GetStatusMessage()
 	res["max_opening_traffic_duration"] = ig.ApplicationLoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
+	res["ignore_health_checks"] = ig.ApplicationLoadBalancerSpec.GetIgnoreHealthChecks()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -400,6 +418,7 @@ func flattenInstanceGroupLoadBalancerSpec(ig *instancegroup.InstanceGroup) ([]ma
 	res["target_group_id"] = ig.LoadBalancerState.GetTargetGroupId()
 	res["status_message"] = ig.LoadBalancerState.GetStatusMessage()
 	res["max_opening_traffic_duration"] = ig.LoadBalancerSpec.GetMaxOpeningTrafficDuration().GetSeconds()
+	res["ignore_health_checks"] = ig.LoadBalancerSpec.GetIgnoreHealthChecks()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -464,7 +483,7 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 
 	// create new one disk
 	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
-		bootDiskSpec, err := expandInstanceGroupAttachenDiskSpecSpec(d, prefix+".initialize_params.0", config)
+		bootDiskSpec, err := expandInstanceGroupAttachedDiskSpecSpec(d, prefix+".initialize_params.0", config)
 		if err != nil {
 			return nil, err
 		}
@@ -475,30 +494,7 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 	return ads, nil
 }
 
-func expandInstanceGroupTemplateAttachedFilesystemSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedFilesystemSpec, error) {
-	afs := &instancegroup.AttachedFilesystemSpec{}
-
-	if v, ok := d.GetOk(prefix + ".mode"); ok {
-		fsMode, err := parseInstanceGroupFilesystemMode(v.(string))
-		if err != nil {
-			return nil, err
-		}
-
-		afs.Mode = fsMode
-	}
-
-	if v, ok := d.GetOk(prefix + ".device_name"); ok {
-		afs.DeviceName = v.(string)
-	}
-
-	if v, ok := d.GetOk(prefix + ".filesystem_id"); ok {
-		afs.FilesystemId = v.(string)
-	}
-
-	return afs, nil
-}
-
-func expandInstanceGroupAttachenDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
+func expandInstanceGroupAttachedDiskSpecSpec(d *schema.ResourceData, prefix string, config *Config) (*instancegroup.AttachedDiskSpec_DiskSpec, error) {
 	diskSpec := &instancegroup.AttachedDiskSpec_DiskSpec{}
 
 	if v, ok := d.GetOk(prefix + ".description"); ok {
@@ -569,16 +565,39 @@ func expandInstanceGroupSecondaryDiskSpecs(d *schema.ResourceData, prefix string
 
 func expandInstanceGroupFilesystemSpecs(d *schema.ResourceData, prefix string, config *Config) ([]*instancegroup.AttachedFilesystemSpec, error) {
 	filesystemsCount := d.Get(prefix + ".#").(int)
-	ads := make([]*instancegroup.AttachedFilesystemSpec, filesystemsCount)
+	filesystems := make([]*instancegroup.AttachedFilesystemSpec, filesystemsCount)
+	if filesystemsCount > 0 {
+		for i, raw := range d.Get(prefix).(*schema.Set).List() {
+			fs, err := expandInstanceGroupTemplateAttachedFilesystemSpec(raw.(map[string]interface{}))
+			if err != nil {
+				return nil, err
+			}
+			filesystems[i] = fs
+		}
+	}
 
-	for i := 0; i < filesystemsCount; i++ {
-		fs, err := expandInstanceGroupTemplateAttachedFilesystemSpec(d, fmt.Sprintf(prefix+".%d", i), config)
+	return filesystems, nil
+}
+
+func expandInstanceGroupTemplateAttachedFilesystemSpec(data map[string]interface{}) (*instancegroup.AttachedFilesystemSpec, error) {
+	afs := &instancegroup.AttachedFilesystemSpec{}
+	if v, ok := data["mode"]; ok {
+		fsMode, err := parseInstanceGroupFilesystemMode(v.(string))
 		if err != nil {
 			return nil, err
 		}
-		ads[i] = fs
+		afs.Mode = fsMode
 	}
-	return ads, nil
+
+	if v, ok := data["device_name"]; ok {
+		afs.DeviceName = v.(string)
+	}
+
+	if v, ok := data["filesystem_id"]; ok {
+		afs.FilesystemId = v.(string)
+	}
+
+	return afs, nil
 }
 
 func expandInstanceGroupNetworkInterfaceSpecs(d *schema.ResourceData, prefix string) ([]*instancegroup.NetworkInterfaceSpec, error) {
@@ -870,8 +889,26 @@ func expandInstanceGroupAllocationPolicy(d *schema.ResourceData) (*instancegroup
 	if v, ok := d.GetOk("allocation_policy.0.zones"); ok {
 		zones := make([]*instancegroup.AllocationPolicy_Zone, 0)
 
+		poolsCount := d.Get("allocation_policy.0.instance_tags_pool.#").(int)
+		pools := make(map[string][]string, poolsCount)
+		for i := 0; i < poolsCount; i++ {
+			if zid, ok := d.GetOk(fmt.Sprintf("allocation_policy.0.instance_tags_pool.%d.zone", i)); ok {
+				if tags, ok := d.GetOk(fmt.Sprintf("allocation_policy.0.instance_tags_pool.%d.tags", i)); ok {
+					pools[zid.(string)] = expandStringSlice(tags.([]interface{}))
+				}
+			}
+		}
+
 		for _, s := range v.(*schema.Set).List() {
-			zones = append(zones, &instancegroup.AllocationPolicy_Zone{ZoneId: s.(string)})
+			zoneId := s.(string)
+			pool := make([]string, 0)
+			if pv, found := pools[zoneId]; found {
+				pool = append(pool, pv...)
+			}
+			zones = append(zones, &instancegroup.AllocationPolicy_Zone{
+				ZoneId:           zoneId,
+				InstanceTagsPool: pool,
+			})
 		}
 
 		policy := &instancegroup.AllocationPolicy{Zones: zones}
@@ -959,6 +996,9 @@ func expandInstanceGroupApplicationLoadBalancerSpec(d *schema.ResourceData) (*in
 	if v, ok := d.GetOk("application_load_balancer.0.max_opening_traffic_duration"); ok {
 		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
 	}
+	if v, ok := d.GetOk("application_load_balancer.0.ignore_health_checks"); ok {
+		result.IgnoreHealthChecks = v.(bool)
+	}
 
 	return result, nil
 }
@@ -985,6 +1025,9 @@ func expandInstanceGroupLoadBalancerSpec(d *schema.ResourceData) (*instancegroup
 	result := &instancegroup.LoadBalancerSpec{TargetGroupSpec: spec}
 	if v, ok := d.GetOk("load_balancer.0.max_opening_traffic_duration"); ok {
 		result.MaxOpeningTrafficDuration = &duration.Duration{Seconds: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("load_balancer.0.ignore_health_checks"); ok {
+		result.IgnoreHealthChecks = v.(bool)
 	}
 
 	return result, nil
@@ -1146,8 +1189,8 @@ func flattenInstanceGroupManagedInstances(instances []*instancegroup.ManagedInst
 		instDict["name"] = instance.GetName()
 		instDict["status_message"] = instance.GetStatusMessage()
 		instDict["zone_id"] = instance.GetZoneId()
-
 		instDict["status_changed_at"] = getTimestamp(instance.GetStatusChangedAt())
+		instDict["instance_tag"] = instance.GetInstanceTag()
 
 		networkInterfaces, _, _, err := flattenInstanceGroupManagedInstanceNetworkInterfaces(instance)
 		if err != nil {

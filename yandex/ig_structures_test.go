@@ -688,6 +688,7 @@ func TestFlattenInstances(t *testing.T) {
 				{
 					"status":         "RUNNING_ACTUAL",
 					"instance_id":    "compute_id",
+					"instance_tag":   "",
 					"fqdn":           "fqdn1",
 					"name":           "name1",
 					"status_message": "status_message1",

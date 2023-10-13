@@ -628,6 +628,25 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"instance_tags_pool": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"tags": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -742,6 +761,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"ignore_health_checks": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -774,6 +797,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 						},
 						"max_opening_traffic_duration": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"ignore_health_checks": {
+							Type:     schema.TypeBool,
 							Computed: true,
 						},
 					},
@@ -865,6 +892,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 								},
 							},
+						},
+						"instance_tag": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},

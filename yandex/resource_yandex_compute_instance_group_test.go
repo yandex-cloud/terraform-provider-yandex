@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1/instancegroup"
@@ -311,7 +312,7 @@ func TestAccComputeInstanceGroup_autoscale(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceGroupConfigAutocsale(name, saName),
+				Config: testAccComputeInstanceGroupConfigAutoScale(name, saName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupAutoScalePolicy(&ig),
@@ -336,7 +337,7 @@ func TestAccComputeInstanceGroup_TestAutoScale(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstanceGroupConfigTestAutocsale(name, saName),
+				Config: testAccComputeInstanceGroupConfigTestAutoScale(name, saName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
 					testAccCheckComputeInstanceGroupTestAutoScalePolicy(&ig),
@@ -587,6 +588,31 @@ func TestAccComputeInstanceGroup_createEmptyPlacementGroupAndAssignLater(t *test
 					testAccCheckNonEmptyPlacementGroupIG(&ig),
 				),
 			},
+		},
+	})
+}
+
+func TestAccComputeInstanceGroup_InstanceTagsPool(t *testing.T) {
+	t.Parallel()
+
+	var ig instancegroup.InstanceGroup
+
+	name := acctest.RandomWithPrefix("tf-test")
+	saName := acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstanceGroupConfigInstanceTagsPool(name, saName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceGroupExists("yandex_compute_instance_group.group1", &ig),
+					testAccCheckComputeInstanceGroupHasInstanceTagsPool(&ig),
+				),
+			},
+			computeInstanceGroupImportStep(),
 		},
 	})
 }
@@ -1196,7 +1222,7 @@ resource "yandex_compute_instance_group" "group1" {
     filesystem {
       device_name = "fs2"
       filesystem_id = "${yandex_compute_filesystem.inst-group-test-fs2.id}"
-      mode = "READ_ONLY"
+      mode = "READ_WRITE"
     }
 
     network_interface {
@@ -1306,7 +1332,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName, sgName, fsName1, fsName2)
 }
 
-func testAccComputeInstanceGroupConfigAutocsale(igName string, saName string) string {
+func testAccComputeInstanceGroupConfigAutoScale(igName string, saName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1604-lts"
@@ -1402,7 +1428,7 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName)
 }
 
-func testAccComputeInstanceGroupConfigTestAutocsale(igName string, saName string) string {
+func testAccComputeInstanceGroupConfigTestAutoScale(igName string, saName string) string {
 	return fmt.Sprintf(`
 data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-1604-lts"
@@ -2207,6 +2233,112 @@ resource "yandex_resourcemanager_folder_iam_member" "test_account" {
 `, getExampleFolderID(), igName, saName, pgName1, pgName2)
 }
 
+func testAccComputeInstanceGroupConfigInstanceTagsPool(igName string, saName string) string {
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1604-lts"
+}
+
+data "yandex_resourcemanager_folder" "test_folder" {
+  folder_id = "%[1]s"
+}
+
+resource "yandex_compute_instance_group" "group1" {
+  depends_on         = ["yandex_iam_service_account.test_account", "yandex_resourcemanager_folder_iam_member.test_account"]
+  name               = "%[2]s"
+  folder_id          = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  service_account_id = "${yandex_iam_service_account.test_account.id}"
+  instance_template {
+    platform_id = "standard-v2"
+    description = "template_description"
+
+    resources {
+      memory = 2
+      cores  = 2
+    }
+
+    boot_disk {
+      initialize_params {
+        image_id = "${data.yandex_compute_image.ubuntu.id}"
+        size     = 4
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.inst-group-test-network.id}"
+      subnet_ids = ["${yandex_vpc_subnet.subnet-a.id}", "${yandex_vpc_subnet.subnet-b.id}", "${yandex_vpc_subnet.subnet-c.id}"]
+    }
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 3
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+    instance_tags_pool {
+      zone = "ru-central1-a" 
+      tags = ["atag"]
+    }
+    instance_tags_pool {
+      zone = "ru-central1-b" 
+      tags = ["btag"]
+    }
+    instance_tags_pool {
+      zone = "ru-central1-c"
+      tags = ["ctag"]
+    }
+  }
+
+  deploy_policy {
+    max_unavailable = 1
+    max_creating    = 3
+    max_expansion   = 0
+    max_deleting    = 3
+  }
+}
+
+resource "yandex_vpc_network" "inst-group-test-network" {
+  description = "tf-test"
+}
+
+resource "yandex_vpc_subnet" "subnet-a" {
+  description    = "tf-test"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.11.0/24"]
+}
+
+resource "yandex_vpc_subnet" "subnet-b" {
+  description    = "tf-test"
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.12.0/24"]
+}
+
+resource "yandex_vpc_subnet" "subnet-c" {
+  description    = "tf-test"
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
+  v4_cidr_blocks = ["192.168.13.0/24"]
+}
+
+resource "yandex_iam_service_account" "test_account" {
+  name        = "%[3]s"
+  description = "tf-test"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  member      = "serviceAccount:${yandex_iam_service_account.test_account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+`, getExampleFolderID(), igName, saName)
+}
+
 func testAccCheckComputeInstanceGroupExists(n string, instance *instancegroup.InstanceGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -2401,13 +2533,14 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 		}
 
 		fs0 := &Filesystem{Mode: "READ_WRITE"}
-		if err := checkFs(fmt.Sprintf("instancegroup %s attached file system #0", ig.Name), ig.InstanceTemplate.FilesystemSpecs[0], fs0); err != nil {
-			return err
-		}
+		fs1 := &Filesystem{DeviceName: "fs2", Mode: "READ_WRITE"}
+		for _, spec := range ig.InstanceTemplate.FilesystemSpecs {
+			err1 := checkFs(fmt.Sprintf("instancegroup %s attached file system", ig.Name), spec, fs0)
+			err2 := checkFs(fmt.Sprintf("instancegroup %s attached file system", ig.Name), spec, fs1)
 
-		fs1 := &Filesystem{DeviceName: "fs2", Mode: "READ_ONLY"}
-		if err := checkFs(fmt.Sprintf("instancegroup %s attached file system #1", ig.Name), ig.InstanceTemplate.FilesystemSpecs[1], fs1); err != nil {
-			return err
+			if err1 != nil && err2 != nil {
+				return err1
+			}
 		}
 
 		// NetworkInterfaceSpec
@@ -2579,4 +2712,38 @@ func testAccGetPlacementGroupIG(ig *instancegroup.InstanceGroup, pg *string) res
 		}
 		return fmt.Errorf("instance placement_group_id is invalid")
 	}
+}
+
+func testAccCheckComputeInstanceGroupHasInstanceTagsPool(ig *instancegroup.InstanceGroup) resource.TestCheckFunc {
+	return func(state *terraform.State) error {
+		if ig.AllocationPolicy == nil || len(ig.AllocationPolicy.Zones) != 3 {
+			return fmt.Errorf("invalid allocation policy in instance group %s", ig.Name)
+		}
+		err := assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-a", []string{"atag"})
+		if err != nil {
+			return err
+		}
+		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-b", []string{"btag"})
+		if err != nil {
+			return err
+		}
+		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-c", []string{"ctag"})
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func assertZoneExists(zones []*instancegroup.AllocationPolicy_Zone, zoneId string, tags []string) error {
+	found := false
+	for _, zone := range zones {
+		if zone.ZoneId == zoneId && slices.Equal(tags, zone.InstanceTagsPool) {
+			found = true
+		}
+	}
+	if !found {
+		return fmt.Errorf("Allocation zone not found.\nExpected zoneId = %s, tags = %+v\nGot zones: %+v", zoneId, tags, zones)
+	}
+	return nil
 }

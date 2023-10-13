@@ -119,6 +119,8 @@ The `application_load_balancer` block supports:
 
 * `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
 
+* `ignore_health_checks` - (Optional) Do not wait load balancer health checks.
+
 ---
 
 The `load_balancer` block supports:
@@ -130,6 +132,8 @@ The `load_balancer` block supports:
 * `target_group_labels` - (Optional) A set of key/value label pairs.
 
 * `max_opening_traffic_duration` - (Optional) Timeout for waiting for the VM to be checked by the load balancer. If the timeout is exceeded, the VM will be turned off based on the deployment policy. Specified in seconds.
+
+* `ignore_health_checks` - (Optional) Do not wait load balancer health checks.
 
 ---
 
@@ -166,6 +170,16 @@ The `tcp_options` block supports:
 The `allocation_policy` block supports:
 
 * `zones` - (Required) A list of availability zones.
+
+* `instance_tags_pool` - (Optional) Array of availability zone IDs with list of instance tags.
+
+---
+
+The `instance_tags_pool` blocks supports:
+
+* `zone` - (Required) Availability zone.
+
+* `tags` - (Required) List of tags for instances in zone.
 
 ---
 
