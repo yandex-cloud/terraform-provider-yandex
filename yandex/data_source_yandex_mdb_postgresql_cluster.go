@@ -274,6 +274,26 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 					},
 				},
 			},
+			"disk_size_autoscaling": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"pooler_config": {
 				Type:     schema.TypeList,
 				Computed: true,

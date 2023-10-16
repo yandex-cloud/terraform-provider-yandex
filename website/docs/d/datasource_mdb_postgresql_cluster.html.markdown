@@ -65,6 +65,7 @@ The `config` block supports:
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 * `access` - Access policy to the PostgreSQL cluster. The structure is documented below.
 * `performance_diagnostics` - Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
+* `disk_size_autoscaling` - Cluster disk size autoscaling settings. The structure is documented below.
 * `postgresql_config` - PostgreSQL cluster config.
 
 The `resources` block supports:
@@ -95,6 +96,11 @@ The `performance_diagnostics` block supports:
 * `enabled` - Flag, when true, performance diagnostics is enabled
 * `sessions_sampling_interval` - Interval (in seconds) for pg_stat_activity sampling Acceptable values are 1 to 86400, inclusive.
 * `statements_sampling_interval` - Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
+
+The `disk_size_autoscaling` block supports:
+* `disk_size_limit` - Limit of disk size after autoscaling.
+* `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
+* `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
 
 The `host` block supports:
 

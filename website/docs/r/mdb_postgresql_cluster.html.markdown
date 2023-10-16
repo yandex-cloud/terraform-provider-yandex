@@ -266,6 +266,8 @@ The `config` block supports:
 
 * `performance_diagnostics` - (Optional) Cluster performance diagnostics settings. The structure is documented below. [YC Documentation](https://cloud.yandex.com/en-ru/docs/managed-postgresql/api-ref/grpc/cluster_service#PerformanceDiagnostics)
 
+* `disk_size_autoscaling` - Cluster disk size autoscaling settings. The structure is documented below.
+
 * `autofailover` - (Optional) Configuration setting which enables/disables autofailover in cluster.
 
 * `backup_retain_period_days` - (Optional) The period in days during which backups are stored.
@@ -321,6 +323,13 @@ The `performance_diagnostics` block supports:
 
 ~> **Note:** Historically, `user` and `database` blocks of the `yandex_mdb_postgresql_cluster` resource were used to manage users and databases of the PostgreSQL cluster. However, this approach has many disadvantages. In particular, adding and removing a resource from the terraform recipe worked wrong because terraform misleads the user about the planned changes. Now, the recommended way to manage databases and users is using `yandex_mdb_postgresql_user` and `yandex_mdb_postgresql_database` resources.
 
+The `disk_size_autoscaling` block supports:
+
+* `disk_size_limit` - Limit of disk size after autoscaling.
+
+* `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
+
+* `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
 
 The `host` block supports:
 

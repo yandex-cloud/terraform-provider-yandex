@@ -37,6 +37,7 @@ func flattenPGClusterConfig(c *postgresql.ClusterConfig) ([]interface{}, error) 
 	out["backup_window_start"] = flattenMDBBackupWindowStart(c.BackupWindowStart)
 	out["backup_retain_period_days"] = c.BackupRetainPeriodDays.GetValue()
 	out["performance_diagnostics"] = flattenPGPerformanceDiagnostics(c.PerformanceDiagnostics)
+	out["disk_size_autoscaling"] = flattenPGDiskSizeAutoscaling(c.DiskSizeAutoscaling)
 	out["access"] = flattenPGAccess(c.Access)
 	out["postgresql_config"] = settings
 
@@ -74,6 +75,20 @@ func flattenPGPerformanceDiagnostics(p *postgresql.PerformanceDiagnostics) []int
 	out["enabled"] = p.Enabled
 	out["sessions_sampling_interval"] = int(p.SessionsSamplingInterval)
 	out["statements_sampling_interval"] = int(p.StatementsSamplingInterval)
+
+	return []interface{}{out}
+}
+
+func flattenPGDiskSizeAutoscaling(p *postgresql.DiskSizeAutoscaling) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["disk_size_limit"] = p.DiskSizeLimit
+	out["planned_usage_threshold"] = int(p.PlannedUsageThreshold)
+	out["emergency_usage_threshold"] = int(p.EmergencyUsageThreshold)
 
 	return []interface{}{out}
 }
@@ -883,6 +898,7 @@ func expandPGParamsUpdatePath(d *schema.ResourceData, settingNames []string) []s
 		"config.0.pooler_config":             "config_spec.pooler_config",
 		"config.0.access":                    "config_spec.access",
 		"config.0.performance_diagnostics":   "config_spec.performance_diagnostics",
+		"config.0.disk_size_autoscaling":     "config_spec.disk_size_autoscaling",
 		"config.0.backup_window_start":       "config_spec.backup_window_start",
 		"config.0.resources":                 "config_spec.resources",
 		"config.0.backup_retain_period_days": "config_spec.backup_retain_period_days",
@@ -931,6 +947,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 		BackupWindowStart:      expandMDBBackupWindowStart(d, "config.0.backup_window_start.0"),
 		Access:                 expandPGAccess(d),
 		PerformanceDiagnostics: expandPGPerformanceDiagnostics(d),
+		DiskSizeAutoscaling:    expandPGDiskSizeAutoscaling(d),
 	}
 
 	settingNames, err := expandPGConfigSpecSettings(d, cs)
@@ -1252,6 +1269,29 @@ func expandPGPerformanceDiagnostics(d *schema.ResourceData) *postgresql.Performa
 
 	if v, ok := d.GetOk("config.0.performance_diagnostics.0.statements_sampling_interval"); ok {
 		out.StatementsSamplingInterval = int64(v.(int))
+	}
+
+	return out
+}
+
+func expandPGDiskSizeAutoscaling(d *schema.ResourceData) *postgresql.DiskSizeAutoscaling {
+
+	if _, ok := d.GetOkExists("config.0.disk_size_autoscaling"); !ok {
+		return nil
+	}
+
+	out := &postgresql.DiskSizeAutoscaling{}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.disk_size_limit"); ok {
+		out.DiskSizeLimit = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.planned_usage_threshold"); ok {
+		out.PlannedUsageThreshold = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.emergency_usage_threshold"); ok {
+		out.EmergencyUsageThreshold = int64(v.(int))
 	}
 
 	return out

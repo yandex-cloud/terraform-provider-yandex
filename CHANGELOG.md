@@ -1,9 +1,11 @@
 ## 0.101.0 (Unreleased)
 
+ENHANCEMENTS:
+* mdb: add `disk_size_autoscaling` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
+
 FEATURES:
 * compute: added support for `instance_tags_pool` in `yandex_compute_instance_group`
 * compute: added support for `ignore_health_checks` in `yandex_compute_instance_group`
-
 
 BUG FIXES:
 * kafka: fix bug with update of field `schema_registry` in `yandex_mdb_kafka_cluster` resource

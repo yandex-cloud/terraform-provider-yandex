@@ -249,6 +249,28 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 					},
 				},
 			},
+			"disk_size_autoscaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"access": {
 				Type:     schema.TypeList,
 				MaxItems: 1,

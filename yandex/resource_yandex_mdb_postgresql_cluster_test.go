@@ -1155,6 +1155,12 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       sessions_sampling_interval   = 9
       statements_sampling_interval = 60
     }
+
+	disk_size_autoscaling {
+		disk_size_limit 			= 40
+		planned_usage_threshold 	= 70
+		emergency_usage_threshold	= 90
+	}
     
     backup_retain_period_days = 12
     
@@ -1272,6 +1278,12 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 		  performance_diagnostics {
 			sessions_sampling_interval   = 9
 			statements_sampling_interval = 60
+		  }
+
+		  disk_size_autoscaling {
+			disk_size_limit 			= 40
+			planned_usage_threshold 	= 70
+			emergency_usage_threshold	= 90
 		  }
 		  
 		  backup_retain_period_days = 12
