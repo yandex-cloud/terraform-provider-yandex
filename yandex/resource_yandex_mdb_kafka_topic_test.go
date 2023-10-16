@@ -350,7 +350,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  version          = "3.0"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
-	  unmanaged_topics = true
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"

@@ -195,9 +195,10 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				Default:  false,
 			},
 			"unmanaged_topics": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    false,
+				Deprecated: "The 'unmanaged_topics' field has been deprecated, because feature enabled permanently and can't be disabled.",
 			},
 			"schema_registry": {
 				Type:     schema.TypeBool,
@@ -944,7 +945,6 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.brokers_count":    "config_spec.brokers_count",
 	"config.0.assign_public_ip": "config_spec.assign_public_ip",
 	"config.0.schema_registry":  "config_spec.schema_registry",
-	"config.0.unmanaged_topics": "config_spec.unmanaged_topics",
 	"config.0.access":           "config_spec.access",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
 	"config.0.kafka.0.resources.0.disk_type_id":                       "config_spec.kafka.resources.disk_type_id",

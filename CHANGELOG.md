@@ -9,6 +9,9 @@ BUG FIXES:
 * kafka: fix bug with update of field `schema_registry` in `yandex_mdb_kafka_cluster` resource
 * compute: fix `filesystem` in `compute_instance_group` resource
 
+WARNING:
+* managed-kafka: 'unmanaged_topics' cluster flag are now deprecated
+
 ## 0.100.0 (October 11, 2023)
 
 FEATURES:

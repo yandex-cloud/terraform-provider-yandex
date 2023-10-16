@@ -27,7 +27,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     brokers_count    = 1
     zones            = ["ru-central1-a"]
     assign_public_ip = false
-    unmanaged_topics = false
     schema_registry  = false
     kafka {
       resources {
@@ -104,7 +103,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
     brokers_count    = 2
     zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
     assign_public_ip = true
-    unmanaged_topics = false
     schema_registry  = false
     kafka {
       resources {
@@ -246,8 +244,6 @@ The `config` block supports:
 * `zones` - (Required) List of availability zones.
 
 * `assign_public_ip` - (Optional) Determines whether each broker will be assigned a public IP address. The default is `false`.
-
-* `unmanaged_topics` - (Optional) Allows to use Kafka AdminAPI to manage topics. The default is `false`.
 
 * `schema_registry` - (Optional) Enables managed schema registry on cluster. The default is `false`.
 

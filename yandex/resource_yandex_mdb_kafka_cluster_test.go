@@ -1233,7 +1233,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
-	  unmanaged_topics = false
 	  schema_registry  = false	
       access {
 	    data_transfer  = true
@@ -1318,7 +1317,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		brokers_count = 1
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
-		unmanaged_topics = false
 		schema_registry  = true
         access {
 	        data_transfer = false
@@ -1648,7 +1646,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
-	  unmanaged_topics = false
 	  schema_registry  = false	
 	  kafka {
 		resources {
@@ -1728,7 +1725,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  brokers_count    = 2
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
 	  assign_public_ip = false
-	  unmanaged_topics = false
       schema_registry  = false
 	  kafka {
 		resources {

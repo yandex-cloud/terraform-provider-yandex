@@ -421,10 +421,6 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 		result.AssignPublicIp = v.(bool)
 	}
 
-	if v, ok := d.GetOk("config.0.unmanaged_topics"); ok {
-		result.UnmanagedTopics = v.(bool)
-	}
-
 	if v, ok := d.GetOk("config.0.schema_registry"); ok {
 		result.SchemaRegistry = v.(bool)
 	}
@@ -570,7 +566,6 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 	config := map[string]interface{}{
 		"brokers_count":    cluster.Config.BrokersCount.GetValue(),
 		"assign_public_ip": cluster.Config.AssignPublicIp,
-		"unmanaged_topics": cluster.Config.UnmanagedTopics,
 		"schema_registry":  cluster.Config.SchemaRegistry,
 		"zones":            cluster.Config.ZoneId,
 		"version":          cluster.Config.Version,

@@ -22,7 +22,6 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   config {
     version          = "2.8"
     zones            = ["ru-central1-a"]
-    unmanaged_topics = true
     kafka {
       resources {
         resource_preset_id = "s2.micro"
