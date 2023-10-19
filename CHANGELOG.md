@@ -10,6 +10,7 @@ FEATURES:
 BUG FIXES:
 * kafka: fix bug with update of field `schema_registry` in `yandex_mdb_kafka_cluster` resource
 * compute: fix `filesystem` in `compute_instance_group` resource
+* greenplum: add Cloud Storage support
 
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated
@@ -24,7 +25,6 @@ FEATURES:
 * serverless: add `async_invocation` attribute in `yandex_function` resources and data sources
 * greenplum: add Greenplum 6.25 support
 * compute: support `filesystem` in `compute_instance_group` resource and data source
-
 * **New Resource:** `yandex_datasphere_community`
 * **New Resource:** `yandex_datasphere_project`
 * **New Resource:** `yandex_datasphere_community_iam_binding`

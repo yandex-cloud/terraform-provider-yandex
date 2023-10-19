@@ -330,6 +330,21 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"cloud_storage": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -440,7 +455,8 @@ func prepareCreateGreenplumClusterRequest(d *schema.ResourceData, meta *Config) 
 		UserName:     d.Get("user_name").(string),
 		UserPassword: d.Get("user_password").(string),
 
-		ConfigSpec: configSpec,
+		ConfigSpec:   configSpec,
+		CloudStorage: expandGreenplumCloudStorage(d),
 	}, nil
 }
 
@@ -522,6 +538,10 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 	}
 
 	if err := d.Set("access", flattenGreenplumAccess(cluster.Config)); err != nil {
+		return err
+	}
+
+	if err := d.Set("cloud_storage", flattenGreenplumCloudStorage(cluster.CloudStorage)); err != nil {
 		return err
 	}
 
@@ -724,8 +744,9 @@ func prepareUpdateGreenplumClusterRequest(d *schema.ResourceData) (*greenplum.Up
 			},
 		},
 
-		UpdateMask: &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
-		ConfigSpec: configSpec,
+		UpdateMask:   &field_mask.FieldMask{Paths: expandGreenplumUpdatePath(d, settingNames)},
+		ConfigSpec:   configSpec,
+		CloudStorage: expandGreenplumCloudStorage(d),
 	}, nil
 }
 

@@ -278,6 +278,18 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"cloud_storage": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

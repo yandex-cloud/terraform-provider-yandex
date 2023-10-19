@@ -475,6 +475,9 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 	data_lens     = true
 	data_transfer = true
   }
+  cloud_storage {
+	enable = true
+  }
 }`
 }
 
@@ -490,8 +493,11 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 //   }
 //
 //   access {
-// 	web_sql       = true
-// 	data_transfer = true
+//     web_sql       = true
+//     data_transfer = true
+//   }
+//   cloud_storage {
+//     enable = true
 //   }
 // }`
 // }

@@ -130,6 +130,8 @@ The following arguments are supported:
 
 * `greenplum_config` - (Optional) Greenplum cluster config. Detail info in "Greenplum cluster settings" section (documented below).
 
+* `cloud_storage` - (Optional) Cloud Storage settings of the Greenplum cluster. The structure is documented below.
+
 - - -
 * `user_name` - (Required) Greenplum cluster admin user name.
 
@@ -185,6 +187,11 @@ The `pooler_config` block supports:
 * `pool_size` - (Optional) Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).
 
 * `pool_client_idle_timeout` - (Optional) Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).
+
+The `cloud_storage` block supports:
+
+* `enable` - (Optional) Whether to use cloud storage or not.
+
 
 ## Attributes Reference
 

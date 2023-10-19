@@ -150,6 +150,10 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"access.0.data_lens",
 				"access.0.data_lens",
 			},
+			{
+				"cloud_storage.0.enable",
+				"cloud_storage.0.enable",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

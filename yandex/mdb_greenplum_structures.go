@@ -69,6 +69,14 @@ func flattenGreenplumAccess(c *greenplum.GreenplumConfig) []map[string]interface
 	return []map[string]interface{}{out}
 }
 
+func flattenGreenplumCloudStorage(c *greenplum.CloudStorage) []map[string]interface{} {
+	out := map[string]interface{}{}
+	if c != nil {
+		out["enable"] = c.Enable
+	}
+	return []map[string]interface{}{out}
+}
+
 func flattenGreenplumMaintenanceWindow(mw *greenplum.MaintenanceWindow) ([]interface{}, error) {
 	maintenanceWindow := map[string]interface{}{}
 	if mw != nil {
@@ -188,6 +196,20 @@ func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
 	return out
 }
 
+func expandGreenplumCloudStorage(d *schema.ResourceData) *greenplum.CloudStorage {
+	if _, ok := d.GetOk("cloud_storage"); !ok {
+		return nil
+	}
+
+	out := &greenplum.CloudStorage{}
+
+	if v, ok := d.GetOk("cloud_storage.0.enable"); ok {
+		out.Enable = v.(bool)
+	}
+
+	return out
+}
+
 func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []string {
 	mdbGreenplumUpdateFieldsMap := map[string]string{
 		"name":                   "name",
@@ -197,6 +219,7 @@ func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []
 		"access.0.data_lens":     "config.access.data_lens",
 		"access.0.web_sql":       "config.access.web_sql",
 		"access.0.data_transfer": "config.access.data_transfer",
+		"cloud_storage.0.enable": "cloud_storage",
 		"backup_window_start":    "config.backup_window_start",
 		"maintenance_window":     "maintenance_window",
 		"deletion_protection":    "deletion_protection",
