@@ -939,8 +939,15 @@ resource "yandex_storage_bucket" "tf-dataproc-2" {
 }
 
 resource "yandex_dataproc_cluster" "tf-dataproc-cluster" {
+
   depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-manager,
-				yandex_resourcemanager_folder_iam_member.dataproc-manager-2]
+				yandex_resourcemanager_folder_iam_member.dataproc-manager-2,
+				yandex_resourcemanager_folder_iam_member.dataproc-provisioner-1,
+				yandex_resourcemanager_folder_iam_member.dataproc-provisioner-2,
+				yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-1,
+				yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-2,
+				yandex_resourcemanager_folder_iam_member.bucket-creator,
+				]
 
   bucket             = {{.CurrentBucket}}
   description        = "{{.Description}}"
