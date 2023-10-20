@@ -20,7 +20,7 @@ resource "yandex_kms_asymmetric_signature_key" "your-key" {
 }
 
 resource "yandex_kms_asymmetric_signature_key_iam_binding" "viewer" {
-  asymmetric_signaturen_key_id = yandex_kms_asymmetric_signature_key.your-key.id
+  asymmetric_signature_key_id = yandex_kms_asymmetric_signature_key.your-key.id
   role             = "viewer"
 
   members = [
