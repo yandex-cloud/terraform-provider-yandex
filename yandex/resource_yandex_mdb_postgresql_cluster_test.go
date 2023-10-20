@@ -1157,8 +1157,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     }
 
 	disk_size_autoscaling {
-		disk_size_limit 			= 40
-		planned_usage_threshold 	= 70
+		disk_size_limit           	= 42949672960
+		planned_usage_threshold 	= 0
 		emergency_usage_threshold	= 90
 	}
     
@@ -1281,8 +1281,8 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 		  }
 
 		  disk_size_autoscaling {
-			disk_size_limit 			= 40
-			planned_usage_threshold 	= 70
+			disk_size_limit		        = 42949672960
+			planned_usage_threshold 	= 0
 			emergency_usage_threshold	= 90
 		  }
 		  
