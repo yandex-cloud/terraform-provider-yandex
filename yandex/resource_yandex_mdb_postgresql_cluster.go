@@ -53,7 +53,6 @@ func resourceYandexMDBPostgreSQLCluster() *schema.Resource {
 			"network_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"config": {
 				Type:     schema.TypeList,
