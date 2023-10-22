@@ -12,6 +12,7 @@ BUG FIXES:
 * compute: fix `filesystem` in `compute_instance_group` resource
 * greenplum: add Cloud Storage support
 * postgresql: do not recreate cluster on network change
+* kubernetes: fix bug with observe and update of field `master.regional.location` in `yandex_kubernetes_cluster` resource
 
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated

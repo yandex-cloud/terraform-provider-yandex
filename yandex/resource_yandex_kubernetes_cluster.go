@@ -1048,12 +1048,25 @@ func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster
 	h.getZonalMaster()["zone"] = m.ZonalMaster.GetZoneId()
 }
 
-func (h *masterSchemaHelper) flattenClusterRegionalMaster(m *k8s.Master_RegionalMaster) {
+func (h *masterSchemaHelper) flattenClusterRegionalMaster(m *k8s.Master_RegionalMaster, master *k8s.Master) {
 	h.master["internal_v4_address"] = m.RegionalMaster.GetInternalV4Address()
 	h.master["external_v4_address"] = m.RegionalMaster.GetExternalV4Address()
 	h.master["external_v6_address"] = m.RegionalMaster.GetExternalV6Address()
 
 	h.getRegionalMaster()["region"] = m.RegionalMaster.GetRegionId()
+	h.getRegionalMaster()["location"] = flattenClusterRegionalMasterLocations(master)
+}
+
+func flattenClusterRegionalMasterLocations(master *k8s.Master) []map[string]interface{} {
+	masterLocations := master.GetLocations()
+	locations := make([]map[string]interface{}, 0, len(masterLocations))
+	for _, location := range masterLocations {
+		locations = append(locations, map[string]interface{}{
+			"zone":      location.ZoneId,
+			"subnet_id": location.SubnetId,
+		})
+	}
+	return locations
 }
 
 func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) {
@@ -1086,7 +1099,7 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	case *k8s.Master_ZonalMaster:
 		h.flattenClusterZonalMaster(m)
 	case *k8s.Master_RegionalMaster:
-		h.flattenClusterRegionalMaster(m)
+		h.flattenClusterRegionalMaster(m, clusterMaster)
 	default:
 		return nil, fmt.Errorf("unsupported Kubernetes master type (currently only zonal and regional master are supported)")
 	}
