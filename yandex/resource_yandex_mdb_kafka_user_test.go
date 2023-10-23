@@ -159,7 +159,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
 
 	config {
-	  version          = "3.3"
+	  version          = "%s"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  kafka {
@@ -187,7 +187,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name)
+`, name, currentDefaultKafkaVersion)
 }
 
 func testAccMDBKafkaUserConfigStep1(name string) string {

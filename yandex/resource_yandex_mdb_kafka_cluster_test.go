@@ -25,6 +25,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/mocks"
 )
 
+const currentDefaultKafkaVersion = "3.5"
+
 const kfResource = "yandex_mdb_kafka_cluster.foo"
 
 const kfVPCDependencies = `
@@ -379,7 +381,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 }
 
 func TestExpandKafka3xClusterConfig(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2"}
+	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 	for _, version := range versions3x {
 		raw := map[string]interface{}{
 			"config": []interface{}{
@@ -704,7 +706,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 }
 
 func TestKafka3xClusterUpdateRequest(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2"}
+	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 	for _, version := range versions3x {
 		raw := map[string]interface{}{
 			"name":        "new-name",
@@ -951,7 +953,7 @@ func TestUpdateKafkaClusterTopics(t *testing.T) {
 }
 
 func TestUpdateKafka3xClusterTopics(t *testing.T) {
-	versions3x := []string{"3.0", "3.1", "3.2"}
+	versions3x := []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 	for _, version := range versions3x {
 		rawInitial := map[string]interface{}{
 			"config": []interface{}{
@@ -1055,6 +1057,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
 					resource.TestCheckResourceAttr(kfResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 16*1024*1024*1024),
@@ -1084,6 +1087,7 @@ func TestAccMDBKafkaCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.access.0.data_transfer", "false"),
 					resource.TestCheckResourceAttr(kfResource, "config.0.schema_registry", "true"),
+					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events", "raw_events"}, "charlie": {"raw_events", "new_topic"}}),
@@ -1127,6 +1131,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDesc),
+					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "final"}),
@@ -1149,6 +1154,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "name", kfName),
 					resource.TestCheckResourceAttr(kfResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
+					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
 					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-c"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
@@ -1229,7 +1235,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	deletion_protection = false
 
 	config {
-	  version          = "3.0"
+	  version          = "%s"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  assign_public_ip = false
@@ -1296,7 +1302,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name, desc, environment)
+`, name, desc, environment, currentDefaultKafkaVersion)
 }
 
 func testAccMDBKafkaClusterConfigUpdated(name, desc string) string {
@@ -1313,7 +1319,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
 
 	config {
-		version = "3.0"
+		version = "%s"
 		brokers_count = 1
 		zones = ["ru-central1-a"]
 		assign_public_ip = false
@@ -1381,7 +1387,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		}
 	}
 }
-`, name, desc)
+`, name, desc, currentDefaultKafkaVersion)
 }
 
 func testAccCheckMDBKafkaClusterContainsLabel(r *kafka.Cluster, key string, value string) resource.TestCheckFunc {
@@ -1642,7 +1648,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	]
 
 	config {
-	  version          = "3.0"
+	  version          = "%s"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a", "ru-central1-b"]
 	  assign_public_ip = false
@@ -1700,7 +1706,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name, desc)
+`, name, desc, currentDefaultKafkaVersion)
 }
 
 func testAccMDBKafkaClusterConfigUpdatedHA(name, desc string) string {
@@ -1721,7 +1727,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	]
 
 	config {
-	  version          = "3.0"
+	  version          = "%s"
 	  brokers_count    = 2
 	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
 	  assign_public_ip = false
@@ -1779,5 +1785,5 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name, desc)
+`, name, desc, currentDefaultKafkaVersion)
 }

@@ -3,10 +3,12 @@
 ENHANCEMENTS:
 * mdb: add `disk_size_autoscaling` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
 * datasphere: add documentation for datasphere resources and data sources
+* kafka: small tests refactor, change kafka version to 3.5 in acc-tests.
 
 FEATURES:
 * compute: added support for `instance_tags_pool` in `yandex_compute_instance_group`
 * compute: added support for `ignore_health_checks` in `yandex_compute_instance_group`
+* kafka: support Kafka 3.3,3.4,3.5 in `yandex_mdb_kafka_cluster`
 
 * **New Resource:** `yandex_loadtesting_agent`
 

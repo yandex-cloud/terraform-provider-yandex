@@ -21,7 +21,7 @@ const (
 	kafkaClusterResourceName = "yandex_mdb_kafka_cluster.foo"
 )
 
-func TestNoCrashOnNilKafkaTopicConfig(t *testing.T) {
+func TestNoCrashOnNilKafka28TopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -45,7 +45,7 @@ func TestNoCrashOnNilKafkaTopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestNoCrashOnNilKafka30TopicConfig(t *testing.T) {
+func TestNoCrashOnNilKafka3xTopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -54,7 +54,7 @@ func TestNoCrashOnNilKafka30TopicConfig(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", currentDefaultKafkaVersion)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -69,7 +69,7 @@ func TestNoCrashOnNilKafka30TopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
+func TestNoCrashOnEmptyKafka28TopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -95,7 +95,7 @@ func TestNoCrashOnEmptyKafkaTopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestNoCrashOnEmptyKafka30TopicConfig(t *testing.T) {
+func TestNoCrashOnEmptyKafka3xTopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -106,7 +106,7 @@ func TestNoCrashOnEmptyKafka30TopicConfig(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", currentDefaultKafkaVersion)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -121,7 +121,7 @@ func TestNoCrashOnEmptyKafka30TopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestNoCrashOnNotFulledKafkaTopicConfig(t *testing.T) {
+func TestNoCrashOnNotFulledKafka28TopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -153,7 +153,7 @@ func TestNoCrashOnNotFulledKafkaTopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestNoCrashOnNotFulledKafka30TopicConfig(t *testing.T) {
+func TestNoCrashOnNotFulledKafka3xTopicConfig(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -166,7 +166,7 @@ func TestNoCrashOnNotFulledKafka30TopicConfig(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", currentDefaultKafkaVersion)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -185,7 +185,7 @@ func TestNoCrashOnNotFulledKafka30TopicConfig(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestBuildKafkaTopicSpec(t *testing.T) {
+func TestBuildKafka28TopicSpec(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -239,7 +239,7 @@ func TestBuildKafkaTopicSpec(t *testing.T) {
 	assert.Equal(t, expected, topicSpec)
 }
 
-func TestBuildKafka30TopicSpec(t *testing.T) {
+func TestBuildKafka3xTopicSpec(t *testing.T) {
 	raw := map[string]interface{}{
 		"name":               "events",
 		"partitions":         12,
@@ -263,7 +263,7 @@ func TestBuildKafka30TopicSpec(t *testing.T) {
 	}
 	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBKafkaTopic().Schema, raw)
 
-	topicSpec, err := buildKafkaTopicSpec(resourceData, "", "3.0")
+	topicSpec, err := buildKafkaTopicSpec(resourceData, "", currentDefaultKafkaVersion)
 	if err != nil {
 		require.NoError(t, err)
 	}
@@ -347,7 +347,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
 
 	config {
-	  version          = "3.0"
+	  version          = "%s"
 	  brokers_count    = 1
 	  zones            = ["ru-central1-a"]
 	  kafka {
@@ -363,7 +363,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	  }
 	}
 }
-`, name)
+`, name, currentDefaultKafkaVersion)
 }
 
 func testAccMDBKafkaTopicConfigStep1(name string) string {
