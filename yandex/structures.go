@@ -5,11 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"log"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -26,6 +27,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
 	kmsasymmetricencryption "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricencryption"
 	kmsasymmetricsignature "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricsignature"
+	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
@@ -1910,4 +1912,318 @@ func expandSnapshotScheduleSnapshotSpec(d *schema.ResourceData) (*compute.Snapsh
 	}
 
 	return val, nil
+}
+
+func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Config) (*ltagent.CreateComputeInstance, error) {
+	var zoneId, serviceAccountId string
+	prefix := "compute_instance.0."
+
+	if v, ok := d.GetOk(prefix + "zone_id"); ok {
+		zoneId = v.(string)
+	} else if config.Zone != "" {
+		zoneId = config.Zone
+	} else {
+		return nil, fmt.Errorf("cannot determine zone: please set 'compute_instance.0.zone_id' key in this resource or at provider level")
+	}
+
+	if v, ok := d.GetOk(prefix + "service_account_id"); ok {
+		serviceAccountId = v.(string)
+	}
+
+	resourceSpec, err := expandLoadtestingComputeInstanceResourcesSpec(d, prefix)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'resources' object of api request: %s", err)
+	}
+
+	bootDiskSpec, err := expandLoadtestingComputeInstanceBootDiskSpec(d, prefix)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'boot_disk' object of api request: %s", err)
+	}
+
+	nicSpecs, err := expandLoadtestingComputeInstanceNetworkInterfaceSpecs(d, prefix)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'network' object of api request: %s", err)
+	}
+
+	labels, err := expandLabels(d.Get(prefix + "labels"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding labels while creating instance group: %s", err)
+	}
+
+	metadata, err := expandLabels(d.Get(prefix + "metadata"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding metadata while creating instance group: %s", err)
+	}
+
+	template := &ltagent.CreateComputeInstance{
+		Labels:                labels,
+		ZoneId:                zoneId,
+		ResourcesSpec:         resourceSpec,
+		Metadata:              metadata,
+		BootDiskSpec:          bootDiskSpec,
+		NetworkInterfaceSpecs: nicSpecs,
+		ServiceAccountId:      serviceAccountId,
+	}
+
+	return template, nil
+}
+
+func expandLoadtestingComputeInstanceResourcesSpec(d *schema.ResourceData, prefix string) (*compute.ResourcesSpec, error) {
+	rs := &compute.ResourcesSpec{}
+	prefix = prefix + "resources.0."
+
+	if v, ok := d.GetOk(prefix + "cores"); ok {
+		rs.Cores = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + "core_fraction"); ok {
+		rs.CoreFraction = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + "memory"); ok {
+		rs.Memory = toBytesFromFloat(v.(float64))
+	}
+
+	return rs, nil
+}
+
+func expandLoadtestingComputeInstanceBootDiskSpec(d *schema.ResourceData, prefix string) (*compute.AttachedDiskSpec, error) {
+	ads := &compute.AttachedDiskSpec{}
+	prefix = prefix + "boot_disk.0."
+
+	if v, ok := d.GetOk(prefix + "auto_delete"); ok {
+		ads.AutoDelete = v.(bool)
+	}
+
+	if v, ok := d.GetOk(prefix + "device_name"); ok {
+		ads.DeviceName = v.(string)
+	}
+
+	if _, ok := d.GetOk(prefix + "initialize_params"); ok {
+		bootDiskSpec, err := expandLoadtestingComputeInstanceDiskInitializeParamsSpec(d, prefix)
+		if err != nil {
+			return nil, err
+		}
+		ads.Disk = &compute.AttachedDiskSpec_DiskSpec_{
+			DiskSpec: bootDiskSpec,
+		}
+	}
+
+	return ads, nil
+}
+
+func expandLoadtestingComputeInstanceDiskInitializeParamsSpec(d *schema.ResourceData, prefix string) (*compute.AttachedDiskSpec_DiskSpec, error) {
+	diskSpec := &compute.AttachedDiskSpec_DiskSpec{}
+	prefix = prefix + "initialize_params.0."
+
+	if v, ok := d.GetOk(prefix + "name"); ok {
+		diskSpec.Name = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + "description"); ok {
+		diskSpec.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + "type"); ok {
+		diskSpec.TypeId = v.(string)
+	}
+
+	if v, ok := d.GetOk(prefix + "size"); ok {
+		diskSpec.Size = toBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk(prefix + "block_size"); ok {
+		diskSpec.BlockSize = int64(v.(int))
+	}
+
+	if diskSpec.Size == 0 {
+		diskSpec.Size = toBytesFromFloat(15)
+	}
+
+	return diskSpec, nil
+}
+
+func expandLoadtestingComputeInstanceNetworkInterfaceSpecs(d *schema.ResourceData, prefix string) ([]*compute.NetworkInterfaceSpec, error) {
+	nicsConfig := d.Get(prefix + "network_interface").([]interface{})
+	nics := make([]*compute.NetworkInterfaceSpec, len(nicsConfig))
+
+	for i, raw := range nicsConfig {
+		data := raw.(map[string]interface{})
+
+		subnetID := data["subnet_id"].(string)
+		if subnetID == "" {
+			return nil, fmt.Errorf("NIC number %d does not have a 'subnet_id' attribute defined", i)
+		}
+
+		nics[i] = &compute.NetworkInterfaceSpec{
+			SubnetId: subnetID,
+		}
+
+		if sgids, ok := data["security_group_ids"]; ok {
+			nics[i].SecurityGroupIds = expandSecurityGroupIds(sgids)
+		}
+
+		ipV4Address := data["ip_address"].(string)
+		ipV6Address := data["ipv6_address"].(string)
+
+		// By default allocate any unassigned IPv4 address
+		if ipV4Address == "" && ipV6Address == "" {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
+		}
+
+		if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
+		}
+
+		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
+			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{}
+		}
+
+		if ipV4Address != "" {
+			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+				Address: ipV4Address,
+			}
+		}
+
+		if ipV6Address != "" {
+			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{
+				Address: ipV6Address,
+			}
+		}
+
+		if nat, ok := data["nat"].(bool); ok && nat {
+			natSpec := &compute.OneToOneNatSpec{
+				IpVersion: compute.IpVersion_IPV4,
+			}
+
+			if natAddress, ok := data["nat_ip_address"].(string); ok && natAddress != "" {
+				natSpec = &compute.OneToOneNatSpec{
+					Address: natAddress,
+				}
+			}
+
+			if nics[i].PrimaryV4AddressSpec == nil {
+				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+					OneToOneNatSpec: natSpec,
+				}
+			} else {
+				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
+			}
+		}
+	}
+
+	return nics, nil
+}
+
+func flattenLoadtestingComputeInstanceTemplate(ctx context.Context, instance *compute.Instance, config *Config, origMetadata interface{}) ([]map[string]interface{}, error) {
+	templateMap := make(map[string]interface{})
+
+	templateMap["zone_id"] = instance.GetZoneId()
+	templateMap["labels"] = instance.GetLabels()
+	templateMap["metadata"] = origMetadata
+	templateMap["computed_metadata"] = instance.GetMetadata()
+	templateMap["service_account_id"] = instance.GetServiceAccountId()
+
+	resourceSpec, err := flattenLoadtestingComputeInstanceResources(instance)
+	if err != nil {
+		return nil, err
+	}
+	templateMap["resources"] = resourceSpec
+
+	bootDiskSpec, err := flattenLoadtestingComputeInstanceBootDisk(ctx, instance, config.sdk.Compute().Disk())
+	if err != nil {
+		return []map[string]interface{}{templateMap}, err
+	}
+	templateMap["boot_disk"] = bootDiskSpec
+
+	nics, err := flattenLoadtestingComputeInstanceNetworkInterfaces(instance)
+	if err != nil {
+		return []map[string]interface{}{templateMap}, err
+	}
+	templateMap["network_interface"] = nics
+
+	return []map[string]interface{}{templateMap}, nil
+}
+
+func flattenLoadtestingComputeInstanceResources(instance *compute.Instance) ([]map[string]interface{}, error) {
+	resourceMap := map[string]interface{}{
+		"cores":         int(instance.Resources.Cores),
+		"core_fraction": int(instance.Resources.CoreFraction),
+		"memory":        toGigabytesInFloat(instance.Resources.Memory),
+	}
+
+	return []map[string]interface{}{resourceMap}, nil
+}
+
+func flattenLoadtestingComputeInstanceBootDisk(ctx context.Context, instance *compute.Instance, diskServiceClient ReducedDiskServiceClient) ([]map[string]interface{}, error) {
+	attachedDisk := instance.GetBootDisk()
+	if attachedDisk == nil {
+		return nil, nil
+	}
+
+	bootDisk := map[string]interface{}{
+		"auto_delete": attachedDisk.GetAutoDelete(),
+		"device_name": attachedDisk.GetDeviceName(),
+		"disk_id":     attachedDisk.GetDiskId(),
+	}
+
+	disk, err := diskServiceClient.Get(ctx, &compute.GetDiskRequest{
+		DiskId: attachedDisk.GetDiskId(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	bootDisk["initialize_params"] = []map[string]interface{}{{
+		"name":        disk.Name,
+		"description": disk.Description,
+		"size":        toGigabytes(disk.Size),
+		"block_size":  int(disk.BlockSize),
+		"type":        disk.TypeId,
+	}}
+
+	return []map[string]interface{}{bootDisk}, nil
+}
+
+func flattenLoadtestingComputeInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, error) {
+	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
+
+	for i, iface := range instance.NetworkInterfaces {
+		index, err := strconv.Atoi(iface.Index)
+		if err != nil {
+			return nil, fmt.Errorf("Error while convert index of Network Interface: %s", err)
+		}
+
+		nics[i] = map[string]interface{}{
+			"index":       index,
+			"mac_address": iface.MacAddress,
+			"subnet_id":   iface.SubnetId,
+			"ipv4":        false,
+			"ipv6":        false,
+		}
+
+		if iface.GetSecurityGroupIds() != nil {
+			nics[i]["security_group_ids"] = convertStringArrToInterface(iface.SecurityGroupIds)
+		}
+
+		if iface.PrimaryV4Address != nil {
+			nics[i]["ipv4"] = true
+			nics[i]["ip_address"] = iface.PrimaryV4Address.Address
+
+			if iface.PrimaryV4Address.OneToOneNat != nil {
+				nics[i]["nat"] = true
+				nics[i]["nat_ip_address"] = iface.PrimaryV4Address.OneToOneNat.Address
+				nics[i]["nat_ip_version"] = iface.PrimaryV4Address.OneToOneNat.IpVersion.String()
+			} else {
+				nics[i]["nat"] = false
+			}
+		}
+
+		if iface.PrimaryV6Address != nil {
+			nics[i]["ipv6"] = true
+			nics[i]["ipv6_address"] = iface.PrimaryV6Address.Address
+		}
+	}
+
+	return nics, nil
 }

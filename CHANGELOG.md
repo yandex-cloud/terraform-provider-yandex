@@ -8,6 +8,8 @@ FEATURES:
 * compute: added support for `instance_tags_pool` in `yandex_compute_instance_group`
 * compute: added support for `ignore_health_checks` in `yandex_compute_instance_group`
 
+* **New Resource:** `yandex_loadtesting_agent`
+
 BUG FIXES:
 * kafka: fix bug with update of field `schema_registry` in `yandex_mdb_kafka_cluster` resource
 * compute: fix `filesystem` in `compute_instance_group` resource

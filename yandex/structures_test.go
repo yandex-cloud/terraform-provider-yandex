@@ -911,3 +911,247 @@ func TestFlattenSnapshotScheduleSnapshotSpec(t *testing.T) {
 		}
 	})
 }
+
+func TestFlattenLoadtestingComputeInstanceResources(t *testing.T) {
+	cases := []struct {
+		name      string
+		resources *compute.Resources
+		want      []map[string]interface{}
+	}{
+		{
+			name: "cores 1 fraction 100 memory 5 gb",
+			resources: &compute.Resources{
+				Cores:        1,
+				CoreFraction: 100,
+				Memory:       5 * (1 << 30),
+			},
+			want: []map[string]interface{}{
+				{
+					"cores":         1,
+					"core_fraction": 100,
+					"memory":        5.0,
+				},
+			},
+		},
+		{
+			name: "cores 8 fraction 5 memory 16 gb 0 gpus",
+			resources: &compute.Resources{
+				Cores:        8,
+				CoreFraction: 5,
+				Memory:       16 * (1 << 30),
+				Gpus:         0,
+			},
+			want: []map[string]interface{}{
+				{
+					"cores":         8,
+					"core_fraction": 5,
+					"memory":        16.0,
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := flattenLoadtestingComputeInstanceResources(&compute.Instance{Resources: tc.resources})
+			if err != nil {
+				t.Errorf("flattenLoadtestingComputeInstanceResources() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("flattenLoadtestingComputeInstanceResources()\ngot\n%v\nwant\n%v\n", got, tc.want)
+				return
+			}
+		})
+	}
+}
+
+func TestFlattenLoadtestingComputeInstanceBootDisk(t *testing.T) {
+	cases := []struct {
+		name     string
+		bootDisk *compute.AttachedDisk
+		want     []map[string]interface{}
+	}{
+		{
+			name: "boot disk with diskID",
+			bootDisk: &compute.AttachedDisk{
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				DeviceName: "test-device-name",
+				AutoDelete: false,
+				DiskId:     "saeque9k",
+			},
+			want: []map[string]interface{}{
+				{
+					"device_name": "test-device-name",
+					"auto_delete": false,
+					"disk_id":     "saeque9k",
+					"initialize_params": []map[string]interface{}{
+						{
+							"name":        "mock-disk-name",
+							"description": "mock-disk-description",
+							"size":        4,
+							"block_size":  0,
+							"type":        "network-hdd",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	reducedDiskClient := &DiskClientGetter{}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := flattenLoadtestingComputeInstanceBootDisk(context.Background(), &compute.Instance{BootDisk: tc.bootDisk}, reducedDiskClient)
+
+			if err != nil {
+				t.Errorf("flattenLoadtestingComputeInstanceBootDisk() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("flattenLoadtestingComputeInstanceBootDisk()\ngot\n%v\nwant\n%v\n", got, tc.want)
+				return
+			}
+		})
+	}
+}
+
+func TestFlattenLoadtestingComputeInstanceNetworkInterfaces(t *testing.T) {
+	tests := []struct {
+		name     string
+		instance *compute.Instance
+		want     []map[string]interface{}
+	}{
+		{
+			name: "no nics defined",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{},
+			},
+			want: []map[string]interface{}{},
+		},
+		{
+			name: "one nic with internal address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.16",
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":       1,
+					"mac_address": "aa-bb-cc-dd-ee-ff",
+					"subnet_id":   "some-subnet-id",
+					"ipv4":        true,
+					"ipv6":        false,
+					"ip_address":  "192.168.19.16",
+					"nat":         false,
+				},
+			},
+		},
+		{
+			name: "one nic with internal and external address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.86",
+							OneToOneNat: &compute.OneToOneNat{
+								Address:   "92.68.12.34",
+								IpVersion: compute.IpVersion_IPV4,
+							},
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":          1,
+					"mac_address":    "aa-bb-cc-dd-ee-ff",
+					"subnet_id":      "some-subnet-id",
+					"ipv4":           true,
+					"ipv6":           false,
+					"ip_address":     "192.168.19.86",
+					"nat":            true,
+					"nat_ip_address": "92.68.12.34",
+					"nat_ip_version": "IPV4",
+				},
+			},
+		},
+		{
+			name: "one nic with ipv6 address",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV6Address: &compute.PrimaryAddress{
+							Address: "2001:db8::370:7348",
+						},
+						SubnetId:   "some-subnet-id",
+						MacAddress: "aa-bb-cc-dd-ee-ff",
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":        1,
+					"mac_address":  "aa-bb-cc-dd-ee-ff",
+					"subnet_id":    "some-subnet-id",
+					"ipv4":         false,
+					"ipv6":         true,
+					"ipv6_address": "2001:db8::370:7348",
+				},
+			},
+		},
+		{
+			name: "one nic with security group ids",
+			instance: &compute.Instance{
+				NetworkInterfaces: []*compute.NetworkInterface{
+					{
+						Index: "1",
+						PrimaryV4Address: &compute.PrimaryAddress{
+							Address: "192.168.19.16",
+						},
+						SubnetId:         "some-subnet-id",
+						MacAddress:       "aa-bb-cc-dd-ee-ff",
+						SecurityGroupIds: []string{"test-sg-id1", "test-sg-id2"},
+					},
+				},
+			},
+			want: []map[string]interface{}{
+				{
+					"index":              1,
+					"mac_address":        "aa-bb-cc-dd-ee-ff",
+					"subnet_id":          "some-subnet-id",
+					"ipv4":               true,
+					"ipv6":               false,
+					"ip_address":         "192.168.19.16",
+					"nat":                false,
+					"security_group_ids": append(make([]interface{}, 0), "test-sg-id1", "test-sg-id2"),
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := flattenLoadtestingComputeInstanceNetworkInterfaces(tt.instance)
+			if err != nil {
+				t.Errorf("flattenLoadtestingComputeInstanceNetworkInterfaces() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("flattenLoadtestingComputeInstanceNetworkInterfaces()\ngot\n%v\nwant\n%v\n", got, tt.want)
+			}
+		})
+	}
+}
