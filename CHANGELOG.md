@@ -2,6 +2,7 @@
 
 ENHANCEMENTS:
 * mdb: add `disk_size_autoscaling` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
+* datasphere: add documentation for datasphere resources and data sources
 
 FEATURES:
 * compute: added support for `instance_tags_pool` in `yandex_compute_instance_group`
