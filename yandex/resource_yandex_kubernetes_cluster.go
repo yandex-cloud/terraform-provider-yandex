@@ -116,12 +116,42 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"etcd_cluster_size": {
+							Type:          schema.TypeInt,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"master.0.zonal", "master.0.regional"},
+						},
+						"master_location": {
+							Type:          schema.TypeList,
+							Optional:      true,
+							Computed:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"master.0.zonal", "master.0.regional"},
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
 						"zonal": {
 							Type:          schema.TypeList,
 							Computed:      true,
 							Optional:      true,
 							ForceNew:      true,
-							ConflictsWith: []string{"master.0.regional"},
+							ConflictsWith: []string{"master.0.regional", "master.0.master_location", "master.0.etcd_cluster_size"},
 							MaxItems:      1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -145,7 +175,7 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Optional:      true,
 							Computed:      true,
 							ForceNew:      true,
-							ConflictsWith: []string{"master.0.zonal"},
+							ConflictsWith: []string{"master.0.zonal", "master.0.master_location", "master.0.etcd_cluster_size"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"region": {
@@ -738,7 +768,45 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 		return spec, nil
 	}
 
-	return nil, fmt.Errorf("either zonal or regional master should be specified for Kubernetes cluster")
+	if _, ok := d.GetOk("master.0.master_location"); ok {
+		spec.Locations = getKubernetesClusterLocations(d)
+		spec.EtcdClusterSize = getKubernetesClusterEtcdClusterSize(d, spec.Locations)
+
+		if addr := getMasterExternalIPv4AddressSpec(d); addr != nil {
+			spec.ExternalV4AddressSpec = addr
+		}
+		if addr := getMasterExternalIPv6AddressSpec(d); addr != nil {
+			spec.ExternalV6AddressSpec = addr
+		}
+		return spec, nil
+	}
+
+	return nil, fmt.Errorf("either zonal or regional master or master_location should be specified for Kubernetes cluster")
+}
+
+func getKubernetesClusterEtcdClusterSize(d *schema.ResourceData, l []*k8s.LocationSpec) int64 {
+	if size, ok := d.GetOk("master.0.etcd_cluster_size"); ok {
+		return size.(int64)
+	}
+	return int64(len(l))
+}
+
+func getKubernetesClusterLocations(d *schema.ResourceData) []*k8s.LocationSpec {
+	locationCount := d.Get("master.0.master_location.#").(int)
+	locations := make([]*k8s.LocationSpec, 0, locationCount)
+	for i := 0; i < locationCount; i++ {
+		zoneKey := fmt.Sprintf("master.0.master_location.%d.zone", i)
+		subnetIDKey := fmt.Sprintf("master.0.master_location.%d.subnet_id", i)
+		location := &k8s.LocationSpec{}
+		if zone, ok := d.GetOk(zoneKey); ok {
+			location.ZoneId = zone.(string)
+		}
+		if subnet, ok := d.GetOk(subnetIDKey); ok {
+			location.SubnetId = subnet.(string)
+		}
+		locations = append(locations, location)
+	}
+	return locations
 }
 
 func getKubernetesClusterMasterMaintenancePolicy(d *schema.ResourceData) (*k8s.MasterMaintenancePolicy, error) {
@@ -954,6 +1022,7 @@ type masterSchemaHelper struct {
 	regionalMaster map[string]interface{}
 	versionInfo    map[string]interface{}
 	master         map[string]interface{}
+	masterLocation []map[string]interface{}
 }
 
 func constructKubernetesMasterSchemaHelper() *masterSchemaHelper {
@@ -994,6 +1063,18 @@ func (h *masterSchemaHelper) getZonalMaster() map[string]interface{} {
 	}
 
 	return h.zonalMaster
+}
+
+func (h *masterSchemaHelper) getMasterLocation(size int) []map[string]interface{} {
+	if h.masterLocation == nil {
+		h.masterLocation = []map[string]interface{}{}
+		for i := 0; i < size; i++ {
+			h.masterLocation = append(h.masterLocation, map[string]interface{}{})
+		}
+		h.master["master_location"] = h.masterLocation
+	}
+
+	return h.masterLocation
 }
 
 func (h *masterSchemaHelper) getRegionalMaster() map[string]interface{} {
@@ -1046,6 +1127,7 @@ func (h *masterSchemaHelper) flattenClusterZonalMaster(m *k8s.Master_ZonalMaster
 	h.master["external_v4_address"] = m.ZonalMaster.GetExternalV4Address()
 
 	h.getZonalMaster()["zone"] = m.ZonalMaster.GetZoneId()
+	h.master["etcd_cluster_size"] = 1
 }
 
 func (h *masterSchemaHelper) flattenClusterRegionalMaster(m *k8s.Master_RegionalMaster) {
@@ -1054,6 +1136,7 @@ func (h *masterSchemaHelper) flattenClusterRegionalMaster(m *k8s.Master_Regional
 	h.master["external_v6_address"] = m.RegionalMaster.GetExternalV6Address()
 
 	h.getRegionalMaster()["region"] = m.RegionalMaster.GetRegionId()
+	h.master["etcd_cluster_size"] = 3
 }
 
 func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) {
@@ -1090,6 +1173,7 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	default:
 		return nil, fmt.Errorf("unsupported Kubernetes master type (currently only zonal and regional master are supported)")
 	}
+	h.flattenMasterLocation(clusterMaster.GetLocations())
 
 	versionInfo := clusterMaster.GetVersionInfo()
 	if versionInfo == nil {
@@ -1101,6 +1185,15 @@ func flattenKubernetesMaster(cluster *k8s.Cluster) (*masterSchemaHelper, error) 
 	h.versionInfo["new_revision_summary"] = versionInfo.GetNewRevisionSummary()
 	h.versionInfo["version_deprecated"] = versionInfo.GetVersionDeprecated()
 	return h, nil
+}
+
+func (h *masterSchemaHelper) flattenMasterLocation(l []*k8s.Location) {
+	locationLen := len(l)
+	masterLocation := h.getMasterLocation(locationLen)
+	for i := 0; i < locationLen; i++ {
+		masterLocation[i]["zone"] = l[i].ZoneId
+		masterLocation[i]["subnet_id"] = l[i].SubnetId
+	}
 }
 
 func dayOfWeekHash(v interface{}) int {

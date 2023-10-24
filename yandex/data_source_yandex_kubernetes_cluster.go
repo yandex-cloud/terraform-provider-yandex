@@ -119,6 +119,26 @@ func dataSourceYandexKubernetesCluster() *schema.Resource {
 								},
 							},
 						},
+						"etcd_cluster_size": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"master_location": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"zone": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
 						"zonal": {
 							Type:     schema.TypeList,
 							Computed: true,
