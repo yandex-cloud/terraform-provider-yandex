@@ -105,7 +105,11 @@ func flattenPGSettingsSPL(settings map[string]string, c *postgresql.ClusterConfi
 
 func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
 	out := []int32{}
-
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16); ok {
+		for _, v := range cf.PostgresqlConfig_16.UserConfig.SharedPreloadLibraries {
+			out = append(out, int32(v))
+		}
+	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
 		for _, v := range cf.PostgresqlConfig_15.UserConfig.SharedPreloadLibraries {
 			out = append(out, int32(v))
@@ -166,6 +170,14 @@ func convertPGSPLtoInts(c *postgresql.ClusterConfig) []int32 {
 
 func flattenPGSettings(c *postgresql.ClusterConfig) (map[string]string, error) {
 	// TODO refactor it using generics
+	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_16); ok {
+		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_16.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
+		if err != nil {
+			return nil, err
+		}
+		settings = flattenPGSettingsSPL(settings, c)
+		return settings, nil
+	}
 	if cf, ok := c.PostgresqlConfig.(*postgresql.ClusterConfig_PostgresqlConfig_15); ok {
 		settings, err := flattenResourceGenerateMapS(cf.PostgresqlConfig_15.UserConfig, false, mdbPGSettingsFieldsInfo, false, true, nil)
 		if err != nil {
@@ -810,8 +822,10 @@ func getPostgreSQLConfigFieldName(version string) string {
 		return "postgresql_config_14"
 	case "14-1c":
 		return "postgresql_config_14_1c"
-	default:
+	case "15":
 		return "postgresql_config_15"
+	default:
+		return "postgresql_config_16"
 	}
 }
 
@@ -1519,7 +1533,6 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 		configSpec.PostgresqlConfig = cfg
 		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_14_1C, "config.0.postgresql_config.", true)
 	} else if version == "15" {
-		log.Println("[DEBUG] POSTGRESQL 15xxxxx")
 		cfg := &postgresql.ConfigSpec_PostgresqlConfig_15{
 			PostgresqlConfig_15: &config.PostgresqlConfig15{},
 		}
@@ -1530,6 +1543,17 @@ func expandPGConfigSpecSettings(d *schema.ResourceData, configSpec *postgresql.C
 		}
 		configSpec.PostgresqlConfig = cfg
 		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_15, "config.0.postgresql_config.", true)
+	} else if version == "16" {
+		cfg := &postgresql.ConfigSpec_PostgresqlConfig_16{
+			PostgresqlConfig_16: &config.PostgresqlConfig16{},
+		}
+		if len(sharedPreloadLibraries) > 0 {
+			for _, v := range sharedPreloadLibraries {
+				cfg.PostgresqlConfig_16.SharedPreloadLibraries = append(cfg.PostgresqlConfig_16.SharedPreloadLibraries, config.PostgresqlConfig16_SharedPreloadLibraries(v))
+			}
+		}
+		configSpec.PostgresqlConfig = cfg
+		return expandResourceGenerateNonSkippedFields(mdbPGSettingsFieldsInfo, d, cfg.PostgresqlConfig_16, "config.0.postgresql_config.", true)
 	}
 
 	return []string{}, err
@@ -1664,6 +1688,7 @@ var mdbPGUserSettingsFieldsInfo = newObjectFieldsInfo().
 		postgresql.UserSettings_PoolingMode_name)
 
 var mdbPGSettingsFieldsInfo = newObjectFieldsInfo().
+	addType(config.PostgresqlConfig16{}).
 	addType(config.PostgresqlConfig15{}).
 	addType(config.PostgresqlConfig14{}).
 	addType(config.PostgresqlConfig14_1C{}).

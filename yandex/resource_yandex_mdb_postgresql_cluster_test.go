@@ -25,7 +25,7 @@ const (
 	pgRestoreBackupId = "c9qrbucrcvm6a50tblv2:c9q698sst87e4vhkvrsm"
 )
 
-var postgresql_versions = [...]string{"12", "12-1c", "13", "13-1c", "14", "14-1c", "15"}
+var postgresql_versions = [...]string{"12", "12-1c", "13", "13-1c", "14", "14-1c", "15", "16"}
 
 func init() {
 	resource.AddTestSweepers("yandex_mdb_postgresql_cluster", &resource.Sweeper{
@@ -931,6 +931,19 @@ func clusterSettings(cluster *postgresql.Cluster, version string) (*clusterSetti
 		}, nil
 	case "15":
 		userConfig := cluster.Config.GetPostgresqlConfig_15().UserConfig
+		sharedPreloadLibraries := []int32{}
+		for _, v := range userConfig.SharedPreloadLibraries {
+			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
+		}
+		return &clusterSettingsResult{
+			maxConnections:              userConfig.MaxConnections.GetValue(),
+			enableParallelHash:          userConfig.EnableParallelHash.GetValue(),
+			autovacuumVacuumScaleFactor: userConfig.AutovacuumVacuumScaleFactor.GetValue(),
+			defaultTransactionIsolation: int32(userConfig.DefaultTransactionIsolation),
+			sharedPreloadLibraries:      sharedPreloadLibraries,
+		}, nil
+	case "16":
+		userConfig := cluster.Config.GetPostgresqlConfig_16().UserConfig
 		sharedPreloadLibraries := []int32{}
 		for _, v := range userConfig.SharedPreloadLibraries {
 			sharedPreloadLibraries = append(sharedPreloadLibraries, int32(v.Number()))
