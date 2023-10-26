@@ -19,6 +19,9 @@ func resourceYandexMDBKafkaConnector() *schema.Resource {
 		Read:   resourceYandexMDBKafkaConnectorRead,
 		Update: resourceYandexMDBKafkaConnectorUpdate,
 		Delete: resourceYandexMDBKafkaConnectorDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		SchemaVersion: 0,
 

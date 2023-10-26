@@ -19,6 +19,7 @@ BUG FIXES:
 * compute: fix `filesystem` in `compute_instance_group` resource
 * greenplum: add Cloud Storage support
 * postgresql: do not recreate cluster on network change
+* kafka: fix bug with import of resource `yandex_mdb_kafka_connector`
 
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated
