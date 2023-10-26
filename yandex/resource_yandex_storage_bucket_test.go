@@ -2,6 +2,7 @@
 package yandex
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -73,7 +74,7 @@ func testSweepStorageBucket(_ string) error {
 		}
 	}()
 
-	s3client, err := getS3ClientByKeys(resp.AccessKey.KeyId, resp.Secret, conf)
+	s3client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
@@ -997,7 +998,7 @@ func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *
 		}
 		defer cleanup()
 
-		conn, err := getS3ClientByKeys(ak, sak, config)
+		conn, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
 		if err != nil {
 			return err
 		}
@@ -1052,7 +1053,7 @@ func testAccCheckStorageBucketExistsWithProvider(n string, providerF func() *sch
 
 		provider := providerF()
 
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			provider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1083,7 +1084,7 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 			return fmt.Errorf("no storage bucket ID is set")
 		}
 
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1103,7 +1104,7 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1154,7 +1155,7 @@ func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheck
 func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string, redirectProtocol string, redirectTo string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1213,7 +1214,7 @@ func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string
 func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.RoutingRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1241,7 +1242,7 @@ func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.R
 func testAccCheckStorageBucketVersioning(n string, versioningStatus string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1271,7 +1272,7 @@ func testAccCheckStorageBucketVersioning(n string, versioningStatus string) reso
 func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1295,7 +1296,7 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1342,7 +1343,7 @@ func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1366,7 +1367,7 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -1388,7 +1389,7 @@ func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) reso
 func testAccCheckStorageBucketObjectLockConfiguration(n string, config *s3.ObjectLockConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -2316,7 +2317,7 @@ func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
 func ensureBucketDeleted(n string) resource.TestCheckFunc {
 	return wrapWithRetries(func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err

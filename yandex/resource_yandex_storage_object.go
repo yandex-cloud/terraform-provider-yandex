@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	homedir "github.com/mitchellh/go-homedir"
@@ -20,10 +22,10 @@ import (
 
 func resourceYandexStorageObject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexStorageObjectCreate,
-		Read:   resourceYandexStorageObjectRead,
-		Update: resourceYandexStorageObjectUpdate,
-		Delete: resourceYandexStorageObjectDelete,
+		CreateContext: resourceYandexStorageObjectCreate,
+		ReadContext:   resourceYandexStorageObjectRead,
+		UpdateContext: resourceYandexStorageObjectUpdate,
+		DeleteContext: resourceYandexStorageObjectDelete,
 
 		SchemaVersion: 0,
 
@@ -113,11 +115,11 @@ func resourceYandexStorageObject() *schema.Resource {
 	}
 }
 
-func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageObjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	s3conn, err := getS3Client(d, config)
+	s3conn, err := getS3Client(ctx, d, config)
 	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+		return diag.Errorf("error getting storage client: %s", err)
 	}
 
 	var body io.ReadSeeker
@@ -126,11 +128,11 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 		source := v.(string)
 		path, err := homedir.Expand(source)
 		if err != nil {
-			return fmt.Errorf("error expanding homedir in source (%s): %s", source, err)
+			return diag.Errorf("error expanding homedir in source (%s): %s", source, err)
 		}
 		file, err := os.Open(path)
 		if err != nil {
-			return fmt.Errorf("error opening storage bucket object source (%s): %s", path, err)
+			return diag.Errorf("error opening storage bucket object source (%s): %s", path, err)
 		}
 
 		body = file
@@ -149,11 +151,11 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 		// the AWS SDK requires an io.ReadSeeker but a base64 decoder can't seek.
 		contentRaw, err := base64.StdEncoding.DecodeString(content)
 		if err != nil {
-			return fmt.Errorf("error decoding content_base64: %s", err)
+			return diag.Errorf("error decoding content_base64: %s", err)
 		}
 		body = bytes.NewReader(contentRaw)
 	} else {
-		return fmt.Errorf("\"source\", \"content\", or \"content_base64\" field must be specified")
+		return diag.Errorf("\"source\", \"content\", or \"content_base64\" field must be specified")
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -190,8 +192,8 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Sending putObjectInput %s", putObjectInput.String())
 
-	if _, err := s3conn.PutObject(putObjectInput); err != nil {
-		return fmt.Errorf("error putting object in bucket %q: %w", bucket, err)
+	if _, err := s3conn.PutObjectWithContext(ctx, putObjectInput); err != nil {
+		return diag.Errorf("error putting object in bucket %q: %s", bucket, err)
 	}
 
 	d.SetId(key)
@@ -211,26 +213,27 @@ func resourceYandexStorageObjectCreate(d *schema.ResourceData, meta interface{})
 			TagSet: s3tags,
 		}
 
-		if _, err = s3conn.PutObjectTagging(&req); err != nil {
+		if _, err = s3conn.PutObjectTaggingWithContext(ctx, &req); err != nil {
 			log.Printf("[ERROR] Unable to put S3 Storage Object tags: %v", err)
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceYandexStorageObjectRead(d, meta)
+	return resourceYandexStorageObjectRead(ctx, d, meta)
 }
 
-func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageObjectRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	s3conn, err := getS3Client(d, config)
+	s3conn, err := getS3Client(ctx, d, config)
 	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+		return diag.Errorf("error getting storage client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
 	key := d.Get("key").(string)
 
-	resp, err := s3conn.HeadObject(
+	resp, err := s3conn.HeadObjectWithContext(
+		ctx,
 		&s3.HeadObjectInput{
 			Bucket: aws.String(bucket),
 			Key:    aws.String(key),
@@ -242,7 +245,7 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 			log.Printf("[WARN] Error Reading Object (%s), object not found (HTTP status 404)", key)
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	log.Printf("[DEBUG] Reading storage object meta: %s", resp)
 
@@ -262,7 +265,7 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	tagsResponseRaw, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.GetObjectTagging(&s3.GetObjectTaggingInput{
+		return s3conn.GetObjectTaggingWithContext(ctx, &s3.GetObjectTaggingInput{
 			Bucket:    aws.String(bucket),
 			Key:       aws.String(key),
 			VersionId: resp.VersionId,
@@ -270,7 +273,7 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 	})
 	if err != nil {
 		log.Printf("[ERROR] Unable to get S3 Storage Object Tagging: %s", err)
-		return err
+		return diag.FromErr(err)
 	}
 
 	tagsResponse := tagsResponseRaw.(*s3.GetObjectTaggingOutput)
@@ -278,18 +281,18 @@ func resourceYandexStorageObjectRead(d *schema.ResourceData, meta interface{}) e
 	tags := storageBucketTaggingNormalize(tagsResponse.TagSet)
 	err = d.Set("tags", tags)
 	if err != nil {
-		return fmt.Errorf("error setting S3 Storage Object Tagging: %w", err)
+		return diag.Errorf("error setting S3 Storage Object Tagging: %s", err)
 	}
 
 	return nil
 }
 
-func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageObjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if hasObjectContentChanged(d) {
-		return resourceYandexStorageObjectCreate(d, meta)
+		return resourceYandexStorageObjectCreate(ctx, d, meta)
 	}
 
-	changeHandlers := map[string]func(*s3.S3, *schema.ResourceData) error{
+	changeHandlers := map[string]func(context.Context, *s3.S3, *schema.ResourceData) error{
 		"acl":                           resourceYandexStorageObjectACLUpdate,
 		"object_lock_legal_hold_status": resourceYandexStorageObjectLegalHoldUpdate,
 		"object_lock_mode":              resourceYandexStorageObjectRetentionUpdate,
@@ -298,9 +301,9 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	config := meta.(*Config)
-	s3Client, err := getS3Client(d, config)
+	s3Client, err := getS3Client(ctx, d, config)
 	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+		return diag.Errorf("error getting storage client: %s", err)
 	}
 
 	for name, handler := range changeHandlers {
@@ -308,9 +311,9 @@ func resourceYandexStorageObjectUpdate(d *schema.ResourceData, meta interface{})
 			continue
 		}
 
-		err := handler(s3Client, d)
+		err := handler(ctx, s3Client, d)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -333,8 +336,8 @@ func hasObjectContentChanged(d *schema.ResourceData) bool {
 	return false
 }
 
-func resourceYandexStorageObjectACLUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
-	_, err := s3conn.PutObjectAcl(&s3.PutObjectAclInput{
+func resourceYandexStorageObjectACLUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
+	_, err := s3conn.PutObjectAclWithContext(ctx, &s3.PutObjectAclInput{
 		Bucket: aws.String(d.Get("bucket").(string)),
 		Key:    aws.String(d.Get("key").(string)),
 		ACL:    aws.String(d.Get("acl").(string)),
@@ -345,12 +348,12 @@ func resourceYandexStorageObjectACLUpdate(s3conn *s3.S3, d *schema.ResourceData)
 	return nil
 }
 
-func resourceYandexStorageObjectLegalHoldUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageObjectLegalHoldUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	legalHold := &s3.ObjectLockLegalHold{
 		Status: aws.String(d.Get("object_lock_legal_hold_status").(string)),
 	}
 
-	_, err := s3conn.PutObjectLegalHold(&s3.PutObjectLegalHoldInput{
+	_, err := s3conn.PutObjectLegalHoldWithContext(ctx, &s3.PutObjectLegalHoldInput{
 		Bucket:    aws.String(d.Get("bucket").(string)),
 		Key:       aws.String(d.Get("key").(string)),
 		LegalHold: legalHold,
@@ -361,7 +364,7 @@ func resourceYandexStorageObjectLegalHoldUpdate(s3conn *s3.S3, d *schema.Resourc
 	return nil
 }
 
-func resourceYandexStorageObjectRetentionUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageObjectRetentionUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	retention := &s3.ObjectLockRetention{}
 
 	mode := d.Get("object_lock_mode")
@@ -373,7 +376,7 @@ func resourceYandexStorageObjectRetentionUpdate(s3conn *s3.S3, d *schema.Resourc
 		retention.RetainUntilDate = aws.Time(untilDate)
 	}
 
-	_, err := s3conn.PutObjectRetention(&s3.PutObjectRetentionInput{
+	_, err := s3conn.PutObjectRetentionWithContext(ctx, &s3.PutObjectRetentionInput{
 		Bucket:                    aws.String(d.Get("bucket").(string)),
 		Key:                       aws.String(d.Get("key").(string)),
 		Retention:                 retention,
@@ -385,7 +388,7 @@ func resourceYandexStorageObjectRetentionUpdate(s3conn *s3.S3, d *schema.Resourc
 	return nil
 }
 
-func resourceYandexStorageObjectTaggingUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageObjectTaggingUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := aws.String(d.Get("bucket").(string))
 	key := aws.String(d.Get("key").(string))
 
@@ -400,7 +403,7 @@ func resourceYandexStorageObjectTaggingUpdate(s3conn *s3.S3, d *schema.ResourceD
 			},
 		}
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.PutObjectTagging(request)
+			return s3conn.PutObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {
 			log.Printf("[ERROR] Unable to update Storage S3 object tags: %s", err)
@@ -416,7 +419,7 @@ func resourceYandexStorageObjectTaggingUpdate(s3conn *s3.S3, d *schema.ResourceD
 			Key:    key,
 		}
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.DeleteObjectTagging(request)
+			return s3conn.DeleteObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {
 			log.Printf("[ERROR] Unable to delete Storage S3 object tags: %s", err)
@@ -427,11 +430,11 @@ func resourceYandexStorageObjectTaggingUpdate(s3conn *s3.S3, d *schema.ResourceD
 	return resourceYandexStorageHandleTagsUpdate(d, "object", onUpdate, onDelete)
 }
 
-func resourceYandexStorageObjectDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageObjectDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	s3client, err := getS3Client(d, config)
+	s3client, err := getS3Client(ctx, d, config)
 	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+		return diag.Errorf("error getting storage client: %s", err)
 	}
 
 	bucket := d.Get("bucket").(string)
@@ -442,21 +445,21 @@ func resourceYandexStorageObjectDelete(d *schema.ResourceData, meta interface{})
 
 	log.Printf("[DEBUG] Storage Delete Object: %s/%s", bucket, key)
 
-	versionOutput, err := s3client.ListObjectVersions(&s3.ListObjectVersionsInput{
+	versionOutput, err := s3client.ListObjectVersionsWithContext(ctx, &s3.ListObjectVersionsInput{
 		Bucket: aws.String(bucket),
 		Prefix: aws.String(key),
 	})
 	if err != nil {
-		return fmt.Errorf("error getting version id for deliting storage object %q in bucket %s: %s", key, bucket, err)
+		return diag.Errorf("error getting version id for deliting storage object %q in bucket %s: %s", key, bucket, err)
 	}
 
-	_, err = s3client.DeleteObject(&s3.DeleteObjectInput{
+	_, err = s3client.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket:    aws.String(bucket),
 		Key:       aws.String(key),
 		VersionId: versionOutput.Versions[0].VersionId,
 	})
 	if err != nil {
-		return fmt.Errorf("error deleting storage object %q in bucket %q: %s ", key, bucket, err)
+		return diag.Errorf("error deleting storage object %q in bucket %q: %s ", key, bucket, err)
 	}
 
 	return nil

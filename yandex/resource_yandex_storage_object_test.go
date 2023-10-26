@@ -2,6 +2,7 @@
 package yandex
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -68,7 +69,7 @@ func testSweepStorageObject(_ string) error {
 		}
 	}()
 
-	s3client, err := getS3ClientByKeys(resp.AccessKey.KeyId, resp.Secret, conf)
+	s3client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
@@ -429,7 +430,7 @@ func testAccCheckStorageObjectDestroyWithProvider(s *terraform.State, provider *
 	}
 	defer cleanup()
 
-	s3conn, err := getS3ClientByKeys(ak, sak, config)
+	s3conn, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
 	if err != nil {
 		return err
 	}
@@ -462,7 +463,7 @@ func testAccCheckStorageObjectExists(n string, obj *s3.GetObjectOutput) resource
 			return fmt.Errorf("no storage object ID is set")
 		}
 
-		s3conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		s3conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err
@@ -551,7 +552,7 @@ func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags
 			return fmt.Errorf("no storage object ID is set")
 		}
 
-		s3conn, err := getS3ClientByKeys(rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
+		s3conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
 			testAccProvider.Meta().(*Config))
 		if err != nil {
 			return err

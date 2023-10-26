@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -24,6 +25,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -43,10 +45,10 @@ var storageClassSet = []string{
 
 func resourceYandexStorageBucket() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexStorageBucketCreate,
-		Read:   resourceYandexStorageBucketRead,
-		Update: resourceYandexStorageBucketUpdate,
-		Delete: resourceYandexStorageBucketDelete,
+		CreateContext: resourceYandexStorageBucketCreate,
+		ReadContext:   resourceYandexStorageBucketRead,
+		UpdateContext: resourceYandexStorageBucketUpdate,
+		DeleteContext: resourceYandexStorageBucketDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -636,7 +638,7 @@ func resourceYandexStorageBucketCreateBySDK(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageBucketCreateByS3Client(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	bucket := d.Get("bucket").(string)
 	var acl string
 	if aclValue, ok := d.GetOk("acl"); ok {
@@ -646,9 +648,8 @@ func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta in
 	}
 
 	config := meta.(*Config)
-	ctx := config.Context()
 
-	s3Client, err := getS3Client(d, config)
+	s3Client, err := getS3Client(ctx, d, config)
 	if err != nil {
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
@@ -656,7 +657,7 @@ func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta in
 	return resource.RetryContext(ctx, 5*time.Minute, func() *resource.RetryError {
 		log.Printf("[INFO] Trying to create new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
 
-		_, err := s3Client.CreateBucket(&s3.CreateBucketInput{
+		_, err := s3Client.CreateBucketWithContext(ctx, &s3.CreateBucketInput{
 			Bucket: aws.String(bucket),
 			ACL:    aws.String(acl),
 		})
@@ -676,7 +677,7 @@ func resourceYandexStorageBucketCreateByS3Client(d *schema.ResourceData, meta in
 	})
 }
 
-func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageBucketCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// Get the bucket and acl
 	var bucket string
 	if v, ok := d.GetOk("bucket"); ok {
@@ -688,7 +689,7 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := validateS3BucketName(bucket); err != nil {
-		return fmt.Errorf("error validating Storage Bucket name: %s", err)
+		return diag.Errorf("error validating Storage Bucket name: %s", err)
 	}
 
 	d.Set("bucket", bucket)
@@ -697,15 +698,15 @@ func resourceYandexStorageBucketCreate(d *schema.ResourceData, meta interface{})
 	if folderID, ok := d.Get("folder_id").(string); ok && folderID != "" {
 		err = resourceYandexStorageBucketCreateBySDK(d, meta)
 	} else {
-		err = resourceYandexStorageBucketCreateByS3Client(d, meta)
+		err = resourceYandexStorageBucketCreateByS3Client(ctx, d, meta)
 	}
 	if err != nil {
-		return fmt.Errorf("error creating Storage S3 Bucket: %s", err)
+		return diag.Errorf("error creating Storage S3 Bucket: %s", err)
 	}
 
 	d.SetId(bucket)
 
-	return resourceYandexStorageBucketUpdate(d, meta)
+	return resourceYandexStorageBucketUpdate(ctx, d, meta)
 }
 
 func resourceYandexStorageRequireExternalSDK(d *schema.ResourceData) bool {
@@ -722,30 +723,30 @@ func resourceYandexStorageRequireExternalSDK(d *schema.ResourceData) bool {
 	return folderID != ""
 }
 
-func resourceYandexStorageBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	err := resourceYandexStorageBucketUpdateBasic(d, meta)
+func resourceYandexStorageBucketUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	err := resourceYandexStorageBucketUpdateBasic(ctx, d, meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = resourceYandexStorageBucketUpdateExtended(d, meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceYandexStorageBucketRead(d, meta)
+	return resourceYandexStorageBucketRead(ctx, d, meta)
 }
 
-func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageBucketUpdateBasic(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	s3Client, err := getS3Client(d, config)
+	s3Client, err := getS3Client(ctx, d, config)
 	if err != nil {
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
 	type property struct {
 		name          string
-		updateHandler func(*s3.S3, *schema.ResourceData) error
+		updateHandler func(context.Context, *s3.S3, *schema.ResourceData) error
 	}
 	resourceProperties := []property{
 		{"policy", resourceYandexStorageBucketPolicyUpdate},
@@ -770,7 +771,7 @@ func resourceYandexStorageBucketUpdateBasic(d *schema.ResourceData, meta interfa
 			continue
 		}
 
-		err := property.updateHandler(s3Client, d)
+		err := property.updateHandler(ctx, s3Client, d)
 		if err != nil {
 			return fmt.Errorf("handling %s: %w", property.name, err)
 		}
@@ -932,10 +933,10 @@ func resourceYandexStorageBucketUpdateExtended(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) error {
-	err := resourceYandexStorageBucketReadBasic(d, meta)
+func resourceYandexStorageBucketRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	err := resourceYandexStorageBucketReadBasic(ctx, d, meta)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	err = resourceYandexStorageBucketReadExtended(d, meta)
@@ -946,9 +947,9 @@ func resourceYandexStorageBucketRead(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-	s3Client, err := getS3Client(d, config)
+	s3Client, err := getS3Client(ctx, d, config)
 
 	bucketAWS := aws.String(d.Id())
 
@@ -957,7 +958,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 
 	resp, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.HeadBucket(&s3.HeadBucketInput{
+		return s3Client.HeadBucketWithContext(ctx, &s3.HeadBucketInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -981,7 +982,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	// Read the policy
 	pol, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketPolicy(&s3.GetBucketPolicyInput{
+		return s3Client.GetBucketPolicyWithContext(ctx, &s3.GetBucketPolicyInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1012,7 +1013,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 
 	corsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketCors(&s3.GetBucketCorsInput{
+		return s3Client.GetBucketCorsWithContext(ctx, &s3.GetBucketCorsInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1049,7 +1050,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	// Read the website configuration
 	wsResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketWebsite(&s3.GetBucketWebsiteInput{
+		return s3Client.GetBucketWebsiteWithContext(ctx, &s3.GetBucketWebsiteInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1133,7 +1134,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 
 	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketAcl(&s3.GetBucketAclInput{
+		return s3Client.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1168,7 +1169,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the versioning configuration
 
 	versioningResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketVersioning(&s3.GetBucketVersioningInput{
+		return s3Client.GetBucketVersioningWithContext(ctx, &s3.GetBucketVersioningInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1193,7 +1194,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	// Read the Object Lock Configuration
 	objectLockConfigResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetObjectLockConfiguration(&s3.GetObjectLockConfigurationInput{
+		return s3Client.GetObjectLockConfigurationWithContext(ctx, &s3.GetObjectLockConfigurationInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1244,7 +1245,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	// Read the logging configuration
 	loggingResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketLogging(&s3.GetBucketLoggingInput{
+		return s3Client.GetBucketLoggingWithContext(ctx, &s3.GetBucketLoggingInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1271,7 +1272,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 
 	// Read the lifecycle configuration
 	lifecycleResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketLifecycleConfiguration(&s3.GetBucketLifecycleConfigurationInput{
+		return s3Client.GetBucketLifecycleConfigurationWithContext(ctx, &s3.GetBucketLifecycleConfigurationInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1388,7 +1389,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	// Read the bucket server side encryption configuration
 
 	encryptionResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketEncryption(&s3.GetBucketEncryptionInput{
+		return s3Client.GetBucketEncryptionWithContext(ctx, &s3.GetBucketEncryptionInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1405,7 +1406,7 @@ func resourceYandexStorageBucketReadBasic(d *schema.ResourceData, meta interface
 	}
 
 	getBucketTagging, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketTagging(&s3.GetBucketTaggingInput{
+		return s3Client.GetBucketTaggingWithContext(ctx, &s3.GetBucketTaggingInput{
 			Bucket: bucketAWS,
 		})
 	})
@@ -1520,17 +1521,17 @@ func resourceYandexStorageBucketReadExtended(d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexStorageBucketDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	s3Client, err := getS3Client(d, config)
+	s3Client, err := getS3Client(ctx, d, config)
 	if err != nil {
-		return fmt.Errorf("error getting storage client: %s", err)
+		return diag.Errorf("error getting storage client: %s", err)
 	}
 
 	log.Printf("[DEBUG] Storage Delete Bucket: %s", d.Id())
 
 	_, err = retryOnAwsCodes([]string{"AccessDenied", "Forbidden"}, func() (interface{}, error) {
-		return s3Client.DeleteBucket(&s3.DeleteBucketInput{
+		return s3Client.DeleteBucketWithContext(ctx, &s3.DeleteBucketInput{
 			Bucket: aws.String(d.Id()),
 		})
 	})
@@ -1545,14 +1546,15 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 			log.Printf("[DEBUG] Storage Bucket attempting to forceDestroy %+v", err)
 
 			bucket := d.Get("bucket").(string)
-			resp, err := s3Client.ListObjectVersions(
+			resp, err := s3Client.ListObjectVersionsWithContext(
+				ctx,
 				&s3.ListObjectVersionsInput{
 					Bucket: aws.String(bucket),
 				},
 			)
 
 			if err != nil {
-				return fmt.Errorf("error listing Storage Bucket object versions: %s", err)
+				return diag.Errorf("error listing Storage Bucket object versions: %s", err)
 			}
 
 			objectsToDelete := make([]*s3.ObjectIdentifier, 0)
@@ -1582,14 +1584,14 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 				},
 			}
 
-			_, err = s3Client.DeleteObjects(params)
+			_, err = s3Client.DeleteObjectsWithContext(ctx, params)
 
 			if err != nil {
-				return fmt.Errorf("error force_destroy deleting Storage Bucket (%s): %s", d.Id(), err)
+				return diag.Errorf("error force_destroy deleting Storage Bucket (%s): %s", d.Id(), err)
 			}
 
 			// this line recurses until all objects are deleted or an error is returned
-			return resourceYandexStorageBucketDelete(d, meta)
+			return resourceYandexStorageBucketDelete(ctx, d, meta)
 		}
 	}
 
@@ -1598,7 +1600,7 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 			Bucket: aws.String(d.Id()),
 		}
 		err = waitConditionStable(func() (bool, error) {
-			_, err := s3Client.HeadBucket(req)
+			_, err := s3Client.HeadBucketWithContext(ctx, req)
 			if awsError, ok := err.(awserr.RequestFailure); ok && awsError.StatusCode() == 404 {
 				return true, nil
 			}
@@ -1607,13 +1609,13 @@ func resourceYandexStorageBucketDelete(d *schema.ResourceData, meta interface{})
 	}
 
 	if err != nil {
-		return fmt.Errorf("error deleting Storage Bucket (%s): %s", d.Id(), err)
+		return diag.Errorf("error deleting Storage Bucket (%s): %s", d.Id(), err)
 	}
 
 	return nil
 }
 
-func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketCORSUpdate(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	rawCors := d.Get("cors_rule").([]interface{})
 
@@ -1622,12 +1624,12 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 		log.Printf("[DEBUG] Storage Bucket: %s, delete CORS", bucket)
 
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3Client.DeleteBucketCors(&s3.DeleteBucketCorsInput{
+			return s3Client.DeleteBucketCorsWithContext(ctx, &s3.DeleteBucketCorsInput{
 				Bucket: aws.String(bucket),
 			})
 		})
 		if err == nil {
-			err = waitCorsDeleted(s3Client, bucket)
+			err = waitCorsDeleted(ctx, s3Client, bucket)
 		}
 		if err != nil {
 			return fmt.Errorf("error deleting storage CORS: %s", err)
@@ -1675,10 +1677,10 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 		log.Printf("[DEBUG] Storage Bucket: %s, put CORS: %#v", bucket, corsInput)
 
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3Client.PutBucketCors(corsInput)
+			return s3Client.PutBucketCorsWithContext(ctx, corsInput)
 		})
 		if err == nil {
-			err = waitCorsPut(s3Client, bucket, corsConfiguration)
+			err = waitCorsPut(ctx, s3Client, bucket, corsConfiguration)
 		}
 		if err != nil {
 			return fmt.Errorf("error putting bucket CORS: %s", err)
@@ -1688,11 +1690,11 @@ func resourceYandexStorageBucketCORSUpdate(s3Client *s3.S3, d *schema.ResourceDa
 	return nil
 }
 
-func resourceYandexStorageBucketWebsiteUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketWebsiteUpdate(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData) error {
 	ws := d.Get("website").([]interface{})
 
 	if len(ws) == 0 {
-		return resourceYandexStorageBucketWebsiteDelete(s3Client, d)
+		return resourceYandexStorageBucketWebsiteDelete(ctx, s3Client, d)
 	}
 
 	var w map[string]interface{}
@@ -1702,10 +1704,10 @@ func resourceYandexStorageBucketWebsiteUpdate(s3Client *s3.S3, d *schema.Resourc
 		w = make(map[string]interface{})
 	}
 
-	return resourceYandexStorageBucketWebsitePut(s3Client, d, w)
+	return resourceYandexStorageBucketWebsitePut(ctx, s3Client, d, w)
 }
 
-func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceData, website map[string]interface{}) error {
+func resourceYandexStorageBucketWebsitePut(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData, website map[string]interface{}) error {
 	bucket := d.Get("bucket").(string)
 
 	var indexDocument, errorDocument, redirectAllRequestsTo, routingRules string
@@ -1771,10 +1773,10 @@ func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceDa
 	log.Printf("[DEBUG] Storage put bucket website: %#v", putInput)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.PutBucketWebsite(putInput)
+		return s3Client.PutBucketWebsiteWithContext(ctx, putInput)
 	})
 	if err == nil {
-		err = waitWebsitePut(s3Client, bucket, websiteConfiguration)
+		err = waitWebsitePut(ctx, s3Client, bucket, websiteConfiguration)
 	}
 	if err != nil {
 		return fmt.Errorf("error putting storage website: %s", err)
@@ -1783,17 +1785,17 @@ func resourceYandexStorageBucketWebsitePut(s3Client *s3.S3, d *schema.ResourceDa
 	return nil
 }
 
-func resourceYandexStorageBucketWebsiteDelete(s3Client *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketWebsiteDelete(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	deleteInput := &s3.DeleteBucketWebsiteInput{Bucket: aws.String(bucket)}
 
 	log.Printf("[DEBUG] Storage delete bucket website: %#v", deleteInput)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.DeleteBucketWebsite(deleteInput)
+		return s3Client.DeleteBucketWebsiteWithContext(ctx, deleteInput)
 	})
 	if err == nil {
-		err = waitWebsiteDeleted(s3Client, bucket)
+		err = waitWebsiteDeleted(ctx, s3Client, bucket)
 	}
 	if err != nil {
 		return fmt.Errorf("error deleting storage website: %s", err)
@@ -1826,7 +1828,7 @@ func WebsiteDomainURL() string {
 	return "website.yandexcloud.net"
 }
 
-func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketACLUpdate(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData) error {
 	acl := d.Get("acl").(string)
 	if acl == "" {
 		acl = bucketACLPrivate
@@ -1841,7 +1843,7 @@ func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceDat
 	log.Printf("[DEBUG] Storage put bucket ACL: %#v", i)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.PutBucketAcl(i)
+		return s3Client.PutBucketAclWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("error putting Storage Bucket ACL: %s", err)
@@ -1850,7 +1852,7 @@ func resourceYandexStorageBucketACLUpdate(s3Client *s3.S3, d *schema.ResourceDat
 	return nil
 }
 
-func resourceYandexStorageBucketVersioningUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketVersioningUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	v := d.Get("versioning").([]interface{})
 	bucket := d.Get("bucket").(string)
 	vc := &s3.VersioningConfiguration{}
@@ -1875,7 +1877,7 @@ func resourceYandexStorageBucketVersioningUpdate(s3conn *s3.S3, d *schema.Resour
 	log.Printf("[DEBUG] S3 put bucket versioning: %#v", i)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutBucketVersioning(i)
+		return s3conn.PutBucketVersioningWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 versioning: %s", err)
@@ -1936,7 +1938,7 @@ func resourceYandexStorageHandleTagsUpdate(
 	return err
 }
 
-func resourceYandexStorageBucketTagsUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketTagsUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := aws.String(d.Get("bucket").(string))
 
 	onUpdate := func(tags []*s3.Tag) error {
@@ -1949,7 +1951,7 @@ func resourceYandexStorageBucketTagsUpdate(s3conn *s3.S3, d *schema.ResourceData
 			},
 		}
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.PutBucketTagging(request)
+			return s3conn.PutBucketTaggingWithContext(ctx, request)
 		})
 		if err != nil {
 			log.Printf("[ERROR] Unable to update Storage S3 bucket tags: %s", err)
@@ -1964,7 +1966,7 @@ func resourceYandexStorageBucketTagsUpdate(s3conn *s3.S3, d *schema.ResourceData
 			Bucket: bucket,
 		}
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.DeleteBucketTagging(request)
+			return s3conn.DeleteBucketTaggingWithContext(ctx, request)
 		})
 		if err != nil {
 			log.Printf("[ERROR] Unable to delete Storage S3 bucket tags: %s", err)
@@ -1975,7 +1977,7 @@ func resourceYandexStorageBucketTagsUpdate(s3conn *s3.S3, d *schema.ResourceData
 	return resourceYandexStorageHandleTagsUpdate(d, "bucket", onUpdate, onDelete)
 }
 
-func resourceYandexStorageBucketObjectLockConfigurationUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketObjectLockConfigurationUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	ol := d.Get("object_lock_configuration").([]interface{})
 	bucket := d.Get("bucket").(string)
 	olc := &s3.ObjectLockConfiguration{}
@@ -2018,7 +2020,7 @@ func resourceYandexStorageBucketObjectLockConfigurationUpdate(s3conn *s3.S3, d *
 	log.Printf("[DEBUG] S3 put object lock configuration: %#v", i)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutObjectLockConfiguration(i)
+		return s3conn.PutObjectLockConfigurationWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 object lock configuration: %s", err)
@@ -2027,7 +2029,7 @@ func resourceYandexStorageBucketObjectLockConfigurationUpdate(s3conn *s3.S3, d *
 	return nil
 }
 
-func resourceYandexStorageBucketLoggingUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketLoggingUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	logging := d.Get("logging").(*schema.Set).List()
 	bucket := d.Get("bucket").(string)
 	loggingStatus := &s3.BucketLoggingStatus{}
@@ -2053,7 +2055,7 @@ func resourceYandexStorageBucketLoggingUpdate(s3conn *s3.S3, d *schema.ResourceD
 	log.Printf("[DEBUG] S3 put bucket logging: %#v", i)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutBucketLogging(i)
+		return s3conn.PutBucketLoggingWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 logging: %s", err)
@@ -2128,11 +2130,11 @@ func waitConditionStable(check func() (bool, error)) error {
 	return fmt.Errorf("timeout exceeded")
 }
 
-func waitWebsitePut(s3Client *s3.S3, bucket string, configuration *s3.WebsiteConfiguration) error {
+func waitWebsitePut(ctx context.Context, s3Client *s3.S3, bucket string, configuration *s3.WebsiteConfiguration) error {
 	input := &s3.GetBucketWebsiteInput{Bucket: aws.String(bucket)}
 
 	check := func() (bool, error) {
-		output, err := s3Client.GetBucketWebsite(input)
+		output, err := s3Client.GetBucketWebsiteWithContext(ctx, input)
 		if err != nil && !isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
 			return false, err
 		}
@@ -2155,11 +2157,11 @@ func waitWebsitePut(s3Client *s3.S3, bucket string, configuration *s3.WebsiteCon
 	return nil
 }
 
-func waitWebsiteDeleted(s3Client *s3.S3, bucket string) error {
+func waitWebsiteDeleted(ctx context.Context, s3Client *s3.S3, bucket string) error {
 	input := &s3.GetBucketWebsiteInput{Bucket: aws.String(bucket)}
 
 	check := func() (bool, error) {
-		_, err := s3Client.GetBucketWebsite(input)
+		_, err := s3Client.GetBucketWebsiteWithContext(ctx, input)
 		if isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
 			return true, nil
 		}
@@ -2176,11 +2178,11 @@ func waitWebsiteDeleted(s3Client *s3.S3, bucket string) error {
 	return nil
 }
 
-func waitCorsPut(s3Client *s3.S3, bucket string, configuration *s3.CORSConfiguration) error {
+func waitCorsPut(ctx context.Context, s3Client *s3.S3, bucket string, configuration *s3.CORSConfiguration) error {
 	input := &s3.GetBucketCorsInput{Bucket: aws.String(bucket)}
 
 	check := func() (bool, error) {
-		output, err := s3Client.GetBucketCors(input)
+		output, err := s3Client.GetBucketCorsWithContext(ctx, input)
 		if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
 			return false, err
 		}
@@ -2206,11 +2208,11 @@ func waitCorsPut(s3Client *s3.S3, bucket string, configuration *s3.CORSConfigura
 	return nil
 }
 
-func waitCorsDeleted(s3Client *s3.S3, bucket string) error {
+func waitCorsDeleted(ctx context.Context, s3Client *s3.S3, bucket string) error {
 	input := &s3.GetBucketCorsInput{Bucket: aws.String(bucket)}
 
 	check := func() (bool, error) {
-		_, err := s3Client.GetBucketCors(input)
+		_, err := s3Client.GetBucketCorsWithContext(ctx, input)
 		if isAWSErr(err, "NoSuchCORSConfiguration", "") {
 			return true, nil
 		}
@@ -2316,14 +2318,14 @@ func transitionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceYandexStorageBucketPolicyUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketPolicyUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	policy := d.Get("policy").(string)
 
 	if policy == "" {
 		log.Printf("[DEBUG] S3 bucket: %s, delete policy: %s", bucket, policy)
 		_, err := retryFlakyS3Responses(func() (interface{}, error) {
-			return s3conn.DeleteBucketPolicy(&s3.DeleteBucketPolicyInput{
+			return s3conn.DeleteBucketPolicyWithContext(ctx, &s3.DeleteBucketPolicyInput{
 				Bucket: aws.String(bucket),
 			})
 		})
@@ -2341,7 +2343,7 @@ func resourceYandexStorageBucketPolicyUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	}
 
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-		_, err := s3conn.PutBucketPolicy(params)
+		_, err := s3conn.PutBucketPolicyWithContext(ctx, params)
 		if isAWSErr(err, "MalformedPolicy", "") || isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
 			return resource.RetryableError(err)
 		}
@@ -2357,13 +2359,13 @@ func resourceYandexStorageBucketPolicyUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	return nil
 }
 
-func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketGrantsUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	rawGrants := d.Get("grant").(*schema.Set).List()
 
 	if len(rawGrants) == 0 {
 		log.Printf("[DEBUG] Storage Bucket: %s, Grants fallback to canned ACL", bucket)
-		if err := resourceYandexStorageBucketACLUpdate(s3conn, d); err != nil {
+		if err := resourceYandexStorageBucketACLUpdate(ctx, s3conn, d); err != nil {
 			return fmt.Errorf("error fallback to canned ACL, %s", err)
 		}
 
@@ -2371,7 +2373,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	}
 
 	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.GetBucketAcl(&s3.GetBucketAclInput{
+		return s3conn.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
 			Bucket: aws.String(bucket),
 		})
 	})
@@ -2422,7 +2424,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	log.Printf("[DEBUG] Bucket: %s, put Grants: %#v", bucket, grantsInput)
 
 	_, err = retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutBucketAcl(grantsInput)
+		return s3conn.PutBucketAclWithContext(ctx, grantsInput)
 	})
 
 	if err != nil {
@@ -2432,7 +2434,7 @@ func resourceYandexStorageBucketGrantsUpdate(s3conn *s3.S3, d *schema.ResourceDa
 	return nil
 }
 
-func resourceYandexStorageBucketLifecycleUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 
 	lifecycleRules := d.Get("lifecycle_rule").([]interface{})
@@ -2442,7 +2444,7 @@ func resourceYandexStorageBucketLifecycleUpdate(s3conn *s3.S3, d *schema.Resourc
 			Bucket: aws.String(bucket),
 		}
 
-		_, err := s3conn.DeleteBucketLifecycle(i)
+		_, err := s3conn.DeleteBucketLifecycleWithContext(ctx, i)
 		if err != nil {
 			return fmt.Errorf("Error removing S3 lifecycle: %s", err)
 		}
@@ -2574,7 +2576,7 @@ func resourceYandexStorageBucketLifecycleUpdate(s3conn *s3.S3, d *schema.Resourc
 	}
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutBucketLifecycleConfiguration(i)
+		return s3conn.PutBucketLifecycleConfigurationWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 lifecycle: %s", err)
@@ -2583,7 +2585,7 @@ func resourceYandexStorageBucketLifecycleUpdate(s3conn *s3.S3, d *schema.Resourc
 	return nil
 }
 
-func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
 	bucket := d.Get("bucket").(string)
 	serverSideEncryptionConfiguration := d.Get("server_side_encryption_configuration").([]interface{})
 	if len(serverSideEncryptionConfiguration) == 0 {
@@ -2592,7 +2594,7 @@ func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(s3conn *
 			Bucket: aws.String(bucket),
 		}
 
-		_, err := s3conn.DeleteBucketEncryption(i)
+		_, err := s3conn.DeleteBucketEncryptionWithContext(ctx, i)
 		if err != nil {
 			return fmt.Errorf("error removing S3 bucket server side encryption: %s", err)
 		}
@@ -2631,7 +2633,7 @@ func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(s3conn *
 	log.Printf("[DEBUG] S3 put bucket replication configuration: %#v", i)
 
 	_, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3conn.PutBucketEncryption(i)
+		return s3conn.PutBucketEncryptionWithContext(ctx, i)
 	})
 	if err != nil {
 		return fmt.Errorf("error putting S3 server side encryption configuration: %s", err)
