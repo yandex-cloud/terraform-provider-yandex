@@ -20,6 +20,7 @@ BUG FIXES:
 * greenplum: add Cloud Storage support
 * postgresql: do not recreate cluster on network change
 * kafka: fix bug with import of resource `yandex_mdb_kafka_connector`
+* mongodb: fix update `feature_compatibility_version` in `yandex_mdb_mongodb_cluster` resource
 
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated

@@ -112,7 +112,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 
   cluster_config {
     version = "{{.Version}}"
-    feature_compatibility_version = "{{dropSuffix .Version "-enterprise"}}"
+{{ if .CompatibilityVersion}}
+    feature_compatibility_version = "{{.CompatibilityVersion}}"
+{{end}}
 {{if .Access}}
 	access {
 	{{- range $key, $value := .Access}}
@@ -486,10 +488,11 @@ func mdbMongoDBClusterImportStep() resource.TestStep {
 
 func create6_0ConfigData() map[string]interface{} {
 	return map[string]interface{}{
-		"Version":     "6.0",
-		"ClusterName": acctest.RandomWithPrefix("test-acc-tf-mongodb"),
-		"Environment": "PRESTABLE",
-		"Lables":      map[string]string{"test_key": "test_value"},
+		"Version":              "6.0",
+		"CompatibilityVersion": "6.0",
+		"ClusterName":          acctest.RandomWithPrefix("test-acc-tf-mongodb"),
+		"Environment":          "PRESTABLE",
+		"Lables":               map[string]string{"test_key": "test_value"},
 		"BackupWindow": map[string]int64{
 			"hours":   3,
 			"minutes": 4,
@@ -603,6 +606,8 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
+					//todo set compatibility_version doesn't work in create method , change test after fix in api
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "6.0"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.access.0.data_transfer", "true"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "10"),
@@ -680,7 +685,8 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 							},
 						},
 					},
-					"DeletionProtection": nil,
+					"DeletionProtection":   nil,
+					"CompatibilityVersion": "5.0",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
@@ -693,6 +699,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "security_group_ids.#", "2"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "ANYTIME"),
 					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.backup_retain_period_days", "20"),
+					resource.TestCheckResourceAttr(mongodbResource, "cluster_config.0.feature_compatibility_version", "5.0"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),

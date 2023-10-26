@@ -1210,10 +1210,11 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		Labels:      labels,
 		Name:        d.Get("name").(string),
 		ConfigSpec: &mongodb.ConfigSpec{
-			Version:                version,
-			MongodbSpec:            mongodbSpecHelper.Expand(d),
-			BackupWindowStart:      expandMongoDBBackupWindowStart(d),
-			BackupRetainPeriodDays: expandMongoDBBackupRetainPeriod(d),
+			Version:                     version,
+			MongodbSpec:                 mongodbSpecHelper.Expand(d),
+			BackupWindowStart:           expandMongoDBBackupWindowStart(d),
+			BackupRetainPeriodDays:      expandMongoDBBackupRetainPeriod(d),
+			FeatureCompatibilityVersion: d.Get("cluster_config.0.feature_compatibility_version").(string),
 			PerformanceDiagnostics: &mongodb.PerformanceDiagnosticsConfig{
 				ProfilingEnabled: d.Get("cluster_config.0.performance_diagnostics.0.enabled").(bool),
 			},
@@ -1228,16 +1229,17 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 }
 
 var mdbMongodbUpdateFieldsMap = map[string]string{
-	"description":                                "description",
-	"labels":                                     "labels",
-	"cluster_config.0.version":                   "config_spec.version",
-	"cluster_config.0.access":                    "config_spec.access",
-	"cluster_config.0.backup_window_start":       "config_spec.backup_window_start",
-	"cluster_config.0.backup_retain_period_days": "config_spec.backup_retain_period_days",
-	"cluster_config.0.performance_diagnostics":   "config_spec.performance_diagnostics",
-	"security_group_ids":                         "security_group_ids",
-	"deletion_protection":                        "deletion_protection",
-	"name":                                       "name",
+	"name":                                           "name",
+	"labels":                                         "labels",
+	"description":                                    "description",
+	"cluster_config.0.access":                        "config_spec.access",
+	"security_group_ids":                             "security_group_ids",
+	"cluster_config.0.version":                       "config_spec.version",
+	"deletion_protection":                            "deletion_protection",
+	"cluster_config.0.backup_window_start":           "config_spec.backup_window_start",
+	"cluster_config.0.performance_diagnostics":       "config_spec.performance_diagnostics",
+	"cluster_config.0.backup_retain_period_days":     "config_spec.backup_retain_period_days",
+	"cluster_config.0.feature_compatibility_version": "config_spec.feature_compatibility_version",
 }
 
 func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
