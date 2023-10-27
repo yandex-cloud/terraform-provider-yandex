@@ -24,7 +24,6 @@ BUG FIXES:
 
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated
-* storage: acl on bucket are deleted when 'grant' and 'acl' enries are not set on corresponding 'yandex_storage_bucket' resource
 
 ## 0.100.0 (October 11, 2023)
 

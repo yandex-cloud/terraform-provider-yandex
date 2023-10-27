@@ -87,6 +87,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 			"acl": {
 				Type:          schema.TypeString,
 				Optional:      true,
+				Computed:      true,
 				ConflictsWith: []string{"grant"},
 				ValidateFunc:  validation.StringInSlice(bucketACLAllowedValues, false),
 			},
@@ -94,6 +95,7 @@ func resourceYandexStorageBucket() *schema.Resource {
 			"grant": {
 				Type:          schema.TypeSet,
 				Optional:      true,
+				Computed:      true,
 				Set:           grantHash,
 				ConflictsWith: []string{"acl"},
 				Elem: &schema.Resource{
