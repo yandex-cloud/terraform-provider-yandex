@@ -871,6 +871,7 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-manager-2" {
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
 	role        = "mdb.dataproc.agent"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-manager]
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-1" {
@@ -878,6 +879,7 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-1" {
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
 	role        = "dataproc.provisioner"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-manager-2]
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-2" {
@@ -885,6 +887,7 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-provisioner-2" {
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
 	role        = "dataproc.provisioner"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-provisioner-1]
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-1" {
@@ -892,6 +895,7 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-1
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
 	role        = "monitoring.viewer"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-provisioner-2]
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-2" {
@@ -899,6 +903,7 @@ resource "yandex_resourcemanager_folder_iam_member" "dataproc-monitoringviewer-2
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa-2.id}"
 	role        = "monitoring.viewer"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-1]
 }
 
 // required in order to create bucket
@@ -907,6 +912,7 @@ resource "yandex_resourcemanager_folder_iam_member" "bucket-creator" {
 	member      = "serviceAccount:${yandex_iam_service_account.tf-dataproc-sa.id}"
 	role        = "editor"
 	sleep_after = 30
+	depends_on = [yandex_resourcemanager_folder_iam_member.dataproc-monitoringviewer-2]
 }
 
 resource "yandex_iam_service_account_static_access_key" "tf-dataproc-sa-static-key" {
