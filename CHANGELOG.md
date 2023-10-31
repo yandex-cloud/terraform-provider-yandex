@@ -25,6 +25,9 @@ BUG FIXES:
 WARNING:
 * managed-kafka: 'unmanaged_topics' cluster flag are now deprecated
 
+ENHANCEMENTS:
+* managed-kubernetes: supprort update of `allocation_policy.locations` section for `yandex_kubernetes_node_group`
+
 ## 0.100.0 (October 11, 2023)
 
 FEATURES:

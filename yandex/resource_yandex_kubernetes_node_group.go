@@ -389,14 +389,14 @@ func resourceYandexKubernetesNodeGroup() *schema.Resource {
 							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
+							ForceNew: false,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"zone": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
-										ForceNew: true,
+										ForceNew: false,
 									},
 									"subnet_id": {
 										Type:       schema.TypeString,
@@ -1130,6 +1130,7 @@ var nodeGroupUpdateFieldsMap = map[string]string{
 	"instance_template.0.container_runtime.0.type":              "node_template.container_runtime_settings.type",
 	"instance_template.0.name":                                  "node_template.name",
 	"instance_template.0.labels":                                "node_template.labels",
+	"allocation_policy":                                         "allocation_policy.locations",
 	"scale_policy.0.fixed_scale.0.size":                         "scale_policy.fixed_scale.size",
 	"scale_policy.0.auto_scale.0.min":                           "scale_policy.auto_scale.min_size",
 	"scale_policy.0.auto_scale.0.max":                           "scale_policy.auto_scale.max_size",
@@ -1219,6 +1220,7 @@ func getKubernetesNodeGroupUpdateRequest(d *schema.ResourceData) (*k8s.UpdateNod
 		MaintenancePolicy: mp,
 		DeployPolicy:      dp,
 		NodeLabels:        getNodeGroupNodeLabels(d),
+		AllocationPolicy:  getNodeGroupAllocationPolicy(d),
 	}
 
 	return req, nil
