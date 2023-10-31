@@ -153,8 +153,8 @@ func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
 	}
-	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
-	credentials, err := config.defaultS3Client.Config.Credentials.Get()
+	require.NotNilf(t, config.defaultS3Session, "expected defaultS3Session to be initialized")
+	credentials, err := config.defaultS3Session.Config.Credentials.Get()
 	if err != nil {
 		return
 	}
@@ -181,8 +181,8 @@ func TestConfigInitDefaultS3Client_PreferAccessKeysFromConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
 	}
-	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
-	credentials, err := config.defaultS3Client.Config.Credentials.Get()
+	require.NotNilf(t, config.defaultS3Session, "expected defaultS3Session to be initialized")
+	credentials, err := config.defaultS3Session.Config.Credentials.Get()
 	if err != nil {
 		return
 	}

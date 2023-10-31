@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/mitchellh/go-homedir"
@@ -70,7 +70,7 @@ type Config struct {
 	userAgent         string
 	sdk               *ycsdk.SDK
 	sharedCredentials *SharedCredentials
-	defaultS3Client   *s3.S3
+	defaultS3Session  *session.Session
 }
 
 // this function return context with added client trace id
@@ -183,7 +183,7 @@ func (c *Config) initializeDefaultS3Client() (err error) {
 		return fmt.Errorf("both storage access key and storage secret key should be specified or not specified")
 	}
 
-	c.defaultS3Client, err = newS3Client(c.StorageEndpoint, accessKey, secretKey)
+	c.defaultS3Session, err = newS3Session(c.StorageEndpoint, accessKey, secretKey)
 
 	return err
 }
