@@ -1,4 +1,6 @@
-## 0.101.0 (Unreleased)
+## 0.102.0 (Unreleased)
+
+## 0.101.0 (October 31, 2023)
 
 ENHANCEMENTS:
 * mdb: add `disk_size_autoscaling` attribute to `config` entity in `yandex_mdb_postgresql_cluster` resource and data source
