@@ -107,6 +107,80 @@ func TestAccDNSZone_update(t *testing.T) {
 	})
 }
 
+func TestAccDNSZoneVisibility_update(t *testing.T) {
+	t.Parallel()
+
+	var zone dns.DnsZone
+	var net1 vpc.Network
+	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSZoneBasicPublic(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPublic(&zone),
+				),
+			},
+			{
+				Config: testAccDNSZoneBasicPrivate(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPrivate(&zone),
+					testAccCheckDnsZoneNetwork(&zone, &net1, true),
+				),
+			},
+			{
+				Config: testAccDNSZoneBasicPublicPrivate(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPublicPrivate(&zone),
+					testAccCheckDnsZoneNetwork(&zone, &net1, true),
+				),
+			},
+			{
+				Config: testAccDNSZoneBasicPrivate(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPrivate(&zone),
+					testAccCheckDnsZoneNetwork(&zone, &net1, true),
+				),
+			},
+			{
+				Config: testAccDNSZoneBasicPublic(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPublic(&zone),
+				),
+			},
+			{
+				Config: testAccDNSZoneBasicPublicPrivate(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDnsZoneIsPublicPrivate(&zone),
+					testAccCheckDnsZoneNetwork(&zone, &net1, true),
+				),
+			},
+			{
+				ResourceName:      "yandex_dns_zone.zone1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDNSZoneExists(name string, zone *dns.DnsZone) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -177,6 +251,36 @@ func testAccCheckDnsZoneNetwork(z *dns.DnsZone, network *vpc.Network, isPresent 
 	}
 }
 
+func testAccCheckDnsZoneIsPublic(z *dns.DnsZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if z.PrivateVisibility != nil {
+			return fmt.Errorf("public dns zone %s has private visibility", z.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckDnsZoneIsPrivate(z *dns.DnsZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if z.PublicVisibility != nil {
+			return fmt.Errorf("private dns zone %s has public visibility", z.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckDnsZoneIsPublicPrivate(z *dns.DnsZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if z.PublicVisibility == nil || z.PrivateVisibility == nil {
+			return fmt.Errorf("public-private dns zone %s do not have public ov private visibility", z.Name)
+		}
+
+		return nil
+	}
+}
+
 func testAccDNSZoneBasic(name, fqdn string) string {
 	return fmt.Sprintf(`
 resource "yandex_vpc_network" "net1" {}
@@ -195,6 +299,65 @@ resource "yandex_dns_zone" "zone1" {
   zone             = "%s"
   public           = true
   private_networks = [yandex_vpc_network.net1.id, yandex_vpc_network.net2.id]
+}
+`, name, fqdn)
+}
+
+func testAccDNSZoneBasicPublic(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "net1" {}
+
+resource "yandex_dns_zone" "zone1" {
+  name        = "%s"
+  description = "desc"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  zone             = "%s"
+  public           = true
+}
+`, name, fqdn)
+}
+
+func testAccDNSZoneBasicPrivate(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "net1" {}
+
+resource "yandex_dns_zone" "zone1" {
+  name        = "%s"
+  description = "desc"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  zone             = "%s"
+  public           = false
+  private_networks = [yandex_vpc_network.net1.id]
+}
+`, name, fqdn)
+}
+
+func testAccDNSZoneBasicPublicPrivate(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "net1" {}
+
+resource "yandex_dns_zone" "zone1" {
+  name        = "%s"
+  description = "desc"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  zone             = "%s"
+  public           = true
+  private_networks = [yandex_vpc_network.net1.id]
 }
 `, name, fqdn)
 }

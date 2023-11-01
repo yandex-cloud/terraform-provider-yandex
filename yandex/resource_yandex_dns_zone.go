@@ -105,19 +105,23 @@ func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	req := &dns.CreateDnsZoneRequest{
-		FolderId:          folderID,
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Labels:            labels,
-		Zone:              d.Get("zone").(string),
-		PrivateVisibility: &dns.PrivateVisibility{},
+		FolderId:    folderID,
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Labels:      labels,
+		Zone:        d.Get("zone").(string),
 	}
 
 	if d.Get("public").(bool) {
 		req.PublicVisibility = &dns.PublicVisibility{}
+	} else {
+		req.PrivateVisibility = &dns.PrivateVisibility{}
 	}
 
 	if n, ok := d.GetOk("private_networks"); ok {
+		if req.PrivateVisibility == nil {
+			req.PrivateVisibility = &dns.PrivateVisibility{}
+		}
 		req.PrivateVisibility.NetworkIds = convertStringSet(n.(*schema.Set))
 	}
 
@@ -157,6 +161,26 @@ func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceYandexDnsZoneUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	sdk := getSDK(config)
+
+	dnsZone, _ := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
+		DnsZoneId: d.Id(),
+	})
+
+	prevNetworkIds := dnsZone.GetPrivateVisibility().GetNetworkIds()
+	networkIdsSet := d.HasChange("private_networks") && prevNetworkIds == nil
+
+	// "public-private -> public" transition is explicitly prohibited
+	if (d.Get("public").(bool) && networkIdsSet) || d.HasChange("public") {
+		err := resourceYandexDnsZoneDelete(d, meta)
+		if err != nil {
+			return err
+		}
+
+		return resourceYandexDnsZoneCreate(d, meta)
+	}
+
 	req, err := prepareDnsZoneUpdateRequest(d)
 	if err != nil {
 		return err
@@ -209,18 +233,22 @@ func prepareDnsZoneUpdateRequest(d *schema.ResourceData) (*dns.UpdateDnsZoneRequ
 	}
 
 	req := &dns.UpdateDnsZoneRequest{
-		DnsZoneId:         d.Id(),
-		Name:              d.Get("name").(string),
-		Description:       d.Get("description").(string),
-		Labels:            labels,
-		PrivateVisibility: &dns.PrivateVisibility{},
+		DnsZoneId:   d.Id(),
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Labels:      labels,
 	}
 
 	if d.Get("public").(bool) {
 		req.PublicVisibility = &dns.PublicVisibility{}
+	} else {
+		req.PrivateVisibility = &dns.PrivateVisibility{}
 	}
 
 	if n, ok := d.GetOk("private_networks"); ok {
+		if req.PrivateVisibility == nil {
+			req.PrivateVisibility = &dns.PrivateVisibility{}
+		}
 		req.PrivateVisibility.NetworkIds = convertStringSet(n.(*schema.Set))
 	}
 
