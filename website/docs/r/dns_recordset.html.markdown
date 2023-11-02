@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_dns_recordset"
 sidebar_current: "docs-yandex-dns-recordset"
 description: |-
-Manages a DNS Recordset within Yandex.Cloud.
+  Manages a DNS Recordset within Yandex.Cloud.
 ---
 
 # yandex\_dns\_recordset

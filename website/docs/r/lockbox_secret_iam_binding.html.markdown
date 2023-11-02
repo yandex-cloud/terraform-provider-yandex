@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_lockbox_secret_iam_binding"
 sidebar_current: "docs-yandex-lockbox-secret-iam-binding"
 description: |-
-Allows management of a single IAM binding for a [Lockbox Secret](https://cloud.yandex.com/docs/lockbox/).
+  Allows management of a single IAM binding for a [Lockbox Secret](https://cloud.yandex.com/docs/lockbox/).
 ---
 
 ## yandex\_lockbox\_secret\_iam\_binding

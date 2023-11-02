@@ -2,7 +2,8 @@
 layout: "yandex"
 page_title: "Yandex: yandex_organizationmanager_group_membership"
 sidebar_current: "docs-yandex-organizationmanager-group-membership"
-description: |- Allows management of members of Yandex.Cloud Organization Manager Group.
+description: |-
+  Allows management of members of Yandex.Cloud Organization Manager Group.
 ---
 
 # yandex\_organizationmanager\_group\_membership

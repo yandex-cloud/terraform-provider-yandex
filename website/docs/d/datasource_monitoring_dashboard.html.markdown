@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_monitoring_dashboard"
 sidebar_current: "docs-yandex-datasource-monitoring-dashboard"
 description: |-
-Get information about a Yandex Monitoring dashboard.
+  Get information about a Yandex Monitoring dashboard.
 ---
 
 # yandex\_monitoring\_dashboard

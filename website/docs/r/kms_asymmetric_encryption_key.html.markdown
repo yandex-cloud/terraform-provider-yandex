@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_kms_asymmetric_encryption_key"
 sidebar_current: "docs-yandex-kms-asymmetric-encryption-key"
 description: |-
-Creates a Yandex KMS asymmetric encryption key that can be used for cryptographic operation.
+  Creates a Yandex KMS asymmetric encryption key that can be used for cryptographic operation.
 ---
 
 # yandex\_kms\_asymmetric\_encryption\_key

@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_datasphere_project_iam_binding"
 sidebar_current: "docs-yandex-datasphere-project-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Yandex Datasphere Project.
+  Allows management of a single IAM binding for a Yandex Datasphere Project.
 ---
 
 ## yandex\_datasphere\_project\_iam\_binding

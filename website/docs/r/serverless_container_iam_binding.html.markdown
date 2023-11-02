@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_serverless_container_iam_binding"
 sidebar_current: "docs-yandex-serverless-container-iam-binding"
 description: |-
-Allows management of a single IAM binding for a [Yandex Serverless Container](https://cloud.yandex.com/docs/serverless-containers/).
+  Allows management of a single IAM binding for a [Yandex Serverless Container](https://cloud.yandex.com/docs/serverless-containers/).
 ---
 
 ## yandex\_serverless\_container\_iam\_binding

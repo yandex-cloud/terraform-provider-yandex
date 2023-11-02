@@ -2,7 +2,8 @@
 layout: "yandex"
 page_title: "Yandex: yandex_alb_virtual_host"
 sidebar_current: "docs-yandex-datasource-alb-virtual-host"
-description: |- Get information about a Yandex ALB Virtual Host.
+description: |-
+  Get information about a Yandex ALB Virtual Host.
 ---
 
 # yandex\_alb\_virtual\_host

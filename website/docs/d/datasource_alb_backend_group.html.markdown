@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_backend_group"
 sidebar_current: "docs-yandex-datasource-alb-backend-group"
 description: |-
-Get information about a Yandex Application Load Balancer Backend Group.
+  Get information about a Yandex Application Load Balancer Backend Group.
 ---
 
 # yandex\_alb\_backend\_group

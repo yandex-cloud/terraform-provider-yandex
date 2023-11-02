@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_http_router"
 sidebar_current: "docs-yandex-datasource-alb-http-router"
 description: |-
-Get information about a Yandex Application Load Balancer HTTP Router.
+  Get information about a Yandex Application Load Balancer HTTP Router.
 ---
 
 # yandex\_alb\_http\_router

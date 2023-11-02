@@ -2,8 +2,9 @@
 layout: "yandex"
 page_title: "Yandex: yandex_alb_load_balancer"
 sidebar_current: "docs-yandex-alb-load-balancer"
-description: |- A Load Balancer is used for receiving incoming traffic and transmitting it to the backend endpoints
-specified in the ALB Target Groups.
+description: |-
+  A Load Balancer is used for receiving incoming traffic and transmitting it to the backend endpoints
+  specified in the ALB Target Groups.
 ---
 
 Creates an Application Load Balancer in the specified folder. For more information, see

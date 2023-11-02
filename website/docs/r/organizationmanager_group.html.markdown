@@ -2,7 +2,8 @@
 layout: "yandex"
 page_title: "Yandex: yandex_organizationmanager_group"
 sidebar_current: "docs-yandex-organizationmanager-group"
-description: |- Allows management of a single Group within an existing Yandex.Cloud Organization.
+description: |-
+  Allows management of a single Group within an existing Yandex.Cloud Organization.
 ---
 
 # yandex\_organizationmanager\_group

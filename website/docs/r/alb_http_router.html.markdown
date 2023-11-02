@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_http_router"
 sidebar_current: "docs-yandex-alb-http-router"
 description: |-
-The HTTP router defines the routing rules for HTTP requests to backend groups.
+  The HTTP router defines the routing rules for HTTP requests to backend groups.
 ---
 
 Creates an HTTP Router in the specified folder.

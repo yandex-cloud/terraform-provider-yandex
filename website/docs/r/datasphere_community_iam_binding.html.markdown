@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_datasphere_community_iam_binding"
 sidebar_current: "docs-yandex-datasphere-community-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Yandex Datasphere Community.
+  Allows management of a single IAM binding for a Yandex Datasphere Community.
 ---
 
 ## yandex\_datasphere\_community\_iam\_binding

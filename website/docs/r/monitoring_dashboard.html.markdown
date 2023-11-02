@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_monitoring_dashboard"
 sidebar_current: "docs-yandex-monitoring-dashboard"
 description: |-
-Allows management of a Yandex.Cloud Monitoring Dashboard.
+  Allows management of a Yandex.Cloud Monitoring Dashboard.
 ---
 
 # yandex\_monitoring\_dashboard

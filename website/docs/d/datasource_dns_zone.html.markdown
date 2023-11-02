@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_dns_zone"
 sidebar_current: "docs-yandex-dtasource-dns-zone"
 description: |-
-Get information about a DNS Zone within Yandex.Cloud.
+  Get information about a DNS Zone within Yandex.Cloud.
 ---
 
 # yandex\_dns\_zone

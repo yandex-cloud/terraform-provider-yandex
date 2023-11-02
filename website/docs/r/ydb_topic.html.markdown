@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_ydb_topic"
 sidebar_current: "docs-yandex-resource-ydb-topic"
 description: |-
-Get information about a Yandex YDB Topics.
+  Get information about a Yandex YDB Topics.
 ---
 
 # yandex\_ydb\_topic

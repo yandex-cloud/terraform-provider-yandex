@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_datasphere_community"
 sidebar_current: "docs-yandex-datasphere-community"
 description: |-
-Allows management of a Yandex.Cloud Datasphere Community.
+  Allows management of a Yandex.Cloud Datasphere Community.
 ---
 
 # yandex\_datasphere\_community

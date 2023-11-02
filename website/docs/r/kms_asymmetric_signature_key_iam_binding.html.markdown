@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_kms_asymmetric_signature_key_iam_binding"
 sidebar_current: "docs-yandex-kms-asymmetric-signature-key-iam-binding"
 description: |-
-Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
+  Allows management of a single IAM binding for a [Yandex Key Management Service](https://cloud.yandex.com/docs/kms/).
 ---
 
 ## yandex\_kms\_asymmetric\_signature\_key\_iam\_binding

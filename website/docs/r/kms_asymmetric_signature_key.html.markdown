@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_kms_asymmetric_signature_key"
 sidebar_current: "docs-yandex-kms-asymmetric-signature-key"
 description: |-
-Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.
+  Creates a Yandex KMS asymmetric signature key that can be used for cryptographic operation.
 ---
 
 # yandex\_kms\_asymmetric\_signature\_key

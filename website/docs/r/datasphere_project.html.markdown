@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_datasphere_project"
 sidebar_current: "docs-yandex-datasphere-project"
 description: |-
-Allows management of a Yandex.Cloud Datasphere project.
+  Allows management of a Yandex.Cloud Datasphere project.
 ---
 
 # yandex\_datasphere\_project

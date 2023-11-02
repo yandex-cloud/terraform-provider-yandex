@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_filesystem"
 sidebar_current: "docs-yandex-datasource-compute-filesystem"
 description: |-
-Get information about a Yandex Compute filesystem.
+  Get information about a Yandex Compute filesystem.
 ---
 
 # yandex\_compute\_filesystem

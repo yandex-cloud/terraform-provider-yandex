@@ -2,7 +2,8 @@
 layout: "yandex"
 page_title: "Yandex: yandex_alb_virtual_host"
 sidebar_current: "docs-yandex-alb-virtual-host"
-description: |- Virtual hosts combine routes belonging to the same set of domains.
+description: |-
+  Virtual hosts combine routes belonging to the same set of domains.
 ---
 
 Creates a virtual host that belongs to specified HTTP router and adds the specified routes to it. For more information,

@@ -2,7 +2,8 @@
 layout: "yandex"
 page_title: "Yandex: yandex_alb_load_balancer"
 sidebar_current: "docs-yandex-datasource-alb-load-balancer"
-description: |- Get information about a Yandex Application Load Balancer.
+description: |-
+  Get information about a Yandex Application Load Balancer.
 ---
 
 # yandex\_alb\_load\_balancer

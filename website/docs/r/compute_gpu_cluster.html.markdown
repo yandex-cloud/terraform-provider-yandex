@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_gpu_cluster"
 sidebar_current: "docs-yandex-compute-gpu-cluster"
 description: |-
-GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.
+  GPU Cluster connects multiple Compute GPU Instances in the same availability zone with high-speed low-latency network.
 ---
 
 # yandex\_compute\_gpu\_cluster

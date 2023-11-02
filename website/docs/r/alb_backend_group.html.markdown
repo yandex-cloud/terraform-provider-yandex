@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_alb_backend_group"
 sidebar_current: "docs-yandex-alb-backend-group"
 description: |-
-An application load balancer distributes the load across cloud resources that are combined into a backend group.
+  An application load balancer distributes the load across cloud resources that are combined into a backend group.
 ---
 
 Creates a backend group in the specified folder and adds the specified backends to it.

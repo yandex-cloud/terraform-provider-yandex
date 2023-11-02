@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_ydb_database_iam_binding"
 sidebar_current: "docs-yandex-ydb-database-iam-binding"
 description: |-
-Allows management of a single IAM binding for a [Managed service for YDB](https://cloud.yandex.com/docs/ydb/).
+  Allows management of a single IAM binding for a [Managed service for YDB](https://cloud.yandex.com/docs/ydb/).
 ---
 
 ## yandex\_ydb\_database\_iam\_binding

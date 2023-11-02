@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_cm_certificate"
 sidebar_current: "docs-yandex-cm-certificate"
 description: |-
-A TLS certificate signed by a certification authority confirming that it belongs to the owner of the domain name.
+  A TLS certificate signed by a certification authority confirming that it belongs to the owner of the domain name.
 ---
 
 Creates or requests a TLS certificate in the specified folder.

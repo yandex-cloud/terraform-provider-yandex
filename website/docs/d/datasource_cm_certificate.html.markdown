@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_cm_certificate"
 sidebar_current: "docs-yandex-datasource-cm-certificate"
 description: |-
-Get information about a Yandex Certificate Manager Certificate.
+  Get information about a Yandex Certificate Manager Certificate.
 ---
 
 # yandex\_cm\_certificate

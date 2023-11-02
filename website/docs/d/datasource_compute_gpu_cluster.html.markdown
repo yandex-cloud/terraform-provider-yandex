@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_gpu_cluster"
 sidebar_current: "docs-yandex-datasource-compute-gpu-cluster"
 description: |-
-Get information about a Yandex Compute GPU cluster.
+  Get information about a Yandex Compute GPU cluster.
 ---
 
 # yandex\_compute\_gpu\_cluster
