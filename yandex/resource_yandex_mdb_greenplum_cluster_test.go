@@ -192,18 +192,18 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			},
 
 			mdbGreenplumClusterImportStep(greenplumResource),
-			// {
-			// 	Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
-			// 	Check: resource.ComposeTestCheckFunc(
-			// 		testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 7),
-			// 		testAccCheckCreatedAtAttr(greenplumResource),
-			// 		resource.TestCheckResourceAttr(greenplumResource, "segment_in_host", "2"),
-			// 		resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
-			// 		resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "false"),
-			// 		resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
-			// 	),
-			// },
-			// mdbGreenplumClusterImportStep(greenplumResource),
+			{
+				Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBGreenplumClusterExists(greenplumResource, 2, 7),
+					testAccCheckCreatedAtAttr(greenplumResource),
+					resource.TestCheckResourceAttr(greenplumResource, "segment_in_host", "2"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "false"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
+				),
+			},
+			mdbGreenplumClusterImportStep(greenplumResource),
 		},
 	})
 }
@@ -481,23 +481,23 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 }`
 }
 
-// func testAccMDBGreenplumClusterConfigStep7(name string, description string) string {
-// 	return testAccMDBGreenplumClusterConfigTemplate(name, description, "s2.small") + `
-//   segment_host_count = 7
-//   segment_in_host    = 2
-//
-//   pooler_config {
-//     pooling_mode             = "TRANSACTION"
-//     pool_size                = 10
-//     pool_client_idle_timeout = 0
-//   }
-//
-//   access {
-//     web_sql       = true
-//     data_transfer = true
-//   }
-//   cloud_storage {
-//     enable = true
-//   }
-// }`
-// }
+func testAccMDBGreenplumClusterConfigStep7(name string, description string) string {
+	return testAccMDBGreenplumClusterConfigTemplate(name, description, "s2.small") + `
+  segment_host_count = 7
+  segment_in_host    = 2
+
+  pooler_config {
+    pooling_mode             = "TRANSACTION"
+    pool_size                = 10
+    pool_client_idle_timeout = 0
+  }
+
+  access {
+    web_sql       = true
+    data_transfer = true
+  }
+  cloud_storage {
+    enable = true
+  }
+}`
+}
