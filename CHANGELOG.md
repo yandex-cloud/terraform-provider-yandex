@@ -5,6 +5,9 @@ FEATURES:
 * provider: allow creating `public` dns zones along with `private` and `public-private` once
 * provider: allow updating dns zone visibility (all transitions are allowed except `public-private -> public` one)
 
+BUG FIXES:
+* clickhouse: updating only the changed user settings
+
 ## 0.101.0 (October 31, 2023)
 
 ENHANCEMENTS:

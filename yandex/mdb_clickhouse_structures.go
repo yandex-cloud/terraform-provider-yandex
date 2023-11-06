@@ -224,25 +224,42 @@ func clickHouseUsersDiff(currUsers []*clickhouse.User, targetUsers []*clickhouse
 }
 
 // Takes the old set of user specs and the new set of user specs.
-// Returns the slice of user specs which have changed.
-func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schema.ResourceData) []*clickhouse.UserSpec {
+// Returns the slice of user specs which have changed with changed fields of each user
+func clickHouseChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set, d *schema.ResourceData) ([]*clickhouse.UserSpec, [][]string) {
 	result := []*clickhouse.UserSpec{}
+	updatedPathsOfChangedUsers := [][]string{}
 	m := map[string]*clickhouse.UserSpec{}
 	for _, spec := range oldSpecs.List() {
 		user := expandClickHouseUser(spec.(map[string]interface{}), nil, 0)
 		m[user.Name] = user
 	}
+
 	for _, spec := range newSpecs.List() {
 		user := expandClickHouseUser(spec.(map[string]interface{}), nil, 0)
 		if u, ok := m[user.Name]; ok {
-			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) || fmt.Sprintf("%v", user.Settings) != fmt.Sprintf("%v", u.Settings) || fmt.Sprintf("%v", user.Quotas) != fmt.Sprintf("%v", u.Quotas) {
+			paths := []string{}
+			if user.Password != u.Password {
+				paths = append(paths, "password")
+			}
+			if fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
+				paths = append(paths, "permissions")
+			}
+			if fmt.Sprintf("%v", user.Settings) != fmt.Sprintf("%v", u.Settings) {
+				paths = append(paths, "settings")
+			}
+			if fmt.Sprintf("%v", user.Quotas) != fmt.Sprintf("%v", u.Quotas) {
+				paths = append(paths, "quotas")
+			}
+
+			if len(paths) > 0 {
 				hash := clickHouseUserHash(spec)
 				userWithExistsFields := expandClickHouseUser(spec.(map[string]interface{}), d, hash)
 				result = append(result, userWithExistsFields)
+				updatedPathsOfChangedUsers = append(updatedPathsOfChangedUsers, paths)
 			}
 		}
 	}
-	return result
+	return result, updatedPathsOfChangedUsers
 }
 
 func createKey(hostType clickhouse.Host_Type, zoneId, shardName string) string {

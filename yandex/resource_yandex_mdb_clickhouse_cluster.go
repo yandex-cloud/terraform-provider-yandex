@@ -1649,9 +1649,13 @@ func updateClickHouseClusterUsers(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers := clickHouseChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), d)
-	for _, u := range changedUsers {
-		err := updateClickHouseUser(ctx, config, d, u)
+
+	// We have to calculate changed users and fields of this users via UserSpec,
+	// because schema HasChange returns true on every field of user because of new hash
+	changedUsers, updatedPathsOfChangedUsers := clickHouseChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set), d)
+
+	for i, u := range changedUsers {
+		err := updateClickHouseUser(ctx, config, d, u, updatedPathsOfChangedUsers[i])
 		if err != nil {
 			return err
 		}
@@ -2005,7 +2009,8 @@ func deleteClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
-func updateClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec) error {
+func updateClickHouseUser(ctx context.Context, config *Config, d *schema.ResourceData, user *clickhouse.UserSpec, changedFields []string) error {
+
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().User().Update(ctx, &clickhouse.UpdateUserRequest{
 			ClusterId:   d.Id(),
@@ -2014,8 +2019,10 @@ func updateClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 			Permissions: user.Permissions,
 			Settings:    user.Settings,
 			Quotas:      user.Quotas,
+			UpdateMask:  &field_mask.FieldMask{Paths: changedFields},
 		}),
 	)
+
 	if err != nil {
 		return fmt.Errorf("error while requesting API to update user in ClickHouse Cluster %q: %s", d.Id(), err)
 	}
