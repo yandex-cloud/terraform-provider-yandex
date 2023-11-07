@@ -406,23 +406,19 @@ func streamHandler() *schema.Schema {
 	}
 }
 
-func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("[DEBUG] Creating ALB Load Balancer %q", d.Id())
-
-	config := meta.(*Config)
-
+func buildALBLoadBalancerCreateRequest(d *schema.ResourceData, config *Config) (*apploadbalancer.CreateLoadBalancerRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 
 	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating ALB Load Balancer: %w", err)
+		return nil, fmt.Errorf("Error expanding labels while creating ALB Load Balancer: %w", err)
 	}
 
 	folderID, err := getFolderID(d, config)
 	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating ALB Load Balancer: %w", err)
+		return nil, fmt.Errorf("Error getting folder ID while creating ALB Load Balancer: %w", err)
 	}
 
-	req := apploadbalancer.CreateLoadBalancerRequest{
+	req := &apploadbalancer.CreateLoadBalancerRequest{
 		FolderId:         folderID,
 		Name:             d.Get("name").(string),
 		Description:      d.Get("description").(string),
@@ -434,26 +430,39 @@ func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{
 
 	allocationPolicy, err := expandALBAllocationPolicy(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding allocation policy while creating ALB Load Balancer: %w", err)
+		return nil, fmt.Errorf("Error expanding allocation policy while creating ALB Load Balancer: %w", err)
 	}
 	req.SetAllocationPolicy(allocationPolicy)
 
 	logOptions, err := expandALBLogOptions(d)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("Error expanding log options while creating ALB Load Balancer: %w", err)
 	}
 	req.SetLogOptions(logOptions)
 
 	listeners, err := expandALBListeners(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
+		return nil, fmt.Errorf("Error expanding listeners while creating ALB Load Balancer: %w", err)
 	}
 	req.SetListenerSpecs(listeners)
+
+	return req, nil
+}
+
+func resourceYandexALBLoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[DEBUG] Creating ALB Load Balancer %q", d.Id())
+
+	config := meta.(*Config)
+
+	req, err := buildALBLoadBalancerCreateRequest(d, config)
+	if err != nil {
+		return err
+	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().LoadBalancer().Create(ctx, &req))
+	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().LoadBalancer().Create(ctx, req))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create ALB Load Balancer: %w", err)
 	}

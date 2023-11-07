@@ -570,14 +570,19 @@ func expandALBStringMatch(d *schema.ResourceData, path string) (*apploadbalancer
 }
 
 func expandALBAllocationPolicy(d *schema.ResourceData) (*apploadbalancer.AllocationPolicy, error) {
-	var locations []*apploadbalancer.Location
-	config := d.Get("allocation_policy").([]interface{})[0].(map[string]interface{})
+	if v, ok := d.GetOk("allocation_policy"); !ok || len(v.([]interface{})) == 0 {
+		return nil, fmt.Errorf("empty allocation_policy is not supported")
+	}
 
-	if v, ok := config["location"]; ok {
-		locationsList := v.(*schema.Set)
+	var locations []*apploadbalancer.Location
+	if v, ok := d.GetOk("allocation_policy.0.location"); ok {
+		locationsList, ok := v.(*schema.Set)
+		if !ok {
+			return nil, fmt.Errorf("type error for location set")
+		}
+
 		for _, b := range locationsList.List() {
 			locationConfig := b.(map[string]interface{})
-
 			location, err := expandALBLocation(locationConfig)
 			if err != nil {
 				return nil, err
@@ -609,14 +614,16 @@ func expandALBLocation(config map[string]interface{}) (*apploadbalancer.Location
 }
 
 func expandALBLogOptions(d *schema.ResourceData) (*apploadbalancer.LogOptions, error) {
-	var l apploadbalancer.LogOptions
 	v, ok := d.GetOk("log_options")
 	if !ok || len(v.([]interface{})) == 0 {
 		return nil, nil
 	}
 
-	config := v.([]interface{})[0].(map[string]interface{})
-	l.Disable = config["disable"].(bool)
+	var l apploadbalancer.LogOptions
+	if v, ok := d.GetOk("log_options.0.disable"); ok {
+		l.Disable = v.(bool)
+	}
+
 	for _, key := range IterateKeys(d, "log_options.0.discard_rule") {
 		rule, err := expandDiscardRule(d, key)
 		if err != nil {
@@ -624,7 +631,10 @@ func expandALBLogOptions(d *schema.ResourceData) (*apploadbalancer.LogOptions, e
 		}
 		l.DiscardRules = append(l.DiscardRules, rule)
 	}
-	l.LogGroupId = config["log_group_id"].(string)
+
+	if v, ok := d.GetOk("log_options.0.log_group_id"); ok {
+		l.LogGroupId = v.(string)
+	}
 
 	return &l, nil
 }

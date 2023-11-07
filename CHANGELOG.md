@@ -7,6 +7,7 @@ FEATURES:
 
 BUG FIXES:
 * clickhouse: updating only the changed user settings
+* alb: fix bug leading to panic when `log_options` block is empty
 
 ## 0.101.0 (October 31, 2023)
 

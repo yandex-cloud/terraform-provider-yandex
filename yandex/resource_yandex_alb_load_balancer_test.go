@@ -7,9 +7,12 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/apploadbalancer/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -640,4 +643,124 @@ resource "yandex_vpc_security_group" "test-security-group" {
   }
 }
 `, name, desc)
+}
+
+func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
+	t.Parallel()
+
+	lbResource := resourceYandexALBLoadBalancer()
+
+	makeAllocations := func(zones ...string) interface{} {
+		var locs []interface{}
+		for _, z := range zones {
+			locs = append(locs, map[string]interface{}{
+				"zone_id":         z,
+				"subnet_id":       "subnet" + z,
+				"disable_traffic": false,
+			})
+		}
+		return []interface{}{
+			map[string]interface{}{
+				"location": locs,
+			},
+		}
+	}
+
+	t.Run("missing-alloc-policy", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "lbid",
+			"name": "lb-name",
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		_, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		assert.Error(t, err)
+	})
+
+	t.Run("alloc-policy", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":                "lbid",
+			"name":              "lb-name",
+			"allocation_policy": makeAllocations("1", "2"),
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		t.Log(rawValues, resourceData, resourceData.Get("allocation_policy.0.location.2"))
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "folder1")
+		assert.Equal(t, req.GetName(), "lb-name")
+		assert.NotNil(t, req.GetAllocationPolicy())
+		assert.Len(t, req.GetAllocationPolicy().GetLocations(), 2)
+	})
+
+	t.Run("empty-log-options", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":                "lbid",
+			"name":              "lb-name",
+			"log_options":       []interface{}{nil},
+			"allocation_policy": makeAllocations("1"),
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "folder1")
+		assert.Equal(t, req.GetName(), "lb-name")
+		assert.NotNil(t, req.GetLogOptions())
+	})
+
+	t.Run("full-log-options", func(t *testing.T) {
+		rawValues := map[string]interface{}{
+			"id":   "lbid",
+			"name": "lb-name",
+			"log_options": []interface{}{
+				map[string]interface{}{
+					"disable": true,
+					"discard_rule": []interface{}{
+						map[string]interface{}{
+							"discard_percent": 99,
+						},
+					},
+					"log_group_id": "lg1",
+				},
+			},
+			"allocation_policy": makeAllocations("1"),
+		}
+		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
+
+		resourceData.SetId("lbid")
+
+		config := Config{
+			FolderID: "folder1",
+		}
+		req, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetFolderId(), "folder1")
+		assert.Equal(t, req.GetName(), "lb-name")
+		assert.NotNil(t, req.GetLogOptions())
+		assert.True(t, req.GetLogOptions().GetDisable())
+		assert.Equal(t, "lg1", req.GetLogOptions().GetLogGroupId())
+		require.Len(t, req.GetLogOptions().GetDiscardRules(), 1)
+		assert.EqualValues(t, 99, req.GetLogOptions().GetDiscardRules()[0].GetDiscardPercent().GetValue())
+	})
 }
