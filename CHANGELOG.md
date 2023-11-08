@@ -1,7 +1,8 @@
-## 0.102.0 (Unreleased)
+## 0.103.0 (Unreleased)
+
+## 0.102.0 (November 8, 2023)
 
 FEATURES:
-
 * provider: allow creating `public` dns zones along with `private` and `public-private` once
 * provider: allow updating dns zone visibility (all transitions are allowed except `public-private -> public` one)
 
