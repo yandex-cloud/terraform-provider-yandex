@@ -536,11 +536,14 @@ func testAccCheckStorageObjectLockRetention(obj *s3.GetObjectOutput, modeWant st
 
 func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags []*s3.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		switch {
-		case len(tags) > 0 && obj.TagCount == nil:
-			return fmt.Errorf("no object tags found but expected %d", len(tags))
-		case *obj.TagCount != int64(len(tags)):
-			return fmt.Errorf("expected tags count %d got %d", len(tags), *obj.TagCount)
+		if obj.TagCount == nil {
+			if len(tags) > 0 {
+				return fmt.Errorf("no object tags found but expected %d", len(tags))
+			}
+		} else {
+			if *obj.TagCount != int64(len(tags)) {
+				return fmt.Errorf("expected tags count %d got %d", len(tags), *obj.TagCount)
+			}
 		}
 
 		rs, ok := s.RootModule().Resources[name]
@@ -577,7 +580,7 @@ func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags
 				return fmt.Errorf("expected key not found: %s", k)
 			}
 
-			if k != gotV {
+			if v != gotV {
 				return fmt.Errorf(
 					"unequal values for key %s\nexp: %s got %s",
 					k, v, gotV,

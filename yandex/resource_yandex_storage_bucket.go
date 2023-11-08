@@ -89,7 +89,6 @@ func resourceYandexStorageBucket() *schema.Resource {
 			"acl": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Computed:      true,
 				ConflictsWith: []string{"grant"},
 				ValidateFunc:  validation.StringInSlice(bucketACLAllowedValues, false),
 			},
@@ -97,7 +96,6 @@ func resourceYandexStorageBucket() *schema.Resource {
 			"grant": {
 				Type:          schema.TypeSet,
 				Optional:      true,
-				Computed:      true,
 				Set:           grantHash,
 				ConflictsWith: []string{"acl"},
 				Elem: &schema.Resource{
@@ -1133,36 +1131,42 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 		}
 	}
 
-	apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
-		return s3Client.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
-			Bucket: bucketAWS,
+	if d.Get("acl").(string) == "" {
+		apResponse, err := retryFlakyS3Responses(func() (interface{}, error) {
+			return s3Client.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
+				Bucket: bucketAWS,
+			})
 		})
-	})
 
-	if !d.IsNewResource() && isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
-		log.Printf("[WARN] requested bucket not found, deleting")
-		d.SetId("")
-		return nil
-	}
-
-	if err != nil {
-		// Ignore access denied error, when reading ACL for bucket.
-		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-			log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
-
-			if err := d.Set("grant", nil); err != nil {
-				return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
-			}
-
+		if !d.IsNewResource() && isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+			log.Printf("[WARN] requested bucket not found, deleting")
+			d.SetId("")
 			return nil
 		}
 
-		return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
+		if err != nil {
+			// Ignore access denied error, when reading ACL for bucket.
+			if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
+				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
+
+				if err := d.Set("grant", nil); err != nil {
+					return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
+				}
+
+				return nil
+			}
+
+			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
+		} else {
+			log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
+			grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
+			if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
+				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
+			}
+		}
 	} else {
-		log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
-		grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
-		if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
-			return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
+		if err := d.Set("grant", nil); err != nil {
+			return fmt.Errorf("error resetting Storage Bucket `grant` %s", err)
 		}
 	}
 

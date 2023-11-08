@@ -8,6 +8,7 @@ FEATURES:
 BUG FIXES:
 * clickhouse: updating only the changed user settings
 * alb: fix bug leading to panic when `log_options` block is empty
+* storage: fix bug not allowing to remove grants and acl by removing `grant` and `acl` fields
 
 ## 0.101.0 (October 31, 2023)
 

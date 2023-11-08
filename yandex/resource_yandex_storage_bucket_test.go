@@ -258,6 +258,14 @@ func TestAccStorageBucket_updateAcl(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "acl", "private"),
 				),
 			},
+			{
+				Config: testAccStorageBucketAclEmptyConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccDelay(time.Second*3),
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "acl", ""),
+				),
+			},
 		},
 	})
 }
@@ -1622,6 +1630,12 @@ func testAccStorageBucketAclPostConfig(randInt int) string {
 
 	return newBucketConfigBuilder(randInt).
 		addStatement(acl).
+		asAdmin().
+		render()
+}
+
+func testAccStorageBucketAclEmptyConfig(randInt int) string {
+	return newBucketConfigBuilder(randInt).
 		asAdmin().
 		render()
 }
