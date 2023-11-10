@@ -1,5 +1,8 @@
 ## 0.103.0 (Unreleased)
 
+FEATURES:
+* yandex_ydb_database: added the ability to change networks
+
 BUG FIXES:
 * yandex_ydb_database: Add additional wait duration after database was created
 

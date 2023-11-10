@@ -44,14 +44,12 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 			"network_id": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.NoZeroValues,
 			},
 
 			"subnet_ids": {
 				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				MinItems: 1,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
@@ -338,6 +336,24 @@ func resourceYandexYDBDatabaseDedicatedUpdate(d *schema.ResourceData, meta inter
 		}
 		req.ScalePolicy = scalePolicy
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "scale_policy")
+	}
+
+	if d.HasChange("network_id") {
+		networkId, err := changeYDBnetworkIdSpec(d)
+		if err != nil {
+			return fmt.Errorf("Error changing network_id while updating database: %s", err)
+		}
+		req.NetworkId = networkId
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "network_id")
+	}
+
+	if d.HasChange("subnet_ids") {
+		subnetIds, err := changeYDBsubnetIdsSpec(d)
+		if err != nil {
+			return fmt.Errorf("Error changing subnet_ids while updating database: %s", err)
+		}
+		req.SubnetIds = subnetIds
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "subnet_ids")
 	}
 
 	if err := performYandexYDBDatabaseUpdate(d, config, &req); err != nil {

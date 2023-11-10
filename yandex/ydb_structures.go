@@ -99,3 +99,23 @@ func expandYDBScalePolicySpec(d *schema.ResourceData) (*ydb.ScalePolicy, error) 
 	}
 	return nil, nil
 }
+
+func changeYDBnetworkIdSpec(d *schema.ResourceData) (string, error) {
+	if _, ok := d.GetOk("network_id"); ok {
+		v := d.Get("network_id").(string)
+		return v, nil
+	}
+	return "", nil
+}
+
+func changeYDBsubnetIdsSpec(d *schema.ResourceData) ([]string, error) {
+	if _, ok := d.GetOk("subnet_ids"); ok {
+		v := d.Get("subnet_ids").(*schema.Set)
+		var subnets []string
+		for _, k := range v.List() {
+			subnets = append(subnets, k.(string))
+		}
+		return subnets, nil
+	}
+	return nil, nil
+}
