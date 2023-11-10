@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -12,7 +13,10 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-const yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
+const (
+	yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
+	ydbDatabaseCreateDuration        = 5 * time.Second
+)
 
 func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 	return &schema.Resource{
@@ -293,6 +297,10 @@ func performYandexYDBDatabaseCreate(d *schema.ResourceData, config *Config, req 
 	if _, err := op.Response(); err != nil {
 		return fmt.Errorf("Database creation failed: %s", err)
 	}
+
+	log.Printf("[INFO] Waiting additional duration: %s", ydbDatabaseCreateDuration)
+	time.Sleep(ydbDatabaseCreateDuration)
+
 	return nil
 }
 

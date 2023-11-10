@@ -1,5 +1,8 @@
 ## 0.103.0 (Unreleased)
 
+BUG FIXES:
+* yandex_ydb_database: Add additional wait duration after database was created
+
 ## 0.102.0 (November 8, 2023)
 
 FEATURES:
