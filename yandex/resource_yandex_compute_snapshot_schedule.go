@@ -47,12 +47,13 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"disk_ids": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Optional: true,
 				Computed: true,
+				Set:      schema.HashString,
 			},
 
 			"folder_id": {
@@ -163,7 +164,7 @@ func resourceYandexComputeSnapshotScheduleCreate(ctx context.Context, d *schema.
 		return diag.FromErr(err)
 	}
 
-	diskIds := expandStringSlice(d.Get("disk_ids").([]interface{}))
+	diskIds := convertStringSet(d.Get("disk_ids").(*schema.Set))
 
 	req := &compute.CreateSnapshotScheduleRequest{
 		FolderId:       folderID,
@@ -416,7 +417,7 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	newDisks := make(map[string]bool)
-	for _, d := range expandStringSlice(d.Get("disk_ids").([]interface{})) {
+	for _, d := range convertStringSet(d.Get("disk_ids").(*schema.Set)) {
 		newDisks[d] = true
 	}
 

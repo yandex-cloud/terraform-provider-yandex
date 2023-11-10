@@ -117,12 +117,13 @@ func dataSourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"disk_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Optional: true,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+				Optional: true,
+				Computed: true,
+				Set:      schema.HashString,
 			},
 		},
 	}
