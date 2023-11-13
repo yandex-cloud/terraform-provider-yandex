@@ -1,0 +1,754 @@
+package yandex
+
+import (
+	"context"
+	"fmt"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"reflect"
+	"regexp"
+	"sort"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+)
+
+const openSearchResource = "yandex_mdb_opensearch_cluster.foo"
+
+func init() {
+	resource.AddTestSweepers("yandex_mdb_opensearch_cluster", &resource.Sweeper{
+		Name: "yandex_mdb_opensearch_cluster",
+		F:    testSweepMDBOpenSearchCluster,
+	})
+}
+
+func testSweepMDBOpenSearchCluster(_ string) error {
+	conf, err := configForSweepers()
+	if err != nil {
+		return fmt.Errorf("error getting client: %s", err)
+	}
+
+	resp, err := conf.sdk.MDB().OpenSearch().Cluster().List(conf.Context(), &opensearch.ListClustersRequest{
+		FolderId: conf.FolderID,
+		PageSize: defaultMDBPageSize,
+	})
+	if err != nil {
+		return fmt.Errorf("error getting OpenSearch clusters: %s", err)
+	}
+
+	result := &multierror.Error{}
+	for _, c := range resp.Clusters {
+		if !sweepMDBOpenSearchCluster(conf, c.Id) {
+			result = multierror.Append(result, fmt.Errorf("failed to sweep OpenSearch cluster %q", c.Id))
+		}
+	}
+
+	return result.ErrorOrNil()
+}
+
+func sweepMDBOpenSearchCluster(conf *Config, id string) bool {
+	return sweepWithRetry(sweepMDBOpenSearchClusterOnce, conf, "OpenSearch cluster", id)
+}
+
+func sweepMDBOpenSearchClusterOnce(conf *Config, id string) error {
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBOpenSearchClusterDeleteTimeout)
+	defer cancel()
+
+	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}
+	op, err := conf.sdk.MDB().OpenSearch().Cluster().Update(ctx, &opensearch.UpdateClusterRequest{
+		ClusterId:          id,
+		DeletionProtection: false,
+		UpdateMask:         &mask,
+	})
+	err = handleSweepOperation(ctx, conf, op, err)
+	if err != nil && !strings.EqualFold(errorMessage(err), "no changes detected") {
+		return err
+	}
+
+	op, err = conf.sdk.MDB().OpenSearch().Cluster().Delete(ctx, &opensearch.DeleteClusterRequest{
+		ClusterId: id,
+	})
+	return handleSweepOperation(ctx, conf, op, err)
+}
+
+func mdbOpenSearchClusterImportStep(name string) resource.TestStep {
+	return resource.TestStep{
+		ResourceName:      name,
+		ImportState:       true,
+		ImportStateVerify: true,
+		ImportStateVerifyIgnore: []string{
+			"health",                  // volatile value
+			"config.0.admin_password", // not importable
+		},
+	}
+
+}
+
+func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
+	t.Parallel()
+
+	var r opensearch.Cluster
+	openSearchName := acctest.RandomWithPrefix("tf-opensearch")
+	openSearchDesc := "OpenSearch Cluster Terraform Test"
+	randInt := acctest.RandInt()
+	folderID := getExampleFolderID()
+	openSearchDesc2 := "OpenSearch Cluster Terraform Test Updated"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckMDBOpenSearchClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create OpenSearch Cluster
+			{
+				//Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
+					resource.TestCheckResourceAttr(openSearchResource, "config.0.admin_password", "password"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
+					//$resource.TestCheckResourceAttrSet(openSearchResource, "host.0.fqdn"),
+					testAccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "analysis-icu", "repository-s3"),
+					func(s *terraform.State) error {
+						time.Sleep(5 * time.Minute)
+						return nil
+					},
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.0.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.0.day", "FRI"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.0.hour", "20"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			// check 'deletion_protection'
+			{
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			// test 'deletion_protection
+			{
+				Config:      testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRODUCTION", true, randInt),
+				ExpectError: regexp.MustCompile(".*The operation was rejected because cluster has 'deletion_protection' = ON.*"),
+			},
+			// uncheck 'deletion_protection'
+			{
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			//Update OpenSearch Cluster
+			{
+				Config: testAccMDBOpenSearchClusterConfigUpdated(openSearchName, openSearchDesc2, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc2),
+					resource.TestCheckResourceAttr(openSearchResource, "service_account_id", ""),
+					testAccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key2", "test_value2"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
+					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "repository-s3"),
+					func(s *terraform.State) error {
+						time.Sleep(time.Minute * 5)
+						return nil
+					},
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.0.type", "ANYTIME"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			//Add nodegroups
+			{
+				Config: testAccMDBOpenSearchClusterConfigWithManagerGroup(openSearchName, openSearchDesc2, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 12),
+					testAccCheckCreatedAtAttr(openSearchResource),
+					func(s *terraform.State) error {
+						time.Sleep(time.Minute * 5)
+						return nil
+					},
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			//Remove nodegroups
+			{
+				Config: testAccMDBOpenSearchClusterConfigRemoveGroup(openSearchName, openSearchDesc2, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 11),
+					testAccCheckCreatedAtAttr(openSearchResource),
+					func(s *terraform.State) error {
+						time.Sleep(time.Minute * 5)
+						return nil
+					},
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+		},
+	})
+}
+
+func testAccCheckMDBOpenSearchClusterExists(n string, r *opensearch.Cluster, hosts int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.MDB().OpenSearch().Cluster().Get(context.Background(), &opensearch.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("OpenSearch Cluster not found")
+		}
+
+		*r = *found
+
+		resp, err := config.sdk.MDB().OpenSearch().Cluster().ListHosts(context.Background(), &opensearch.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(resp.Hosts) != hosts {
+			return fmt.Errorf("Expected %d hosts, got %d", hosts, len(resp.Hosts))
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckMDBOpenSearchClusterDataNodeHasResources(r *opensearch.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := r.Config.Opensearch.NodeGroups[0].Resources
+		if rs.ResourcePresetId != resourcePresetID {
+			return fmt.Errorf("OpenSearch expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
+		}
+		if rs.DiskTypeId != diskType {
+			return fmt.Errorf("expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
+		}
+		if rs.DiskSize != diskSize {
+			return fmt.Errorf("expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBOpenSearchClusterDashboardsHasResources(r *opensearch.Cluster, resourcePresetID string, diskType string, diskSize int64) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs := *r.Config.Dashboards.NodeGroups[0].Resources
+		if rs.ResourcePresetId != resourcePresetID {
+			return fmt.Errorf("Dashboards expected resource preset id '%s', got '%s'", resourcePresetID, rs.ResourcePresetId)
+		}
+		if rs.DiskTypeId != diskType {
+			return fmt.Errorf("expected disk type '%s', got '%s'", diskType, rs.DiskTypeId)
+		}
+		if rs.DiskSize != diskSize {
+			return fmt.Errorf("expected disk size '%d', got '%d'", diskSize, rs.DiskSize)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBOpenSearchClusterDestroy(s *terraform.State) error {
+	config := testAccProvider.Meta().(*Config)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "yandex_mdb_opensearch_cluster" {
+			continue
+		}
+
+		_, err := config.sdk.MDB().OpenSearch().Cluster().Get(context.Background(), &opensearch.GetClusterRequest{
+			ClusterId: rs.Primary.ID,
+		})
+
+		if err == nil {
+			return fmt.Errorf("OpenSearch Cluster still exists")
+		}
+	}
+
+	return nil
+}
+
+func testAccCheckMDBOpenSearchClusterContainsLabel(r *opensearch.Cluster, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		v, ok := r.Labels[key]
+		if !ok {
+			return fmt.Errorf("expected label with key '%s' not found", key)
+		}
+		if v != value {
+			return fmt.Errorf("incorrect label value for key '%s': expected '%s' but found '%s'", key, value, v)
+		}
+		return nil
+	}
+}
+
+func testAccCheckMDBOpenSearchClusterHasPlugins(r *opensearch.Cluster, plugins ...string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		p := r.Config.Opensearch.Plugins
+		sort.Strings(p)
+		sort.Strings(plugins)
+		if !reflect.DeepEqual(p, plugins) {
+			return fmt.Errorf("incorrect cluster plugins: expected '%s' but found '%s'", plugins, p)
+		}
+		return nil
+	}
+}
+
+func testAccMDBOpenSearchClusterConfig(name, desc, environment string, deletionProtection bool, randInt int) string {
+	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-c",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  labels = {
+    test_key  = "test_value"
+  }
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = %t
+
+  config {
+
+    admin_password = "password"
+
+    opensearch {
+	  node_groups {
+          name = "datamaster0"
+		  assign_public_ip     = false
+		  hosts_count          = 1
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data", "manager"]
+          resources {
+            resource_preset_id   = "s2.micro"
+            disk_size            = 10737418240
+            disk_type_id         = "network-ssd"
+          }
+      }
+      plugins = ["analysis-icu", "repository-s3"]
+    }
+
+    dashboards {
+	  node_groups {
+          name = "dash0"
+		  assign_public_ip     = false
+		  hosts_count          = 1
+		  zone_ids             = local.zones	
+          subnet_ids           = []
+          resources {
+            resource_preset_id   = "s2.micro"
+            disk_size            = 10737418240
+            disk_type_id         = "network-ssd"
+          }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+  ]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+}
+`, name, desc, environment, deletionProtection)
+}
+
+func testAccMDBOpenSearchClusterConfigUpdated(name, desc string, randInt int) string {
+	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-c",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  labels = {
+    test_key2  = "test_value2"
+  }
+
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id, yandex_vpc_security_group.mdb-opensearch-test-sg-y.id]
+  service_account_id = ""
+
+  config {
+
+    admin_password = "password_updated"
+
+    opensearch {
+	  node_groups {
+          name = "datamaster0"
+		  assign_public_ip     = false
+		  hosts_count          = 3
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data", "manager"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+      plugins = ["repository-s3"]
+    }
+
+    dashboards {
+	  node_groups {
+          name = "dash0"
+		  assign_public_ip     = false
+		  hosts_count          = 2
+		  zone_ids             = local.zones	
+          subnet_ids           = []
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+  ]
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBOpenSearchClusterConfigWithManagerGroup(name, desc string, randInt int) string {
+	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-c",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  labels = {
+    test_key2  = "test_value2"
+  }
+
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id, yandex_vpc_security_group.mdb-opensearch-test-sg-y.id]
+  service_account_id = ""
+
+  config {
+
+    admin_password = "password_updated"
+
+    opensearch {
+	  node_groups {
+          name = "datamaster0"
+		  assign_public_ip     = false
+		  hosts_count          = 3
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data", "manager"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+	  node_groups {
+          name = "data1"
+		  assign_public_ip     = false
+		  hosts_count          = 1
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+	  node_groups {
+          name = "data2"
+		  assign_public_ip     = false
+		  hosts_count          = 1
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+	  node_groups {
+          name = "master"
+		  assign_public_ip     = false
+		  hosts_count          = 5
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["manager"]
+          resources {
+            resource_preset_id   = "s2.micro"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+      plugins = ["repository-s3"]
+    }
+
+    dashboards {
+	  node_groups {
+          name = "dash0"
+		  assign_public_ip     = false
+		  hosts_count          = 2
+		  zone_ids             = local.zones	
+          subnet_ids           = []
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+  ]
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+}
+`, name, desc)
+}
+
+func testAccMDBOpenSearchClusterConfigRemoveGroup(name, desc string, randInt int) string {
+	return testAccCommonIamDependenciesEditorConfig(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-c",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  labels = {
+    test_key2  = "test_value2"
+  }
+
+  environment = "PRESTABLE"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id, yandex_vpc_security_group.mdb-opensearch-test-sg-y.id]
+  service_account_id = ""
+
+  config {
+
+    admin_password = "password_updated"
+
+    opensearch {
+	  node_groups {
+          name = "datamaster0"
+		  assign_public_ip     = false
+		  hosts_count          = 3
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+	  node_groups {
+          name = "data1"
+		  assign_public_ip     = false
+		  hosts_count          = 1
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["data"]
+          resources {
+            resource_preset_id   = "s2.small"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+	  node_groups {
+          name = "master"
+		  assign_public_ip     = false
+		  hosts_count          = 5
+		  zone_ids             = local.zones
+          subnet_ids           = []
+          roles                = ["manager"]
+          resources {
+            resource_preset_id   = "s2.micro"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+      plugins = ["repository-s3"]
+    }
+
+    dashboards {
+	  node_groups {
+          name = "dash0"
+		  assign_public_ip     = false
+		  hosts_count          = 2
+		  zone_ids             = local.zones	
+          subnet_ids           = []
+          resources {
+            resource_preset_id   = "s2.micro"
+            disk_size            = 11811160064
+            disk_type_id         = "network-ssd"
+          }
+      }
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+  ]
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+}
+`, name, desc)
+}
+
+const openSearchVPCDependencies = `
+resource "yandex_vpc_network" "mdb-opensearch-test-net" {}
+
+resource "yandex_vpc_security_group" "mdb-opensearch-test-sg-x" {
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_security_group" "mdb-opensearch-test-sg-y" {
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  
+  ingress {
+    protocol          = "ANY"
+    description       = "Allow incoming traffic from members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+  egress {
+    protocol          = "ANY"
+    description       = "Allow outgoing traffic to members of the same security group"
+    from_port         = 0
+    to_port           = 65535
+    v4_cidr_blocks    = ["0.0.0.0/0"]
+  }
+}
+
+resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-b" {
+  zone           = "ru-central1-b"
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-c" {
+  zone           = "ru-central1-c"
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  v4_cidr_blocks = ["10.3.0.0/24"]
+}
+`

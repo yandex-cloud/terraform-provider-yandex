@@ -117,7 +117,6 @@ func TestAccMDBElasticsearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(elasticsearchResource, "config.0.admin_password", "password"),
 					resource.TestCheckResourceAttrSet(elasticsearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(elasticsearchResource, "deletion_protection", "true"),
-					// resource.TestCheckResourceAttrSet(elasticsearchResource, "host.0.fqdn"),
 					testAccCheckCreatedAtAttr(elasticsearchResource),
 					testAccCheckMDBElasticsearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBElasticsearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),

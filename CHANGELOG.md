@@ -1,4 +1,7 @@
 ## 0.103.0 (Unreleased)
+FEATURES:
+* **New Data Source:** `yandex_mdb_opensearch_cluster`
+* **New Resource:** `yandex_mdb_opensearch_cluster`
 
 FEATURES:
 * yandex_ydb_database: added the ability to change networks

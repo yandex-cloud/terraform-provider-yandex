@@ -9,51 +9,51 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func TestAccDataSourceMDBElasticsearchCluster_byID(t *testing.T) {
+func TestAccDataSourceMDBOpenSearchCluster_byID(t *testing.T) {
 	t.Parallel()
 
-	esName := acctest.RandomWithPrefix("ds-es-by-id")
-	esDesc := "ElasticsearchCluster Terraform Datasource Test"
+	osName := acctest.RandomWithPrefix("ds-os-by-id")
+	osDesc := "OpenSearchCluster Terraform Datasource Test"
 	randInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBElasticsearchClusterDestroy,
+		CheckDestroy: testAccCheckMDBOpenSearchClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBElasticsearchClusterConfig(esName, esDesc, randInt, true),
-				Check: testAccDataSourceMDBElasticsearchClusterCheck(
-					"data.yandex_mdb_elasticsearch_cluster.bar",
-					"yandex_mdb_elasticsearch_cluster.foo", esName, esDesc),
+				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, true),
+				Check: testAccDataSourceMDBOpenSearchClusterCheck(
+					"data.yandex_mdb_opensearch_cluster.bar",
+					"yandex_mdb_opensearch_cluster.foo", osName, osDesc),
 			},
 		},
 	})
 }
 
-func TestAccDataSourceMDBElasticsearchCluster_byName(t *testing.T) {
+func TestAccDataSourceMDBOpenSearchCluster_byName(t *testing.T) {
 	t.Parallel()
 
-	esName := acctest.RandomWithPrefix("ds-es-by-name")
-	esDesc := "ElasticseachCluster Terraform Datasource Test"
+	osName := acctest.RandomWithPrefix("ds-os-by-name")
+	osDesc := "OpenSearchCluster Terraform Datasource Test"
 	randInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBElasticsearchClusterDestroy,
+		CheckDestroy: testAccCheckMDBOpenSearchClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceMDBElasticsearchClusterConfig(esName, esDesc, randInt, false),
-				Check: testAccDataSourceMDBElasticsearchClusterCheck(
-					"data.yandex_mdb_elasticsearch_cluster.bar",
-					"yandex_mdb_elasticsearch_cluster.foo", esName, esDesc),
+				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, false),
+				Check: testAccDataSourceMDBOpenSearchClusterCheck(
+					"data.yandex_mdb_opensearch_cluster.bar",
+					"yandex_mdb_opensearch_cluster.foo", osName, osDesc),
 			},
 		},
 	})
 }
 
-func testAccDataSourceMDBElasticseachClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
+func testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		ds, ok := s.RootModule().Resources[datasourceName]
 		if !ok {
@@ -105,12 +105,12 @@ func testAccDataSourceMDBElasticseachClusterAttributesCheck(datasourceName strin
 	}
 }
 
-func testAccDataSourceMDBElasticsearchClusterCheck(datasourceName string, resourceName string, name string, desc string) resource.TestCheckFunc {
+func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, resourceName string, name string, desc string) resource.TestCheckFunc {
 	folderID := getExampleFolderID()
 	env := "PRESTABLE"
 
 	return resource.ComposeTestCheckFunc(
-		testAccDataSourceMDBElasticseachClusterAttributesCheck(datasourceName, resourceName),
+		testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName, resourceName),
 		testAccCheckResourceIDField(datasourceName, "cluster_id"),
 		resource.TestCheckResourceAttr(datasourceName, "name", name),
 		resource.TestCheckResourceAttr(datasourceName, "folder_id", folderID),
@@ -118,7 +118,6 @@ func testAccDataSourceMDBElasticsearchClusterCheck(datasourceName string, resour
 		resource.TestCheckResourceAttr(datasourceName, "environment", env),
 		resource.TestCheckResourceAttr(datasourceName, "labels.test_key", "test_value"),
 		resource.TestCheckResourceAttr(datasourceName, "config.#", "1"),
-		resource.TestCheckResourceAttr(datasourceName, "host.#", "5"),
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
@@ -128,22 +127,22 @@ func testAccDataSourceMDBElasticsearchClusterCheck(datasourceName string, resour
 	)
 }
 
-const mdbElasticsearchClusterByIDConfig = `
-data "yandex_mdb_elasticsearch_cluster" "bar" {
-  cluster_id = "${yandex_mdb_elasticsearch_cluster.foo.id}"
+const mdbOpenSearchClusterByIDConfig = `
+data "yandex_mdb_opensearch_cluster" "bar" {
+  cluster_id = "${yandex_mdb_opensearch_cluster.foo.id}"
 }
 `
 
-const mdbElasticsearchClusterByNameConfig = `
-data "yandex_mdb_elasticsearch_cluster" "bar" {
-  name = "${yandex_mdb_elasticsearch_cluster.foo.name}"
+const mdbOpenSearchClusterByNameConfig = `
+data "yandex_mdb_opensearch_cluster" "bar" {
+  name = "${yandex_mdb_opensearch_cluster.foo.name}"
 }
 `
 
-func testAccDataSourceMDBElasticsearchClusterConfig(name, desc string, randInt int, useDataID bool) string {
+func testAccDataSourceMDBOpenSearchClusterConfig(name, desc string, randInt int, useDataID bool) string {
 	if useDataID {
-		return testAccMDBElasticsearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbElasticsearchClusterByIDConfig
+		return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbOpenSearchClusterByIDConfig
 	}
 
-	return testAccMDBElasticsearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbElasticsearchClusterByNameConfig
+	return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbOpenSearchClusterByNameConfig
 }
