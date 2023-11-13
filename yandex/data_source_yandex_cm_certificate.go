@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/certificatemanager/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -167,7 +166,6 @@ func dataSourceYandexCMCertificateRead(ctx context.Context, d *schema.ResourceDa
 	}
 	return yandexCMCertificateRead(
 		id,
-		certificatemanager.CertificateView_FULL,
 		ctx,
 		d,
 		meta,

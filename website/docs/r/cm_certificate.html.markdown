@@ -170,3 +170,10 @@ A certificate can be imported using the `id` of the resource, e.g.:
 ```
 $ terraform import yandex_cm_certificate.default certificate_id
 ```
+
+## Limitations
+
+At the moment, a resource may not work correctly if it declares the use of a DNS challenge, but the certificate is confirmed using an HTTP challenge. And vice versa. 
+
+In this case, the service does not provide the parameters of the required type of challenges.
+

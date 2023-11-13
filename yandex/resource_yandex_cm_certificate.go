@@ -29,7 +29,7 @@ func resourceYandexCMCertificate() *schema.Resource {
 		UpdateContext: resourceYandexCMCertificateUpdate,
 		DeleteContext: resourceYandexCMCertificateDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: yandexCMCertificateImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -125,7 +125,6 @@ func resourceYandexCMCertificate() *schema.Resource {
 						"challenge_type": {
 							Type:         schema.TypeString,
 							Required:     true,
-							ForceNew:     true,
 							ValidateFunc: validation.StringInSlice([]string{"DNS_CNAME", "DNS_TXT", "HTTP"}, false),
 						},
 						"challenge_count": {
@@ -450,7 +449,7 @@ func resourceYandexCMCertificateCreateManagedByLetsEncrypt(ctx context.Context, 
 	}
 	log.Printf("[INFO] requested Certificate with ID: %s", d.Id())
 	d.Partial(true)
-	result := yandexCMCertificateRead(d.Id(), certificatemanager.CertificateView_FULL, ctx, d, meta, false)
+	result := yandexCMCertificateRead(d.Id(), ctx, d, meta, false)
 	d.Partial(false)
 	return result
 }
@@ -469,16 +468,16 @@ func resourceYandexCMCertificateCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceYandexCMCertificateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return yandexCMCertificateRead(d.Id(), certificatemanager.CertificateView_FULL, ctx, d, meta, false)
+	return yandexCMCertificateRead(d.Id(), ctx, d, meta, false)
 }
 
-func yandexCMCertificateRead(id string, view certificatemanager.CertificateView, ctx context.Context, d *schema.ResourceData, meta interface{}, fromDataSource bool) diag.Diagnostics {
+func yandexCMCertificateRead(id string, ctx context.Context, d *schema.ResourceData, meta interface{}, fromDataSource bool) diag.Diagnostics {
 	config := meta.(*Config)
 
 	err := resource.RetryContext(ctx, d.Timeout(schema.TimeoutRead), func() *resource.RetryError {
 		req := &certificatemanager.GetCertificateRequest{
 			CertificateId: id,
-			View:          view,
+			View:          certificatemanager.CertificateView_FULL,
 		}
 		log.Printf("[INFO] reading Certificate: %s", protojson.Format(req))
 
@@ -486,25 +485,26 @@ func yandexCMCertificateRead(id string, view certificatemanager.CertificateView,
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if fromDataSource {
-			if d.Get("wait_validation").(bool) &&
-				(resp.Status == certificatemanager.Certificate_VALIDATING ||
-					resp.Status == certificatemanager.Certificate_RENEWING) {
-				return resource.RetryableError(
-					fmt.Errorf("certificate still %s", certificatemanager.Certificate_Status_name[int32(resp.Status)]),
-				)
-			}
-		} else if _, ok := d.GetOk("managed"); ok {
-			if resp.Challenges == nil || len(resp.Challenges) == 0 {
-				return resource.RetryableError(
-					fmt.Errorf("certificate challenges still being created"),
-				)
-			} else {
-				for _, challenge := range resp.Challenges {
-					if challenge.Challenge == nil {
-						return resource.RetryableError(
-							fmt.Errorf("certificate challenges still being created"),
-						)
+		if resp.Status == certificatemanager.Certificate_VALIDATING ||
+			resp.Status == certificatemanager.Certificate_RENEWING {
+			if fromDataSource {
+				if d.Get("wait_validation").(bool) {
+					return resource.RetryableError(
+						fmt.Errorf("certificate still %s", certificatemanager.Certificate_Status_name[int32(resp.Status)]),
+					)
+				}
+			} else if _, ok := d.GetOk("managed"); ok {
+				if resp.Challenges == nil || len(resp.Challenges) == 0 {
+					return resource.RetryableError(
+						fmt.Errorf("certificate challenges still being created"),
+					)
+				} else {
+					for _, challenge := range resp.Challenges {
+						if challenge.Challenge == nil {
+							return resource.RetryableError(
+								fmt.Errorf("certificate challenges still being created"),
+							)
+						}
 					}
 				}
 			}
@@ -579,78 +579,92 @@ func yandexCMCertificateRead(id string, view certificatemanager.CertificateView,
 			log.Printf("[ERROR] failed set field deletion_protection: %s", err)
 			return resource.NonRetryableError(err)
 		}
+		var challengeType = CHALLENGE_TYPE_DNS_CNAME
+		challengeTypeStr, ok := d.GetOk("managed.0.challenge_type")
+		if ok {
+			challengeType, err = parseChallengeType(challengeTypeStr.(string))
+			if err != nil {
+				log.Printf("[ERROR] failed parse field managed.challenge_type: %s", err)
+				return resource.NonRetryableError(err)
+			}
+		}
+		switch resp.Type {
+		case certificatemanager.CertificateType_MANAGED:
+			needReadChallenges := resp.Status == certificatemanager.Certificate_VALIDATING || resp.Status == certificatemanager.Certificate_RENEWING
 
-		if view == certificatemanager.CertificateView_FULL {
-			var challengeType = CHALLENGE_TYPE_DNS_CNAME
-			challengeTypeStr, isManaged := d.GetOk("managed.0.challenge_type")
-			if isManaged {
-				challengeType, err = parseChallengeType(challengeTypeStr.(string))
-				if err != nil {
-					log.Printf("[ERROR] failed parse field managed.challenge_type: %s", err)
+			if needReadChallenges && len(resp.Challenges) == 0 {
+				log.Printf("[WARN] the service did not provide challenges, but should have")
+			}
+
+			if needReadChallenges || len(resp.Challenges) > 0 {
+				var challenges []interface{}
+				var exists = make(map[string]bool)
+				var key string
+				for _, challenge := range resp.Challenges {
+					var flChallenge map[string]interface{}
+					switch challenge.Type {
+					case certificatemanager.ChallengeType_DNS:
+						dnsChallenge := challenge.Challenge.(*certificatemanager.Challenge_DnsChallenge).DnsChallenge
+						if challengeType == CHALLENGE_TYPE_DNS_CNAME && strings.ToUpper(dnsChallenge.Type) == "CNAME" ||
+							challengeType == CHALLENGE_TYPE_DNS_TXT && strings.ToUpper(dnsChallenge.Type) == "TXT" {
+							flChallenge = map[string]interface{}{
+								"dns_name":  dnsChallenge.Name,
+								"dns_type":  dnsChallenge.Type,
+								"dns_value": dnsChallenge.Value,
+							}
+							key = dnsChallenge.Name + " " + dnsChallenge.Type + " " + dnsChallenge.Value
+						} else {
+							continue
+						}
+					case certificatemanager.ChallengeType_HTTP:
+						if challengeType == CHALLENGE_TYPE_HTTP {
+							httpChallenge := challenge.Challenge.(*certificatemanager.Challenge_HttpChallenge).HttpChallenge
+							flChallenge = map[string]interface{}{
+								"http_url":     httpChallenge.Url,
+								"http_content": httpChallenge.Content,
+							}
+							key = httpChallenge.Url + " " + httpChallenge.Content
+						} else {
+							continue
+						}
+					default:
+						continue
+					}
+					if exists[key] {
+						continue
+					}
+					flChallenge["created_at"] = getTimestamp(challenge.CreatedAt)
+					flChallenge["domain"] = challenge.Domain
+					flChallenge["message"] = challenge.Message
+					flChallenge["type"] = certificatemanager.ChallengeType_name[int32(challenge.Type)]
+					flChallenge["updated_at"] = getTimestamp(challenge.UpdatedAt)
+					exists[key] = true
+					challenges = append(challenges, flChallenge)
+				}
+				if err := d.Set("challenges", challenges); err != nil {
+					log.Printf("[ERROR] failed set field challenges: %s", err)
 					return resource.NonRetryableError(err)
 				}
+				_, isManaged := d.GetOk("managed")
+				if !fromDataSource && isManaged {
+					if challengeCount, ok := d.GetOk("managed.0.challenge_count"); ok {
+						if len(challenges) != challengeCount {
+							log.Printf("[ERROR] managed.challenge_count must be equals %d", len(challenges))
+							return resource.NonRetryableError(fmt.Errorf("managed.challenge_count must be equals %d", len(challenges)))
+						}
+					}
+				}
+			} else {
+				log.Printf("[INFO] the challenges update will be skipped, because service did not transmit them")
 			}
-
+		case certificatemanager.CertificateType_IMPORTED:
 			var challenges []interface{}
-			var exists = make(map[string]bool)
-			var key string
-			for _, challenge := range resp.Challenges {
-				var flChallenge map[string]interface{}
-				switch challenge.Type {
-				case certificatemanager.ChallengeType_DNS:
-					dnsChallenge := challenge.Challenge.(*certificatemanager.Challenge_DnsChallenge).DnsChallenge
-					if challengeType == CHALLENGE_TYPE_DNS_CNAME && strings.ToUpper(dnsChallenge.Type) == "CNAME" ||
-						challengeType == CHALLENGE_TYPE_DNS_TXT && strings.ToUpper(dnsChallenge.Type) == "TXT" {
-						flChallenge = map[string]interface{}{
-							"dns_name":  dnsChallenge.Name,
-							"dns_type":  dnsChallenge.Type,
-							"dns_value": dnsChallenge.Value,
-						}
-						key = dnsChallenge.Name + " " + dnsChallenge.Type + " " + dnsChallenge.Value
-					} else {
-						continue
-					}
-				case certificatemanager.ChallengeType_HTTP:
-					if challengeType == CHALLENGE_TYPE_HTTP {
-						httpChallenge := challenge.Challenge.(*certificatemanager.Challenge_HttpChallenge).HttpChallenge
-						flChallenge = map[string]interface{}{
-							"http_url":     httpChallenge.Url,
-							"http_content": httpChallenge.Content,
-						}
-						key = httpChallenge.Url + " " + httpChallenge.Content
-					} else {
-						continue
-					}
-				default:
-					continue
-				}
-				if exists[key] {
-					continue
-				}
-				flChallenge["created_at"] = getTimestamp(challenge.CreatedAt)
-				flChallenge["domain"] = challenge.Domain
-				flChallenge["message"] = challenge.Message
-				flChallenge["type"] = certificatemanager.ChallengeType_name[int32(challenge.Type)]
-				flChallenge["updated_at"] = getTimestamp(challenge.UpdatedAt)
-				exists[key] = true
-				challenges = append(challenges, flChallenge)
-			}
 			if err := d.Set("challenges", challenges); err != nil {
 				log.Printf("[ERROR] failed set field challenges: %s", err)
 				return resource.NonRetryableError(err)
 			}
-			_, isManaged = d.GetOk("managed")
-			if !fromDataSource && isManaged {
-				challengeCount, ok := d.GetOk("managed.0.challenge_count")
-				if !ok {
-					challengeCount = nil
-				}
-				if challengeCount != nil && len(challenges) != challengeCount {
-					log.Printf("[ERROR] managed.challenge_count must be equals %d", len(challenges))
-					return resource.NonRetryableError(fmt.Errorf("managed.challenge_count must be equals %d", len(challenges)))
-				}
-			}
 		}
+
 		d.SetId(resp.Id)
 
 		log.Printf("[INFO] read Certificate with ID: %s", d.Id())
@@ -716,20 +730,21 @@ func resourceYandexCMCertificateUpdate(ctx context.Context, d *schema.ResourceDa
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "certificate", "chain", "private_key")
 	}
 
-	op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().Update(ctx, req))
-	if err != nil {
-		return diag.Errorf("error while requesting API to update certificate: %s", err)
-	}
+	if len(req.UpdateMask.Paths) > 0 {
+		op, err := config.sdk.WrapOperation(config.sdk.Certificates().Certificate().Update(ctx, req))
+		if err != nil {
+			return diag.Errorf("error while requesting API to update certificate: %s", err)
+		}
 
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.Errorf("error while waiting operation to update certificate: %s", err)
+		err = op.Wait(ctx)
+		if err != nil {
+			return diag.Errorf("error while waiting operation to update certificate: %s", err)
 
+		}
+		if _, err := op.Response(); err != nil {
+			return diag.Errorf("certificate update failed: %s", err)
+		}
 	}
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("certificate update failed: %s", err)
-	}
-
 	d.Partial(false)
 	log.Printf("[INFO] updated certificate with ID: %s", d.Id())
 	return resourceYandexCMCertificateRead(ctx, d, meta)
@@ -761,4 +776,31 @@ func resourceYandexCMCertificateDelete(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[INFO] deleted certificate with ID: %s", d.Id())
 	return nil
+}
+
+func yandexCMCertificateImport(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	config := m.(*Config)
+
+	req := &certificatemanager.GetCertificateRequest{
+		CertificateId: d.Id(),
+		View:          certificatemanager.CertificateView_FULL,
+	}
+	resp, err := config.sdk.Certificates().Certificate().Get(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Type == certificatemanager.CertificateType_MANAGED {
+		if err := d.Set("domains", resp.Domains); err != nil {
+			log.Printf("[ERROR] failed set field domains: %s", err)
+			return nil, err
+		}
+		managed := make(map[string]interface{})
+		managed["challenge_count"] = 0
+		if err := d.Set("managed", []interface{}{managed}); err != nil {
+			log.Printf("[ERROR] failed set field managed: %s", err)
+			return nil, err
+		}
+
+	}
+	return []*schema.ResourceData{d}, nil
 }

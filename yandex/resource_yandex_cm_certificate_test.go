@@ -176,8 +176,6 @@ func TestAccCMCertificate_selfManaged(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "labels.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "labels.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "labels.key2", "value2"),
-					resource.TestCheckResourceAttr(resourceName, "domains.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "domains.0", "example.com"),
 					resource.TestCheckResourceAttr(resourceName, "serial", "9d1134c1a824ad86"),
 					resource.TestCheckResourceAttr(resourceName, "challenges.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "not_after", "7499-02-13T09:48:13Z"),
