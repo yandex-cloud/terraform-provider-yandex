@@ -127,7 +127,6 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 							Type:          schema.TypeList,
 							Optional:      true,
 							Computed:      true,
-							ForceNew:      true,
 							ConflictsWith: []string{"master.0.zonal", "master.0.regional"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -135,13 +134,11 @@ func resourceYandexKubernetesCluster() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
-										ForceNew: true,
 									},
 									"subnet_id": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
-										ForceNew: true,
 									},
 								},
 							},
@@ -504,6 +501,7 @@ var updateKubernetesClusterFieldsMap = map[string]string{
 	"master.0.maintenance_policy": "master_spec.maintenance_policy",
 	"master.0.security_group_ids": "master_spec.security_group_ids",
 	"master.0.master_logging":     "master_spec.master_logging",
+	"master.0.master_location":    "master_spec.locations",
 }
 
 func resourceYandexKubernetesClusterUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -580,6 +578,7 @@ func getKubernetesClusterUpdateRequest(d *schema.ResourceData) (*k8s.UpdateClust
 			SecurityGroupIds:  expandSecurityGroupIds(d.Get("master.0.security_group_ids")),
 			MaintenancePolicy: mp,
 			MasterLogging:     ml,
+			Locations:         getKubernetesClusterLocations(d),
 		},
 	}
 

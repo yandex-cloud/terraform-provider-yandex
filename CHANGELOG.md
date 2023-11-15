@@ -6,6 +6,9 @@ FEATURES:
 FEATURES:
 * yandex_ydb_database: added the ability to change networks
 
+ENHANCEMENTS:
+* managed-kubernetes: support update of `master.master_locations` section for `yandex_kubernetes_cluster`
+
 BUG FIXES:
 * yandex_ydb_database: Add additional wait duration after database was created
 
