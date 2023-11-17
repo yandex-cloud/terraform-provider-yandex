@@ -12,6 +12,9 @@ ENHANCEMENTS:
 BUG FIXES:
 * yandex_ydb_database: Add additional wait duration after database was created
 
+FEATURES:
+* serverless: `log_group` trigger is deprecated. Use `logging` trigger instead.
+
 ## 0.102.0 (November 8, 2023)
 
 FEATURES:

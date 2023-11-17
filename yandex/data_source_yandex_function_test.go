@@ -115,7 +115,6 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					testYandexFunctionContainsTag(functionDataSource, params.tags),
 					resource.TestCheckResourceAttrSet(functionDataSource, "version"),
 					resource.TestCheckResourceAttrSet(functionDataSource, "image_size"),
-					resource.TestCheckResourceAttrSet(functionDataSource, "loggroup_id"),
 					resource.TestCheckResourceAttrSet(functionDataSource, "secrets.0.id"),
 					resource.TestCheckResourceAttrSet(functionDataSource, "secrets.0.version_id"),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.key", params.secret.secretKey),

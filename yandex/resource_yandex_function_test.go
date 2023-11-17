@@ -176,7 +176,6 @@ func TestAccYandexFunction_full(t *testing.T) {
 				testYandexFunctionContainsTag(functionResource, params.tags),
 				resource.TestCheckResourceAttrSet(functionResource, "version"),
 				resource.TestCheckResourceAttrSet(functionResource, "image_size"),
-				resource.TestCheckResourceAttrSet(functionResource, "loggroup_id"),
 				resource.TestCheckResourceAttrSet(functionResource, "secrets.0.id"),
 				resource.TestCheckResourceAttrSet(functionResource, "secrets.0.version_id"),
 				resource.TestCheckResourceAttr(functionResource, "secrets.0.key", params.secret.secretKey),
