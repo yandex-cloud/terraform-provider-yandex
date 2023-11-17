@@ -11,6 +11,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * yandex_ydb_database: Add additional wait duration after database was created
+* yandex_ydb_topic: Fix consumer type in tf scheme
 
 FEATURES:
 * serverless: `log_group` trigger is deprecated. Use `logging` trigger instead.
