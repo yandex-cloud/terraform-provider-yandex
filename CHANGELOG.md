@@ -2,9 +2,9 @@
 FEATURES:
 * **New Data Source:** `yandex_mdb_opensearch_cluster`
 * **New Resource:** `yandex_mdb_opensearch_cluster`
-
-FEATURES:
 * yandex_ydb_database: added the ability to change networks
+* serverless: `log_group` trigger is deprecated. Use `logging` trigger instead.
+* mongodb: add create cluster timeout
 
 ENHANCEMENTS:
 * managed-kubernetes: support update of `master.master_locations` section for `yandex_kubernetes_cluster`
@@ -12,9 +12,6 @@ ENHANCEMENTS:
 BUG FIXES:
 * yandex_ydb_database: Add additional wait duration after database was created
 * yandex_ydb_topic: Fix consumer type in tf scheme
-
-FEATURES:
-* serverless: `log_group` trigger is deprecated. Use `logging` trigger instead.
 
 ## 0.102.0 (November 8, 2023)
 

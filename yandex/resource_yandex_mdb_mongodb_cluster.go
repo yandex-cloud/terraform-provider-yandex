@@ -27,6 +27,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
+			Create:  schema.DefaultTimeout(30 * time.Minute),
 			Update:  schema.DefaultTimeout(60 * time.Minute),
 			Default: schema.DefaultTimeout(30 * time.Minute),
 		},
