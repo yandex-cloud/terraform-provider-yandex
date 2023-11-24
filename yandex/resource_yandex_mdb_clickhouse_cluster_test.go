@@ -847,7 +847,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		BackgroundFetchesPoolSize:                 &wrappers.Int64Value{Value: 8},
 		BackgroundMessageBrokerSchedulePoolSize:   &wrappers.Int64Value{Value: 9},
 		BackgroundMergesMutationsConcurrencyRatio: &wrappers.Int64Value{Value: 3},
-		DefaultDatabase:                           &wrappers.StringValue{Value: "default"},
+		DefaultDatabase:                           &wrappers.StringValue{Value: "default_db"},
 		TotalMemoryProfilerStep:                   &wrappers.Int64Value{Value: 4194304},
 	}
 
@@ -1072,7 +1072,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_fetches_pool_size", "8"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_message_broker_schedule_pool_size", "9"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_merges_mutations_concurrency_ratio", "3"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default_db"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window", "1000"),
@@ -3160,6 +3160,10 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 
   labels = {
     test_key = "test_value"
+  }
+
+  database {
+	name = "default_db"
   }
 
   clickhouse {
