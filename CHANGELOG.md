@@ -1,4 +1,6 @@
-## 0.103.0 (Unreleased)
+## 0.104.0 (Unreleased)
+
+## 0.103.0 (November 28, 2023)
 FEATURES:
 * **New Data Source:** `yandex_mdb_opensearch_cluster`
 * **New Resource:** `yandex_mdb_opensearch_cluster`
