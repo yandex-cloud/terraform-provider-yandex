@@ -35,7 +35,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           roles                = ["data", "manager"]
           resources {
             resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
+            disk_size            = 100
             disk_type_id         = "network-ssd"
           }
       }
@@ -85,7 +85,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           roles                = ["data"]
           resources {
             resource_preset_id   = "s2.small"
-            disk_size            = 10737418240
+            disk_size            = 100
             disk_type_id         = "network-ssd"
           }
       }
@@ -98,7 +98,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           roles                = ["data"]
           resources {
             resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
+            disk_size            = 100
             disk_type_id         = "network-hdd"
           }
       }
@@ -111,7 +111,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           roles                = ["manager"]
           resources {
             resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
+            disk_size            = 100
             disk_type_id         = "network-ssd"
           }
       }
@@ -127,7 +127,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           zone_ids             = local.zones
           resources {
             resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
+            disk_size            = 20
             disk_type_id         = "network-ssd"
           }
       }
