@@ -327,7 +327,7 @@ func openSearchRoleHash(v interface{}) int {
 }
 
 func setHash(set *schema.Set) int {
-	var hashCode int = 2166136261
+	var hashCode int = -2128831035
 	for _, v := range set.List() {
 		hashCode = (hashCode * 16777619) ^ hashcode.String(v.(string))
 	}
@@ -335,7 +335,7 @@ func setHash(set *schema.Set) int {
 }
 
 func upperCaseStringSetHash(set *schema.Set) int {
-	var hashCode int = 2166136261
+	var hashCode int = -2128831035
 	for _, v := range set.List() {
 		hashCode = (hashCode * 16777619) ^ hashcode.String(strings.ToUpper(v.(string)))
 	}
@@ -347,7 +347,7 @@ func openSearchResourcesHash(v *schema.Set) int {
 		return 0
 	}
 	resources := v.List()[0].(map[string]interface{})
-	var hashCode int = 2166136261
+	var hashCode int = -2128831035
 	hashCode += (hashCode * 16777619) ^ hashcode.String(resources["resource_preset_id"].(string))
 	hashCode += (hashCode * 16777619) ^ schema.HashInt(resources["disk_size"].(int))
 	hashCode += (hashCode * 16777619) ^ hashcode.String(resources["disk_type_id"].(string))
@@ -360,7 +360,7 @@ func openSearchResourcesHash(v *schema.Set) int {
 func openSearchNodeGroupDeepHash(v interface{}) int {
 	group := v.(map[string]interface{})
 
-	var hashCode int = 2166136261
+	var hashCode int = -2128831035
 	hashCode = (hashCode * 16777619) ^ hashcode.String(group["name"].(string))
 	resources := group["resources"]
 	if resources != nil {
