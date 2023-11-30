@@ -17,21 +17,27 @@ import (
 const (
 	yandexFunctionTriggerDefaultTimeout = 5 * time.Minute
 
-	triggerTypeIoT           = "iot"
-	triggerTypeMessageQueue  = "message_queue"
-	triggerTypeObjectStorage = "object_storage"
-	triggerTypeTimer         = "timer"
-	triggerTypeLogGroup      = "log_group"
-	triggerTypeLogging       = "logging"
+	triggerTypeIoT               = "iot"
+	triggerTypeMessageQueue      = "message_queue"
+	triggerTypeObjectStorage     = "object_storage"
+	triggerTypeContainerRegistry = "container_registry"
+	triggerTypeTimer             = "timer"
+	triggerTypeLogGroup          = "log_group"
+	triggerTypeLogging           = "logging"
+	triggerTypeYDS               = "data_streams"
+	triggerTypeMail              = "mail"
 )
 
 var functionTriggerTypesList = []string{
 	triggerTypeIoT,
 	triggerTypeMessageQueue,
 	triggerTypeObjectStorage,
+	triggerTypeContainerRegistry,
 	triggerTypeTimer,
 	triggerTypeLogGroup,
 	triggerTypeLogging,
+	triggerTypeYDS,
+	triggerTypeMail,
 }
 
 var levelNameToEnum = map[string]logging.LogLevel_Level{
@@ -318,6 +324,103 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
+			triggerTypeContainerRegistry: {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeContainerRegistry),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"registry_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"image_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"tag": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"create_image": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+						"delete_image": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+						"create_image_tag": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+						"delete_image_tag": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeYDS: {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeYDS),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"stream_name": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"database": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
 			triggerTypeTimer: {
 				Type:          schema.TypeList,
 				MaxItems:      1,
@@ -332,6 +435,39 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 							ForceNew: true,
 						},
 						"payload": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeMail: {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ForceNew:      true,
+				ConflictsWith: functionTriggerConflictingTypes(triggerTypeMail),
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"attachments_bucket_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
@@ -653,6 +789,48 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
 	}
 
+	if _, ok := d.GetOk(triggerTypeContainerRegistry); ok {
+		triggerCnt++
+
+		events := make([]triggers.Trigger_ContainerRegistryEventType, 0)
+		eventsName := map[string]triggers.Trigger_ContainerRegistryEventType{
+			"container_registry.0.create_image":     triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_CREATE_IMAGE,
+			"container_registry.0.delete_image":     triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_DELETE_IMAGE,
+			"container_registry.0.create_image_tag": triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_CREATE_IMAGE_TAG,
+			"container_registry.0.delete_image_tag": triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_DELETE_IMAGE_TAG,
+		}
+		for k, v := range eventsName {
+			if d.Get(k).(bool) {
+				events = append(events, v)
+			}
+		}
+
+		crTrigger := &triggers.Trigger_ContainerRegistry{
+			RegistryId: d.Get("container_registry.0.registry_id").(string),
+			ImageName:  d.Get("container_registry.0.image_name").(string),
+			Tag:        d.Get("container_registry.0.tag").(string),
+			EventType:  events,
+		}
+
+		if invokeType == "function" {
+			crTrigger.Action = &triggers.Trigger_ContainerRegistry_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			crTrigger.Action = &triggers.Trigger_ContainerRegistry_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		}
+
+		batch, err := expandBatchSettings(d, "container_registry.0")
+		if err != nil {
+			return err
+		}
+		crTrigger.BatchSettings = batch
+		storageRule := &triggers.Trigger_Rule_ContainerRegistry{ContainerRegistry: crTrigger}
+		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
+	}
+
 	if _, ok := d.GetOk(triggerTypeTimer); ok {
 		triggerCnt++
 
@@ -712,6 +890,73 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 		req.Rule = &triggers.Trigger_Rule{
 			Rule: &triggers.Trigger_Rule_CloudLogs{CloudLogs: cloudLogs},
+		}
+	}
+
+	if _, ok := d.GetOk(triggerTypeYDS); ok {
+		triggerCnt++
+
+		yds := &triggers.DataStream{
+			Stream:           d.Get("data_streams.0.stream_name").(string),
+			Database:         d.Get("data_streams.0.stream_name").(string),
+			ServiceAccountId: d.Get("data_streams.0.service_account_id").(string),
+		}
+
+		if invokeType == "function" {
+			yds.Action = &triggers.DataStream_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			yds.Action = &triggers.DataStream_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		}
+		batch, err := expandBatchSettings(d, "data_streams.0")
+		if err != nil {
+			return err
+		}
+		if batch != nil {
+			yds.BatchSettings = &triggers.DataStreamBatchSettings{
+				Size:   batch.Size,
+				Cutoff: batch.Cutoff,
+			}
+		}
+		req.Rule = &triggers.Trigger_Rule{
+			Rule: &triggers.Trigger_Rule_DataStream{DataStream: yds},
+		}
+	}
+
+	if _, ok := d.GetOk(triggerTypeMail); ok {
+		triggerCnt++
+
+		mail := &triggers.Mail{}
+
+		if invokeType == "function" {
+			mail.Action = &triggers.Mail_InvokeFunction{
+				InvokeFunction: getInvokeFunctionWithRetry(),
+			}
+		} else if invokeType == "container" {
+			mail.Action = &triggers.Mail_InvokeContainer{
+				InvokeContainer: getInvokeContainerWithRetry(),
+			}
+		}
+
+		bucket, hasBucket := d.GetOk("mail.0.attachments_bucket_id")
+		sa, hasSA := d.GetOk("mail.0.service_account_id")
+		if hasSA && hasBucket {
+			mail.AttachmentsBucket = &triggers.ObjectStorageBucketSettings{
+				BucketId:         bucket.(string),
+				ServiceAccountId: sa.(string),
+			}
+		}
+
+		batch, err := expandBatchSettings(d, "mail.0")
+		if err != nil {
+			return err
+		}
+		mail.BatchSettings = batch
+		req.Rule = &triggers.Trigger_Rule{
+			Rule: &triggers.Trigger_Rule_Mail{Mail: mail},
 		}
 	}
 
@@ -957,6 +1202,63 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 				return err
 			}
 		}
+	} else if yds := trig.GetRule().GetDataStream(); yds != nil {
+		i := map[string]interface{}{
+			"database":           yds.Database,
+			"stream_name":        yds.Stream,
+			"service_account_id": yds.ServiceAccountId,
+		}
+
+		if batch := yds.GetBatchSettings(); batch != nil {
+			i["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			i["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+
+		err := d.Set(triggerTypeYDS, []map[string]interface{}{i})
+		if err != nil {
+			return err
+		}
+
+		if function := yds.GetInvokeFunction(); function != nil {
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := yds.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		}
+	} else if mail := trig.GetRule().GetMail(); mail != nil {
+		i := map[string]interface{}{}
+
+		if bucket := mail.AttachmentsBucket; bucket != nil {
+			i["attachments_bucket_id"] = bucket.BucketId
+			i["service_account_id"] = bucket.ServiceAccountId
+		}
+
+		if batch := mail.GetBatchSettings(); batch != nil {
+			i["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			i["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+
+		err := d.Set(triggerTypeMail, []map[string]interface{}{i})
+		if err != nil {
+			return err
+		}
+
+		if function := mail.GetInvokeFunction(); function != nil {
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := mail.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		}
 	} else if messageQueue := trig.GetRule().GetMessageQueue(); messageQueue != nil {
 		m := map[string]interface{}{
 			"queue_id":           messageQueue.QueueId,
@@ -1023,6 +1325,47 @@ func flattenYandexFunctionTrigger(d *schema.ResourceData, trig *triggers.Trigger
 				return err
 			}
 		} else if function := storage.GetInvokeContainer(); function != nil {
+			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		}
+	} else if cr := trig.GetRule().GetContainerRegistry(); cr != nil {
+		s := map[string]interface{}{
+			"registry_id": cr.RegistryId,
+			"image_name":  cr.ImageName,
+			"tag":         cr.Tag,
+		}
+
+		if batch := cr.GetBatchSettings(); batch != nil {
+			s["batch_size"] = strconv.FormatInt(batch.Size, 10)
+			s["batch_cutoff"] = strconv.FormatInt(batch.Cutoff.Seconds, 10)
+		}
+
+		events := map[triggers.Trigger_ContainerRegistryEventType]string{
+			triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_CREATE_IMAGE:     "create_image",
+			triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_DELETE_IMAGE:     "delete_image",
+			triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_CREATE_IMAGE_TAG: "create_image_tag",
+			triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_DELETE_IMAGE_TAG: "delete_image_tag",
+		}
+
+		for _, t := range cr.EventType {
+			if _, ok := events[t]; ok {
+				s[events[t]] = true
+			}
+		}
+
+		err := d.Set(triggerTypeContainerRegistry, []map[string]interface{}{s})
+		if err != nil {
+			return err
+		}
+
+		if function := cr.GetInvokeFunction(); function != nil {
+			err = flattenYandexFunctionTriggerInvokeWithRetry(d, function)
+			if err != nil {
+				return err
+			}
+		} else if function := cr.GetInvokeContainer(); function != nil {
 			err = flattenYandexContainerTriggerInvokeWithRetry(d, function)
 			if err != nil {
 				return err

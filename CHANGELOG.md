@@ -1,4 +1,6 @@
 ## 0.104.0 (Unreleased)
+FEATURES:
+* serverless: support Container Registry, Yandex Data Streams and Mail triggers.
 
 ## 0.103.0 (November 28, 2023)
 FEATURES:

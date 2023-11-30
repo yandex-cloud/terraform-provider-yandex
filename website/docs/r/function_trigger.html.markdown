@@ -80,7 +80,7 @@ The following arguments are supported:
 * `timer.0.cron_expression` - Cron expression for timer for Yandex Cloud Functions Trigger
 * `timer.0.payload` - Payload to be passed to function
 
-* `logging` - [Logging](https://cloud.yandex.com/docs/functions/concepts/trigger/logging) settings definition for Yandex Cloud Functions Trigger, if present
+* `logging` - [Logging](https://cloud.yandex.com/docs/functions/concepts/trigger/cloud-logging-trigger) settings definition for Yandex Cloud Functions Trigger, if present
 * `logging.0.group_id` - Logging group ID for Yandex Cloud Functions Trigger
 * `logging.0.resource_ids` - Resource ID filter setting for Yandex Cloud Functions Trigger
 * `logging.0.resource_types` - Resource type filter setting for Yandex Cloud Functions Trigger
@@ -88,6 +88,30 @@ The following arguments are supported:
 * `logging.0.stream_names` - Logging stream name filter setting for Yandex Cloud Functions Trigger
 * `logging.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
 * `logging.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
+
+* `container_registry` - [Container Registry](https://cloud.yandex.com/en/docs/functions/concepts/trigger/cr-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `container_registry.0.registry_id` - Container Registry ID for Yandex Cloud Functions Trigger
+* `container_registry.0.image_name` - Image name filter setting for Yandex Cloud Functions Trigger
+* `container_registry.0.tag` - Image tag filter setting for Yandex Cloud Functions Trigger
+* `container_registry.0.create_image` - Boolean flag for setting create image event for Yandex Cloud Functions Trigger
+* `container_registry.0.delete_image` - Boolean flag for setting delete image event for Yandex Cloud Functions Trigger
+* `container_registry.0.create_image_tag` - Boolean flag for setting create image tag event for Yandex Cloud Functions Trigger
+* `container_registry.0.delete_image_tag` - Boolean flag for setting delete image tag event for Yandex Cloud Functions Trigger
+* `container_registry.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `container_registry.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
+
+* `data_streams` - [Data Streams](https://cloud.yandex.com/en/docs/functions/concepts/trigger/data-streams-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `data_streams.0.stream_name` - Stream name for Yandex Cloud Functions Trigger
+* `data_streams.0.database` - Stream database for Yandex Cloud Functions Trigger
+* `data_streams.0.service_account_id` - Service account ID to access data stream for Yandex Cloud Functions Trigger
+* `data_streams.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `data_streams.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
+
+* `mail` - [Logging](https://cloud.yandex.com/en/docs/functions/concepts/trigger/mail-trigger) settings definition for Yandex Cloud Functions Trigger, if present
+* `mail.0.attachments_bucket_id` - Object Storage Bucket ID for Yandex Cloud Functions Trigger
+* `mail.0.service_account_id` - Service account ID to access object storage for Yandex Cloud Functions Trigger
+* `mail.0.batch_cutoff` - Batch Duration in seconds for Yandex Cloud Functions Trigger
+* `mail.0.batch_size` - Batch Size for Yandex Cloud Functions Trigger
 
 ## Attributes Reference
 

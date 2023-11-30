@@ -295,8 +295,88 @@ func TestAccYandexFunctionTrigger_logging(t *testing.T) {
 					testYandexFunctionExists("yandex_function.logging-src-fn", logSrcFn),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_cutoff", "5"),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
-					resource.TestCheckResourceAttr(triggerResource, "logging.0.batch_size", "100"),
 					resource.TestCheckResourceAttr(triggerResource, "logging.0.stream_names.0", "stream"),
+					testAccCheckCreatedAtAttr(triggerResource),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
+}
+
+func TestAccYandexFunctionTrigger_CR(t *testing.T) {
+	t.Parallel()
+
+	trigger := &triggers.Trigger{}
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexFunctionTriggerContainerRegistry(triggerName, 3, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
+					resource.TestCheckResourceAttr(triggerResource, "container_registry.0.batch_cutoff", "3"),
+					resource.TestCheckResourceAttr(triggerResource, "container_registry.0.batch_size", "10"),
+					resource.TestCheckResourceAttr(triggerResource, "container_registry.0.create_image", "true"),
+					testAccCheckCreatedAtAttr(triggerResource),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
+}
+
+func TestAccYandexFunctionTrigger_YDS(t *testing.T) {
+	t.Skip("TODO: enable this test when database creation will be fixed in provider")
+	t.Parallel()
+
+	trigger := &triggers.Trigger{}
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexFunctionTriggerYDS(triggerName, 5, 1000),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
+					resource.TestCheckResourceAttr(triggerResource, "data_streams.0.batch_cutoff", "5"),
+					resource.TestCheckResourceAttr(triggerResource, "data_streams.0.batch_size", "1000"),
+					resource.TestCheckResourceAttr(triggerResource, "data_streams.0.stream_names.0", "stream"),
+					testAccCheckCreatedAtAttr(triggerResource),
+				),
+			},
+			functionTriggerImportTestStep(),
+		},
+	})
+}
+
+func TestAccYandexFunctionTrigger_Mail(t *testing.T) {
+	t.Parallel()
+
+	trigger := &triggers.Trigger{}
+	triggerName := acctest.RandomWithPrefix("tf-trigger")
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexFunctionTriggerDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testYandexFunctionTriggerMail(triggerName, 3, 10),
+				Check: resource.ComposeTestCheckFunc(
+					testYandexFunctionTriggerExists(triggerResource, trigger),
+					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
+					resource.TestCheckResourceAttrSet(triggerResource, "function.0.id"),
+					resource.TestCheckResourceAttr(triggerResource, "mail.0.batch_cutoff", "3"),
+					resource.TestCheckResourceAttr(triggerResource, "mail.0.batch_size", "10"),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -702,4 +782,132 @@ resource "yandex_function_trigger" "test-trigger" {
   }
 } 
 `, name, getExampleFolderID(), name, name, name, batchCutoffSeconds, batchSize)
+}
+
+func testYandexFunctionTriggerContainerRegistry(name string, batchCutoffSeconds, batchSize int) string {
+	return fmt.Sprintf(`
+resource "yandex_container_registry" "my_registry" {
+	name = "my-registry"
+}
+	
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name = "%s"
+  container_registry {
+    registry_id    = yandex_container_registry.my_registry.id
+    batch_cutoff   = "%d"
+    batch_size     = "%d"
+    create_image   = true
+  }
+  function {
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+}
+`, name, getExampleFolderID(), name, name, batchCutoffSeconds, batchSize)
+}
+
+func testYandexFunctionTriggerYDS(name string, batchCutoffSeconds, batchSize int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name = "%s"
+  data_streams {
+    stream_name    = "stream"
+	database = yandex_iam_service_account.test-account.id
+    batch_cutoff   = "%d"
+    batch_size     = "%d"
+  }
+  function {
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+}
+`, name, getExampleFolderID(), name, name, batchCutoffSeconds, batchSize)
+}
+
+func testYandexFunctionTriggerMail(name string, batchCutoffSeconds, batchSize int) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "test-account" {
+  name = "%s-acc"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "test_account" {
+  folder_id   = "%s"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  role        = "editor"
+  sleep_after = 30
+}
+
+resource "yandex_function" "tf-test" {
+  name       = "%s-func"
+  user_hash  = "user_hash"
+  runtime    = "python37"
+  entrypoint = "main"
+  memory     = "128"
+  content {
+    zip_filename = "test-fixtures/serverless/main.zip"
+  }
+  service_account_id = yandex_iam_service_account.test-account.id
+  depends_on         = [yandex_resourcemanager_folder_iam_member.test_account]
+}
+
+resource "yandex_function_trigger" "test-trigger" {
+  name = "%s"
+  mail {
+    batch_cutoff   = "%d"
+    batch_size     = "%d"
+  }
+  function {
+    id                 = yandex_function.tf-test.id
+    service_account_id = yandex_iam_service_account.test-account.id
+  }
+}
+`, name, getExampleFolderID(), name, name, batchCutoffSeconds, batchSize)
 }

@@ -43,7 +43,7 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				Set:      schema.HashString,
 			},
 
-			"iot": {
+			triggerTypeIoT: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -76,7 +76,7 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"message_queue": {
+			triggerTypeMessageQueue: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -109,7 +109,7 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"object_storage": {
+			triggerTypeObjectStorage: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -156,7 +156,123 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"timer": {
+			triggerTypeContainerRegistry: {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"registry_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"image_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"tag": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"create_image": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"delete_image": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"create_image_tag": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"delete_image_tag": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeYDS: {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"stream_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"database": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"suffix": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"service_account_id": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeMail: {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"attachments_bucket_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"service_account_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						"batch_cutoff": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"batch_size": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+
+			triggerTypeTimer: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -173,7 +289,7 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"log_group": {
+			triggerTypeLogGroup: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -198,7 +314,7 @@ func dataSourceYandexFunctionTrigger() *schema.Resource {
 				},
 			},
 
-			"logging": {
+			triggerTypeLogging: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
