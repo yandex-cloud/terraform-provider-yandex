@@ -2514,8 +2514,6 @@ func listClickHouseShards(ctx context.Context, config *Config, id string) ([]*cl
 func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Deleting ClickHouse Cluster %q", d.Id())
-
 	req := &clickhouse.DeleteClusterRequest{
 		ClusterId: d.Id(),
 	}
@@ -2523,19 +2521,23 @@ func resourceYandexMDBClickHouseClusterDelete(d *schema.ResourceData, meta inter
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.MDB().Clickhouse().Cluster().Delete(ctx, req))
+	op, err := retryConflictingOperation(ctx, config, func() (*operation.Operation, error) {
+		log.Printf("[DEBUG] Deleting ClickHouse Cluster %q", d.Id())
+		return config.sdk.MDB().Clickhouse().Cluster().Delete(ctx, req)
+	})
+
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("ClickHouse Cluster %q", d.Get("name").(string)))
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("error while deleting Clickhouse cluster %q: %s", d.Id(), err)
 	}
 
 	_, err = op.Response()
 	if err != nil {
-		return err
+		return fmt.Errorf("error while deleting Clickhouse cluster %q: %s", d.Id(), err)
 	}
 
 	log.Printf("[DEBUG] Finished deleting ClickHouse Cluster %q", d.Id())

@@ -1919,6 +1919,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
   }
 
   deletion_protection = %t
+
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
+  }
 }
 `, name, desc, environment, chVersion, maintenanceWindow, deletionProtection)
 }
@@ -2647,6 +2653,12 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
       "shard1",
     ]
   }
+
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
+  }
 }
 `, name, clusterDiskSize, firstShardDiskSize, secondShardDiskSize)
 }
@@ -2721,6 +2733,12 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
     shard_names = [
       "shard1",
     ]
+  }
+
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
   }
 
 }
@@ -2905,6 +2923,12 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
+
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
+  }
 }
 `, name, desc, chVersion)
 }
@@ -3142,6 +3166,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
     type      = "CLICKHOUSE"
     zone      = "ru-central1-a"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+  }
+  
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
   }
 
 }
@@ -3563,6 +3593,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
   service_account_id = "${yandex_iam_service_account.sa.id}"
+
+  timeouts {
+	create = "1h"
+	update = "1h"
+	delete = "30m"
+  }
 }
 `, name, desc, environment, chVersion)
 }
