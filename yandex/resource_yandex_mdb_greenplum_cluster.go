@@ -320,6 +320,61 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"pxf_config": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"upload_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"max_threads": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"pool_allow_core_thread_timeout": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  nil,
+						},
+						"pool_core_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"pool_queue_capacity": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"pool_max_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"xmx": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+						"xms": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  nil,
+						},
+					},
+				},
+			},
 			"greenplum_config": {
 				Type:             schema.TypeMap,
 				Optional:         true,
@@ -502,6 +557,14 @@ func resourceYandexMDBGreenplumClusterRead(d *schema.ResourceData, meta interfac
 		return err
 	}
 	if err := d.Set("pooler_config", poolConfig); err != nil {
+		return err
+	}
+
+	pxfConfig, err := flattenGreenplumPXFConfig(cluster.GetClusterConfig().GetPxfConfig())
+	if err != nil {
+		return err
+	}
+	if err := d.Set("pxf_config", pxfConfig); err != nil {
 		return err
 	}
 

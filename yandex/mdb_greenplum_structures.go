@@ -160,6 +160,28 @@ func flattenGreenplumPoolerConfig(c *greenplum.ConnectionPoolerConfigSet) ([]int
 	return []interface{}{out}, nil
 }
 
+func flattenGreenplumPXFConfig(c *greenplum.PXFConfigSet) ([]interface{}, error) {
+	if c == nil {
+		return nil, nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["connection_timeout"] = c.EffectiveConfig.GetConnectionTimeout().String()
+	out["upload_timeout"] = c.EffectiveConfig.GetUploadTimeout().GetValue()
+
+	out["max_threads"] = c.EffectiveConfig.GetMaxThreads().GetValue()
+	out["pool_allow_core_thread_timeout"] = c.EffectiveConfig.GetPoolAllowCoreThreadTimeout().GetValue()
+	out["pool_core_size"] = c.EffectiveConfig.GetPoolCoreSize().GetValue()
+	out["pool_queue_capacity"] = c.EffectiveConfig.GetPoolQueueCapacity().GetValue()
+	out["pool_max_size"] = c.EffectiveConfig.GetPoolMaxSize().GetValue()
+
+	out["xmx"] = c.EffectiveConfig.GetXmx().GetValue()
+	out["xms"] = c.EffectiveConfig.GetXms().GetValue()
+
+	return []interface{}{out}, nil
+}
+
 func expandGreenplumBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {
 	out := &timeofday.TimeOfDay{}
 
@@ -266,12 +288,20 @@ func expandGreenplumConfigSpec(d *schema.ResourceData) (*greenplum.ConfigSpec, [
 		return nil, nil, err
 	}
 
+	pxfConfig, err := expandGreenplumPXFConfig(d)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	gpConfig1, gpConfig2, settingNames, err := expandGreenplumConfigSpecGreenplumConfig(d)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	configSpec := &greenplum.ConfigSpec{Pool: poolerConfig}
+	configSpec := &greenplum.ConfigSpec{
+		Pool:      poolerConfig,
+		PxfConfig: pxfConfig,
+	}
 	if gpConfig1 != nil {
 		configSpec.GreenplumConfig = gpConfig1
 	} else {
@@ -326,6 +356,42 @@ func expandGreenplumPoolerConfig(d *schema.ResourceData) (*greenplum.ConnectionP
 
 	if v, ok := d.GetOk("pooler_config.0.pool_client_idle_timeout"); ok {
 		pc.ClientIdleTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return pc, nil
+}
+
+func expandGreenplumPXFConfig(d *schema.ResourceData) (*greenplum.PXFConfig, error) {
+	pc := &greenplum.PXFConfig{}
+
+	if v, ok := d.GetOk("pxf_config.0.connection_timeout"); ok {
+		pc.ConnectionTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("pxf_config.0.upload_timeout"); ok {
+		pc.UploadTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk("pxf_config.0.max_threads"); ok {
+		pc.MaxThreads = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("pxf_config.0.pool_allow_core_thread_timeout"); ok {
+		pc.PoolAllowCoreThreadTimeout = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOk("pxf_config.0.pool_core_size"); ok {
+		pc.PoolCoreSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("pxf_config.0.pool_queue_capacity"); ok {
+		pc.PoolQueueCapacity = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("pxf_config.0.pool_max_size"); ok {
+		pc.PoolMaxSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk("pxf_config.0.xmx"); ok {
+		pc.Xmx = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk("pxf_config.0.xms"); ok {
+		pc.Xms = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
 	return pc, nil

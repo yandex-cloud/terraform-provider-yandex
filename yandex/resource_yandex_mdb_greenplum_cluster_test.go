@@ -116,6 +116,16 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "0"),
 
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "600"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "40"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.max_threads", "100"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_allow_core_thread_timeout", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_core_size", "1000"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_queue_capacity", "0"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_max_size", "128"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xmx", "2048"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xms", "1024"),
+
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_connections", "395"),
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.max_slot_wal_keep_size", "1048576"),
 					resource.TestCheckResourceAttr(greenplumResource, "greenplum_config.gp_workfile_limit_per_segment", "0"),
@@ -152,7 +162,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
-			// Update pooler_config and greenplum_config
+			// Update pooler_config, pxf_config and greenplum_config
 			{
 				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
@@ -162,6 +172,15 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pooling_mode", "SESSION"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_size", "10"),
 					resource.TestCheckResourceAttr(greenplumResource, "pooler_config.0.pool_client_idle_timeout", "0"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.connection_timeout", "300"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.upload_timeout", "440"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.max_threads", "200"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_allow_core_thread_timeout", "false"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_core_size", "800"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_queue_capacity", "600"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.pool_max_size", "48"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xmx", "4000"),
+					resource.TestCheckResourceAttr(greenplumResource, "pxf_config.0.xms", "2048"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -361,6 +380,18 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
     pool_client_idle_timeout = 0
   }
 
+  pxf_config{
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 1000
+	pool_queue_capacity            = 0
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
+  }
+
   greenplum_config = {
     max_connections                   = 395
     max_slot_wal_keep_size            = 1048576
@@ -380,6 +411,18 @@ func testAccMDBGreenplumClusterConfigStep2(name string, description string) stri
     pooling_mode             = "TRANSACTION"
     pool_size                = 10
     pool_client_idle_timeout = 0
+  }
+
+  pxf_config{
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 1000
+	pool_queue_capacity            = 0
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
   }
 
   greenplum_config = {
@@ -406,6 +449,18 @@ func testAccMDBGreenplumClusterConfigStep4(name string, description string) stri
     pool_client_idle_timeout = 0
   }
 
+  pxf_config{
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "false"
+	pool_core_size                 = 800
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 4000
+	xms                            = 2048
+  }
+
   greenplum_config = {
     max_connections                   = 400
     max_slot_wal_keep_size            = 1048576
@@ -424,6 +479,18 @@ func testAccMDBGreenplumClusterConfigStep5(name string, description string) stri
     pooling_mode             = "SESSION"
     pool_size                = 10
     pool_client_idle_timeout = 0
+  }
+
+  pxf_config{
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "false"
+	pool_core_size                 = 800
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 4000
+	xms                            = 2048
   }
 
   greenplum_config = {
@@ -446,6 +513,18 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
     pooling_mode             = "SESSION"
     pool_size                = 10
     pool_client_idle_timeout = 0
+  }
+
+  pxf_config{
+    connection_timeout             = 300
+	upload_timeout                 = 440
+	max_threads                    = 200
+	pool_allow_core_thread_timeout = "false"
+	pool_core_size                 = 800
+	pool_queue_capacity            = 600
+	pool_max_size                  = 48
+	xmx                            = 4000
+	xms                            = 2048
   }
 
   greenplum_config = {
@@ -490,6 +569,18 @@ func testAccMDBGreenplumClusterConfigStep7(name string, description string) stri
     pooling_mode             = "TRANSACTION"
     pool_size                = 10
     pool_client_idle_timeout = 0
+  }
+
+  pxf_config{
+    connection_timeout             = 600
+	upload_timeout                 = 40
+	max_threads                    = 100
+	pool_allow_core_thread_timeout = "true"
+	pool_core_size                 = 1000
+	pool_queue_capacity            = 0
+	pool_max_size                  = 128
+	xmx                            = 2048
+	xms                            = 1024
   }
 
   access {

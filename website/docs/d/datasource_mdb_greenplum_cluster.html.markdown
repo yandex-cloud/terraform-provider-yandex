@@ -68,6 +68,7 @@ exported:
 * `backup_window_start` - Time to start the daily backup, in the UTC timezone. The structure is documented below.
 
 * `pooler_config` - Configuration of the connection pooler. The structure is documented below.
+* `pxf_config` - Configuration of the PXF daemon. The structure is documented below.
 * `greenplum_config` - Greenplum cluster config.
 
 * `user_name` - Greenplum cluster admin user name.
@@ -116,3 +117,14 @@ The `pooler_config` block supports:
 * `pool_size` - Value for `pool_size` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_size-integer).
 * `pool_client_idle_timeout` - Value for `pool_client_idle_timeout` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/documentation/configuration.md#pool_ttl-integer).
 
+The `pxf_config` block supports:
+
+* `connection_timeout` - The Tomcat server connection timeout for read operations in seconds. Value is between 5 and 600.
+* `upload_timeout` - The Tomcat server connection timeout for write operations in seconds. Value is between 5 and 600.
+* `max_threads` - The maximum number of PXF tomcat threads. Value is between 1 and 1024.
+* `pool_allow_core_thread_timeout` - Identifies whether or not core streaming threads are allowed to time out.
+* `pool_core_size` - The number of core streaming threads. Value is between 1 and 1024.
+* `pool_queue_capacity` - The capacity of the core streaming thread pool queue. Value is positive.
+* `pool_max_size` - The maximum allowed number of core streaming threads. Value is between 1 and 1024.
+* `xmx` - Initial JVM heap size for PXF daemon. Value is between 64 and 16384.
+* `xms` - Maximum JVM heap size for PXF daemon. Value is between 64 and 16384.

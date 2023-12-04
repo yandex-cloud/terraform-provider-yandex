@@ -2,6 +2,7 @@
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.
 * cdn: add `secure_key` and `enable_ip_url_signing` parameters to resource options.
+* greenplum: add PXF daemon settings to config
 
 ## 0.103.0 (November 28, 2023)
 FEATURES:
