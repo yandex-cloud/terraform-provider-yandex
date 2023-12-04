@@ -276,6 +276,19 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							Computed: true,
 							Optional: true,
 						},
+						"secure_key": {
+							Type: schema.TypeString,
+
+							Computed: true,
+							Optional: true,
+						},
+						"enable_ip_url_signing": {
+							Type: schema.TypeBool,
+
+							Computed:     true,
+							Optional:     true,
+							RequiredWith: []string{"options.0.secure_key"},
+						},
 					},
 				},
 			},
@@ -623,6 +636,21 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		}
 	}
 
+	if rawOption, ok := d.GetOk("options.0.secure_key"); ok {
+		optionsSet = true
+
+		urlType := cdn.SecureKeyURLType_DISABLE_IP_SIGNING
+		if rawUrlType, ok := d.GetOk("options.0.enable_ip_url_signing"); ok && rawUrlType.(bool) {
+			urlType = cdn.SecureKeyURLType_ENABLE_IP_SIGNING
+		}
+
+		result.SecureKey = &cdn.ResourceOptions_SecureKeyOption{
+			Enabled: true,
+			Key:     rawOption.(string),
+			Type:    urlType,
+		}
+	}
+
 	if !optionsSet {
 		return nil
 	}
@@ -863,6 +891,16 @@ func flattenYandexCDNResourceOptions(options *cdn.ResourceOptions) []map[string]
 
 	if options.IgnoreCookie != nil {
 		setIfEnabled("ignore_cookie", options.IgnoreCookie.Enabled, options.IgnoreCookie.Value)
+	}
+
+	if options.SecureKey != nil {
+		setIfEnabled("secure_key", options.SecureKey.Enabled, options.SecureKey.Key)
+
+		if options.SecureKey.Type == cdn.SecureKeyURLType_ENABLE_IP_SIGNING {
+			setIfEnabled("enable_ip_url_signing", options.SecureKey.Enabled, true)
+		} else {
+			setIfEnabled("enable_ip_url_signing", options.SecureKey.Enabled, false)
+		}
 	}
 
 	return []map[string]interface{}{

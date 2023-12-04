@@ -1,6 +1,7 @@
 ## 0.104.0 (Unreleased)
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.
+* cdn: add `secure_key` and `enable_ip_url_signing` parameters to resource options.
 
 ## 0.103.0 (November 28, 2023)
 FEATURES:
