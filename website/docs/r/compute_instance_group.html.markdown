@@ -242,8 +242,9 @@ The `secondary_disk` block supports:
 
 * `initialize_params` - (Optional) Parameters used for creating a disk alongside the instance. The structure is documented below.
 
-- - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.
+
+* `name` - (Optional) When set can be later used to change DiskSpec of actual disk.
 
 ---
 
@@ -352,8 +353,9 @@ The `boot_disk` block supports:
 
 * `initialize_params` - (Required) Parameters for creating a disk alongside the instance. The structure is documented below.
 
-- - -
 * `device_name` - (Optional) This value can be used to reference the device under `/dev/disk/by-id/`.
+
+* `name` - When set can be later used to change DiskSpec of actual disk.
 
 ---
 

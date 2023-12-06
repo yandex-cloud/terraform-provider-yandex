@@ -194,6 +194,7 @@ The `boot_disk` block supports:
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `disk_id` - ID of the existing disk. To set use variables.
 * `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
+* `name` - When set can be later used to change DiskSpec of actual disk.
 
 ---
 
@@ -222,7 +223,7 @@ The `secondary_disk` block supports:
 * `device_name` - This value can be used to reference the device under `/dev/disk/by-id/`.
 * `mode` - The access mode to the disk resource. By default a disk is attached in `READ_WRITE` mode.
 * `initialize_params` - The parameters used for creating a disk alongside the instance. The structure is documented below.
-
+* `name` - When set can be later used to change DiskSpec of actual disk.
 ---
 
 The `initialize_params` block supports:

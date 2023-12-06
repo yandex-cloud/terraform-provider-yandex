@@ -113,6 +113,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
+
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 								},
 							},
 						},
@@ -321,6 +326,11 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 									},
 
 									"device_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"name": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},

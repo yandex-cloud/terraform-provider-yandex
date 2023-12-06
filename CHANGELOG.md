@@ -11,6 +11,8 @@ FEATURES:
 * yandex_ydb_database: added the ability to change networks
 * serverless: `log_group` trigger is deprecated. Use `logging` trigger instead.
 * mongodb: add create cluster timeout
+* compute: add `name` attribute to `instance_template.boot_disk` in `yandex_compute_instance_group` resource and data source
+* compute: add `name` attribute to `instance_template.secondary_disk` in `yandex_compute_instance_group` resource and data source
 
 ENHANCEMENTS:
 * managed-kubernetes: support update of `master.master_locations` section for `yandex_kubernetes_cluster`

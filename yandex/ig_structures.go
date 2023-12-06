@@ -481,6 +481,10 @@ func expandInstanceGroupTemplateAttachedDiskSpec(d *schema.ResourceData, prefix 
 		ads.DiskId = v.(string)
 	}
 
+	if v, ok := d.GetOk(prefix + ".name"); ok {
+		ads.Name = v.(string)
+	}
+
 	// create new one disk
 	if _, ok := d.GetOk(prefix + ".initialize_params"); ok {
 		bootDiskSpec, err := expandInstanceGroupAttachedDiskSpecSpec(d, prefix+".initialize_params.0", config)
@@ -1044,6 +1048,7 @@ func flattenInstanceGroupAttachedDisk(diskSpec *instancegroup.AttachedDiskSpec) 
 	bootDisk := map[string]interface{}{
 		"device_name": diskSpec.GetDeviceName(),
 		"mode":        diskSpec.GetMode().String(),
+		"name":        diskSpec.GetName(),
 	}
 
 	diskSpecSpec := diskSpec.GetDiskSpec()

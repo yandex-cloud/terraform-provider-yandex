@@ -359,6 +359,7 @@ func TestFlattenInstanceGroupAttachedDisk(t *testing.T) {
 						ImageId: "imageId",
 					},
 				},
+				Name: "boot-disk-name",
 			},
 			expected: map[string]interface{}{
 				"device_name": "test-device-name",
@@ -372,6 +373,7 @@ func TestFlattenInstanceGroupAttachedDisk(t *testing.T) {
 						"snapshot_id": "",
 					},
 				},
+				"name": "boot-disk-name",
 			},
 		},
 	}

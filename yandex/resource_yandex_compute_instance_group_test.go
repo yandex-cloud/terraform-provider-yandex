@@ -643,6 +643,7 @@ type Disk struct {
 	Type        string
 	Image       string
 	Snapshot    string
+	Name        string
 }
 
 type Filesystem struct {
@@ -1203,6 +1204,8 @@ resource "yandex_compute_instance_group" "group1" {
         size        = 3
         type        = "network-ssd"
       }
+
+      name = "secondary-disk-name1"
     }
 
     secondary_disk {
@@ -1212,6 +1215,8 @@ resource "yandex_compute_instance_group" "group1" {
         size        = 3
         type        = "network-hdd"
       }
+      
+      name = "secondary-disk-name2"
     }
 
     filesystem {
@@ -2518,12 +2523,12 @@ func testAccCheckComputeInstanceGroupDefaultValues(ig *instancegroup.InstanceGro
 			return fmt.Errorf("invalid number of secondary disks in instance group %s", ig.Name)
 		}
 
-		disk0 := &Disk{Size: 3, Type: "network-ssd", Description: "desc1"}
+		disk0 := &Disk{Size: 3, Type: "network-ssd", Description: "desc1", Name: "secondary-disk-name1"}
 		if err := checkDisk(fmt.Sprintf("instancegroup %s secondary disk #0", ig.Name), ig.InstanceTemplate.SecondaryDiskSpecs[0], disk0); err != nil {
 			return err
 		}
 
-		disk1 := &Disk{Size: 3, Type: "network-hdd", Description: "desc2"}
+		disk1 := &Disk{Size: 3, Type: "network-hdd", Description: "desc2", Name: "secondary-disk-name2"}
 		if err := checkDisk(fmt.Sprintf("instancegroup %s secondary disk #1", ig.Name), ig.InstanceTemplate.SecondaryDiskSpecs[1], disk1); err != nil {
 			return err
 		}
@@ -2671,6 +2676,9 @@ func checkDisk(name string, a *instancegroup.AttachedDiskSpec, d *Disk) error {
 	}
 	if d.Image != "" && a.DiskSpec.GetImageId() != d.Image {
 		return fmt.Errorf("invalid Image value in %s", name)
+	}
+	if a.Name != d.Name {
+		return fmt.Errorf("invalid Name value in %s", name)
 	}
 	return nil
 }
