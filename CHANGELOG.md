@@ -4,6 +4,9 @@ FEATURES:
 * cdn: add `secure_key` and `enable_ip_url_signing` parameters to resource options.
 * greenplum: add PXF daemon settings to config
 
+BUG FIXES:
+* provider: automatically pick up zone records after updating zone visibility
+
 ## 0.103.0 (November 28, 2023)
 FEATURES:
 * **New Data Source:** `yandex_mdb_opensearch_cluster`

@@ -25,6 +25,8 @@ func resourceYandexDnsZone() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
+		CustomizeDiff: zoneVisibilityChanged,
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexDnsDefaultTimeout),
 			Update: schema.DefaultTimeout(yandexDnsDefaultTimeout),
@@ -70,7 +72,6 @@ func resourceYandexDnsZone() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"private_networks": {
@@ -161,18 +162,7 @@ func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceYandexDnsZoneUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-	sdk := getSDK(config)
-
-	dnsZone, _ := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
-		DnsZoneId: d.Id(),
-	})
-
-	prevNetworkIds := dnsZone.GetPrivateVisibility().GetNetworkIds()
-	networkIdsSet := d.HasChange("private_networks") && prevNetworkIds == nil
-
-	// "public-private -> public" transition is explicitly prohibited
-	if (d.Get("public").(bool) && networkIdsSet) || d.HasChange("public") {
+	if shouldReplaceZone(d.Id(), d.HasChange("public"), d.HasChange("private_networks"), d.Get("public").(bool), meta) {
 		err := resourceYandexDnsZoneDelete(d, meta)
 		if err != nil {
 			return err
@@ -358,4 +348,27 @@ func isErrNetworkNotFound(err error) bool {
 		return strings.HasPrefix(grpcStatus.Message(), "Network not found:")
 	}
 	return false
+}
+
+func zoneVisibilityChanged(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if shouldReplaceZone(d.Id(), d.HasChange("public"), d.HasChange("private_networks"), d.Get("public").(bool), meta) {
+		d.ForceNew("public")
+		d.ForceNew("private_networks")
+	}
+	return nil
+}
+
+func shouldReplaceZone(id string, hasChangePublicAttr, hasChangePrivateNetworksAttr bool, isPublic bool, meta interface{}) bool {
+	config := meta.(*Config)
+	sdk := getSDK(config)
+
+	dnsZone, _ := sdk.DNS().DnsZone().Get(config.Context(), &dns.GetDnsZoneRequest{
+		DnsZoneId: id,
+	})
+
+	privateNetworkIds := dnsZone.GetPrivateVisibility().GetNetworkIds()
+	networkIdsSet := hasChangePrivateNetworksAttr && privateNetworkIds == nil
+
+	// "public-private -> public" transition is explicitly prohibited
+	return (isPublic && networkIdsSet) || hasChangePublicAttr
 }

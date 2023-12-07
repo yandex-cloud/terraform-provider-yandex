@@ -112,6 +112,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 
 	var zone dns.DnsZone
 	var net1 vpc.Network
+	var rs dns.RecordSet
 	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
 	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
 
@@ -125,6 +126,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPublic(&zone),
 				),
 			},
@@ -133,6 +135,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPrivate(&zone),
 					testAccCheckDnsZoneNetwork(&zone, &net1, true),
 				),
@@ -142,6 +145,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPublicPrivate(&zone),
 					testAccCheckDnsZoneNetwork(&zone, &net1, true),
 				),
@@ -151,6 +155,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPrivate(&zone),
 					testAccCheckDnsZoneNetwork(&zone, &net1, true),
 				),
@@ -160,6 +165,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPublic(&zone),
 				),
 			},
@@ -168,6 +174,7 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
 					testAccCheckVPCNetworkExists("yandex_vpc_network.net1", &net1),
+					testAccCheckDNSRecordSetExists("yandex_dns_recordset.rs1", &rs),
 					testAccCheckDnsZoneIsPublicPrivate(&zone),
 					testAccCheckDnsZoneNetwork(&zone, &net1, true),
 				),
@@ -308,7 +315,7 @@ func testAccDNSZoneBasicPublic(name, fqdn string) string {
 resource "yandex_vpc_network" "net1" {}
 
 resource "yandex_dns_zone" "zone1" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "desc"
 
   labels = {
@@ -316,8 +323,16 @@ resource "yandex_dns_zone" "zone1" {
     empty-label = ""
   }
 
-  zone             = "%s"
+  zone             = "%[2]s"
   public           = true
+}
+
+resource "yandex_dns_recordset" "rs1" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv.%[2]s"
+  type    = "A"
+  ttl     = 200
+  data    = ["10.1.0.1"]
 }
 `, name, fqdn)
 }
@@ -327,7 +342,7 @@ func testAccDNSZoneBasicPrivate(name, fqdn string) string {
 resource "yandex_vpc_network" "net1" {}
 
 resource "yandex_dns_zone" "zone1" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "desc"
 
   labels = {
@@ -335,9 +350,17 @@ resource "yandex_dns_zone" "zone1" {
     empty-label = ""
   }
 
-  zone             = "%s"
+  zone             = "%[2]s"
   public           = false
   private_networks = [yandex_vpc_network.net1.id]
+}
+
+resource "yandex_dns_recordset" "rs1" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv.%[2]s"
+  type    = "A"
+  ttl     = 200
+  data    = ["10.1.0.1"]
 }
 `, name, fqdn)
 }
@@ -347,7 +370,7 @@ func testAccDNSZoneBasicPublicPrivate(name, fqdn string) string {
 resource "yandex_vpc_network" "net1" {}
 
 resource "yandex_dns_zone" "zone1" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "desc"
 
   labels = {
@@ -355,9 +378,17 @@ resource "yandex_dns_zone" "zone1" {
     empty-label = ""
   }
 
-  zone             = "%s"
+  zone             = "%[2]s"
   public           = true
   private_networks = [yandex_vpc_network.net1.id]
+}
+
+resource "yandex_dns_recordset" "rs1" {
+  zone_id = yandex_dns_zone.zone1.id
+  name    = "srv.%[2]s"
+  type    = "A"
+  ttl     = 200
+  data    = ["10.1.0.1"]
 }
 `, name, fqdn)
 }
