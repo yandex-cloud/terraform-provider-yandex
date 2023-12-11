@@ -544,7 +544,9 @@ func expandOneToOneNatSpec(config map[string]interface{}) (*compute.OneToOneNatS
 
 		if ipAddress, ok := config["nat_ip_address"].(string); ok && ipAddress != "" {
 			return &compute.OneToOneNatSpec{
-				Address: ipAddress,
+				IpVersion:      compute.IpVersion_IPV4,
+				Address:        ipAddress,
+				DnsRecordSpecs: dnsSpecs,
 			}, nil
 		}
 		return &compute.OneToOneNatSpec{

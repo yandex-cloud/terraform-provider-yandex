@@ -998,35 +998,47 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			} else {
 				if wantChangeAddressSpec(oldV4Spec, newV4Spec) {
 					// change primary v4 address
-					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec")
-					// ...on stopped instance
-					needUpdateInterfacesOnStoppedInstance = true
+					// ...on stopped instance?
+					if needToRestartDueToAddressChange(oldV4Spec, newV4Spec) {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec")
+						needUpdateInterfacesOnStoppedInstance = true
+					} else if dnsSpecChanged(oldV4Spec, newV4Spec) {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.dns_record_specs")
+						if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+							req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
+						}
+					} else if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
+					}
 
 					req.PrimaryV4AddressSpec = newV4Spec
-				} else {
-					if wantChangeNatSpec(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
-						// changing nat address on maybe running instance, safer to use add/remove nat calls
-						if oldV4Spec.OneToOneNatSpec != nil {
-							removeNatRequests = append(removeNatRequests, &compute.RemoveInstanceOneToOneNatRequest{
-								InstanceId:            d.Id(),
-								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-							})
-						}
-						if newV4Spec.OneToOneNatSpec != nil {
-							addNatRequests = append(addNatRequests, &compute.AddInstanceOneToOneNatRequest{
-								InstanceId:            d.Id(),
-								NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-								OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
-							})
-						}
+				}
+				if natAddressSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+					// changing nat address on maybe running instance, safer to use add/remove nat calls
+					if oldV4Spec.OneToOneNatSpec != nil {
+						removeNatRequests = append(removeNatRequests, &compute.RemoveInstanceOneToOneNatRequest{
+							InstanceId:            d.Id(),
+							NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+						})
+					}
+					if newV4Spec.OneToOneNatSpec != nil {
+						addNatRequests = append(addNatRequests, &compute.AddInstanceOneToOneNatRequest{
+							InstanceId:            d.Id(),
+							NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+							OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
+						})
 					}
 				}
 
 				if wantChangeAddressSpec(oldV6Spec, newV6Spec) {
 					// change primary v6 address
-					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec")
-					// ...on stopped instance
-					needUpdateInterfacesOnStoppedInstance = true
+					// ...on stopped instance?
+					if needToRestartDueToAddressChange(oldV6Spec, newV6Spec) {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec")
+						needUpdateInterfacesOnStoppedInstance = true
+					} else {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec.dns_record_specs")
+					}
 
 					req.PrimaryV6AddressSpec = newV6Spec
 				}
@@ -1513,6 +1525,10 @@ func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.Primary
 		return true
 	}
 
+	return dnsSpecChanged(old, new) || natDnsSpecChanged(old.OneToOneNatSpec, new.OneToOneNatSpec)
+}
+
+func dnsSpecChanged(old *compute.PrimaryAddressSpec, new *compute.PrimaryAddressSpec) bool {
 	if len(old.DnsRecordSpecs) != len(new.DnsRecordSpecs) {
 		return true
 	}
@@ -1526,7 +1542,7 @@ func wantChangeAddressSpec(old *compute.PrimaryAddressSpec, new *compute.Primary
 	return false
 }
 
-func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpec) bool {
+func needToRestartDueToAddressChange(old *compute.PrimaryAddressSpec, new *compute.PrimaryAddressSpec) bool {
 	if old == nil && new == nil {
 		return false
 	}
@@ -1535,8 +1551,29 @@ func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpe
 		return true
 	}
 
-	if new.Address != "" && old.Address != new.Address {
+	return new.Address != "" && old.Address != new.Address
+}
+
+func natAddressSpecChanged(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpec) bool {
+	if old == nil && new == nil {
+		return false
+	}
+
+	if (old != nil && new == nil) || (old == nil && new != nil) {
 		return true
+	}
+
+	return new.Address != "" && old.Address != new.Address
+}
+
+func natDnsSpecChanged(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpec) bool {
+	if old == nil && new == nil {
+		return false
+	}
+
+	if (old != nil && new == nil) || (old == nil && new != nil) {
+		//the whole NAT section changed, need to make separate requests
+		return false
 	}
 
 	if len(old.DnsRecordSpecs) != len(new.DnsRecordSpecs) {
@@ -1551,7 +1588,6 @@ func wantChangeNatSpec(old *compute.OneToOneNatSpec, new *compute.OneToOneNatSpe
 	}
 	return false
 }
-
 func makeInstanceUpdateRequest(req *compute.UpdateInstanceRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
