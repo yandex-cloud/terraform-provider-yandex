@@ -195,6 +195,32 @@ func resourceYandexFunction() *schema.Resource {
 				},
 			},
 
+			"storage_mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_point_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"bucket": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"prefix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"read_only": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"connectivity": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -358,7 +384,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
-		"environment", "tags", "package", "content", "secrets", "connectivity",
+		"environment", "tags", "package", "content", "secrets", "connectivity", "storage_mounts",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -534,6 +560,32 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 			versionReq.Secrets[i] = fs
 		}
 	}
+
+	if v, ok := d.GetOk("storage_mounts"); ok {
+		storageMountsList := v.([]interface{})
+
+		versionReq.StorageMounts = make([]*functions.StorageMount, len(storageMountsList))
+		for i, sm := range storageMountsList {
+			storageMount := sm.(map[string]interface{})
+
+			fsm := &functions.StorageMount{}
+			if mountPointName, ok := storageMount["mount_point_name"]; ok {
+				fsm.MountPointName = mountPointName.(string)
+			}
+			if bucket, ok := storageMount["bucket"]; ok {
+				fsm.BucketId = bucket.(string)
+			}
+			if prefix, ok := storageMount["prefix"]; ok {
+				fsm.Prefix = prefix.(string)
+			}
+			if readOnly, ok := storageMount["read_only"]; ok {
+				fsm.ReadOnly = readOnly.(bool)
+			}
+
+			versionReq.StorageMounts[i] = fsm
+		}
+	}
+
 	if connectivity := expandFunctionConnectivity(d); connectivity != nil {
 		versionReq.Connectivity = connectivity
 	}
@@ -597,6 +649,8 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 
 	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
+	d.Set("storage_mounts", flattenVersionStorageMounts(version.StorageMounts))
+
 	return d.Set("tags", tags)
 }
 
@@ -688,6 +742,20 @@ func flattenFunctionSecrets(secrets []*functions.Secret) []map[string]interface{
 			"version_id":           secret.VersionId,
 			"key":                  secret.Key,
 			"environment_variable": secret.GetEnvironmentVariable(),
+		}
+	}
+	return s
+}
+
+func flattenVersionStorageMounts(storageMounts []*functions.StorageMount) []map[string]interface{} {
+	s := make([]map[string]interface{}, len(storageMounts))
+
+	for i, storageMount := range storageMounts {
+		s[i] = map[string]interface{}{
+			"mount_point_name": storageMount.MountPointName,
+			"bucket":           storageMount.BucketId,
+			"prefix":           storageMount.Prefix,
+			"read_only":        storageMount.ReadOnly,
 		}
 	}
 	return s

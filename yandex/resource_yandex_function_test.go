@@ -368,6 +368,13 @@ type testSecretParameters struct {
 	secretValue  string
 }
 
+type testStorageMountParameters struct {
+	storageMountPointPath string
+	storageMountBucket    string
+	storageMountPrefix    string
+	storageMountReadOnly  bool
+}
+
 func testYandexFunctionFull(params testYandexFunctionParameters) string {
 	return fmt.Sprintf(`
 resource "yandex_function" "test-function" {

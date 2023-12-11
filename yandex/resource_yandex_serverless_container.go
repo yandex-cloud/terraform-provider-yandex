@@ -117,6 +117,31 @@ func resourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+			"storage_mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_point_path": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"bucket": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"prefix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"read_only": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
 
 			"image": {
 				Type:     schema.TypeList,
@@ -274,7 +299,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
-		"secrets", "image", "concurrency", "connectivity",
+		"secrets", "image", "concurrency", "connectivity", "storage_mounts",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -427,6 +452,31 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 		}
 	}
 
+	if v, ok := d.GetOk("storage_mounts"); ok {
+		storageMountsList := v.([]interface{})
+
+		revisionReq.StorageMounts = make([]*containers.StorageMount, len(storageMountsList))
+		for i, sm := range storageMountsList {
+			storageMount := sm.(map[string]interface{})
+
+			fsm := &containers.StorageMount{}
+			if mountPointPath, ok := storageMount["mount_point_path"]; ok {
+				fsm.MountPointPath = mountPointPath.(string)
+			}
+			if bucket, ok := storageMount["bucket"]; ok {
+				fsm.BucketId = bucket.(string)
+			}
+			if prefix, ok := storageMount["prefix"]; ok {
+				fsm.Prefix = prefix.(string)
+			}
+			if readOnly, ok := storageMount["read_only"]; ok {
+				fsm.ReadOnly = readOnly.(bool)
+			}
+
+			revisionReq.StorageMounts[i] = fsm
+		}
+	}
+
 	revisionReq.ImageSpec = &containers.ImageSpec{
 		ImageUrl:   d.Get("image.0.url").(string),
 		WorkingDir: d.Get("image.0.work_dir").(string),
@@ -484,6 +534,7 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	d.Set("concurrency", int(revision.Concurrency))
 	d.Set("service_account_id", revision.ServiceAccountId)
 	d.Set("secrets", flattenRevisionSecrets(revision.Secrets))
+	d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts))
 
 	if revision.Image != nil {
 		m := make(map[string]interface{})
@@ -516,6 +567,20 @@ func flattenRevisionSecrets(secrets []*containers.Secret) []map[string]interface
 			"version_id":           secret.VersionId,
 			"key":                  secret.Key,
 			"environment_variable": secret.GetEnvironmentVariable(),
+		}
+	}
+	return s
+}
+
+func flattenRevisionStorageMounts(storageMounts []*containers.StorageMount) []map[string]interface{} {
+	s := make([]map[string]interface{}, len(storageMounts))
+
+	for i, storageMount := range storageMounts {
+		s[i] = map[string]interface{}{
+			"mount_point_path": storageMount.MountPointPath,
+			"bucket":           storageMount.BucketId,
+			"prefix":           storageMount.Prefix,
+			"read_only":        storageMount.ReadOnly,
 		}
 	}
 	return s
