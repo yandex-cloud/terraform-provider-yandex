@@ -1,4 +1,6 @@
-## 0.104.0 (Unreleased)
+## 0.105.0 (Unreleased)
+
+## 0.104.0 (December 12, 2023)
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.
 * serverless: support `storage_mounts` in `yandex_function` resource and data source
