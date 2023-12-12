@@ -65,6 +65,7 @@ The following arguments are supported:
 * `environment` - A set of key/value environment variables for Yandex Cloud Function
 * `tags` - Tags for Yandex Cloud Function. Tag "$latest" isn't returned.
 * `secrets` - Secrets for Yandex Cloud Function.
+* `storage_mounts` - Storage mounts for Yandex Cloud Function.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.
 * `loggroup_id` - Loggroup ID size for Yandex Cloud Function.
@@ -105,6 +106,20 @@ The `secrets` block supports:
 * `environment_variable` - (Required) Function's environment variable in which secret's value will be stored.
 
 ---
+
+
+* The `storage_mounts` block supports:
+
+* `mount_point_name` - (Required) Name of the mount point. The directory where the bucket is mounted will be accessible at the `/function/storage/<mount_point>` path.
+
+* `bucket` - (Required) Name of the mounting bucket.
+
+* `prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
+* `read_only` - Mount the bucket in read-only mode.
+
+---
+
 
 The `async_invocation` block supports:
 

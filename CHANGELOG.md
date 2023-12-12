@@ -1,6 +1,8 @@
 ## 0.104.0 (Unreleased)
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.
+* serverless: support `storage_mounts` in `yandex_function` resource and data source
+* serverless: support `storage_mounts` in `yandex_serverless_container` resource and data source
 * cdn: add `secure_key` and `enable_ip_url_signing` parameters to resource options.
 * greenplum: add PXF daemon settings to config
 * compute: changes in instance's DNS records are now done without instance restart

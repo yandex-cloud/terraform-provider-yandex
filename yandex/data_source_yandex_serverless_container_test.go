@@ -102,6 +102,13 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 		secretValue:  "tf-container-secret-value",
 	}
 
+	params.storageMount = testStorageMountParameters{
+		storageMountPointPath: "/mount/point/path",
+		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountPrefix:    "tf-container-path",
+		storageMountReadOnly:  false,
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -134,6 +141,10 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "secrets.0.version_id"),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "secrets.0.key", params.secret.secretKey),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "secrets.0.environment_variable", params.secret.secretEnvVar),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.mount_point_path", params.storageMount.storageMountPointPath),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),

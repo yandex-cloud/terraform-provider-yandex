@@ -91,6 +91,12 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 		secretEnvVar: "TF_FUNCTION_ENV_KEY",
 		secretValue:  "tf-function-secret-value",
 	}
+	params.storageMount = testStorageMountParameters{
+		storageMountPointName: "mp-name",
+		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountPrefix:    "tf-function-path",
+		storageMountReadOnly:  false,
+	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 	params.maxAsyncRetries = "2"
 
@@ -119,6 +125,10 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(functionDataSource, "secrets.0.version_id"),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.key", params.secret.secretKey),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.environment_variable", params.secret.secretEnvVar),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.mount_point_name", params.storageMount.storageMountPointName),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
 					resource.TestCheckResourceAttr(functionDataSource, "async_invocation.0.retries_count", params.maxAsyncRetries),
 					testAccCheckCreatedAtAttr(functionDataSource),
 				),
@@ -199,12 +209,34 @@ resource "yandex_function" "test-function" {
     key = "%s"
     environment_variable = "%s"
   }
+  storage_mounts {
+    mount_point_name = "%s"
+    bucket = yandex_storage_bucket.another-bucket.bucket
+    prefix = "%s"
+    read_only = %v
+  }
   content {
     zip_filename = "%s"
   }
   async_invocation {
     retries_count = "%s"
   }
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = yandex_iam_service_account.test-account.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.test-account.id
+}
+
+resource "yandex_storage_bucket" "another-bucket" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "%s"
 }
 
 resource "yandex_iam_service_account" "test-account" {
@@ -244,8 +276,12 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.tags,
 		params.secret.secretKey,
 		params.secret.secretEnvVar,
+		params.storageMount.storageMountPointName,
+		params.storageMount.storageMountPrefix,
+		params.storageMount.storageMountReadOnly,
 		params.zipFilename,
 		params.maxAsyncRetries,
+		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,

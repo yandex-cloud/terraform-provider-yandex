@@ -177,6 +177,13 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		secretValue:  "tf-container-secret-value",
 	}
 
+	params.storageMount = testStorageMountParameters{
+		storageMountPointPath: "/mount/point/path",
+		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountPrefix:    "tf-container-path",
+		storageMountReadOnly:  false,
+	}
+
 	paramsUpdated := testYandexServerlessContainerParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-container-updated")
 	paramsUpdated.desc = acctest.RandomWithPrefix("tf-container-desc-updated")
@@ -201,6 +208,13 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		secretValue:  "tf-container-secret-value-updated",
 	}
 
+	paramsUpdated.storageMount = testStorageMountParameters{
+		storageMountPointPath: "/mount/point/path/updated",
+		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket-updated"),
+		storageMountPrefix:    "tf-container-path-updated",
+		storageMountReadOnly:  true,
+	}
+
 	testConfigFunc := func(params testYandexServerlessContainerParameters) resource.TestStep {
 		return resource.TestStep{
 			Config: testYandexServerlessContainerFull(params),
@@ -223,6 +237,10 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.version_id"),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.key", params.secret.secretKey),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.environment_variable", params.secret.secretEnvVar),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.mount_point_path", params.storageMount.storageMountPointPath),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
 				// metadata
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
@@ -494,6 +512,7 @@ type testYandexServerlessContainerParameters struct {
 	envVarValue      string
 	serviceAccount   string
 	secret           testSecretParameters
+	storageMount     testStorageMountParameters
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -520,6 +539,13 @@ resource "yandex_serverless_container" "test-container" {
     key = "%s"
     environment_variable = "%s"
   }
+
+  storage_mounts {
+    mount_point_path = "%s"
+    bucket = yandex_storage_bucket.another-bucket.bucket
+    prefix = "%s"
+    read_only = %v
+  }
   image {
     url         = "%s"
     work_dir    = "%s"
@@ -529,6 +555,22 @@ resource "yandex_serverless_container" "test-container" {
       %s = "%s"
     }
   }
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = yandex_iam_service_account.test-account.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.test-account.id
+}
+
+resource "yandex_storage_bucket" "another-bucket" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "%s"
 }
 
 resource "yandex_iam_service_account" "test-account" {
@@ -566,12 +608,16 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.concurrency,
 		params.secret.secretKey,
 		params.secret.secretEnvVar,
+		params.storageMount.storageMountPointPath,
+		params.storageMount.storageMountPrefix,
+		params.storageMount.storageMountReadOnly,
 		params.imageURL,
 		params.workDir,
 		params.command,
 		params.argument,
 		params.envVarKey,
 		params.envVarValue,
+		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,

@@ -98,6 +98,32 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 				},
 			},
 
+			"storage_mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_point_path": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"bucket": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"prefix": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"read_only": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+					},
+				},
+			},
+
 			"image": {
 				Type:     schema.TypeList,
 				Computed: true,

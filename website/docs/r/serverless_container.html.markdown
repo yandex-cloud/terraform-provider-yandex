@@ -59,6 +59,7 @@ The following arguments are supported:
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID for Yandex Cloud Serverless Container
 * `secrets` - Secrets for Yandex Cloud Serverless Container
+* `storage_mounts` - Storage mounts for Yandex Cloud Serverless Container
 
 * `connectivity` - Network access. If specified the revision will be attached to specified network
 * `connectivity.0.network_id` - Network the revision will have access to
@@ -93,3 +94,13 @@ The `secrets` block supports:
 * `key` - (Required) Secret's entries key which value will be stored in environment variable.
 
 * `environment_variable` - (Required) Container's environment variable in which secret's value will be stored.
+
+* The `storage_mounts` block supports:
+
+* `mount_point_path` - (Required) Path inside the container to access the directory in which the bucket is mounted.
+
+* `bucket` - (Required) Name of the mounting bucket.
+
+* `prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
+
+* `read_only` - Mount the bucket in read-only mode.
