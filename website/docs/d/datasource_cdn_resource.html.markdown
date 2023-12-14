@@ -88,3 +88,7 @@ Resource options block supports following options:
 * `custom_server_name` - wildcard additional CNAME. If a resource has a wildcard additional CNAME, you can use your own certificate for content delivery via HTTPS. Read-only.
 
 * `ignore_cookie` - set for ignoring cookie.
+
+* `secure_key` - set secure key for url encoding to protect contect and limit access by IP addresses and time limits.
+
+* `enable_ip_url_signing` -  enable access limiting by IP addresses, option available only with setting secure_key.
