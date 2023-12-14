@@ -310,47 +310,16 @@ func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}
 	config := meta.(*Config)
 
 	log.Printf("[DEBUG] Creating Application Virtual Host %q", d.Get("name"))
-	authority, err := expandALBStringListFromSchemaSet(d.Get("authority"))
+
+	req, err := buildALBVirtualHostCreateRequest(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding authority while updating Application Virtual Host: %w", err)
-	}
-
-	routes, err := expandALBRoutes(d)
-	if err != nil {
-		return fmt.Errorf("Error expanding routes while updating Application Virtual Host: %w", err)
-	}
-
-	requestHeaders, err := expandALBHeaderModification(d, "modify_request_headers")
-	if err != nil {
-		return fmt.Errorf("Error expanding modify request headers while updating Application Virtual Host: %w", err)
-	}
-
-	responseHeaders, err := expandALBHeaderModification(d, "modify_response_headers")
-	if err != nil {
-		return fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
-	}
-
-	req := apploadbalancer.CreateVirtualHostRequest{
-		HttpRouterId:          d.Get("http_router_id").(string),
-		Name:                  d.Get("name").(string),
-		Authority:             authority,
-		Routes:                routes,
-		ModifyResponseHeaders: responseHeaders,
-		ModifyRequestHeaders:  requestHeaders,
-	}
-
-	if _, ok := d.GetOk("route_options"); ok {
-		ro, err := expandALBRouteOptions(d, "route_options.0.")
-		if err != nil {
-			return fmt.Errorf("Error expanding route options while creating Application Virtual Host: %w", err)
-		}
-		req.SetRouteOptions(ro)
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().VirtualHost().Create(ctx, &req))
+	op, err := config.sdk.WrapOperation(config.sdk.ApplicationLoadBalancer().VirtualHost().Create(ctx, req))
 	if err != nil {
 		return fmt.Errorf("Error while requesting API to create Application Virtual Host: %w", err)
 	}
@@ -378,6 +347,47 @@ func resourceYandexALBVirtualHostCreate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished creating Application Virtual Host %q", d.Id())
 	return resourceYandexALBVirtualHostRead(d, meta)
+}
+
+func buildALBVirtualHostCreateRequest(d *schema.ResourceData) (*apploadbalancer.CreateVirtualHostRequest, error) {
+	authority, err := expandALBStringListFromSchemaSet(d.Get("authority"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding authority while updating Application Virtual Host: %w", err)
+	}
+
+	routes, err := expandALBRoutes(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding routes while updating Application Virtual Host: %w", err)
+	}
+
+	requestHeaders, err := expandALBHeaderModification(d, "modify_request_headers")
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding modify request headers while updating Application Virtual Host: %w", err)
+	}
+
+	responseHeaders, err := expandALBHeaderModification(d, "modify_response_headers")
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
+	}
+
+	req := &apploadbalancer.CreateVirtualHostRequest{
+		HttpRouterId:          d.Get("http_router_id").(string),
+		Name:                  d.Get("name").(string),
+		Authority:             authority,
+		Routes:                routes,
+		ModifyResponseHeaders: responseHeaders,
+		ModifyRequestHeaders:  requestHeaders,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return nil, fmt.Errorf("Error expanding route options while creating Application Virtual Host: %w", err)
+		}
+		req.SetRouteOptions(ro)
+	}
+
+	return req, nil
 }
 
 func resourceYandexALBVirtualHostRead(d *schema.ResourceData, meta interface{}) error {
@@ -444,41 +454,9 @@ func resourceYandexALBVirtualHostUpdate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Updating Application Virtual Host %q", d.Id())
 
-	authority, err := expandALBStringListFromSchemaSet(d.Get("authority"))
+	req, err := buildALBVirtualHostUpdateRequest(d)
 	if err != nil {
-		return fmt.Errorf("Error expanding authority while updating Application Virtual Host: %w", err)
-	}
-
-	routes, err := expandALBRoutes(d)
-	if err != nil {
-		return fmt.Errorf("Error expanding routes while updating Application Virtual Host: %w", err)
-	}
-
-	requestHeaders, err := expandALBHeaderModification(d, "modify_request_headers")
-	if err != nil {
-		return fmt.Errorf("Error expanding modify request headers while updating Application Virtual Host: %w", err)
-	}
-
-	responseHeaders, err := expandALBHeaderModification(d, "modify_response_headers")
-	if err != nil {
-		return fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
-	}
-
-	req := &apploadbalancer.UpdateVirtualHostRequest{
-		VirtualHostName:       d.Get("name").(string),
-		HttpRouterId:          d.Get("http_router_id").(string),
-		Authority:             authority,
-		Routes:                routes,
-		ModifyResponseHeaders: responseHeaders,
-		ModifyRequestHeaders:  requestHeaders,
-	}
-
-	if _, ok := d.GetOk("route_options"); ok {
-		ro, err := expandALBRouteOptions(d, "route_options.0.")
-		if err != nil {
-			return fmt.Errorf("Error expanding route options while updating Application Virtual Host: %w", err)
-		}
-		req.SetRouteOptions(ro)
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
@@ -496,6 +474,47 @@ func resourceYandexALBVirtualHostUpdate(d *schema.ResourceData, meta interface{}
 
 	log.Printf("[DEBUG] Finished updating Application Virtual Host %q", d.Id())
 	return resourceYandexALBVirtualHostRead(d, meta)
+}
+
+func buildALBVirtualHostUpdateRequest(d *schema.ResourceData) (*apploadbalancer.UpdateVirtualHostRequest, error) {
+	authority, err := expandALBStringListFromSchemaSet(d.Get("authority"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding authority while updating Application Virtual Host: %w", err)
+	}
+
+	routes, err := expandALBRoutes(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding routes while updating Application Virtual Host: %w", err)
+	}
+
+	requestHeaders, err := expandALBHeaderModification(d, "modify_request_headers")
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding modify request headers while updating Application Virtual Host: %w", err)
+	}
+
+	responseHeaders, err := expandALBHeaderModification(d, "modify_response_headers")
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding modify response headers while updating Application Virtual Host: %w", err)
+	}
+
+	req := &apploadbalancer.UpdateVirtualHostRequest{
+		VirtualHostName:       d.Get("name").(string),
+		HttpRouterId:          d.Get("http_router_id").(string),
+		Authority:             authority,
+		Routes:                routes,
+		ModifyResponseHeaders: responseHeaders,
+		ModifyRequestHeaders:  requestHeaders,
+	}
+
+	if _, ok := d.GetOk("route_options"); ok {
+		ro, err := expandALBRouteOptions(d, "route_options.0.")
+		if err != nil {
+			return nil, fmt.Errorf("Error expanding route options while updating Application Virtual Host: %w", err)
+		}
+		req.SetRouteOptions(ro)
+	}
+
+	return req, nil
 }
 
 func resourceYandexALBVirtualHostDelete(d *schema.ResourceData, meta interface{}) error {

@@ -3,9 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/assert"
-	"testing"
+	"github.com/stretchr/testify/require"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -486,5 +488,142 @@ func TestUnitALBVirtualHostParseStringMatch(t *testing.T) {
 		stringMatch, _ := expandALBStringMatch(resourceData, stringMatchPath)
 
 		assert.Equal(t, stringMatch.GetExactMatch(), "my_cool_exact")
+	})
+}
+
+func TestUnitALBVirtualHostCreateFromResource(t *testing.T) {
+	t.Parallel()
+
+	vhResource := resourceYandexALBVirtualHost()
+
+	makePayload := func(body string) *apploadbalancer.Payload {
+		return &apploadbalancer.Payload{
+			Payload: &apploadbalancer.Payload_Text{
+				Text: body,
+			},
+		}
+	}
+
+	type M = map[string]interface{}
+	type S = []interface{}
+
+	t.Run("vh-basic", func(t *testing.T) {
+		authority := "example.com"
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"authority":      S{authority},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := buildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.Equal(t, req.GetAuthority(), []string{authority})
+		assert.Nil(t, req.GetRouteOptions())
+	})
+
+	t.Run("vh-route", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route": S{
+				M{
+					"name": "teapot-route-1",
+					"http_route": S{
+						M{
+							"direct_response_action": S{
+								M{
+									"status": 418,
+									"body":   "I'm a teapot",
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := buildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.Len(t, req.GetRoutes(), 1)
+		route := req.GetRoutes()[0]
+		assert.Equal(t, route.GetName(), "teapot-route-1")
+		httpRoute := route.GetHttp()
+		assert.NotNil(t, httpRoute)
+		assert.Nil(t, httpRoute.GetRedirect())
+		assert.Nil(t, httpRoute.GetRoute())
+		assert.Equal(t, httpRoute.GetDirectResponse().GetStatus(), int64(418))
+		assert.Equal(t, httpRoute.GetDirectResponse().GetBody(), makePayload("I'm a teapot"))
+	})
+
+	t.Run("vh-route-options", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route_options": S{
+				M{
+					"security_profile_id": "sec-profile-id",
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := buildALBVirtualHostCreateRequest(resourceData)
+		require.NoError(t, err, "failed to build create request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetName(), "vh-name")
+		assert.NotNil(t, req.GetRouteOptions())
+		assert.Equal(t, req.GetRouteOptions().GetSecurityProfileId(), "sec-profile-id")
+	})
+}
+
+func TestUnitALBVirtualHostUpdateFromResource(t *testing.T) {
+	t.Parallel()
+
+	vhResource := resourceYandexALBVirtualHost()
+
+	type M = map[string]interface{}
+	type S = []interface{}
+
+	t.Run("vh-basic", func(t *testing.T) {
+		authority := "example.com"
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"authority":      S{authority},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := buildALBVirtualHostUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build update request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetVirtualHostName(), "vh-name")
+		assert.Equal(t, req.GetAuthority(), []string{authority})
+		assert.Nil(t, req.GetRouteOptions())
+	})
+
+	t.Run("vh-route-options", func(t *testing.T) {
+		rawValues := M{
+			"http_router_id": "my-router-id",
+			"name":           "vh-name",
+			"route_options": S{
+				M{
+					"security_profile_id": "sec-profile-id",
+				},
+			},
+		}
+		resourceData := schema.TestResourceDataRaw(t, vhResource.Schema, rawValues)
+		req, err := buildALBVirtualHostUpdateRequest(resourceData)
+		require.NoError(t, err, "failed to build update request")
+
+		assert.Equal(t, req.GetHttpRouterId(), "my-router-id")
+		assert.Equal(t, req.GetVirtualHostName(), "vh-name")
+		assert.NotNil(t, req.GetRouteOptions())
+		assert.Equal(t, req.GetRouteOptions().GetSecurityProfileId(), "sec-profile-id")
 	})
 }

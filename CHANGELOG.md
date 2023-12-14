@@ -1,4 +1,6 @@
 ## 0.105.0 (Unreleased)
+FEATURES:
+* alb: support `security_profile_id` in `route_options` for `yandex_alb_virtual_host` resource and data source.
 
 ## 0.104.0 (December 12, 2023)
 FEATURES:

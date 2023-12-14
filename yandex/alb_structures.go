@@ -168,6 +168,10 @@ func expandALBRouteOptions(d *schema.ResourceData, path string) (*apploadbalance
 		ro.Rbac = rbac
 	}
 
+	if v, ok := d.GetOk(path + "security_profile_id"); ok {
+		ro.SecurityProfileId = v.(string)
+	}
+
 	return ro, nil
 }
 
@@ -1651,6 +1655,10 @@ func flattenALBRouteOptions(ro *apploadbalancer.RouteOptions) ([]map[string]inte
 			return nil, err
 		}
 		flOptions["rbac"] = rbac
+	}
+
+	if ro.SecurityProfileId != "" {
+		flOptions["security_profile_id"] = ro.SecurityProfileId
 	}
 
 	return []map[string]interface{}{flOptions}, nil

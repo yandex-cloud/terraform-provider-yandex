@@ -107,6 +107,10 @@ func dataSourceRouteOptions() *schema.Schema {
 						},
 					},
 				},
+				"security_profile_id": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 			},
 		},
 	}

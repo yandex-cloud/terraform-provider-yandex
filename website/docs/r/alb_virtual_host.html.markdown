@@ -35,7 +35,7 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the virtual host. Provided by the client when the virtual host is created.
 
-* `"http_router_id` - (Required) The ID of the HTTP router to which the virtual host belongs.
+* `http_router_id` - (Required) The ID of the HTTP router to which the virtual host belongs.
 
 * `authority` - (Optional) A list of domains (host/authority header) that will be matched to this virtual host. Wildcard
   hosts are supported in the form of '*.foo.com' or '*-bar.foo.com'. If not specified, all domains will be matched.
@@ -48,6 +48,8 @@ The following arguments are supported:
 
 * `route` - (Optional) A Route resource. Routes are matched *in-order*. Be careful when adding them to the end. For instance, having
   http '/' match first makes all other routes unused. The structure is documented below.
+
+* `route_options` - (Optional) Route options for the virtual host. The structure is documented below.
 
 ---
 
@@ -214,6 +216,14 @@ The `path` and `fqmn` blocks support:
 
 ~> **NOTE:** Exactly one type of string matches `exact`, `prefix` or `regex` should be
 specified.
+
+---
+
+The `route_options` block supports:
+
+* `rbac` - (Optional) RBAC configuration.
+
+* `security_profile_id` - (Optional) SWS profile ID.
 
 ## Attributes Reference
 
