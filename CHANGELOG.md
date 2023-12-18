@@ -1,6 +1,9 @@
 ## 0.105.0 (Unreleased)
 FEATURES:
 * alb: support `security_profile_id` in `route_options` for `yandex_alb_virtual_host` resource and data source.
+* serverless: support `log_options` in `yandex_serverless_container` resource and data source
+* serverless: support `log_options` in `yandex_function` resource and data source
+* serverless: support `log_options` in `yandex_api_gateway` resource and data source
 
 BUG FIXES:
 * mdb: changed `disk_size_limit` value type from bytes to gigabytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.

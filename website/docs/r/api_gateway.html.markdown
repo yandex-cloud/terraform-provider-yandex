@@ -36,6 +36,10 @@ resource "yandex_api_gateway" "test-api-gateway" {
       installation = "dev"
     }
   }
+  log_options {
+    log_group_id = "<log group id>"
+    min_level = "ERROR"
+  }
   spec = <<-EOT
 openapi: "3.0.0"
 info:
@@ -95,6 +99,7 @@ The following arguments are supported:
 * `canary` - (Optional) Canary release settings of gateway.
 * `canary.0.weight` - Percentage of requests, which will be processed by canary release.
 * `canary.0.variables` - A list of values for variables in gateway specification of canary release.
+* `log_options` - Options for logging from Yandex Cloud API Gateway.
 
 
 ## Attributes Reference
@@ -107,3 +112,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Status of the Yandex API Gateway.
 * `user_domains` - (**DEPRECATED**, use `custom_domains` instead) Set of user domains attached to Yandex API Gateway.
 
+---
+
+* The `log_options` block supports:
+* `disabled` - Is logging from API Gateway disabled
+* `log_group_id` - Log entries are written to specified log group
+* `folder_id` - Log entries are written to default log group for specified folder
+* `min_level` - Minimum log entry level

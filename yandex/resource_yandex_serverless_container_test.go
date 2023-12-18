@@ -183,6 +183,10 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		storageMountPrefix:    "tf-container-path",
 		storageMountReadOnly:  false,
 	}
+	params.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "ERROR",
+	}
 
 	paramsUpdated := testYandexServerlessContainerParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-container-updated")
@@ -214,6 +218,10 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		storageMountPrefix:    "tf-container-path-updated",
 		storageMountReadOnly:  true,
 	}
+	paramsUpdated.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "WARN",
+	}
 
 	testConfigFunc := func(params testYandexServerlessContainerParameters) resource.TestStep {
 		return resource.TestStep{
@@ -241,6 +249,9 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "log_options.0.min_level", params.logOptions.minLevel),
+				resource.TestCheckResourceAttrSet(serverlessContainerResource, "log_options.0.log_group_id"),
 				// metadata
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
@@ -513,6 +524,7 @@ type testYandexServerlessContainerParameters struct {
 	serviceAccount   string
 	secret           testSecretParameters
 	storageMount     testStorageMountParameters
+	logOptions       testLogOptions
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -531,7 +543,7 @@ resource "yandex_serverless_container" "test-container" {
   concurrency        = %d
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
-	yandex_resourcemanager_folder_iam_binding.payload-viewer
+	yandex_resourcemanager_folder_iam_member.payload-viewer
   ]
   secrets {
     id = yandex_lockbox_secret.secret.id
@@ -555,6 +567,11 @@ resource "yandex_serverless_container" "test-container" {
       %s = "%s"
     }
   }
+  log_options {
+  	disabled = "%t"
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "%s"
+  }
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -564,6 +581,9 @@ resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
 }
 
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  depends_on = [
+	yandex_resourcemanager_folder_iam_member.sa-editor,
+  ]
   service_account_id = yandex_iam_service_account.test-account.id
 }
 
@@ -577,12 +597,10 @@ resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
-  folder_id   = yandex_lockbox_secret.secret.folder_id
-  role        = "lockbox.payloadViewer"
-  members     = [
-    "serviceAccount:${yandex_iam_service_account.test-account.id}",
-  ]
+resource "yandex_resourcemanager_folder_iam_member" "payload-viewer" {
+  folder_id = yandex_lockbox_secret.secret.folder_id
+  role      = "lockbox.payloadViewer"
+  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
 }
 
 resource "yandex_lockbox_secret" "secret" {
@@ -595,6 +613,9 @@ resource "yandex_lockbox_secret_version" "secret_version" {
     key        = "%s"
     text_value = "%s"
   }
+}
+
+resource "yandex_logging_group" "logging-group" {
 }
 	`,
 		params.name,
@@ -617,6 +638,8 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.argument,
 		params.envVarKey,
 		params.envVarValue,
+		params.logOptions.disabled,
+		params.logOptions.minLevel,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

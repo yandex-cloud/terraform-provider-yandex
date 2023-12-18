@@ -47,3 +47,4 @@ The following attributes are exported:
 * `canary` - Canary release settings of gateway.
 * `canary.0.weight` - Percentage of requests, which will be processed by canary release.
 * `canary.0.variables` - A list of values for variables in gateway specification of canary release.
+* `log_options` - Options for logging from Yandex Cloud Function.

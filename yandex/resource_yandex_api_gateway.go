@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"strconv"
 	"strings"
 	"time"
@@ -151,6 +152,37 @@ func resourceYandexApiGateway() *schema.Resource {
 					},
 				},
 			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"log_group_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.folder_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"folder_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.log_group_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"min_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -215,6 +247,11 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		return nil, fmt.Errorf("Error getting folder ID while creating Yandex Cloud API Gateway: %s", err)
 	}
 
+	logOptions, err := expandApiGatewayLogOptions(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding log options while creating Yandex Cloud API Gateway: %s", err)
+	}
+
 	req := &apigateway.CreateApiGatewayRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
@@ -223,8 +260,9 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		Spec: &apigateway.CreateApiGatewayRequest_OpenapiSpec{
 			OpenapiSpec: d.Get("spec").(string),
 		},
-		Variables: expandApiGatewayVariables(d),
-		Canary:    expandApiGatewayCanary(d),
+		Variables:  expandApiGatewayVariables(d),
+		Canary:     expandApiGatewayCanary(d),
+		LogOptions: logOptions,
 	}
 
 	if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
@@ -277,6 +315,10 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		updatePaths = append(updatePaths, "canary")
 	}
 
+	if d.HasChange("log_options") {
+		updatePaths = append(updatePaths, "log_options")
+	}
+
 	if len(updatePaths) != 0 {
 		req := apigateway.UpdateApiGatewayRequest{
 			ApiGatewayId: d.Id(),
@@ -293,6 +335,12 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 		if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
 			req.Connectivity = connectivity
+		}
+
+		if logOptions, err := expandApiGatewayLogOptions(d); err != nil {
+			return fmt.Errorf("Error expanding log options while updating Yandex Cloud API Gateway: %s", err)
+		} else {
+			req.LogOptions = logOptions
 		}
 
 		op, err := config.sdk.Serverless().APIGateway().ApiGateway().Update(ctx, &req)
@@ -408,6 +456,9 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	if canary := flattenApiGatewayCanary(apiGateway.Canary); canary != nil {
 		d.Set("canary", canary)
 	}
+	if logOptions := flattenApiGatewayLogOptions(apiGateway.LogOptions); logOptions != nil {
+		d.Set("log_options", logOptions)
+	}
 
 	domains := make([]string, len(apiGateway.AttachedDomains))
 	for i, domain := range apiGateway.AttachedDomains {
@@ -519,6 +570,18 @@ func flattenApiGatewayVariables(variables map[string]*apigateway.VariableInput) 
 	return result
 }
 
+func flattenApiGatewayCanary(canary *apigateway.Canary) []interface{} {
+	if canary == nil || len(canary.Variables) == 0 {
+		return nil
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"weight":    canary.Weight,
+			"variables": flattenApiGatewayVariables(canary.Variables),
+		},
+	}
+}
+
 func expandApiGatewayCanary(d *schema.ResourceData) *apigateway.Canary {
 	w, okW := d.GetOk("canary.0.weight")
 	variables, okV := d.GetOk("canary.0.variables")
@@ -532,14 +595,48 @@ func expandApiGatewayCanary(d *schema.ResourceData) *apigateway.Canary {
 	}
 }
 
-func flattenApiGatewayCanary(canary *apigateway.Canary) []interface{} {
-	if canary == nil || len(canary.Variables) == 0 {
+func expandApiGatewayLogOptions(d *schema.ResourceData) (*apigateway.LogOptions, error) {
+	v, ok := d.GetOk("log_options.0")
+	if !ok {
+		return nil, nil
+	}
+	logOptionsMap := v.(map[string]interface{})
+	logOptions := &apigateway.LogOptions{}
+
+	if disabled, ok := logOptionsMap["disabled"]; ok {
+		logOptions.Disabled = disabled.(bool)
+	}
+	if folderID, ok := logOptionsMap["folder_id"]; ok {
+		logOptions.SetFolderId(folderID.(string))
+	}
+	if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+		logOptions.SetLogGroupId(logGroupID.(string))
+	}
+	if level, ok := logOptionsMap["min_level"]; ok {
+		if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
+			logOptions.MinLevel = logging.LogLevel_Level(v)
+		} else {
+			return nil, fmt.Errorf("unknown log level: %s", level)
+		}
+	}
+	return logOptions, nil
+}
+
+func flattenApiGatewayLogOptions(logOptions *apigateway.LogOptions) []interface{} {
+	if logOptions == nil {
 		return nil
 	}
-	return []interface{}{
-		map[string]interface{}{
-			"weight":    canary.Weight,
-			"variables": flattenApiGatewayVariables(canary.Variables),
-		},
+	res := map[string]interface{}{
+		"disabled":  logOptions.Disabled,
+		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
 	}
+	if logOptions.Destination != nil {
+		switch d := logOptions.Destination.(type) {
+		case *apigateway.LogOptions_LogGroupId:
+			res["log_group_id"] = d.LogGroupId
+		case *apigateway.LogOptions_FolderId:
+			res["folder_id"] = d.FolderId
+		}
+	}
+	return []interface{}{res}
 }

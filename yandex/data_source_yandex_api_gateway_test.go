@@ -77,6 +77,10 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
 	params.certificateId = getTestCertificateId(t)
 	params.domain = fmt.Sprintf("%s.tf-acc-tests.prod.apigwtest.ru", acctest.RandomWithPrefix("test"))
+	params.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "WARN",
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -94,6 +98,9 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "custom_domains.0.domain_id"),
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "custom_domains.0.fqdn", params.domain),
 					resource.TestCheckNoResourceAttr(apiGatewayDataSource, "custom_domains.1"),
+					resource.TestCheckResourceAttr(apiGatewayDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+					resource.TestCheckResourceAttr(apiGatewayDataSource, "log_options.0.min_level", params.logOptions.minLevel),
+					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "log_options.0.log_group_id"),
 
 					testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
 					testAccCheckCreatedAtAttr(apiGatewayDataSource),
@@ -150,8 +157,16 @@ resource "yandex_api_gateway" "test-api-gateway" {
     certificate_id = "%s"
     fqdn = "%s"
   }
-  spec = <<EOF
+ log_options {
+ 	disabled = "%t"
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "%s"
+ }
+ spec = <<EOF
 %sEOF
+}
+
+resource "yandex_logging_group" "logging-group" {
 }
 	`,
 		params.name,
@@ -160,5 +175,7 @@ resource "yandex_api_gateway" "test-api-gateway" {
 		params.labelValue,
 		params.certificateId,
 		params.domain,
+		params.logOptions.disabled,
+		params.logOptions.minLevel,
 		spec)
 }

@@ -189,6 +189,31 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"log_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"folder_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"min_level": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

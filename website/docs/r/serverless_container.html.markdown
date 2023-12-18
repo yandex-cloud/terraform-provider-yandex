@@ -30,6 +30,10 @@ resource "yandex_serverless_container" "test-container" {
   image {
     url = "cr.yandex/yc/test-image:v1"
   }
+  log_options {
+    log_group_id = "e2392vo6d1bne2aeq9fr"
+    min_level = "ERROR"
+  }
 }
 ```
 ```hcl
@@ -75,6 +79,8 @@ The following arguments are supported:
 * `image.0.args` - List of arguments for Yandex Cloud Serverless Container
 * `image.0.environment` -  A set of key/value environment variable pairs for Yandex Cloud Serverless Container
 
+* `log_options` - Options for logging from Yandex Cloud Serverless Container
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -104,3 +110,11 @@ The `secrets` block supports:
 * `prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
 
 * `read_only` - Mount the bucket in read-only mode.
+
+---
+
+* The `log_options` block supports:
+* `disabled` - Is logging from container disabled
+* `log_group_id` - Log entries are written to specified log group
+* `folder_id` - Log entries are written to default log group for specified folder
+* `min_level` - Minimum log entry level

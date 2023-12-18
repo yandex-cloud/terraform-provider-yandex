@@ -141,6 +141,10 @@ func TestAccYandexFunction_full(t *testing.T) {
 	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 	params.maxAsyncRetries = "2"
+	params.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "ERROR",
+	}
 
 	paramsUpdated := testYandexFunctionParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-function-updated")
@@ -169,6 +173,10 @@ func TestAccYandexFunction_full(t *testing.T) {
 	}
 	paramsUpdated.zipFilename = "test-fixtures/serverless/main.zip"
 	paramsUpdated.maxAsyncRetries = "3"
+	paramsUpdated.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "WARN",
+	}
 
 	testConfigFunc := func(params testYandexFunctionParameters) resource.TestStep {
 		return resource.TestStep{
@@ -197,6 +205,9 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
 				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
 				resource.TestCheckResourceAttr(functionResource, "async_invocation.0.retries_count", params.maxAsyncRetries),
+				resource.TestCheckResourceAttr(functionResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+				resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
+				resource.TestCheckResourceAttrSet(functionResource, "log_options.0.log_group_id"),
 				testAccCheckCreatedAtAttr(functionResource),
 			),
 		}
@@ -376,6 +387,7 @@ type testYandexFunctionParameters struct {
 	storageMount     testStorageMountParameters
 	zipFilename      string
 	maxAsyncRetries  string
+	logOptions       testLogOptions
 }
 
 type testSecretParameters struct {
@@ -391,6 +403,11 @@ type testStorageMountParameters struct {
 	storageMountBucket    string
 	storageMountPrefix    string
 	storageMountReadOnly  bool
+}
+
+type testLogOptions struct {
+	minLevel string
+	disabled bool
 }
 
 func testYandexFunctionFull(params testYandexFunctionParameters) string {
@@ -409,7 +426,7 @@ resource "yandex_function" "test-function" {
   execution_timeout  = "%s"
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
-	yandex_resourcemanager_folder_iam_binding.payload-viewer
+	yandex_resourcemanager_folder_iam_member.payload-viewer
   ]
   environment = {
     %s = "%s"
@@ -433,6 +450,11 @@ resource "yandex_function" "test-function" {
   async_invocation {
 	retries_count = "%s"
   }
+  log_options {
+  	disabled = "%t"
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "%s"
+  }
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -442,6 +464,9 @@ resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
 }
 
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  depends_on = [
+	yandex_resourcemanager_folder_iam_member.sa-editor,
+  ]
   service_account_id = yandex_iam_service_account.test-account.id
 }
 
@@ -455,12 +480,10 @@ resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
-  folder_id   = yandex_lockbox_secret.secret.folder_id
-  role        = "lockbox.payloadViewer"
-  members     = [
-    "serviceAccount:${yandex_iam_service_account.test-account.id}",
-  ]
+resource "yandex_resourcemanager_folder_iam_member" "payload-viewer" {
+  folder_id = yandex_lockbox_secret.secret.folder_id
+  role      = "lockbox.payloadViewer"
+  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
 }
 
 resource "yandex_lockbox_secret" "secret" {
@@ -473,6 +496,9 @@ resource "yandex_lockbox_secret_version" "secret_version" {
     key        = "%s"
     text_value = "%s"
   }
+}
+
+resource "yandex_logging_group" "logging-group" {
 }
 	`,
 		params.name,
@@ -493,6 +519,8 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.storageMount.storageMountReadOnly,
 		params.zipFilename,
 		params.maxAsyncRetries,
+		params.logOptions.disabled,
+		params.logOptions.minLevel,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

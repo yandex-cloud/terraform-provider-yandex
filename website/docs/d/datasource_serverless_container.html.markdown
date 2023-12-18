@@ -53,3 +53,4 @@ The following attributes are exported:
 * `revision_id` - Last revision ID of the Yandex Cloud Serverless Container
 * `connectivity` - Network access. If specified the revision will be attached to specified network
 * `connectivity.0.network_id` - Network the revision will have access to
+* `log_options` - Options for logging from Yandex Cloud Serverless Container

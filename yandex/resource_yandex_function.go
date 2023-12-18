@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/protobuf/field_mask"
 
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
 )
 
@@ -286,6 +287,37 @@ func resourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"log_group_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.folder_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"folder_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.log_group_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"min_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -384,7 +416,8 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
-		"environment", "tags", "package", "content", "secrets", "connectivity", "storage_mounts",
+		"environment", "tags", "package", "content", "secrets", "connectivity", "async_invocation",
+		"storage_mounts", "log_options",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -603,6 +636,28 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		config.FailureTarget = expandFunctionAsyncYMQTarget(d, "ymq_failure_target")
 		versionReq.AsyncInvocationConfig = config
 	}
+	if v, ok := d.GetOk("log_options.0"); ok {
+		logOptionsMap := v.(map[string]interface{})
+		logOptions := &functions.LogOptions{}
+
+		if disabled, ok := logOptionsMap["disabled"]; ok {
+			logOptions.Disabled = disabled.(bool)
+		}
+		if folderID, ok := logOptionsMap["folder_id"]; ok {
+			logOptions.SetFolderId(folderID.(string))
+		}
+		if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+			logOptions.SetLogGroupId(logGroupID.(string))
+		}
+		if level, ok := logOptionsMap["min_level"]; ok {
+			if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
+				logOptions.MinLevel = logging.LogLevel_Level(v)
+			} else {
+				return nil, fmt.Errorf("unknown log level: %s", level)
+			}
+		}
+		versionReq.LogOptions = logOptions
+	}
 
 	return versionReq, nil
 }
@@ -639,6 +694,9 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 	if asyncConfig := flattenFunctionAsyncConfig(version.AsyncInvocationConfig); asyncConfig != nil {
 		d.Set("async_invocation", asyncConfig)
+	}
+	if logOptions := flattenFunctionLogOptions(version.LogOptions); logOptions != nil {
+		d.Set("log_options", logOptions)
 	}
 
 	tags := &schema.Set{F: schema.HashString}
@@ -824,4 +882,23 @@ func flattenFunctionAsyncResponseTarget(target *functions.AsyncInvocationConfig_
 	default:
 		return nil
 	}
+}
+
+func flattenFunctionLogOptions(logOptions *functions.LogOptions) []interface{} {
+	if logOptions == nil {
+		return nil
+	}
+	res := map[string]interface{}{
+		"disabled":  logOptions.Disabled,
+		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	}
+	if logOptions.Destination != nil {
+		switch d := logOptions.Destination.(type) {
+		case *functions.LogOptions_LogGroupId:
+			res["log_group_id"] = d.LogGroupId
+		case *functions.LogOptions_FolderId:
+			res["folder_id"] = d.FolderId
+		}
+	}
+	return []interface{}{res}
 }

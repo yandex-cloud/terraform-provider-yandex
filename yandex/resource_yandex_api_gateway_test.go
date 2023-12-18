@@ -124,12 +124,20 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-api-gateway-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value")
+	params.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "ERROR",
+	}
 
 	paramsUpdated := testYandexAPIGatewayParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-api-gateway-updated")
 	paramsUpdated.desc = acctest.RandomWithPrefix("tf-api-gateway-desc-updated")
 	paramsUpdated.labelKey = acctest.RandomWithPrefix("tf-api-gateway-label-updated")
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-api-gateway-label-value-updated")
+	paramsUpdated.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "WARN",
+	}
 
 	testConfigFunc := func(params testYandexAPIGatewayParameters) resource.TestStep {
 		return resource.TestStep{
@@ -143,6 +151,9 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 				testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
 				testYandexAPIGatewayContainsUserDomains(&apiGateway, make(map[string]struct{})),
 				testAccCheckCreatedAtAttr(apiGatewayResource),
+				resource.TestCheckResourceAttr(apiGatewayResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+				resource.TestCheckResourceAttr(apiGatewayResource, "log_options.0.min_level", params.logOptions.minLevel),
+				resource.TestCheckResourceAttrSet(apiGatewayResource, "log_options.0.log_group_id"),
 			),
 		}
 	}
@@ -481,6 +492,7 @@ type testYandexAPIGatewayParameters struct {
 	labelValue    string
 	certificateId string
 	domain        string
+	logOptions    testLogOptions
 }
 
 func testYandexAPIGatewayFull(params testYandexAPIGatewayParameters) string {
@@ -492,14 +504,24 @@ resource "yandex_api_gateway" "test-api-gateway" {
     %s          = "%s"
     empty-label = ""
   }
+  log_options {
+  	disabled = "%t"
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "%s"
+  }
   spec = <<EOF
 %sEOF
+}
+
+resource "yandex_logging_group" "logging-group" {
 }
 	`,
 		params.name,
 		params.desc,
 		params.labelKey,
 		params.labelValue,
+		params.logOptions.disabled,
+		params.logOptions.minLevel,
 		spec)
 }
 

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	"time"
 
@@ -210,6 +211,37 @@ func resourceYandexServerlessContainer() *schema.Resource {
 					},
 				},
 			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"log_group_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.folder_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"folder_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.log_group_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"min_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -299,7 +331,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
-		"secrets", "image", "concurrency", "connectivity", "storage_mounts",
+		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "log_options",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -503,6 +535,28 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 	if connectivity := expandServerlessContainerConnectivity(d); connectivity != nil {
 		revisionReq.Connectivity = connectivity
 	}
+	if v, ok := d.GetOk("log_options.0"); ok {
+		logOptionsMap := v.(map[string]interface{})
+		logOptions := &containers.LogOptions{}
+
+		if disabled, ok := logOptionsMap["disabled"]; ok {
+			logOptions.Disabled = disabled.(bool)
+		}
+		if folderID, ok := logOptionsMap["folder_id"]; ok {
+			logOptions.SetFolderId(folderID.(string))
+		}
+		if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+			logOptions.SetLogGroupId(logGroupID.(string))
+		}
+		if level, ok := logOptionsMap["min_level"]; ok {
+			if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
+				logOptions.MinLevel = logging.LogLevel_Level(v)
+			} else {
+				return nil, fmt.Errorf("unknown log level: %s", level)
+			}
+		}
+		revisionReq.LogOptions = logOptions
+	}
 
 	return revisionReq, nil
 }
@@ -554,6 +608,9 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	if connectivity := flattenServerlessContainerConnectivity(revision.Connectivity); connectivity != nil {
 		d.Set("connectivity", connectivity)
 	}
+	if logOptions := flattenRevisionLogOptions(revision.LogOptions); logOptions != nil {
+		d.Set("log_options", logOptions)
+	}
 
 	return nil
 }
@@ -598,4 +655,23 @@ func flattenServerlessContainerConnectivity(connectivity *containers.Connectivit
 		return nil
 	}
 	return []interface{}{map[string]interface{}{"network_id": connectivity.NetworkId}}
+}
+
+func flattenRevisionLogOptions(logOptions *containers.LogOptions) []interface{} {
+	if logOptions == nil {
+		return nil
+	}
+	res := map[string]interface{}{
+		"disabled":  logOptions.Disabled,
+		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	}
+	if logOptions.Destination != nil {
+		switch d := logOptions.Destination.(type) {
+		case *containers.LogOptions_LogGroupId:
+			res["log_group_id"] = d.LogGroupId
+		case *containers.LogOptions_FolderId:
+			res["folder_id"] = d.FolderId
+		}
+	}
+	return []interface{}{res}
 }

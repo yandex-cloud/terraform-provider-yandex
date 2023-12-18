@@ -108,6 +108,10 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 		storageMountPrefix:    "tf-container-path",
 		storageMountReadOnly:  false,
 	}
+	params.logOptions = testLogOptions{
+		disabled: false,
+		minLevel: "WARN",
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -145,6 +149,9 @@ func TestAccDataSourceYandexServerlessContainer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
 					resource.TestCheckResourceAttr(serverlessContainerDataSource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
+					resource.TestCheckResourceAttr(serverlessContainerDataSource, "log_options.0.min_level", params.logOptions.minLevel),
+					resource.TestCheckResourceAttrSet(serverlessContainerDataSource, "log_options.0.log_group_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "revision_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "folder_id"),
 					resource.TestCheckResourceAttrSet(serverlessContainerResource, "url"),
@@ -234,6 +241,12 @@ resource "yandex_serverless_container" "test-container" {
     key = "%s"
     environment_variable = "%s"
   }
+  storage_mounts {
+    mount_point_path = "%s"
+    bucket = yandex_storage_bucket.another-bucket.bucket
+    prefix = "%s"
+    read_only = %v
+  }
   image {
     url         = "%s"
     work_dir    = "%s"
@@ -243,6 +256,30 @@ resource "yandex_serverless_container" "test-container" {
       %s = "%s"
     }
   }
+  log_options {
+  	disabled = "%t"
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "%s"
+  }
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = yandex_iam_service_account.test-account.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  depends_on = [
+	yandex_resourcemanager_folder_iam_member.sa-editor,
+  ]
+  service_account_id = yandex_iam_service_account.test-account.id
+}
+
+resource "yandex_storage_bucket" "another-bucket" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "%s"
 }
 
 resource "yandex_iam_service_account" "test-account" {
@@ -268,6 +305,9 @@ resource "yandex_lockbox_secret_version" "secret_version" {
     text_value = "%s"
   }
 }
+
+resource "yandex_logging_group" "logging-group" {
+}
 	`,
 		params.name,
 		params.desc,
@@ -280,12 +320,18 @@ resource "yandex_lockbox_secret_version" "secret_version" {
 		params.concurrency,
 		params.secret.secretKey,
 		params.secret.secretEnvVar,
+		params.storageMount.storageMountPointPath,
+		params.storageMount.storageMountPrefix,
+		params.storageMount.storageMountReadOnly,
 		params.imageURL,
 		params.workDir,
 		params.command,
 		params.argument,
 		params.envVarKey,
 		params.envVarValue,
+		params.logOptions.disabled,
+		params.logOptions.minLevel,
+		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,
 		params.secret.secretKey,

@@ -44,6 +44,10 @@ resource "yandex_function" "test-function" {
       arn = "yrn:yc:ymq:ru-central1:b1glraqqa1i7tmh9hsfp:success"
     }
   }
+  log_options {
+    log_group_id = "e2392vo6d1bne2aeq9fr"
+    min_level = "ERROR"
+  }
 }
 ```
 
@@ -82,6 +86,7 @@ The following arguments are supported:
 * `content.0.zip_filename` - Filename to zip archive for the version.
 
 * `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.
+* `log_options` - Options for logging from Yandex Cloud Function.
 
 
 ## Attributes Reference
@@ -132,3 +137,11 @@ Both `ymq_success_target` and `ymq_failure_target` blocks supports:
 
 * `arn` - YMQ ARN
 * `service_account_id` - Service account used for writing result to queue
+
+---
+
+* The `log_options` block supports:
+* `disabled` - Is logging from function disabled
+* `log_group_id` - Log entries are written to specified log group
+* `folder_id` - Log entries are written to default log group for specified folder
+* `min_level` - Minimum log entry level
