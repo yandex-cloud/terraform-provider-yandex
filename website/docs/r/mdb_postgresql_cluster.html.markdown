@@ -325,7 +325,7 @@ The `performance_diagnostics` block supports:
 
 The `disk_size_autoscaling` block supports:
 
-* `disk_size_limit` - Limit of disk size after autoscaling.
+* `disk_size_limit` - Limit of disk size after autoscaling (GB).
 
 * `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
 

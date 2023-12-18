@@ -86,7 +86,7 @@ func flattenPGDiskSizeAutoscaling(p *postgresql.DiskSizeAutoscaling) []interface
 
 	out := map[string]interface{}{}
 
-	out["disk_size_limit"] = p.DiskSizeLimit
+	out["disk_size_limit"] = toGigabytes(p.DiskSizeLimit)
 	out["planned_usage_threshold"] = int(p.PlannedUsageThreshold)
 	out["emergency_usage_threshold"] = int(p.EmergencyUsageThreshold)
 
@@ -1297,7 +1297,7 @@ func expandPGDiskSizeAutoscaling(d *schema.ResourceData) *postgresql.DiskSizeAut
 	out := &postgresql.DiskSizeAutoscaling{}
 
 	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.disk_size_limit"); ok {
-		out.DiskSizeLimit = int64(v.(int))
+		out.DiskSizeLimit = toBytes(v.(int))
 	}
 
 	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.planned_usage_threshold"); ok {

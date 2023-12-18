@@ -2,6 +2,9 @@
 FEATURES:
 * alb: support `security_profile_id` in `route_options` for `yandex_alb_virtual_host` resource and data source.
 
+BUG FIXES:
+* mdb: changed `disk_size_limit` value type from bytes to gigabytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.
+
 ## 0.104.0 (December 12, 2023)
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.
