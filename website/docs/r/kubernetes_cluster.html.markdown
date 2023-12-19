@@ -214,6 +214,11 @@ Minor version upgrades (e.g. 1.13->1.14) should be performed manually. The struc
 
 * `regional` - (Optional) Initialize parameters for Regional Master (highly available master). The structure is documented below.
 
+* `master_location` - (Optional) Cluster master's instances locations array (zone and subnet).
+Cannot be used together with `zonal` or `regional`. Currently, supports either one, for zonal master, or three instances of `master_location`.
+Can be updated inplace. When creating regional cluster (three master instances), its `region` will be evaluated automatically by backend.
+The structure is documented below.
+
 * `version_info` - (Computed) Information about cluster version. The structure is documented below.
 
 * `internal_v4_address` - (Computed) An IPv4 internal network address that is assigned to the master.
@@ -258,6 +263,13 @@ The `location` block supports repeated values:
 * `subnet_id` - (Optional) ID of the subnet.
 
 ---
+
+The `master_location` block supports repeated values:
+
+* `zone` - (Optional) ID of the availability zone.
+* `subnet_id` - (Optional) ID of the subnet.
+
+___
 
 The `version_info` block supports:
 

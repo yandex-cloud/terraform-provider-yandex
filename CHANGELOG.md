@@ -8,6 +8,9 @@ FEATURES:
 BUG FIXES:
 * mdb: changed `disk_size_limit` value type from bytes to gigabytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.
 
+ENHANCEMENTS:
+* added documentation for k8s cluster scheme attribute - `master_location`
+
 ## 0.104.0 (December 12, 2023)
 FEATURES:
 * serverless: support Container Registry, Yandex Data Streams and Mail triggers.

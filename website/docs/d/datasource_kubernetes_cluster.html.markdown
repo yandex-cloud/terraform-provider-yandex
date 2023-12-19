@@ -82,6 +82,8 @@ The `master` block supports:
 
 * `regional` - Information about cluster regional master. The structure is documented below.
 
+* `master_location` - Information about cluster master's instances locations array. The structure is documented below.
+
 * `security_group_ids` - A list of security groups IDs of the Kubernetes cluster.
 * `internal_v4_address` - An IPv4 internal network address that is assigned to the master.
 * `external_v4_address` - An IPv4 external network address that is assigned to the master.
@@ -116,6 +118,13 @@ The `zonal` block supports:
 The `regional` block supports:
 
 * `region` - ID of the availability region where the master compute instances resides. 
+
+---
+
+The `master_location` block supports repeated values:
+
+* `zone` - ID of the availability zone.
+* `subnet_id` - ID of the subnet.
 
 ---
 
