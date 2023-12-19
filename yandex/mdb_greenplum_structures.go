@@ -167,7 +167,7 @@ func flattenGreenplumPXFConfig(c *greenplum.PXFConfigSet) ([]interface{}, error)
 
 	out := map[string]interface{}{}
 
-	out["connection_timeout"] = c.EffectiveConfig.GetConnectionTimeout().String()
+	out["connection_timeout"] = c.EffectiveConfig.GetConnectionTimeout().GetValue()
 	out["upload_timeout"] = c.EffectiveConfig.GetUploadTimeout().GetValue()
 
 	out["max_threads"] = c.EffectiveConfig.GetMaxThreads().GetValue()
@@ -250,6 +250,16 @@ func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []
 		"pooler_config.0.pooling_mode":             "config_spec.pool.mode",
 		"pooler_config.0.pool_size":                "config_spec.pool.size",
 		"pooler_config.0.pool_client_idle_timeout": "config_spec.pool.client_idle_timeout",
+
+		"pxf_config.0.connection_timeout":             "config_spec.pxf_config.connection_timeout",
+		"pxf_config.0.upload_timeout":                 "config_spec.pxf_config.upload_timeout",
+		"pxf_config.0.max_threads":                    "config_spec.pxf_config.max_threads",
+		"pxf_config.0.pool_allow_core_thread_timeout": "config_spec.pxf_config.pool_allow_core_thread_timeout",
+		"pxf_config.0.pool_core_size":                 "config_spec.pxf_config.pool_core_size",
+		"pxf_config.0.pool_queue_capacity":            "config_spec.pxf_config.pool_queue_capacity",
+		"pxf_config.0.pool_max_size":                  "config_spec.pxf_config.pool_max_size",
+		"pxf_config.0.xmx":                            "config_spec.pxf_config.xmx",
+		"pxf_config.0.xms":                            "config_spec.pxf_config.xms",
 
 		"master_subcluster.0.resources.0.resource_preset_id": "master_config.resources.resource_preset_id",
 		"master_subcluster.0.resources.0.disk_type_id":       "master_config.resources.disk_type_id",
