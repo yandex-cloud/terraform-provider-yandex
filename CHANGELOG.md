@@ -20,6 +20,10 @@ FEATURES:
 * cdn: add `secure_key` and `enable_ip_url_signing` parameters to resource options.
 * greenplum: add PXF daemon settings to config
 * compute: changes in instance's DNS records are now done without instance restart
+* yandex_datatransfer_endpoint: added cleanup_policy into postgres_target and mysql_target
+* yandex_datatransfer_endpoint: added service_database into mysql_target
+* yandex_datatransfer_endpoint: added topic_names into kafka_source
+* yandex_datatransfer_endpoint: added round_robin into clickhouse_target.sharding
 
 BUG FIXES:
 * provider: automatically pick up zone records after updating zone visibility

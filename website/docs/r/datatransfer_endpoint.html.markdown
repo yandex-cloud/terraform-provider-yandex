@@ -151,6 +151,8 @@ The `mysql_target` block supports:
 * `sql_mode` - (Optional) [sql_mode](https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html) to use when interacting with the server. Defaults to "NO_AUTO_VALUE_ON_ZERO,NO_DIR_IN_CREATE,NO_ENGINE_SUBSTITUTION".
 * `skip_constraint_checks` - (Optional) When true, disables foreign key checks. See [foreign_key_checks](https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_foreign_key_checks). False by default.
 * `timezone` - (Optional) Timezone to use for parsing timestamps for saving source timezones. Accepts values from IANA timezone database. Default: local timezone.
+* `service_database` - (Optional) The name of the database where technical tables (`__tm_keeper`, `__tm_gtid_keeper`) will be created. Default is the value of the attribute `database`.
+* `cleanup_policy` - (Optional) How to clean tables when activating the transfer. One of "DISABLED", "DROP" or "TRUNCATE".
 
 The `connection` block supports exactly one of the following attributes:
 * `mdb_cluster_id` - Identifier of the Managed MySQL cluster.
@@ -222,6 +224,8 @@ The `clickhouse_target` block supports:
 * `subnet_id` - (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
 * `alt_names` - (Optional) Table renaming rules. The structure is documented below.
 * `sharding` - (Optional) Shard selection rules for the data being transferred. The structure is documented below.
+* `custom_mapping` (Optional) A custom shard mapping by the value of the specified column. The structure is documented below.
+* `round_robin` (Optional) Distribute incoming rows between ClickHouse shards in a round-robin manner. Specify as an empty block to enable.
 
 The `connection` block supports the following attributes:
 * `connection_options` (Required) Connection options. The structure is documented below.
@@ -250,12 +254,24 @@ The `sharding` block supports exactly one of the following attributes:
 The `column_value_hash` block supports:
 * `column_name` - The name of the column to calculate hash from.
 
+The `custom_mapping` block supports:
+* `column_name` - (Required) The name of the column to inspect when deciding the shard to chose for an incoming row.
+* `mapping` - (Required) The mapping of the specified column values to the shard names. The structure is documented below.
+
+The `mapping` block supports:
+* `column_value` - (Required) The value of the column. Currently only the string columns are supported. The structure is documented below.
+* `shard_name` - (Required) The name of the shard into which all the rows with the specified `column_value` will be written.
+
+The `column_value` block supports:
+* `string_value` - (Optional) The string value of the column.
+
 ---
 
 The `kafka_source` block supports:
 * `connection` - (Required) Connection settings. 
 * `auth` - (Required) Authentication data.
-* `topic_name` - (Required) Full source topic name. 
+* `topic_name` - (Optional) Deprecated. Please use `topic_names` instead.
+* `topic_names` - (Optional) The list of full source topic names.
 * `transformer` - (Optional) Transform data with a custom Cloud Function.
 * `parser` - (Optional) Data parsing parameters. If not set, the source messages are read in raw.
 * `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
@@ -360,6 +376,7 @@ The `ydb_target` block supports:
 * `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
 * `sa_key_content` -- (Optional, Sensitive) Authentication key.
 * `cleanup_policy` -- (Optional) How to clean collections when activating the transfer. One of "YDB_CLEANUP_POLICY_DISABLED" or "YDB_CLEANUP_POLICY_DROP".
+* `is_table_column_oriented` -- (Optional) Whether a column-oriented (i.e. OLAP) tables should be created. Default is `false` (create row-oriented OLTP tables).
 
 * `connection` - (Required) Connection settings.
 * `auth` - (Required) Authentication data.

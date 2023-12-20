@@ -3,13 +3,12 @@ package yandex
 
 import (
 	fmt "fmt"
-	log "log"
-
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 	grpc "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	log "log"
 )
 
 func resourceYandexDatatransferEndpoint() *schema.Resource {
@@ -411,7 +410,60 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 														},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.transfer_id"},
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.custom_mapping", "settings.0.clickhouse_target.0.sharding.0.round_robin", "settings.0.clickhouse_target.0.sharding.0.transfer_id"},
+												},
+												"custom_mapping": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"column_name": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Computed: true,
+															},
+															"mapping": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"column_value": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"string_value": {
+																						Type:     schema.TypeString,
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"shard_name": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.column_value_hash", "settings.0.clickhouse_target.0.sharding.0.round_robin", "settings.0.clickhouse_target.0.sharding.0.transfer_id"},
+												},
+												"round_robin": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.column_value_hash", "settings.0.clickhouse_target.0.sharding.0.custom_mapping", "settings.0.clickhouse_target.0.sharding.0.transfer_id"},
 												},
 												"transfer_id": {
 													Type:     schema.TypeList,
@@ -420,7 +472,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 														Schema: map[string]*schema.Schema{},
 													},
 													Optional:      true,
-													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.column_value_hash"},
+													ConflictsWith: []string{"settings.0.clickhouse_target.0.sharding.0.column_value_hash", "settings.0.clickhouse_target.0.sharding.0.custom_mapping", "settings.0.clickhouse_target.0.sharding.0.round_robin"},
 												},
 											},
 										},
@@ -768,6 +820,14 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 									},
 									"topic_name": {
 										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"topic_names": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 										Optional: true,
 										Computed: true,
 									},
@@ -1566,6 +1626,12 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"cleanup_policy": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseDatatransferEndpointCleanupPolicy),
+										Computed:     true,
+									},
 									"connection": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -1669,6 +1735,11 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
+										Optional: true,
+										Computed: true,
+									},
+									"service_database": {
+										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
 									},
@@ -1967,6 +2038,12 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"cleanup_policy": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseDatatransferEndpointCleanupPolicy),
+										Computed:     true,
+									},
 									"connection": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -2153,6 +2230,11 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 									},
 									"instance": {
 										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"is_table_column_oriented": {
+										Type:     schema.TypeBool,
 										Optional: true,
 										Computed: true,
 									},
@@ -2887,6 +2969,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							children:               nil,
 						},
 						{
+							protobufFieldName:      "topic_names",
+							terraformAttributeName: "topic_names",
+							children:               nil,
+						},
+						{
 							protobufFieldName:      "transformer",
 							terraformAttributeName: "transformer",
 							children: []*fieldTreeNode{
@@ -3578,6 +3665,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 									terraformAttributeName: "transfer_id",
 									children:               nil,
 								},
+								{
+									protobufFieldName:      "round_robin",
+									terraformAttributeName: "round_robin",
+									children:               nil,
+								},
 							},
 						},
 						{
@@ -3629,6 +3721,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 						{
 							protobufFieldName:      "cleanup_policy",
 							terraformAttributeName: "cleanup_policy",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "is_table_column_oriented",
+							terraformAttributeName: "is_table_column_oriented",
 							children:               nil,
 						},
 					},

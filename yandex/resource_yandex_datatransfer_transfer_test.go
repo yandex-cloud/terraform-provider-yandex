@@ -143,6 +143,7 @@ func TestAccDataTransferTransfer_full(t *testing.T) {
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.password.0.raw", defaultTemplateParams.TargetEndpointPassword),
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.connection.0.on_premise.0.hosts.0", defaultTemplateParams.TargetEndpointHostName),
 					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.connection.0.on_premise.0.port", strconv.Itoa(defaultTemplateParams.TargetEndpointPort)),
+					resource.TestCheckResourceAttr(targetEndpointResourceName, "settings.0.postgres_target.0.cleanup_policy", defaultTemplateParams.CleanupPolicy),
 
 					resource.TestCheckResourceAttr(transferResourceName, "name", defaultTemplateParams.TransferName),
 					resource.TestCheckResourceAttr(transferResourceName, "description", defaultTemplateParams.TransferDescription),
@@ -242,6 +243,7 @@ type dataTransferTerraformTemplateParams struct {
 	TransferDescription                string
 	TransferType                       string
 	TransferActivateMode               string
+	CleanupPolicy                      string
 }
 
 var defaultTemplateParams = dataTransferTerraformTemplateParams{
@@ -260,6 +262,7 @@ var defaultTemplateParams = dataTransferTerraformTemplateParams{
 	TransferDescription:                "transfer description",
 	TransferType:                       "SNAPSHOT_ONLY",
 	TransferActivateMode:               syncActivateMode,
+	CleanupPolicy:                      "DROP",
 }
 
 func (p dataTransferTerraformTemplateParams) withSourceEndpointName(sourceEndpointName string) dataTransferTerraformTemplateParams {
@@ -339,6 +342,7 @@ func testAccDataTransferConfigMain(templateParams dataTransferTerraformTemplateP
 			  password {
 				raw = "{{.TargetEndpointPassword}}"
 			  }
+			  cleanup_policy = "DROP"
 			}
 		  }
 		}
@@ -574,6 +578,7 @@ func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", ydbTargetEndpointResourceName+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.ydb_target.0.is_table_column_oriented", "true"),
 				),
 			},
 			{
@@ -581,6 +586,7 @@ func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(fullResourceName, "name", "new-ydb-target-name"+randomPostfix),
 					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.ydb_target.0.is_table_column_oriented", "true"),
 				),
 			},
 			{
@@ -604,6 +610,7 @@ func testAccDataTransferConfigYdbTarget(name, description string) string {
           path = "/bushido/logs"
           security_groups = []
           cleanup_policy = "YDB_CLEANUP_POLICY_DROP"
+		  is_table_column_oriented = true
         }
     }
 }`, name, description)

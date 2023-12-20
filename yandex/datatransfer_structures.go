@@ -3,7 +3,6 @@ package yandex
 
 import (
 	fmt "fmt"
-
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 	endpoint "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1/endpoint"
@@ -150,6 +149,10 @@ func expandDatatransferEndpointSettingsYdbTarget(d *schema.ResourceData) (*endpo
 		val.SetInstance(v.(string))
 	}
 
+	if v, ok := d.GetOk("settings.0.ydb_target.0.is_table_column_oriented"); ok {
+		val.SetIsTableColumnOriented(v.(bool))
+	}
+
 	if v, ok := d.GetOk("settings.0.ydb_target.0.path"); ok {
 		val.SetPath(v.(string))
 	}
@@ -209,6 +212,15 @@ func expandDatatransferEndpointSettingsYdbSource(d *schema.ResourceData) (*endpo
 
 func expandDatatransferEndpointSettingsPostgresTarget(d *schema.ResourceData) (*endpoint.PostgresTarget, error) {
 	val := new(endpoint.PostgresTarget)
+
+	if v, ok := d.GetOk("settings.0.postgres_target.0.cleanup_policy"); ok {
+		vv, err := parseDatatransferEndpointCleanupPolicy(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCleanupPolicy(vv)
+	}
 
 	if _, ok := d.GetOk("settings.0.postgres_target.0.connection"); ok {
 		connection, err := expandDatatransferEndpointSettingsPostgresTargetConnection(d)
@@ -667,6 +679,15 @@ func expandDatatransferEndpointSettingsPostgresSourceConnectionOnPremiseTlsModeD
 func expandDatatransferEndpointSettingsMysqlTarget(d *schema.ResourceData) (*endpoint.MysqlTarget, error) {
 	val := new(endpoint.MysqlTarget)
 
+	if v, ok := d.GetOk("settings.0.mysql_target.0.cleanup_policy"); ok {
+		vv, err := parseDatatransferEndpointCleanupPolicy(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCleanupPolicy(vv)
+	}
+
 	if _, ok := d.GetOk("settings.0.mysql_target.0.connection"); ok {
 		connection, err := expandDatatransferEndpointSettingsMysqlTargetConnection(d)
 		if err != nil {
@@ -691,6 +712,10 @@ func expandDatatransferEndpointSettingsMysqlTarget(d *schema.ResourceData) (*end
 
 	if v, ok := d.GetOk("settings.0.mysql_target.0.security_groups"); ok {
 		val.SetSecurityGroups(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk("settings.0.mysql_target.0.service_database"); ok {
+		val.SetServiceDatabase(v.(string))
 	}
 
 	if v, ok := d.GetOk("settings.0.mysql_target.0.skip_constraint_checks"); ok {
@@ -1761,6 +1786,10 @@ func expandDatatransferEndpointSettingsKafkaSource(d *schema.ResourceData) (*end
 		val.SetTopicName(v.(string))
 	}
 
+	if v, ok := d.GetOk("settings.0.kafka_source.0.topic_names"); ok {
+		val.SetTopicNames(expandStringSlice(v.([]interface{})))
+	}
+
 	if _, ok := d.GetOk("settings.0.kafka_source.0.transformer"); ok {
 		transformer, err := expandDatatransferEndpointSettingsKafkaSourceTransformer(d)
 		if err != nil {
@@ -2281,6 +2310,24 @@ func expandDatatransferEndpointSettingsClickhouseTargetSharding(d *schema.Resour
 		val.SetColumnValueHash(columnValueHash)
 	}
 
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.custom_mapping"); ok {
+		customMapping, err := expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetCustomMapping(customMapping)
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.round_robin"); ok {
+		roundRobin, err := expandDatatransferEndpointSettingsClickhouseTargetShardingRoundRobin(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetRoundRobin(roundRobin)
+	}
+
 	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.transfer_id"); ok {
 		transferId, err := expandDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d)
 		if err != nil {
@@ -2295,6 +2342,76 @@ func expandDatatransferEndpointSettingsClickhouseTargetSharding(d *schema.Resour
 
 func expandDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d *schema.ResourceData) (*emptypb.Empty, error) {
 	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingRoundRobin(d *schema.ResourceData) (*emptypb.Empty, error) {
+	val := new(emptypb.Empty)
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping(d *schema.ResourceData) (*endpoint.ClickhouseSharding_ColumnValueMapping, error) {
+	val := new(endpoint.ClickhouseSharding_ColumnValueMapping)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.column_name"); ok {
+		val.SetColumnName(v.(string))
+	}
+
+	if _, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping"); ok {
+		mapping, err := expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMapping(mapping)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingSlice(d *schema.ResourceData) ([]*endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard, error) {
+	count := d.Get("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.#").(int)
+	slice := make([]*endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard, count)
+
+	for i := 0; i < count; i++ {
+		expandedItem, err := expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMapping(d, i)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMapping(d *schema.ResourceData, indexes ...interface{}) (*endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard, error) {
+	val := new(endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard)
+
+	if _, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.%d.column_value", indexes...)); ok {
+		columnValue, err := expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingColumnValue(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetColumnValue(columnValue)
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.%d.shard_name", indexes...)); ok {
+		val.SetShardName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingColumnValue(d *schema.ResourceData) (*endpoint.ColumnValue, error) {
+	val := new(endpoint.ColumnValue)
+
+	if v, ok := d.GetOk("settings.0.clickhouse_target.0.sharding.0.custom_mapping.0.mapping.0.column_value.0.string_value"); ok {
+		val.SetStringValue(v.(string))
+	}
 
 	return val, nil
 }
@@ -2788,6 +2905,7 @@ func flattenDatatransferEndpointSettingsYdbTarget(d *schema.ResourceData, v *end
 	m["cleanup_policy"] = v.GetCleanupPolicy().String()
 	m["database"] = v.GetDatabase()
 	m["instance"] = v.GetInstance()
+	m["is_table_column_oriented"] = v.GetIsTableColumnOriented()
 	m["path"] = v.GetPath()
 	m["sa_key_content"] = v.GetSaKeyContent()
 	m["security_groups"] = v.GetSecurityGroups()
@@ -2821,6 +2939,8 @@ func flattenDatatransferEndpointSettingsPostgresTarget(d *schema.ResourceData, v
 	}
 
 	m := make(map[string]interface{})
+
+	m["cleanup_policy"] = v.GetCleanupPolicy().String()
 
 	connection, err := flattenDatatransferEndpointSettingsPostgresTargetConnection(d, v.GetConnection())
 	if err != nil {
@@ -3069,6 +3189,8 @@ func flattenDatatransferEndpointSettingsMysqlTarget(d *schema.ResourceData, v *e
 
 	m := make(map[string]interface{})
 
+	m["cleanup_policy"] = v.GetCleanupPolicy().String()
+
 	connection, err := flattenDatatransferEndpointSettingsMysqlTargetConnection(d, v.GetConnection())
 	if err != nil {
 		return nil, err
@@ -3079,6 +3201,7 @@ func flattenDatatransferEndpointSettingsMysqlTarget(d *schema.ResourceData, v *e
 		m["password"] = []map[string]interface{}{{"raw": password}}
 	}
 	m["security_groups"] = v.GetSecurityGroups()
+	m["service_database"] = v.GetServiceDatabase()
 	m["skip_constraint_checks"] = v.GetSkipConstraintChecks()
 	m["sql_mode"] = v.GetSqlMode()
 	m["timezone"] = v.GetTimezone()
@@ -3930,6 +4053,7 @@ func flattenDatatransferEndpointSettingsKafkaSource(d *schema.ResourceData, v *e
 	m["parser"] = parser
 	m["security_groups"] = v.GetSecurityGroups()
 	m["topic_name"] = v.GetTopicName()
+	m["topic_names"] = v.GetTopicNames()
 
 	transformer, err := flattenDatatransferEndpointSettingsKafkaSourceTransformer(d, v.GetTransformer())
 	if err != nil {
@@ -4355,6 +4479,18 @@ func flattenDatatransferEndpointSettingsClickhouseTargetSharding(d *schema.Resou
 	}
 	m["column_value_hash"] = columnValueHash
 
+	customMapping, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping(d, v.GetCustomMapping())
+	if err != nil {
+		return nil, err
+	}
+	m["custom_mapping"] = customMapping
+
+	roundRobin, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingRoundRobin(d, v.GetRoundRobin())
+	if err != nil {
+		return nil, err
+	}
+	m["round_robin"] = roundRobin
+
 	transferId, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d, v.GetTransferId())
 	if err != nil {
 		return nil, err
@@ -4370,6 +4506,80 @@ func flattenDatatransferEndpointSettingsClickhouseTargetShardingTransferId(d *sc
 	}
 
 	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingRoundRobin(d *schema.ResourceData, v *emptypb.Empty) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMapping(d *schema.ResourceData, v *endpoint.ClickhouseSharding_ColumnValueMapping) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["column_name"] = v.GetColumnName()
+
+	mapping, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingSlice(d, v.GetMapping())
+	if err != nil {
+		return nil, err
+	}
+	m["mapping"] = mapping
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingSlice(d *schema.ResourceData, v []*endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMapping(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMapping(d *schema.ResourceData, v *endpoint.ClickhouseSharding_ColumnValueMapping_ValueToShard) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	columnValue, err := flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingColumnValue(d, v.GetColumnValue())
+	if err != nil {
+		return nil, err
+	}
+	m["column_value"] = columnValue
+	m["shard_name"] = v.GetShardName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsClickhouseTargetShardingCustomMappingMappingColumnValue(d *schema.ResourceData, v *endpoint.ColumnValue) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["string_value"] = v.GetStringValue()
 
 	return []map[string]interface{}{m}, nil
 }
