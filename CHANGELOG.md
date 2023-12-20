@@ -4,6 +4,7 @@ FEATURES:
 * serverless: support `log_options` in `yandex_serverless_container` resource and data source
 * serverless: support `log_options` in `yandex_function` resource and data source
 * serverless: support `log_options` in `yandex_api_gateway` resource and data source
+* mongodb: do not change user's password if no state changes
 
 BUG FIXES:
 * mdb: changed `disk_size_limit` value type from bytes to gigabytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.

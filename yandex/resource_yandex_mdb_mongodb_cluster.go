@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"strings"
 	"time"
@@ -1406,10 +1407,9 @@ func updateMongodbClusterUsers(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	oldSpecs, newSpecs := d.GetChange("user")
-	changedUsers := mongodbChangedUsers(oldSpecs.(*schema.Set), newSpecs.(*schema.Set))
-	for _, u := range changedUsers {
-		err := updateMongoDBUser(ctx, config, d, u)
+	requests := mongodbCreateChangedUsersRequests(d)
+	for _, u := range requests {
+		err = updateMongoDBUser(ctx, config, u, d.Id())
 		if err != nil {
 			return err
 		}
@@ -1577,22 +1577,17 @@ func deleteMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceDa
 	return nil
 }
 
-func updateMongoDBUser(ctx context.Context, config *Config, d *schema.ResourceData, user *mongodb.UserSpec) error {
+func updateMongoDBUser(ctx context.Context, config *Config, req *mongodb.UpdateUserRequest, cid string) error {
 	op, err := config.sdk.WrapOperation(
-		config.sdk.MDB().MongoDB().User().Update(ctx, &mongodb.UpdateUserRequest{
-			ClusterId:   d.Id(),
-			UserName:    user.Name,
-			Password:    user.Password,
-			Permissions: user.Permissions,
-		}),
+		config.sdk.MDB().MongoDB().User().Update(ctx, req),
 	)
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update user in MongoDB Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to update user in MongoDB Cluster %q: %s", cid, err)
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating user in MongoDB Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while updating user in MongoDB Cluster %q: %s", cid, err)
 	}
 	return nil
 }
@@ -1795,19 +1790,37 @@ func mongodbUsersDiff(currUsers []*mongodb.User, targetUsers []*mongodb.UserSpec
 	return toDel, toAdd
 }
 
-func mongodbChangedUsers(oldSpecs *schema.Set, newSpecs *schema.Set) []*mongodb.UserSpec {
-	var result []*mongodb.UserSpec
+func mongodbCreateChangedUsersRequests(d *schema.ResourceData) []*mongodb.UpdateUserRequest {
+	oldSpecs, newSpecs := d.GetChange("user")
+
+	var result []*mongodb.UpdateUserRequest
 	m := map[string]*mongodb.UserSpec{}
-	for _, spec := range oldSpecs.List() {
+	for _, spec := range oldSpecs.(*schema.Set).List() {
 		user := expandMongoDBUser(spec.(map[string]interface{}))
 		m[user.Name] = user
 	}
-	for _, spec := range newSpecs.List() {
+	for _, spec := range newSpecs.(*schema.Set).List() {
 		user := expandMongoDBUser(spec.(map[string]interface{}))
 		if u, ok := m[user.Name]; ok {
-			if user.Password != u.Password || fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
-				result = append(result, user)
+			var updatePaths []string
+			if user.Password != u.Password {
+				updatePaths = append(updatePaths, "password")
 			}
+			if fmt.Sprintf("%v", user.Permissions) != fmt.Sprintf("%v", u.Permissions) {
+				updatePaths = append(updatePaths, "permissions")
+			}
+
+			if len(updatePaths) == 0 {
+				continue
+			}
+			req := &mongodb.UpdateUserRequest{
+				ClusterId:   d.Id(),
+				UserName:    user.Name,
+				Password:    user.Password,
+				Permissions: user.Permissions,
+				UpdateMask:  &fieldmaskpb.FieldMask{Paths: updatePaths},
+			}
+			result = append(result, req)
 		}
 	}
 	return result
