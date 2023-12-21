@@ -97,11 +97,16 @@ The following arguments are supported:
 * `network_acceleration_type` - (Optional) Type of network acceleration. The default is `standard`. Values: `standard`, `software_accelerated`
 
 * `local_disk` - (Optional) List of local disks that are attached to the instance. Structure is documented below.
-* `metadata_options` - (Optional) Options allow user to configure access to instance's metadata
 
 * `filesystem` - (Optional) List of filesystems that are attached to the instance. Structure is documented below.
 
 * `gpu_cluster_id` - (Optional) ID of the GPU cluster to attach this instance to. The GPU cluster must exist in the same zone as the instance.
+
+* `metadata_options` - (Optional) Options allow user to configure access to instance's metadata
+
+* `maintenance_policy` - (Optional) Behaviour on maintenance events. The default is `unspecified`. Values: `unspecified`, `migrate`, `restart`.
+
+* `maintenance_grace_period` - (Optional) Time between notification via metadata service and maintenance. E.g., `60s`.
 
 ---
 

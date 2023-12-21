@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -1507,6 +1508,31 @@ func TestAccComputeInstance_Nat(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
 					testAccCheckComputeInstanceHasNoNatAddress(&instance),
+				),
+			},
+			computeInstanceImportStep(),
+		},
+	})
+}
+
+func TestAccComputeInstance_Maintenance(t *testing.T) {
+	t.Parallel()
+
+	var instance compute.Instance
+
+	var instanceName = acctest.RandomWithPrefix("tf-test")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_Maintenance(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						"yandex_compute_instance.foobar", &instance),
+					testAccCheckComputeInstance_Maintenance(&instance),
 				),
 			},
 			computeInstanceImportStep(),
@@ -4364,6 +4390,62 @@ func testAccComputeInstance_GpuCluster(gpuCluster, instance string) string {
 		v4_cidr_blocks = ["192.168.0.0/24"]
 }
 `, gpuCluster, instance)
+}
+
+// testAccComputeInstance_Maintenance creates an instance with maintenance grace_policy and maintenance_grace_period
+func testAccComputeInstance_Maintenance(instance string) string {
+	return fmt.Sprintf(`
+	data "yandex_compute_image" "ubuntu" {
+		family = "ubuntu-2004-lts"
+	}
+
+	resource "yandex_compute_instance" "foobar" {
+		name = "%s"
+		zone = "ru-central1-a"
+
+		resources {
+			cores  = 2
+			memory = 2
+		}
+
+		boot_disk {
+			initialize_params {
+				image_id = data.yandex_compute_image.ubuntu.id
+			}
+		}
+
+		network_interface {
+			subnet_id = yandex_vpc_subnet.inst-test-subnet.id
+		}
+
+		maintenance_policy = "migrate"
+		maintenance_grace_period = "1s"
+	}
+
+	resource "yandex_vpc_network" "inst-test-network" {}
+
+	resource "yandex_vpc_subnet" "inst-test-subnet" {
+		zone           = "ru-central1-a"
+		network_id     = yandex_vpc_network.inst-test-network.id
+		v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccCheckComputeInstance_Maintenance(instance *compute.Instance) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.MaintenancePolicy != compute.MaintenancePolicy_MIGRATE {
+			return fmt.Errorf("unexpected maintenance_policy: %q", instance.MaintenancePolicy)
+		}
+		if instance.MaintenanceGracePeriod == nil {
+			return fmt.Errorf("unexpected maintenance_grace_period: nil")
+		}
+		if duration := instance.MaintenanceGracePeriod.AsDuration(); duration != time.Second {
+			return fmt.Errorf("unexpected maintenance_grace_period: %s", duration)
+		}
+
+		return nil
+	}
 }
 
 func testAccComputeInstance_attachFilesystem(fs, newFs, instance string) string {

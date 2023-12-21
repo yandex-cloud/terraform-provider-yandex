@@ -445,6 +445,17 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"maintenance_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"maintenance_grace_period": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 
@@ -572,6 +583,16 @@ func dataSourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{
 
 	if instance.GpuSettings != nil {
 		d.Set("gpu_cluster_id", instance.GpuSettings.GpuClusterId)
+	}
+
+	if instance.MaintenancePolicy != compute.MaintenancePolicy_MAINTENANCE_POLICY_UNSPECIFIED {
+		if err := d.Set("maintenance_policy", strings.ToLower(instance.MaintenancePolicy.String())); err != nil {
+			return err
+		}
+	}
+
+	if err := d.Set("maintenance_grace_period", formatDuration(instance.MaintenanceGracePeriod)); err != nil {
+		return err
 	}
 
 	d.SetId(instance.Id)

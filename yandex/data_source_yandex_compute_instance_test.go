@@ -131,6 +131,8 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_endpoint", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_token", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_token", "2"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_policy", "migrate"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_grace_period", "1s"),
 	)
 }
 
@@ -174,6 +176,9 @@ resource "yandex_compute_instance" "foo" {
     my_key       = "my_value"
     my_other_key = "my_other_value"
   }
+
+  maintenance_policy = "migrate"
+  maintenance_grace_period = "1s"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}

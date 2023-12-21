@@ -60,6 +60,8 @@ The following arguments are supported:
 * `local_disk` - List of local disks that are attached to the instance. Structure is documented below.
 * `gpu_cluster_id` - ID of GPU cluster if instance is part of it.
 * `metadata_options` - Options allow user to configure access to instance's metadata
+* `maintenance_policy` - Behaviour on maintenance events. The default is `unspecified`. Values: `unspecified`, `migrate`, `restart`.
+* `maintenance_grace_period` - Time between notification via metadata service and maintenance. E.g., `60s`.
 
 ---
 

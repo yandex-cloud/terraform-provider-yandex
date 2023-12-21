@@ -597,6 +597,17 @@ func resourceYandexComputeInstance() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			"maintenance_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"maintenance_grace_period": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -767,6 +778,16 @@ func resourceYandexComputeInstanceRead(d *schema.ResourceData, meta interface{})
 		d.Set("gpu_cluster_id", instance.GpuSettings.GpuClusterId)
 	}
 
+	if instance.MaintenancePolicy != compute.MaintenancePolicy_MAINTENANCE_POLICY_UNSPECIFIED {
+		if err := d.Set("maintenance_policy", strings.ToLower(instance.MaintenancePolicy.String())); err != nil {
+			return err
+		}
+	}
+
+	if err := d.Set("maintenance_grace_period", formatDuration(instance.MaintenanceGracePeriod)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -935,6 +956,38 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
+	}
+
+	maintenancePolicyPropName := "maintenance_policy"
+	maintenanceGracePeriodPropName := "maintenance_grace_period"
+	if d.HasChange(maintenancePolicyPropName) || d.HasChange(maintenanceGracePeriodPropName) {
+		req := &compute.UpdateInstanceRequest{
+			InstanceId: d.Id(),
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{},
+			},
+		}
+
+		if d.HasChange(maintenancePolicyPropName) {
+			req.MaintenancePolicy, err = expandMaintenancePolicy(d)
+			if err != nil {
+				return err
+			}
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, maintenancePolicyPropName)
+		}
+
+		if d.HasChange(maintenanceGracePeriodPropName) {
+			req.MaintenanceGracePeriod, err = parseDuration(d.Get(maintenanceGracePeriodPropName).(string))
+			if err != nil {
+				return err
+			}
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, maintenanceGracePeriodPropName)
+		}
+
+		err = makeInstanceUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
 	networkInterfacesPropName := "network_interface"
@@ -1196,7 +1249,7 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 
 		instanceStoppedAt := time.Now()
 
-		// update platform, resources and network_settings in one request
+		// update platform, resources, network_settings and maintenance_policy in one request
 		if d.HasChange(resourcesPropName) || d.HasChange(platformIDPropName) || d.HasChange(networkAccelerationTypePropName) ||
 			d.HasChange(placementPolicyPropName) || d.HasChange(schedulingPolicyName) {
 			req := &compute.UpdateInstanceRequest{
@@ -1471,30 +1524,58 @@ func prepareCreateInstanceRequest(d *schema.ResourceData, meta *Config) (*comput
 		return nil, fmt.Errorf("Error create 'gpu_settings' object of api request: %s", err)
 	}
 
+	maintenancePolicy, err := expandMaintenancePolicy(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'maintenance_policy' object of api request: %s", err)
+	}
+
+	maintenanceGracePeriod, err := parseDuration(d.Get("maintenance_grace_period").(string))
+	if err != nil {
+		return nil, fmt.Errorf("Error create 'maintenance_grace_period' object of api request: %s", err)
+	}
+
 	req := &compute.CreateInstanceRequest{
-		FolderId:              folderID,
-		Hostname:              d.Get("hostname").(string),
-		Name:                  d.Get("name").(string),
-		Description:           d.Get("description").(string),
-		PlatformId:            d.Get("platform_id").(string),
-		ServiceAccountId:      d.Get("service_account_id").(string),
-		ZoneId:                zone,
-		Labels:                labels,
-		Metadata:              metadata,
-		ResourcesSpec:         resourcesSpec,
-		BootDiskSpec:          bootDiskSpec,
-		SecondaryDiskSpecs:    secondaryDiskSpecs,
-		NetworkSettings:       networkSettingsSpecs,
-		NetworkInterfaceSpecs: nicSpecs,
-		SchedulingPolicy:      schedulingPolicy,
-		PlacementPolicy:       placementPolicy,
-		LocalDiskSpecs:        localDisks,
-		MetadataOptions:       metadataOptions,
-		FilesystemSpecs:       filesystemSpecs,
-		GpuSettings:           gpuSettingsSpec,
+		FolderId:               folderID,
+		Hostname:               d.Get("hostname").(string),
+		Name:                   d.Get("name").(string),
+		Description:            d.Get("description").(string),
+		PlatformId:             d.Get("platform_id").(string),
+		ServiceAccountId:       d.Get("service_account_id").(string),
+		ZoneId:                 zone,
+		Labels:                 labels,
+		Metadata:               metadata,
+		ResourcesSpec:          resourcesSpec,
+		BootDiskSpec:           bootDiskSpec,
+		SecondaryDiskSpecs:     secondaryDiskSpecs,
+		NetworkSettings:        networkSettingsSpecs,
+		NetworkInterfaceSpecs:  nicSpecs,
+		SchedulingPolicy:       schedulingPolicy,
+		PlacementPolicy:        placementPolicy,
+		LocalDiskSpecs:         localDisks,
+		MetadataOptions:        metadataOptions,
+		FilesystemSpecs:        filesystemSpecs,
+		GpuSettings:            gpuSettingsSpec,
+		MaintenancePolicy:      maintenancePolicy,
+		MaintenanceGracePeriod: maintenanceGracePeriod,
 	}
 
 	return req, nil
+}
+
+func expandMaintenancePolicy(d *schema.ResourceData) (compute.MaintenancePolicy, error) {
+	if v, ok := d.GetOk("maintenance_policy"); ok {
+		switch v {
+		case "unspecified":
+			return compute.MaintenancePolicy_MAINTENANCE_POLICY_UNSPECIFIED, nil
+		case "restart":
+			return compute.MaintenancePolicy_RESTART, nil
+		case "migrate":
+			return compute.MaintenancePolicy_MIGRATE, nil
+		default:
+			return compute.MaintenancePolicy_MAINTENANCE_POLICY_UNSPECIFIED, fmt.Errorf("unknown maintenance_policy: %q", v)
+		}
+	}
+	return compute.MaintenancePolicy_MAINTENANCE_POLICY_UNSPECIFIED, nil
 }
 
 func parseHostnameFromFQDN(fqdn string) (string, error) {
