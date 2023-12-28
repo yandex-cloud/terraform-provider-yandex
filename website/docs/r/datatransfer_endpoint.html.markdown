@@ -43,6 +43,7 @@ resource "yandex_datatransfer_endpoint" "pg_target" {
       connection {
         mdb_cluster_id = "some_cluster_id"
       }
+      security_groups = [list of security group ids]
       database = "db2"
       user = "user2"
       password {
@@ -94,6 +95,7 @@ The `postgres_source` block supports:
 * `exclude_tables` - List of tables which will not be transfered, formatted as `schemaname.tablename`.
 * `object_transfer_settings` - (Optional) Defines which database schema objects should be transferred, e.g. views, functions, etc.
 * `slot_gigabyte_lag_limit` - (Optional) Maximum WAL size held by the replication slot, in gigabytes. Exceeding this limit will result in a replication failure and deletion of the replication slot. Unlimited by default.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
 
 The `postgres_target` block supports:
 
@@ -101,6 +103,7 @@ The `postgres_target` block supports:
 * `database` - (Required) Name of the database to transfer.
 * `user` - (Required) User for the database access.
 * `password` - (Required) Password for the database access. This is a block with a single field named `raw` which should contain the password.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
 
 The `connection` block supports exactly one of the following attributes:
 * `mdb_cluster_id` - Identifier of the Managed PostgreSQL cluster.
@@ -142,6 +145,7 @@ The `mysql_source` block supports:
 * `exclude_tables_regex` - (Optional) Opposite of `include_table_regex`. The tables matching the specified regular expressions will not be transferred.
 * `timezone` - (Optional) Timezone to use for parsing timestamps for saving source timezones. Accepts values from IANA timezone database. Default: local timezone.
 * `object_transfer_settings` - (Optional) Defines which database schema objects should be transferred, e.g. views, routines, etc.
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
 
 The `mysql_target` block supports:
 * `connection` - (Required) Connection settings. The structure is documented below.
@@ -153,6 +157,7 @@ The `mysql_target` block supports:
 * `timezone` - (Optional) Timezone to use for parsing timestamps for saving source timezones. Accepts values from IANA timezone database. Default: local timezone.
 * `service_database` - (Optional) The name of the database where technical tables (`__tm_keeper`, `__tm_gtid_keeper`) will be created. Default is the value of the attribute `database`.
 * `cleanup_policy` - (Optional) How to clean tables when activating the transfer. One of "DISABLED", "DROP" or "TRUNCATE".
+* `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
 
 The `connection` block supports exactly one of the following attributes:
 * `mdb_cluster_id` - Identifier of the Managed MySQL cluster.
@@ -268,14 +273,14 @@ The `column_value` block supports:
 ---
 
 The `kafka_source` block supports:
-* `connection` - (Required) Connection settings. 
+* `connection` - (Required) Connection settings.
 * `auth` - (Required) Authentication data.
 * `topic_name` - (Optional) Deprecated. Please use `topic_names` instead.
 * `topic_names` - (Optional) The list of full source topic names.
 * `transformer` - (Optional) Transform data with a custom Cloud Function.
 * `parser` - (Optional) Data parsing parameters. If not set, the source messages are read in raw.
 * `security_groups` - (Optional) List of security groups that the transfer associated with this endpoint should use.
-  
+
 The `kafka_target` block supports:
 * `connection` - (Required) Connection settings.
 * `auth` - (Required) Authentication data.
@@ -320,7 +325,7 @@ The `json_parser` and `tskv_parser` blocks supports:
 The `data_schema` block supports exactly one of the following attributes:
 * `fields`  - Description of the data schema in the array of `fields` structure (documented below).
 * `json_fields`- Description of the data schema as JSON specification.
- 
+
 The `fields` block supports:
 * `name` - (Required) Field name.
 * `type` - (Required) Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`, `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.
