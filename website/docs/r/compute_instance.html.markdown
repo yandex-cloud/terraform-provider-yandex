@@ -127,7 +127,7 @@ The `boot_disk` block supports:
 
 * `mode` - (Optional) Type of access to the disk resource. By default, a disk is attached in `READ_WRITE` mode.
 
-* `disk_id` - (Optional) The ID of the existing disk (such as those managed by
+* `disk_id` - (Required) The ID of the existing disk (such as those managed by
     `yandex_compute_disk`) to attach as a boot disk.
 
 * `initialize_params` - (Optional) Parameters for a new disk that will be created
