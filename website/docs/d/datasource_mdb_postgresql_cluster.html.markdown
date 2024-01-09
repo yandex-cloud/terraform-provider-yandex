@@ -98,7 +98,7 @@ The `performance_diagnostics` block supports:
 * `statements_sampling_interval` - Interval (in seconds) for pg_stat_statements sampling Acceptable values are 1 to 86400, inclusive.
 
 The `disk_size_autoscaling` block supports:
-* `disk_size_limit` - Limit of disk size after autoscaling (GB).
+* `disk_size_limit` - Limit of disk size after autoscaling (GiB).
 * `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
 * `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
 

@@ -7,7 +7,7 @@ FEATURES:
 * mongodb: do not change user's password if no state changes
 
 BUG FIXES:
-* mdb: changed `disk_size_limit` value type from bytes to gigabytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.
+* mdb: changed `disk_size_limit` value type from bytes to gibibytes in `disk_size_autoscaling` attribute in `yandex_mdb_postgresql_cluster` resource.
 
 ENHANCEMENTS:
 * added documentation for k8s cluster scheme attribute - `master_location`
