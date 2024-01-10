@@ -1,4 +1,6 @@
-## 0.105.0 (Unreleased)
+## 0.106.0 (Unreleased)
+
+## 0.105.0 (January 10, 2024)
 FEATURES:
 * alb: support `security_profile_id` in `route_options` for `yandex_alb_virtual_host` resource and data source.
 * serverless: support `log_options` in `yandex_serverless_container` resource and data source
