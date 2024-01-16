@@ -559,6 +559,37 @@ func TestAccCDNResource_optionSecureKey(t *testing.T) {
 	})
 }
 
+func TestAccCDNResource_optionIPAddressACL(t *testing.T) {
+	folderID := getExampleFolderID()
+
+	groupName := fmt.Sprintf("tf-test-cdn-resource-%s", acctest.RandString(10))
+	resourceCName := fmt.Sprintf("cdn-tf-test-%s.yandex.net", acctest.RandString(4))
+
+	var cdnResource cdn.Resource
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckCDNResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCDNResource_optionIPAddressACL(groupName, resourceCName),
+				Check: resource.ComposeTestCheckFunc(
+					testCDNResourceExists("yandex_cdn_resource.foobar_resource", &cdnResource),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "cname", resourceCName),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "folder_id", folderID),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ip_address_acl.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ip_address_acl.0.policy_type", "allow"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ip_address_acl.0.excepted_values.#", "1"),
+					resource.TestCheckResourceAttr("yandex_cdn_resource.foobar_resource", "options.0.ip_address_acl.0.excepted_values.0", "192.168.3.2/32"),
+					testAccCheckCreatedAtAttr("yandex_cdn_resource.foobar_resource"),
+				),
+			},
+		},
+	})
+}
+
 func testSweepCDNResource(_ string) error {
 	conf, err := configForSweepers()
 	if err != nil {
@@ -747,6 +778,23 @@ resource "yandex_cdn_resource" "foobar_resource" {
 	options {
 		secure_key = "testsecurekey"
 		enable_ip_url_signing = true
+	}
+}
+`, resourceCNAME)
+}
+
+func testAccCDNResource_optionIPAddressACL(groupName, resourceCNAME string) string {
+	return makeGroupResource(groupName) + fmt.Sprintf(`
+resource "yandex_cdn_resource" "foobar_resource" {
+	cname = "%s"
+
+	origin_group_id = "${yandex_cdn_origin_group.foo_cdn_group.id}"
+
+	options {
+		ip_address_acl {
+			policy_type = "allow"
+			excepted_values = ["192.168.3.2/32"]
+		}
 	}
 }
 `, resourceCNAME)

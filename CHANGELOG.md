@@ -2,6 +2,7 @@
 FEATURES:
 * iot: support `log_options` in `yandex_iot_core_broker` resource and data source
 * iot: support `log_options` in `yandex_iot_core_registry` resource and data source
+* cdn: add `ip_address_acl.excepted_values` and `ip_address_acl.policy_type` parameters to resource options.
 
 ## 0.105.0 (January 10, 2024)
 FEATURES:

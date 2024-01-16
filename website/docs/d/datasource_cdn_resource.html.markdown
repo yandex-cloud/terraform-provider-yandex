@@ -92,3 +92,7 @@ Resource options block supports following options:
 * `secure_key` - set secure key for url encoding to protect contect and limit access by IP addresses and time limits.
 
 * `enable_ip_url_signing` -  enable access limiting by IP addresses, option available only with setting secure_key.
+
+* `ip_address_acl.excepted_values` - the list of specified IP addresses to be allowed or denied depending on acl policy type.
+
+* `ip_address_acl.policy_type` - the policy type for ip_address_acl option, one of "allow" or "deny" values.

@@ -28,6 +28,11 @@ const (
 	cdnSSLCertificateStatusCreating = "creating"
 )
 
+const (
+	cdnACLPolicyTypeAllow = "allow"
+	cdnACLPolicyTypeDeny  = "deny"
+)
+
 func defineYandexCDNResourceBaseSchema() *schema.Resource {
 	return &schema.Resource{
 		SchemaVersion: 0,
@@ -289,6 +294,37 @@ func defineYandexCDNResourceBaseSchema() *schema.Resource {
 							Optional:     true,
 							RequiredWith: []string{"options.0.secure_key"},
 						},
+						"ip_address_acl": {
+							Type: schema.TypeList,
+
+							Optional: true,
+							Computed: true,
+
+							MaxItems: 1,
+
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"policy_type": {
+										Type: schema.TypeString,
+
+										Optional: true,
+										Computed: true,
+
+										ValidateFunc: validateACLPolicyTypeFunc(),
+									},
+									"excepted_values": {
+										Type: schema.TypeList,
+
+										Optional: true,
+										Computed: true,
+
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -305,6 +341,38 @@ func validateResourceSSLCertTypeFunc() schema.SchemaValidateFunc {
 		},
 		false,
 	)
+}
+
+func validateACLPolicyTypeFunc() schema.SchemaValidateFunc {
+	return validation.StringInSlice(
+		[]string{
+			cdnACLPolicyTypeAllow,
+			cdnACLPolicyTypeDeny,
+		},
+		false,
+	)
+}
+
+func aclPolicyTypeFromString(policyType string) cdn.PolicyType {
+	switch policyType {
+	case cdnACLPolicyTypeAllow:
+		return cdn.PolicyType_POLICY_TYPE_ALLOW
+	case cdnACLPolicyTypeDeny:
+		return cdn.PolicyType_POLICY_TYPE_DENY
+	}
+
+	return cdn.PolicyType_POLICY_TYPE_ALLOW
+}
+
+func aclPolicyTypeToString(policyType cdn.PolicyType) string {
+	switch policyType {
+	case cdn.PolicyType_POLICY_TYPE_ALLOW:
+		return cdnACLPolicyTypeAllow
+	case cdn.PolicyType_POLICY_TYPE_DENY:
+		return cdnACLPolicyTypeDeny
+	}
+
+	return cdnACLPolicyTypeAllow
 }
 
 func resourceYandexCDNResource() *schema.Resource {
@@ -651,6 +719,27 @@ func expandCDNResourceOptions(d *schema.ResourceData) *cdn.ResourceOptions {
 		}
 	}
 
+	if _, ok := d.GetOk("options.0.ip_address_acl"); ok {
+		if size := d.Get("options.0.ip_address_acl.#").(int); size > 0 {
+			if rawPolicyType, ok := d.GetOk("options.0.ip_address_acl.0.policy_type"); ok {
+				optionsSet = true
+
+				var values []string
+				if rawExceptedValues, ok := d.GetOk("options.0.ip_address_acl.0.excepted_values"); ok {
+					for _, v := range rawExceptedValues.([]interface{}) {
+						values = append(values, v.(string))
+					}
+				}
+
+				result.IpAddressAcl = &cdn.ResourceOptions_IPAddressACLOption{
+					Enabled:        true,
+					PolicyType:     aclPolicyTypeFromString(rawPolicyType.(string)),
+					ExceptedValues: values,
+				}
+			}
+		}
+	}
+
 	if !optionsSet {
 		return nil
 	}
@@ -901,6 +990,14 @@ func flattenYandexCDNResourceOptions(options *cdn.ResourceOptions) []map[string]
 		} else {
 			setIfEnabled("enable_ip_url_signing", options.SecureKey.Enabled, false)
 		}
+	}
+
+	if options.IpAddressAcl != nil {
+		ipAddrACL := make(map[string]interface{})
+		ipAddrACL["policy_type"] = aclPolicyTypeToString(options.IpAddressAcl.PolicyType)
+		ipAddrACL["excepted_values"] = options.IpAddressAcl.ExceptedValues
+
+		setIfEnabled("ip_address_acl", options.IpAddressAcl.Enabled, []map[string]interface{}{ipAddrACL})
 	}
 
 	return []map[string]interface{}{
