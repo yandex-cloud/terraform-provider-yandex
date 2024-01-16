@@ -40,4 +40,5 @@ The following attributes are exported:
 * `created_at` - Creation timestamp of the IoT Core Registry
 * `certificates` - A set of certificate's fingerprints for the IoT Core Registry
 * `passwords` - A set of passwords's id for the IoT Core Registry
+* `log_options` - Options for logging for IoT Core Registry
 

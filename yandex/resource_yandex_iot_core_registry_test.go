@@ -114,12 +114,16 @@ func TestAccYandexIoTCoreRegistry_update(t *testing.T) {
 					"description",
 					"label_key",
 					"label",
+					"ERROR",
 					"0123456789_abcd",
 					string(certDefault)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreRegistryExists(iotRegistryResource, &registry),
 					resource.TestCheckResourceAttr(iotRegistryResource, "name", registryName),
 					resource.TestCheckResourceAttr(iotRegistryResource, "description", "description"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.min_level", "ERROR"),
+					resource.TestCheckResourceAttrSet(iotRegistryResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreRegistryContainsLabel(&registry, "label_key", "label"),
 					testYandexIoTCoreStoreCertificates(authInfo, &registry),
 					testYandexIoTCoreStorePasswords(authInfo, &registry),
@@ -131,12 +135,16 @@ func TestAccYandexIoTCoreRegistry_update(t *testing.T) {
 					"description_updated",
 					"label_key_updated",
 					"label_updated",
+					"DEBUG",
 					"0123456789_updated",
 					string(certDefault)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreRegistryExists(iotRegistryResource, &registry),
 					resource.TestCheckResourceAttr(iotRegistryResource, "name", registryName+"_updated"),
 					resource.TestCheckResourceAttr(iotRegistryResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotRegistryResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreRegistryContainsLabel(&registry, "label_key_updated", "label_updated"),
 					testYandexIoTCoreNoChangeCertificates(authInfo, &registry),
 					testYandexIoTCoreChangePasswords(authInfo, &registry),
@@ -149,12 +157,16 @@ func TestAccYandexIoTCoreRegistry_update(t *testing.T) {
 					"description_updated",
 					"label_key_updated",
 					"label_updated",
+					"DEBUG",
 					"0123456789_updated",
 					string(certUpdated)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreRegistryExists(iotRegistryResource, &registry),
 					resource.TestCheckResourceAttr(iotRegistryResource, "name", registryName+"_updated"),
 					resource.TestCheckResourceAttr(iotRegistryResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotRegistryResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotRegistryResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreRegistryContainsLabel(&registry, "label_key_updated", "label_updated"),
 					testYandexIoTCoreChangeCertificates(authInfo, &registry),
 					testYandexIoTCoreStoreCertificates(authInfo, &registry),
@@ -302,7 +314,7 @@ resource "yandex_iot_core_registry" "test-registry" {
 	`, name)
 }
 
-func testYandexIoTCoreRegistryFull(name string, descr string, labelKey string, label string, password string, cert string) string {
+func testYandexIoTCoreRegistryFull(name string, descr string, labelKey string, label string, minLogLevel string, password string, cert string) string {
 	return templateConfig(`
 resource "yandex_iot_core_registry" "test-registry" {
   name        = "{{.Name}}"
@@ -310,6 +322,10 @@ resource "yandex_iot_core_registry" "test-registry" {
   labels = {
     {{.LabelKey}} = "{{.Label}}"
     empty-label   = ""
+  }
+  log_options {
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "{{.MinLogLevel}}"
   }
   passwords = [
     "{{.Password}}"
@@ -319,13 +335,18 @@ resource "yandex_iot_core_registry" "test-registry" {
 EOF
   ]
 }
+
+resource "yandex_logging_group" "logging-group" {
+}
+
 	`, map[string]interface{}{
-		"Name":     name,
-		"Descr":    descr,
-		"LabelKey": labelKey,
-		"Label":    label,
-		"Password": password,
-		"Cert":     cert,
+		"Name":        name,
+		"Descr":       descr,
+		"LabelKey":    labelKey,
+		"Label":       label,
+		"MinLogLevel": minLogLevel,
+		"Password":    password,
+		"Cert":        cert,
 	})
 }
 

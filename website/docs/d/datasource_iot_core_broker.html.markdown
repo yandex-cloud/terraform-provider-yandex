@@ -41,3 +41,4 @@ The following attributes are exported:
 * `labels` - A set of key/value label pairs to assign to the IoT Core Broker.
 * `created_at` - Creation timestamp of the IoT Core Broker
 * `certificates` - A set of certificates fingerprints for the IoT Core Broker
+* `log_options` - Options for logging for IoT Core Broker

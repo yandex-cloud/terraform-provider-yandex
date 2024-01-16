@@ -107,11 +107,15 @@ func TestAccYandexIoTCoreBroker_update(t *testing.T) {
 					"description",
 					"label_key",
 					"label",
+					"ERROR",
 					string(certDefault)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
 					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName),
 					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "ERROR"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key", "label"),
 					testYandexIoTCoreStoreBrokerCertificates(authInfo, &broker),
 				),
@@ -122,11 +126,15 @@ func TestAccYandexIoTCoreBroker_update(t *testing.T) {
 					"description_updated",
 					"label_key_updated",
 					"label_updated",
+					"DEBUG",
 					string(certDefault)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
 					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName+"_updated"),
 					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key_updated", "label_updated"),
 					testYandexIoTCoreNoChangeBrokerCertificates(authInfo, &broker),
 				),
@@ -137,11 +145,15 @@ func TestAccYandexIoTCoreBroker_update(t *testing.T) {
 					"description_updated",
 					"label_key_updated",
 					"label_updated",
+					"DEBUG",
 					string(certUpdated)),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexIoTCoreBrokerExists(iotBrokerResource, &broker),
 					resource.TestCheckResourceAttr(iotBrokerResource, "name", brokerName+"_updated"),
 					resource.TestCheckResourceAttr(iotBrokerResource, "description", "description_updated"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotBrokerResource, "log_options.0.min_level", "DEBUG"),
+					resource.TestCheckResourceAttrSet(iotBrokerResource, "log_options.0.log_group_id"),
 					testYandexIoTCoreBrokerContainsLabel(&broker, "label_key_updated", "label_updated"),
 					testYandexIoTCoreChangeBrokerCertificates(authInfo, &broker),
 					testYandexIoTCoreStoreBrokerCertificates(authInfo, &broker),
@@ -254,7 +266,7 @@ resource "yandex_iot_core_broker" "test-broker" {
 	`, name)
 }
 
-func testYandexIoTCoreBrokerFull(name string, descr string, labelKey string, label string, cert string) string {
+func testYandexIoTCoreBrokerFull(name string, descr string, labelKey string, label string, minLogLevel string, cert string) string {
 	return templateConfig(`
 resource "yandex_iot_core_broker" "test-broker" {
   name        = "{{.Name}}"
@@ -263,17 +275,25 @@ resource "yandex_iot_core_broker" "test-broker" {
     {{.LabelKey}} = "{{.Label}}"
     empty-label   = ""
   }
+  log_options {
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "{{.MinLogLevel}}"
+  }
   certificates = [<<EOF
 {{.Cert}}
 EOF
   ]
 }
+
+resource "yandex_logging_group" "logging-group" {
+}
 	`, map[string]interface{}{
-		"Name":     name,
-		"Descr":    descr,
-		"LabelKey": labelKey,
-		"Label":    label,
-		"Cert":     cert,
+		"Name":        name,
+		"Descr":       descr,
+		"LabelKey":    labelKey,
+		"MinLogLevel": minLogLevel,
+		"Label":       label,
+		"Cert":        cert,
 	})
 }
 

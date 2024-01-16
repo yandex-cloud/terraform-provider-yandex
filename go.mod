@@ -33,7 +33,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
-	github.com/yandex-cloud/go-genproto v0.0.0-20231204110853-8db1d6a6f340
+	github.com/yandex-cloud/go-genproto v0.0.0-20240109074052-1761a149e810
 	github.com/yandex-cloud/go-sdk v0.0.0-20231204111359-25f2607c41ac
 	github.com/ydb-platform/terraform-provider-ydb v0.0.15
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819

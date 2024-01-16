@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -75,6 +76,37 @@ func resourceYandexIoTCoreRegistry() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"log_options": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"log_group_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.folder_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"folder_id": {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.log_group_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
+						},
+						"min_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -101,12 +133,18 @@ func resourceYandexIoTCoreRegistryCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error getting folder ID while creating IoT Registry: %s", err)
 	}
 
+	logOptions, err := expandRegistryLogOptions(d)
+	if err != nil {
+		return fmt.Errorf("Error expanding log options while creating IoT Registry: %s", err)
+	}
+
 	req := iot.CreateRegistryRequest{
 		FolderId:     folderID,
 		Name:         d.Get("name").(string),
 		Description:  d.Get("description").(string),
 		Labels:       labels,
 		Certificates: certs,
+		LogOptions:   logOptions,
 	}
 
 	op, err := config.sdk.WrapOperation(config.sdk.IoT().Devices().Registry().Create(ctx, &req))
@@ -147,6 +185,9 @@ func flattenYandexIoTCoreRegistry(d *schema.ResourceData, registry *iot.Registry
 		return err
 	}
 	d.Set("created_at", getTimestamp(registry.CreatedAt))
+	if logOptions := flattenRegistryLogOptions(registry.LogOptions); logOptions != nil {
+		d.Set("log_options", logOptions)
+	}
 	return nil
 }
 
@@ -213,6 +254,10 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 		updatePaths = append(updatePaths, "labels")
 	}
 
+	if d.HasChange("log_options") {
+		updatePaths = append(updatePaths, "log_options")
+	}
+
 	if len(updatePaths) != 0 {
 		req := iot.UpdateRegistryRequest{
 			RegistryId:  d.Id(),
@@ -220,6 +265,11 @@ func resourceYandexIoTCoreRegistryUpdate(d *schema.ResourceData, meta interface{
 			Description: d.Get("description").(string),
 			Labels:      labels,
 			UpdateMask:  &field_mask.FieldMask{Paths: updatePaths},
+		}
+
+		req.LogOptions, err = expandRegistryLogOptions(d)
+		if err != nil {
+			return fmt.Errorf("Error expanding log options while updating IoT Registry: %s", err)
 		}
 
 		op, err := config.sdk.IoT().Devices().Registry().Update(ctx, &req)
@@ -330,6 +380,51 @@ func expandIoTCerts(d *schema.ResourceData) map[string]interface{} {
 
 func expandIoTPasswords(d *schema.ResourceData) map[string]interface{} {
 	return expandIoTSet("passwords", d)
+}
+
+func expandRegistryLogOptions(d *schema.ResourceData) (*iot.LogOptions, error) {
+	if v, ok := d.GetOk("log_options.0"); ok {
+		logOptionsMap := v.(map[string]interface{})
+		logOptions := &iot.LogOptions{}
+
+		if disabled, ok := logOptionsMap["disabled"]; ok {
+			logOptions.Disabled = disabled.(bool)
+		}
+		if folderID, ok := logOptionsMap["folder_id"]; ok {
+			logOptions.SetFolderId(folderID.(string))
+		}
+		if logGroupID, ok := logOptionsMap["log_group_id"]; ok {
+			logOptions.SetLogGroupId(logGroupID.(string))
+		}
+		if level, ok := logOptionsMap["min_level"]; ok {
+			if v, ok := logging.LogLevel_Level_value[level.(string)]; ok {
+				logOptions.MinLevel = logging.LogLevel_Level(v)
+			} else {
+				return nil, fmt.Errorf("unknown log level: %s", level)
+			}
+		}
+		return logOptions, nil
+	}
+	return nil, nil
+}
+
+func flattenRegistryLogOptions(logOptions *iot.LogOptions) []interface{} {
+	if logOptions == nil {
+		return nil
+	}
+	res := map[string]interface{}{
+		"disabled":  logOptions.Disabled,
+		"min_level": logging.LogLevel_Level_name[int32(logOptions.MinLevel)],
+	}
+	if logOptions.Destination != nil {
+		switch d := logOptions.Destination.(type) {
+		case *iot.LogOptions_LogGroupId:
+			res["log_group_id"] = d.LogGroupId
+		case *iot.LogOptions_FolderId:
+			res["folder_id"] = d.FolderId
+		}
+	}
+	return []interface{}{res}
 }
 
 func waitOperation(ctx context.Context, config *Config, opInput *operation.Operation, err error) error {

@@ -1,4 +1,7 @@
 ## 0.106.0 (Unreleased)
+FEATURES:
+* iot: support `log_options` in `yandex_iot_core_broker` resource and data source
+* iot: support `log_options` in `yandex_iot_core_registry` resource and data source
 
 ## 0.105.0 (January 10, 2024)
 FEATURES:

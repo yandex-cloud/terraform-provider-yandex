@@ -84,6 +84,7 @@ func TestAccYandexDataSourceIoTCoreBroker_full(t *testing.T) {
 					"description",
 					"label_key",
 					"label",
+					"ERROR",
 					string(cert)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "name", brokerName),
@@ -92,6 +93,9 @@ func TestAccYandexDataSourceIoTCoreBroker_full(t *testing.T) {
 					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "labels.label_key", "label"),
 					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "certificates.#", "1"),
+					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotDataSourceBrokerResource, "log_options.0.min_level", "ERROR"),
+					resource.TestCheckResourceAttrSet(iotDataSourceBrokerResource, "log_options.0.log_group_id"),
 				),
 			},
 		},
@@ -124,7 +128,7 @@ resource "yandex_iot_core_broker" "test-brk" {
 `, name, desc)
 }
 
-func testYandexIoTCoreDataSourceBrokerFull(name string, descr string, labelKey string, label string, cert string) string {
+func testYandexIoTCoreDataSourceBrokerFull(name string, descr string, labelKey string, label string, minLogLevel string, cert string) string {
 	return templateConfig(`
 data "yandex_iot_core_broker" "test-brk-ds" {
   broker_id = "${yandex_iot_core_broker.test-brk.id}"
@@ -137,16 +141,24 @@ resource "yandex_iot_core_broker" "test-brk" {
     {{.LabelKey}} = "{{.Label}}",
     empty-label   = ""
   }
+  log_options {
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "{{.MinLogLevel}}"
+  }
   certificates = [<<EOF
 {{.Cert}}
 EOF
   ]
 }
+
+resource "yandex_logging_group" "logging-group" {
+}
 	`, map[string]interface{}{
-		"Name":     name,
-		"Descr":    descr,
-		"LabelKey": labelKey,
-		"Label":    label,
-		"Cert":     cert,
+		"Name":        name,
+		"Descr":       descr,
+		"LabelKey":    labelKey,
+		"Label":       label,
+		"MinLogLevel": minLogLevel,
+		"Cert":        cert,
 	})
 }

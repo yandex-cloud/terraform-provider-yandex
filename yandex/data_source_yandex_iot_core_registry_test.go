@@ -86,6 +86,7 @@ func TestAccYandexDataSourceIoTCoreRegistry_full(t *testing.T) {
 					"description",
 					"label_key",
 					"label",
+					"ERROR",
 					"0123456789_abcd",
 					string(cert)),
 				Check: resource.ComposeTestCheckFunc(
@@ -96,6 +97,9 @@ func TestAccYandexDataSourceIoTCoreRegistry_full(t *testing.T) {
 					resource.TestCheckResourceAttr(iotDataSourceResource, "labels.label_key", "label"),
 					resource.TestCheckResourceAttr(iotDataSourceResource, "certificates.#", "1"),
 					resource.TestCheckResourceAttr(iotDataSourceResource, "passwords.#", "1"),
+					resource.TestCheckResourceAttr(iotDataSourceResource, "log_options.0.disabled", "false"),
+					resource.TestCheckResourceAttr(iotDataSourceResource, "log_options.0.min_level", "ERROR"),
+					resource.TestCheckResourceAttrSet(iotDataSourceResource, "log_options.0.log_group_id"),
 				),
 			},
 		},
@@ -128,7 +132,7 @@ resource "yandex_iot_core_registry" "test-reg" {
 `, name, desc)
 }
 
-func testYandexIoTCoreDataSourceRegistryFull(name string, descr string, labelKey string, label string, password string, cert string) string {
+func testYandexIoTCoreDataSourceRegistryFull(name string, descr string, labelKey string, label string, minLogLevel string, password string, cert string) string {
 	return templateConfig(`
 data "yandex_iot_core_registry" "test-reg-ds" {
   registry_id = "${yandex_iot_core_registry.test-reg.id}"
@@ -141,6 +145,10 @@ resource "yandex_iot_core_registry" "test-reg" {
     {{.LabelKey}} = "{{.Label}}",
     empty-label   = ""
   }
+  log_options {
+	log_group_id = yandex_logging_group.logging-group.id
+	min_level = "{{.MinLogLevel}}"
+  }
   passwords = [
     "{{.Password}}"
   ]
@@ -149,12 +157,16 @@ resource "yandex_iot_core_registry" "test-reg" {
 EOF
   ]
 }
+
+resource "yandex_logging_group" "logging-group" {
+}
 	`, map[string]interface{}{
-		"Name":     name,
-		"Descr":    descr,
-		"LabelKey": labelKey,
-		"Label":    label,
-		"Password": password,
-		"Cert":     cert,
+		"Name":        name,
+		"Descr":       descr,
+		"LabelKey":    labelKey,
+		"Label":       label,
+		"MinLogLevel": minLogLevel,
+		"Password":    password,
+		"Cert":        cert,
 	})
 }

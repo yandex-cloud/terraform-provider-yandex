@@ -19,6 +19,10 @@ resource "yandex_iot_core_registry" "my_registry" {
   labels = {
     my-label = "my-label-value"
   }
+  log_options {
+    log_group_id = "log-group-id"
+    min_level = "ERROR"
+  }
   passwords = [
     "my-password1",
     "my-password2"
@@ -44,6 +48,8 @@ The following arguments are supported:
 
 * `passwords` - A set of passwords's id for the IoT Core Registry
 
+* `log_options` - Options for logging for IoT Core Registry
+
 
 ## Attributes Reference
 
@@ -52,3 +58,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `folder_id` - Folder ID for the IoT Core Registry
 
 * `created_at` - Creation timestamp of the IoT Core Registry
+
+---
+
+The `log_options` block supports:
+* `disabled` - Is logging for registry disabled
+* `log_group_id` - Log entries are written to specified log group
+* `folder_id` - Log entries are written to default log group for specified folder
+* `min_level` - Minimum log entry level

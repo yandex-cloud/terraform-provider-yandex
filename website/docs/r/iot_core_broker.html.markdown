@@ -21,6 +21,10 @@ resource "yandex_iot_core_broker" "my_broker" {
   labels = {
     my-label = "my-label-value"
   }
+  log_options {
+    log_group_id = "log-group-id"
+    min_level = "ERROR"
+  }
   certificates = [
     "public part of certificate1",
     "public part of certificate2"
@@ -40,6 +44,8 @@ The following arguments are supported:
 
 * `certificates` - A set of certificate's fingerprints for the IoT Core Broker
 
+* `log_options` - Options for logging for IoT Core Broker
+
 
 ## Attributes Reference
 
@@ -48,3 +54,11 @@ In addition to the arguments listed above, the following computed attributes are
 * `folder_id` - Folder ID for the IoT Core Broker
 
 * `created_at` - Creation timestamp of the IoT Core Broker
+
+---
+
+The `log_options` block supports:
+* `disabled` - Is logging for broker disabled
+* `log_group_id` - Log entries are written to specified log group
+* `folder_id` - Log entries are written to default log group for specified folder
+* `min_level` - Minimum log entry level
