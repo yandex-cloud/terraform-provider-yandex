@@ -1,5 +1,7 @@
 ## 0.106.0 (Unreleased)
 FEATURES:
+* compute: support `placement_strategy` for `yandex_compute_placement_group` resource and data source.
+* compute: support `placement_group_partition` for `yandex_compute_instance` resource and data source.
 * iot: support `log_options` in `yandex_iot_core_broker` resource and data source
 * iot: support `log_options` in `yandex_iot_core_registry` resource and data source
 * cdn: add `ip_address_acl.excepted_values` and `ip_address_acl.policy_type` parameters to resource options.

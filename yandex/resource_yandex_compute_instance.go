@@ -464,6 +464,10 @@ func resourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"placement_group_partition": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 						"host_affinity_rules": {
 							Type:       schema.TypeList,
 							Computed:   true,
@@ -1916,6 +1920,10 @@ func preparePlacementPolicyForUpdateRequest(d *schema.ResourceData) (*compute.Pl
 		rules := d.Get("placement_policy.0.host_affinity_rules").([]interface{})
 		placementPolicy.HostAffinityRules = expandHostAffinityRulesSpec(rules)
 		paths = append(paths, "placement_policy.host_affinity_rules")
+	}
+	if d.HasChange("placement_policy.0.placement_group_partition") {
+		placementPolicy.PlacementGroupPartition = int64(d.Get("placement_policy.0.placement_group_partition").(int))
+		paths = append(paths, "placement_policy.placement_group_partition")
 	}
 	return &placementPolicy, paths
 }

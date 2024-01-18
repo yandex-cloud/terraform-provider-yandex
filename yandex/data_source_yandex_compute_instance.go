@@ -328,6 +328,10 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"placement_group_partition": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
 						"host_affinity_rules": {
 							Type:       schema.TypeList,
 							Computed:   true,

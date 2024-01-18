@@ -1454,6 +1454,7 @@ func TestAccComputeInstance_filesystem(t *testing.T) {
 }
 
 func TestAccComputeInstance_GpuCluster(t *testing.T) {
+	t.Skip("We don't have resources in Prod cluster for this test")
 	t.Parallel()
 
 	var instance compute.Instance

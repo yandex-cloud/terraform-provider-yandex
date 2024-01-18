@@ -29,7 +29,7 @@ func resourceYandexComputePlacementGroup() *schema.Resource {
 			Delete: schema.DefaultTimeout(yandexComputePlacementGroupDefaultTimeout),
 		},
 
-		SchemaVersion: 0,
+		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -60,6 +60,14 @@ func resourceYandexComputePlacementGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"placement_strategy_spread": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"placement_strategy_partitions": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -85,6 +93,27 @@ func resourceYandexComputePlacementGroupCreate(d *schema.ResourceData, meta inte
 		PlacementStrategy: &compute.CreatePlacementGroupRequest_SpreadPlacementStrategy{
 			SpreadPlacementStrategy: &compute.SpreadPlacementStrategy{},
 		},
+	}
+
+	spreadStrategy, spreadStrategySet := d.GetOk("placement_strategy_spread")
+	partitions, partitionStrategySet := d.GetOk("placement_strategy_partitions")
+	if partitionStrategySet && spreadStrategySet {
+		return fmt.Errorf("Maximum one of 'placement_strategy_spread' or 'placement_strategy_partitions' should be set")
+	}
+	if partitionStrategySet {
+		partitionCount := partitions.(int)
+		req.PlacementStrategy = &compute.CreatePlacementGroupRequest_PartitionPlacementStrategy{
+			PartitionPlacementStrategy: &compute.PartitionPlacementStrategy{
+				Partitions: int64(partitionCount),
+			},
+		}
+	}
+
+	if spreadStrategySet {
+		spreadStrategyVal := spreadStrategy.(bool)
+		if !spreadStrategyVal {
+			return fmt.Errorf("Invalid value for `placement_strategy_spread` should be true or unset")
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))

@@ -29,6 +29,7 @@ import (
 	kmsasymmetricsignature "github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1/asymmetricsignature"
 	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
+
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 )
 
@@ -786,6 +787,11 @@ func expandInstancePlacementPolicy(d *schema.ResourceData) (*compute.PlacementPo
 		PlacementGroupId:  d.Get("placement_policy.0.placement_group_id").(string),
 		HostAffinityRules: expandHostAffinityRulesSpec(ruleSpecs),
 	}
+	p, ok := d.GetOk("placement_policy.0.placement_group_partition")
+	if ok {
+		partitionNumber := p.(int)
+		placementPolicy.PlacementGroupPartition = int64(partitionNumber)
+	}
 	return placementPolicy, nil
 }
 
@@ -916,8 +922,9 @@ func flattenInstancePlacementPolicy(instance *compute.Instance) ([]map[string]in
 		})
 	}
 	placementMap := map[string]interface{}{
-		"placement_group_id":  instance.PlacementPolicy.PlacementGroupId,
-		"host_affinity_rules": affinityRules,
+		"placement_group_id":        instance.PlacementPolicy.PlacementGroupId,
+		"placement_group_partition": instance.PlacementPolicy.PlacementGroupPartition,
+		"host_affinity_rules":       affinityRules,
 	}
 	placementPolicy = append(placementPolicy, placementMap)
 	return placementPolicy, nil

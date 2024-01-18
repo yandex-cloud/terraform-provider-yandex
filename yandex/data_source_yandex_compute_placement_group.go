@@ -35,7 +35,10 @@ func dataSourceYandexComputePlacementGroup() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"placement_strategy": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -84,7 +87,7 @@ func dataSourceYandexComputePlacementGroupRead(d *schema.ResourceData, meta inte
 	d.Set("created_at", getTimestamp(group.CreatedAt))
 	d.Set("name", group.Name)
 	d.Set("description", group.Description)
-
+	d.Set("placement_strategy", group.PlacementStrategy)
 	if err := d.Set("labels", group.Labels); err != nil {
 		return err
 	}

@@ -134,6 +134,7 @@ The `scheduling_policy` block supports:
 The `placement_policy` block supports:
 
 * `placement_group_id` - Specifies the id of the Placement Group to assign to the instance.
+* `placement_group_partition` - Specifies the number of partition in the Placement Group with the partition placement strategy. 
 * `host_affinity_rules` - List of host affinity rules. The structure is documented below.
 
 The `host_affinity_rules` block supports:

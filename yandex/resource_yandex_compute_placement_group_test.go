@@ -63,7 +63,7 @@ func TestAccComputeInstance_createPlacementGroup(t *testing.T) {
 		CheckDestroy: testAccCheckComputeInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComputeInstancePlacementGroup(instanceName),
+				Config: testAccComputeInstancePlacementGroupWithPartitionStrategy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckComputeInstanceExists("yandex_compute_instance.foobar", &instance),
 					testAccCheckNonEmptyPlacementGroup(&instance),
@@ -240,6 +240,65 @@ resource "yandex_compute_instance" "foobar" {
 }
 
 resource yandex_compute_placement_group pg {
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstancePlacementGroupWithPartitionStrategy(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name        = "%s"
+  description = "testAccComputeInstance_basic"
+  platform_id = "standard-v2"
+  zone        = "ru-central1-a"
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      size     = 4
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id = "${yandex_vpc_subnet.inst-test-subnet.id}"
+  }
+
+  metadata = {
+    foo = "bar"
+    baz = "qux"
+  }
+
+  labels = {
+    my_key       = "my_value"
+    my_other_key = "my_other_value"
+  }
+  placement_policy {
+    placement_group_id = yandex_compute_placement_group.pg.id
+    placement_group_partition = 3
+  }
+}
+
+resource yandex_compute_placement_group pg {
+	placement_strategy_partitions = 3
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
