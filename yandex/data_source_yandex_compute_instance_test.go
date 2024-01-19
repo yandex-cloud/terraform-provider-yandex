@@ -24,7 +24,7 @@ func TestAccDataSourceComputeInstance_byID(t *testing.T) {
 				Config: testAccDataSourceComputeInstanceConfig(instanceName, true),
 				Check: testAccDataSourceComputeInstanceCheck(
 					"data.yandex_compute_instance.bar",
-					"yandex_compute_instance.foo", instanceName),
+					"yandex_compute_instance.foo", instanceName, "migrate"),
 			},
 		},
 	})
@@ -44,7 +44,7 @@ func TestAccDataSourceComputeInstance_byName(t *testing.T) {
 				Config: testAccDataSourceComputeInstanceConfig(instanceName, false),
 				Check: testAccDataSourceComputeInstanceCheck(
 					"data.yandex_compute_instance.bar",
-					"yandex_compute_instance.foo", instanceName),
+					"yandex_compute_instance.foo", instanceName, "migrate"),
 			},
 		},
 	})
@@ -109,13 +109,13 @@ func TestAccDataSourceComputeInstance_GpusById(t *testing.T) {
 				Config: testAccDataSourceComputeInstanceGpusConfig(instanceName, true),
 				Check: testAccDataSourceComputeInstanceCheck(
 					"data.yandex_compute_instance.bar",
-					"yandex_compute_instance.foo", instanceName),
+					"yandex_compute_instance.foo", instanceName, "restart"),
 			},
 		},
 	})
 }
 
-func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName string, instanceName string) resource.TestCheckFunc {
+func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName string, instanceName string, maintenancePolicy string) resource.TestCheckFunc {
 	return resource.ComposeTestCheckFunc(
 		testAccDataSourceComputeInstanceAttributesCheck(datasourceName, resourceName),
 		testAccCheckResourceIDField(datasourceName, "instance_id"),
@@ -132,7 +132,7 @@ func testAccDataSourceComputeInstanceCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_endpoint", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.gce_http_token", "1"),
 		resource.TestCheckResourceAttr(datasourceName, "metadata_options.0.aws_v1_http_token", "2"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_policy", "migrate"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_policy", maintenancePolicy),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_grace_period", "1s"),
 	)
 }
@@ -239,6 +239,9 @@ resource "yandex_compute_instance" "foo" {
     my_key       = "my_value"
     my_other_key = "my_other_value"
   }
+
+  maintenance_policy = "restart"
+  maintenance_grace_period = "1s"
 }
 
 resource "yandex_vpc_network" "inst-test-network" {}
