@@ -97,7 +97,6 @@ func testAccDataSourceComputeInstanceAttributesCheck(datasourceName string, reso
 }
 
 func TestAccDataSourceComputeInstance_GpusById(t *testing.T) {
-	t.Skip("skip broken test")
 	instanceName := fmt.Sprintf("data-instance-test-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
