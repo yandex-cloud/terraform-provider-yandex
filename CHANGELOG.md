@@ -1,4 +1,6 @@
-## 0.106.0 (Unreleased)
+## 0.107.0 (Unreleased)
+
+## 0.106.0 (January 23, 2024)
 FEATURES:
 * compute: support `placement_strategy` for `yandex_compute_placement_group` resource and data source.
 * compute: support `placement_group_partition` for `yandex_compute_instance` resource and data source.
