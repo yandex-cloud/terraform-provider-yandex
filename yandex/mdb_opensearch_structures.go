@@ -103,7 +103,7 @@ func expandOpenSearchConfigCreateSpec(raw interface{}) *opensearch.ConfigCreateS
 	}
 
 	dashboardsList := d["dashboards"].([]interface{})
-	if len(openSearchList) != 0 {
+	if len(dashboardsList) != 0 {
 		dashboards := dashboardsList[0].(map[string]interface{})
 
 		config.DashboardsSpec = &opensearch.DashboardsCreateSpec{

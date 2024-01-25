@@ -242,7 +242,7 @@ The `resources` block supports:
 
 * `resources_preset_id` - (Required) The ID of the preset for computational resources available to a host (CPU, memory etc.). For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/concepts).
 
-* `disk_size` - (Required) Volume of the storage available to a host, in gigabytes.
+* `disk_size` - (Required) Volume of the storage available to a host, in bytes.
 
 * `disk_type_id` - (Required) Type of the storage of OpenSearch hosts.
 
