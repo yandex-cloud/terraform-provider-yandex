@@ -3,22 +3,24 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
+	"reflect"
+	"sort"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
 	yandex_datasphere_project "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/project"
-	"reflect"
-	"sort"
-	"testing"
 )
 
 func TestAccDatasphereProjectResourceIamBinding(t *testing.T) {
-	communityName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	projectName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+	var (
+		communityName = testResourseName(63)
+		projectName   = testResourseName(63)
 
-	userID := "allUsers"
-	role := "datasphere.community-projects.viewer"
+		userID = "allUsers"
+		role   = "datasphere.community-projects.viewer"
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

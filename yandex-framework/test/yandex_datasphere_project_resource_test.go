@@ -3,13 +3,15 @@ package test
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/datasphere/v2"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
-	"testing"
-	"time"
+	"google.golang.org/grpc/codes"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -24,29 +26,78 @@ func init() {
 		Dependencies: []string{},
 	})
 }
+
 func testSweepProject(_ string) error {
 	conf, err := configForSweepers()
 	if err != nil {
-		return fmt.Errorf("error getting client: %s", err)
+		return fmt.Errorf("error getting client: %w", err)
 	}
 
-	it := conf.SDK.Datasphere().Project().ProjectIterator(
-		context.Background(),
-		&datasphere.ListProjectsRequest{},
-	)
+	// get all communities for user
+	communities, err := getAllCommunityIDs(conf)
+	if err != nil {
+		return fmt.Errorf("get communities: %w", err)
+	}
+
 	result := &multierror.Error{}
 
-	for it.Next() {
-		projectId := it.Value().GetId()
-		if !sweepProject(conf, projectId) {
+	for _, communityID := range communities {
+		it := conf.SDK.Datasphere().Project().ProjectIterator(
+			context.Background(),
+			&datasphere.ListProjectsRequest{
+				CommunityId: communityID,
+				OwnedById:   testAccTestsUser,
+			},
+		)
+
+		for it.Next() {
+			projectId := it.Value().GetId()
+			if !isTestResourseName(it.Value().GetName()) {
+				continue
+			}
+			if !sweepProject(conf, projectId) {
+				result = multierror.Append(
+					result,
+					fmt.Errorf("failed to sweep project id %q", projectId),
+				)
+			}
+		}
+
+		if err := it.Error(); err != nil {
 			result = multierror.Append(
 				result,
-				fmt.Errorf("failed to sweep project id %q", projectId),
+				fmt.Errorf("iterator error: %w", err),
 			)
 		}
 	}
 
 	return result.ErrorOrNil()
+}
+
+func getAllCommunityIDs(conf *provider_config.Config) ([]string, error) {
+	var (
+		it = conf.SDK.Datasphere().Community().CommunityIterator(
+			context.Background(),
+			&datasphere.ListCommunitiesRequest{OrganizationId: getExampleOrganizationID()},
+		)
+		ids []string
+	)
+
+	for it.Next() {
+		if !isTestResourseName(it.Value().GetName()) {
+			continue
+		}
+		ids = append(ids, it.Value().GetId())
+	}
+
+	if err := it.Error(); err != nil {
+		if isStatusWithCode(err, codes.NotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("iterator err: %w", err)
+	}
+
+	return ids, nil
 }
 
 func sweepProject(conf *provider_config.Config, cloudId string) bool {
@@ -65,12 +116,14 @@ func sweepProjectOnce(conf *provider_config.Config, id string) error {
 }
 
 func TestAccDatasphereProjectResource_basic(t *testing.T) {
-	communityName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+	var (
+		communityName = testResourseName(63)
 
-	projectName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	projectDesc := acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
-	labelKey := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	labelValue := acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+		projectName = testResourseName(63)
+		projectDesc = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
+		labelKey    = acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+		labelValue  = acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -84,11 +137,13 @@ func TestAccDatasphereProjectResource_basic(t *testing.T) {
 }
 
 func TestAccDatasphereProjectResource_fullData(t *testing.T) {
-	communityName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+	var (
+		communityName = testResourseName(63)
 
-	projectName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	projectDesc := acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
-	saName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+		projectName = testResourseName(63)
+		projectDesc = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
+		saName      = acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -118,17 +173,19 @@ func TestAccDatasphereProjectResource_fullData(t *testing.T) {
 }
 
 func TestAccDatasphereProjectResource_update(t *testing.T) {
-	communityName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+	var (
+		communityName = testResourseName(63)
 
-	projectName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	projectDesc := acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
-	labelKey := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	labelValue := acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+		projectName = testResourseName(63)
+		projectDesc = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
+		labelKey    = acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+		labelValue  = acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
 
-	projectNameUpdated := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	projectDescUpdated := acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
-	labelKeyUpdated := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	labelValueUpdated := acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+		projectNameUpdated = testResourseName(63)
+		projectDescUpdated = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
+		labelKeyUpdated    = acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+		labelValueUpdated  = acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

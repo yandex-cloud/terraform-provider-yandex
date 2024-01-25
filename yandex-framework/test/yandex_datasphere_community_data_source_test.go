@@ -2,19 +2,21 @@ package test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"testing"
 )
 
 const testCommunityDataSourceName = "data.yandex_datasphere_community.test-community-data"
 
 func TestAccDatasphereCommunityDataSource(t *testing.T) {
-
-	communityName := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	communityDesc := acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
-	labelKey := acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
-	labelValue := acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+	var (
+		communityName = testResourseName(63)
+		communityDesc = acctest.RandStringFromCharSet(256, acctest.CharSetAlpha)
+		labelKey      = acctest.RandStringFromCharSet(63, acctest.CharSetAlpha)
+		labelValue    = acctest.RandStringFromCharSet(63, acctest.CharSetAlphaNum)
+	)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

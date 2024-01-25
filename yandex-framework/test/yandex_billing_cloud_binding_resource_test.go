@@ -3,14 +3,15 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
-	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
-	yandex_billing_cloud_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 	"os"
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/billing/v1"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
+	yandex_billing_cloud_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 
 	"github.com/hashicorp/go-multierror"
 
@@ -47,6 +48,11 @@ func testSweepBillingCloudBinding(_ string) error {
 		return fmt.Errorf("error getting client: %s", err)
 	}
 
+	if !isAllNeedleEnvsAvailable() {
+		debugLog("yandex_billing_cloud_binding sweeper was skeeped")
+		return nil
+	}
+
 	req := &billing.ListBillableObjectBindingsRequest{
 		BillingAccountId: billingInstanceTestFirstBillingAccountId(),
 	}
@@ -63,7 +69,18 @@ func testSweepBillingCloudBinding(_ string) error {
 		}
 	}
 
+	if err := it.Error(); err != nil {
+		result = multierror.Append(
+			result,
+			fmt.Errorf("iterator error: %w", err),
+		)
+	}
+
 	return result.ErrorOrNil()
+}
+
+func isAllNeedleEnvsAvailable() bool {
+	return billingInstanceTestFirstBillingAccountId() != "" && billingInstanceTestSecondBillingAccountId() != ""
 }
 
 func sweepBillingCloudBinding(conf *provider_config.Config, cloudId string) bool {

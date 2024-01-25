@@ -1,7 +1,8 @@
 ## 0.107.0 (Unreleased)
 FEATURES:
 * mongodb: added `enable_flow_control`, `compressors`, `prefix_compression`, `slow_op_sample_rate` parameters to mongodb config
-
+ENHANCEMENTS:
+* added running of sweepers and tests for yandex-framework package.
 
 ## 0.106.0 (January 23, 2024)
 FEATURES:

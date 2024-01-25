@@ -2,12 +2,12 @@ package test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 const billingCloudBindingBindingDataSource = "data.yandex_billing_cloud_binding.test_cloud_binding_data_binding"
