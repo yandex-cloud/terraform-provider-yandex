@@ -372,6 +372,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												"enable_flow_control": {
+													Type:     schema.TypeBool,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -435,6 +439,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Type:     schema.TypeInt,
 													Optional: true,
 												},
+												"slow_op_sample_rate": {
+													Type:     schema.TypeFloat,
+													Optional: true,
+												},
 											},
 										},
 									},
@@ -447,6 +455,16 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 												"max_incoming_connections": {
 													Type:     schema.TypeInt,
 													Optional: true,
+												},
+												"compressors": {
+													Type:     schema.TypeList,
+													MaxItems: 3,
+													Optional: true,
+													Elem: &schema.Schema{
+														Type:         schema.TypeString,
+														StateFunc:    stateToUpper,
+														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZLIB", "SNAPPY"}, true),
+													},
 												},
 											},
 										},
@@ -472,6 +490,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 																Optional:     true,
 																StateFunc:    stateToUpper,
 																ValidateFunc: validation.StringInSlice([]string{"NONE", "ZLIB", "SNAPPY", "ZSTD"}, true),
+															},
+															"prefix_compression": {
+																Type:     schema.TypeBool,
+																Optional: true,
 															},
 														},
 													},
@@ -574,6 +596,16 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 												"max_incoming_connections": {
 													Type:     schema.TypeInt,
 													Optional: true,
+												},
+												"compressors": {
+													Type:     schema.TypeList,
+													MaxItems: 3,
+													Optional: true,
+													Elem: &schema.Schema{
+														Type:         schema.TypeString,
+														StateFunc:    stateToUpper,
+														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZlIB", "SNAPPY"}, true),
+													},
 												},
 											},
 										},

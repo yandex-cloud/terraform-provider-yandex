@@ -117,18 +117,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							}
 							result["audit_log"] = []map[string]interface{}{audit_log_data}
 						}
-						if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
-							set_parameter_data := map[string]interface{}{}
-							if set_parameter.GetAuditAuthorizationSuccess() != nil {
-								set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							setParameterData := map[string]interface{}{}
+							if setParameter.GetAuditAuthorizationSuccess() != nil {
+								setParameterData["audit_authorization_success"] = setParameter.GetAuditAuthorizationSuccess().GetValue()
 							}
-							result["set_parameter"] = []map[string]interface{}{set_parameter_data}
+							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
+								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig6_0Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -145,6 +156,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -168,6 +184,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -186,6 +205,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig6_0Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -275,15 +302,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					//}
 					configMongod.SetAuditLog(&audit_log)
 
-					set_paramenter := mongo_config.MongodConfig6_0Enterprise_SetParameter{}
+					setParameter := mongo_config.MongodConfig6_0Enterprise_SetParameter{}
 					if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
-						set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
+						setParameter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
 					}
-					configMongod.SetSetParameter(&set_paramenter)
+					if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+						setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+					}
+					configMongod.SetSetParameter(&setParameter)
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig6_0Enterprise_Network{}
+						compressionMongod := mongo_config.MongodConfig6_0Enterprise_Network_Compression{}
+						netMongod := mongo_config.MongodConfig6_0Enterprise_Network{
+							Compression: &compressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig6_0Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig6_0Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig6_0Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							compressionMongod.SetCompressors(modifiedCompressors)
 						}
 						configMongod.SetNet(&netMongod)
 					}
@@ -298,15 +339,21 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig6_0Enterprise_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig6_0Enterprise_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -321,17 +368,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig6_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
-
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
 						}
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig6_0Enterprise_Network{}
+						compressionMongoS := mongo_config.MongosConfig6_0Enterprise_Network_Compression{}
+						netMongos := mongo_config.MongosConfig6_0Enterprise_Network{
+							Compression: &compressionMongoS,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig6_0Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig6_0Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig6_0Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							compressionMongoS.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -454,11 +513,26 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					if mongod != nil {
 						user_config := mongod.GetConfig().GetUserConfig()
 						result := map[string]interface{}{}
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							setParameterData := map[string]interface{}{}
+							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
+								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{setParameterData}
+						}
 
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig6_0_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -475,6 +549,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -498,9 +577,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
-
 						return []map[string]interface{}{result}, nil
 					}
 					return []map[string]interface{}{}, nil
@@ -516,6 +597,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig6_0_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -574,11 +663,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					configMongoCfg := mongo_config.MongoCfgConfig6_0{}
 
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig6_0_Network{}
+						compressionMongod := mongo_config.MongodConfig6_0_Network_Compression{}
+						netMongod := mongo_config.MongodConfig6_0_Network{
+							Compression: &compressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
 						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig6_0_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig6_0_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig6_0_Network_Compression_Compressor(compressorInt)
+								})
+							compressionMongod.SetCompressors(modifiedCompressors)
+						}
 						configMongod.SetNet(&netMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter"); ok {
+						setParamenter := mongo_config.MongodConfig6_0_SetParameter{}
+						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+							setParamenter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+						}
+						configMongod.SetSetParameter(&setParamenter)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
 						opProfilingMongod := mongo_config.MongodConfig6_0_OperationProfiling{}
@@ -591,15 +698,21 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig6_0_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig6_0_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig6_0_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig6_0_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig6_0_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig6_0_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -614,17 +727,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig6_0_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
-
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
 						}
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig6_0_Network{}
+						compressionMongoS := mongo_config.MongosConfig6_0_Network_Compression{}
+						netMongos := mongo_config.MongosConfig6_0_Network{
+							Compression: &compressionMongoS,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig6_0_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig6_0_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig6_0_Network_Compression_Compressor(compressorInt)
+								})
+							compressionMongoS.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -778,18 +903,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							}
 							result["audit_log"] = []map[string]interface{}{audit_log_data}
 						}
-						if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
-							set_parameter_data := map[string]interface{}{}
-							if set_parameter.GetAuditAuthorizationSuccess() != nil {
-								set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							setParameterData := map[string]interface{}{}
+							if setParameter.GetAuditAuthorizationSuccess() != nil {
+								setParameterData["audit_authorization_success"] = setParameter.GetAuditAuthorizationSuccess().GetValue()
 							}
-							result["set_parameter"] = []map[string]interface{}{set_parameter_data}
+							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
+								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig5_0Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -806,6 +942,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -829,6 +970,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -847,6 +991,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig5_0Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -936,15 +1088,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					//}
 					configMongod.SetAuditLog(&audit_log)
 
-					set_paramenter := mongo_config.MongodConfig5_0Enterprise_SetParameter{}
+					setParameter := mongo_config.MongodConfig5_0Enterprise_SetParameter{}
 					if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
-						set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
+						setParameter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
 					}
-					configMongod.SetSetParameter(&set_paramenter)
+					if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+						setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+					}
+					configMongod.SetSetParameter(&setParameter)
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig5_0Enterprise_Network{}
+						netCompressionMongod := mongo_config.MongodConfig5_0Enterprise_Network_Compression{}
+						netMongod := mongo_config.MongodConfig5_0Enterprise_Network{
+							Compression: &netCompressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig5_0Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig5_0Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig5_0Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongod.SetCompressors(modifiedCompressors)
 						}
 						configMongod.SetNet(&netMongod)
 					}
@@ -959,15 +1125,22 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
+
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig5_0Enterprise_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig5_0Enterprise_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -982,6 +1155,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig5_0Enterprise_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
@@ -989,10 +1165,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig5_0Enterprise_Network{}
+						netCompressionMongos := mongo_config.MongosConfig5_0Enterprise_Network_Compression{}
+						netMongos := mongo_config.MongosConfig5_0Enterprise_Network{
+							Compression: &netCompressionMongos,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig5_0Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig5_0Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig5_0Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongos.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -1116,10 +1302,26 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						user_config := mongod.GetConfig().GetUserConfig()
 						result := map[string]interface{}{}
 
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							flattenSetParameter := map[string]interface{}{}
+							if flowControl := setParameter.GetEnableFlowControl(); flowControl != nil {
+								flattenSetParameter["enable_flow_control"] = flowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{flattenSetParameter}
+						}
+
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig5_0_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1136,6 +1338,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -1159,6 +1366,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -1177,6 +1387,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig5_0_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1235,11 +1453,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					configMongoCfg := mongo_config.MongoCfgConfig5_0{}
 
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig5_0_Network{}
+						netCompressionMongod := mongo_config.MongodConfig5_0_Network_Compression{}
+						netMongod := mongo_config.MongodConfig5_0_Network{
+							Compression: &netCompressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
 						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig5_0_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig5_0_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig5_0_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongod.SetCompressors(modifiedCompressors)
+						}
 						configMongod.SetNet(&netMongod)
+					}
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter"); ok {
+						setParameter := mongo_config.MongodConfig5_0_SetParameter{}
+						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+							setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+						}
+						configMongod.SetSetParameter(&setParameter)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
 						opProfilingMongod := mongo_config.MongodConfig5_0_OperationProfiling{}
@@ -1252,15 +1488,22 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
+
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig5_0_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig5_0_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig5_0_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -1275,17 +1518,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig5_0_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
-
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
 						}
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig5_0_Network{}
+						netCompressionMongos := mongo_config.MongosConfig5_0_Network_Compression{}
+						netMongos := mongo_config.MongosConfig5_0_Network{
+							Compression: &netCompressionMongos,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig5_0_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig5_0_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig5_0_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongos.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -1436,18 +1691,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							}
 							result["audit_log"] = []map[string]interface{}{audit_log_data}
 						}
-						if set_parameter := user_config.GetSetParameter(); set_parameter != nil {
-							set_parameter_data := map[string]interface{}{}
-							if set_parameter.GetAuditAuthorizationSuccess() != nil {
-								set_parameter_data["audit_authorization_success"] = set_parameter.GetAuditAuthorizationSuccess().GetValue()
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							setParameterData := map[string]interface{}{}
+							if setParameter.GetAuditAuthorizationSuccess() != nil {
+								setParameterData["audit_authorization_success"] = setParameter.GetAuditAuthorizationSuccess().GetValue()
 							}
-							result["set_parameter"] = []map[string]interface{}{set_parameter_data}
+							if flowControl := setParameter.GetEnableFlowControl(); flowControl != nil {
+								setParameterData["enable_flow_control"] = flowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig4_4Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1464,6 +1730,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -1487,6 +1758,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -1505,6 +1779,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig4_4Enterprise_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1598,11 +1880,25 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					if success := d.Get("cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success"); success != nil {
 						set_paramenter.SetAuditAuthorizationSuccess(&wrappers.BoolValue{Value: success.(bool)})
 					}
+					if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+						set_paramenter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+					}
 					configMongod.SetSetParameter(&set_paramenter)
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig4_4Enterprise_Network{}
+						netCompressionMongod := mongo_config.MongodConfig4_4Enterprise_Network_Compression{}
+						netMongod := mongo_config.MongodConfig4_4Enterprise_Network{
+							Compression: &netCompressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig4_4Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig4_4Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig4_4Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongod.SetCompressors(modifiedCompressors)
 						}
 						configMongod.SetNet(&netMongod)
 					}
@@ -1617,15 +1913,21 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig4_4Enterprise_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig4_4Enterprise_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -1640,6 +1942,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig4_4Enterprise_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
@@ -1647,10 +1952,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig4_4Enterprise_Network{}
+						netCompressionMongos := mongo_config.MongosConfig4_4Enterprise_Network_Compression{}
+						netMongos := mongo_config.MongosConfig4_4Enterprise_Network{
+							Compression: &netCompressionMongos,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig4_4Enterprise_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig4_4Enterprise_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig4_4Enterprise_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongos.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -1774,10 +2089,26 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						user_config := mongod.GetConfig().GetUserConfig()
 						result := map[string]interface{}{}
 
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							flattenSetParameter := map[string]interface{}{}
+							if flowControl := setParameter.GetEnableFlowControl(); flowControl != nil {
+								flattenSetParameter["enable_flow_control"] = flowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{flattenSetParameter}
+						}
+
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig4_4_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1794,6 +2125,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -1817,6 +2153,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -1835,6 +2174,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig4_4_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -1892,10 +2239,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					configMongos := mongo_config.MongosConfig4_4{}
 					configMongoCfg := mongo_config.MongoCfgConfig4_4{}
 
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter"); ok {
+						setParameter := mongo_config.MongodConfig4_4_SetParameter{}
+						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+							setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+						}
+						configMongod.SetSetParameter(&setParameter)
+					}
+
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig4_4_Network{}
+						netCompressionMongod := mongo_config.MongodConfig4_4_Network_Compression{}
+						netMongod := mongo_config.MongodConfig4_4_Network{
+							Compression: &netCompressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig4_4_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig4_4_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig4_4_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongod.SetCompressors(modifiedCompressors)
 						}
 						configMongod.SetNet(&netMongod)
 					}
@@ -1911,15 +2277,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig4_4_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig4_4_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig4_4_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -1934,6 +2305,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig4_4_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
@@ -1941,10 +2315,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig4_4_Network{}
+						netCompressionMongos := mongo_config.MongosConfig4_4_Network_Compression{}
+						netMongos := mongo_config.MongosConfig4_4_Network{
+							Compression: &netCompressionMongos,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig4_4_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig4_4_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig4_4_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongos.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -2068,10 +2452,26 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						user_config := mongod.GetConfig().GetUserConfig()
 						result := map[string]interface{}{}
 
+						if setParameter := user_config.GetSetParameter(); setParameter != nil {
+							flattenSetParameter := map[string]interface{}{}
+							if flowControl := setParameter.GetEnableFlowControl(); flowControl != nil {
+								flattenSetParameter["enable_flow_control"] = flowControl.GetValue()
+							}
+							result["set_parameter"] = []map[string]interface{}{flattenSetParameter}
+						}
+
 						if net := user_config.GetNet(); net != nil {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongodConfig4_2_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -2088,6 +2488,11 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								if collectionConfig := wiredTiger.GetCollectionConfig(); collectionConfig != nil {
 									if blockCompressor := collectionConfig.GetBlockCompressor(); blockCompressor != 0 {
 										flattenWiredTiger["block_compressor"] = blockCompressor.String()
+									}
+								}
+								if indexConfig := wiredTiger.GetIndexConfig(); indexConfig != nil {
+									if prefixCompression := indexConfig.GetPrefixCompression(); prefixCompression != nil {
+										flattenWiredTiger["prefix_compression"] = prefixCompression.GetValue()
 									}
 								}
 								flattenStorage["wired_tiger"] = []map[string]interface{}{flattenWiredTiger}
@@ -2111,6 +2516,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if opThreshold := opProfiling.GetSlowOpThreshold(); opThreshold != nil {
 								flattenOpProfiling["slow_op_threshold"] = opThreshold.GetValue()
 							}
+							if opSampleRate := opProfiling.GetSlowOpSampleRate(); opSampleRate != nil {
+								flattenOpProfiling["slow_op_sample_rate"] = opSampleRate.GetValue()
+							}
 							result["operation_profiling"] = []map[string]interface{}{flattenOpProfiling}
 						}
 
@@ -2129,6 +2537,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							flattenNet := map[string]interface{}{}
 							if maxIncomingConnections := net.GetMaxIncomingConnections(); maxIncomingConnections != nil {
 								flattenNet["max_incoming_connections"] = maxIncomingConnections.GetValue()
+							}
+							if compression := net.GetCompression(); compression != nil {
+								if compressors := compression.GetCompressors(); compressors != nil {
+									flattenNet["compressors"] = Map(compressors,
+										func(f mongo_config.MongosConfig4_2_Network_Compression_Compressor) string {
+											return f.String()
+										})
+								}
 							}
 							result["net"] = []map[string]interface{}{flattenNet}
 						}
@@ -2186,10 +2602,29 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					configMongos := mongo_config.MongosConfig4_2{}
 					configMongoCfg := mongo_config.MongoCfgConfig4_2{}
 
+					if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter"); ok {
+						setParameter := mongo_config.MongodConfig4_2_SetParameter{}
+						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
+							setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+						}
+						configMongod.SetSetParameter(&setParameter)
+					}
+
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
-						netMongod := mongo_config.MongodConfig4_2_Network{}
+						netCompressionMongod := mongo_config.MongodConfig4_2_Network_Compression{}
+						netMongod := mongo_config.MongodConfig4_2_Network{
+							Compression: &netCompressionMongod,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongod.0.net.0.max_incoming_connections"); ok {
 							netMongod.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongod.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongodConfig4_2_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongodConfig4_2_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongodConfig4_2_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongod.SetCompressors(modifiedCompressors)
 						}
 						configMongod.SetNet(&netMongod)
 					}
@@ -2205,15 +2640,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						if opThreshold, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"); ok {
 							opProfilingMongod.SetSlowOpThreshold(&wrappers.Int64Value{Value: int64(opThreshold.(int))})
 						}
+						if opSampleRate, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"); ok {
+							opProfilingMongod.SetSlowOpSampleRate(&wrappers.DoubleValue{Value: opSampleRate.(float64)})
+						}
 						configMongod.SetOperationProfiling(&opProfilingMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.storage"); ok {
 						engineConfigMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger_EngineConfig{}
 						collectionConfigMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig{}
+						indexConfigMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger_IndexConfig{}
 						journalMongod := mongo_config.MongodConfig4_2_Storage_Journal{}
 						wiredTigerMongod := mongo_config.MongodConfig4_2_Storage_WiredTiger{
 							EngineConfig:     &engineConfigMongod,
 							CollectionConfig: &collectionConfigMongod,
+							IndexConfig:      &indexConfigMongod,
 						}
 						storageMongod := mongo_config.MongodConfig4_2_Storage{
 							WiredTiger: &wiredTigerMongod,
@@ -2228,6 +2668,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 								mongo_config.MongodConfig4_2_Storage_WiredTiger_CollectionConfig_Compressor(blockCompressorInt),
 							)
 						}
+						if prefixCompression, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"); ok {
+							indexConfigMongod.SetPrefixCompression(&wrappers.BoolValue{Value: prefixCompression.(bool)})
+						}
 
 						if commitInterval, ok := d.GetOk("cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"); ok {
 							journalMongod.SetCommitInterval(&wrappers.Int64Value{Value: int64(commitInterval.(int))})
@@ -2235,10 +2678,20 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						configMongod.SetStorage(&storageMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongos.0.net"); ok {
-
-						netMongos := mongo_config.MongosConfig4_2_Network{}
+						netCompressionMongos := mongo_config.MongosConfig4_2_Network_Compression{}
+						netMongos := mongo_config.MongosConfig4_2_Network{
+							Compression: &netCompressionMongos,
+						}
 						if maxConnections, ok := d.GetOk("cluster_config.0.mongos.0.net.0.max_incoming_connections"); ok {
 							netMongos.SetMaxIncomingConnections(&wrappers.Int64Value{Value: int64(maxConnections.(int))})
+						}
+						if compressors, ok := d.GetOk("cluster_config.0.mongos.0.net.0.compressors"); ok {
+							modifiedCompressors := Map(compressors.([]interface{}),
+								func(f interface{}) mongo_config.MongosConfig4_2_Network_Compression_Compressor {
+									compressorInt := mongo_config.MongosConfig4_2_Network_Compression_Compressor_value[strings.ToUpper(f.(string))]
+									return mongo_config.MongosConfig4_2_Network_Compression_Compressor(compressorInt)
+								})
+							netCompressionMongos.SetCompressors(modifiedCompressors)
 						}
 						configMongos.SetNet(&netMongos)
 					}
@@ -3351,4 +3804,12 @@ func flattendVersion(version string) string {
 	result := strings.Replace(version, ".", "_", -1)
 	result = strings.Replace(result, "-", "_", -1)
 	return result
+}
+
+func Map[F, T any](s []F, f func(F) T) []T {
+	r := make([]T, len(s))
+	for i, v := range s {
+		r[i] = f(v)
+	}
+	return r
 }

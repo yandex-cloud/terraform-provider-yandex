@@ -290,6 +290,10 @@ The `set_parameter` block supports:
   For more information, see the [auditAuthorizationSuccess](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.auditAuthorizationSuccess)
   description in the official documentation. Available only in enterprise edition.
 
+* `enable_flow_control` - (Optional) Enables the flow control. Can be either true or false.
+  For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl)
+  description in the official documentation.
+
 
 The `operation_profiling` block supports:
 
@@ -301,6 +305,10 @@ The `operation_profiling` block supports:
   For more information, see the [operationProfiling.slowOpThresholdMs](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpThresholdMs)
   description in the official documentation.
 
+* `slow_op_sample_rate` - (Optional) The fraction of slow operations that should be profiled or logged. Accepts values between 0 and 1, inclusive.
+  For more information, see the [operationProfiling.slowOpSampleRate](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-operationProfiling.slowOpSampleRate)
+  description in the official documentation.
+
 
 The `net` block supports:
 
@@ -308,6 +316,10 @@ The `net` block supports:
   For more information, see the [net.maxIncomingConnections](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.maxIncomingConnections)
   description in the official documentation.
 
+* `compressors` - (Optional) Specifies the default compressor(s) to use for communication between this mongod or mongos. 
+  Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd. To disable network compression, set the value to disabled.
+  For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors)
+  description in the official documentation.
 
 The `storage` block supports:
 
@@ -330,6 +342,9 @@ The `wired_tiger` block supports:
   For more information, see the [storage.wiredTiger.collectionConfig.blockCompressor](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.collectionConfig.blockCompressor)
   description in the official documentation.
 
+* `prefix_compression` - (Optional) Enables or disables prefix compression for index data. Сan be either true or false.
+  For more information, see the [storage.wiredTiger.indexConfig.prefixCompression](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.indexConfig.prefixCompression)
+  description in the official documentation.
 
 The `journal` block supports:
 

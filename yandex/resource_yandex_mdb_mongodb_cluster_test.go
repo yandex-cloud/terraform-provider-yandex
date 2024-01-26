@@ -142,13 +142,23 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
       audit_log {
         filter = "{{escapeQuotations .Mongod.AuditLog.Filter}}"
       }
+{{end}}
+{{if .Mongod.SetParameter}}
       set_parameter {
-        audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
-      }
+				{{if .Mongod.SetParameter.EnableFlowControl}}
+					enable_flow_control = {{.Mongod.SetParameter.EnableFlowControl}}
+				{{end}}
+				{{if .Mongod.SetParameter.AuditAuthorizationSuccess}}
+					audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
+				{{end}}
+			}
 {{end}}
 {{if .Mongod.Net}}
       net {
         max_incoming_connections = "{{.Mongod.Net.MaxConnections}}"
+      {{if .Mongod.Net.Compressors}}
+				compressors = {{.Mongod.Net.Compressors}}
+      {{end}}
       }
 {{end}}
 {{if .Mongod.Storage}}
@@ -161,6 +171,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	{{if .Mongod.Storage.WiredTiger}}
       wired_tiger {
         block_compressor = "{{.Mongod.Storage.WiredTiger.Compressor}}"
+				prefix_compression = "{{.Mongod.Storage.WiredTiger.PrefixCompression}}"
       }
 	{{end}}
 	}
@@ -169,6 +180,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	operation_profiling {
         mode = "{{.Mongod.OperationProfiling.Mode}}"
         slow_op_threshold = "{{.Mongod.OperationProfiling.OpThreshold}}"
+				slow_op_sample_rate = "{{.Mongod.OperationProfiling.OpSampleRate}}"
 	}
 {{end}}
     }
@@ -179,6 +191,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{if .Mongos.Net}}
       net {
         max_incoming_connections = "{{.Mongos.Net.MaxConnections}}"
+				{{if .Mongos.Net.Compressors}}
+					compressors = {{.Mongos.Net.Compressors}}
+      	{{end}}
       }
 {{end}}
     }
@@ -802,14 +817,17 @@ func create6_0_enterpriseConfigData() map[string]interface{} {
 			},
 			"Net": map[string]interface{}{
 				"MaxConnections": 16,
+				"Compressors":    []string{"\"ZLIB\""},
 			},
 			"OperationProfiling": map[string]interface{}{
-				"Mode":        "ALL",
-				"OpThreshold": 1000,
+				"Mode":         "ALL",
+				"OpThreshold":  1000,
+				"OpSampleRate": 0.5,
 			},
 			"Storage": map[string]interface{}{
 				"WiredTiger": map[string]interface{}{
-					"Compressor": "ZLIB",
+					"Compressor":        "ZLIB",
+					"PrefixCompression": false,
 				},
 				"Journal": map[string]interface{}{
 					"CommitInterval": 404,
@@ -860,7 +878,7 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 		DiskSize:         toBytes(30),
 		DiskTypeId:       s2Small26hdd.DiskTypeId,
 	}
-
+	fmt.Printf("%v", makeConfig(t, &configData, nil))
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
@@ -898,11 +916,19 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.5"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "false"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 				),
@@ -926,17 +952,21 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 						},
 						"SetParameter": map[string]interface{}{
 							"AuditAuthorizationSuccess": false,
+							"EnableFlowControl":         false,
 						},
 						"Net": map[string]interface{}{
 							"MaxConnections": 22,
+							"Compressors":    []string{"\"SNAPPY\""},
 						},
 						"OperationProfiling": map[string]interface{}{
-							"Mode":        "SLOW_OP",
-							"OpThreshold": 2000,
+							"Mode":         "SLOW_OP",
+							"OpThreshold":  2000,
+							"OpSampleRate": 0.6,
 						},
 						"Storage": map[string]interface{}{
 							"WiredTiger": map[string]interface{}{
-								"Compressor": "SNAPPY",
+								"Compressor":        "SNAPPY",
+								"PrefixCompression": true,
 							},
 							"Journal": map[string]interface{}{
 								"CommitInterval": 407,
@@ -977,6 +1007,16 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "22"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "SLOW_OP"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.0", "SNAPPY"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.6"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "true"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "2000"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1397,13 +1437,21 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1428,14 +1476,20 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 16,
+							"Compressors":    []string{"\"ZLIB\""},
+						},
+						"SetParameter": map[string]interface{}{
+							"EnableFlowControl": true,
 						},
 						"OperationProfiling": map[string]interface{}{
-							"Mode":        "ALL",
-							"OpThreshold": 1000,
+							"Mode":         "ALL",
+							"OpThreshold":  1000,
+							"OpSampleRate": 0.5,
 						},
 						"Storage": map[string]interface{}{
 							"WiredTiger": map[string]interface{}{
-								"Compressor": "ZLIB",
+								"Compressor":        "ZLIB",
+								"PrefixCompression": false,
 							},
 							"Journal": map[string]interface{}{
 								"CommitInterval": 404,
@@ -1448,13 +1502,23 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.5"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1528,15 +1592,25 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.compressors"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
@@ -1579,14 +1653,20 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 16,
+							"Compressors":    []string{"\"ZLIB\""},
+						},
+						"SetParameter": map[string]interface{}{
+							"EnableFlowControl": true,
 						},
 						"OperationProfiling": map[string]interface{}{
-							"Mode":        "ALL",
-							"OpThreshold": 1000,
+							"Mode":         "ALL",
+							"OpThreshold":  1000,
+							"OpSampleRate": 0.5,
 						},
 						"Storage": map[string]interface{}{
 							"WiredTiger": map[string]interface{}{
-								"Compressor": "ZLIB",
+								"Compressor":        "ZLIB",
+								"PrefixCompression": false,
 							},
 							"Journal": map[string]interface{}{
 								"CommitInterval": 404,
@@ -1596,6 +1676,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					"Mongos": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 32,
+							"Compressors":    []string{"\"ZLIB\""},
 						},
 					},
 					"MongoCfg": map[string]interface{}{
@@ -1613,16 +1694,30 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.5"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.compressors.0", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.compressors.#", "1"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "64"),
@@ -1693,13 +1788,21 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
 				),
 			},
 			{ // Update resources
@@ -1730,14 +1833,20 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 16,
+							"Compressors":    []string{"\"ZLIB\""},
+						},
+						"SetParameter": map[string]interface{}{
+							"EnableFlowControl": true,
 						},
 						"OperationProfiling": map[string]interface{}{
-							"Mode":        "ALL",
-							"OpThreshold": 1000,
+							"Mode":         "ALL",
+							"OpThreshold":  1000,
+							"OpSampleRate": 0.5,
 						},
 						"Storage": map[string]interface{}{
 							"WiredTiger": map[string]interface{}{
-								"Compressor": "ZLIB",
+								"Compressor":        "ZLIB",
+								"PrefixCompression": false,
 							},
 							"Journal": map[string]interface{}{
 								"CommitInterval": 404,
@@ -1750,13 +1859,23 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.5"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.block_compressor", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
