@@ -47,7 +47,7 @@ func resourceYandexComputeSnapshotSchedule() *schema.Resource {
 			},
 
 			"disk_ids": {
-				Type: schema.TypeList,
+				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -163,7 +163,7 @@ func resourceYandexComputeSnapshotScheduleCreate(ctx context.Context, d *schema.
 		return diag.FromErr(err)
 	}
 
-	diskIds := expandStringSlice(d.Get("disk_ids").([]interface{}))
+	diskIDs := convertStringSet(d.Get("disk_ids").(*schema.Set))
 
 	req := &compute.CreateSnapshotScheduleRequest{
 		FolderId:       folderID,
@@ -172,7 +172,7 @@ func resourceYandexComputeSnapshotScheduleCreate(ctx context.Context, d *schema.
 		Labels:         labels,
 		SchedulePolicy: schedulePolicy,
 		SnapshotSpec:   snapshotSpec,
-		DiskIds:        diskIds,
+		DiskIds:        diskIDs,
 	}
 
 	if v, ok := d.GetOk("retention_period"); ok {
@@ -416,7 +416,7 @@ func updateSnapshotScheduleDisks(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	newDisks := make(map[string]bool)
-	for _, d := range expandStringSlice(d.Get("disk_ids").([]interface{})) {
+	for _, d := range convertStringSet(d.Get("disk_ids").(*schema.Set)) {
 		newDisks[d] = true
 	}
 

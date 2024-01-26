@@ -3,6 +3,7 @@ FEATURES:
 * mongodb: added `enable_flow_control`, `compressors`, `prefix_compression`, `slow_op_sample_rate` parameters to mongodb config
 ENHANCEMENTS:
 * added running of sweepers and tests for yandex-framework package.
+* compute: change `disk_ids` attribute type from List to Set in `snapshot_schedule` resource.
 
 ## 0.106.0 (January 23, 2024)
 FEATURES:
