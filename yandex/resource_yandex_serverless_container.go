@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
-	"time"
 
 	"github.com/c2h5oh/datasize"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -435,7 +436,7 @@ func resourceYandexServerlessContainerDelete(d *schema.ResourceData, meta interf
 func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevisionRequest, error) {
 	revisionReq := &containers.DeployContainerRevisionRequest{}
 
-	revisionReq.Resources = &containers.Resources{Memory: int64(int(datasize.MB.Bytes()) * d.Get("memory").(int))}
+	revisionReq.Resources = &containers.Resources{Memory: int64(datasize.MB.Bytes()) * int64(d.Get("memory").(int))}
 	if v, ok := d.GetOk("cores"); ok {
 		revisionReq.Resources.Cores = int64(v.(int))
 	}

@@ -4,6 +4,8 @@ FEATURES:
 ENHANCEMENTS:
 * added running of sweepers and tests for yandex-framework package.
 * compute: change `disk_ids` attribute type from List to Set in `snapshot_schedule` resource.
+BUG FIXES:
+* serverless: fix integer overflow in function memory computation
 
 ## 0.106.0 (January 23, 2024)
 FEATURES:

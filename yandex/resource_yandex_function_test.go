@@ -153,7 +153,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-function-label-value-updated")
 	paramsUpdated.userHash = acctest.RandomWithPrefix("tf-function-hash-updated")
 	paramsUpdated.runtime = "python27"
-	paramsUpdated.memory = "256"
+	paramsUpdated.memory = "2048"
 	paramsUpdated.executionTimeout = "11"
 	paramsUpdated.serviceAccount = acctest.RandomWithPrefix("tf-service-account")
 	paramsUpdated.envKey = "tf_function_env_updated"

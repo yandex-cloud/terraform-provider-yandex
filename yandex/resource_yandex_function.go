@@ -521,7 +521,7 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 	versionReq.Runtime = d.Get("runtime").(string)
 	versionReq.Entrypoint = d.Get("entrypoint").(string)
 
-	versionReq.Resources = &functions.Resources{Memory: int64(int(datasize.MB.Bytes()) * d.Get("memory").(int))}
+	versionReq.Resources = &functions.Resources{Memory: int64(datasize.MB.Bytes()) * int64(d.Get("memory").(int))}
 	if v, ok := d.GetOk("execution_timeout"); ok {
 		i, err := strconv.ParseInt(v.(string), 10, 64)
 		if err != nil {
