@@ -1,4 +1,6 @@
-## 0.107.0 (Unreleased)
+## 0.108.0 (Unreleased)
+
+## 0.107.0 (January 30, 2024)
 FEATURES:
 * mongodb: added `enable_flow_control`, `compressors`, `prefix_compression`, `slow_op_sample_rate` parameters to mongodb config
 ENHANCEMENTS:
