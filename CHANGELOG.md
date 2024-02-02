@@ -1,4 +1,6 @@
 ## 0.108.0 (Unreleased)
+FEATURES:
+* redis: added `enable_sharding` feature, it works when cluster was not sharded and new value of sharded is true
 
 ## 0.107.0 (January 31, 2024)
 FEATURES:

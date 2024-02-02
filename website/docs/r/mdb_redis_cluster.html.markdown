@@ -134,7 +134,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Redis cluster.
 
-* `sharded` - (Optional) Redis Cluster mode enabled/disabled.
+* `sharded` - (Optional) Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded.
+    If cluster is sharded - disabling is not allowed.
 
 * `tls_enabled` - (Optional) TLS support mode enabled/disabled.
 

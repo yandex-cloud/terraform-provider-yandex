@@ -497,6 +497,17 @@ func resourceYandexMDBRedisClusterUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("resources.0.disk_type_id") {
 		return fmt.Errorf("Changing disk_type_id is not supported for Redis Cluster. Id: %v", d.Id())
 	}
+	config := meta.(*Config)
+
+	if d.HasChange("sharded") {
+		if !d.Get("sharded").(bool) {
+			return fmt.Errorf("Disabling sharding on Redis Cluster is not supported, Id: %q", d.Id())
+		}
+		err := enableShardingRedis(context.Background(), config, d)
+		if err != nil {
+			return err
+		}
+	}
 
 	if err := updateRedisClusterParams(d, meta); err != nil {
 		return err
@@ -518,7 +529,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		},
 	}
 	onDone := []func(){}
-
 	if d.HasChange("name") {
 		req.Name = d.Get("name").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
@@ -697,6 +707,18 @@ func addHosts(ctx context.Context, d *schema.ResourceData, config *Config, shard
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+func enableShardingRedis(ctx context.Context, config *Config, d *schema.ResourceData) error {
+	op, err := config.sdk.WrapOperation(config.sdk.MDB().Redis().Cluster().EnableSharding(ctx, &redis.EnableShardingClusterRequest{ClusterId: d.Id()}))
+	if err != nil {
+		return fmt.Errorf("error while requesting API to enable sharding Redis Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while enabling sharding Redis Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }

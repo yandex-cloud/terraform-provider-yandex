@@ -243,6 +243,89 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 		})
 	}
 }
+func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
+	t.Parallel()
+
+	var r redis.Cluster
+	redisName := acctest.RandomWithPrefix("tf-redis")
+	redisDesc := "Redis Cluster Networkssd Terraform Test"
+	folderID := getExampleFolderID()
+	baseDiskSize := 16
+	diskTypeId := "network-ssd"
+	baseFlavor := "hm1.nano"
+	tlsEnabled := true
+	persistenceMode := "ON"
+	announceHostnames := true
+	normalLimits := "16777215 8388607 61"
+	pubsubLimits := "16777214 8388606 62"
+	pubIpUnset := false
+	baseReplicaPriority := 100
+	for _, version := range []string{"6.2", "7.0"} {
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:     func() { testAccPreCheck(t) },
+			Providers:    testAccProviders,
+			CheckDestroy: testAccCheckVPCNetworkDestroy,
+			Steps: []resource.TestStep{
+				// Create Redis Cluster
+				{
+					Config: testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+							"Elg", 5000, 10, 15, version,
+							normalLimits, pubsubLimits, 75),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Enable sharding
+				{
+					Config: testAccMDBRedisClusterConfigMainSharded(redisName, redisDesc, "PRESTABLE", false,
+						&tlsEnabled, &announceHostnames, "", version, baseFlavor, baseDiskSize, "", normalLimits, pubsubLimits,
+						[]*bool{nil}, []*int{nil}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 1, tlsEnabled, announceHostnames, persistenceMode),
+						resource.TestCheckResourceAttr(redisResource, "name", redisName),
+						resource.TestCheckResourceAttr(redisResource, "folder_id", folderID),
+						resource.TestCheckResourceAttr(redisResource, "description", redisDesc),
+						resource.TestCheckResourceAttrSet(redisResource, "host.0.fqdn"),
+						resource.TestCheckResourceAttr(redisResource, "host.0.assign_public_ip", fmt.Sprintf("%t", pubIpUnset)),
+						resource.TestCheckResourceAttr(redisResource, "host.0.replica_priority", fmt.Sprintf("%d", baseReplicaPriority)),
+						testAccCheckMDBRedisClusterHasConfig(&r, "ALLKEYS_LRU", 100,
+							"Elg", 5000, 10, 15, version,
+							normalLimits, pubsubLimits, 75),
+						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
+						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
+						testAccCheckCreatedAtAttr(redisResource),
+						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+						resource.TestCheckResourceAttr(redisResource, "sharded", "true"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+			},
+		})
+	}
+}
 
 func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	t.Parallel()
@@ -670,6 +753,28 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
+func getSentinelShardedHosts(diskTypeId string, publicIPFlags []*bool, replicaPriorities []*int) string {
+	host := `
+  host {
+  	zone      = "ru-central1-c"
+	subnet_id = "${yandex_vpc_subnet.foo.id}"
+    shard_name= "shard1"
+	%s
+	%s
+  }
+`
+	hosts := []string{host}
+	res := ""
+	if diskTypeId == "local-ssd" {
+		hosts = append(hosts, host, host)
+	}
+
+	for i, h := range hosts {
+		res += fmt.Sprintf(h, getPublicIPStr(publicIPFlags[i]), getReplicaPriorityStr(replicaPriorities[i]))
+	}
+	return res
+}
+
 func getSentinelHosts(diskTypeId string, publicIPFlags []*bool, replicaPriorities []*int) string {
 	host := `
   host {
@@ -688,7 +793,6 @@ func getSentinelHosts(diskTypeId string, publicIPFlags []*bool, replicaPrioritie
 	for i, h := range hosts {
 		res += fmt.Sprintf(h, getPublicIPStr(publicIPFlags[i]), getReplicaPriorityStr(replicaPriorities[i]))
 	}
-
 	return res
 }
 
@@ -866,6 +970,63 @@ resource "yandex_mdb_redis_cluster" "foo" {
 		getAnnounceHostnames(announceHostnames), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
 		getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection)
+}
+
+func testAccMDBRedisClusterConfigMainSharded(name, desc, environment string, deletionProtection bool,
+	tlsEnabled, announceHostnames *bool,
+	persistenceMode, version, flavor string, diskSize int, diskTypeId, normalLimits, pubsubLimits string,
+	publicIPFlags []*bool, replicaPriorities []*int) string {
+	return fmt.Sprintf(redisVPCDependencies+`
+resource "yandex_mdb_redis_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  sharded = "true"
+  %s
+  %s
+  %s
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  config {
+    password         = "passw0rd"
+    timeout          = 100
+    maxmemory_policy = "ALLKEYS_LRU"
+	notify_keyspace_events = "Elg"
+	slowlog_log_slower_than = 5000
+	slowlog_max_len = 10
+	databases = 15
+	maxmemory_percent = 75
+	version	= "%s"
+	%s
+	%s
+  }
+
+  resources {
+    resource_preset_id = "%s"
+    disk_size          = %d
+    %s
+  }
+
+  %s
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+  
+  deletion_protection = %t
+}
+`, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
+		getAnnounceHostnames(announceHostnames), version,
+		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
+		getSentinelShardedHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection)
 }
 
 func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled, announceHostnames *bool, persistenceMode, version, flavor string,
