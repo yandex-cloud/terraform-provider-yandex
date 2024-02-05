@@ -1,22 +1,33 @@
 run:
-  deadline: 2m30s
+  deadline: 5m
   modules-download-mode: vendor
+  skip_dirs: 
+    - scripts
+    - vendor
+    - version
+    - website
+    - yandex/mocks
+    - yandex/test-fixtures
+
+output:
+  format: colored-line-number
+
+severity:
+  default-severity: WARNING
 
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - gofmt
     - gosimple
     - ineffassign
     - misspell
     - staticcheck
-    - structcheck
     - unconvert
     - unused
-    - varcheck
     - vet
+    - govet
 
 linters-settings:
   errcheck:
@@ -26,6 +37,7 @@ linters-settings:
       - copylocks
 
 issues:
+  new-from-rev: master # Analyse only differense between master->${git branch git branch --show-current}
   max-per-linter: 0
   max-same-issues: 0
   exclude-rules:

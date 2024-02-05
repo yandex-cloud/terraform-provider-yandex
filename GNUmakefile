@@ -2,6 +2,7 @@ TEST?=$$(go list ./... )
 GOFMT_FILES?=$$(find . -name '*.go')
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=yandex
+LINT_PACKAGES= ./yandex/... yandex-framework/...
 
 SWEEP?=$(YC_REGION)
 ifeq ($(SWEEP),)
@@ -43,8 +44,7 @@ fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 lint:
-	@echo "==> Checking source code against linters..."
-	@golangci-lint run --modules-download-mode mod ./$(PKG_NAME)
+	golangci-lint run --modules-download-mode mod $(LINT_PACKAGES)
 
 tools:
 	@echo "==> installing required tooling..."
