@@ -592,7 +592,14 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	hosts, err := listPGHosts(ctx, config, d.Id())
+	hosts, err := retryListPGHosts(ctx, config, d.Id(), 0, 20, func(hosts []*postgresql.Host) bool {
+		for _, host := range hosts {
+			if host.Role == postgresql.Host_MASTER {
+				return true
+			}
+		}
+		return false
+	})
 	if err != nil {
 		return err
 	}
@@ -706,12 +713,12 @@ func resourceYandexMDBPostgreSQLClusterCreate(d *schema.ResourceData, meta inter
 		return fmt.Errorf("PostgreSQL Cluster %v hosts creation failed: %s", d.Id(), err)
 	}
 
-	if err := startPGFailoverIfNeed(d, meta); err != nil {
-		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
-	}
-
 	if err := updatePGClusterAfterCreate(d, meta); err != nil {
 		return fmt.Errorf("PostgreSQL Cluster %v update params failed: %s", d.Id(), err)
+	}
+
+	if err := startPGFailoverIfNeed(d, meta); err != nil {
+		return fmt.Errorf("PostgreSQL Cluster %v hosts set master failed: %s", d.Id(), err)
 	}
 
 	return resourceYandexMDBPostgreSQLClusterRead(d, meta)
@@ -1234,7 +1241,7 @@ func createPGClusterHosts(ctx context.Context, config *Config, d *schema.Resourc
 
 func startPGFailoverIfNeed(d *schema.ResourceData, meta interface{}) error {
 	rawHostMasterName, ok := d.GetOk("host_master_name")
-	if !d.HasChange("host_master_name") || !ok {
+	if !ok {
 		return nil
 	}
 	hostMasterName := rawHostMasterName.(string)
@@ -1673,6 +1680,15 @@ func listPGHosts(ctx context.Context, config *Config, id string) ([]*postgresql.
 	}
 
 	return hosts, nil
+}
+
+func retryListPGHosts(ctx context.Context, config *Config, id string, attempt int, maxAttempt int, condition func([]*postgresql.Host) bool) ([]*postgresql.Host, error) {
+	hosts, err := listPGHosts(ctx, config, id)
+	if condition(hosts) || maxAttempt <= attempt {
+		return hosts, err
+	}
+
+	return retryListPGHosts(ctx, config, id, attempt+1, maxAttempt, condition)
 }
 
 func setPGFolderID(d *schema.ResourceData, meta interface{}) error {
