@@ -2002,6 +2002,62 @@ func testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(randI
 		render()
 }
 
+func testAccStorageBucketConfigWithLifecycleFilter(randInt int) string {
+	const lifecycle = `lifecycle_rule {
+		id      = "id1"
+		enabled = true
+
+		prefix  = "path1/"
+		expiration {
+			days = 365
+		}
+	}
+
+	lifecycle_rule {
+		id      = "id2"
+		enabled = true
+
+		filter {
+			prefix  = "path2/"
+		}
+		expiration {}
+	}
+
+	lifecycle_rule {
+		id      = "id3"
+		enabled = true
+
+		filter {
+			tag {
+				key = "key1"
+				value = "value1"
+			}
+		}
+		expiration {}
+	}
+
+	lifecycle_rule {
+		id      = "id4"
+		enabled = true
+
+		filter {
+			and {
+				prefix  = "path4/"
+				tags = {
+					key2 = "value2"
+					key3 = "value3"
+				}
+			}
+		}
+		expiration {}
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(lifecycle).
+		asAdmin().
+		render()
+}
+
 func testAccStorageBucketSSEDefault(keyName string, randInt int) string {
 	const sse = `server_side_encryption_configuration {
 		rule {
@@ -2172,7 +2228,7 @@ func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
@@ -2197,11 +2253,11 @@ func TestAccStorageBucket_LifecycleVersioning(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_expiration.0.days", "365"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.prefix", "path2/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.filter.0.prefix", "path2/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.noncurrent_version_expiration.0.days", "365"),
 				),
@@ -2294,6 +2350,44 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 	})
 }
 
+func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		IDRefreshName:     resourceName,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithLifecycleFilter(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.filter.0.prefix", "path2/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.id", "id3"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.filter.0.tag.0.key", "key1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.filter.0.tag.0.value", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.id", "id4"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.prefix", "path4/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.tags.key2", "value2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.tags.key3", "value3"),
+				),
+			},
+		},
+	})
+}
+
 // Test yandex_storage_bucket import with policy operation
 func TestAccStorageBucket_ImportBasic(t *testing.T) {
 	rInt := acctest.RandInt()
@@ -2360,4 +2454,52 @@ func checkBucketDeleted(ID string, conn *s3.S3) error {
 	}
 
 	return nil
+}
+
+func testResourceYandexStorageBucketStateDataV0() map[string]any {
+	lifecycleRules := []map[string]interface{}{
+		{
+			"id": "1",
+			"tags": map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+			},
+		},
+		{
+			"id": "2",
+			"tags": map[string]string{
+				"key11": "value11",
+				"key22": "value22",
+			},
+		},
+	}
+
+	return map[string]any{
+		"bucket":         "test",
+		"lifecycle_rule": lifecycleRules,
+	}
+}
+
+func testResourceYandexStorageBucketStateDataV1() map[string]any {
+	lifecycleRules := []map[string]interface{}{
+		{"id": "1"},
+		{"id": "2"},
+	}
+
+	return map[string]any{
+		"bucket":         "test",
+		"lifecycle_rule": lifecycleRules,
+	}
+}
+
+func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
+	expected := testResourceYandexStorageBucketStateDataV1()
+	actual, err := resourceYandexStorageBucketStateUpgradeV0(context.TODO(), testResourceYandexStorageBucketStateDataV0(), nil)
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	}
 }

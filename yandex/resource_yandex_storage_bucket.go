@@ -54,7 +54,14 @@ func resourceYandexStorageBucket() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		SchemaVersion: 0,
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceYandexStorageBucketV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceYandexStorageBucketStateUpgradeV0,
+				Version: 0,
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"bucket": {
@@ -330,10 +337,78 @@ func resourceYandexStorageBucket() *schema.Resource {
 							ValidateFunc: validation.StringLenBetween(0, 255),
 						},
 						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:             schema.TypeString,
+							Optional:         true,
+							Deprecated:       "Use filter instead",
+							DiffSuppressFunc: suppressPrefixDiffIfFilterPrefixSet,
 						},
-						"tags": tagsSchema(),
+						"filter": {
+							Type:             schema.TypeList,
+							Optional:         true,
+							MaxItems:         1,
+							DiffSuppressFunc: suppressFilterIfPrefixEqualsFilterPrefix,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"and": {
+										Type:     schema.TypeList,
+										Optional: true,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"object_size_greater_than": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.IntAtLeast(0),
+												},
+												"object_size_less_than": {
+													Type:         schema.TypeInt,
+													Optional:     true,
+													ValidateFunc: validation.IntAtLeast(1),
+												},
+												"prefix": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"tags": tagsSchema(),
+											},
+										},
+									},
+									"object_size_greater_than": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+											return true
+										},
+									},
+									"object_size_less_than": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"prefix": {
+										Type:             schema.TypeString,
+										Optional:         true,
+										DiffSuppressFunc: suppressFilterPrefixDiffIfPrefixSet,
+									},
+									"tag": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Optional: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+												"value": {
+													Type:     schema.TypeString,
+													Required: true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						"enabled": {
 							Type:     schema.TypeBool,
 							Required: true,
@@ -1298,17 +1373,34 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 			}
 			filter := lifecycleRule.Filter
 			if filter != nil {
+				ruleFilter := make([]map[string]interface{}, 0, 1)
 				if filter.And != nil {
+					and := make(map[string]interface{})
+					andList := make([]map[string]interface{}, 0, 1)
 					// Prefix
 					if filter.And.Prefix != nil && aws.StringValue(filter.And.Prefix) != "" {
-						rule["prefix"] = aws.StringValue(filter.And.Prefix)
+						and["prefix"] = aws.StringValue(filter.And.Prefix)
 					}
+					// Tags
+					if len(filter.And.Tags) > 0 {
+						if tags := storageBucketTaggingNormalize(filter.And.Tags); tags != nil {
+							and["tags"] = tags
+						}
+					}
+					ruleFilter = append(ruleFilter, map[string]interface{}{"and": append(andList, and)})
 				} else {
-					// Prefix
 					if filter.Prefix != nil && aws.StringValue(filter.Prefix) != "" {
-						rule["prefix"] = aws.StringValue(filter.Prefix)
+						// Prefix
+						ruleFilter = append(ruleFilter, map[string]interface{}{"prefix": aws.StringValue(filter.Prefix)})
+					} else if filter.Tag != nil {
+						tag := make(map[string]interface{})
+						tagList := make([]map[string]interface{}, 0, 1)
+						tag["key"] = aws.StringValue(filter.Tag.Key)
+						tag["value"] = aws.StringValue(filter.Tag.Value)
+						ruleFilter = append(ruleFilter, map[string]interface{}{"tag": append(tagList, tag)})
 					}
 				}
+				rule["filter"] = ruleFilter
 			}
 
 			// Enabled
@@ -2464,7 +2556,34 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 
 		// Filter
 		filter := &s3.LifecycleRuleFilter{}
-		filter.SetPrefix(r["prefix"].(string))
+		if prefix, ok := r["prefix"].(string); ok && prefix != "" {
+			filter.SetPrefix(prefix)
+		}
+
+		if prefix, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.filter.0.prefix", i)); ok {
+			filter.SetPrefix(prefix.(string))
+		}
+
+		tag := d.Get(fmt.Sprintf("lifecycle_rule.%d.filter.0.tag", i)).([]interface{})
+		if len(tag) > 0 && tag[0] != nil {
+			if tagFilter := storageBucketTagFromKeyValue(convertTypesMap(tag[0])); tagFilter != nil {
+				filter.SetTag(tagFilter)
+			}
+		}
+
+		andOperator := d.Get(fmt.Sprintf("lifecycle_rule.%d.filter.0.and", i)).([]interface{})
+		if len(andOperator) > 0 && andOperator[0] != nil {
+			and := &s3.LifecycleRuleAndOperator{}
+			el := andOperator[0].(map[string]interface{})
+			if prefix, ok := el["prefix"].(string); ok {
+				and.SetPrefix(prefix)
+			}
+			if tags, ok := el["tags"].(map[string]interface{}); ok && len(tags) > 0 {
+				and.SetTags(storageBucketTaggingFromMap(convertTypesMap(tags)))
+			}
+			filter.SetAnd(and)
+		}
+
 		rule.SetFilter(filter)
 
 		// ID
@@ -2885,6 +3004,24 @@ func storageBucketTaggingFromMap(tags map[string]string) []*s3.Tag {
 	return out
 }
 
+func storageBucketTagFromKeyValue(tag map[string]string) *s3.Tag {
+	var (
+		key   string
+		value string
+		ok    bool
+	)
+	if key, ok = tag["key"]; !ok {
+		return nil
+	}
+	if value, ok = tag["value"]; !ok {
+		return nil
+	}
+	return &s3.Tag{
+		Key:   aws.String(key),
+		Value: aws.String(value),
+	}
+}
+
 func convertTypesMap(in interface{}) map[string]string {
 	if in == nil {
 		return nil
@@ -2907,4 +3044,40 @@ func convertTypesMap(in interface{}) map[string]string {
 	}
 
 	return out
+}
+
+func suppressPrefixDiffIfFilterPrefixSet(k, old, new string, d *schema.ResourceData) bool {
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// if lifecycle_rule.filter.prefix is set and equal
+	if prefix, ok := d.GetOk(strings.TrimSuffix(k, "prefix") + "filter.0.prefix"); ok {
+		return prefix == new && old == ""
+	}
+	return false
+}
+
+func suppressFilterPrefixDiffIfPrefixSet(k, old, new string, d *schema.ResourceData) bool {
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// if lifecycle_rule.filter.prefix is set and equal
+	if prefix, ok := d.GetOk(strings.TrimSuffix(k, "filter.0.prefix") + "prefix"); ok {
+		if filterPrefix, ok := d.GetOk(k); ok {
+			return prefix == filterPrefix
+		}
+	}
+	return false
+}
+
+func suppressFilterIfPrefixEqualsFilterPrefix(k, old, new string, d *schema.ResourceData) bool {
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// if lifecycle_rule.filter.prefix is set and equal
+	if strings.HasSuffix(k, "filter.#") {
+		key := strings.TrimSuffix(k, "filter.#")
+		prefix := d.Get(key + "prefix")
+		filterPrefix := d.Get(key + "filter.0.prefix")
+		filterTag := d.Get(key + "filter.0.tag")
+		filterAnd := d.Get(key + "filter.0.and")
+		if prefix != "" && filterPrefix != "" && prefix == filterPrefix && len(filterTag.([]interface{})) == 0 && len(filterAnd.([]interface{})) == 0 {
+			return true
+		}
+	}
+	return false
 }

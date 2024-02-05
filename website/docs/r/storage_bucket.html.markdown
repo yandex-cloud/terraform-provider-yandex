@@ -207,6 +207,41 @@ resource "yandex_storage_bucket" "bucket" {
       date = "2020-12-21"
     }
   }
+
+  lifecycle_rule {
+    id      = "test_tag"
+    enabled = true
+
+    filter {
+      tag {
+        key = "key1"
+        value = "value1"
+      }
+    }
+
+    expiration {
+      date = "2020-12-21"
+    }
+  }
+
+  lifecycle_rule {
+    id      = "test_filter"
+    enabled = true
+
+    filter {
+      and {
+        prefix  = "path2/"
+        tags = {
+          key1 = "value1"
+          key2 = "value2"
+        }
+      }
+    }
+
+    expiration {
+      date = "2020-12-21"
+    }
+  }
 }
 
 resource "yandex_storage_bucket" "versioning_bucket" {
@@ -590,6 +625,15 @@ The `lifecycle_rule` object supports the following:
 * `id` - (Optional) Unique identifier for the rule. Must be less than or equal to 255 characters in length.
 
 * `prefix` - (Optional) Object key prefix identifying one or more objects to which the rule applies.
+
+* `filter` - (Optional) Filter block identifies one or more objects to which the rule applies. A Filter must have exactly one of Prefix, Tag, or And specified. The filter supports the following options:
+
+  - prefix - (Optional) Object key prefix identifying one or more objects to which the rule applies.
+  - tag - (Optional) A key and value pair for filtering objects. E.g.: key=key1, value=value1.
+  - and - (Optional) A logical `and` operator applied to one or more filter parameters. It should be used when both `prefix` and `tags` are used. It supports the following parameters:
+
+    - prefix - (Optional) Object key prefix identifying one or more objects to which the rule applies.
+    - tags - (Optional) Key-value pairs for filtering objects. All of these tags must exist in the object's tags to apply the rule. E.g.: key1=value1, key2=value2 
 
 * `enabled` - (Required) Specifies lifecycle rule status.
 
