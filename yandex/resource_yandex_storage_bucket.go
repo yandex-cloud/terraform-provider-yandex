@@ -3047,7 +3047,7 @@ func convertTypesMap(in interface{}) map[string]string {
 }
 
 func suppressPrefixDiffIfFilterPrefixSet(k, old, new string, d *schema.ResourceData) bool {
-	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can suppress it
 	// if lifecycle_rule.filter.prefix is set and equal
 	if prefix, ok := d.GetOk(strings.TrimSuffix(k, "prefix") + "filter.0.prefix"); ok {
 		return prefix == new && old == ""
@@ -3056,7 +3056,7 @@ func suppressPrefixDiffIfFilterPrefixSet(k, old, new string, d *schema.ResourceD
 }
 
 func suppressFilterPrefixDiffIfPrefixSet(k, old, new string, d *schema.ResourceData) bool {
-	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can suppress it
 	// if lifecycle_rule.filter.prefix is set and equal
 	if prefix, ok := d.GetOk(strings.TrimSuffix(k, "filter.0.prefix") + "prefix"); ok {
 		if filterPrefix, ok := d.GetOk(k); ok {
@@ -3067,7 +3067,7 @@ func suppressFilterPrefixDiffIfPrefixSet(k, old, new string, d *schema.ResourceD
 }
 
 func suppressFilterIfPrefixEqualsFilterPrefix(k, old, new string, d *schema.ResourceData) bool {
-	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can supress it
+	// lifecycle_rule.prefix is deprecated in favor of lifecycle_rule.filter.prefix, so we can suppress it
 	// if lifecycle_rule.filter.prefix is set and equal
 	if strings.HasSuffix(k, "filter.#") {
 		key := strings.TrimSuffix(k, "filter.#")
