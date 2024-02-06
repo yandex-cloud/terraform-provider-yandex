@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_datasphere\_project
 
-Allows management of Yandex Cloud Datasphere Communities
+Allows management of Yandex Cloud Datasphere Projects
 
 ## Example Usage
 
