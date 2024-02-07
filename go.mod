@@ -35,7 +35,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/yandex-cloud/go-genproto v0.0.0-20240129131803-3f27fc889aba
 	github.com/yandex-cloud/go-sdk v0.0.0-20240129132414-22c1db73a745
-	github.com/ydb-platform/terraform-provider-ydb v0.0.15
+	github.com/ydb-platform/terraform-provider-ydb v0.0.16
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.20.0
 	google.golang.org/genproto v0.0.0-20240125205218-1f4bbc51befe

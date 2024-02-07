@@ -2,6 +2,8 @@
 FEATURES:
 * redis: added `enable_sharding` feature, it works when cluster was not sharded and new value of sharded is true
 * storage: support `tags` and `and` operator in bucket lifecycle configuration in `yandex_storage_bucket` resource
+BUG FIXES:
+* fix ydb_table type
 
 ## 0.107.0 (January 31, 2024)
 FEATURES:
