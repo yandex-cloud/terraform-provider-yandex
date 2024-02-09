@@ -898,7 +898,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		yds := &triggers.DataStream{
 			Stream:           d.Get("data_streams.0.stream_name").(string),
-			Database:         d.Get("data_streams.0.stream_name").(string),
+			Database:         d.Get("data_streams.0.database").(string),
 			ServiceAccountId: d.Get("data_streams.0.service_account_id").(string),
 		}
 

@@ -4,6 +4,7 @@ FEATURES:
 * storage: support `tags` and `and` operator in bucket lifecycle configuration in `yandex_storage_bucket` resource
 BUG FIXES:
 * fix ydb_table type
+* serverless: fix YDS trigger creation.
 
 ## 0.107.0 (January 31, 2024)
 FEATURES:
