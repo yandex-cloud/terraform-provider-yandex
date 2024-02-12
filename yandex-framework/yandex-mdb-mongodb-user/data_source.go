@@ -54,7 +54,8 @@ func (d *bindingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 				Required: true,
 			},
 			"password": schema.StringAttribute{
-				Computed: true,
+				Computed:  true,
+				Sensitive: true,
 			},
 		},
 		Blocks: map[string]schema.Block{
