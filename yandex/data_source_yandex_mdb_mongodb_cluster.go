@@ -41,6 +41,8 @@ func convertToOptional(originalSchema map[string]*schema.Schema) map[string]*sch
 }
 
 func dataSourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// fix to import users and databases
+	ctx = context.WithValue(ctx, ReadModeKey, true)
 	config := meta.(*Config)
 
 	err := checkOneOf(d, "cluster_id", "name")

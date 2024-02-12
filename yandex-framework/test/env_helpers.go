@@ -104,11 +104,6 @@ func init() {
 	//testAccProviderEmptyFolder = map[string]provider.Provider{
 	//	"yandex": NewFrameworkProvider(),
 	//}
-	if os.Getenv("TF_ACC") != "" {
-		if err := setTestIDs(); err != nil {
-			panic(err)
-		}
-	}
 }
 
 func testAccPreCheck(t *testing.T) {

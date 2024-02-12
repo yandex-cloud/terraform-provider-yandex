@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"strings"
 	"time"
+
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,6 +18,12 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 )
 
+type key int
+
+const (
+	ReadModeKey key = iota
+)
+
 func resourceYandexMDBMongodbCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceYandexMDBMongodbClusterCreate,
@@ -24,7 +31,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 		UpdateContext: resourceYandexMDBMongodbClusterUpdate,
 		DeleteContext: resourceYandexMDBMongodbClusterDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceYandexMDBMongodbClusterImport,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -53,7 +60,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			},
 			"user": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Set:      mongodbUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -89,10 +96,11 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 						},
 					},
 				},
+				Deprecated: useResourceInstead("user", "yandex_mdb_mongodb_user"),
 			},
 			"database": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Set:      mongodbDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -102,6 +110,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 						},
 					},
 				},
+				Deprecated: useResourceInstead("database", "yandex_mdb_mongodb_database"),
 			},
 			"host": {
 				Type:     schema.TypeList,
@@ -1036,26 +1045,40 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 	}
 	passwords := mongodbUsersPasswords(expandUsers)
 
-	clusterUsers, err := listMongodbUsers(ctx, config, d.Id())
-	if err != nil {
-		return diag.FromErr(err)
+	stateUsersCnt := d.Get("user").(*schema.Set).Len()
+	isReadMode, ok := ctx.Value(ReadModeKey).(bool)
+	if !(ok && isReadMode) && stateUsersCnt == 0 {
+		if err := d.Set("user", nil); err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		clusterUsers, err := listMongodbUsers(ctx, config, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		flattenUsers := flattenMongoDBUsers(clusterUsers, passwords)
+		if err := d.Set("user", flattenUsers); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	flattenUsers := flattenMongoDBUsers(clusterUsers, passwords)
+	stateDbsCnt := d.Get("database").(*schema.Set).Len()
+	if !(ok && isReadMode) && stateDbsCnt == 0 {
+		if err := d.Set("database", nil); err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		clusterDatabases, err := listMongodbDatabases(ctx, config, d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	if err := d.Set("user", flattenUsers); err != nil {
-		return diag.FromErr(err)
-	}
+		flattenDatabases := flattenMongoDBDatabases(clusterDatabases)
 
-	clusterDatabases, err := listMongodbDatabases(ctx, config, d.Id())
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	flattenDatabases := flattenMongoDBDatabases(clusterDatabases)
-
-	if err := d.Set("database", flattenDatabases); err != nil {
-		return diag.FromErr(err)
+		if err := d.Set("database", flattenDatabases); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	flattenClusterConfig, err := flattenMongoDBClusterConfig(cluster.Config, d)
@@ -1132,13 +1155,15 @@ func resourceYandexMDBMongodbClusterUpdate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	if d.HasChange("database") {
+	stateDbsCnt := d.Get("database").(*schema.Set).Len()
+	if d.HasChange("database") && stateDbsCnt > 0 {
 		if err := updateMongodbClusterDatabases(ctx, d, meta); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if d.HasChange("user") {
+	stateUsersCnt := d.Get("user").(*schema.Set).Len()
+	if d.HasChange("user") && stateUsersCnt > 0 {
 		if err := updateMongodbClusterUsers(ctx, d, meta); err != nil {
 			return diag.FromErr(err)
 		}
@@ -1942,4 +1967,11 @@ func setMongoDBFolderID(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	return nil
+}
+
+// to import users. maybe change tests for this
+func resourceYandexMDBMongodbClusterImport(ctx context.Context, d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+	ctx = context.WithValue(ctx, ReadModeKey, true)
+	_ = resourceYandexMDBMongodbClusterRead(ctx, d, m)
+	return []*schema.ResourceData{d}, nil
 }

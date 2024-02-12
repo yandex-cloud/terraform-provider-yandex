@@ -6,6 +6,8 @@ import (
 	"fmt"
 	yandex_datasphere_community "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/community"
 	yandex_datasphere_project "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/project"
+	yandex_mdb_mongodb_database "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-mdb-mongodb-database"
+	yandex_mdb_mongodb_user "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-mdb-mongodb-user"
 	"os"
 	"strconv"
 
@@ -242,6 +244,8 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		yandex_datasphere_project.NewIamBinding,
 		yandex_datasphere_community.NewResource,
 		yandex_datasphere_community.NewIamBinding,
+		yandex_mdb_mongodb_database.NewResource,
+		yandex_mdb_mongodb_user.NewResource,
 	}
 }
 
@@ -254,6 +258,8 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		},
 		yandex_datasphere_project.NewDataSource,
 		yandex_datasphere_community.NewDataSource,
+		yandex_mdb_mongodb_database.NewDataSource,
+		yandex_mdb_mongodb_user.NewDataSource,
 	}
 }
 

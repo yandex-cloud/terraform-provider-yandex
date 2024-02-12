@@ -157,8 +157,6 @@ func TestDataSourceMDBMongoDBClusterSchema(t *testing.T) {
 		"name":           nil,
 		"network_id":     nil,
 		"environment":    nil,
-		"user":           nil,
-		"database":       nil,
 		"host":           nil,
 		"cluster_config": nil,
 	})
