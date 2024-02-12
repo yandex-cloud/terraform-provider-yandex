@@ -940,6 +940,7 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"security_group_ids":        "security_group_ids",
 	"deletion_protection":       "deletion_protection",
 	"maintenance_window":        "maintenance_window",
+	"subnet_ids":                "subnet_ids",
 	"config.0.zones":            "config_spec.zone_id",
 	"config.0.version":          "config_spec.version",
 	"config.0.brokers_count":    "config_spec.brokers_count",
@@ -990,6 +991,13 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 		return nil, fmt.Errorf("error expanding maintenance window settings while updating Kafka cluster: %s", err)
 	}
 
+	var subnets []string
+	if v, ok := d.GetOk("subnet_ids"); ok {
+		for _, subnet := range v.([]interface{}) {
+			subnets = append(subnets, subnet.(string))
+		}
+	}
+
 	req := &kafka.UpdateClusterRequest{
 		ClusterId:          d.Id(),
 		Name:               d.Get("name").(string),
@@ -998,6 +1006,7 @@ func kafkaClusterUpdateRequest(d *schema.ResourceData) (*kafka.UpdateClusterRequ
 		ConfigSpec:         configSpec,
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		SubnetIds:          subnets,
 		MaintenanceWindow:  maintenanceWindow,
 	}
 	return req, nil

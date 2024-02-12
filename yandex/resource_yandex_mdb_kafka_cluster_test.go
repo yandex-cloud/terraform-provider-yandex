@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"reflect"
 	"sort"
 	"strings"
 	"testing"
+
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -44,8 +45,8 @@ resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-kafka-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -133,7 +134,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 			map[string]interface{}{
 				"version":         "2.8",
 				"brokers_count":   1,
-				"zones":           []interface{}{"ru-central1-b", "ru-central1-c"},
+				"zones":           []interface{}{"ru-central1-b", "ru-central1-d"},
 				"schema_registry": true,
 				"kafka": []interface{}{
 					map[string]interface{}{
@@ -264,7 +265,7 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 		ConfigSpec: &kafka.ConfigSpec{
 			Version:        "2.8",
 			BrokersCount:   &wrappers.Int64Value{Value: int64(1)},
-			ZoneId:         []string{"ru-central1-b", "ru-central1-c"},
+			ZoneId:         []string{"ru-central1-b", "ru-central1-d"},
 			SchemaRegistry: true,
 			Kafka: &kafka.ConfigSpec_Kafka{
 				Resources: &kafka.Resources{
@@ -548,7 +549,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			map[string]interface{}{
 				"version":       "2.8",
 				"brokers_count": 1,
-				"zones":         []interface{}{"ru-central1-b", "ru-central1-c"},
+				"zones":         []interface{}{"ru-central1-b", "ru-central1-d"},
 				"kafka": []interface{}{
 					map[string]interface{}{
 						"resources": []interface{}{
@@ -617,7 +618,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 		ConfigSpec: &kafka.ConfigSpec{
 			Version:      "2.8",
 			BrokersCount: &wrappers.Int64Value{Value: int64(1)},
-			ZoneId:       []string{"ru-central1-b", "ru-central1-c"},
+			ZoneId:       []string{"ru-central1-b", "ru-central1-d"},
 			Kafka: &kafka.ConfigSpec_Kafka{
 				Resources: &kafka.Resources{
 					ResourcePresetId: "s2.micro",
@@ -665,6 +666,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 				Anytime: &kafka.AnytimeMaintenanceWindow{},
 			},
 		},
+		SubnetIds: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 		UpdateMask: &field_mask.FieldMask{Paths: []string{
 			"config_spec.brokers_count",
 			"config_spec.kafka.kafka_config_2_8.auto_create_topics_enable",
@@ -699,6 +701,7 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 			"maintenance_window",
 			"name",
 			"security_group_ids",
+			"subnet_ids",
 		}},
 	}
 
@@ -716,7 +719,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 				map[string]interface{}{
 					"version":       version,
 					"brokers_count": 1,
-					"zones":         []interface{}{"ru-central1-b", "ru-central1-c"},
+					"zones":         []interface{}{"ru-central1-b", "ru-central1-d"},
 					"kafka": []interface{}{
 						map[string]interface{}{
 							"resources": []interface{}{
@@ -785,7 +788,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 			ConfigSpec: &kafka.ConfigSpec{
 				Version:      version,
 				BrokersCount: &wrappers.Int64Value{Value: int64(1)},
-				ZoneId:       []string{"ru-central1-b", "ru-central1-c"},
+				ZoneId:       []string{"ru-central1-b", "ru-central1-d"},
 				Kafka: &kafka.ConfigSpec_Kafka{
 					Resources: &kafka.Resources{
 						ResourcePresetId: "s2.micro",
@@ -833,6 +836,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 					Anytime: &kafka.AnytimeMaintenanceWindow{},
 				},
 			},
+			SubnetIds: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 			UpdateMask: &field_mask.FieldMask{Paths: []string{
 				"config_spec.brokers_count",
 				"config_spec.kafka.kafka_config_3.auto_create_topics_enable",
@@ -867,6 +871,7 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 				"maintenance_window",
 				"name",
 				"security_group_ids",
+				"subnet_ids",
 			}},
 		}
 
@@ -1156,7 +1161,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResource, "description", kfDescUpdated),
 					resource.TestCheckResourceAttr(kfResource, "config.0.version", currentDefaultKafkaVersion),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-c"}),
+					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 2),
 					testAccCheckMDBKafkaClusterHasTopics(kfResource, []string{"raw_events", "new_topic"}),
 					testAccCheckMDBKafkaClusterHasUsers(kfResource, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
@@ -1644,7 +1649,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
-	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
+	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
 	]
 
 	config {
@@ -1723,13 +1728,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	subnet_ids = [
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
-	  yandex_vpc_subnet.mdb-kafka-test-subnet-c.id
+	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
 	]
 
 	config {
 	  version          = "%s"
 	  brokers_count    = 2
-	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
 	  assign_public_ip = false
       schema_registry  = false
 	  kafka {

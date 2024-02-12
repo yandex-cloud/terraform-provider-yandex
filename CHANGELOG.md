@@ -2,6 +2,7 @@
 FEATURES:
 * redis: added `enable_sharding` feature, it works when cluster was not sharded and new value of sharded is true
 * storage: support `tags` and `and` operator in bucket lifecycle configuration in `yandex_storage_bucket` resource
+* kafka: added `subnet_ids` field for update method in `resource_yandex_mdb_kafka_cluster`
 * **New Resource:** `yandex_mdb_mongodb_database`
 * **New Resource:** `yandex_mdb_mongodb_user`
 * **New Data Source:** `yandex_mdb_mongodb_database`

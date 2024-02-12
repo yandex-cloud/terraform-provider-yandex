@@ -681,6 +681,10 @@ github.com/yagipy/maintidx v1.0.0 h1:h5NvIsCz+nRDapQ0exNv4aJ0yXSI0420omVANTv3GJM
 github.com/yagipy/maintidx v1.0.0/go.mod h1:0qNf/I/CCZXSMhsRsrEPDZ+DkekpKLXAJfsTACwgXLk=
 github.com/yandex-cloud/go-genproto v0.0.0-20240129131803-3f27fc889aba h1:TYT835/41SLVa2x3sCyBD7Ei/JdeaigPslAKLZ+kmbc=
 github.com/yandex-cloud/go-genproto v0.0.0-20240129131803-3f27fc889aba/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20240202125927-c7e58c57d09c h1:L/ruyREMZQKFc07Mb2EwRpwm0i2RhuTJiRA/sl4wVOw=
+github.com/yandex-cloud/go-genproto v0.0.0-20240202125927-c7e58c57d09c/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20240205090910-007acb101be5 h1:HVYr9Ey2rOAQjGvTLJTWxWe+5SIdOVdK0/0sdiYsQCo=
+github.com/yandex-cloud/go-genproto v0.0.0-20240205090910-007acb101be5/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20240129132414-22c1db73a745 h1:mcyK6CJsXmFpKlCW9KkNc6c6874Ccvl8q540PjRkxqY=
 github.com/yandex-cloud/go-sdk v0.0.0-20240129132414-22c1db73a745/go.mod h1:rEGsVQ2RFHQg1Lic1itW7f7TvC7W9DTfg9dgkh3qErc=
 github.com/ydb-platform/terraform-provider-ydb v0.0.16 h1:5PXVN2Bci6MgoIG63rSUSEOag0trYGin6+6febVuTMI=
