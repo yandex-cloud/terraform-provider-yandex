@@ -11,6 +11,7 @@ FEATURES:
 BUG FIXES:
 * fix ydb_table type
 * serverless: fix YDS trigger creation.
+* lockbox: support `import`
 
 WARNING:
 * mongodb: `database` and `user` sections for `yandex_mdb_postgresql_cluster` are now deprecated

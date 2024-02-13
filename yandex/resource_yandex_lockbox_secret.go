@@ -26,6 +26,10 @@ func resourceYandexLockboxSecret() *schema.Resource {
 		UpdateContext: resourceYandexLockboxSecretUpdate,
 		DeleteContext: resourceYandexLockboxSecretDelete,
 
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexLockboxSecretDefaultTimeout),
 			Read:   schema.DefaultTimeout(yandexLockboxSecretDefaultTimeout),
