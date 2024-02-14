@@ -1,4 +1,6 @@
-## 0.108.0 (Unreleased)
+## 0.109.0 (Unreleased)
+
+## 0.108.0 (February 14, 2024)
 FEATURES:
 * redis: added `enable_sharding` feature, it works when cluster was not sharded and new value of sharded is true
 * storage: support `tags` and `and` operator in bucket lifecycle configuration in `yandex_storage_bucket` resource
