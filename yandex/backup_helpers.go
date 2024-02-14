@@ -369,7 +369,7 @@ func expandYandexBackupPolicyRetention(v any) (rts *backuppb.PolicySettings_Rete
 
 	value := vscheme.List()[0].(map[string]any)
 	rts = new(backuppb.PolicySettings_Retention)
-	rts.AfterBackup = value["after_backup"].(bool)
+	rts.BeforeBackup = !value["after_backup"].(bool)
 	rules := value["rules"].(*schema.Set).List()
 	for _, rule := range rules {
 		rulepb := expandYandexBackupPolicyRetentionRule(rule)
@@ -499,7 +499,7 @@ func flattenBackupPolicySettingsRetention(d *schema.ResourceData, retention *bac
 	}
 
 	result := make(map[string]any, 2)
-	result["after_backup"] = retention.AfterBackup
+	result["after_backup"] = !retention.BeforeBackup
 
 	resultRules := make([]any, 0, len(retention.Rules))
 	for _, rule := range retention.Rules {
