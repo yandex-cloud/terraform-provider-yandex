@@ -6,9 +6,11 @@ FEATURES:
 * **New Resource:** `yandex_mdb_mongodb_database`
 * **New Resource:** `yandex_mdb_mongodb_user`
 * **New Resource:** `yandex_organizationmanager_os_login_settings` 
+* **New Resource:** `yandex_organizationmanager_user_ssh_key` 
 * **New Data Source:** `yandex_mdb_mongodb_database`
 * **New Data Source:** `yandex_mdb_mongodb_user`
 * **New Data Source:** `yandex_organizationmanager_os_login_settings`
+* **New Data Source:** `yandex_organizationmanager_user_ssh_key
 
 BUG FIXES:
 * fix ydb_table type

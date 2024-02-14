@@ -2238,6 +2238,35 @@ func flattenLoadtestingComputeInstanceNetworkInterfaces(instance *compute.Instan
 	return nics, nil
 }
 
+func flattenUserSshKey(context context.Context, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+	userSSHKeyID := d.Id()
+	res, ok := d.GetOk("user_ssh_key_id")
+	if ok {
+		userSSHKeyID = res.(string)
+	}
+
+	userSshKey, err := config.sdk.OrganizationManager().UserSshKey().Get(context,
+		&organizationmanager.GetUserSshKeyRequest{
+			UserSshKeyId: userSSHKeyID,
+		})
+
+	if err != nil {
+		return handleNotFoundError(err, d, fmt.Sprintf("User ssh key %q", userSSHKeyID))
+	}
+
+	d.SetId(userSSHKeyID)
+	_ = d.Set("subject_id", userSshKey.SubjectId)
+	_ = d.Set("data", userSshKey.Data)
+	_ = d.Set("name", userSshKey.Name)
+	_ = d.Set("fingerprint", userSshKey.Fingerprint)
+	_ = d.Set("organization_id", userSshKey.OrganizationId)
+	_ = d.Set("created_at", getTimestamp(userSshKey.CreatedAt))
+	_ = d.Set("expires_at", getTimestamp(userSshKey.ExpiresAt))
+
+	return nil
+}
+
 func flattenUserSshKeySettings(v *organizationmanager.UserSshKeySettings) ([]map[string]interface{}, error) {
 	if v == nil {
 		return nil, nil
