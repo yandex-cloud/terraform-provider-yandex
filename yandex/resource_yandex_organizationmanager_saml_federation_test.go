@@ -182,11 +182,15 @@ func samlFederationResourceTestCheckFunc(fed *saml.Federation, info *resourceSam
 			// Uncomment once labels are supported.
 			// resource.TestCheckResourceAttr(name, fmt.Sprintf("labels.%s", info.LabelKey), info.LabelValue),
 		}
+
+		expectedEncryptedAssertions := "false"
+
 		if info.SecuritySettings != nil && info.SecuritySettings.EncryptedAssertions {
-			checkFuncsAr = append(checkFuncsAr, resource.TestCheckResourceAttr(name, "security_settings.0.encrypted_assertions", strconv.FormatBool(info.SecuritySettings.EncryptedAssertions)))
-		} else {
-			checkFuncsAr = append(checkFuncsAr, resource.TestCheckNoResourceAttr(name, "security_settings"))
+			expectedEncryptedAssertions = strconv.FormatBool(info.SecuritySettings.EncryptedAssertions)
 		}
+
+		checkFuncsAr = append(checkFuncsAr, resource.TestCheckResourceAttr(name, "security_settings.0.encrypted_assertions", expectedEncryptedAssertions))
+
 		if fed.SecuritySettings == nil {
 			return fmt.Errorf("unexpected nil in federation's SecuritySettings")
 		}

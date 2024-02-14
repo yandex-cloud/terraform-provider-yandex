@@ -5,8 +5,10 @@ FEATURES:
 * kafka: added `subnet_ids` field for update method in `resource_yandex_mdb_kafka_cluster`
 * **New Resource:** `yandex_mdb_mongodb_database`
 * **New Resource:** `yandex_mdb_mongodb_user`
+* **New Resource:** `yandex_organizationmanager_os_login_settings` 
 * **New Data Source:** `yandex_mdb_mongodb_database`
 * **New Data Source:** `yandex_mdb_mongodb_user`
+* **New Data Source:** `yandex_organizationmanager_os_login_settings`
 
 BUG FIXES:
 * fix ydb_table type
