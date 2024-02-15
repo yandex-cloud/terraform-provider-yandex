@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"regexp"
@@ -760,10 +761,19 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					SecurityProtocol:                 cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SSL,
 					SaslMechanism:                    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_256,
 					SaslUsername:                     "user2",
-					SaslPassword:                     "pass22",
+					SaslPassword:                     "pass21",
 					EnableSslCertificateVerification: &wrappers.BoolValue{Value: false},
 					MaxPollIntervalMs:                &wrappers.Int64Value{Value: 50001},
 					SessionTimeoutMs:                 &wrappers.Int64Value{Value: 50002},
+				},
+			},
+			{
+				Name: "topic2",
+				Settings: &cfg.ClickhouseConfig_Kafka{
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
+					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_PLAIN,
+					SaslUsername:     "user2",
+					SaslPassword:     "pass22",
 				},
 			},
 		},
@@ -886,7 +896,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					SecurityProtocol:                 cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SSL,
 					SaslMechanism:                    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_256,
 					SaslUsername:                     "user2",
-					SaslPassword:                     "pass22",
+					SaslPassword:                     "pass21",
 					EnableSslCertificateVerification: &wrappers.BoolValue{Value: true},
 					MaxPollIntervalMs:                &wrappers.Int64Value{Value: 60001},
 					SessionTimeoutMs:                 &wrappers.Int64Value{Value: 60002},
@@ -895,10 +905,19 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			{
 				Name: "topic2",
 				Settings: &cfg.ClickhouseConfig_Kafka{
-					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SASL_PLAINTEXT,
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
 					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_PLAIN,
 					SaslUsername:     "user2",
 					SaslPassword:     "pass22",
+				},
+			},
+			{
+				Name: "topic3",
+				Settings: &cfg.ClickhouseConfig_Kafka{
+					SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_SASL_PLAINTEXT,
+					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_512,
+					SaslUsername:     "user3",
+					SaslPassword:     "pass23",
 				},
 			},
 		},
@@ -1100,15 +1119,24 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
 
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.security_protocol", "SECURITY_PROTOCOL_SSL"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_mechanism", "SASL_MECHANISM_SCRAM_SHA_256"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_username", "user2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass22"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass21"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.enable_ssl_certificate_verification", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.max_poll_interval_ms", "50001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.session_timeout_ms", "50002"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.name", "topic2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_mechanism", "SASL_MECHANISM_PLAIN"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_username", "user2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_password", "pass22"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.enable_ssl_certificate_verification", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.max_poll_interval_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.session_timeout_ms", "0"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass"),
@@ -1207,21 +1235,33 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
 
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.security_protocol", "SECURITY_PROTOCOL_SSL"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_mechanism", "SASL_MECHANISM_SCRAM_SHA_256"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_username", "user2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass22"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.sasl_password", "pass21"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.enable_ssl_certificate_verification", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.max_poll_interval_ms", "60001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.session_timeout_ms", "60002"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.name", "topic2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_SASL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_mechanism", "SASL_MECHANISM_PLAIN"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_username", "user2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.sasl_password", "pass22"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.enable_ssl_certificate_verification", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.max_poll_interval_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.session_timeout_ms", "0"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.name", "topic3"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.security_protocol", "SECURITY_PROTOCOL_SASL_PLAINTEXT"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.sasl_mechanism", "SASL_MECHANISM_SCRAM_SHA_512"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.sasl_username", "user3"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.sasl_password", "pass23"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.enable_ssl_certificate_verification", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.max_poll_interval_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.session_timeout_ms", "0"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass2"),
@@ -3431,7 +3471,18 @@ kafka {
 
 func buildConfigForKafkaTopics(topics []*cfg.ClickhouseConfig_KafkaTopic) string {
 	var result string
+
 	for _, rawTopic := range topics {
+		var optionalSettings string
+		if rawTopic.Settings.EnableSslCertificateVerification != nil {
+			optionalSettings += fmt.Sprintf("enable_ssl_certificate_verification = %t\n", rawTopic.Settings.EnableSslCertificateVerification.Value)
+		}
+		if rawTopic.Settings.MaxPollIntervalMs != nil {
+			optionalSettings += fmt.Sprintf("max_poll_interval_ms = %d\n", rawTopic.Settings.MaxPollIntervalMs.Value)
+		}
+		if rawTopic.Settings.SessionTimeoutMs != nil {
+			optionalSettings += fmt.Sprintf("session_timeout_ms = %d\n", rawTopic.Settings.SessionTimeoutMs.Value)
+		}
 		result += fmt.Sprintf(`
 kafka_topic {
 	name = "%s"
@@ -3440,9 +3491,7 @@ kafka_topic {
 		sasl_mechanism    = "%s"
 		sasl_username     = "%s"
 		sasl_password     = "%s"
-		enable_ssl_certificate_verification = %t
-		max_poll_interval_ms                = %d
-		session_timeout_ms                  = %d
+		%s
 	}
 }
 `,
@@ -3451,11 +3500,10 @@ kafka_topic {
 			rawTopic.Settings.SaslMechanism.String(),
 			rawTopic.Settings.SaslUsername,
 			rawTopic.Settings.SaslPassword,
-			rawTopic.Settings.EnableSslCertificateVerification.GetValue(),
-			rawTopic.Settings.MaxPollIntervalMs.GetValue(),
-			rawTopic.Settings.SessionTimeoutMs.GetValue(),
+			optionalSettings,
 		)
 	}
+	log.Printf("[DEBUG] result config = %v\n", result)
 	return result
 }
 

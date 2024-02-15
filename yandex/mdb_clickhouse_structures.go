@@ -649,14 +649,14 @@ func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *c
 	if v, ok := d.GetOk(keyPath + ".sasl_password"); ok {
 		res["sasl_password"] = v.(string)
 	}
-	if v, ok := d.GetOk(keyPath + ".enable_ssl_certificate_verification"); ok {
-		res["enable_ssl_certificate_verification"] = v.(bool)
+	if c.EnableSslCertificateVerification != nil {
+		res["enable_ssl_certificate_verification"] = c.EnableSslCertificateVerification.Value
 	}
-	if v, ok := d.GetOk(keyPath + ".max_poll_interval_ms"); ok {
-		res["max_poll_interval_ms"] = v.(int)
+	if c.MaxPollIntervalMs != nil {
+		res["max_poll_interval_ms"] = c.MaxPollIntervalMs.Value
 	}
-	if v, ok := d.GetOk(keyPath + ".session_timeout_ms"); ok {
-		res["session_timeout_ms"] = v.(int)
+	if c.SessionTimeoutMs != nil {
+		res["session_timeout_ms"] = c.SessionTimeoutMs.Value
 	}
 
 	return []map[string]interface{}{res}, nil
@@ -1047,13 +1047,13 @@ func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*cli
 	if v, ok := d.GetOkExists(rootKey + ".sasl_password"); ok {
 		config.SaslPassword = v.(string)
 	}
-	if v, ok := d.GetOkExists(rootKey + ".enable_ssl_certificate_verification"); ok {
+	if v, ok := d.GetOk(rootKey + ".enable_ssl_certificate_verification"); ok {
 		config.EnableSslCertificateVerification = &wrappers.BoolValue{Value: v.(bool)}
 	}
-	if v, ok := d.GetOkExists(rootKey + ".max_poll_interval_ms"); ok {
+	if v, ok := d.GetOk(rootKey + ".max_poll_interval_ms"); ok {
 		config.MaxPollIntervalMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
-	if v, ok := d.GetOkExists(rootKey + ".session_timeout_ms"); ok {
+	if v, ok := d.GetOk(rootKey + ".session_timeout_ms"); ok {
 		config.SessionTimeoutMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
 
