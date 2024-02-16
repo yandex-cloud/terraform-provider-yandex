@@ -2584,6 +2584,11 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 			filter.SetAnd(and)
 		}
 
+		if filter.And == nil && filter.Tag == nil && filter.Prefix == nil {
+			// For backward compatibility set "" to prefix in case any of And, Tag, Prefix is empty
+			filter.SetPrefix("")
+		}
+
 		rule.SetFilter(filter)
 
 		// ID

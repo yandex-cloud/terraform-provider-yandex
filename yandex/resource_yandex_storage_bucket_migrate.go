@@ -496,18 +496,21 @@ func resourceYandexStorageBucketStateUpgradeV0(ctx context.Context, rawState map
 	}
 
 	if _, ok := rawState["lifecycle_rule"]; ok {
-		rawLifecycleRules := rawState["lifecycle_rule"].([]map[string]interface{})
-		updatedLifecycleRules := make([]map[string]interface{}, len(rawLifecycleRules))
-		for i, rule := range rawLifecycleRules {
-			newRule := make(map[string]interface{})
-			for k, v := range rule {
-				if k != "tags" {
-					newRule[k] = v
+		switch rawState["lifecycle_rule"].(type) {
+		case []map[string]interface{}:
+			rawLifecycleRules := rawState["lifecycle_rule"].([]map[string]interface{})
+			updatedLifecycleRules := make([]map[string]interface{}, len(rawLifecycleRules))
+			for i, rule := range rawLifecycleRules {
+				newRule := make(map[string]interface{})
+				for k, v := range rule {
+					if k != "tags" {
+						newRule[k] = v
+					}
 				}
+				updatedLifecycleRules[i] = newRule
 			}
-			updatedLifecycleRules[i] = newRule
+			rawState["lifecycle_rule"] = updatedLifecycleRules
 		}
-		rawState["lifecycle_rule"] = updatedLifecycleRules
 	}
 
 	return rawState, nil

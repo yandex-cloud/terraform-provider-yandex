@@ -2456,50 +2456,62 @@ func checkBucketDeleted(ID string, conn *s3.S3) error {
 	return nil
 }
 
-func testResourceYandexStorageBucketStateDataV0() map[string]any {
-	lifecycleRules := []map[string]interface{}{
-		{
-			"id": "1",
-			"tags": map[string]string{
-				"key1": "value1",
-				"key2": "value2",
-			},
-		},
-		{
-			"id": "2",
-			"tags": map[string]string{
-				"key11": "value11",
-				"key22": "value22",
-			},
-		},
-	}
-
-	return map[string]any{
-		"bucket":         "test",
-		"lifecycle_rule": lifecycleRules,
-	}
-}
-
-func testResourceYandexStorageBucketStateDataV1() map[string]any {
-	lifecycleRules := []map[string]interface{}{
-		{"id": "1"},
-		{"id": "2"},
-	}
-
-	return map[string]any{
-		"bucket":         "test",
-		"lifecycle_rule": lifecycleRules,
-	}
-}
-
 func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
-	expected := testResourceYandexStorageBucketStateDataV1()
-	actual, err := resourceYandexStorageBucketStateUpgradeV0(context.TODO(), testResourceYandexStorageBucketStateDataV0(), nil)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
+
+	cases := map[string]struct {
+		V0 map[string]any
+		V1 map[string]any
+	}{
+		"empty_lc": {
+			V0: map[string]any{
+				"bucket":         "test",
+				"lifecycle_rule": []interface{}{},
+			},
+			V1: map[string]any{
+				"bucket":         "test",
+				"lifecycle_rule": []interface{}{},
+			},
+		},
+		"filled_lc": {
+			V0: map[string]any{
+				"bucket": "test",
+				"lifecycle_rule": []map[string]any{
+					{
+						"id": "1",
+						"tags": map[string]string{
+							"key1": "value1",
+							"key2": "value2",
+						},
+					},
+					{
+						"id": "2",
+						"tags": map[string]string{
+							"key11": "value11",
+							"key22": "value22",
+						},
+					},
+				},
+			},
+			V1: map[string]any{
+				"bucket": "test",
+				"lifecycle_rule": []map[string]interface{}{
+					{"id": "1"},
+					{"id": "2"},
+				},
+			},
+		},
 	}
 
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			actualV1, err := resourceYandexStorageBucketStateUpgradeV0(context.TODO(), tc.V0, nil)
+			if err != nil {
+				t.Fatalf("error migrating state: %s", err)
+			}
+
+			if !reflect.DeepEqual(tc.V1, actualV1) {
+				t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", tc.V1, actualV1)
+			}
+		})
 	}
 }
