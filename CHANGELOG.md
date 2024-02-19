@@ -1,4 +1,6 @@
 ## 0.109.0 (Unreleased)
+
+## 0.108.1 (February 19, 2024)
 BUG FIXES:
 * clickhouse: fixed resetting kafka_topics timeout settings to zero when adding a new topic
 * storage: fix lifecycle state upgrader
