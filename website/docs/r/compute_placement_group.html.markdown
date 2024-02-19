@@ -32,6 +32,10 @@ The following arguments are supported:
 * `description` - (Optional) A description of the Placement Group.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Placement Group.
+ 
+* `placement_strategy_spread` - A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with placement_strategy_partitions).
+
+* `placement_strategy_partitions` - A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with placement_strategy_spread).
 
 ## Timeouts
 
