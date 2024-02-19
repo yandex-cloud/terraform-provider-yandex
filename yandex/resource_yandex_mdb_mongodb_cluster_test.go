@@ -178,7 +178,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{end}}
 {{if .Mongod.OperationProfiling}}
 	operation_profiling {
-        mode = "{{.Mongod.OperationProfiling.Mode}}"
+				{{if .Mongod.OperationProfiling.Mode}}
+        		mode = "{{.Mongod.OperationProfiling.Mode}}"
+				{{end}}
         slow_op_threshold = "{{.Mongod.OperationProfiling.OpThreshold}}"
 				slow_op_sample_rate = "{{.Mongod.OperationProfiling.OpSampleRate}}"
 	}
@@ -208,7 +210,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{end}}
 {{if .MongoCfg.OperationProfiling}}
       operation_profiling {
-        mode = "{{.MongoCfg.OperationProfiling.Mode}}"
+        {{if .MongoCfg.OperationProfiling.Mode}}
+        		mode = "{{.MongoCfg.OperationProfiling.Mode}}"
+				{{end}}
         slow_op_threshold = "{{.MongoCfg.OperationProfiling.OpThreshold}}"
       }
 {{end}}
@@ -1853,6 +1857,16 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 							},
 						},
 					},
+					"Mongos": map[string]interface{}{
+						"Net": map[string]interface{}{
+							"MaxConnections": 32,
+						},
+					},
+					"MongoCfg": map[string]interface{}{
+						"OperationProfiling": map[string]interface{}{
+							"OpThreshold": 1000,
+						},
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
@@ -1876,6 +1890,10 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1000"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),

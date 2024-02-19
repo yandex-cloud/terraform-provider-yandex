@@ -196,9 +196,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -222,9 +225,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0Enterprise).Mongodb_6_0Enterprise
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -588,9 +594,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -614,9 +623,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_6_0).Mongodb_6_0
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -982,9 +994,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -1008,9 +1023,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0Enterprise).Mongodb_5_0Enterprise
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -1378,9 +1396,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -1404,9 +1425,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_5_0).Mongodb_5_0
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -1770,9 +1794,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -1796,9 +1823,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4Enterprise).Mongodb_4_4Enterprise
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -2165,9 +2195,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -2191,9 +2224,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_4).Mongodb_4_4
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -2528,9 +2564,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongos: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongos := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2.Mongos
-					if mongos != nil {
-						userConfig := mongos.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
+					userConfig := mongodbConfig.Mongos.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongos().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {
@@ -2554,9 +2593,12 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 				},
 
 				FlattenMongocfg: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
-					mongocfg := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2.Mongocfg
-					if mongocfg != nil {
-						userConfig := mongocfg.GetConfig().GetUserConfig()
+					mongodbConfig := c.Mongodb.(*mongodb.ClusterConfig_Mongodb_4_2).Mongodb_4_2
+					userConfig := mongodbConfig.Mongocfg.GetConfig().GetUserConfig()
+					if userConfig == nil {
+						userConfig = mongodbConfig.Mongoinfra.GetConfigMongocfg().GetUserConfig()
+					}
+					if userConfig != nil {
 						result := map[string]interface{}{}
 
 						if net := userConfig.GetNet(); net != nil {

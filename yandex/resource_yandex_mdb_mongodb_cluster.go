@@ -1365,13 +1365,26 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		updatePath = append(updatePath, configSpecPath)
 	}
 
+	hostTypes := getSetOfHostTypes(d)
+	_, hasMongoInfraHosts := hostTypes["MONGOINFRA"]
+
 	if d.HasChange("cluster_config.0.mongos") {
-		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.config", flattendVersion(version))
+		var configSpecPath string
+		if hasMongoInfraHosts {
+			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.config_mongos", flattendVersion(version))
+		} else {
+			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.config", flattendVersion(version))
+		}
 		updatePath = append(updatePath, configSpecPath)
 	}
 
 	if d.HasChange("cluster_config.0.mongocfg") {
-		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.config", flattendVersion(version))
+		var configSpecPath string
+		if hasMongoInfraHosts {
+			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.config_mongocfg", flattendVersion(version))
+		} else {
+			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.config", flattendVersion(version))
+		}
 		updatePath = append(updatePath, configSpecPath)
 	}
 
