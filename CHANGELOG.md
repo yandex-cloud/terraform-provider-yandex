@@ -7,6 +7,8 @@ BUG FIXES:
 * clickhouse: fixed resetting kafka_topics timeout settings to zero when adding a new topic
 * storage: fix lifecycle state upgrader
 * mongodb: fixed mongocfg/mongos terraform configs behaviour with mongoinfra hosts
+ENHANCEMENTS:
+* yandex_ydb_table: add auth interface parameters for static creds
 
 ## 0.108.0 (February 14, 2024)
 FEATURES:

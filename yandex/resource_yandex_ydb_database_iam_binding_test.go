@@ -25,6 +25,7 @@ func importYDBDatabaseIDFunc(database *ydb.Database, role string) func(*terrafor
 func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database")
+	ydbLocationId := ydbLocationId
 
 	role := "ydb.viewer"
 	userID := "system:allAuthenticatedUsers"
@@ -34,7 +35,7 @@ func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID),
+				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseServerlessExists(ydbDatabaseResource, &database),
 					testAccCheckYDBDatabaseIam(ydbDatabaseResource, role, []string{userID}),
@@ -53,6 +54,7 @@ func TestAccYDBDatabaseIamBinding_basic(t *testing.T) {
 func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database")
+	ydbLocationId := ydbLocationId
 
 	role := "ydb.viewer"
 	userID := "system:allAuthenticatedUsers"
@@ -63,7 +65,7 @@ func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Prepare data source
 			{
-				Config: testAccYDBDatabase(databaseName),
+				Config: testAccYDBDatabase(databaseName, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseServerlessExists(ydbDatabaseResource, &database),
 					testAccCheckYDBDatabaseEmptyIam(ydbDatabaseResource),
@@ -71,14 +73,14 @@ func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
 			},
 			// Apply IAM bindings
 			{
-				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID),
+				Config: testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYDBDatabaseIam(ydbDatabaseResource, role, []string{userID}),
 				),
 			},
 			// Remove the bindings
 			{
-				Config: testAccYDBDatabase(databaseName),
+				Config: testAccYDBDatabase(databaseName, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckYDBDatabaseEmptyIam(ydbDatabaseResource),
 				),
@@ -87,10 +89,11 @@ func TestAccYDBDatabaseIamBinding_remove(t *testing.T) {
 	})
 }
 
-func testAccYDBDatabaseIamBindingBasic(databaseName, role, userID string) string {
+func testAccYDBDatabaseIamBindingBasic(databaseName, role, userID, ydbLocationId string) string {
 	return fmt.Sprintf(`
 resource "yandex_ydb_database_serverless" "test-database" {
   name       = "%s"
+  location_id = "%s"
 }
 
 resource "yandex_ydb_database_iam_binding" "viewer" {
@@ -98,15 +101,16 @@ resource "yandex_ydb_database_iam_binding" "viewer" {
   role        = "%s"
   members     = ["%s"]
 }
-`, databaseName, role, userID)
+`, databaseName, ydbLocationId, role, userID)
 }
 
-func testAccYDBDatabase(databaseName string) string {
+func testAccYDBDatabase(databaseName, ydbLocationId string) string {
 	return fmt.Sprintf(`
 resource "yandex_ydb_database_serverless" "test-database" {
   name       = "%s"
+  location_id = "%s"
 }
-`, databaseName)
+`, databaseName, ydbLocationId)
 }
 
 func testAccCheckYDBDatabaseEmptyIam(resourceName string) resource.TestCheckFunc {

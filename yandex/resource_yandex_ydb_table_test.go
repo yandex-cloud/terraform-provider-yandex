@@ -17,6 +17,7 @@ func TestAccYandexYDBTable_basic(t *testing.T) {
 	changefeedResourceName := fmt.Sprintf("ydb-test-table-changefeed-%s", acctest.RandString(5))
 	indexName := fmt.Sprintf("test-index-%s", acctest.RandString(5))
 	indexResourceName := fmt.Sprintf("ydb-test-table-index-%s", acctest.RandString(5))
+	ydbLocationId := ydbLocationId
 
 	existingYDBResourceName := fmt.Sprintf("yandex_ydb_database_serverless.%s", ydbResourceName)
 	existingTableResourceName := fmt.Sprintf("yandex_ydb_table.%s", tableResourceName)
@@ -37,6 +38,7 @@ func TestAccYandexYDBTable_basic(t *testing.T) {
 					indexName,
 					changefeedResourceName,
 					changefeedName,
+					ydbLocationId,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccYDBTableExist(tableName, existingYDBResourceName, existingTableResourceName),
@@ -54,21 +56,23 @@ func TestAccYandexYDBTable_basic(t *testing.T) {
 }
 
 func testAccYDBTableConfig(
-	subnetsConfig string,
-	ydbResourceName string,
-	tableResourceName string,
-	tablePath string,
-	indexResourceName string,
-	indexName string,
-	changefeedResourceName string,
-	changefeedName string,
+	subnetsConfig,
+	ydbResourceName,
+	tableResourceName,
+	tablePath,
+	indexResourceName,
+	indexName,
+	changefeedResourceName,
+	changefeedName,
+	ydbLocationId string,
 ) string {
 	return fmt.Sprintf(`
 	%s
 
 	resource "yandex_ydb_database_serverless" "%s" {
 		name = "%s"
-		location_id = "ru-central1"
+		location_id = "%s"
+		sleep_after = 180
 	}
 	
 	resource "yandex_ydb_table" "%s" {
@@ -94,7 +98,7 @@ func testAccYDBTableConfig(
         }
         column {
           name = "e"
-          type = "Bytes"
+          type = "String"
         }
         column {
           name = "d"
@@ -153,6 +157,7 @@ func testAccYDBTableConfig(
 		subnetsConfig,
 		ydbResourceName,
 		ydbResourceName,
+		ydbLocationId,
 		tableResourceName,
 		tablePath,
 		ydbResourceName,

@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/auth"
 	"github.com/ydb-platform/terraform-provider-ydb/sdk/terraform/table/index"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -24,49 +25,49 @@ func resourceYandexYDBTableIndex() *schema.Resource {
 }
 
 func resourceYandexYDBTableIndexCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cb := func(ctx context.Context) (string, error) {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
 		token, err := config.sdk.CreateIAMToken(ctx)
 		if err != nil {
-			return "", err
+			return auth.YdbCredentials{}, err
 		}
-		return token.IamToken, nil
+		return auth.YdbCredentials{Token: token.IamToken}, nil
 	}
 	return index.ResourceCreateFunc(cb)(ctx, d, meta)
 }
 
 func resourceYandexYDBTableIndexRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cb := func(ctx context.Context) (string, error) {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
 		token, err := config.sdk.CreateIAMToken(ctx)
 		if err != nil {
-			return "", err
+			return auth.YdbCredentials{}, err
 		}
-		return token.IamToken, nil
+		return auth.YdbCredentials{Token: token.IamToken}, nil
 	}
 	return index.ResourceReadFunc(cb)(ctx, d, meta)
 }
 
 func resourceYandexYDBTableIndexUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cb := func(ctx context.Context) (string, error) {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
 		token, err := config.sdk.CreateIAMToken(ctx)
 		if err != nil {
-			return "", err
+			return auth.YdbCredentials{}, err
 		}
-		return token.IamToken, nil
+		return auth.YdbCredentials{Token: token.IamToken}, nil
 	}
 	return index.ResourceUpdateFunc(cb)(ctx, d, meta)
 }
 
 func resourceYandexYDBTableIndexDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cb := func(ctx context.Context) (string, error) {
+	cb := func(ctx context.Context) (auth.YdbCredentials, error) {
 		config := meta.(*Config)
 		token, err := config.sdk.CreateIAMToken(ctx)
 		if err != nil {
-			return "", err
+			return auth.YdbCredentials{}, err
 		}
-		return token.IamToken, nil
+		return auth.YdbCredentials{Token: token.IamToken}, nil
 	}
 	return index.ResourceDeleteFunc(cb)(ctx, d, meta)
 }

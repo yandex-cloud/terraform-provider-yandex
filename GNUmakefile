@@ -1,3 +1,5 @@
+SEMVER ?= 0.0.1
+
 TEST?=$$(go list ./... )
 GOFMT_FILES?=$$(find . -name '*.go')
 WEBSITE_REPO=github.com/hashicorp/terraform-website
@@ -17,6 +19,9 @@ default: build
 
 build: fmtcheck
 	go install
+
+local-build: fmtcheck
+	go build -o $(HOME)/.terraform.d/plugins/registry.terraform.io/yandex-cloud/yandex/$(SEMVER)/$(shell go env GOOS)_$(shell go env GOARCH)/terraform-provider-yandex main.go
 
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";

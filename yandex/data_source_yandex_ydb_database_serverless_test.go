@@ -18,6 +18,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_byID(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database-serverless")
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-serverless-desc")
+	ydbLocationId := ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -25,7 +26,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_byID(t *testing.T) {
 		CheckDestroy: testYandexYDBDatabaseServerlessDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexYDBDatabaseServerlessByID(databaseName, databaseDesc),
+				Config: testYandexYDBDatabaseServerlessByID(databaseName, databaseDesc, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseServerlessExists(ydbDatabaseServerlessDataSource, &database),
 					resource.TestCheckResourceAttrSet(ydbDatabaseServerlessDataSource, "database_id"),
@@ -45,6 +46,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_byName(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database-serverless")
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-serverless-desc")
+	ydbLocationId := ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -52,7 +54,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_byName(t *testing.T) {
 		CheckDestroy: testYandexYDBDatabaseServerlessDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexYDBDatabaseServerlessByName(databaseName, databaseDesc),
+				Config: testYandexYDBDatabaseServerlessByName(databaseName, databaseDesc, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseServerlessExists(ydbDatabaseServerlessDataSource, &database),
 					resource.TestCheckResourceAttrSet(ydbDatabaseServerlessDataSource, "database_id"),
@@ -75,6 +77,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-ydb-database-serverless-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-ydb-database-serverless-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-ydb-database-serverless-label-value")
+	params.ydbLocationId = ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -96,7 +99,7 @@ func TestAccDataSourceYandexYDBDatabaseServerless_full(t *testing.T) {
 	})
 }
 
-func testYandexYDBDatabaseServerlessByID(name string, desc string) string {
+func testYandexYDBDatabaseServerlessByID(name, desc, ydbLocationId string) string {
 	return fmt.Sprintf(`
 data "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
   database_id = "${yandex_ydb_database_serverless.test-ydb-database-serverless.id}"
@@ -105,10 +108,11 @@ data "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
 resource "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
   name        = "%s"
   description = "%s"
-}`, name, desc)
+  location_id = "%s"
+}`, name, desc, ydbLocationId)
 }
 
-func testYandexYDBDatabaseServerlessByName(name string, desc string) string {
+func testYandexYDBDatabaseServerlessByName(name, desc, ydbLocationId string) string {
 	return fmt.Sprintf(`
 data "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
   name = "${yandex_ydb_database_serverless.test-ydb-database-serverless.name}"
@@ -117,8 +121,9 @@ data "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
 resource "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
   name        = "%s"
   description = "%s"
+  location_id = "%s"
 }
-`, name, desc)
+`, name, desc, ydbLocationId)
 }
 
 func testYandexYDBDatabaseServerlessDataSource(params testYandexYDBDatabaseServerlessParameters) string {
@@ -134,10 +139,13 @@ resource "yandex_ydb_database_serverless" "test-ydb-database-serverless" {
     %s          = "%s"
     empty-label = ""
   }
+
+  location_id = "%s"
 }
 `,
 		params.name,
 		params.desc,
 		params.labelKey,
-		params.labelValue)
+		params.labelValue,
+		params.ydbLocationId)
 }

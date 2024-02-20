@@ -104,6 +104,11 @@ func resourceYandexYDBDatabaseServerless() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"sleep_after": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+			},
 			"serverless_database": {
 				Type:     schema.TypeSet,
 				Optional: true,

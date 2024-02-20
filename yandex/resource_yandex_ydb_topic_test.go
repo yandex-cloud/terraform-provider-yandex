@@ -13,6 +13,7 @@ func TestAccYandexYDBTopic_basic(t *testing.T) {
 	ydbResourceName := fmt.Sprintf("ydb-topic-test-%s", acctest.RandString(5))
 	topicName := fmt.Sprintf("test-%s", acctest.RandString(5))
 	topicResourceName := fmt.Sprintf("ydb-test-topic-%s", acctest.RandString(5))
+	ydbLocationId := ydbLocationId
 
 	existingYDBResourceName := fmt.Sprintf("yandex_ydb_database_serverless.%s", ydbResourceName)
 	existingTopicResourceName := fmt.Sprintf("yandex_ydb_topic.%s", topicResourceName)
@@ -27,6 +28,7 @@ func TestAccYandexYDBTopic_basic(t *testing.T) {
 					ydbResourceName,
 					topicResourceName,
 					topicName,
+					ydbLocationId,
 				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccYDBTopicExist(topicName, existingYDBResourceName, existingTopicResourceName),
@@ -37,17 +39,19 @@ func TestAccYandexYDBTopic_basic(t *testing.T) {
 }
 
 func testAccYDBTopicConfig(
-	subnetsConfig string,
-	ydbResourceName string,
-	topicResourceName string,
-	topicPath string,
+	subnetsConfig,
+	ydbResourceName,
+	topicResourceName,
+	topicPath,
+	ydbLocationId string,
 ) string {
 	return fmt.Sprintf(`
 	%s
 
 	resource "yandex_ydb_database_serverless" "%s" {
 		name = "%s"
-		location_id = "ru-central1"
+		location_id = "%s"
+		sleep_after = 180
 	}
 
 	resource "yandex_ydb_topic" "%s" {
@@ -67,6 +71,7 @@ func testAccYDBTopicConfig(
 		subnetsConfig,
 		ydbResourceName,
 		ydbResourceName,
+		ydbLocationId,
 		topicResourceName,
 		topicPath,
 		ydbResourceName,

@@ -75,13 +75,14 @@ func TestAccYandexYDBDatabaseServerless_basic(t *testing.T) {
 	labelValue := acctest.RandomWithPrefix("tf-ydb-database-serverless-label-value")
 	ydbResourceName := fmt.Sprintf("test-ydb-database-serverless-%s", acctest.RandString(5))
 	deletionProtection := "false"
+	ydbLocationId := ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexYDBDatabaseServerlessDestroy,
 		Steps: []resource.TestStep{
-			basicYandexYDBDatabaseServerlessTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database, ydbResourceName),
+			basicYandexYDBDatabaseServerlessTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database, ydbResourceName, ydbLocationId),
 		},
 	})
 }
@@ -95,6 +96,7 @@ func TestAccYandexYDBDatabaseServerless_update(t *testing.T) {
 	labelKey := acctest.RandomWithPrefix("tf-ydb-database-serverless-label")
 	labelValue := acctest.RandomWithPrefix("tf-ydb-database-serverless-label-value")
 	deletionProtection := "true"
+	ydbLocationId := ydbLocationId
 
 	databaseNameUpdated := acctest.RandomWithPrefix("tf-ydb-database-serverless-updated")
 	databaseDescUpdated := acctest.RandomWithPrefix("tf-ydb-database-serverless-desc-updated")
@@ -107,8 +109,8 @@ func TestAccYandexYDBDatabaseServerless_update(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testYandexYDBDatabaseServerlessDestroy,
 		Steps: []resource.TestStep{
-			basicYandexYDBDatabaseServerlessTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database, ydbResourceName),
-			basicYandexYDBDatabaseServerlessTestStep(databaseNameUpdated, databaseDescUpdated, deletionProtectionUpdated, labelKeyUpdated, labelValueUpdated, &database, ydbResourceName),
+			basicYandexYDBDatabaseServerlessTestStep(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, &database, ydbResourceName, ydbLocationId),
+			basicYandexYDBDatabaseServerlessTestStep(databaseNameUpdated, databaseDescUpdated, deletionProtectionUpdated, labelKeyUpdated, labelValueUpdated, &database, ydbResourceName, ydbLocationId),
 		},
 	})
 }
@@ -124,6 +126,7 @@ func TestAccYandexYDBDatabaseServerless_full(t *testing.T) {
 	params.labelKey = acctest.RandomWithPrefix("tf-ydb-database-serverless-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-ydb-database-serverless-label-value")
 	params.deletionProtection = "true"
+	params.ydbLocationId = ydbLocationId
 
 	paramsUpdated := testYandexYDBDatabaseServerlessParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-ydb-database-serverless-updated")
@@ -131,6 +134,7 @@ func TestAccYandexYDBDatabaseServerless_full(t *testing.T) {
 	paramsUpdated.labelKey = acctest.RandomWithPrefix("tf-ydb-database-serverless-label-updated")
 	paramsUpdated.labelValue = acctest.RandomWithPrefix("tf-ydb-database-serverless-label-value-updated")
 	paramsUpdated.deletionProtection = "false"
+	paramsUpdated.ydbLocationId = ydbLocationId
 	key := fmt.Sprintf("yandex_ydb_database_serverless.%s", ydbResourceName)
 
 	testConfigFunc := func(params testYandexYDBDatabaseServerlessParameters) resource.TestStep {
@@ -171,11 +175,12 @@ func basicYandexYDBDatabaseServerlessTestStep(
 	labelKey,
 	labelValue string,
 	database *ydb.Database,
-	ydbResourceName string,
+	ydbResourceName,
+	ydbLocationId string,
 ) resource.TestStep {
 	key := fmt.Sprintf("yandex_ydb_database_serverless.%s", ydbResourceName)
 	return resource.TestStep{
-		Config: testYandexYDBDatabaseServerlessBasic(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, ydbResourceName),
+		Config: testYandexYDBDatabaseServerlessBasic(databaseName, databaseDesc, deletionProtection, labelKey, labelValue, ydbResourceName, ydbLocationId),
 		Check: resource.ComposeTestCheckFunc(
 			testYandexYDBDatabaseServerlessExists(key, database),
 			resource.TestCheckResourceAttr(key, "name", databaseName),
@@ -254,7 +259,7 @@ func testYandexYDBDatabaseServerlessContainsLabel(database *ydb.Database, key st
 	}
 }
 
-func testYandexYDBDatabaseServerlessBasic(name string, desc string, deletionProtection string, labelKey string, labelValue string, ydbResourceName string) string {
+func testYandexYDBDatabaseServerlessBasic(name, desc, deletionProtection, labelKey, labelValue, ydbResourceName, ydbLocationId string) string {
 	return fmt.Sprintf(`
 resource "yandex_ydb_database_serverless" "%s" {
   name        = "%s"
@@ -266,8 +271,10 @@ resource "yandex_ydb_database_serverless" "%s" {
     %s          = "%s"
     empty-label = ""
   }
+
+  location_id = "%s"
 }
-`, ydbResourceName, name, desc, deletionProtection, labelKey, labelValue)
+`, ydbResourceName, name, desc, deletionProtection, labelKey, labelValue, ydbLocationId)
 }
 
 type testYandexYDBDatabaseServerlessParameters struct {
@@ -276,6 +283,7 @@ type testYandexYDBDatabaseServerlessParameters struct {
 	labelKey           string
 	labelValue         string
 	deletionProtection string
+	ydbLocationId      string
 }
 
 func testYandexYDBDatabaseServerlessFull(params testYandexYDBDatabaseServerlessParameters, ydbResourceName string) string {
@@ -290,6 +298,9 @@ resource "yandex_ydb_database_serverless" "%s" {
     %s          = "%s"
     empty-label = ""
   }
+
+  location_id = "%s"
+
   serverless_database {
     throttling_rcu_limit        = 30
     storage_size_limit          = 90
@@ -303,5 +314,6 @@ resource "yandex_ydb_database_serverless" "%s" {
 		params.desc,
 		params.deletionProtection,
 		params.labelKey,
-		params.labelValue)
+		params.labelValue,
+		params.ydbLocationId)
 }

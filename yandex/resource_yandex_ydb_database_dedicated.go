@@ -13,10 +13,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
-const (
-	yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
-	ydbDatabaseCreateDuration        = 5 * time.Second
-)
+const yandexYDBDedicatedDefaultTimeout = 30 * time.Minute
 
 func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 	return &schema.Resource{
@@ -202,6 +199,11 @@ func resourceYandexYDBDatabaseDedicated() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"sleep_after": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+			},
 		},
 	}
 }
@@ -296,8 +298,10 @@ func performYandexYDBDatabaseCreate(d *schema.ResourceData, config *Config, req 
 		return fmt.Errorf("Database creation failed: %s", err)
 	}
 
-	log.Printf("[INFO] Waiting additional duration: %s", ydbDatabaseCreateDuration)
-	time.Sleep(ydbDatabaseCreateDuration)
+	if slp := d.Get("sleep_after").(int); slp > 0 {
+		log.Printf("[INFO] Waiting additional duration: %d", slp)
+		time.Sleep(time.Duration(slp) * time.Second)
+	}
 
 	return nil
 }

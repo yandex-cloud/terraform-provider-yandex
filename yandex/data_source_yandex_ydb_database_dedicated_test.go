@@ -16,6 +16,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_byID(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database-dedicated")
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
+	ydbLocationId := ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,7 +24,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_byID(t *testing.T) {
 		CheckDestroy: testYandexYDBDatabaseDedicatedDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexYDBDatabaseDedicatedByID(databaseName, databaseDesc),
+				Config: testYandexYDBDatabaseDedicatedByID(databaseName, databaseDesc, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseDedicatedExists(ydbDatabaseDedicatedDataSource, &database),
 					resource.TestCheckResourceAttrSet(ydbDatabaseDedicatedDataSource, "database_id"),
@@ -41,6 +42,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_byName(t *testing.T) {
 	var database ydb.Database
 	databaseName := acctest.RandomWithPrefix("tf-ydb-database-dedicated")
 	databaseDesc := acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
+	ydbLocationId := ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -48,7 +50,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_byName(t *testing.T) {
 		CheckDestroy: testYandexYDBDatabaseDedicatedDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexYDBDatabaseDedicatedByName(databaseName, databaseDesc),
+				Config: testYandexYDBDatabaseDedicatedByName(databaseName, databaseDesc, ydbLocationId),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexYDBDatabaseDedicatedExists(ydbDatabaseDedicatedDataSource, &database),
 					resource.TestCheckResourceAttrSet(ydbDatabaseDedicatedDataSource, "database_id"),
@@ -69,6 +71,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_full(t *testing.T) {
 	params.desc = acctest.RandomWithPrefix("tf-ydb-database-dedicated-desc")
 	params.labelKey = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label")
 	params.labelValue = acctest.RandomWithPrefix("tf-ydb-database-dedicated-label-value")
+	params.ydbLocationId = ydbLocationId
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -90,7 +93,7 @@ func TestAccDataSourceYandexYDBDatabaseDedicated_full(t *testing.T) {
 	})
 }
 
-func testYandexYDBDatabaseDedicatedByID(name string, desc string) string {
+func testYandexYDBDatabaseDedicatedByID(name, desc, ydbLocationId string) string {
 	return fmt.Sprintf(ydbDatabaseDedicatedDependencies+`
 data "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   database_id = "${yandex_ydb_database_dedicated.test-ydb-database-dedicated.id}"
@@ -107,6 +110,8 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     }
   }
 
+  location_id = "%s"
+
   storage_config {
     group_count     = 1
     storage_type_id = "ssd"
@@ -116,12 +121,12 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   subnet_ids = [
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
-    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-c.id}",
+    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
   ]
-}`, name, desc)
+}`, name, desc, ydbLocationId)
 }
 
-func testYandexYDBDatabaseDedicatedByName(name string, desc string) string {
+func testYandexYDBDatabaseDedicatedByName(name, desc, ydbLocationId string) string {
 	return fmt.Sprintf(ydbDatabaseDedicatedDependencies+`
 data "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   name = "${yandex_ydb_database_dedicated.test-ydb-database-dedicated.name}"
@@ -138,6 +143,8 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     }
   }
 
+  location_id = "%s"
+
   storage_config {
     group_count     = 1
     storage_type_id = "ssd"
@@ -147,10 +154,10 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   subnet_ids = [
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
-    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-c.id}",
+    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
   ]
 }
-`, name, desc)
+`, name, desc, ydbLocationId)
 }
 
 func testYandexYDBDatabaseDedicatedDataSource(params testYandexYDBDatabaseDedicatedParameters) string {
@@ -168,6 +175,8 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
     empty-label = ""
   }
 
+  location_id = "%s"
+
   resource_preset_id = "medium"
 
   scale_policy {
@@ -185,12 +194,13 @@ resource "yandex_ydb_database_dedicated" "test-ydb-database-dedicated" {
   subnet_ids = [
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-a.id}",
     "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-b.id}",
-    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-c.id}",
+    "${yandex_vpc_subnet.ydb-db-dedicated-test-subnet-d.id}",
   ]
 }
 `,
 		params.name,
 		params.desc,
 		params.labelKey,
-		params.labelValue)
+		params.labelValue,
+		params.ydbLocationId)
 }
