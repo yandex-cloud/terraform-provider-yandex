@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
 	"testing"
 
@@ -645,26 +646,26 @@ resource "yandex_vpc_security_group" "test-security-group" {
 `, name, desc)
 }
 
+func testMakeAllocations(zones ...string) interface{} {
+	var locs []interface{}
+	for _, z := range zones {
+		locs = append(locs, map[string]interface{}{
+			"zone_id":         z,
+			"subnet_id":       "subnet" + z,
+			"disable_traffic": false,
+		})
+	}
+	return []interface{}{
+		map[string]interface{}{
+			"location": locs,
+		},
+	}
+}
+
 func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 	t.Parallel()
 
 	lbResource := resourceYandexALBLoadBalancer()
-
-	makeAllocations := func(zones ...string) interface{} {
-		var locs []interface{}
-		for _, z := range zones {
-			locs = append(locs, map[string]interface{}{
-				"zone_id":         z,
-				"subnet_id":       "subnet" + z,
-				"disable_traffic": false,
-			})
-		}
-		return []interface{}{
-			map[string]interface{}{
-				"location": locs,
-			},
-		}
-	}
 
 	t.Run("missing-alloc-policy", func(t *testing.T) {
 		rawValues := map[string]interface{}{
@@ -686,7 +687,7 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 		rawValues := map[string]interface{}{
 			"id":                "lbid",
 			"name":              "lb-name",
-			"allocation_policy": makeAllocations("1", "2"),
+			"allocation_policy": testMakeAllocations("1", "2"),
 		}
 		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
 
@@ -711,7 +712,7 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 			"id":                "lbid",
 			"name":              "lb-name",
 			"log_options":       []interface{}{nil},
-			"allocation_policy": makeAllocations("1"),
+			"allocation_policy": testMakeAllocations("1"),
 		}
 		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
 
@@ -743,7 +744,7 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 					"log_group_id": "lg1",
 				},
 			},
-			"allocation_policy": makeAllocations("1"),
+			"allocation_policy": testMakeAllocations("1"),
 		}
 		resourceData := schema.TestResourceDataRaw(t, lbResource.Schema, rawValues)
 
@@ -763,4 +764,359 @@ func TestUnitALBLoadBalancerCreateFromResource(t *testing.T) {
 		require.Len(t, req.GetLogOptions().GetDiscardRules(), 1)
 		assert.EqualValues(t, 99, req.GetLogOptions().GetDiscardRules()[0].GetDiscardPercent().GetValue())
 	})
+}
+
+// these tests were write special for CLOUD-169947 and common cases
+func TestUnitALBLoadBalancerValidateListenerTypeAttributes(t *testing.T) {
+	t.Parallel()
+
+	type modifiedAttributes struct {
+		http   map[string]*terraform2.ResourceAttrDiff
+		tls    map[string]*terraform2.ResourceAttrDiff
+		stream map[string]*terraform2.ResourceAttrDiff
+	}
+
+	// common diff initial
+	arrayInit := &terraform2.ResourceAttrDiff{Old: "0", New: "1"}
+	arrayDelete := &terraform2.ResourceAttrDiff{Old: "1", New: "0"}
+	falseInit := &terraform2.ResourceAttrDiff{Old: "", New: "false"}
+	zeroInit := &terraform2.ResourceAttrDiff{Old: "1", New: "0"}
+	emptyStringInit := &terraform2.ResourceAttrDiff{Old: "empty", New: ""}
+
+	filledStringInit := &terraform2.ResourceAttrDiff{Old: "", New: "123"}
+
+	// http
+	emptyHttpDiff := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.http.#": arrayInit,
+		// handler
+		"listener.0.http.0.handler.#":                    arrayInit,
+		"listener.0.http.0.handler.0.http_router_id":     emptyStringInit,
+		"listener.0.http.0.handler.0.rewrite_request_id": falseInit,
+		"listener.0.http.0.handler.0.allow_http10":       falseInit,
+		// handler {http2}
+		"listener.0.http.0.handler.0.http2_options.#":                        arrayInit,
+		"listener.0.http.0.handler.0.http2_options.0.max_concurrent_streams": zeroInit,
+		// redirects
+		"listener.0.http.0.redirects.#":               arrayInit,
+		"listener.0.http.0.redirects.0.http_to_https": falseInit,
+	}
+	filledHttpDiff := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.http.#": arrayInit,
+		// handler
+		"listener.0.http.0.handler.#":                arrayInit,
+		"listener.0.http.0.handler.0.http_router_id": filledStringInit,
+	}
+
+	// tls
+	emptyTlsDefaultHttpHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// default_handler
+		"listener.0.tls.0.default_handler.#": arrayInit,
+		//default_handler {http_handler}
+		"listener.0.tls.0.default_handler.0.http_handler.#":                    arrayInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":     emptyStringInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id": falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":       falseInit,
+		// default_handler {http_handler {http2_options}}
+		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.#":                        arrayInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,
+		//default_handler {certificate_ids}
+		"listener.0.tls.0.default_handler.0.certificate_ids.#": arrayDelete,
+	}
+
+	emptyTlsDefaultStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// default_handler
+		"listener.0.tls.0.default_handler.#": arrayInit,
+		//default_handler {stream_handler}
+		"listener.0.tls.0.default_handler.0.stream_handler.#":                  arrayInit,
+		"listener.0.tls.0.default_handler.0.stream_handler.0.backend_group_id": emptyStringInit,
+		//default_handler {certificate_ids}
+		"listener.0.tls.0.default_handler.0.certificate_ids.#": arrayDelete,
+	}
+
+	emptyTlsSniHttpHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// sni_handler
+		"listener.0.tls.0.sni_handler.#":              arrayInit,
+		"listener.0.tls.0.sni_handler.0.name":         emptyStringInit,
+		"listener.0.tls.0.sni_handler.0.server_names": arrayDelete,
+		// sni_handler {handler}
+		"listener.0.tls.0.sni_handler.0.handler.#": arrayInit,
+		// sni_handler {handler {http_handler}}
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.#":                    arrayInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http_router_id":     emptyStringInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.rewrite_request_id": falseInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.allow_http10":       falseInit,
+		// sni_handler {handler {http_handler{http2_options}}}
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http2_options.#":                        arrayInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,
+		// sni_handler {handler {certificates}}
+		"listener.0.tls.0.sni_handler.0.handler.0.certificate_ids.#": arrayDelete,
+	}
+
+	emptyTlsSniStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// sni_handler
+		"listener.0.tls.0.sni_handler.#":              arrayInit,
+		"listener.0.tls.0.sni_handler.0.name":         emptyStringInit,
+		"listener.0.tls.0.sni_handler.0.server_names": arrayDelete,
+		// sni_handler {handler}
+		"listener.0.tls.0.sni_handler.0.handler.#": arrayInit,
+		// sni_handler {handler {stream_handler}}
+		"listener.0.tls.0.sni_handler.0.handler.0.stream_handler.#":                  arrayInit,
+		"listener.0.tls.0.sni_handler.0.handler.0.stream_handler.0.backend_group_id": emptyStringInit,
+		// sni_handler {handler {certificates}}
+		"listener.0.tls.0.sni_handler.0.handler.0.certificate_ids.#": arrayDelete,
+	}
+	updateTlsDefaultHttpToStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// default_handler
+		"listener.0.tls.0.default_handler.#": arrayInit,
+		// default_handler {http_handler}
+		"listener.0.tls.0.default_handler.0.http_handler.#":                    arrayDelete,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id":     emptyStringInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.rewrite_request_id": falseInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":       falseInit,
+		// default_handler {http_handler {http2_options}}
+		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.#":                        arrayDelete,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http2_options.0.max_concurrent_streams": zeroInit,
+		// default_handler {stream_handler}
+		"listener.0.tls.0.default_handler.0.stream_handler.#":                  arrayInit,
+		"listener.0.tls.0.default_handler.0.stream_handler.0.backend_group_id": filledStringInit,
+		// default_handler {certificate_ids}
+		"listener.0.tls.0.default_handler.0.certificate_ids.#": arrayDelete,
+	}
+	updateTlsDefaultStreamToHttpHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// default_handler
+		"listener.0.tls.0.default_handler.#": arrayInit,
+		// default_handler {http_handler}
+		"listener.0.tls.0.default_handler.0.http_handler.#":                arrayInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.http_router_id": filledStringInit,
+		"listener.0.tls.0.default_handler.0.http_handler.0.allow_http10":   {Old: "", New: "true"},
+		// default_handler {stream_handler}
+		"listener.0.tls.0.default_handler.0.stream_handler.#":                  arrayDelete,
+		"listener.0.tls.0.default_handler.0.stream_handler.0.backend_group_id": emptyStringInit,
+		// default_handler {certificate_ids}
+		"listener.0.tls.0.default_handler.0.certificate_ids.#": arrayDelete,
+	}
+	filledTlsDefaultStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.tls.#": arrayInit,
+		// default_handler
+		"listener.0.tls.0.default_handler.#": arrayInit,
+		// default_handler {stream_handler}
+		"listener.0.tls.0.default_handler.0.stream_handler.#":                  arrayInit,
+		"listener.0.tls.0.default_handler.0.stream_handler.0.backend_group_id": filledStringInit,
+	}
+
+	// stream
+	emptyStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.stream.#": arrayInit,
+		// handler
+		"listener.0.stream.0.handler.#":                  arrayInit,
+		"listener.0.stream.0.handler.0.backend_group_id": emptyStringInit,
+	}
+
+	filledStreamHandler := map[string]*terraform2.ResourceAttrDiff{
+		"listener.0.stream.#": arrayInit,
+		// handler
+		"listener.0.stream.0.handler.#":                  arrayInit,
+		"listener.0.stream.0.handler.0.backend_group_id": filledStringInit,
+	}
+
+	tests := []struct {
+		name               string
+		modifiedAttributes modifiedAttributes
+		isError            bool
+	}{
+		{
+			name:    "no listeners",
+			isError: true,
+		},
+		{
+			name: "empty diffs for listeners",
+			modifiedAttributes: modifiedAttributes{
+				http:   emptyHttpDiff,
+				tls:    emptyTlsDefaultHttpHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: true,
+		},
+		{
+			name: "http listener is filled other listeners are empty",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    emptyTlsDefaultHttpHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "tls listener is filled other listeners are empty",
+			modifiedAttributes: modifiedAttributes{
+				http:   emptyHttpDiff,
+				tls:    filledTlsDefaultStreamHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "stream listener is filled other listeners are empty",
+			modifiedAttributes: modifiedAttributes{
+				http:   emptyHttpDiff,
+				tls:    emptyTlsDefaultHttpHandler,
+				stream: filledStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "http listener is empty other listeners are filled",
+			modifiedAttributes: modifiedAttributes{
+				http:   emptyHttpDiff,
+				tls:    filledTlsDefaultStreamHandler,
+				stream: filledStreamHandler,
+			},
+			isError: true,
+		},
+		{
+			name: "tls listener is empty other listeners are filled",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    emptyTlsDefaultHttpHandler,
+				stream: filledStreamHandler,
+			},
+			isError: true,
+		},
+		{
+			name: "stream listener is empty other listeners are filled",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    filledTlsDefaultStreamHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: true,
+		},
+		{
+			name: "all listeners are filled",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    filledTlsDefaultStreamHandler,
+				stream: filledStreamHandler,
+			},
+			isError: true,
+		},
+		{
+			name: "tcp listener empty with default stream handler",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    emptyTlsDefaultStreamHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "tcp listener empty with sni http handler",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    emptyTlsSniHttpHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "tcp listener empty with sni stream handler",
+			modifiedAttributes: modifiedAttributes{
+				http:   filledHttpDiff,
+				tls:    emptyTlsSniStreamHandler,
+				stream: emptyStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "update in tls default_header http header to stream",
+			modifiedAttributes: modifiedAttributes{
+				tls: updateTlsDefaultHttpToStreamHandler,
+			},
+			isError: false,
+		},
+		{
+			name: "update in tls default_header stream header to http",
+			modifiedAttributes: modifiedAttributes{
+				tls: updateTlsDefaultStreamToHttpHandler,
+			},
+			isError: false,
+		},
+	}
+
+	rawValues := map[string]interface{}{
+		"id":   "lbid",
+		"name": "lb-name",
+		"listener": []interface{}{map[string]interface{}{
+			"name": "test-listener",
+		}},
+		"allocation_policy": testMakeAllocations("1"),
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resModifiedAttributes :=
+				mergeMaps(tt.modifiedAttributes.http, tt.modifiedAttributes.tls, tt.modifiedAttributes.stream)
+
+			resourceData := createResourceDataWithModifiedAttributes(t,
+				resourceYandexALBLoadBalancer().Schema,
+				rawValues,
+				resModifiedAttributes)
+
+			resourceData.SetId("lbid")
+
+			config := Config{
+				FolderID: "folder1",
+			}
+			_, err := buildALBLoadBalancerCreateRequest(resourceData, &config)
+			if tt.isError {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func createResourceDataWithModifiedAttributes(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
+	modifiedAttributes map[string]*terraform2.ResourceAttrDiff,
+) *schema.ResourceData {
+	t.Helper()
+	ctx := context.Background()
+	internalMap := schema.InternalMap(schemaObject)
+
+	initialDiff, err := internalMap.Diff(ctx, nil,
+		(*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(rawInitialState)),
+		nil, nil, true)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	for key, diffState := range modifiedAttributes {
+		initialDiff.Attributes[key] = diffState
+	}
+
+	resourceData, err := internalMap.Data(nil, initialDiff)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	return resourceData
+}
+
+func mergeMaps[K comparable, V any](maps ...map[K]V) map[K]V {
+	merged := make(map[K]V)
+
+	for _, m := range maps {
+		for key, value := range m {
+			merged[key] = value
+		}
+	}
+
+	return merged
 }

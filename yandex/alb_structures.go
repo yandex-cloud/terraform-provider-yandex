@@ -762,82 +762,109 @@ func expandALBListener(d *schema.ResourceData, path string) (*apploadbalancer.Li
 		listener.SetEndpointSpecs(endpoints)
 	}
 
-	_, gotHTTPListener := d.GetOk(path + "http.0")
-	_, gotStreamListener := d.GetOk(path + "stream.0")
-	_, gotTLSListener := d.GetOk(path + "tls.0")
-
-	if isPlural(gotHTTPListener, gotStreamListener, gotTLSListener) {
-		return nil, fmt.Errorf("Cannot specify more than one of HTTP listener and Stream listener and TLS listener for the ALB listener at the same time")
+	nonNilCount := 0
+	setListener := func(listenerType string) error {
+		if _, got := d.GetOk(path + listenerType + ".0"); got {
+			pathToListener := path + listenerType + ".0."
+			switch listenerType {
+			case "http":
+				if httpListener, err := expandALBHTTPListener(d, pathToListener); err != nil {
+					return err
+				} else if httpListener != nil {
+					nonNilCount++
+					listener.SetHttp(httpListener)
+				}
+			case "tls":
+				if tlsListener, err := expandALBTLSListener(d, pathToListener); err != nil {
+					return err
+				} else if tlsListener != nil {
+					nonNilCount++
+					listener.SetTls(tlsListener)
+				}
+			case "stream":
+				if streamListener := expandALBStreamListener(d, pathToListener); streamListener != nil {
+					nonNilCount++
+					listener.SetStream(streamListener)
+				}
+			}
+		}
+		return nil
 	}
-	if !gotHTTPListener && !gotStreamListener && !gotTLSListener {
+
+	listenerTypes := []string{"http", "tls", "stream"}
+
+	for _, listenerType := range listenerTypes {
+		if err := setListener(listenerType); err != nil {
+			return nil, err
+		}
+	}
+
+	if nonNilCount == 0 {
 		return nil, fmt.Errorf("Either HTTP listener or Stream listener or TLS listener should be specified for the ALB listener")
-	}
-
-	if gotHTTPListener {
-		http, err := expandALBHTTPListener(d, path+"http.0.")
-		if err != nil {
-			return nil, err
-		}
-		listener.SetHttp(http)
-	}
-
-	if gotTLSListener {
-		tls, err := expandALBTLSListener(d, path+"tls.0.")
-		if err != nil {
-			return nil, err
-		}
-		listener.SetTls(tls)
-	}
-
-	if gotStreamListener {
-		listener.SetStream(expandALBStreamListener(d, path+"stream.0."))
+	} else if nonNilCount > 1 {
+		return nil, fmt.Errorf("Cannot specify more than one of HTTP listener and Stream listener and TLS listener for the ALB listener at the same time")
 	}
 
 	return listener, nil
 }
 
+type maybeUsedObject[T any] struct {
+	object *T
+}
+
+func (mObj *maybeUsedObject[T]) maybeCreate() *T {
+	if mObj.object == nil {
+		mObj.object = new(T)
+	}
+	return mObj.object
+}
+
+func (mObj *maybeUsedObject[T]) get() *T {
+	return mObj.object
+}
+
 func expandALBTLSListener(d *schema.ResourceData, path string) (*apploadbalancer.TlsListener, error) {
-	tlsListener := &apploadbalancer.TlsListener{}
+	var mTlsListener maybeUsedObject[apploadbalancer.TlsListener]
 	if _, ok := d.GetOk(path + "default_handler.0"); ok {
-		handler, err := expandALBTLSHandler(d, path+"default_handler.0.")
-		if err != nil {
+		if handler, err := expandALBTLSHandler(d, path+"default_handler.0."); err != nil {
 			return nil, err
+		} else if handler != nil {
+			mTlsListener.maybeCreate().SetDefaultHandler(handler)
 		}
-		tlsListener.SetDefaultHandler(handler)
 	}
 	if _, ok := d.GetOk(path + "sni_handler"); ok {
-		sniHandlers, err := expandALBSNIMatches(d, path+"sni_handler")
-		if err != nil {
+		if sniHandlers, err := expandALBSNIMatches(d, path+"sni_handler"); err != nil {
 			return nil, err
+		} else if sniHandlers != nil {
+			mTlsListener.maybeCreate().SetSniHandlers(sniHandlers)
 		}
-		tlsListener.SetSniHandlers(sniHandlers)
 	}
 
-	return tlsListener, nil
+	return mTlsListener.get(), nil
 }
 
 func expandALBSNIMatch(d *schema.ResourceData, path string) (*apploadbalancer.SniMatch, error) {
-	match := &apploadbalancer.SniMatch{}
+	var mMatch maybeUsedObject[apploadbalancer.SniMatch]
 
 	if val, ok := d.GetOk(path + "name"); ok {
-		match.Name = val.(string)
+		mMatch.maybeCreate().SetName(val.(string))
 	}
 
 	if val, ok := d.GetOk(path + "server_names"); ok {
 		if serverNames, err := expandALBStringListFromSchemaSet(val); err == nil {
-			match.ServerNames = serverNames
+			mMatch.maybeCreate().SetServerNames(serverNames)
 		}
 	}
 
 	if _, ok := d.GetOk(path + "handler.0"); ok {
-		handler, err := expandALBTLSHandler(d, path+"handler.0.")
-		if err != nil {
+		if handler, err := expandALBTLSHandler(d, path+"handler.0."); err != nil {
 			return nil, err
+		} else if handler != nil {
+			mMatch.maybeCreate().SetHandler(handler)
 		}
-		match.SetHandler(handler)
 	}
 
-	return match, nil
+	return mMatch.get(), nil
 }
 
 func expandALBSNIMatches(d *schema.ResourceData, path string) ([]*apploadbalancer.SniMatch, error) {
@@ -848,62 +875,67 @@ func expandALBSNIMatches(d *schema.ResourceData, path string) ([]*apploadbalance
 		if err != nil {
 			return nil, err
 		}
-		matches = append(matches, match)
+		if match != nil {
+			matches = append(matches, match)
+		}
 	}
-
+	if len(matches) == 0 {
+		return nil, nil
+	}
 	return matches, nil
 }
 
 func expandALBStreamListener(d *schema.ResourceData, path string) *apploadbalancer.StreamListener {
-	streamListener := &apploadbalancer.StreamListener{}
+	var mStreamListener maybeUsedObject[apploadbalancer.StreamListener]
 
 	if _, ok := d.GetOk(path + "handler.0"); ok {
-		streamListener.Handler = expandALBStreamHandler(d, path+"handler.0.")
+		if handler := expandALBStreamHandler(d, path+"handler.0."); handler != nil {
+			mStreamListener.maybeCreate().SetHandler(handler)
+		}
 	}
 
-	return streamListener
+	return mStreamListener.get()
 }
 
 func expandALBHTTPListener(d *schema.ResourceData, path string) (*apploadbalancer.HttpListener, error) {
-	httpListener := &apploadbalancer.HttpListener{}
+	var mHttpListener maybeUsedObject[apploadbalancer.HttpListener]
 
 	if _, ok := d.GetOk(path + "handler.0"); ok {
-		handler, err := expandALBHTTPHandler(d, path+"handler.0.")
-		if err != nil {
+		if handler, err := expandALBHTTPHandler(d, path+"handler.0."); err != nil {
 			return nil, err
+		} else if handler != nil {
+			mHttpListener.maybeCreate().SetHandler(handler)
 		}
-		httpListener.SetHandler(handler)
 	}
 
 	if _, ok := d.GetOk(path + "redirects.0"); ok {
 		currentKey := path + "redirects.0." + "http_to_https"
 		if v, ok := d.GetOk(currentKey); ok {
-			httpListener.Redirects = &apploadbalancer.Redirects{HttpToHttps: v.(bool)}
+			mHttpListener.maybeCreate().SetRedirects(&apploadbalancer.Redirects{HttpToHttps: v.(bool)})
 		}
 	}
 
-	return httpListener, nil
+	return mHttpListener.get(), nil
 }
 
 func expandALBStreamHandler(d *schema.ResourceData, path string) *apploadbalancer.StreamHandler {
-	streamHandler := &apploadbalancer.StreamHandler{}
+	var mStreamHandler maybeUsedObject[apploadbalancer.StreamHandler]
 
 	if v, ok := d.GetOk(path + "backend_group_id"); ok {
-		streamHandler.BackendGroupId = v.(string)
+		mStreamHandler.maybeCreate().SetBackendGroupId(v.(string))
 	}
-
-	return streamHandler
+	return mStreamHandler.get()
 }
 
 func expandALBHTTPHandler(d *schema.ResourceData, path string) (*apploadbalancer.HttpHandler, error) {
-	httpHandler := &apploadbalancer.HttpHandler{}
+	var mHttpHandler maybeUsedObject[apploadbalancer.HttpHandler]
 
 	if v, ok := d.GetOk(path + "http_router_id"); ok {
-		httpHandler.HttpRouterId = v.(string)
+		mHttpHandler.maybeCreate().SetHttpRouterId(v.(string))
 	}
 
 	if v, ok := d.GetOk(path + "rewrite_request_id"); ok {
-		httpHandler.RewriteRequestId = v.(bool)
+		mHttpHandler.maybeCreate().SetRewriteRequestId(v.(bool))
 	}
 
 	allowHTTP10, gotAllowHTTP10 := d.GetOk(path + "allow_http10")
@@ -914,54 +946,62 @@ func expandALBHTTPHandler(d *schema.ResourceData, path string) (*apploadbalancer
 	}
 
 	if gotAllowHTTP10 {
-		httpHandler.SetAllowHttp10(allowHTTP10.(bool))
+		mHttpHandler.maybeCreate().SetAllowHttp10(allowHTTP10.(bool))
 	}
 
 	if gotHTTP2Options {
 		currentKey := path + "http2_options.0." + "max_concurrent_streams"
-		http2Options := &apploadbalancer.Http2Options{}
 		if val, ok := d.GetOk(currentKey); ok {
-			http2Options.MaxConcurrentStreams = int64(val.(int))
+			mHttpHandler.maybeCreate().SetHttp2Options(
+				&apploadbalancer.Http2Options{
+					MaxConcurrentStreams: int64(val.(int)),
+				})
 		}
-		httpHandler.SetHttp2Options(http2Options)
 	}
 
-	return httpHandler, nil
+	return mHttpHandler.get(), nil
 }
 
 func expandALBTLSHandler(d *schema.ResourceData, path string) (*apploadbalancer.TlsHandler, error) {
-	tlsHandler := &apploadbalancer.TlsHandler{}
+	var mTlsHandler maybeUsedObject[apploadbalancer.TlsHandler]
 
 	_, gotHTTPHandler := d.GetOk(path + "http_handler.0")
 	_, gotStreamHandler := d.GetOk(path + "stream_handler.0")
 
-	if isPlural(gotHTTPHandler, gotStreamHandler) {
-		return nil, fmt.Errorf("Cannot specify both HTTP handler and Stream handler for the TLS Handler")
-	}
+	// todo: there will be an error with validation: user can send no handlers
 	if !gotHTTPHandler && !gotStreamHandler {
 		return nil, fmt.Errorf("Either HTTP handler or Stream handler should be specified for the TLS Handler")
 	}
-
+	assignCount := 0
 	if gotHTTPHandler {
-		handler, err := expandALBHTTPHandler(d, path+"http_handler.0.")
-		if err != nil {
+		if handler, err := expandALBHTTPHandler(d, path+"http_handler.0."); err != nil {
 			return nil, err
+		} else if handler != nil {
+			mTlsHandler.maybeCreate().SetHttpHandler(handler)
+			assignCount++
 		}
-		tlsHandler.SetHttpHandler(handler)
 	}
 
 	if gotStreamHandler {
-		tlsHandler.SetStreamHandler(expandALBStreamHandler(d, path+"stream_handler.0."))
+		if handler := expandALBStreamHandler(d, path+"stream_handler.0."); handler != nil {
+			mTlsHandler.maybeCreate().SetStreamHandler(handler)
+			assignCount++
+		}
+	}
+
+	if assignCount > 1 {
+		return nil, fmt.Errorf("Cannot specify both HTTP handler and Stream handler for the TLS Handler")
 	}
 
 	if v, ok := d.GetOk(path + "certificate_ids"); ok {
 		if certificateIDs, err := expandALBStringListFromSchemaSet(v); err == nil {
-			tlsHandler.CertificateIds = certificateIDs
+			mTlsHandler.maybeCreate().CertificateIds = certificateIDs
 		}
 	}
 
-	return tlsHandler, nil
+	return mTlsHandler.get(), nil
 }
+
 func expandALBEndpoint(d *schema.ResourceData, path string) (*apploadbalancer.EndpointSpec, error) {
 	endpoint := &apploadbalancer.EndpointSpec{}
 

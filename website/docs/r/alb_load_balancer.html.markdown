@@ -142,7 +142,7 @@ The `internal_ipv4_address` block supports:
 
 * `address` - (Optional) Provided by the client or computed automatically.
 
-* `subnet_id` - (Optional) Provided by the client or computed automatically.
+* `subnet_id` - (Required) Provided by the client or computed automatically.
 
 ---
 
@@ -178,6 +178,8 @@ The `default_handler` and `handler`(from `sni_handler`) block supports:
 
 * `certificate_ids` - (Required) Certificate IDs in the Certificate Manager. Multiple TLS certificates can be associated
   with the same context to allow both RSA and ECDSA certificates. Only the first certificate of each type will be used.
+
+~> **NOTE:** Exactly one handler type `http_handler` or `stream_handler` should be specified.
 
 ---
 

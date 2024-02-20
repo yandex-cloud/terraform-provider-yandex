@@ -1,4 +1,6 @@
 ## 0.109.0 (Unreleased)
+BUG FIXES:
+* alb: fixed validation of listener types
 
 ## 0.108.1 (February 19, 2024)
 BUG FIXES:

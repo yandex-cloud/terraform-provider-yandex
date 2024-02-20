@@ -16,9 +16,9 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 ```hcl
 resource "yandex_alb_http_router" "tf-router" {
   name      = "my-http-router"
-  labels = {
+  labels {
     tf-label    = "tf-label-value"
-    empty-label = ""s
+    empty-label = "s"
   }
 }
 ```
