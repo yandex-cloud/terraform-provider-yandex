@@ -56,7 +56,7 @@ The following arguments are supported:
 
 ## Import
 
-DNS recordset can be imported using this format:
+DNS zone can be imported using this format:
 
 ```
 $ terraform import yandex_dns_zone.zone1 {{zone_id}}
