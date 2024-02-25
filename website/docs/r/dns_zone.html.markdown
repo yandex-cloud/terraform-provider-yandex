@@ -53,3 +53,11 @@ The following arguments are supported:
 
 * `id` - (Computed) ID of a new DNS zone.
 * `created_at` - (Computed) The DNS zone creation timestamp.
+
+## Import
+
+DNS recordset can be imported using this format:
+
+```
+$ terraform import yandex_dns_zone.zone1 {{zone_id}}
+```
