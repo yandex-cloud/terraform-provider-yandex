@@ -159,7 +159,6 @@ resource "yandex_mdb_postgresql_user" "alice" {
 	password   			= "mysecurepassword"
 	login      			= "true"
 	grants     			= ["mdb_admin", "mdb_replication"]
-	deletion_protection = "true"
 }
 
 data "yandex_mdb_postgresql_user" "alice" {

@@ -51,13 +51,21 @@ func TestAccMDBPostgreSQLUser_full(t *testing.T) {
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
 			mdbPostgreSQLUserImportStep(pgUserResourceNameBob),
 			{
-				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName),
+				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName, true),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "conn_limit", "42"),
 					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "true"),
 					testAccCheckMDBPostgreSQLUserHasPermission(t, "alice", []string{"testdb"}),
 					testAccCheckMDBPostgreSQLUserHasSettings(t, "alice", map[string]interface{}{"default_transaction_isolation": postgresql.UserSettings_TRANSACTION_ISOLATION_READ_UNCOMMITTED, "log_min_duration_statement": int64(1234), "pool_mode": postgresql.UserSettings_SESSION}),
+				),
+			},
+			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
+			{
+				Config: testAccMDBPostgreSQLUserConfigStep3(clusterName, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "name", "alice"),
+					resource.TestCheckResourceAttr(pgUserResourceNameAlice, "deletion_protection", "false"),
 				),
 			},
 			mdbPostgreSQLUserImportStep(pgUserResourceNameAlice),
@@ -254,8 +262,8 @@ resource "yandex_mdb_postgresql_user" "bob" {
 }
 
 // Change Alice's settings and conn_limit
-func testAccMDBPostgreSQLUserConfigStep3(name string) string {
-	return testAccMDBPostgreSQLUserConfigStep0(name) + `
+func testAccMDBPostgreSQLUserConfigStep3(name string, deletionProtection bool) string {
+	return testAccMDBPostgreSQLUserConfigStep0(name) + fmt.Sprintf(`
 resource "yandex_mdb_postgresql_user" "alice" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "alice"
@@ -267,13 +275,13 @@ resource "yandex_mdb_postgresql_user" "alice" {
 		log_min_duration_statement    = 1234
 		pool_mode                     = "session"
 	}
-	deletion_protection = "true"
-}`
+	deletion_protection = "%v"
+}`, deletionProtection)
 }
 
 // Check login and conn_limit. Bug report: https://github.com/KazanExpress/yc-tf-bugreports/tree/master/bugs/postgres-3
 func testAccMDBPostgreSQLUserConfigStep4(name string) string {
-	return testAccMDBPostgreSQLUserConfigStep3(name) + `
+	return testAccMDBPostgreSQLUserConfigStep3(name, false) + `
 resource "yandex_mdb_postgresql_user" "charlie" {
 	cluster_id = yandex_mdb_postgresql_cluster.foo.id
 	name       = "charlie"
