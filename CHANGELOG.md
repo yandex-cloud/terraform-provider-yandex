@@ -2,20 +2,20 @@
 FEATURES:
 * **New Resource:** `yandex_dns_zone_iam_binding`
 
+ENHANCEMENTS:
+* ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`
+* dns: added example in docs for dsn zone import
+
 ## 0.109.0 (February 27, 2024)
 BUG FIXES:
 * alb: fixed validation of listener types
-ENHANCEMENTS:
-* ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`
-
-ENHANCEMENTS:
-* dns: added example in docs for dsn zone import
 
 ## 0.108.1 (February 19, 2024)
 BUG FIXES:
 * clickhouse: fixed resetting kafka_topics timeout settings to zero when adding a new topic
 * storage: fix lifecycle state upgrader
 * mongodb: fixed mongocfg/mongos terraform configs behaviour with mongoinfra hosts
+
 ENHANCEMENTS:
 * yandex_ydb_table: add auth interface parameters for static creds
 
