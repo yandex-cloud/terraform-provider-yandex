@@ -2,6 +2,9 @@
 BUG FIXES:
 * alb: fixed validation of listener types
 
+ENHANCEMENTS:
+* dns: added example in docs for dsn zone import
+
 ## 0.108.1 (February 19, 2024)
 BUG FIXES:
 * clickhouse: fixed resetting kafka_topics timeout settings to zero when adding a new topic
