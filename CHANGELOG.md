@@ -1,4 +1,6 @@
 ## 0.110.0 (Unreleased)
+FEATURES:
+* **New Resource:** `yandex_dns_zone_iam_binding`
 
 ## 0.109.0 (February 27, 2024)
 BUG FIXES:

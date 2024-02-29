@@ -432,3 +432,33 @@ func testAccCheckDnsZoneDestroy(s *terraform.State) error {
 
 	return nil
 }
+
+func testAccCheckDnsZoneExists(name string, dnsZone *dns.DnsZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return fmt.Errorf("Not found: %s", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.DNS().DnsZone().Get(context.Background(), &dns.GetDnsZoneRequest{
+			DnsZoneId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != rs.Primary.ID {
+			return fmt.Errorf("DNS Zone not found")
+		}
+
+		*dnsZone = *found
+
+		return nil
+	}
+}
