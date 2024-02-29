@@ -44,6 +44,7 @@ func TestAccBackupPolicyBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scheduling.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "scheduling.0.execute_by_interval", "86400"),
 					resource.TestCheckResourceAttr(resourceName, "retention.0.after_backup", "false"),
+					resource.TestCheckResourceAttr(resourceName, "retention.0.rules.0.max_count", "10"),
 					resource.TestCheckResourceAttr(resourceName, "reattempts.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "reattempts.0.interval", "5m"),
 					resource.TestCheckResourceAttr(resourceName, "reattempts.0.max_attempts", "5"),
@@ -92,6 +93,9 @@ func testAccBackupPolicyBasicConfig(policyName string) (config, outResourceName 
 
     retention {
       after_backup = false
+	  rules {
+		max_count     = 10
+	  }
     }
 
     reattempts {
