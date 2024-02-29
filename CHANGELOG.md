@@ -5,6 +5,8 @@ FEATURES:
 ## 0.109.0 (February 27, 2024)
 BUG FIXES:
 * alb: fixed validation of listener types
+ENHANCEMENTS:
+* ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`
 
 ## 0.108.1 (February 19, 2024)
 BUG FIXES:
