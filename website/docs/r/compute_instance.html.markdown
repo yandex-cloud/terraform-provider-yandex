@@ -118,6 +118,8 @@ The `resources` block supports:
 
 * `core_fraction` - (Optional) If provided, specifies baseline performance for a core as a percent.
 
+* `gpus` - (Optional) If provided, specifies the number of GPU devices for the instance 
+
 The `boot_disk` block supports:
 
 * `auto_delete` - (Optional) Defines whether the disk will be auto-deleted when the instance
