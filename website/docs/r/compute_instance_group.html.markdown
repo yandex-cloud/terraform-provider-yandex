@@ -232,6 +232,7 @@ Example: my-instance-{instance.index}
 If not set, `name` value will be used   
 It may also contain another placeholders, see metadata doc for full list.
 
+* `metadata_options` - (Optional) Options allow user to configure access to managed instances metadata
 ---
 
 The `secondary_disk` block supports:

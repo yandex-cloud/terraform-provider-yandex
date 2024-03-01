@@ -471,6 +471,41 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 								},
 							},
 						},
+
+						"metadata_options": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gce_http_endpoint": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"aws_v1_http_endpoint": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"gce_http_token": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"aws_v1_http_token": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -1393,6 +1428,7 @@ func getStaticUpdatePath() []string {
 		"instance_template.platform_id",
 		"instance_template.resources_spec",
 		"instance_template.metadata",
+		"instance_template.metadata_options",
 		"instance_template.boot_disk_spec",
 		"instance_template.scheduling_policy",
 		"instance_template.placement_policy",

@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -412,6 +413,41 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 									"placement_group_id": {
 										Type:     schema.TypeString,
 										Required: true,
+									},
+								},
+							},
+						},
+
+						"metadata_options": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Optional: true,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"gce_http_endpoint": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"aws_v1_http_endpoint": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"gce_http_token": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
+									},
+									"aws_v1_http_token": {
+										Type:         schema.TypeInt,
+										ValidateFunc: validation.IntBetween(0, 2),
+										Optional:     true,
+										Computed:     true,
 									},
 								},
 							},

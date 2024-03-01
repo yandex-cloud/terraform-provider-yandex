@@ -42,6 +42,37 @@ func TestParseInstanceGroupNetworkSettingsType(t *testing.T) {
 	}
 }
 
+func TestParseInstanceGroupMetadataOptions(t *testing.T) {
+	cases := []struct {
+		name     string
+		moStatus int
+		parsed   instancegroup.MetadataOption
+	}{
+		{
+			name:     "enabled",
+			moStatus: 1,
+			parsed:   instancegroup.MetadataOption_ENABLED,
+		},
+		{
+			name:     "disabled",
+			moStatus: 2,
+			parsed:   instancegroup.MetadataOption_DISABLED,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := parseInstanceGroupMetadataOption(tc.moStatus)
+			if err != nil {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(result, tc.parsed) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.parsed)
+			}
+		})
+	}
+}
+
 func TestFlattenInstanceGroupVariable(t *testing.T) {
 	cases := []struct {
 		name     string
@@ -112,6 +143,69 @@ func TestFlattenInstanceGroupNetworkSettings(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := flattenInstanceGroupNetworkSettings(tc.ns)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestFlattenInstanceGroupMetadataOptions(t *testing.T) {
+	cases := []struct {
+		name     string
+		mo       *instancegroup.MetadataOptions
+		expected []map[string]interface{}
+	}{
+		{
+			name: "all_enabled",
+			mo: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_ENABLED,
+				GceHttpToken:      instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_ENABLED,
+			},
+			expected: []map[string]interface{}{{
+				"gce_http_endpoint":    1,
+				"aws_v1_http_endpoint": 1,
+				"gce_http_token":       1,
+				"aws_v1_http_token":    1,
+			}},
+		},
+		{
+			name: "all_disabled",
+			mo: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_DISABLED,
+				GceHttpToken:      instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_DISABLED,
+			},
+			expected: []map[string]interface{}{{
+				"gce_http_endpoint":    2,
+				"aws_v1_http_endpoint": 2,
+				"gce_http_token":       2,
+				"aws_v1_http_token":    2,
+			}},
+		},
+		{
+			name: "fifty_fifty",
+			mo: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_DISABLED,
+				GceHttpToken:      instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_ENABLED,
+			},
+			expected: []map[string]interface{}{{
+				"gce_http_endpoint":    1,
+				"aws_v1_http_endpoint": 2,
+				"gce_http_token":       2,
+				"aws_v1_http_token":    1,
+			}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := flattenInstanceGroupMetadataOptions(tc.mo)
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
 			}
@@ -903,6 +997,72 @@ func TestExpandNetworkSettings(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := expandInstanceGroupNetworkSettings(tc.ns)
+			if err != nil {
+				t.Fatalf("bad: %#v", err)
+			}
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Fatalf("Got:\n\n%#v\n\nExpected:\n\n%#v\n", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestExpandMetadataOptions(t *testing.T) {
+	cases := []struct {
+		name     string
+		mo       map[string]interface{}
+		expected *instancegroup.MetadataOptions
+	}{
+		{
+			name: "all_enabled",
+			mo: map[string]interface{}{
+				"gce_http_endpoint":    1,
+				"aws_v1_http_endpoint": 1,
+				"gce_http_token":       1,
+				"aws_v1_http_token":    1,
+			},
+			expected: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_ENABLED,
+				GceHttpToken:      instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_ENABLED,
+			},
+		},
+		{
+			name: "all_disabled",
+			mo: map[string]interface{}{
+				"gce_http_endpoint":    2,
+				"aws_v1_http_endpoint": 2,
+				"gce_http_token":       2,
+				"aws_v1_http_token":    2,
+			},
+			expected: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_DISABLED,
+				GceHttpToken:      instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_DISABLED,
+			},
+		},
+		{
+			name: "fifty_fifty",
+			mo: map[string]interface{}{
+				"gce_http_endpoint":    1,
+				"aws_v1_http_endpoint": 2,
+				"gce_http_token":       2,
+				"aws_v1_http_token":    1,
+			},
+			expected: &instancegroup.MetadataOptions{
+				GceHttpEndpoint:   instancegroup.MetadataOption_ENABLED,
+				AwsV1HttpEndpoint: instancegroup.MetadataOption_DISABLED,
+				GceHttpToken:      instancegroup.MetadataOption_DISABLED,
+				AwsV1HttpToken:    instancegroup.MetadataOption_ENABLED,
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := expandInstanceGroupMetadataOptions(tc.mo)
 			if err != nil {
 				t.Fatalf("bad: %#v", err)
 			}

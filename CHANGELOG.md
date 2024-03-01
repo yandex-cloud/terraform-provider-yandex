@@ -1,6 +1,7 @@
 ## 0.110.0 (Unreleased)
 FEATURES:
 * **New Resource:** `yandex_dns_zone_iam_binding`
+* compute: support `metadata_options` in `instance_template` in `compute_instance_group` resource and datasource
 
 ENHANCEMENTS:
 * ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`

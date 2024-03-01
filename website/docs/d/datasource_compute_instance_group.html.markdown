@@ -185,6 +185,7 @@ The `instance_template` block supports:
 * `name` - Name template of the instance.
 * `hostname` - Hostname template for the instance.
 * `filesystem` -  An array with filesystems that will be attached to the instance. The structure is documented below.
+* `metadata_options` - Options allow user to configure access to managed instances metadata
 
 ---
 

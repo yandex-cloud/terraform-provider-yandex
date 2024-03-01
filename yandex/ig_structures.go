@@ -141,7 +141,22 @@ func flattenInstanceGroupInstanceTemplate(template *instancegroup.InstanceTempla
 		templateMap["network_settings"] = flattenInstanceGroupNetworkSettings(template.GetNetworkSettings())
 	}
 
+	if template.MetadataOptions != nil {
+		templateMap["metadata_options"] = flattenInstanceGroupMetadataOptions(template.GetMetadataOptions())
+	}
+
 	return []map[string]interface{}{templateMap}, nil
+}
+
+func flattenInstanceGroupMetadataOptions(mo *instancegroup.MetadataOptions) []map[string]interface{} {
+	metadataOptions := map[string]interface{}{
+		"gce_http_endpoint":    int(mo.GceHttpEndpoint),
+		"aws_v1_http_endpoint": int(mo.AwsV1HttpEndpoint),
+		"gce_http_token":       int(mo.GceHttpToken),
+		"aws_v1_http_token":    int(mo.AwsV1HttpToken),
+	}
+
+	return []map[string]interface{}{metadataOptions}
 }
 
 func flattenInstanceGroupVariable(v []*instancegroup.Variable) map[string]string {
@@ -783,6 +798,11 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		return nil, fmt.Errorf("Error expanding network settings while creating instance group: %s", err)
 	}
 
+	metadataOptions, err := expandInstanceGroupMetadataOptions(d.Get(prefix + ".metadata_options.0"))
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding metadata options while creating instance group: %s", err)
+	}
+
 	template := &instancegroup.InstanceTemplate{
 		BootDiskSpec:          bootDiskSpec,
 		Description:           description,
@@ -799,6 +819,7 @@ func expandInstanceGroupInstanceTemplate(d *schema.ResourceData, prefix string, 
 		Hostname:              hostname,
 		PlacementPolicy:       placementPolicy,
 		FilesystemSpecs:       filesystemSpecs,
+		MetadataOptions:       metadataOptions,
 	}
 
 	return template, nil
@@ -825,6 +846,14 @@ func parseInstanceGroupNetworkSettingsType(str string) (instancegroup.NetworkSet
 		return instancegroup.NetworkSettings_TYPE_UNSPECIFIED, fmt.Errorf("value for 'type' should be 'STANDARD' or 'SOFTWARE_ACCELERATED' or 'HARDWARE_ACCELERATED', not '%s'", str)
 	}
 	return instancegroup.NetworkSettings_Type(val), nil
+}
+
+func parseInstanceGroupMetadataOption(optVal int) (instancegroup.MetadataOption, error) {
+	_, ok := instancegroup.MetadataOption_name[int32(optVal)]
+	if !ok {
+		return instancegroup.MetadataOption_METADATA_OPTION_UNSPECIFIED, fmt.Errorf("value for metadata option should be 1 or 2, not '%d'", optVal)
+	}
+	return instancegroup.MetadataOption(optVal), nil
 }
 
 func expandInstanceGroupAutoScale(d *schema.ResourceData, prefix string) (*instancegroup.ScalePolicy_AutoScale, error) {
@@ -1104,6 +1133,40 @@ func expandInstanceGroupNetworkSettings(v interface{}) (*instancegroup.NetworkSe
 	}
 	ns.Type = t
 	return ns, nil
+}
+
+func expandInstanceGroupMetadataOptions(v interface{}) (*instancegroup.MetadataOptions, error) {
+	mo := &instancegroup.MetadataOptions{}
+	vMap := v.(map[string]interface{})
+	if val, ok := vMap["gce_http_token"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.GceHttpToken = opt
+	}
+	if val, ok := vMap["aws_v1_http_token"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.AwsV1HttpToken = opt
+	}
+	if val, ok := vMap["gce_http_endpoint"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.GceHttpEndpoint = opt
+	}
+	if val, ok := vMap["aws_v1_http_endpoint"]; ok {
+		opt, err := parseInstanceGroupMetadataOption(val.(int))
+		if err != nil {
+			return nil, err
+		}
+		mo.AwsV1HttpEndpoint = opt
+	}
+	return mo, nil
 }
 
 func expandInstanceGroupScalePolicy(d *schema.ResourceData) (*instancegroup.ScalePolicy, error) {
