@@ -1,4 +1,6 @@
-## 0.110.0 (Unreleased)
+## 0.111.0 (Unreleased)
+
+## 0.110.0 (March 04, 2024)
 FEATURES:
 * **New Resource:** `yandex_dns_zone_iam_binding`
 * compute: support `metadata_options` in `instance_template` in `compute_instance_group` resource and datasource
