@@ -7,7 +7,7 @@ FEATURES:
 
 ENHANCEMENTS:
 * ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`
-* dns: added example in docs for dsn zone import
+* dns: added example in docs for dns zone import
 
 ## 0.109.0 (February 27, 2024)
 BUG FIXES:
