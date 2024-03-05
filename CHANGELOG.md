@@ -1,4 +1,6 @@
 ## 0.111.0 (Unreleased)
+BUG FIXES:
+* k8s: fixed type of EtcdClusterSize
 
 ## 0.110.0 (March 04, 2024)
 FEATURES:

@@ -769,7 +769,7 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 
 	if _, ok := d.GetOk("master.0.master_location"); ok {
 		spec.Locations = getKubernetesClusterLocations(d)
-		spec.EtcdClusterSize = getKubernetesClusterEtcdClusterSize(d, spec.Locations)
+		spec.EtcdClusterSize = int64(getKubernetesClusterEtcdClusterSize(d, spec.Locations))
 
 		if addr := getMasterExternalIPv4AddressSpec(d); addr != nil {
 			spec.ExternalV4AddressSpec = addr
@@ -783,11 +783,11 @@ func getKubernetesClusterMasterSpec(d *schema.ResourceData, meta *Config) (*k8s.
 	return nil, fmt.Errorf("either zonal or regional master or master_location should be specified for Kubernetes cluster")
 }
 
-func getKubernetesClusterEtcdClusterSize(d *schema.ResourceData, l []*k8s.LocationSpec) int64 {
+func getKubernetesClusterEtcdClusterSize(d *schema.ResourceData, l []*k8s.LocationSpec) int {
 	if size, ok := d.GetOk("master.0.etcd_cluster_size"); ok {
-		return size.(int64)
+		return size.(int)
 	}
-	return int64(len(l))
+	return len(l)
 }
 
 func getKubernetesClusterLocations(d *schema.ResourceData) []*k8s.LocationSpec {
