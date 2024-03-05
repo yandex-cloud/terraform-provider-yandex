@@ -484,6 +484,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"auto_scale_type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 									"min_zone_size": {
 										Type:     schema.TypeInt,
 										Computed: true,
@@ -557,6 +561,10 @@ func dataSourceYandexComputeInstanceGroup() *schema.Resource {
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"auto_scale_type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
 									"min_zone_size": {
 										Type:     schema.TypeInt,
 										Computed: true,
