@@ -544,6 +544,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							ConflictsWith: []string{"scale_policy.0.fixed_scale"},
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"auto_scale_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "ZONAL",
+										ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
+									},
 									"initial_size": {
 										Type:     schema.TypeInt,
 										Required: true,
@@ -624,6 +630,12 @@ func resourceYandexComputeInstanceGroup() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"auto_scale_type": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Default:      "ZONAL",
+										ValidateFunc: validation.StringInSlice([]string{"REGIONAL", "ZONAL"}, false),
+									},
 									"initial_size": {
 										Type:     schema.TypeInt,
 										Required: true,

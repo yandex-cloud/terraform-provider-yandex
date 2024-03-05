@@ -622,6 +622,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 			spec: &instancegroup.ScalePolicy{
 				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
 					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						AutoScaleType:       instancegroup.ScalePolicy_AutoScale_REGIONAL,
 						MinZoneSize:         1,
 						MaxSize:             2,
 						MeasurementDuration: &duration.Duration{Seconds: 10},
@@ -633,6 +634,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 				{
 					"auto_scale": []map[string]interface{}{
 						{
+							"auto_scale_type":      "REGIONAL",
 							"min_zone_size":        1,
 							"max_size":             2,
 							"initial_size":         3,
@@ -647,6 +649,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 			spec: &instancegroup.ScalePolicy{
 				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
 					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						AutoScaleType:         instancegroup.ScalePolicy_AutoScale_ZONAL,
 						MinZoneSize:           1,
 						MaxSize:               2,
 						MeasurementDuration:   &duration.Duration{Seconds: 10},
@@ -661,6 +664,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 				{
 					"auto_scale": []map[string]interface{}{
 						{
+							"auto_scale_type":        "ZONAL",
 							"min_zone_size":          1,
 							"max_size":               2,
 							"initial_size":           3,
@@ -678,6 +682,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 			spec: &instancegroup.ScalePolicy{
 				ScaleType: &instancegroup.ScalePolicy_AutoScale_{
 					AutoScale: &instancegroup.ScalePolicy_AutoScale{
+						AutoScaleType:         instancegroup.ScalePolicy_AutoScale_ZONAL,
 						MinZoneSize:           1,
 						MaxSize:               2,
 						MeasurementDuration:   &duration.Duration{Seconds: 10},
@@ -707,6 +712,7 @@ func TestFlattenInstanceGroupScalePolicy(t *testing.T) {
 				{
 					"auto_scale": []map[string]interface{}{
 						{
+							"auto_scale_type":        "ZONAL",
 							"min_zone_size":          1,
 							"max_size":               2,
 							"initial_size":           3,
