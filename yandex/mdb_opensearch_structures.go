@@ -3,13 +3,14 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
-	"reflect"
-	"strings"
 )
 
 var EmptyResources = &opensearch.Resources{
@@ -639,10 +640,30 @@ func opensearchNodeGroupsDiffCustomize(ctx context.Context, rdiff *schema.Resour
 			return fmt.Errorf("Missing required option: config")
 		}
 	}
-	oldConfig := expandOpenSearchConfigCreateSpec(oc)
-	newConfig := expandOpenSearchConfigCreateSpec(nc)
 
-	modified := false
+	var (
+		oldConfig = expandOpenSearchConfigCreateSpec(oc)
+		newConfig = expandOpenSearchConfigCreateSpec(nc)
+	)
+
+	if modifyConfig(oldConfig, newConfig) {
+		flattened := flattenOpenSearchConfigCreateSpec(newConfig)
+		return rdiff.SetNew("config", flattened)
+	}
+
+	return nil
+}
+
+func modifyConfig(oldConfig, newConfig *opensearch.ConfigCreateSpec) bool {
+	var modified bool
+
+	if (oldConfig == nil || newConfig == nil) ||
+		(oldConfig.OpensearchSpec == nil || newConfig.OpensearchSpec == nil) ||
+		(oldConfig.DashboardsSpec == nil || newConfig.DashboardsSpec == nil) {
+
+		return false
+	}
+
 	if oldConfig != nil {
 		if copyOpenSearchNodeGroupsData(oldConfig.OpensearchSpec.NodeGroups, newConfig.OpensearchSpec.NodeGroups) {
 			modified = true
@@ -657,10 +678,5 @@ func opensearchNodeGroupsDiffCustomize(ctx context.Context, rdiff *schema.Resour
 		}
 	}
 
-	if modified {
-		flattened := flattenOpenSearchConfigCreateSpec(newConfig)
-		return rdiff.SetNew("config", flattened)
-	}
-
-	return nil
+	return modified
 }

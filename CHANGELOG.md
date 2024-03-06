@@ -1,4 +1,6 @@
 ## 0.112.0 (Unreleased)
+BUG FIXES:
+* open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
 
 ## 0.111.0 (March 06, 2024)
 BUG FIXES:
