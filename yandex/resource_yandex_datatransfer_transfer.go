@@ -1,17 +1,18 @@
+// Code generated with gentf. DO NOT EDIT.
 package yandex
 
 import (
-	"fmt"
-	"log"
+	fmt "fmt"
+	log "log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	validation "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
+	errdetails "google.golang.org/genproto/googleapis/rpc/errdetails"
+	grpc "google.golang.org/grpc"
+	metadata "google.golang.org/grpc/metadata"
+	status "google.golang.org/grpc/status"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 const (
@@ -44,56 +45,10 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"folder_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"labels": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Set:      schema.HashString,
-				Optional: true,
-			},
-
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"source_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"target_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-
-			"type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validateParsableValue(parseDatatransferTransferType),
-			},
-
 			"warning": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"on_create_activate_mode": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -102,6 +57,512 @@ func resourceYandexDatatransferTransfer() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return old == internalMessageActivateMode
 				},
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"labels": {
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+
+				Set:      schema.HashString,
+				Optional: true,
+				Computed: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"runtime": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"yc_runtime": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"job_count": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+									"upload_shard_params": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"job_count": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+												},
+												"process_count": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Computed: true,
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+				Optional: true,
+				Computed: true,
+			},
+			"source_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"target_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"transformation": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"transformers": {
+							Type: schema.TypeList,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"convert_to_string": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"columns": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"filter_columns": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"columns": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"filter_rows": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"filter": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"mask_field": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"columns": {
+													Type: schema.TypeList,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Optional: true,
+												},
+												"function": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"mask_function_hash": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"user_defined_salt": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"rename_tables": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"rename_tables": {
+													Type: schema.TypeList,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"new_name": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																		},
+																		"name_space": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+															"original_name": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"name": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																		},
+																		"name_space": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																		},
+																	},
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"replace_primary_key": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"keys": {
+													Type: schema.TypeList,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"sharder_transformer": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"columns": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_columns": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+												"shards_count": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+									"table_splitter_transformer": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"columns": {
+													Type: schema.TypeList,
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+													Optional: true,
+												},
+												"splitter": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"tables": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"exclude_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+															"include_tables": {
+																Type: schema.TypeList,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Optional: true,
+															},
+														},
+													},
+													Optional: true,
+												},
+											},
+										},
+										Optional: true,
+									},
+								},
+							},
+							Optional: true,
+						},
+					},
+				},
+				Optional: true,
+			},
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateParsableValue(parseDatatransferTransferTransferType),
+				Computed:     true,
 			},
 		},
 	}
@@ -129,19 +590,31 @@ func createTransfer(config *Config, d *schema.ResourceData) (*datatransfer.Trans
 		return nil, err
 	}
 
-	transferType, err := parseDatatransferTransferType(d.Get("type").(string))
+	transferType, err := parseDatatransferTransferTransferType(d.Get("type").(string))
+	if err != nil {
+		return nil, err
+	}
+
+	transformation, err := expandDatatransferTransferTransformation(d)
+	if err != nil {
+		return nil, err
+	}
+
+	runtime, err := expandDatatransferTransferRuntime(d)
 	if err != nil {
 		return nil, err
 	}
 
 	req := &datatransfer.CreateTransferRequest{
-		SourceId:    d.Get("source_id").(string),
-		TargetId:    d.Get("target_id").(string),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		FolderId:    folderID,
-		Type:        transferType,
+		SourceId:       d.Get("source_id").(string),
+		TargetId:       d.Get("target_id").(string),
+		Name:           d.Get("name").(string),
+		Description:    d.Get("description").(string),
+		Labels:         labels,
+		FolderId:       folderID,
+		Type:           transferType,
+		Runtime:        runtime,
+		Transformation: transformation,
 	}
 
 	createTransferMetadata := new(metadata.MD)
@@ -293,7 +766,7 @@ func resourceYandexDatatransferTransferCreateAndActivate(d *schema.ResourceData,
 func resourceYandexDatatransferTransferDeactivateAndDelete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
-	transferType, err := parseDatatransferTransferType(d.Get("type").(string))
+	transferType, err := parseDatatransferTransferTransferType(d.Get("type").(string))
 	if err != nil {
 		return err
 	}
@@ -373,6 +846,25 @@ func resourceYandexDatatransferTransferRead(d *schema.ResourceData, meta interfa
 		log.Printf("[ERROR] failed set field activate_mode: %s", err)
 		return err
 	}
+
+	transformation, err := flattenDatatransferTransferTransformation(d, resp.GetTransformation())
+	if err != nil {
+		log.Printf("[ERROR] failed read field transformation: %s", err)
+		return err
+	}
+	if err := d.Set("transformation", transformation); err != nil {
+		log.Printf("[ERROR] failed set field transformation: %s", err)
+		return err
+	}
+	runtime, err := flattenDatatransferTransferRuntime(d, resp.GetRuntime())
+	if err != nil {
+		log.Printf("[ERROR] failed read field runtime: %s", err)
+		return err
+	}
+	if err := d.Set("runtime", runtime); err != nil {
+		log.Printf("[ERROR] failed set field runtime: %s", err)
+		return err
+	}
 	return nil
 }
 
@@ -386,14 +878,26 @@ func resourceYandexDatatransferTransferUpdate(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	req := &datatransfer.UpdateTransferRequest{
-		TransferId:  d.Id(),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		Name:        d.Get("name").(string),
+	transformation, err := expandDatatransferTransferTransformation(d)
+	if err != nil {
+		return err
 	}
 
-	updatePath := generateFieldMasks(d, resourceYandexDatatransferTransferUpdateFieldsMap)
+	runtime, err := expandDatatransferTransferRuntime(d)
+	if err != nil {
+		return err
+	}
+
+	req := &datatransfer.UpdateTransferRequest{
+		TransferId:     d.Id(),
+		Description:    d.Get("description").(string),
+		Labels:         labels,
+		Name:           d.Get("name").(string),
+		Runtime:        runtime,
+		Transformation: transformation,
+	}
+
+	updatePath := generateDatatransferFieldMasks(d, datatransferUpdateTransferRequestFieldsRoot)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
 	md := new(metadata.MD)
@@ -415,8 +919,68 @@ func resourceYandexDatatransferTransferUpdate(d *schema.ResourceData, meta inter
 	return resourceYandexDatatransferTransferRead(d, meta)
 }
 
-var resourceYandexDatatransferTransferUpdateFieldsMap = map[string]string{
-	"description": "description",
-	"labels":      "labels",
-	"name":        "name",
+var datatransferUpdateTransferRequestFieldsRoot = &fieldTreeNode{
+	protobufFieldName:      "",
+	terraformAttributeName: "",
+	children: []*fieldTreeNode{
+		{
+			protobufFieldName:      "description",
+			terraformAttributeName: "description",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "labels",
+			terraformAttributeName: "labels",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "runtime",
+			terraformAttributeName: "runtime",
+			children: []*fieldTreeNode{
+				{
+					protobufFieldName:      "yc_runtime",
+					terraformAttributeName: "yc_runtime",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "job_count",
+							terraformAttributeName: "job_count",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "upload_shard_params",
+							terraformAttributeName: "upload_shard_params",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "job_count",
+									terraformAttributeName: "job_count",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "process_count",
+									terraformAttributeName: "process_count",
+									children:               nil,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			protobufFieldName:      "name",
+			terraformAttributeName: "name",
+			children:               nil,
+		},
+		{
+			protobufFieldName:      "transformation",
+			terraformAttributeName: "transformation",
+			children: []*fieldTreeNode{
+				{
+					protobufFieldName:      "transformers",
+					terraformAttributeName: "transformers",
+					children:               nil,
+				},
+			},
+		},
+	},
 }

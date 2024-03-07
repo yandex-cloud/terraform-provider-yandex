@@ -3,12 +3,13 @@ package yandex
 
 import (
 	fmt "fmt"
+	log "log"
+
 	schema "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 	grpc "google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	log "log"
 )
 
 func resourceYandexDatatransferEndpoint() *schema.Resource {
@@ -220,7 +221,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"clickhouse_target": {
 							Type:     schema.TypeList,
@@ -487,7 +488,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"kafka_source": {
 							Type:     schema.TypeList,
@@ -720,6 +721,11 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																Optional: true,
 																Computed: true,
 															},
+															"unescape_string_values": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
 														},
 													},
 													Optional:      true,
@@ -800,6 +806,11 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 																Optional: true,
 																Computed: true,
 															},
+															"unescape_string_values": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
 														},
 													},
 													Optional:      true,
@@ -874,7 +885,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"kafka_target": {
 							Type:     schema.TypeList,
@@ -1112,7 +1123,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"mongo_source": {
 							Type:     schema.TypeList,
@@ -1291,7 +1302,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"mongo_target": {
 							Type:     schema.TypeList,
@@ -1438,7 +1449,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"mysql_source": {
 							Type:     schema.TypeList,
@@ -1619,7 +1630,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"mysql_target": {
 							Type:     schema.TypeList,
@@ -1766,7 +1777,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"postgres_source": {
 							Type:     schema.TypeList,
@@ -2031,7 +2042,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"postgres_target": {
 							Type:     schema.TypeList,
@@ -2158,13 +2169,18 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.ydb_source", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"ydb_source": {
 							Type:     schema.TypeList,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"changefeed_custom_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"database": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -2210,7 +2226,7 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_target"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_target", "settings.0.yds_source", "settings.0.yds_target"},
 						},
 						"ydb_target": {
 							Type:     schema.TypeList,
@@ -2227,6 +2243,12 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+									},
+									"default_compression": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: validateParsableValue(parseDatatransferEndpointYdbDefaultCompression),
+										Computed:     true,
 									},
 									"instance": {
 										Type:     schema.TypeString,
@@ -2270,7 +2292,371 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 								},
 							},
 							Optional:      true,
-							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source"},
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.yds_source", "settings.0.yds_target"},
+						},
+						"yds_source": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_ttl_rewind": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"consumer": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"database": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"endpoint": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"parser": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"audit_trails_v1_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_source.0.parser.0.cloud_logging_parser", "settings.0.yds_source.0.parser.0.json_parser", "settings.0.yds_source.0.parser.0.tskv_parser"},
+												},
+												"cloud_logging_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_source.0.parser.0.audit_trails_v1_parser", "settings.0.yds_source.0.parser.0.json_parser", "settings.0.yds_source.0.parser.0.tskv_parser"},
+												},
+												"json_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_rest_column": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"data_schema": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fields": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"fields": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"name": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"path": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"required": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"type": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateParsableValue(parseDatatransferEndpointColumnType),
+																									Computed:     true,
+																								},
+																							},
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.yds_source.0.parser.0.json_parser.0.data_schema.0.json_fields"},
+																		},
+																		"json_fields": {
+																			Type:          schema.TypeString,
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.yds_source.0.parser.0.json_parser.0.data_schema.0.fields"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"null_keys_allowed": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"unescape_string_values": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_source.0.parser.0.audit_trails_v1_parser", "settings.0.yds_source.0.parser.0.cloud_logging_parser", "settings.0.yds_source.0.parser.0.tskv_parser"},
+												},
+												"tskv_parser": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"add_rest_column": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"data_schema": {
+																Type:     schema.TypeList,
+																MaxItems: 1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"fields": {
+																			Type:     schema.TypeList,
+																			MaxItems: 1,
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"fields": {
+																						Type: schema.TypeList,
+																						Elem: &schema.Resource{
+																							Schema: map[string]*schema.Schema{
+																								"key": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"name": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"path": {
+																									Type:     schema.TypeString,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"required": {
+																									Type:     schema.TypeBool,
+																									Optional: true,
+																									Computed: true,
+																								},
+																								"type": {
+																									Type:         schema.TypeString,
+																									Optional:     true,
+																									ValidateFunc: validateParsableValue(parseDatatransferEndpointColumnType),
+																									Computed:     true,
+																								},
+																							},
+																						},
+																						Optional: true,
+																						Computed: true,
+																					},
+																				},
+																			},
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.yds_source.0.parser.0.tskv_parser.0.data_schema.0.json_fields"},
+																		},
+																		"json_fields": {
+																			Type:          schema.TypeString,
+																			Optional:      true,
+																			ConflictsWith: []string{"settings.0.yds_source.0.parser.0.tskv_parser.0.data_schema.0.fields"},
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+															"null_keys_allowed": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+															"unescape_string_values": {
+																Type:     schema.TypeBool,
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_source.0.parser.0.audit_trails_v1_parser", "settings.0.yds_source.0.parser.0.cloud_logging_parser", "settings.0.yds_source.0.parser.0.json_parser"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"stream": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"supported_codecs": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_target"},
+						},
+						"yds_target": {
+							Type:     schema.TypeList,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"database": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"endpoint": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"save_tx_order": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+									"security_groups": {
+										Type: schema.TypeList,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"serializer": {
+										Type:     schema.TypeList,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"serializer_auto": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_target.0.serializer.0.serializer_debezium", "settings.0.yds_target.0.serializer.0.serializer_json"},
+												},
+												"serializer_debezium": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"serializer_parameters": {
+																Type: schema.TypeList,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"key": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																		"value": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Computed: true,
+																		},
+																	},
+																},
+																Optional: true,
+																Computed: true,
+															},
+														},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_target.0.serializer.0.serializer_auto", "settings.0.yds_target.0.serializer.0.serializer_json"},
+												},
+												"serializer_json": {
+													Type:     schema.TypeList,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{},
+													},
+													Optional:      true,
+													ConflictsWith: []string{"settings.0.yds_target.0.serializer.0.serializer_auto", "settings.0.yds_target.0.serializer.0.serializer_debezium"},
+												},
+											},
+										},
+										Optional: true,
+										Computed: true,
+									},
+									"service_account_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"stream": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									"subnet_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+							Optional:      true,
+							ConflictsWith: []string{"settings.0.clickhouse_source", "settings.0.clickhouse_target", "settings.0.kafka_source", "settings.0.kafka_target", "settings.0.mongo_source", "settings.0.mongo_target", "settings.0.mysql_source", "settings.0.mysql_target", "settings.0.postgres_source", "settings.0.postgres_target", "settings.0.ydb_source", "settings.0.ydb_target", "settings.0.yds_source"},
 						},
 					},
 				},
@@ -2419,7 +2805,7 @@ func resourceYandexDatatransferEndpointUpdate(d *schema.ResourceData, meta inter
 		Settings:    settings,
 	}
 
-	updatePath := generateEndpointFieldMasks(d, datatransferUpdateEndpointRequestFieldsRoot)
+	updatePath := generateDatatransferFieldMasks(d, datatransferUpdateEndpointRequestFieldsRoot)
 	req.UpdateMask = &fieldmaskpb.FieldMask{Paths: updatePath}
 
 	md := new(metadata.MD)
@@ -2865,6 +3251,164 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							terraformAttributeName: "sa_key_content",
 							children:               nil,
 						},
+						{
+							protobufFieldName:      "changefeed_custom_name",
+							terraformAttributeName: "changefeed_custom_name",
+							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "yds_source",
+					terraformAttributeName: "yds_source",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "endpoint",
+							terraformAttributeName: "endpoint",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "stream",
+							terraformAttributeName: "stream",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "consumer",
+							terraformAttributeName: "consumer",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "service_account_id",
+							terraformAttributeName: "service_account_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "parser",
+							terraformAttributeName: "parser",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "json_parser",
+									terraformAttributeName: "json_parser",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "data_schema",
+											terraformAttributeName: "data_schema",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "fields",
+													terraformAttributeName: "fields",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "fields",
+															terraformAttributeName: "fields",
+															children:               nil,
+														},
+													},
+												},
+												{
+													protobufFieldName:      "json_fields",
+													terraformAttributeName: "json_fields",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "null_keys_allowed",
+											terraformAttributeName: "null_keys_allowed",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "add_rest_column",
+											terraformAttributeName: "add_rest_column",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "unescape_string_values",
+											terraformAttributeName: "unescape_string_values",
+											children:               nil,
+										},
+									},
+								},
+								{
+									protobufFieldName:      "audit_trails_v1_parser",
+									terraformAttributeName: "audit_trails_v1_parser",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "cloud_logging_parser",
+									terraformAttributeName: "cloud_logging_parser",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "tskv_parser",
+									terraformAttributeName: "tskv_parser",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "data_schema",
+											terraformAttributeName: "data_schema",
+											children: []*fieldTreeNode{
+												{
+													protobufFieldName:      "fields",
+													terraformAttributeName: "fields",
+													children: []*fieldTreeNode{
+														{
+															protobufFieldName:      "fields",
+															terraformAttributeName: "fields",
+															children:               nil,
+														},
+													},
+												},
+												{
+													protobufFieldName:      "json_fields",
+													terraformAttributeName: "json_fields",
+													children:               nil,
+												},
+											},
+										},
+										{
+											protobufFieldName:      "null_keys_allowed",
+											terraformAttributeName: "null_keys_allowed",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "add_rest_column",
+											terraformAttributeName: "add_rest_column",
+											children:               nil,
+										},
+										{
+											protobufFieldName:      "unescape_string_values",
+											terraformAttributeName: "unescape_string_values",
+											children:               nil,
+										},
+									},
+								},
+							},
+						},
+						{
+							protobufFieldName:      "supported_codecs",
+							terraformAttributeName: "supported_codecs",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "allow_ttl_rewind",
+							terraformAttributeName: "allow_ttl_rewind",
+							children:               nil,
+						},
 					},
 				},
 				{
@@ -2969,11 +3513,6 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							children:               nil,
 						},
 						{
-							protobufFieldName:      "topic_names",
-							terraformAttributeName: "topic_names",
-							children:               nil,
-						},
-						{
 							protobufFieldName:      "transformer",
 							terraformAttributeName: "transformer",
 							children: []*fieldTreeNode{
@@ -3049,6 +3588,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 											terraformAttributeName: "add_rest_column",
 											children:               nil,
 										},
+										{
+											protobufFieldName:      "unescape_string_values",
+											terraformAttributeName: "unescape_string_values",
+											children:               nil,
+										},
 									},
 								},
 								{
@@ -3097,9 +3641,19 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 											terraformAttributeName: "add_rest_column",
 											children:               nil,
 										},
+										{
+											protobufFieldName:      "unescape_string_values",
+											terraformAttributeName: "unescape_string_values",
+											children:               nil,
+										},
 									},
 								},
 							},
+						},
+						{
+							protobufFieldName:      "topic_names",
+							terraformAttributeName: "topic_names",
+							children:               nil,
 						},
 					},
 				},
@@ -3728,6 +4282,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							terraformAttributeName: "is_table_column_oriented",
 							children:               nil,
 						},
+						{
+							protobufFieldName:      "default_compression",
+							terraformAttributeName: "default_compression",
+							children:               nil,
+						},
 					},
 				},
 				{
@@ -3986,6 +4545,74 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 							protobufFieldName:      "cleanup_policy",
 							terraformAttributeName: "cleanup_policy",
 							children:               nil,
+						},
+					},
+				},
+				{
+					protobufFieldName:      "yds_target",
+					terraformAttributeName: "yds_target",
+					children: []*fieldTreeNode{
+						{
+							protobufFieldName:      "endpoint",
+							terraformAttributeName: "endpoint",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "database",
+							terraformAttributeName: "database",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "stream",
+							terraformAttributeName: "stream",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "service_account_id",
+							terraformAttributeName: "service_account_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "security_groups",
+							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "subnet_id",
+							terraformAttributeName: "subnet_id",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "save_tx_order",
+							terraformAttributeName: "save_tx_order",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "serializer",
+							terraformAttributeName: "serializer",
+							children: []*fieldTreeNode{
+								{
+									protobufFieldName:      "serializer_auto",
+									terraformAttributeName: "serializer_auto",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "serializer_json",
+									terraformAttributeName: "serializer_json",
+									children:               nil,
+								},
+								{
+									protobufFieldName:      "serializer_debezium",
+									terraformAttributeName: "serializer_debezium",
+									children: []*fieldTreeNode{
+										{
+											protobufFieldName:      "serializer_parameters",
+											terraformAttributeName: "serializer_parameters",
+											children:               nil,
+										},
+									},
+								},
+							},
 						},
 					},
 				},

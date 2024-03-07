@@ -545,9 +545,14 @@ func TestAccDataTransferYDBSourceEndpoint(t *testing.T) {
 
 func testAccDataTransferConfigYdbSource(name, description string) string {
 	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "ydb_sa_%[1]s" {
+  name        = "ydb-sa-%[1]s"
+  description = "service account for %[1]s ydb endpoint"
+}
+
 resource "yandex_datatransfer_endpoint" "ydb_source" {
-  name        = "%s"
-  description = "%s"
+  name        = "%[1]s"
+  description = "%[2]s"
   settings {
     ydb_source {
       database = "xyz"
@@ -558,6 +563,7 @@ resource "yandex_datatransfer_endpoint" "ydb_source" {
         "path3/a/b/c",
       ]
       security_groups = []
+	  service_account_id = yandex_iam_service_account.ydb_sa_%[1]s.id
     }
   }
 }
@@ -600,9 +606,15 @@ func TestAccDataTransferYdbTargetEndpoint(t *testing.T) {
 }
 
 func testAccDataTransferConfigYdbTarget(name, description string) string {
-	return fmt.Sprintf(`resource "yandex_datatransfer_endpoint" "ydb_target" {
-    name        = "%s"
-  	description = "%s"
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "ydb_sa_%[1]s" {
+  name        = "ydb-sa-%[1]s"
+  description = "service account for %[1]s ydb endpoint"
+}
+
+resource "yandex_datatransfer_endpoint" "ydb_target" {
+    name        = "%[1]s"
+  	description = "%[2]s"
     settings {
         ydb_target {
           database = "xyz"
@@ -611,7 +623,291 @@ func testAccDataTransferConfigYdbTarget(name, description string) string {
           security_groups = []
           cleanup_policy = "YDB_CLEANUP_POLICY_DROP"
 		  is_table_column_oriented = true
+          service_account_id = yandex_iam_service_account.ydb_sa_%[1]s.id
         }
     }
 }`, name, description)
+}
+
+func TestAccDataTransferTransferWithTransformation(t *testing.T) {
+	t.Parallel()
+	const ydsTargetEndpointResourceName = "yds-target-with-transformation"
+	const mysqlSourceEndpointResourceName = "mysql-source-with-transformation"
+	const transferResourceName = "transfer-with-transformation"
+	const fullTransferResourceName = "yandex_datatransfer_transfer.transfer_with_transformation"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigTransferWithTransformation(
+					ydsTargetEndpointResourceName+randomPostfix,
+					mysqlSourceEndpointResourceName+randomPostfix,
+					transferResourceName+randomPostfix,
+					"new_name",
+					"TestAccDataTransfer"+randomPostfix,
+					3,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullTransferResourceName, "name", transferResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.job_count", "3"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.upload_shard_params.0.job_count", "3"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.upload_shard_params.0.process_count", "3"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.0.filter_columns.0.columns.0.exclude_columns.0", "col1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.0.new_name.0.name", "new_name1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.0.original_name.0.name", "original_name1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.1.new_name.0.name", "new_name2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.1.original_name.0.name", "original_name2"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigTransferWithTransformation(
+					ydsTargetEndpointResourceName+randomPostfix,
+					mysqlSourceEndpointResourceName+randomPostfix,
+					transferResourceName+randomPostfix+"2",
+					"new_name2",
+					"TestAccDataTransfer"+randomPostfix,
+					2,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullTransferResourceName, "name", transferResourceName+randomPostfix+"2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.job_count", "2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.upload_shard_params.0.job_count", "2"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "runtime.0.yc_runtime.0.upload_shard_params.0.process_count", "3"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.0.filter_columns.0.columns.0.exclude_columns.0", "col1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.0.new_name.0.name", "new_name21"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.0.original_name.0.name", "original_name1"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.1.new_name.0.name", "new_name22"),
+					resource.TestCheckResourceAttr(fullTransferResourceName, "transformation.0.transformers.1.rename_tables.0.rename_tables.1.original_name.0.name", "original_name2"),
+				),
+			},
+			{
+				ResourceName:      fullTransferResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigTransferWithTransformation(
+	ydsName,
+	mysqlName,
+	transferName,
+	newName,
+	description string,
+	jobCount int,
+) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "mysql_source_with_transformation" {
+  name      = "%[1]s"
+  settings {
+    mysql_source {
+      connection {
+		on_premise {
+		  hosts = [
+			"src hostname"
+		  ]
+		  port = 3306
+		}
+	  }
+      database = "db1"
+      user     = "user1"
+      password {
+        raw = "pass"
+      }
+    }
+  }
+}
+
+resource "yandex_iam_service_account" "yds_sa_with_transformation" {
+  name        = "yds-sa-%[2]s"
+  description = "service account for %[2]s yds endpoint"
+}
+
+resource "yandex_datatransfer_endpoint" "yds_target_with_transformation" {
+  name      = "%[2]s"
+  settings {
+    yds_target {
+      endpoint           = "endpoint"
+      stream             = "test"
+      database           = "database"
+      service_account_id = yandex_iam_service_account.yds_sa_with_transformation.id
+      serializer {
+        serializer_auto {
+
+        }
+      }
+    }
+  }
+}
+
+resource "yandex_datatransfer_transfer" "transfer_with_transformation" {
+  name        = "%[3]s"
+  description = "%[4]s"
+  source_id   = yandex_datatransfer_endpoint.mysql_source_with_transformation.id
+  target_id   = yandex_datatransfer_endpoint.yds_target_with_transformation.id
+  type        = "SNAPSHOT_AND_INCREMENT"
+  runtime {
+    yc_runtime {
+      job_count = %[5]d
+      upload_shard_params {
+        job_count = %[5]d
+        process_count = 3
+      }
+    }
+  }
+  transformation {
+    transformers {
+      filter_columns {
+        columns {
+          exclude_columns = ["col1"]
+        }
+		tables {}
+      }
+    }
+    transformers {
+      rename_tables {
+        rename_tables {
+          new_name {
+            name = "%[6]s1"
+          }
+          original_name {
+            name = "original_name1"
+          }
+        }
+        rename_tables {
+          new_name {
+            name = "%[6]s2"
+          }
+          original_name {
+            name = "original_name2"
+          }
+        }
+      }
+    }
+  }
+}
+`, ydsName, mysqlName, transferName, description, jobCount, newName)
+}
+
+func TestAccDataTransferYDSSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const ydsSourceEndpointResourceName = "yds-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.yds_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigYdsSource(ydsSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", ydsSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.yds_source.0.supported_codecs.0", "YDS_COMPRESSION_CODEC_GZIP"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.yds_source.0.supported_codecs.1", "YDS_COMPRESSION_CODEC_RAW"),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigYdsSource("new-yds-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-yds-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigYdsSource(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "yds_sa_%[1]s" {
+  name        = "yds-sa-%[1]s"
+  description = "service account for %[1]s yds endpoint"
+}
+
+resource "yandex_datatransfer_endpoint" "yds_source" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    yds_source {
+      endpoint           = "endpoint"
+      stream             = "stream"
+      database           = "database"
+      consumer           = "consumer"
+      parser {
+        cloud_logging_parser {}
+      }
+      supported_codecs = ["YDS_COMPRESSION_CODEC_GZIP", "YDS_COMPRESSION_CODEC_RAW"]
+      service_account_id = yandex_iam_service_account.yds_sa_%[1]s.id
+    }
+  }
+}
+`, name, description)
+}
+
+func TestAccDataTransferYdsTargetEndpoint(t *testing.T) {
+	t.Parallel()
+	const ydsTargetEndpointResourceName = "yds-target"
+	const fullResourceName = "yandex_datatransfer_endpoint.yds_target"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigYdsTarget(ydsTargetEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", ydsTargetEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigYdsTarget("new-yds-target-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-yds-target-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				ResourceName:      fullResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigYdsTarget(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "yds_sa_%[1]s" {
+  name        = "yds-sa-%[1]s"
+  description = "service account for %[1]s yds endpoint"
+}
+
+resource "yandex_datatransfer_endpoint" "yds_target" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    yds_target {
+      endpoint           = "endpoint"
+      stream             = "stream"
+      database           = "database"
+      service_account_id = yandex_iam_service_account.yds_sa_%[1]s.id
+      serializer {
+        serializer_auto {
+
+        }
+      }
+    }
+  }
+}
+`, name, description)
 }

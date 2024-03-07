@@ -912,15 +912,15 @@ type fieldTreeNode struct {
 	children               []*fieldTreeNode
 }
 
-func generateEndpointFieldMasks(d *schema.ResourceData, fieldTreeRoot *fieldTreeNode) []string {
+func generateDatatransferFieldMasks(d *schema.ResourceData, fieldTreeRoot *fieldTreeNode) []string {
 	var fieldMasks []string
 	for _, node := range fieldTreeRoot.children {
-		fieldMasks = append(fieldMasks, generateEndpointFieldMasksForPath(d, node, "", "")...)
+		fieldMasks = append(fieldMasks, generateDatatransferFieldMasksForPath(d, node, "", "")...)
 	}
 	return fieldMasks
 }
 
-func generateEndpointFieldMasksForPath(d *schema.ResourceData, node *fieldTreeNode, terraformPathPrefix, protobufPathPrefix string) []string {
+func generateDatatransferFieldMasksForPath(d *schema.ResourceData, node *fieldTreeNode, terraformPathPrefix, protobufPathPrefix string) []string {
 	terraformAttributePath := terraformPathPrefix + node.terraformAttributeName
 	protobufFieldPath := protobufPathPrefix + node.protobufFieldName
 
@@ -945,7 +945,7 @@ func generateEndpointFieldMasksForPath(d *schema.ResourceData, node *fieldTreeNo
 	// The count has not changed, but the field has. Try recursing into the message to find out precisely which attributes that have changed
 	var nestedChanges []string
 	for _, nestedNode := range node.children {
-		nestedChanges = append(nestedChanges, generateEndpointFieldMasksForPath(d, nestedNode, terraformAttributePath+".0.", protobufFieldPath+".")...)
+		nestedChanges = append(nestedChanges, generateDatatransferFieldMasksForPath(d, nestedNode, terraformAttributePath+".0.", protobufFieldPath+".")...)
 	}
 	if len(nestedChanges) != 0 {
 		return nestedChanges

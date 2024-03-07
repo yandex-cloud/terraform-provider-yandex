@@ -2,6 +2,12 @@
 BUG FIXES:
 * open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
 
+ENHANCEMENTS:
+* datatransfer: added `yds_source` and `yds_target` in `yandex_datatransfer_endpoint` resource.
+* datatransfer: added `runtime` and `transformation` parameters in `yandex_datatransfer_transfer` resource.
+* datatransfer: added `"changefeed_custom_name"` parameter to ydb_source in `yandex_datatransfer_endpoint` resource.
+* datatransfer: added `unescape_string_values` parameter to `tskv_parser` and `json_parser` in `yandex_datatransfer_endpoint` resource.
+
 ## 0.111.0 (March 06, 2024)
 BUG FIXES:
 * k8s: fixed type of EtcdClusterSize
@@ -14,6 +20,7 @@ FEATURES:
 ENHANCEMENTS:
 * ydb: add documentation for `yandex_ydb_table_changefeed` and `yandex_ydb_table`
 * dns: added example in docs for dns zone import
+* dns: added example in docs for dsn zone import
 
 ## 0.109.0 (February 27, 2024)
 BUG FIXES:

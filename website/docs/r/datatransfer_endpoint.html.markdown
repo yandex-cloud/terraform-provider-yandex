@@ -79,6 +79,8 @@ The `settings` block supports:
 * `mysql_target` - (Optional) Settings specific to the MySQL target endpoint.
 * `ydb_source` - (Optional) Settings specific to the YDB source endpoint.
 * `ydb_target` - (Optional) Settings specific to the YDB target endpoint.
+* `yds_source` - (Optional) Settings specific to the YDS source endpoint.
+* `yds_target` - (Optional) Settings specific to the YDS target endpoint.
 
 For the documentation of the specific endpoint settings see below.
 
@@ -321,6 +323,7 @@ The `json_parser` and `tskv_parser` blocks supports:
 * `data_schema` - (Required) Data parsing scheme.The structure is documented below.
 * `add_rest_column` - Add fields, that are not in the schema, into the _rest column.
 * `null_keys_allowed` - Allow null keys. If `false` - null keys will be putted to unparsed data
+* `unescape_string_values` - Allow unescape string values.
 
 The `data_schema` block supports exactly one of the following attributes:
 * `fields`  - Description of the data schema in the array of `fields` structure (documented below).
@@ -371,6 +374,7 @@ The `ydb_source` block supports:
 * `subnet_id` -- (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
 * `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
 * `sa_key_content` -- (Optional, Sensitive) Authentication key.
+* `changefeed_custom_name` -- (Optional) Custom name for changefeed.
 
 The `ydb_target` block supports:
 * `database` -- (Required) Database path in YDB where tables are stored. Example: "/ru/transfer_manager/prod/data-transfer-yt".
@@ -382,6 +386,7 @@ The `ydb_target` block supports:
 * `sa_key_content` -- (Optional, Sensitive) Authentication key.
 * `cleanup_policy` -- (Optional) How to clean collections when activating the transfer. One of "YDB_CLEANUP_POLICY_DISABLED" or "YDB_CLEANUP_POLICY_DROP".
 * `is_table_column_oriented` -- (Optional) Whether a column-oriented (i.e. OLAP) tables should be created. Default is `false` (create row-oriented OLTP tables).
+* `default_compression` -- (Optional) Compression that will be used for default columns family on YDB table creation One of "YDB_DEFAULT_COMPRESSION_UNSPECIFIED", "YDB_DEFAULT_COMPRESSION_DISABLED", "YDB_DEFAULT_COMPRESSION_LZ4".
 
 * `connection` - (Required) Connection settings.
 * `auth` - (Required) Authentication data.
@@ -408,6 +413,65 @@ The `on_premise` block supports:
 The `auth` block supports exactly one of the following attributes:
 * `no_auth` - Connection without authentication data.
 * `sasl` - Authentication using sasl.
+
+---
+
+The `yds_source` block supports:
+* `database` -- (Required) Database.
+* `endpoint` -- (Optional) YDS Endpoint.
+* `service_account_id` -- (Required) Service account ID for interaction with database.
+* `subnet_id` -- (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `stream` -- (Optional) Stream.
+* `consumer` -- (Optional) Consumer.
+* `parser` -- (Optional) Data parsing rules.
+* `supported_codecs` -- (Optional) List of supported compression codec.
+* `allow_ttl_rewind` -- (Optional) Should continue working, if consumer read lag exceed TTL of topic.
+
+The `yds_target` block supports:
+* `database` -- (Required) Database.
+* `endpoint` -- (Optional) YDS Endpoint.
+* `service_account_id` -- (Required) Service account ID for interaction with database.
+* `subnet_id` -- (Optional) Identifier of the Yandex Cloud VPC subnetwork to user for accessing the database. If omitted, the server has to be accessible via Internet.
+* `security_groups` -- (Optional) List of security groups that the transfer associated with this endpoint should use.
+* `stream` -- (Optional) Stream.
+* `serializer` -- (Optional) Data serialization format.
+* `save_tx_order` -- (Optional) Save transaction order
+
+---
+
+The `parser` block supports exactly one of the following attributes:
+* `audit_trails_v1_parser` - Parse Audit Trails data. Empty struct.
+* `cloud_logging_parser` - Parse Cloud Logging data. Empty struct.
+* `json_parser` - Parse data in json format.
+* `tskv_parser` - Parse data if tskv format.
+
+The `json_parser` and `tskv_parser` blocks supports:
+* `data_schema` - (Required) Data parsing scheme.The structure is documented below.
+* `add_rest_column` - Add fields, that are not in the schema, into the _rest column.
+* `null_keys_allowed` - Allow null keys. If `false` - null keys will be putted to unparsed data
+* `unescape_string_values` - Allow unescape string values.
+
+The `data_schema` block supports exactly one of the following attributes:
+* `fields`  - Description of the data schema in the array of `fields` structure (documented below).
+* `json_fields`- Description of the data schema as JSON specification.
+
+The `fields` block supports:
+* `name` - (Required) Field name.
+* `type` - (Required) Field type, one of: `INT64`, `INT32`, `INT16`, `INT8`, `UINT64`, `UINT32`, `UINT16`, `UINT8`, `DOUBLE`, `BOOLEAN`, `STRING`, `UTF8`, `ANY`, `DATETIME`.
+* `path` - Path to the field.
+* `required` - Mark field as required.
+* `key` -Mark field as Primary Key.
+
+---
+
+The `serializer` block supports exactly one of the following attributes:
+* `serializer_auto` - Empty block. Select data serialization format automatically.
+* `serializer_json` - Empty block. Serialize data in json format.
+* `serializer_debezium` - Serialize data in json format. The structure is documented below.
+
+The `serializer_debezium` block supports:
+* `serializer_parameters` - A list of debezium parameters set by the structure of the `key` and `value` string fields.
 
 ## Import
 
