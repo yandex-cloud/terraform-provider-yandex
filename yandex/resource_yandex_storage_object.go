@@ -91,7 +91,7 @@ func resourceYandexStorageObject() *schema.Resource {
 			"object_lock_legal_hold_status": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      s3.ObjectLockLegalHoldStatusOff,
+				Default:      nil,
 				ValidateFunc: validation.StringInSlice(s3.ObjectLockLegalHoldStatus_Values(), false),
 			},
 

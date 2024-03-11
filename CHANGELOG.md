@@ -2,6 +2,7 @@
 BUG FIXES:
 * open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
 * mongodb: fix empty default mongod/mongos compressors
+* storage: removed default value from optional `object_lock_legal_hold_status` attribute in `object` resource
 
 ENHANCEMENTS:
 * datatransfer: added `yds_source` and `yds_target` in `yandex_datatransfer_endpoint` resource.
