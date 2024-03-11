@@ -1,6 +1,7 @@
 ## 0.112.0 (Unreleased)
 BUG FIXES:
 * open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
+* mongodb: fix empty default mongod/mongos compressors
 
 ENHANCEMENTS:
 * datatransfer: added `yds_source` and `yds_target` in `yandex_datatransfer_endpoint` resource.

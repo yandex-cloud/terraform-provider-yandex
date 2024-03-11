@@ -821,7 +821,6 @@ func create6_0_enterpriseConfigData() map[string]interface{} {
 			},
 			"Net": map[string]interface{}{
 				"MaxConnections": 16,
-				"Compressors":    []string{"\"ZLIB\""},
 			},
 			"OperationProfiling": map[string]interface{}{
 				"Mode":         "ALL",
@@ -920,10 +919,6 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
-					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
-					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_threshold", "1000"),
@@ -935,6 +930,7 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "false"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
+					resource.TestCheckNoResourceAttr(mongodbResource, "cluster_config.0.mongod.0.net.0.compressors"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1006,7 +1002,6 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.audit_log.0.filter", "{}"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "false"),
-
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "22"),
 					resource.TestCheckResourceAttr(mongodbResource,
