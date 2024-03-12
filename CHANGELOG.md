@@ -1,4 +1,6 @@
-## 0.112.0 (Unreleased)
+## 0.113.0 (Unreleased)
+
+## 0.112.0 (March 12, 2024)
 BUG FIXES:
 * open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
 * mongodb: fix empty default mongod/mongos compressors
@@ -7,7 +9,7 @@ BUG FIXES:
 ENHANCEMENTS:
 * datatransfer: added `yds_source` and `yds_target` in `yandex_datatransfer_endpoint` resource.
 * datatransfer: added `runtime` and `transformation` parameters in `yandex_datatransfer_transfer` resource.
-* datatransfer: added `"changefeed_custom_name"` parameter to ydb_source in `yandex_datatransfer_endpoint` resource.
+* datatransfer: added `changefeed_custom_name` parameter to ydb_source in `yandex_datatransfer_endpoint` resource.
 * datatransfer: added `unescape_string_values` parameter to `tskv_parser` and `json_parser` in `yandex_datatransfer_endpoint` resource.
 
 ## 0.111.0 (March 06, 2024)
