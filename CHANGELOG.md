@@ -11,6 +11,7 @@ ENHANCEMENTS:
 * datatransfer: added `runtime` and `transformation` parameters in `yandex_datatransfer_transfer` resource.
 * datatransfer: added `changefeed_custom_name` parameter to ydb_source in `yandex_datatransfer_endpoint` resource.
 * datatransfer: added `unescape_string_values` parameter to `tskv_parser` and `json_parser` in `yandex_datatransfer_endpoint` resource.
+* kubernetes: deprecate version 1.25
 
 ## 0.111.0 (March 06, 2024)
 BUG FIXES:
