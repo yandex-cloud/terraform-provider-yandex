@@ -1,4 +1,7 @@
 ## 0.113.0 (Unreleased)
+ENHANCEMENTS:
+* **New Resource:** `yandex_audit_trails_trail`
+* **New Data Source:** `yandex_audit_trails_trail`
 
 ## 0.112.0 (March 12, 2024)
 BUG FIXES:

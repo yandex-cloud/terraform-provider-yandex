@@ -8,10 +8,10 @@ require (
 	github.com/client9/misspell v0.3.4
 	github.com/fatih/structs v1.1.0
 	github.com/golang/mock v1.6.0
-	github.com/golang/protobuf v1.5.3
+	github.com/golang/protobuf v1.5.4
 	github.com/golang/snappy v0.0.4
 	github.com/golangci/golangci-lint v1.53.3
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/errwrap v1.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
@@ -33,15 +33,15 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
-	github.com/yandex-cloud/go-genproto v0.0.0-20240212082145-b6bd14d828d5
-	github.com/yandex-cloud/go-sdk v0.0.0-20240212083139-1cf36556be26
+	github.com/yandex-cloud/go-genproto v0.0.0-20240305150537-d19591d7d196
+	github.com/yandex-cloud/go-sdk v0.0.0-20240306121756-2977336ccf27
 	github.com/ydb-platform/terraform-provider-ydb v0.0.17
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
-	golang.org/x/net v0.21.0
-	google.golang.org/genproto v0.0.0-20240205150955-31a09d347014
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240205150955-31a09d347014
-	google.golang.org/grpc v1.61.0
-	google.golang.org/protobuf v1.32.0
+	golang.org/x/net v0.22.0
+	google.golang.org/genproto v0.0.0-20240304212257-790db918fca8
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304212257-790db918fca8
+	google.golang.org/grpc v1.62.1
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
@@ -219,8 +219,8 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
-	github.com/ydb-platform/ydb-go-genproto v0.0.0-20230528143953-42c825ace222 // indirect
-	github.com/ydb-platform/ydb-go-sdk/v3 v3.48.5 // indirect
+	github.com/ydb-platform/ydb-go-genproto v0.0.0-20240126124512-dbb0e1720dbf // indirect
+	github.com/ydb-platform/ydb-go-sdk/v3 v3.56.2 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect
 	github.com/zclconf/go-cty v1.13.3 // indirect
@@ -229,15 +229,15 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.19.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
 	golang.org/x/mod v0.11.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.9.3 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240205150955-31a09d347014 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240304212257-790db918fca8 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
