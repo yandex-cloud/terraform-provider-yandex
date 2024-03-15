@@ -2,6 +2,7 @@
 ENHANCEMENTS:
 * **New Resource:** `yandex_audit_trails_trail`
 * **New Data Source:** `yandex_audit_trails_trail`
+* loadtesting: added `labels` parameter to `yandex_loadtesting_agent` resource.
 
 FEATURES:
 * serverless: complete update support for triggers

@@ -53,6 +53,14 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 				Computed: true,
 			},
 
+			"labels": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+				ForceNew: true,
+			},
+
 			"compute_instance": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -297,10 +305,16 @@ func resourceYandexLoadtestingAgentCreate(d *schema.ResourceData, meta interface
 		return err
 	}
 
+	labels, err := expandLabels(d.Get("labels"))
+	if err != nil {
+		return err
+	}
+
 	req := lt.CreateAgentRequest{
 		FolderId:              folderID,
 		Name:                  d.Get("name").(string),
 		Description:           d.Get("description").(string),
+		Labels:                labels,
 		ComputeInstanceParams: computeParams,
 	}
 
@@ -348,6 +362,7 @@ func resourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface{}
 	d.Set("folder_id", agent.FolderId)
 	d.Set("description", agent.Description)
 	d.Set("compute_instance_id", agent.ComputeInstanceId)
+	d.Set("labels", agent.Labels)
 
 	instance, err := config.sdk.Compute().Instance().Get(ctx, &compute.GetInstanceRequest{
 		InstanceId: agent.ComputeInstanceId,

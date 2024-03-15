@@ -18,6 +18,9 @@ resource "yandex_loadtesting_agent" "my-agent" {
   name = "my-agent"
   description = "2 core 4 GB RAM agent"
   folder_id = "${data.yandex_resourcemanager_folder.test_folder.id}"
+  labels = {
+    jmeter = "5"
+  }
         
   compute_instance {
     zone_id = "ru-central1-b"
@@ -50,6 +53,8 @@ The following arguments are supported:
 * `compute_instance` - (Required) The template for creating new compute instance running load testing agent. The structure is documented below.
 
 * `description` - (Optional) A description of the load testing agent.
+
+* `labels` - (Optional) A set of key/value label pairs to assign to the agent.
 
 ---
 

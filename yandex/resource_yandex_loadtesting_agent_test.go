@@ -86,6 +86,10 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "name", agentName),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "description", agentDescription),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "labels.purpose", "grpc-scenario"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "labels.pandora", "0-5-20"),
+					testAccCheckLoadtestingAgentLabel(&agent, "purpose", "grpc-scenario"),
+					testAccCheckLoadtestingAgentLabel(&agent, "pandora", "0-5-20"),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance_id"),
 					testAccCheckLoadtestingComputeInstanceExists(&agent, &instance),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance.0.service_account_id"),
@@ -229,6 +233,24 @@ func testAccCheckLoadtestingComputeInstanceHasResources(instance *compute.Instan
 	}
 }
 
+func testAccCheckLoadtestingAgentLabel(agent *ltagent.Agent, key string, value string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if agent.Labels == nil {
+			return fmt.Errorf("no labels found on agent %s", agent.Name)
+		}
+
+		v, ok := agent.Labels[key]
+		if !ok {
+			return fmt.Errorf("No label found with key %s on agent %s", key, agent.Name)
+		}
+		if v != value {
+			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on agent %s", value, v, key, agent.Name)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckLoadtestingComputeInstanceLabel(instance *compute.Instance, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.Labels == nil {
@@ -332,6 +354,10 @@ func testAccLoadtestingAgentFull(name, desc string) string {
 resource "yandex_loadtesting_agent" "test-lt-agent" {
 	name		  = "%s"
 	description   = "%s"
+	labels = {
+		purpose = "grpc-scenario"
+		pandora = "0-5-20"
+	}
 		
 	compute_instance {
 		zone_id = "ru-central1-b"

@@ -37,6 +37,13 @@ func dataSourceYandexLoadtestingAgent() *schema.Resource {
 				Computed: true,
 			},
 
+			"labels": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
 			"compute_instance": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -241,6 +248,7 @@ func dataSourceYandexLoadtestingAgentRead(d *schema.ResourceData, meta interface
 	d.Set("folder_id", agent.FolderId)
 	d.Set("description", agent.Description)
 	d.Set("compute_instance_id", agent.ComputeInstanceId)
+	d.Set("labels", agent.Labels)
 
 	d.SetId(agent.Id)
 

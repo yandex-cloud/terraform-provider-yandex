@@ -33,6 +33,7 @@ The following arguments are supported:
 * `name` - The name of the load testing agent.
 * `description` - A description of the load testing agent.
 * `folder_id` - The ID of the folder that the load testing agent belongs to.
+* `labels` - A map of labels applied to the load testing agent.
 * `compute_instance_id` - The ID of Yandex Compute Instance running loadtesting agent.
 * `compute_instance` - The Compute Instance details. The structure is documented below.
 
@@ -43,7 +44,7 @@ The `compute_instance` block supports:
 * `zone_id` - The ID of the availability zone where the instance resides.
 * `service_account_id` - The service account ID for the instance.
 * `computed_metadata` - The set of metadata `key:value` pairs assigned to this instance. This includes user custom metadata, and predefined items created by Yandex Cloud Load Testing.
-* `labels` - A map of labels applied to this instance.
+* `labels` - A map of labels applied to the instance.
 * `resources.0.memory` - The memory size allocated to the instance.
 * `resources.0.cores` - Number of CPU cores allocated to the instance.
 * `resources.0.core_fraction` - Baseline core performance as a percent.
