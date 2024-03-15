@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/triggers/v1"
@@ -94,31 +94,26 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"tag": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"retry_attempts": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"retry_interval": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -136,31 +131,26 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"path": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"retry_attempts": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"retry_interval": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -196,30 +186,25 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"registry_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"device_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"topic": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -236,31 +221,26 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"queue_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"visibility_timeout": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -277,48 +257,40 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"bucket_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"prefix": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"suffix": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"create": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"update": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"delete": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -335,49 +307,40 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"registry_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"image_name": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 						"tag": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"create_image": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 						"delete_image": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 						"create_image_tag": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 						"delete_image_tag": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -394,28 +357,23 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"stream_name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"database": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -432,12 +390,10 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"cron_expression": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"payload": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -454,23 +410,19 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"attachments_bucket_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -519,13 +471,11 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"group_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"resource_ids": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 							MinItems: 0,
@@ -534,7 +484,6 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"resource_types": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 							MinItems: 0,
@@ -543,7 +492,6 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"levels": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 							MinItems: 0,
@@ -552,7 +500,6 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"stream_names": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 							MinItems: 0,
@@ -561,13 +508,11 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 						"batch_cutoff": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"batch_size": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -577,19 +522,16 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 				Type:     schema.TypeList,
 				MaxItems: 1,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"queue_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -603,29 +545,7 @@ func resourceYandexFunctionTrigger() *schema.Resource {
 	}
 }
 
-func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
-	defer cancel()
-
-	labels, err := expandLabels(d.Get("labels"))
-	if err != nil {
-		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Functions Trigger: %s", err)
-	}
-
-	folderID, err := getFolderID(d, config)
-	if err != nil {
-		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Functions Trigger: %s", err)
-	}
-
-	req := triggers.CreateTriggerRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-	}
-
+func constructRule(d *schema.ResourceData) (*triggers.Trigger_Rule, error) {
 	var invokeType string
 	if _, ok := d.GetOk("function"); ok {
 		invokeType = "function"
@@ -636,12 +556,12 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 	retrySettings, err := expandRetrySettings(d, invokeType)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dlqSettings, err := expandDLQSettings(d)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var getInvokeFunctionWithRetry = func() *triggers.InvokeFunctionWithRetry {
@@ -680,9 +600,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	triggerCnt := 0
 	if _, ok := d.GetOk(triggerTypeIoT); ok {
-		triggerCnt++
 		iot := &triggers.Trigger_Rule_IotMessage{
 			IotMessage: &triggers.Trigger_IoTMessage{
 				RegistryId: d.Get("iot.0.registry_id").(string),
@@ -703,21 +621,18 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "iot.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		iot.IotMessage.BatchSettings = batch
 
-		req.Rule = &triggers.Trigger_Rule{Rule: iot}
-	}
-
-	if _, ok := d.GetOk(triggerTypeMessageQueue); ok {
-		triggerCnt++
+		return &triggers.Trigger_Rule{Rule: iot}, nil
+	} else if _, ok := d.GetOk(triggerTypeMessageQueue); ok {
 		if err := checkDisableRetrySettingsForMessageQueueTrigger(d, invokeType); err != nil {
-			return err
+			return nil, err
 		}
 		batch, err := expandBatchSettings(d, "message_queue.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		messageQueue := &triggers.Trigger_MessageQueue{
@@ -739,18 +654,14 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		if _, ok := d.GetOk("message_queue.0.visibility_timeout"); ok {
 			timeout, err := strconv.ParseInt(d.Get("message_queue.0.visibility_timeout").(string), 10, 64)
 			if err != nil {
-				return fmt.Errorf("Cannot define message_queue.visibility_timeout for Yandex Cloud Functions Trigger: %s", err)
+				return nil, fmt.Errorf("Cannot define message_queue.visibility_timeout for Yandex Cloud Functions Trigger: %s", err)
 			}
 			messageQueue.VisibilityTimeout = &duration.Duration{Seconds: timeout}
 		}
 
 		messageQueueRule := &triggers.Trigger_Rule_MessageQueue{MessageQueue: messageQueue}
-		req.Rule = &triggers.Trigger_Rule{Rule: messageQueueRule}
-	}
-
-	if _, ok := d.GetOk(triggerTypeObjectStorage); ok {
-		triggerCnt++
-
+		return &triggers.Trigger_Rule{Rule: messageQueueRule}, nil
+	} else if _, ok := d.GetOk(triggerTypeObjectStorage); ok {
 		events := make([]triggers.Trigger_ObjectStorageEventType, 0)
 		eventsName := map[string]triggers.Trigger_ObjectStorageEventType{
 			"object_storage.0.create": triggers.Trigger_OBJECT_STORAGE_EVENT_TYPE_CREATE_OBJECT,
@@ -782,16 +693,12 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "object_storage.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		storageTrigger.BatchSettings = batch
 		storageRule := &triggers.Trigger_Rule_ObjectStorage{ObjectStorage: storageTrigger}
-		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
-	}
-
-	if _, ok := d.GetOk(triggerTypeContainerRegistry); ok {
-		triggerCnt++
-
+		return &triggers.Trigger_Rule{Rule: storageRule}, nil
+	} else if _, ok := d.GetOk(triggerTypeContainerRegistry); ok {
 		events := make([]triggers.Trigger_ContainerRegistryEventType, 0)
 		eventsName := map[string]triggers.Trigger_ContainerRegistryEventType{
 			"container_registry.0.create_image":     triggers.Trigger_CONTAINER_REGISTRY_EVENT_TYPE_CREATE_IMAGE,
@@ -824,16 +731,12 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "container_registry.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		crTrigger.BatchSettings = batch
 		storageRule := &triggers.Trigger_Rule_ContainerRegistry{ContainerRegistry: crTrigger}
-		req.Rule = &triggers.Trigger_Rule{Rule: storageRule}
-	}
-
-	if _, ok := d.GetOk(triggerTypeTimer); ok {
-		triggerCnt++
-
+		return &triggers.Trigger_Rule{Rule: storageRule}, nil
+	} else if _, ok := d.GetOk(triggerTypeTimer); ok {
 		timer := triggers.Trigger_Timer{
 			CronExpression: d.Get("timer.0.cron_expression").(string),
 		}
@@ -858,12 +761,8 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 
 		timerRule := &triggers.Trigger_Rule_Timer{Timer: &timer}
-		req.Rule = &triggers.Trigger_Rule{Rule: timerRule}
-	}
-
-	if _, ok := d.GetOk(triggerTypeLogGroup); ok {
-		triggerCnt++
-
+		return &triggers.Trigger_Rule{Rule: timerRule}, nil
+	} else if _, ok := d.GetOk(triggerTypeLogGroup); ok {
 		cloudLogs := &triggers.Trigger_CloudLogs{
 			LogGroupId: convertStringSet(d.Get("log_group.0.log_group_ids").(*schema.Set)),
 		}
@@ -880,7 +779,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "log_group.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if batch != nil {
 			cloudLogs.BatchSettings = &triggers.CloudLogsBatchSettings{
@@ -888,14 +787,10 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 				Cutoff: batch.Cutoff,
 			}
 		}
-		req.Rule = &triggers.Trigger_Rule{
+		return &triggers.Trigger_Rule{
 			Rule: &triggers.Trigger_Rule_CloudLogs{CloudLogs: cloudLogs},
-		}
-	}
-
-	if _, ok := d.GetOk(triggerTypeYDS); ok {
-		triggerCnt++
-
+		}, nil
+	} else if _, ok := d.GetOk(triggerTypeYDS); ok {
 		yds := &triggers.DataStream{
 			Stream:           d.Get("data_streams.0.stream_name").(string),
 			Database:         d.Get("data_streams.0.database").(string),
@@ -913,7 +808,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 		}
 		batch, err := expandBatchSettings(d, "data_streams.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if batch != nil {
 			yds.BatchSettings = &triggers.DataStreamBatchSettings{
@@ -921,14 +816,10 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 				Cutoff: batch.Cutoff,
 			}
 		}
-		req.Rule = &triggers.Trigger_Rule{
+		return &triggers.Trigger_Rule{
 			Rule: &triggers.Trigger_Rule_DataStream{DataStream: yds},
-		}
-	}
-
-	if _, ok := d.GetOk(triggerTypeMail); ok {
-		triggerCnt++
-
+		}, nil
+	} else if _, ok := d.GetOk(triggerTypeMail); ok {
 		mail := &triggers.Mail{}
 
 		if invokeType == "function" {
@@ -952,17 +843,13 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "mail.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		mail.BatchSettings = batch
-		req.Rule = &triggers.Trigger_Rule{
+		return &triggers.Trigger_Rule{
 			Rule: &triggers.Trigger_Rule_Mail{Mail: mail},
-		}
-	}
-
-	if _, ok := d.GetOk(triggerTypeLogging); ok {
-		triggerCnt++
-
+		}, nil
+	} else if _, ok := d.GetOk(triggerTypeLogging); ok {
 		levels := []logging.LogLevel_Level{}
 
 		for _, l := range convertStringSet(d.Get("logging.0.levels").(*schema.Set)) {
@@ -991,7 +878,7 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 
 		batch, err := expandBatchSettings(d, "logging.0")
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if batch != nil {
 			logging.BatchSettings = &triggers.LoggingBatchSettings{
@@ -999,13 +886,40 @@ func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{
 				Cutoff: batch.Cutoff,
 			}
 		}
-		req.Rule = &triggers.Trigger_Rule{
+		return &triggers.Trigger_Rule{
 			Rule: &triggers.Trigger_Rule_Logging{Logging: logging},
-		}
+		}, nil
+	}
+	return nil, errors.New("Unknown rule type")
+}
+
+func resourceYandexFunctionTriggerCreate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
+	defer cancel()
+
+	labels, err := expandLabels(d.Get("labels"))
+	if err != nil {
+		return fmt.Errorf("Error expanding labels while creating Yandex Cloud Functions Trigger: %s", err)
 	}
 
-	if triggerCnt != 1 {
-		return fmt.Errorf("Yandex Cloud Functions Trigger must have only one any iot, message_queue, object_storage, timer, logging section")
+	folderID, err := getFolderID(d, config)
+	if err != nil {
+		return fmt.Errorf("Error getting folder ID while creating Yandex Cloud Functions Trigger: %s", err)
+	}
+
+	rule, err := constructRule(d)
+	if err != nil {
+		return nil
+	}
+
+	req := triggers.CreateTriggerRequest{
+		FolderId:    folderID,
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Labels:      labels,
+		Rule:        rule,
 	}
 
 	op, err := config.sdk.WrapOperation(config.sdk.Serverless().Triggers().Trigger().Create(ctx, &req))
@@ -1045,35 +959,23 @@ func resourceYandexFunctionTriggerUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	d.Partial(true)
-
-	var updatePaths []string
-	if d.HasChange("name") {
-		updatePaths = append(updatePaths, "name")
+	rule, err := constructRule(d)
+	if err != nil {
+		return err
 	}
 
-	if d.HasChange("description") {
-		updatePaths = append(updatePaths, "description")
+	req := triggers.UpdateTriggerRequest{
+		TriggerId:   d.Id(),
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Labels:      labels,
+		Rule:        rule,
 	}
 
-	if d.HasChange("labels") {
-		updatePaths = append(updatePaths, "labels")
-	}
-
-	if len(updatePaths) != 0 {
-		req := triggers.UpdateTriggerRequest{
-			TriggerId:   d.Id(),
-			Name:        d.Get("name").(string),
-			Description: d.Get("description").(string),
-			Labels:      labels,
-			UpdateMask:  &field_mask.FieldMask{Paths: updatePaths},
-		}
-
-		op, err := config.sdk.Serverless().Triggers().Trigger().Update(ctx, &req)
-		err = waitOperation(ctx, config, op, err)
-		if err != nil {
-			return fmt.Errorf("Error while requesting API to update Yandex Cloud Functions Trigger: %s", err)
-		}
-
+	op, err := config.sdk.Serverless().Triggers().Trigger().Update(ctx, &req)
+	err = waitOperation(ctx, config, op, err)
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update Yandex Cloud Functions Trigger: %s", err)
 	}
 
 	d.Partial(false)

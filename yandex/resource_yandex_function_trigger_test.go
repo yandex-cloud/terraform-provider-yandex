@@ -1,9 +1,12 @@
 package yandex
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"testing"
+	"text/template"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
@@ -73,7 +76,7 @@ func TestAccYandexFunctionTrigger_basic(t *testing.T) {
 		CheckDestroy: testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, labelKey, labelValue),
+				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, "* * * * ? *", labelKey, labelValue),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexFunctionTriggerExists(triggerResource, &trigger),
 					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
@@ -127,15 +130,18 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 	t.Parallel()
 
 	var trigger triggers.Trigger
+	var triggerUpdated triggers.Trigger
 	triggerName := acctest.RandomWithPrefix("tf-trigger")
 	triggerDesc := acctest.RandomWithPrefix("tf-trigger-desc")
 	labelKey := acctest.RandomWithPrefix("tf-trigger-label")
 	labelValue := acctest.RandomWithPrefix("tf-trigger-label-value")
+	const cronExpression = "* * * * ? *"
 
 	triggerNameUpdated := acctest.RandomWithPrefix("tf-trigger")
 	triggerDescUpdated := acctest.RandomWithPrefix("tf-trigger-desc")
 	labelKeyUpdated := acctest.RandomWithPrefix("tf-trigger-label")
 	labelValueUpdated := acctest.RandomWithPrefix("tf-trigger-label-value")
+	const cronExpressionUpdated = "0 * ? * * *"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -143,7 +149,7 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 		CheckDestroy: testYandexFunctionTriggerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, labelKey, labelValue),
+				Config: testYandexFunctionTriggerBasic(triggerName, triggerDesc, cronExpression, labelKey, labelValue),
 				Check: resource.ComposeTestCheckFunc(
 					testYandexFunctionTriggerExists(triggerResource, &trigger),
 					resource.TestCheckResourceAttr(triggerResource, "name", triggerName),
@@ -156,12 +162,21 @@ func TestAccYandexFunctionTrigger_update(t *testing.T) {
 			},
 			functionTriggerImportTestStep(),
 			{
-				Config: testYandexFunctionTriggerBasic(triggerNameUpdated, triggerDescUpdated, labelKeyUpdated, labelValueUpdated),
+				Config: testYandexFunctionTriggerBasic(triggerNameUpdated, triggerDescUpdated, cronExpressionUpdated, labelKeyUpdated, labelValueUpdated),
 				Check: resource.ComposeTestCheckFunc(
-					testYandexFunctionTriggerExists(triggerResource, &trigger),
+					testYandexFunctionTriggerExists(triggerResource, &triggerUpdated),
+					resource.TestCheckResourceAttrWith(triggerResource, "id", func(t *triggers.Trigger) resource.CheckResourceAttrWithFunc {
+						return func(id string) error {
+							if id == t.Id {
+								return nil
+							}
+							return errors.New("invalid trigger id")
+						}
+					}(&trigger)),
 					resource.TestCheckResourceAttr(triggerResource, "name", triggerNameUpdated),
 					resource.TestCheckResourceAttr(triggerResource, "description", triggerDescUpdated),
-					testYandexFunctionTriggerContainsLabel(&trigger, labelKeyUpdated, labelValueUpdated),
+					resource.TestCheckResourceAttr(triggerResource, "timer.0.cron_expression", cronExpressionUpdated),
+					testYandexFunctionTriggerContainsLabel(&triggerUpdated, labelKeyUpdated, labelValueUpdated),
 					testAccCheckCreatedAtAttr(triggerResource),
 				),
 			},
@@ -465,21 +480,21 @@ func testYandexFunctionTriggerContainsLabel(trigger *triggers.Trigger, key strin
 	}
 }
 
-func testYandexFunctionTriggerBasic(name string, desc string, labelKey string, labelValue string) string {
-	return fmt.Sprintf(`
+func testYandexFunctionTriggerBasic(name, desc, cronExpression, labelKey, labelValue string) string {
+	tmpl := template.Must(template.New("tf").Parse(`
 resource "yandex_iam_service_account" "test-account" {
-  name = "%s-acc"
+  name = "{{.name}}-acc"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "test_account" {
-  folder_id   = "%s"
+  folder_id   = "{{.folder_id}}"
   member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
   role        = "editor"
   sleep_after = 30
 }
 
 resource "yandex_function" "tf-test" {
-  name       = "%s-func"
+  name       = "{{.name}}-func"
   user_hash  = "user_hash"
   runtime    = "python37"
   entrypoint = "main"
@@ -492,22 +507,31 @@ resource "yandex_function" "tf-test" {
 }
 
 resource "yandex_function_trigger" "test-trigger" {
-  name        = "%s"
-  description = "%s"
+  name        = "{{.name}}"
+  description = "{{.description}}"
   labels = {
-    %s          = "%s"
+    {{.label_key}}          = "{{.label_value}}"
     empty-label = ""
   }
   timer {
-    cron_expression = "* * * * ? *"
+    cron_expression = "{{.cron_expression}}"
     payload = "payload-value"
   }
   function {
     id                 = yandex_function.tf-test.id
     service_account_id = yandex_iam_service_account.test-account.id
   }
-}
-	`, name, getExampleFolderID(), name, name, desc, labelKey, labelValue)
+}`))
+	buf := &bytes.Buffer{}
+	_ = tmpl.Execute(buf, map[string]interface{}{
+		"folder_id":       getExampleFolderID(),
+		"name":            name,
+		"description":     desc,
+		"cron_expression": cronExpression,
+		"label_key":       labelKey,
+		"label_value":     labelValue,
+	})
+	return buf.String()
 }
 
 func testYandexFunctionTriggerInvokeContainer(name string, desc string, labelKey string, labelValue string) string {

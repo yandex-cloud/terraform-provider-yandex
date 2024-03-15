@@ -3,6 +3,9 @@ ENHANCEMENTS:
 * **New Resource:** `yandex_audit_trails_trail`
 * **New Data Source:** `yandex_audit_trails_trail`
 
+FEATURES:
+* serverless: complete update support for triggers
+
 ## 0.112.0 (March 12, 2024)
 BUG FIXES:
 * open_search: fix nil pointer panic during the process of the yandex_mdb_opensearch_cluster resourse deployment
