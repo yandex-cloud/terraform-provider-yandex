@@ -82,7 +82,7 @@ The following arguments are supported:
 
 * `platform_id` - (Optional) The type of virtual machine to create. The default is 'standard-v1'.
 
-* `secondary_disk` - (Optional) A list of disks to attach to the instance. The structure is documented below.
+* `secondary_disk` - (Optional) A set of disks to attach to the instance. The structure is documented below.
     **Note**: The [`allow_stopping_for_update`](#allow_stopping_for_update) property must be set to true in order to update this structure.
 
 * `scheduling_policy` - (Optional) Scheduling policy configuration. The structure is documented below.

@@ -52,7 +52,7 @@ The following arguments are supported:
 * `network_interface` - The networks attached to the instance. Structure is documented below.
 * `network_interface.0.ip_address` - An internal IP address of the instance, either manually or dynamically assigned.
 * `network_interface.0.nat_ip_address` - An assigned external IP address if the instance has NAT enabled.
-* `secondary_disk` - List of secondary disks attached to the instance. Structure is documented below.
+* `secondary_disk` - Set of secondary disks attached to the instance. Structure is documented below.
 * `scheduling_policy` - Scheduling policy configuration. The structure is documented below.
 * `service_account_id` - ID of the service account authorized for this instance.
 * `created_at` - Instance creation timestamp.

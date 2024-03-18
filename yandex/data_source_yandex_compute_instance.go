@@ -277,7 +277,7 @@ func dataSourceYandexComputeInstance() *schema.Resource {
 				},
 			},
 			"secondary_disk": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

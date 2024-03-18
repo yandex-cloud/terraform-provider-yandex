@@ -164,6 +164,24 @@ func flattenInstanceSecondaryDisks(instance *compute.Instance) ([]map[string]int
 	return secondaryDisks, nil
 }
 
+func hashInstanceSecondaryDisks(v interface{}) int {
+	var buf bytes.Buffer
+
+	disk := v.(map[string]interface{})
+	if v, ok := disk["disk_id"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := disk["mode"]; ok {
+		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
+	}
+	if v, ok := disk["auto_delete"]; ok {
+		buf.WriteString(fmt.Sprintf("%v-", v.(bool)))
+	}
+
+	return hashcode.String(buf.String())
+
+}
+
 func flattenInstanceNetworkInterfaces(instance *compute.Instance) ([]map[string]interface{}, string, string, error) {
 	nics := make([]map[string]interface{}, len(instance.NetworkInterfaces))
 	var externalIP, internalIP string
@@ -410,17 +428,17 @@ func expandBootDiskSpec(d *schema.ResourceData, config *Config) (*compute.Attach
 }
 
 func expandInstanceSecondaryDiskSpecs(d *schema.ResourceData) ([]*compute.AttachedDiskSpec, error) {
-	secondaryDisksCount := d.Get("secondary_disk.#").(int)
-	ads := make([]*compute.AttachedDiskSpec, secondaryDisksCount)
+	ads := make([]*compute.AttachedDiskSpec, 0)
 
-	for i := 0; i < secondaryDisksCount; i++ {
-		diskConfig := d.Get(fmt.Sprintf("secondary_disk.%d", i)).(map[string]interface{})
+	secondaryDisks := d.Get("secondary_disk").(*schema.Set).List()
+	for _, disk := range secondaryDisks {
+		diskConfig := disk.(map[string]interface{})
 
-		disk, err := expandSecondaryDiskSpec(diskConfig)
+		diskSpec, err := expandSecondaryDiskSpec(diskConfig)
 		if err != nil {
 			return nil, err
 		}
-		ads[i] = disk
+		ads = append(ads, diskSpec)
 	}
 	return ads, nil
 }

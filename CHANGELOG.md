@@ -3,6 +3,7 @@ ENHANCEMENTS:
 * **New Resource:** `yandex_audit_trails_trail`
 * **New Data Source:** `yandex_audit_trails_trail`
 * loadtesting: added `labels` parameter to `yandex_loadtesting_agent` resource.
+* compute: change `secondary_disk` attribute type from List to Set in `instance` resource.
 
 FEATURES:
 * serverless: complete update support for triggers

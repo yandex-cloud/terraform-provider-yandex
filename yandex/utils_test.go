@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/hashicorp/go-cty/cty"
-	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"reflect"
 	"regexp"
 	"sort"
@@ -14,15 +12,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/vault/helper/pgpkeys"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 )
 
 func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, rawInitialState map[string]interface{},
@@ -649,6 +649,173 @@ func TestParseDuration(t *testing.T) {
 	r, err := parseDuration(i.(string))
 	require.NoError(t, err)
 	require.Nil(t, r)
+}
+
+func Test_diskSpecChanged(t *testing.T) {
+	tests := []struct {
+		name     string
+		currDisk *compute.AttachedDisk
+		newSpec  *compute.AttachedDiskSpec
+		want     bool
+	}{
+		{
+			name:     "empty",
+			currDisk: &compute.AttachedDisk{},
+			newSpec:  &compute.AttachedDiskSpec{},
+			want:     false,
+		},
+		{
+			name: "unchanged",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name",
+				Mode:       compute.AttachedDiskSpec_READ_WRITE,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: false,
+		},
+		{
+			name: "different device name",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name1",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name2",
+				Mode:       compute.AttachedDiskSpec_READ_WRITE,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: true,
+		},
+		{
+			name: "empty new device name",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name1",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "",
+				Mode:       compute.AttachedDiskSpec_READ_WRITE,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: true,
+		},
+		{
+			name: "empty new device name not changed",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "disk-id",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "",
+				Mode:       compute.AttachedDiskSpec_READ_WRITE,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: false,
+		},
+		{
+			name: "different mode",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name",
+				Mode:       compute.AttachedDiskSpec_READ_ONLY,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: true,
+		},
+		{
+			name: "empty mode unchanged",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name",
+				Mode:       compute.AttachedDiskSpec_MODE_UNSPECIFIED,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: false,
+		},
+		{
+			name: "empty mode changed",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_ONLY,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name",
+				Mode:       compute.AttachedDiskSpec_MODE_UNSPECIFIED,
+				AutoDelete: true,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: true,
+		},
+		{
+			name: "different auto delete",
+			currDisk: &compute.AttachedDisk{
+				DeviceName: "device-name",
+				DiskId:     "disk-id",
+				Mode:       compute.AttachedDisk_READ_WRITE,
+				AutoDelete: true,
+			},
+			newSpec: &compute.AttachedDiskSpec{
+				DeviceName: "device-name",
+				Mode:       compute.AttachedDiskSpec_READ_WRITE,
+				AutoDelete: false,
+				Disk: &compute.AttachedDiskSpec_DiskId{
+					DiskId: "disk-id",
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := diskSpecChanged(tt.currDisk, tt.newSpec); got != tt.want {
+				t.Errorf("diskSpecChanged() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func TestEveryOf(t *testing.T) {

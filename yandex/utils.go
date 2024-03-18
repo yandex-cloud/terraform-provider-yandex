@@ -518,6 +518,18 @@ func (action instanceAction) String() string {
 	}
 }
 
+func diskSpecChanged(currDisk *compute.AttachedDisk, newSpec *compute.AttachedDiskSpec) bool {
+	if currDisk == nil || newSpec == nil {
+		return false
+	}
+	return !((int32(currDisk.Mode) == int32(newSpec.Mode) ||
+		currDisk.Mode == compute.AttachedDisk_READ_WRITE && newSpec.Mode == compute.AttachedDiskSpec_MODE_UNSPECIFIED) &&
+		(currDisk.DeviceName == newSpec.DeviceName ||
+			currDisk.DeviceName == currDisk.DiskId && newSpec.DeviceName == "") &&
+		currDisk.AutoDelete == newSpec.AutoDelete &&
+		currDisk.DiskId == newSpec.GetDiskId())
+}
+
 func parseDuration(s string) (*durationpb.Duration, error) {
 	if s == "" {
 		return nil, nil
