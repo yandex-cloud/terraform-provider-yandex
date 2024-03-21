@@ -290,6 +290,51 @@ func dataSourceYandexMDBGreenplumCluster() *schema.Resource {
 					},
 				},
 			},
+			"pxf_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"upload_timeout": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"max_threads": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"pool_allow_core_thread_timeout": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"pool_core_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"pool_queue_capacity": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"pool_max_size": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"xmx": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"xms": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }

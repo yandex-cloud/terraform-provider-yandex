@@ -154,6 +154,42 @@ func testAccDataSourceMDBGreenplumClusterAttributesCheck(datasourceName string, 
 				"cloud_storage.0.enable",
 				"cloud_storage.0.enable",
 			},
+			{
+				"pxf_config.0.connection_timeout",
+				"pxf_config.0.connection_timeout",
+			},
+			{
+				"pxf_config.0.upload_timeout",
+				"pxf_config.0.upload_timeout",
+			},
+			{
+				"pxf_config.0.max_threads",
+				"pxf_config.0.max_threads",
+			},
+			{
+				"pxf_config.0.pool_allow_core_thread_timeout",
+				"pxf_config.0.pool_allow_core_thread_timeout",
+			},
+			{
+				"pxf_config.0.pool_core_size",
+				"pxf_config.0.pool_core_size",
+			},
+			{
+				"pxf_config.0.pool_queue_capacity",
+				"pxf_config.0.pool_queue_capacity",
+			},
+			{
+				"pxf_config.0.pool_max_size",
+				"pxf_config.0.pool_max_size",
+			},
+			{
+				"pxf_config.0.xmx",
+				"pxf_config.0.xmx",
+			},
+			{
+				"pxf_config.0.xms",
+				"pxf_config.0.xms",
+			},
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
