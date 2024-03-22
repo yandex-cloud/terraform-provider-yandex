@@ -11,6 +11,7 @@ ENHANCEMENTS:
 * loadtesting: added `labels` parameter to `yandex_loadtesting_agent` resource.
 * compute: change `secondary_disk` attribute type from List to Set in `instance` resource.
 * greenplum: fixed `pxf_config` fetching in yandex_mdb_greenplum_cluster datasource.
+* vpc: allow to change cidrs in subnet (v4_cidr_blocks)
 
 ## 0.112.0 (March 12, 2024)
 BUG FIXES:

@@ -42,7 +42,6 @@ func resourceYandexVPCSubnet() *schema.Resource {
 			"v4_cidr_blocks": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type:         schema.TypeString,
 					ValidateFunc: validateCidrBlocks,
@@ -280,6 +279,20 @@ func resourceYandexVPCSubnetUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 		req.DhcpOptions = dhcpOptions
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "dhcp_options")
+	}
+
+	if d.HasChange("v4_cidr_blocks") {
+		rangesV4 := []string{}
+
+		if v, ok := d.GetOk("v4_cidr_blocks"); ok {
+			vS := v.([]interface{})
+			for _, cidr := range vS {
+				rangesV4 = append(rangesV4, cidr.(string))
+			}
+		}
+
+		req.V4CidrBlocks = rangesV4
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "v4_cidr_blocks")
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))

@@ -206,6 +206,7 @@ func TestAccVPCSubnet_update(t *testing.T) {
 					resource.TestCheckResourceAttrPtr("yandex_vpc_subnet.subnet-b", "network_id", &network.Id),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-b", "name", updatedSubnet2Name),
 					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-b", "v4_cidr_blocks.0", "10.101.0.0/16"),
+					resource.TestCheckResourceAttr("yandex_vpc_subnet.subnet-b", "v4_cidr_blocks.1", "10.103.0.0/16"),
 					testAccCheckVPCSubnetContainsLabel(&subnet2, "empty-label", "oh-look-theres-a-label-now"),
 					testAccCheckVPCSubnetContainsLabel(&subnet2, "new-field", "only-shows-up-when-updated"),
 				),
@@ -458,7 +459,7 @@ resource "yandex_vpc_subnet" "subnet-b" {
   description    = "description with update for subnet-b"
   zone           = "ru-central1-b"
   network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.101.0.0/16"]
+  v4_cidr_blocks = ["10.101.0.0/16", "10.103.0.0/16"]
 
   labels = {
     empty-label = "oh-look-theres-a-label-now"
