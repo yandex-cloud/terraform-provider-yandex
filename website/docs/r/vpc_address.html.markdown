@@ -68,6 +68,18 @@ The `external_ipv4_address` block supports:
 ~> **NOTE:** Either one `ddos_protection_provider` or `outgoing_smtp_capability` arguments can be specified.
 ~> **NOTE:** Change any argument in `external_ipv4_address` will cause an address recreate
 
+---
+
+* `dns_record` - (Optional) DNS record specification of address
+---
+
+The `dns_record` block supports:
+
+* `fqdn` - (Required) FQDN for record to address
+* `dns_zone_id` - (Optional) DNS zone id to create record at. When not set, private zone used.
+* `ttl` - (Optional) TTL of DNS record
+* `ptr` - (Optional) If PTR record is needed
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

@@ -27,6 +27,10 @@ resource "yandex_vpc_address" "addr1" {
     ddos_protection_provider = "qrator"
   }
   deletion_protection = true
+
+  dns_record {
+     fqdn     = "some.fqdn."
+  }
 }
 `, name)
 }
@@ -43,6 +47,11 @@ resource "yandex_vpc_address" "addr1" {
 
   external_ipv4_address {
     zone_id                  = "ru-central1-c"
+  }
+
+  dns_record {
+     fqdn     = "other.fqdn."
+     ptr      = true
   }
 }
 `, name)
@@ -99,6 +108,9 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					testAccCheckVPCAddressContainsLabel(&address, "tf-label", "tf-label-value"),
 					testAccCheckVPCAddressContainsLabel(&address, "empty-label", ""),
 					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.fqdn", "some.fqdn"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.ptr", "true"),
 				),
 			},
 			{
@@ -119,6 +131,8 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					testAccCheckVPCAddressContainsLabelNotFound(&address, "empty-label"),
 					testAccCheckVPCAddressContainsLabel(&address, "new-label", "new"),
 					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "1"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.fqdn", "other.fqdn"),
 				),
 			},
 			{
@@ -132,6 +146,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 						"yandex_vpc_address.addr1", "external_ipv4_address.0.ddos_protection_provider", "qrator",
 					),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "deletion_protection", "false"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "0"),
 				),
 			},
 			{

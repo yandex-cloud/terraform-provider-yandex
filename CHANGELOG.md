@@ -12,6 +12,7 @@ ENHANCEMENTS:
 * compute: change `secondary_disk` attribute type from List to Set in `instance` resource.
 * greenplum: fixed `pxf_config` fetching in yandex_mdb_greenplum_cluster datasource.
 * vpc: allow to change cidrs in subnet (v4_cidr_blocks)
+* vpc: add `dns_record` attribute in `yandex_vpc_address` resource and data source
 
 ## 0.112.0 (March 12, 2024)
 BUG FIXES:

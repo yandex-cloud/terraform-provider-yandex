@@ -1695,6 +1695,21 @@ func flattenSecurityGroupRulesSpec(sg []*vpc.SecurityGroupRule) (*schema.Set, *s
 	return ingress, egress
 }
 
+func flattenVpcAddressDnsRecords(specs []*vpc.DnsRecord) []map[string]interface{} {
+	res := make([]map[string]interface{}, len(specs))
+
+	for i, spec := range specs {
+		res[i] = map[string]interface{}{
+			"fqdn":        spec.Fqdn,
+			"dns_zone_id": spec.DnsZoneId,
+			"ttl":         int(spec.Ttl),
+			"ptr":         spec.Ptr,
+		}
+	}
+
+	return res
+}
+
 func flattenExternalIpV4AddressSpec(address *vpc.ExternalIpv4Address) []interface{} {
 	if address == nil {
 		return nil
@@ -1741,6 +1756,36 @@ func expandAddressRequirements(addrDesc map[string]interface{}) (*vpc.AddressReq
 	}
 
 	return &requirements, set
+}
+
+func expandVpcAddressDnsRecords(d *schema.ResourceData) ([]*vpc.DnsRecordSpec, error) {
+	var (
+		v  interface{}
+		ok bool
+	)
+
+	if v, ok = d.GetOk("dns_record"); !ok {
+		return nil, nil
+	}
+
+	specs := v.([]interface{})
+	recs := make([]*vpc.DnsRecordSpec, len(specs))
+
+	for i, raw := range specs {
+		d := raw.(map[string]interface{})
+		r := &vpc.DnsRecordSpec{Fqdn: d["fqdn"].(string)}
+		if s, ok := d["dns_zone_id"]; ok {
+			r.DnsZoneId = s.(string)
+		}
+		if s, ok := d["ttl"]; ok {
+			r.Ttl = int64(s.(int))
+		}
+		if s, ok := d["ptr"]; ok {
+			r.Ptr = s.(bool)
+		}
+		recs[i] = r
+	}
+	return recs, nil
 }
 
 func expandExternalIpv4Address(d *schema.ResourceData) (*vpc.ExternalIpv4AddressSpec, error) {

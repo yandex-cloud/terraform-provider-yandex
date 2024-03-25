@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,10 +23,10 @@ func handleAddressNotFoundError(err error, d *schema.ResourceData, id string) er
 
 func resourceYandexVPCAddress() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceYandexVPCAddressRead,
-		Create: resourceYandexVPCAddressCreate,
-		Update: resourceYandexVPCAddressUpdate,
-		Delete: resourceYandexVPCAddressDelete,
+		Read:          resourceYandexVPCAddressRead,
+		Create:        resourceYandexVPCAddressCreate,
+		UpdateContext: resourceYandexVPCAddressUpdateContext,
+		Delete:        resourceYandexVPCAddressDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -111,6 +112,30 @@ func resourceYandexVPCAddress() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"dns_record": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"dns_zone_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ttl": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"ptr": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -155,6 +180,12 @@ func yandexVPCAddressRead(d *schema.ResourceData, meta interface{}, id string) e
 	if err := d.Set("reserved", address.GetReserved()); err != nil {
 		return err
 	}
+
+	dnsRecords := flattenVpcAddressDnsRecords(address.DnsRecords)
+	if err := d.Set("dns_record", dnsRecords); err != nil {
+		return err
+	}
+
 	return d.Set("used", address.GetUsed())
 }
 
@@ -180,6 +211,11 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 		return addressError("expanding external ipv4 address while creating address: %s", err)
 	}
 
+	dnsSpecs, err := expandVpcAddressDnsRecords(d)
+	if err != nil {
+		return addressError("expanding dns record specs while creating address %s", err)
+	}
+
 	req := vpc.CreateAddressRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
@@ -190,6 +226,7 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 			ExternalIpv4AddressSpec: spec,
 		},
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		DnsRecordSpecs:     dnsSpecs,
 	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
@@ -224,7 +261,7 @@ func resourceYandexVPCAddressCreate(d *schema.ResourceData, meta interface{}) er
 	return resourceYandexVPCAddressRead(d, meta)
 }
 
-func resourceYandexVPCAddressUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexVPCAddressUpdateContext(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
 	d.Partial(true)
@@ -238,7 +275,7 @@ func resourceYandexVPCAddressUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange(addrLabelsPropName) {
 		labelsProp, err := expandLabels(d.Get(addrLabelsPropName))
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		req.Labels = labelsProp
@@ -263,22 +300,47 @@ func resourceYandexVPCAddressUpdate(d *schema.ResourceData, meta interface{}) er
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, addrDeletionProtectionPropName)
 	}
 
-	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	const addrDnsRecords = "dns_record"
+	if d.HasChange(addrDnsRecords) {
+		specs, err := expandVpcAddressDnsRecords(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		req.DnsRecordSpecs = specs
+		// differs in ycp and tf
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "dns_record_specs")
+	}
+
+	var diags diag.Diagnostics
+	if d.HasChange("reserved") && !req.Reserved && len(req.DnsRecordSpecs) > 0 {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "DNS records were copied to the network interface",
+			Detail: "You changed the type of address to ephemeral. This copies DNS records to the network interface. " +
+				"Don't forget to update it in Terraform specification!",
+		})
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
 	op, err := config.sdk.WrapOperation(config.sdk.VPC().Address().Update(ctx, req))
 	if err != nil {
-		return addressError("while requesting API to update Address %q: %s", d.Id(), err)
+		return diag.FromErr(addressError("while requesting API to update Address %q: %s", d.Id(), err))
 	}
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return addressError("updating Address %q: %s", d.Id(), err)
+		return diag.FromErr(addressError("updating Address %q: %s", d.Id(), err))
 	}
 
 	d.Partial(false)
 
-	return resourceYandexVPCAddressRead(d, meta)
+	err = resourceYandexVPCAddressRead(d, meta)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diags
 }
 
 func resourceYandexVPCAddressDelete(d *schema.ResourceData, meta interface{}) error {
