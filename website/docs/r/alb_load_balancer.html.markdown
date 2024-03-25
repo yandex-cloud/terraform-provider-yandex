@@ -46,7 +46,7 @@ resource "yandex_alb_load_balancer" "test-balancer" {
   
   log_options {
     discard_rule {
-      http_code_intervals = ["2XX"]
+      http_code_intervals = ["HTTP_2XX"]
       discard_percent = 75
     }
   }
