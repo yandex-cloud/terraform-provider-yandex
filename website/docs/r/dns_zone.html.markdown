@@ -26,6 +26,8 @@ resource "yandex_dns_zone" "zone1" {
   zone             = "example.com."
   public           = false
   private_networks = [yandex_vpc_network.foo.id]
+  
+  deletion_protection = true
 }
 
 resource "yandex_dns_recordset" "rs1" {
@@ -48,6 +50,7 @@ The following arguments are supported:
 * `labels` - (Optional) A set of key/value label pairs to assign to the DNS zone.
 * `public` - (Optional) The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.
 * `private_networks` - (Optional) For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
+* `deletion_protection` - (Optional) Flag that protects the dns zone from accidental deletion.
 
 ## Attributes Reference
 

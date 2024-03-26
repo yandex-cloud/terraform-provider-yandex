@@ -188,6 +188,41 @@ func TestAccDNSZoneVisibility_update(t *testing.T) {
 	})
 }
 
+func TestAccDNSZone_deletionProtection(t *testing.T) {
+	t.Parallel()
+
+	var zone dns.DnsZone
+	zoneName := acctest.RandomWithPrefix("tf-dns-zone")
+	fqdn := acctest.RandomWithPrefix("tf-test") + ".dnstest.test."
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDnsZoneDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDNSZoneDeletionProtectionOn(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					resource.TestCheckResourceAttr("yandex_dns_zone.zone1", "deletion_protection", "true"),
+				),
+			},
+			{
+				Config: testAccDNSZoneDeletionProtectionOff(zoneName, fqdn),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSZoneExists("yandex_dns_zone.zone1", &zone),
+					resource.TestCheckResourceAttr("yandex_dns_zone.zone1", "deletion_protection", "false"),
+				),
+			},
+			{
+				ResourceName:      "yandex_dns_zone.zone1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccCheckDNSZoneExists(name string, zone *dns.DnsZone) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -306,6 +341,42 @@ resource "yandex_dns_zone" "zone1" {
   zone             = "%s"
   public           = true
   private_networks = [yandex_vpc_network.net1.id, yandex_vpc_network.net2.id]
+}
+`, name, fqdn)
+}
+
+func testAccDNSZoneDeletionProtectionOn(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  name        = "%s"
+  description = "desc"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  zone             = "%s"
+  public           = true
+
+  deletion_protection = true
+}
+`, name, fqdn)
+}
+
+func testAccDNSZoneDeletionProtectionOff(name, fqdn string) string {
+	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  name        = "%s"
+  description = "desc"
+
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = ""
+  }
+
+  zone             = "%s"
+  public           = true
 }
 `, name, fqdn)
 }

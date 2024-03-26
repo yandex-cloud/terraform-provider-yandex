@@ -41,3 +41,4 @@ output "zone" {
 * `public` - (Computed) The zone's visibility: public zones are exposed to the Internet, while private zones are visible only to Virtual Private Cloud resources.
 * `private_networks` - (Computed) For privately visible zones, the set of Virtual Private Cloud resources that the zone is visible from.
 * `created_at` - (Computed) The DNS zone creation timestamp.
+* `deletion_protection` - (Computed) Flag that protects the dns zone from accidental deletion.

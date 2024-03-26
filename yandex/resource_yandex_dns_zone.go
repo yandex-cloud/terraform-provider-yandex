@@ -88,6 +88,11 @@ func resourceYandexDnsZone() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -106,11 +111,12 @@ func resourceYandexDnsZoneCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	req := &dns.CreateDnsZoneRequest{
-		FolderId:    folderID,
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
-		Zone:        d.Get("zone").(string),
+		FolderId:           folderID,
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		Zone:               d.Get("zone").(string),
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	if d.Get("public").(bool) {
@@ -150,6 +156,7 @@ func resourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("folder_id", dnsZone.FolderId)
 	d.Set("zone", dnsZone.Zone)
 	d.Set("description", dnsZone.Description)
+	d.Set("deletion_protection", dnsZone.DeletionProtection)
 
 	d.Set("public", dnsZone.PublicVisibility != nil)
 
@@ -223,10 +230,11 @@ func prepareDnsZoneUpdateRequest(d *schema.ResourceData) (*dns.UpdateDnsZoneRequ
 	}
 
 	req := &dns.UpdateDnsZoneRequest{
-		DnsZoneId:   d.Id(),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Labels:      labels,
+		DnsZoneId:          d.Id(),
+		Name:               d.Get("name").(string),
+		Description:        d.Get("description").(string),
+		Labels:             labels,
+		DeletionProtection: d.Get("deletion_protection").(bool),
 	}
 
 	if d.Get("public").(bool) {

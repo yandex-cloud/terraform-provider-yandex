@@ -74,6 +74,11 @@ func dataSourceYandexDnsZone() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"deletion_protection": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -110,6 +115,7 @@ func dataSourceYandexDnsZoneRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("folder_id", dnsZone.FolderId)
 	d.Set("zone", dnsZone.Zone)
 	d.Set("description", dnsZone.Description)
+	d.Set("deletion_protection", dnsZone.DeletionProtection)
 
 	d.Set("public", dnsZone.PublicVisibility != nil)
 	d.SetId(dnsZone.Id)
