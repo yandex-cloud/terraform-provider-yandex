@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/kms/v1"
+	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -78,7 +79,7 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 			},
 			"symmetric_key_id": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 50),
 			},
 		},
@@ -87,8 +88,23 @@ func dataSourceYandexKMSSymmetricKey() *schema.Resource {
 
 func dataSourceYandexKMSSymmetricKeyRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+
+	err := checkOneOf(data, "symmetric_key_id", "name")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	keyID := data.Get("symmetric_key_id").(string)
+
+	_, keyNameOk := data.GetOk("name")
+	if keyNameOk {
+		keyID, err = resolveObjectID(config.Context(), config, data, sdkresolvers.SymmetricKeyResolver)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	req := &kms.GetSymmetricKeyRequest{
-		KeyId: data.Get("symmetric_key_id").(string),
+		KeyId: keyID,
 	}
 
 	md := new(metadata.MD)

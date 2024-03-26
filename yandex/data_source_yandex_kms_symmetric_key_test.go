@@ -16,6 +16,7 @@ func TestAccDataSourceKMSSymmetricKey_basic(t *testing.T) {
 	keyDesc := "Terraform Test"
 	folderID := getExampleFolderID()
 	basicData := "data.yandex_kms_symmetric_key.basic_key"
+	basicDataByName := "data.yandex_kms_symmetric_key.basic_key_by_name"
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
@@ -25,6 +26,7 @@ func TestAccDataSourceKMSSymmetricKey_basic(t *testing.T) {
 				// Create secret
 				Config: testAccKMSSymmetricKeyResourceAndData(keyName, keyDesc),
 				Check: resource.ComposeTestCheckFunc(
+					// checks for the key obtained by ID
 					testAccDataSourceKmsSymmetricKeyExists(basicData),
 					testAccCheckResourceIDField(basicData, "symmetric_key_id"),
 					resource.TestCheckResourceAttr(basicData, "folder_id", folderID),
@@ -35,6 +37,17 @@ func TestAccDataSourceKMSSymmetricKey_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(basicData, "labels.key1", "value1"),
 					resource.TestCheckResourceAttr(basicData, "labels.key2", "value2"),
 					testAccCheckCreatedAtAttr(basicData),
+					// same checks, now for the key obtained by name
+					testAccDataSourceKmsSymmetricKeyExists(basicDataByName),
+					testAccCheckResourceIDField(basicDataByName, "symmetric_key_id"),
+					resource.TestCheckResourceAttr(basicDataByName, "folder_id", folderID),
+					resource.TestCheckResourceAttr(basicDataByName, "name", keyName),
+					resource.TestCheckResourceAttr(basicDataByName, "description", keyDesc),
+					resource.TestCheckResourceAttr(basicDataByName, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(basicDataByName, "labels.%", "2"),
+					resource.TestCheckResourceAttr(basicDataByName, "labels.key1", "value1"),
+					resource.TestCheckResourceAttr(basicDataByName, "labels.key2", "value2"),
+					testAccCheckCreatedAtAttr(basicDataByName),
 				),
 			},
 		},
@@ -54,6 +67,10 @@ resource "yandex_kms_symmetric_key" "basic_key" {
 
 data "yandex_kms_symmetric_key" "basic_key" {
   symmetric_key_id = yandex_kms_symmetric_key.basic_key.id
+}
+
+data "yandex_kms_symmetric_key" "basic_key_by_name" {
+  name = yandex_kms_symmetric_key.basic_key.name
 }
 `, name, desc)
 }

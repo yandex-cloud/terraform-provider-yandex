@@ -1,6 +1,7 @@
 ## 0.114.0 (Unreleased)
 ENHANCEMENTS:
 * dns: added `deletion_protection` parameter to `yandex_dns_zone` resource and datasource.
+* kms: support for resolving by name in `yandex_kms_symmetric_key` data source
 
 ## 0.113.0 (March 26, 2024)
 FEATURES:
