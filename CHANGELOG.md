@@ -1,4 +1,6 @@
-## 0.113.0 (Unreleased)
+## 0.114.0 (Unreleased)
+
+## 0.113.0 (March 26, 2024)
 FEATURES:
 * **New Resource:** `yandex_audit_trails_trail`
 * **New Data Source:** `yandex_audit_trails_trail`
