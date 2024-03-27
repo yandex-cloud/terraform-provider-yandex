@@ -14,36 +14,36 @@ Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concep
 
 ```hcl
 resource "yandex_audit_trails_trail" "basic_trail" {
-  name = "a-trail"
-  folder_id = "home-folder"
+  name        = "a-trail"
+  folder_id   = "home-folder"
   description = "Some trail description"
-  
+
   labels = {
     key = "value"
   }
-  
+
   service_account_id = "trail-service-account"
-  
+
   logging_destination {
     log_group_id = "some-log-group"
   }
-  
+
   filter {
     path_filter {
       any_filter {
-        resource_id = "home-folder"
+        resource_id   = "home-folder"
         resource_type = "resource-manager.folder"
       }
     }
     event_filters {
       service = "storage"
       categories {
-        plane: "DATA_PLANE"
-        type: "WRITE"
+        plane = "DATA_PLANE"
+        type  = "WRITE"
       }
       path_filter {
         any_filter {
-          resource_id = "home-folder"
+          resource_id   = "home-folder"
           resource_type = "resource-manager.folder"
         }
       }
@@ -51,19 +51,19 @@ resource "yandex_audit_trails_trail" "basic_trail" {
     event_filters {
       service = "dns"
       categories {
-        plane: "DATA_PLANE"
-        type: "READ"
+        plane = "DATA_PLANE"
+        type  = "READ"
       }
       path_filter {
         some_filter {
-          resource_id = "home-folder"
+          resource_id   = "home-folder"
           resource_type = "resource-manager.folder"
           any_filters {
-            resource_id = "vpc-net-id-1"
+            resource_id   = "vpc-net-id-1"
             resource_type = "vpc.network"
           }
           any_filters {
-            resource_id = "vpc-net-id-2"
+            resource_id   = "vpc-net-id-2"
             resource_type = "vpc.network"
           }
         }
