@@ -11,10 +11,16 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 )
 
-func testAccVPCAddressBasic(name string) string {
+func testAccVPCAddressBasic(name string, zone string) string {
 	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  description = "desc"
+  zone        = "%[2]s"
+  public      = true
+}
+
 resource "yandex_vpc_address" "addr1" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "desc"
 
   labels = {
@@ -29,16 +35,23 @@ resource "yandex_vpc_address" "addr1" {
   deletion_protection = true
 
   dns_record {
-     fqdn     = "some.fqdn."
+     dns_zone_id = yandex_dns_zone.zone1.id
+     fqdn     = "some.fqdn"
   }
 }
-`, name)
+`, name, zone)
 }
 
-func testAccVPCAddressUpdate(name string) string {
+func testAccVPCAddressUpdate(name string, zone string) string {
 	return fmt.Sprintf(`
+resource "yandex_dns_zone" "zone1" {
+  description = "desc"
+  zone        = "%[2]s"
+  public      = true
+}
+
 resource "yandex_vpc_address" "addr1" {
-  name        = "%s"
+  name        = "%[1]s"
   description = "new desc"
 
   labels = {
@@ -50,11 +63,12 @@ resource "yandex_vpc_address" "addr1" {
   }
 
   dns_record {
-     fqdn     = "other.fqdn."
+     dns_zone_id = yandex_dns_zone.zone1.id
+     fqdn     = "other.fqdn"
      ptr      = true
   }
 }
-`, name)
+`, name, zone)
 }
 
 func testAccVPCAddressRecreate(name string) string {
@@ -81,6 +95,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 
 	var address vpc.Address
 	addressName := acctest.RandomWithPrefix("tf-address")
+	dnsZone := acctest.RandomWithPrefix("zone") + ".dnstest.test."
 	updatedAddressName := acctest.RandomWithPrefix("tf-address")
 
 	resource.Test(t, resource.TestCase{
@@ -89,7 +104,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 		CheckDestroy: testAccCheckVPCAddressDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVPCAddressBasic(addressName),
+				Config: testAccVPCAddressBasic(addressName, dnsZone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCAddressExists("yandex_vpc_address.addr1", &address),
 					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "folder_id"),
@@ -110,11 +125,10 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.fqdn", "some.fqdn"),
-					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.ptr", "true"),
 				),
 			},
 			{
-				Config: testAccVPCAddressUpdate(updatedAddressName),
+				Config: testAccVPCAddressUpdate(updatedAddressName, dnsZone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCAddressExists("yandex_vpc_address.addr1", &address),
 					resource.TestCheckResourceAttrSet("yandex_vpc_address.addr1", "folder_id"),
@@ -133,6 +147,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					testAccCheckCreatedAtAttr("yandex_vpc_address.addr1"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.#", "1"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.fqdn", "other.fqdn"),
+					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "dns_record.0.ptr", "true"),
 				),
 			},
 			{

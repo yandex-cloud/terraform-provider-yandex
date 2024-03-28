@@ -76,7 +76,7 @@ The `external_ipv4_address` block supports:
 The `dns_record` block supports:
 
 * `fqdn` - (Required) FQDN for record to address
-* `dns_zone_id` - (Optional) DNS zone id to create record at. When not set, private zone used.
+* `dns_zone_id` - (Required) DNS zone id to create record at.
 * `ttl` - (Optional) TTL of DNS record
 * `ptr` - (Optional) If PTR record is needed
 

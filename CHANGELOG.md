@@ -5,6 +5,7 @@ ENHANCEMENTS:
 
 BUG FIXES:
 * yandex_ydb_table_changefeed: change `supported_codecs` type.
+* vpc: fixed parameters of `dns_record` in `yandex_vpc_update` resource 
 
 ## 0.113.0 (March 26, 2024)
 FEATURES:

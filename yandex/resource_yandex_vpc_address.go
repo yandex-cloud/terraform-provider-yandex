@@ -114,24 +114,24 @@ func resourceYandexVPCAddress() *schema.Resource {
 			},
 			"dns_record": {
 				Type:     schema.TypeList,
-				Computed: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"dns_zone_id": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Required: true,
 						},
 						"fqdn": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Required: true,
 						},
 						"ttl": {
 							Type:     schema.TypeInt,
-							Computed: true,
+							Optional: true,
 						},
 						"ptr": {
 							Type:     schema.TypeBool,
-							Computed: true,
+							Optional: true,
 						},
 					},
 				},
