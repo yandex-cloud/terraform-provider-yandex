@@ -6,7 +6,7 @@ description: |-
   Get information about a Yandex Container Registry IP Permission.
 ---
 
-# yandex\_container\registry\_ip\_permission
+# yandex\_container\_registry\_ip\_permission
 
 Get information about a Yandex Container Registry IP Permission. For more information, see
 [the official documentation](https://cloud.yandex.ru/docs/container-registry/operations/registry/registry-access)
