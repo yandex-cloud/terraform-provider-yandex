@@ -32,6 +32,9 @@ ENHANCEMENTS:
 BUG FIXES:
 * k8s: fixed type of EtcdClusterSize
 
+FEATURES:
+* compute: support `auto_scale_type` in `scale_policy.auto_scale` in `compute_instance_group` resource and datasource
+
 ## 0.110.0 (March 04, 2024)
 FEATURES:
 * **New Resource:** `yandex_dns_zone_iam_binding`
