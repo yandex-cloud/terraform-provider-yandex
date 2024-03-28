@@ -61,7 +61,7 @@ func sweepAuditTrailsTrailOnce(conf *Config, id string) error {
 }
 
 // Tests for Storage with Any/Some filters trail create/update/import/delete operations
-func TestAccAuditTrailsTrail_storage(t *testing.T) {
+func TestAccResourceAuditTrailsTrail_storage(t *testing.T) {
 	t.Parallel()
 
 	saName := acctest.RandomWithPrefix("tf-acc-trail-storage-sa")
@@ -123,7 +123,7 @@ func cleanBuckets() {
 }
 
 // Tests for Logging trail create/update/import/delete operations
-func TestAccAuditTrailsTrail_logging(t *testing.T) {
+func TestAccResourceAuditTrailsTrail_logging(t *testing.T) {
 	t.Parallel()
 
 	saName := acctest.RandomWithPrefix("tf-acc-trail-logging-sa")
@@ -167,7 +167,7 @@ func TestAccAuditTrailsTrail_logging(t *testing.T) {
 	})
 }
 
-func TestAccAuditTrailsTrail_dataStream(t *testing.T) {
+func TestAccResourceAuditTrailsTrail_dataStream(t *testing.T) {
 	t.Parallel()
 
 	saName := acctest.RandomWithPrefix("tf-acc-trail-yds-sa")
@@ -553,12 +553,13 @@ resource "yandex_resourcemanager_folder_iam_member" "role-5-{{.SaName}}" {
 `
 
 func auditTrailsStorageResourceConfig(bucketName string) string {
-	return templateConfig(storageResourcesTemplate, map[string]interface{}{"BucketName": bucketName})
+	return templateConfig(storageResourcesTemplate, map[string]interface{}{"BucketName": bucketName, "FolderId": getExampleFolderID()})
 }
 
 const storageResourcesTemplate = `
 resource "yandex_storage_bucket" "{{.BucketName}}" {
   bucket = "{{.BucketName}}"
+  folder_id = "{{.FolderId}}"
 }
 `
 
