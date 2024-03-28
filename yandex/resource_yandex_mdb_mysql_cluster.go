@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	yandexMDBMySQLClusterDefaultTimeout = 15 * time.Minute
+	yandexMDBMySQLClusterDefaultTimeout = 30 * time.Minute
 	yandexMDBMySQLClusterUpdateTimeout  = 60 * time.Minute
 )
 

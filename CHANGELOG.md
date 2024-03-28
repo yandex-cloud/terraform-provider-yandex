@@ -11,6 +11,7 @@ FEATURES:
 * **New Resource:** `yandex_audit_trails_trail`
 * **New Data Source:** `yandex_audit_trails_trail`
 * serverless: complete update support for triggers
+* mysql: Increase timeout of create cluster in acc-tests
 
 BUG FIXES:
 * greenplum: fixed `pxf_config` fetching in yandex_mdb_greenplum_cluster datasource.
