@@ -528,14 +528,10 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			Paths: []string{},
 		},
 	}
-	onDone := []func(){}
 	if d.HasChange("name") {
 		req.Name = d.Get("name").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("persistence_mode") {
@@ -547,9 +543,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.PersistenceMode = mode
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "persistence_mode")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("announce_hostnames") {
@@ -557,9 +550,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "announce_hostnames")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("labels") {
@@ -571,18 +561,12 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.Labels = labelsProp
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "labels")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("description") {
 		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("resources") {
@@ -598,13 +582,10 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.ConfigSpec.Resources = res
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.resources")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("config") {
-		conf, _, err := expandRedisConfig(d)
+		conf, ver, err := expandRedisConfig(d)
 		if err != nil {
 			return err
 		}
@@ -623,7 +604,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			"slowlog_max_len",
 			"databases",
 			"maxmemory_percent",
-			"version",
 			"client_output_buffer_limit_normal",
 			"client_output_buffer_limit_pubsub",
 		}
@@ -633,9 +613,11 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 				req.UpdateMask.Paths = append(req.UpdateMask.Paths, fullPath)
 			}
 		}
-		onDone = append(onDone, func() {
+		if d.HasChange("config.0.version") {
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.version")
+			req.ConfigSpec.Version = ver
+		}
 
-		})
 	}
 
 	if d.HasChange("security_group_ids") {
@@ -644,17 +626,12 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.SecurityGroupIds = securityGroupIds
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if d.HasChange("deletion_protection") {
 		req.DeletionProtection = d.Get("deletion_protection").(bool)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "deletion_protection")
-		onDone = append(onDone, func() {
 
-		})
 	}
 
 	if d.HasChange("maintenance_window") {
@@ -665,9 +642,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.MaintenanceWindow = mw
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
-		onDone = append(onDone, func() {
-
-		})
 	}
 
 	if len(req.UpdateMask.Paths) == 0 {
@@ -679,9 +653,6 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	for _, f := range onDone {
-		f()
-	}
 	return nil
 }
 

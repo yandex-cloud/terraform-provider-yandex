@@ -116,7 +116,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	updatedReplicaPriority := 61
 
 	for _, version := range []string{"6.2", "7.0"} {
-
+		updateVersion := "7.0"
+		if version == "7.0" {
+			updateVersion = "7.2"
+		}
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -236,6 +239,19 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
 						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
+					),
+				},
+				mdbRedisClusterImportStep(redisResource),
+				// Upgrade version
+				{
+					Config: testAccMDBRedisClusterConfigAddedHost(redisName, redisDesc2, &tlsEnabled, &announceHostnames, persistenceMode,
+						updateVersion, updatedFlavor, updatedDiskSize, "",
+						[]*bool{&pubIpUnset, &pubIpSet}, []*int{nil, &updatedReplicaPriority}),
+					Check: resource.ComposeTestCheckFunc(
+						testAccCheckMDBRedisClusterExists(redisResource, &r, 2, tlsEnabled, announceHostnames, persistenceMode),
+						testAccCheckMDBRedisClusterHasConfig(&r, "VOLATILE_LFU", 200,
+							"Ex", 6000, 12, 17, updateVersion,
+							normalUpdatedLimits, pubsubUpdatedLimits, 65),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
