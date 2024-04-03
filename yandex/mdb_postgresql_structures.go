@@ -829,7 +829,9 @@ func getPostgreSQLConfigFieldName(version string) string {
 	}
 }
 
-func flattenPGHostsFromHostInfos(orderedHostsInfo []*pgHostInfo, isDataSource bool) []map[string]interface{} {
+func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*pgHostInfo, isDataSource bool) []map[string]interface{} {
+	isNameFieldUsed := checkNameFieldUsage(d)
+	log.Printf("[DEBUG] isNameFieldUsed = %t", isNameFieldUsed)
 	hosts := []map[string]interface{}{}
 	for _, hostInfo := range orderedHostsInfo {
 		m := map[string]interface{}{}
@@ -841,7 +843,7 @@ func flattenPGHostsFromHostInfos(orderedHostsInfo []*pgHostInfo, isDataSource bo
 		m["role"] = hostInfo.role.String()
 		m["priority"] = hostInfo.oldPriority
 		m["replication_source"] = hostInfo.oldReplicationSource
-		if !isDataSource {
+		if !isDataSource && isNameFieldUsed {
 			m["name"] = hostInfo.name
 			m["replication_source_name"] = hostInfo.oldReplicationSourceName
 		}
@@ -849,6 +851,14 @@ func flattenPGHostsFromHostInfos(orderedHostsInfo []*pgHostInfo, isDataSource bo
 	}
 
 	return hosts
+}
+
+func checkNameFieldUsage(d *schema.ResourceData) bool {
+	log.Print("[DEBUG] checkNameFieldUsage")
+	hosts := d.Get("host").([]interface{})
+	host := hosts[0].(map[string]interface{})
+	log.Printf("[DEBUG] host name is '%s'", host["name"])
+	return host["name"] != ""
 }
 
 func flattenPGDatabases(dbs []*postgresql.Database) []map[string]interface{} {

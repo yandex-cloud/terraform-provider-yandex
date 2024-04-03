@@ -426,12 +426,10 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"assign_public_ip": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 			},
 			"fqdn": {
 				Type:     schema.TypeString,
@@ -444,7 +442,6 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"replication_source": {
 				Type:     schema.TypeString,
@@ -453,12 +450,10 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 			"priority": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
 			},
 			"replication_source_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 		},
 	}
@@ -609,7 +604,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	fHosts := flattenPGHostsFromHostInfos(orderedHostInfos, false)
+	fHosts := flattenPGHostsFromHostInfos(d, orderedHostInfos, false)
 	masterHostname := getMasterHostname(orderedHostInfos)
 
 	if err := d.Set("host", fHosts); err != nil {
