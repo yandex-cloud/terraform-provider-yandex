@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'vpc: fixed parameters of `dns_record` in `yandex_vpc_update` resource'
-time: 2024-03-28T18:01:14.619284+03:00

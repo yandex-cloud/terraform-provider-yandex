@@ -1,3 +1,15 @@
+## 0.114.0 (April 3, 2024)
+
+BUG FIXES:
+* yandex_ydb_table_changefeed: change `supported_codecs` type.
+* vpc: fixed parameters of `dns_record` in `yandex_vpc_update` resource
+* redis: fixed `upgrade` version problem
+* postgresql: host.name field changing works
+
+ENHANCEMENTS:
+* dns: added `deletion_protection` parameter to `yandex_dns_zone` resource and datasource.
+* kms: support for resolving by name in `yandex_kms_symmetric_key` data source
+
 ## 0.113.0 (March 26, 2024)
 
 FEATURES:

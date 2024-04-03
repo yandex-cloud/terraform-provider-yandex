@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'dns: added `deletion_protection` parameter to `yandex_dns_zone` resource and
-  datasource.'
-time: 2024-03-28T18:00:18.696679+03:00
