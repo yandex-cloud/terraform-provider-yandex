@@ -398,6 +398,15 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `sharded` - MongoDB Cluster mode enabled/disabled.
 
+## Timeouts
+
+`yandex_audit_trails_trail` provides the following configuration options for
+[timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
+
+- `create` - Default 30 minutes.
+- `update` - Default 60 minutes.
+- `delete` - Default 30 minutes.
+
 ## Import
 
 A cluster can be imported using the `id` of the resource, e.g.

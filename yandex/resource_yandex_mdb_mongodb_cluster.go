@@ -24,6 +24,12 @@ const (
 	ReadModeKey key = iota
 )
 
+const (
+	yandexMDBMongoDBClusterCreateTimeout = 30 * time.Minute
+	yandexMDBMongoDBClusterDeleteTimeout = 60 * time.Minute
+	yandexMDBMongoDBClusterUpdateTimeout = 30 * time.Minute
+)
+
 func resourceYandexMDBMongodbCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceYandexMDBMongodbClusterCreate,
@@ -35,9 +41,9 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create:  schema.DefaultTimeout(30 * time.Minute),
-			Update:  schema.DefaultTimeout(60 * time.Minute),
-			Default: schema.DefaultTimeout(30 * time.Minute),
+			Create: schema.DefaultTimeout(yandexMDBMongoDBClusterCreateTimeout),
+			Update: schema.DefaultTimeout(yandexMDBMongoDBClusterUpdateTimeout),
+			Delete: schema.DefaultTimeout(yandexMDBMongoDBClusterDeleteTimeout),
 		},
 
 		SchemaVersion: 0,
