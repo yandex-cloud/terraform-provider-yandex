@@ -1832,7 +1832,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
 							"MaxConnections": 16,
-							"Compressors":    []string{"\"ZLIB\""},
+							"Compressors":    []string{"\"DISABLED\""},
 						},
 						"SetParameter": map[string]interface{}{
 							"EnableFlowControl": true,
@@ -1868,7 +1868,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
+						"cluster_config.0.mongod.0.net.0.compressors.0", "DISABLED"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.compressors.#", "1"),
 					resource.TestCheckResourceAttr(mongodbResource,

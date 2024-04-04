@@ -472,7 +472,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
 														StateFunc:    stateToUpper,
-														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZLIB", "SNAPPY"}, true),
+														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZLIB", "SNAPPY", "DISABLED"}, true),
 													},
 												},
 											},
@@ -613,7 +613,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
 														StateFunc:    stateToUpper,
-														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZlIB", "SNAPPY"}, true),
+														ValidateFunc: validation.StringInSlice([]string{"ZSTD", "ZlIB", "SNAPPY", "DISABLED"}, true),
 													},
 												},
 											},
