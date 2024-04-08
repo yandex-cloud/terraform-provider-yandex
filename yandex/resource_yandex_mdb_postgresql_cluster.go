@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -587,13 +588,20 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		}
 	}
 
-	hosts, err := retryListPGHosts(ctx, config, d.Id(), 0, 20, func(hosts []*postgresql.Host) bool {
+	// retry with 1, 2, 4, 8, 16, 32, 64, 128 seconds if no succeess
+	hosts, err := retryListPGHosts(ctx, config, d.Id(), 0, 7, func(hosts []*postgresql.Host) bool {
+		masterExists := false
 		for _, host := range hosts {
+			// Check that every host has a role
+			if host.Role == postgresql.Host_ROLE_UNKNOWN {
+				return false
+			}
+			// And one of them is master
 			if host.Role == postgresql.Host_MASTER {
-				return true
+				masterExists = true
 			}
 		}
-		return false
+		return masterExists
 	})
 	if err != nil {
 		return err
@@ -1657,11 +1665,13 @@ func listPGHosts(ctx context.Context, config *Config, id string) ([]*postgresql.
 	pageToken := ""
 
 	for {
-		resp, err := config.sdk.MDB().PostgreSQL().Cluster().ListHosts(ctx, &postgresql.ListClusterHostsRequest{
+		request := &postgresql.ListClusterHostsRequest{
 			ClusterId: id,
 			PageSize:  defaultMDBPageSize,
 			PageToken: pageToken,
-		})
+		}
+		resp, err := config.sdk.MDB().PostgreSQL().Cluster().ListHosts(ctx, request)
+		log.Printf("[DEBUG] Sending PostgreSQL cluster list hosts request: %+v", request)
 		if err != nil {
 			return nil, fmt.Errorf("Error while getting list of hosts for PostgreSQL Cluster '%q': %s", id, err)
 		}
@@ -1678,10 +1688,15 @@ func listPGHosts(ctx context.Context, config *Config, id string) ([]*postgresql.
 }
 
 func retryListPGHosts(ctx context.Context, config *Config, id string, attempt int, maxAttempt int, condition func([]*postgresql.Host) bool) ([]*postgresql.Host, error) {
+	log.Printf("[DEBUG] Try ListPGHosts, attempt: %d", attempt)
 	hosts, err := listPGHosts(ctx, config, id)
 	if condition(hosts) || maxAttempt <= attempt {
-		return hosts, err
+		return hosts, err // We tried to do our best
 	}
+
+	timeout := int(math.Pow(2, float64(attempt)))
+	log.Printf("[DEBUG] Condition failed, waiting %ds before the next attempt", timeout)
+	time.Sleep(time.Second * time.Duration(timeout))
 
 	return retryListPGHosts(ctx, config, id, attempt+1, maxAttempt, condition)
 }
