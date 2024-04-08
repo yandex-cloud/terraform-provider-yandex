@@ -138,5 +138,6 @@ The `network_interface` block supports:
 This resource provides the following configuration options for
 [timeouts](https://www.terraform.io/docs/language/resources/syntax.html#operation-timeouts):
 
-- `create` - Default 30 minutes
-- `delete` - Default 30 minutes
+- `create` - Default 10 minutes
+- `delete` - Default 10 minutes
+- `update` - Default 10 minutes

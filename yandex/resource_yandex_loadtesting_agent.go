@@ -8,6 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	lt "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1"
+	agent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
+
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const yandexLoadtestingDefaultTimeout = 10 * time.Minute
@@ -17,6 +20,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 		Create: resourceYandexLoadtestingAgentCreate,
 		Read:   resourceYandexLoadtestingAgentRead,
 		Delete: resourceYandexLoadtestingAgentDelete,
+		Update: resourceYandexLoadtestingAgentUpdate,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -24,6 +28,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(yandexLoadtestingDefaultTimeout),
 			Delete: schema.DefaultTimeout(yandexLoadtestingDefaultTimeout),
+			Update: schema.DefaultTimeout(yandexLoadtestingDefaultTimeout),
 		},
 
 		SchemaVersion: 0,
@@ -32,13 +37,11 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 
 			"folder_id": {
@@ -58,20 +61,17 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-				ForceNew: true,
 			},
 
 			"compute_instance": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_account_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 
 						"resources": {
@@ -186,6 +186,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 						"network_interface": {
 							Type:     schema.TypeList,
 							Required: true,
+							ForceNew: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"subnet_id": {
@@ -197,30 +198,35 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  true,
+										ForceNew: true,
 									},
 
 									"ip_address": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 
 									"ipv6": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 
 									"ipv6_address": {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 
 									"nat": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
+										ForceNew: true,
 									},
 
 									"index": {
@@ -237,6 +243,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
+										ForceNew: true,
 									},
 
 									"nat_ip_version": {
@@ -250,6 +257,7 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 										Elem:     &schema.Schema{Type: schema.TypeString},
 										Set:      schema.HashString,
 										Optional: true,
+										ForceNew: true,
 									},
 								},
 							},
@@ -402,4 +410,70 @@ func resourceYandexLoadtestingAgentDelete(d *schema.ResourceData, meta interface
 	}
 
 	return nil
+}
+
+func resourceYandexLoadtestingAgentUpdate(d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	req := &lt.UpdateAgentRequest{
+		AgentId:               d.Id(),
+		UpdateMask:            &field_mask.FieldMask{},
+		ComputeInstanceParams: &agent.CreateComputeInstance{},
+	}
+
+	if d.HasChange("name") {
+		req.Name = d.Get("name").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "name")
+	}
+
+	if d.HasChange("description") {
+		req.Description = d.Get("description").(string)
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
+	}
+
+	if d.HasChange("labels") {
+		labels, err := expandLabels(d.Get("labels"))
+		if err != nil {
+			return err
+		}
+		req.Labels = labels
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "labels")
+	}
+
+	if d.HasChange("compute_instance") {
+		computeParams, err := expandLoadtestingComputeInstanceTemplate(d, config)
+		if err != nil {
+			return err
+		}
+
+		req.ComputeInstanceParams = computeParams
+		enrichUpdateMaskFromLoadtestingComputeInstanceTemplate(d, req)
+	}
+
+	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Loadtesting().Agent().Update(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to update Agent %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error while updating Agent %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func enrichUpdateMaskFromLoadtestingComputeInstanceTemplate(d *schema.ResourceData, req *lt.UpdateAgentRequest) {
+	if d.HasChange("compute_instance.0.metadata") {
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "compute_instance_params.metadata")
+	}
+	if d.HasChange("compute_instance.0.labels") {
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "compute_instance_params.labels")
+	}
+	if d.HasChange("compute_instance.0.service_account_id") {
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "compute_instance_params.service_account_id")
+	}
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	lt "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1"
 	ltagent "github.com/yandex-cloud/go-genproto/yandex/cloud/loadtesting/api/v1/agent"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
@@ -72,6 +73,10 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 	var instance compute.Instance
 	agentName := acctest.RandomWithPrefix("tf-loadtesting-agent")
 	agentDescription := "Description for test full"
+	saName := agentName + "-sa"
+	newAgentName := acctest.RandomWithPrefix("tf-loadtesting-agent")
+	newAgentDescription := "Updated description for test full"
+	newSaName := newAgentName + "-sa"
 	folderID := getExampleFolderID()
 
 	resource.Test(t, resource.TestCase{
@@ -101,12 +106,38 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_metadata.field1", "metavalue1"),
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_metadata.field2", "other value 2"),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance.0.computed_metadata.loadtesting-created"),
+					testAccCheckLoadtestingComputeInstanceServiceAccount(&instance, saName),
 					testAccCheckLoadtestingComputeInstanceHasResources(&instance, 4, 50, 4.0),
 					testAccCheckLoadtestingComputeInstanceLabel(&instance, "purpose", "loadtesting-agent"),
 					testAccCheckLoadtestingComputeInstanceMetadata(&instance, "field1", "metavalue1"),
 					testAccCheckLoadtestingComputeInstanceMetadata(&instance, "field2", "other value 2"),
 					testAccCheckLoadtestingComputeBootDiskExists(&instance, true, 17),
 					testAccCheckLoadtestingComputeNetworkInterface(loadtestingAgentSubnetResource, &instance, true, false),
+				),
+			},
+			{
+				Config: testAccLoadtestingAgentUpdated(agentName, newAgentName, newAgentDescription),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckLoadtestingAgentWasNotRecreated(&agent),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "name", newAgentName),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "description", newAgentDescription),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "labels.purpose", "http-scenario"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "labels.pandora", "0-5-21"),
+					testAccCheckLoadtestingAgentName(&agent, newAgentName),
+					testAccCheckLoadtestingAgentDescription(&agent, newAgentDescription),
+					testAccCheckLoadtestingAgentLabel(&agent, "purpose", "http-scenario"),
+					testAccCheckLoadtestingAgentLabel(&agent, "pandora", "0-5-21"),
+					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance_id"),
+					testAccCheckLoadtestingComputeInstanceExists(&agent, &instance),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.labels.purpose", "loadtesting-agent-updated"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.labels.cpus", "4"),
+					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.metadata.meta-field", "meta-value"),
+					testAccCheckLoadtestingComputeInstanceName(&instance, newAgentName),
+					testAccCheckLoadtestingComputeInstanceDescription(&instance, newAgentDescription),
+					testAccCheckLoadtestingComputeInstanceServiceAccount(&instance, newSaName),
+					testAccCheckLoadtestingComputeInstanceLabel(&instance, "purpose", "loadtesting-agent-updated"),
+					testAccCheckLoadtestingComputeInstanceLabel(&instance, "cpus", "4"),
+					testAccCheckLoadtestingComputeInstanceMetadata(&instance, "meta-field", "meta-value"),
 				),
 			},
 			{
@@ -160,6 +191,27 @@ func testAccCheckLoadtestingAgentExists(n string, agent *ltagent.Agent) resource
 
 		if found.Id != rs.Primary.ID {
 			return fmt.Errorf("Loadtesting Agent not found")
+		}
+
+		*agent = *found
+
+		return nil
+	}
+}
+
+func testAccCheckLoadtestingAgentWasNotRecreated(agent *ltagent.Agent) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+
+		found, err := config.sdk.Loadtesting().Agent().Get(context.Background(), &lt.GetAgentRequest{
+			AgentId: agent.Id,
+		})
+		if err != nil {
+			return err
+		}
+
+		if found.Id != agent.Id {
+			return fmt.Errorf("Loadtesting Agent was deleted and created anew insted of being updated")
 		}
 
 		*agent = *found
@@ -233,6 +285,26 @@ func testAccCheckLoadtestingComputeInstanceHasResources(instance *compute.Instan
 	}
 }
 
+func testAccCheckLoadtestingAgentName(agent *ltagent.Agent, name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if agent.Name != name {
+			return fmt.Errorf("Expected name '%s' on agent %s", name, agent.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckLoadtestingAgentDescription(agent *ltagent.Agent, description string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if agent.Description != description {
+			return fmt.Errorf("Expected description '%s' but found '%s' on agent %s", description, agent.Description, agent.Name)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckLoadtestingAgentLabel(agent *ltagent.Agent, key string, value string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if agent.Labels == nil {
@@ -245,6 +317,50 @@ func testAccCheckLoadtestingAgentLabel(agent *ltagent.Agent, key string, value s
 		}
 		if v != value {
 			return fmt.Errorf("Expected value '%s' but found value '%s' for label '%s' on agent %s", value, v, key, agent.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckLoadtestingComputeInstanceName(instance *compute.Instance, name string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Name != name {
+			return fmt.Errorf("Expected name '%s' on instance %s", name, instance.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckLoadtestingComputeInstanceDescription(instance *compute.Instance, description string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.Description != description {
+			return fmt.Errorf("Expected description '%s' but found '%s' on instance %s", description, instance.Description, instance.Name)
+		}
+
+		return nil
+	}
+}
+
+func testAccCheckLoadtestingComputeInstanceServiceAccount(instance *compute.Instance, saName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		saId := instance.ServiceAccountId
+
+		if saId == "" {
+			return fmt.Errorf("No service account found for Instance %s", instance.Name)
+		}
+
+		config := testAccProvider.Meta().(*Config)
+		sa, err := config.sdk.IAM().ServiceAccount().Get(context.Background(), &iam.GetServiceAccountRequest{
+			ServiceAccountId: saId,
+		})
+		if err != nil {
+			return err
+		}
+
+		if sa.Name != saName {
+			return fmt.Errorf("Expected service account '%s' but bounf '%s' for Instance %s", saName, sa.Name, instance.Name)
 		}
 
 		return nil
@@ -394,4 +510,57 @@ resource "yandex_loadtesting_agent" "test-lt-agent" {
 	}
 }
 `, prereq, name, desc, name, name)
+}
+
+func testAccLoadtestingAgentUpdated(name, newName, newDesc string) string {
+	prereq := testAccLoadtestingAgentPrerequisites(name)
+	return fmt.Sprintf(`%s
+
+resource "yandex_iam_service_account" "new-loadtesting-agent-test-sa" {
+	name          = "%s-sa"
+}
+
+resource "yandex_loadtesting_agent" "test-lt-agent" {
+	name		  = "%s"
+	description   = "%s"
+	labels = {
+		purpose = "http-scenario"
+		pandora = "0-5-21"
+	}
+		
+	compute_instance {
+		zone_id = "ru-central1-b"
+		service_account_id = "${yandex_iam_service_account.new-loadtesting-agent-test-sa.id}"
+		resources {
+			memory = 4
+			cores = 4
+			core_fraction = 50
+		}
+		metadata = {
+			meta-field = "meta-value"
+		}
+		labels = {
+			purpose = "loadtesting-agent-updated"
+			cpus = "4"
+		}
+		boot_disk {
+			initialize_params {
+				size = 17
+				name = "%s-disk"
+				description = "%s-disk-desc"
+				block_size = 4096
+				type = "network-hdd"
+			}
+			device_name = "somename"
+			auto_delete = true
+		}
+		network_interface {
+			subnet_id = "${yandex_vpc_subnet.loadtesting-agent-test-subnet.id}"
+			ipv4 = true
+			ipv6 = false
+			nat = true  
+		}
+	}
+}
+`, prereq, newName, newName, newDesc, name, name)
 }
