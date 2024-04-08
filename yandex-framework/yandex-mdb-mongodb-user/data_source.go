@@ -89,9 +89,12 @@ func (d *bindingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	state.ClusterID = types.StringValue(user.ClusterId)
-	state.Name = types.StringValue(user.Name)
 	state.Id = types.StringValue(utils.ConstructResourceId(cid, userName))
+
+	resp.Diagnostics.Append(userToState(user, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

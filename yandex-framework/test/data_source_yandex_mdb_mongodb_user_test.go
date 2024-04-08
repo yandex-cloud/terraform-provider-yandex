@@ -102,7 +102,7 @@ func testAccDataSourceMDBMGUserCheck(datasourceName string, resourceName string)
 	return resource.ComposeTestCheckFunc(
 		testAccDataSourceMDBMGUserAttributesCheck(datasourceName, resourceName),
 		testAccDataSourceMDBMgUserCheckResourceIDField(resourceName),
-		resource.TestCheckResourceAttr(datasourceName, "name", "foo"),
+		resource.TestCheckResourceAttr(datasourceName, "name", "bob"),
 	)
 }
 
@@ -155,7 +155,7 @@ resource "yandex_mdb_mongodb_database" "foo" {
 	name       = "foo"
 }
 
-resource "yandex_mdb_mongodb_user" "bob" {
+resource "yandex_mdb_mongodb_user" "foo" {
 	cluster_id = yandex_mdb_mongodb_cluster.foo.id
 	name       = "bob"
 	password   = "mysecureP@ssw0rd"
@@ -167,7 +167,7 @@ resource "yandex_mdb_mongodb_user" "bob" {
 
 data "yandex_mdb_mongodb_user" "bar" {
 	cluster_id = yandex_mdb_mongodb_cluster.foo.id
-	name       = yandex_mdb_mongodb_user.bob.name
+	name       = yandex_mdb_mongodb_user.foo.name
 }
 `, name, description)
 }

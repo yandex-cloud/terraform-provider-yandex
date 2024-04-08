@@ -457,18 +457,20 @@ func testSweepMDBMongoDBCluster(_ string) error {
 		return fmt.Errorf("error getting MongoDB clusters: %s", err)
 	}
 
-	result := &multierror.Error{}
+	result := &multierror.Group{}
 	for _, c := range resp.Clusters {
-		if !sweepMDBMongoDBCluster(conf, c.Id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep MongoDB cluster %q", c.Id))
-		}
+		id := c.Id
+		result.Go(func() error { return sweepMDBMongoDBCluster(conf, id) })
 	}
 
-	return result.ErrorOrNil()
+	return result.Wait().ErrorOrNil()
 }
 
-func sweepMDBMongoDBCluster(conf *Config, id string) bool {
-	return sweepWithRetry(sweepMDBMongoDBClusterOnce, conf, "MongoDB cluster", id)
+func sweepMDBMongoDBCluster(conf *Config, id string) error {
+	if !sweepWithRetry(sweepMDBMongoDBClusterOnce, conf, "MongoDB cluster", id) {
+		return fmt.Errorf("failed to sweep MongoDB cluster %q", id)
+	}
+	return nil
 }
 
 func sweepMDBMongoDBClusterOnce(conf *Config, id string) error {

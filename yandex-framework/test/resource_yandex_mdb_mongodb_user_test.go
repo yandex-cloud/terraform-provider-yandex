@@ -56,7 +56,7 @@ func TestAccMDBMongoDBUser_full(t *testing.T) {
 				Config: testAccMDBMongoDBUserConfigStep3(clusterName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(mgUserResourceNameAlice, "name", "alice"),
-					testAccCheckMDBMongoDBUserHasPermission(t, "bob",
+					testAccCheckMDBMongoDBUserHasPermission(t, "alice",
 						[]Permission{{DatabaseName: "testdb", Roles: []string{"readWrite"}}}),
 				),
 			},

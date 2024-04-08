@@ -16,8 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
@@ -104,7 +102,7 @@ func TestProviderWithRawConfig(t *testing.T) {
 		"zone":     "ru-central1-a",
 	}
 
-	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
+	diags := testProvider.Configure(context.Background(), terraform2.NewResourceConfigRaw(raw))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -130,7 +128,7 @@ func TestProviderDefaultValues(t *testing.T) {
 		"zone":  "ru-central1-a",
 	}
 
-	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
+	diags := testProvider.Configure(context.Background(), terraform2.NewResourceConfigRaw(raw))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -181,7 +179,7 @@ func TestProviderOrganizationId(t *testing.T) {
 		"organization_id": org,
 	}
 
-	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
+	diags := testProvider.Configure(context.Background(), terraform2.NewResourceConfigRaw(raw))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {
@@ -207,7 +205,7 @@ func TestProviderSharedCredentialsFileAndProfile(t *testing.T) {
 		"profile":                 "prod-profile",
 	}
 
-	diags := testProvider.Configure(context.Background(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(raw)))
+	diags := testProvider.Configure(context.Background(), terraform2.NewResourceConfigRaw(raw))
 	if diags != nil && diags.HasError() {
 		for _, d := range diags {
 			if d.Severity == diag.Error {

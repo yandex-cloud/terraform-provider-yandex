@@ -44,9 +44,12 @@ func RetryConflictingOperation(ctx context.Context, sdk *ycsdk.SDK, action func(
 
 		operationID := ""
 		message := status.Convert(err).Message()
-		submatchApi := regexp.MustCompile(`(?i)Conflicting operation "?(.+)"? detected`).FindStringSubmatch(message)
-		if len(submatchApi) > 0 {
-			operationID = submatchApi[1]
+		submatchGoApi := regexp.MustCompile(`conflicting operation "(.+)" detected`).FindStringSubmatch(message)
+		submatchPyApi := regexp.MustCompile(`Conflicting operation (.+) detected`).FindStringSubmatch(message)
+		if len(submatchGoApi) > 0 {
+			operationID = submatchGoApi[1]
+		} else if len(submatchPyApi) > 0 {
+			operationID = submatchPyApi[1]
 		} else {
 			return op, err
 		}

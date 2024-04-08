@@ -1091,7 +1091,7 @@ func createResourceDataWithModifiedAttributes(t *testing.T, schemaObject map[str
 	internalMap := schema.InternalMap(schemaObject)
 
 	initialDiff, err := internalMap.Diff(ctx, nil,
-		(*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(rawInitialState)),
+		terraform2.NewResourceConfigRaw(rawInitialState),
 		nil, nil, true)
 	if err != nil {
 		t.Fatalf("err: %s", err)

@@ -33,7 +33,7 @@ func CreateResourceData(t *testing.T, schemaObject map[string]*schema.Schema, ra
 	internalMap := schema.InternalMap(schemaObject)
 
 	emptyState := terraform2.NewInstanceStateShimmedFromValue(cty.ObjectVal(map[string]cty.Value{}), 1)
-	initialDiff, err := internalMap.Diff(ctx, emptyState.DeepCopy(), (*terraform2.ResourceConfig)(terraform.NewResourceConfigRaw(rawInitialState)), nil, nil, true)
+	initialDiff, err := internalMap.Diff(ctx, emptyState.DeepCopy(), terraform2.NewResourceConfigRaw(rawInitialState), nil, nil, true)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

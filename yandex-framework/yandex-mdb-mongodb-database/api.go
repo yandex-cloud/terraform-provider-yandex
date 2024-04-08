@@ -63,7 +63,7 @@ func deleteDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 	if err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
-			"Error while requesting API to delete MongoDB database:"+err.Error(),
+			"Error while requesting API to delete MongoDB database: "+err.Error(),
 		)
 		return
 	}
@@ -71,7 +71,7 @@ func deleteDatabase(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics,
 	if err = op.Wait(ctx); err != nil {
 		diag.AddError(
 			"Failed to Delete resource",
-			"Error while waiting for operation to delete MongoDB database:"+err.Error(),
+			"Error while waiting for operation to delete MongoDB database: "+err.Error(),
 		)
 	}
 }
