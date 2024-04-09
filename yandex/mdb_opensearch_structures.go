@@ -309,12 +309,12 @@ func flattenOpenSearchConfigCreateSpec(config *opensearch.ConfigCreateSpec) []ma
 		}}
 	}
 	openSearchConfig := map[string]interface{}{}
-	openSearchConfig["node_groups"] = flattenOpenSearchCreateSpecNodeGroups(config.OpensearchSpec.NodeGroups)
-	openSearchConfig["plugins"] = config.OpensearchSpec.Plugins
+	openSearchConfig["node_groups"] = flattenOpenSearchCreateSpecNodeGroups(config.GetOpensearchSpec().GetNodeGroups())
+	openSearchConfig["plugins"] = config.GetOpensearchSpec().GetPlugins()
 	res["opensearch"] = []map[string]interface{}{openSearchConfig}
 
 	dashboardsConfig := map[string]interface{}{}
-	dashboardsConfig["node_groups"] = flattenDashboardsCreateSpecNodeGroups(config.DashboardsSpec.NodeGroups)
+	dashboardsConfig["node_groups"] = flattenDashboardsCreateSpecNodeGroups(config.GetDashboardsSpec().GetNodeGroups())
 	res["dashboards"] = []map[string]interface{}{dashboardsConfig}
 
 	return []map[string]interface{}{res}
@@ -665,15 +665,15 @@ func modifyConfig(oldConfig, newConfig *opensearch.ConfigCreateSpec) bool {
 	}
 
 	if oldConfig != nil {
-		if copyOpenSearchNodeGroupsData(oldConfig.OpensearchSpec.NodeGroups, newConfig.OpensearchSpec.NodeGroups) {
+		if copyOpenSearchNodeGroupsData(oldConfig.GetOpensearchSpec().GetNodeGroups(), newConfig.GetOpensearchSpec().GetNodeGroups()) {
 			modified = true
 		}
-		if copyDashboardsNodeGroupsData(oldConfig.DashboardsSpec.NodeGroups, newConfig.DashboardsSpec.NodeGroups) {
+		if copyDashboardsNodeGroupsData(oldConfig.GetDashboardsSpec().GetNodeGroups(), newConfig.GetDashboardsSpec().GetNodeGroups()) {
 			modified = true
 		}
 
-		if newConfig.OpensearchSpec.Plugins == nil || len(oldConfig.OpensearchSpec.Plugins) == 0 {
-			newConfig.OpensearchSpec.Plugins = oldConfig.OpensearchSpec.Plugins
+		if newConfig.GetOpensearchSpec().GetPlugins() == nil || len(oldConfig.GetOpensearchSpec().GetPlugins()) == 0 {
+			newConfig.OpensearchSpec.Plugins = oldConfig.GetOpensearchSpec().Plugins
 			modified = true
 		}
 	}

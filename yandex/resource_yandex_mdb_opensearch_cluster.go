@@ -578,8 +578,8 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	oc, nc := d.GetChange("config")
 	oldConfig := expandOpenSearchConfigCreateSpec(oc)
 	newConfig := expandOpenSearchConfigCreateSpec(nc)
-	oldGroups := oldConfig.OpensearchSpec.NodeGroups
-	newGroups := newConfig.OpensearchSpec.NodeGroups
+	oldGroups := oldConfig.GetOpensearchSpec().GetNodeGroups()
+	newGroups := newConfig.GetOpensearchSpec().GetNodeGroups()
 
 	var oldGroupsByName = map[string]*opensearch.OpenSearchCreateSpec_NodeGroup{}
 	for _, g := range oldGroups {
@@ -698,8 +698,8 @@ func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	oc, nc := d.GetChange("config")
 	oldConfig := expandOpenSearchConfigCreateSpec(oc)
 	newConfig := expandOpenSearchConfigCreateSpec(nc)
-	oldGroups := oldConfig.DashboardsSpec.NodeGroups
-	newGroups := newConfig.DashboardsSpec.NodeGroups
+	oldGroups := oldConfig.GetDashboardsSpec().GetNodeGroups()
+	newGroups := newConfig.GetDashboardsSpec().GetNodeGroups()
 
 	var oldGroupsByName = map[string]*opensearch.DashboardsCreateSpec_NodeGroup{}
 	for _, g := range oldGroups {
