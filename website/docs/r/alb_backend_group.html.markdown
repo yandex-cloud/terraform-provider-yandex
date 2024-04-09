@@ -17,6 +17,12 @@ For more information, see [the official documentation](https://cloud.yandex.com/
 resource "yandex_alb_backend_group" "test-backend-group" {
   name      = "my-backend-group"
 
+  session_affinity {
+    connection {
+      source_ip = "127.0.0.1"
+    }
+  }
+
   http_backend {
     name = "test-http-backend"
     weight = 1
@@ -48,11 +54,33 @@ The following arguments are supported:
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 * `description` - (Optional) Description of the backend group.
 * `labels` - (Optional) Labels to assign to this backend group.
+* `session_affinity` - (Optional) Session affinity mode determines how incoming requests are grouped into one session. Structure is documented below.
 * `http_backend` - (Optional) Http backend specification that will be used by the ALB Backend Group. Structure is documented below.
 * `grpc_backend` - (Optional) Grpc backend specification that will be used by the ALB Backend Group. Structure is documented below.
 * `stream_backend` - (Optional) Stream backend specification that will be used by the ALB Backend Group. Structure is documented below.
 
 ~> **NOTE:** Only one type of backends `http_backend` or `grpc_backend` or `stream_backend` should be specified.
+
+The `session_affinity` block supports:
+
+* `connection` - (Optional) Requests received from the same IP are combined into a session. Stream backend groups only support session affinity by client IP address. Structure is documented below.
+* `cookie` - (Optional) Requests with the same cookie value and the specified file name are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
+* `header` - (Optional) Requests with the same value of the specified HTTP header, such as with user authentication data, are combined into a session. Allowed only for HTTP and gRPC backend groups. Structure is documented below.
+
+~> **NOTE:** Only one type( `connection` or `cookie` or `header` ) of session affinity should be specified.
+
+The `connection` block supports:
+
+* `source_ip` - (Optional) Source IP address to use with affinity.
+
+The `cookie` block supports:
+
+* `name` - (Required) Name of the HTTP cookie to use with affinity.
+* `ttl` - (Optional) TTL for the cookie (if not set, session cookie will be used)
+
+The `header` block supports:
+
+* `header_name` - (Required) The name of the request header that will be used with affinity.
 
 The `http_backend` block supports:
 
