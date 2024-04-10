@@ -1,3 +1,19 @@
+## 0.115.0 (April 10, 2024)
+
+FEATURES:
+* mongodb: added delete timeout
+* mongodb: added DISABLED value to net.Compressors
+
+BUG FIXES:
+* update terraform-plugin-framework terraform-plugin-mux
+* fix test in yandex_mdb_mongodb_user 
+* fix nil pointer panic during the process of the opensearch resource deployment
+
+ENHANCEMENTS:
+* loadtesting: added `update` method for `yandex_loadtesting_agent` resource
+* add exponential MDB().PostgreSQL().Cluster().ListHosts() retry
+* added seffion affinity documentation for `yandex_alb_backend_group` resource and datasource
+
 ## 0.114.0 (April 3, 2024)
 
 BUG FIXES:

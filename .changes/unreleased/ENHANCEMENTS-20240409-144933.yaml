@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: added seffion affinity documentation for `yandex_alb_backend_group` resource
-  and datasource
-time: 2024-04-09T14:49:33.543478+02:00
