@@ -317,7 +317,7 @@ The `net` block supports:
   description in the official documentation.
 
 * `compressors` - (Optional) Specifies the default compressor(s) to use for communication between this mongod or mongos. 
-  Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd. To disable network compression, set the value to disabled.
+  Accepts array of compressors. Order matters. Available compressors: snappy, zlib, zstd, disabled. To disable network compression, make "disabled" the only value.
   For more information, see the [net.Compression.Compressors](https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-net.compression.compressors)
   description in the official documentation.
 
