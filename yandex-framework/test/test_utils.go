@@ -3,10 +3,11 @@ package test
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"time"
 )
 
 func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {

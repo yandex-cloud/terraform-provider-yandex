@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+
 	yandex_datasphere_community "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/community"
 	yandex_datasphere_project "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-datasphere/project"
 	yandex_mdb_mongodb_database "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-mdb-mongodb-database"
 	yandex_mdb_mongodb_user "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-mdb-mongodb-user"
-	"os"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/providervalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -21,7 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
 	yandex_billing_cloud_binding "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/yandex-billing-cloud-binding"
 )
 

@@ -3,15 +3,16 @@ package test
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
-	"log"
-	"os"
-	"strings"
-	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"

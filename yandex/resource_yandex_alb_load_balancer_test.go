@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
 	"testing"
+
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

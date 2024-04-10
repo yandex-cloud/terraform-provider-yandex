@@ -3,11 +3,12 @@ package yandex
 import (
 	"context"
 	"fmt"
-	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"log"
 	"os"
 	"strings"
 	"testing"
+
+	terraform2 "github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
