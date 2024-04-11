@@ -151,6 +151,9 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 				{{if .Mongod.SetParameter.AuditAuthorizationSuccess}}
 					audit_authorization_success = {{.Mongod.SetParameter.AuditAuthorizationSuccess}}
 				{{end}}
+				{{if .Mongod.SetParameter.MinSnapshotHistoryWindowInSeconds}}
+				    min_snapshot_history_window_in_seconds = {{.Mongod.SetParameter.MinSnapshotHistoryWindowInSeconds}}
+				{{end}}
 			}
 {{end}}
 {{if .Mongod.Net}}
@@ -953,8 +956,9 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 							"Filter": "{}",
 						},
 						"SetParameter": map[string]interface{}{
-							"AuditAuthorizationSuccess": false,
-							"EnableFlowControl":         false,
+							"AuditAuthorizationSuccess":         false,
+							"EnableFlowControl":                 false,
+							"MinSnapshotHistoryWindowInSeconds": 300,
 						},
 						"Net": map[string]interface{}{
 							"MaxConnections": 22,
@@ -1016,6 +1020,8 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 						"cluster_config.0.mongod.0.operation_profiling.0.slow_op_sample_rate", "0.6"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "false"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.wired_tiger.0.prefix_compression", "true"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1453,6 +1459,8 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1480,7 +1488,8 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 						"SetParameter": map[string]interface{}{
-							"EnableFlowControl": true,
+							"EnableFlowControl":                 true,
+							"MinSnapshotHistoryWindowInSeconds": 300,
 						},
 						"OperationProfiling": map[string]interface{}{
 							"Mode":         "ALL",
@@ -1520,6 +1529,8 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -1609,6 +1620,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.compressors"),
@@ -1657,7 +1670,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 						"SetParameter": map[string]interface{}{
-							"EnableFlowControl": true,
+							"EnableFlowControl":                 true,
+							"MinSnapshotHistoryWindowInSeconds": 300,
 						},
 						"OperationProfiling": map[string]interface{}{
 							"Mode":         "ALL",
@@ -1712,6 +1726,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
@@ -1804,6 +1820,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval"),
 					resource.TestCheckNoResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"),
+					resource.TestCheckNoResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"),
 				),
 			},
 			{ // Update resources
@@ -1837,7 +1855,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 							"Compressors":    []string{"\"DISABLED\""},
 						},
 						"SetParameter": map[string]interface{}{
-							"EnableFlowControl": true,
+							"EnableFlowControl":                 true,
+							"MinSnapshotHistoryWindowInSeconds": 300,
 						},
 						"OperationProfiling": map[string]interface{}{
 							"Mode":         "ALL",
@@ -1887,6 +1906,8 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.enable_flow_control", "true"),
+					resource.TestCheckResourceAttr(mongodbResource,
+						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
 					resource.TestCheckResourceAttr(mongodbResource,

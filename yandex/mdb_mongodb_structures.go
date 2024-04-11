@@ -125,6 +125,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
 								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
 							}
+							if minSnapshotHistoryWindowInSeconds := setParameter.GetMinSnapshotHistoryWindowInSeconds(); minSnapshotHistoryWindowInSeconds != nil {
+								setParameterData["min_snapshot_history_window_in_seconds"] = minSnapshotHistoryWindowInSeconds.GetValue()
+							}
 							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
@@ -314,6 +317,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					}
 					if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
 						setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+					}
+					if minSnapshotHistoryWindowInSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"); ok {
+						setParameter.SetMinSnapshotHistoryWindowInSeconds(&wrappers.Int64Value{Value: int64(minSnapshotHistoryWindowInSeconds.(int))})
 					}
 					configMongod.SetSetParameter(&setParameter)
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
@@ -522,6 +528,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
 								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
 							}
+							if minSnapshotHistoryWindowInSeconds := setParameter.GetMinSnapshotHistoryWindowInSeconds(); minSnapshotHistoryWindowInSeconds != nil {
+								setParameterData["min_snapshot_history_window_in_seconds"] = minSnapshotHistoryWindowInSeconds.GetValue()
+							}
 							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
@@ -690,11 +699,14 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						configMongod.SetNet(&netMongod)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter"); ok {
-						setParamenter := mongo_config.MongodConfig6_0_SetParameter{}
+						setParameter := mongo_config.MongodConfig6_0_SetParameter{}
 						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
-							setParamenter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+							setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
 						}
-						configMongod.SetSetParameter(&setParamenter)
+						if minSnapshotHistoryWindowInSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"); ok {
+							setParameter.SetMinSnapshotHistoryWindowInSeconds(&wrappers.Int64Value{Value: int64(minSnapshotHistoryWindowInSeconds.(int))})
+						}
+						configMongod.SetSetParameter(&setParameter)
 					}
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.operation_profiling"); ok {
 						opProfilingMongod := mongo_config.MongodConfig6_0_OperationProfiling{}
@@ -919,6 +931,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if enableFlowControl := setParameter.GetEnableFlowControl(); enableFlowControl != nil {
 								setParameterData["enable_flow_control"] = enableFlowControl.GetValue()
 							}
+							if minSnapshotHistoryWindowInSeconds := setParameter.GetMinSnapshotHistoryWindowInSeconds(); minSnapshotHistoryWindowInSeconds != nil {
+								setParameterData["min_snapshot_history_window_in_seconds"] = minSnapshotHistoryWindowInSeconds.GetValue()
+							}
 							result["set_parameter"] = []map[string]interface{}{setParameterData}
 						}
 
@@ -1108,6 +1123,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 					}
 					if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
 						setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+					}
+					if minSnapshotHistoryWindowInSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"); ok {
+						setParameter.SetMinSnapshotHistoryWindowInSeconds(&wrappers.Int64Value{Value: int64(minSnapshotHistoryWindowInSeconds.(int))})
 					}
 					configMongod.SetSetParameter(&setParameter)
 					if _, ok := d.GetOk("cluster_config.0.mongod.0.net"); ok {
@@ -1319,6 +1337,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 							if flowControl := setParameter.GetEnableFlowControl(); flowControl != nil {
 								flattenSetParameter["enable_flow_control"] = flowControl.GetValue()
 							}
+							if minSnapshotHistoryWindowInSeconds := setParameter.GetMinSnapshotHistoryWindowInSeconds(); minSnapshotHistoryWindowInSeconds != nil {
+								flattenSetParameter["min_snapshot_history_window_in_seconds"] = minSnapshotHistoryWindowInSeconds.GetValue()
+							}
 							result["set_parameter"] = []map[string]interface{}{flattenSetParameter}
 						}
 
@@ -1491,6 +1512,9 @@ func GetMongodbSpecHelper(version string) *MongodbSpecHelper {
 						setParameter := mongo_config.MongodConfig5_0_SetParameter{}
 						if flowControl, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.enable_flow_control"); ok {
 							setParameter.SetEnableFlowControl(&wrappers.BoolValue{Value: flowControl.(bool)})
+						}
+						if minSnapshotHistoryWindowInSeconds, ok := d.GetOk("cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds"); ok {
+							setParameter.SetMinSnapshotHistoryWindowInSeconds(&wrappers.Int64Value{Value: int64(minSnapshotHistoryWindowInSeconds.(int))})
 						}
 						configMongod.SetSetParameter(&setParameter)
 					}

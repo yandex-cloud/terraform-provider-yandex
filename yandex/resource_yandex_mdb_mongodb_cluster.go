@@ -391,6 +391,10 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 													Type:     schema.TypeBool,
 													Optional: true,
 												},
+												"min_snapshot_history_window_in_seconds": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
 											},
 										},
 									},

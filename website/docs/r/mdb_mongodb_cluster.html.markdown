@@ -294,6 +294,9 @@ The `set_parameter` block supports:
   For more information, see the [enableFlowControl](https://www.mongodb.com/docs/rapid/reference/parameters/#mongodb-parameter-param.enableFlowControl)
   description in the official documentation.
 
+* `min_snapshot_history_window_in_seconds` - (Optional) The minimum time window in seconds for which the storage engine keeps the snapshot history.
+  For more information, see the [minSnapshotHistoryWindowInSeconds](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.minSnapshotHistoryWindowInSeconds)
+  description in the official documentation.
 
 The `operation_profiling` block supports:
 
