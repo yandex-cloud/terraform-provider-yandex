@@ -75,7 +75,6 @@ resource "yandex_dns_recordset" "example" {
 ```hcl
 resource "yandex_cm_certificate" "example" {
   name    = "example"
-  domains = ["example.com"]
 
   self_managed {
     certificate = "-----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- \n -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE-----"
