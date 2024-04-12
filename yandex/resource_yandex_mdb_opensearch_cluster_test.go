@@ -3,13 +3,14 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/genproto/protobuf/field_mask"
 	"reflect"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
 	"time"
+
+	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -342,7 +343,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -363,34 +364,42 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     admin_password = "password"
 
     opensearch {
-	  node_groups {
-          name = "datamaster0"
-		  assign_public_ip     = false
-		  hosts_count          = 1
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data", "manager"]
-          resources {
-            resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "datamaster0"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA", "MANAGER"]
+        resources {
+          resource_preset_id = "s2.micro"
+          disk_size          = 10737418240
+          disk_type_id       = "network-ssd"
+        }
       }
       plugins = ["analysis-icu", "repository-s3"]
     }
 
     dashboards {
-	  node_groups {
-          name = "dash0"
-		  assign_public_ip     = false
-		  hosts_count          = 1
-		  zone_ids             = local.zones	
-          subnet_ids           = []
-          resources {
-            resource_preset_id   = "s2.micro"
-            disk_size            = 10737418240
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 10737418240
+          disk_type_id         = "network-ssd"
+        }
       }
     }
   }
@@ -398,7 +407,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
   maintenance_window {
@@ -417,7 +426,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -438,34 +447,42 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     admin_password = "password_updated"
 
     opensearch {
-	  node_groups {
-          name = "datamaster0"
-		  assign_public_ip     = false
-		  hosts_count          = 3
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data", "manager"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "datamaster0"
+        assign_public_ip     = false
+        hosts_count          = 3
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA", "MANAGER"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
       plugins = ["repository-s3"]
     }
 
     dashboards {
-	  node_groups {
-          name = "dash0"
-		  assign_public_ip     = false
-		  hosts_count          = 2
-		  zone_ids             = local.zones	
-          subnet_ids           = []
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 2
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
     }
   }
@@ -473,7 +490,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
   maintenance_window {
@@ -490,7 +507,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -511,73 +528,93 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     admin_password = "password_updated"
 
     opensearch {
-	  node_groups {
-          name = "datamaster0"
-		  assign_public_ip     = false
-		  hosts_count          = 3
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data", "manager"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "datamaster0"
+        assign_public_ip     = false
+        hosts_count          = 3
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA", "MANAGER"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
-	  node_groups {
-          name = "data1"
-		  assign_public_ip     = false
-		  hosts_count          = 1
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "data1"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
-	  node_groups {
-          name = "data2"
-		  assign_public_ip     = false
-		  hosts_count          = 1
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "data2"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
-	  node_groups {
-          name = "master"
-		  assign_public_ip     = false
-		  hosts_count          = 5
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["manager"]
-          resources {
-            resource_preset_id   = "s2.micro"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "master"
+        assign_public_ip     = false
+        hosts_count          = 5
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["MANAGER"]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
       plugins = ["repository-s3"]
     }
 
     dashboards {
-	  node_groups {
-          name = "dash0"
-		  assign_public_ip     = false
-		  hosts_count          = 2
-		  zone_ids             = local.zones	
-          subnet_ids           = []
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 2
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
     }
   }
@@ -585,7 +622,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
   maintenance_window {
@@ -602,7 +639,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -623,60 +660,76 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     admin_password = "password_updated"
 
     opensearch {
-	  node_groups {
-          name = "datamaster0"
-		  assign_public_ip     = false
-		  hosts_count          = 3
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "datamaster0"
+        assign_public_ip     = false
+        hosts_count          = 3
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
-	  node_groups {
-          name = "data1"
-		  assign_public_ip     = false
-		  hosts_count          = 1
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["data"]
-          resources {
-            resource_preset_id   = "s2.small"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "data1"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["DATA"]
+        resources {
+          resource_preset_id   = "s2.small"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
-	  node_groups {
-          name = "master"
-		  assign_public_ip     = false
-		  hosts_count          = 5
-		  zone_ids             = local.zones
-          subnet_ids           = []
-          roles                = ["manager"]
-          resources {
-            resource_preset_id   = "s2.micro"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "master"
+        assign_public_ip     = false
+        hosts_count          = 5
+        zone_ids             = local.zones
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles                = ["MANAGER"]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
       plugins = ["repository-s3"]
     }
 
     dashboards {
-	  node_groups {
-          name = "dash0"
-		  assign_public_ip     = false
-		  hosts_count          = 2
-		  zone_ids             = local.zones	
-          subnet_ids           = []
-          resources {
-            resource_preset_id   = "s2.micro"
-            disk_size            = 11811160064
-            disk_type_id         = "network-ssd"
-          }
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 2
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 11811160064
+          disk_type_id         = "network-ssd"
+        }
       }
     }
   }
@@ -684,7 +737,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-c,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
   maintenance_window {
@@ -746,8 +799,8 @@ resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-b" {
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-c" {
-  zone           = "ru-central1-c"
+resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-d" {
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
