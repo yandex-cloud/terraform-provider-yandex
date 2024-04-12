@@ -856,6 +856,9 @@ func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*pgH
 func checkNameFieldUsage(d *schema.ResourceData) bool {
 	log.Print("[DEBUG] checkNameFieldUsage")
 	hosts := d.Get("host").([]interface{})
+	if len(hosts) == 0 {
+		return false
+	}
 	host := hosts[0].(map[string]interface{})
 	log.Printf("[DEBUG] host name is '%s'", host["name"])
 	return host["name"] != ""
