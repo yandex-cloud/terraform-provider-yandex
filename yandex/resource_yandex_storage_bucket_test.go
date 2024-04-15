@@ -2002,6 +2002,25 @@ func testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(randI
 		render()
 }
 
+func testAccStorageBucketConfigWithValidGrant(randInt int) string {
+	const grants = `grant {
+		id          = "id1"
+		type        = "CanonicalUser"
+		permissions = ["READ", "WRITE"]
+  	}
+
+	grant {
+		type        = "Group"
+		permissions = ["READ"]
+		uri         = "http://some.uri"
+	}`
+
+	return newBucketConfigBuilder(randInt).
+		addStatement(grants).
+		asAdmin().
+		render()
+}
+
 func testAccStorageBucketConfigWithLifecycleFilter(randInt int) string {
 	const lifecycle = `lifecycle_rule {
 		id      = "id1"
@@ -2344,6 +2363,32 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_transition.0.storage_class", "ICE"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccStorageBucket_Grants(t *testing.T) {
+	rInt := acctest.RandInt()
+	resourceName := "yandex_storage_bucket.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		IDRefreshName:     resourceName,
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckStorageBucketDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBucketConfigWithValidGrant(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckStorageBucketExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.id", "id1"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.type", "CanonicalUser"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions", "[\"READ\", \"WRITE\"]"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.uri", "http://some.uri"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.type", "Group"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions", "[\"READ\"]"),
 				),
 			},
 		},

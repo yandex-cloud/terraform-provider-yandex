@@ -554,6 +554,14 @@ The following arguments are supported:
 
 * `grant` - (Optional) An [ACL policy grant](https://cloud.yandex.com/docs/storage/concepts/acl#permissions-types). Conflicts with `acl`.
 
+  - `id` - (Optional) Canonical user id to grant for. Used only when type is `CanonicalUser`.
+  
+  - `type` - (Required) Type of grantee to apply for. Valid values are `CanonicalUser` and `Group`. 
+   
+  - `permissions` - (Required) List of permissions to apply for grantee. Valid values are `READ`, `WRITE`, `FULL_CONTROL`.
+  
+  - `uri` - (Optional) Uri address to grant for. Used only when type is Group.
+
 ~> **Note:** To manage `grant` argument, service account with `storage.admin` role should be used.
 
 * `force_destroy` - (Optional, Default: `false`) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are *not* recoverable.

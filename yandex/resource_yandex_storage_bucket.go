@@ -2486,7 +2486,7 @@ func resourceYandexStorageBucketGrantsUpdate(ctx context.Context, s3conn *s3.S3,
 		log.Printf("[DEBUG] Storage Bucket: %s, put grant: %#v", bucket, rawGrant)
 		grantMap := rawGrant.(map[string]interface{})
 		permissions := grantMap["permissions"].(*schema.Set).List()
-		if err := validateBucketPermissions(permissions); err != nil {
+		if err := validateBucketGrant(grantMap); err != nil {
 			return err
 		}
 		for _, rawPermission := range permissions {
@@ -2827,6 +2827,22 @@ func flattenS3ServerSideEncryptionConfiguration(c *s3.ServerSideEncryptionConfig
 		"rule": rules,
 	})
 	return encryptionConfiguration
+}
+
+func validateBucketGrant(grant map[string]interface{}) error {
+	switch grant["type"].(string) {
+	case s3.TypeCanonicalUser:
+		if grant["uri"].(string) != "" {
+			return fmt.Errorf("uri can be used only for Group grant type for Storage Bucket")
+		}
+	case s3.TypeGroup:
+		if grant["id"].(string) != "" {
+			return fmt.Errorf("id can be used only for CanonicalUser grant type for Storage Bucket")
+		}
+	}
+
+	permissions := grant["permissions"].(*schema.Set).List()
+	return validateBucketPermissions(permissions)
 }
 
 func validateBucketPermissions(permissions []interface{}) error {
