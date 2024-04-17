@@ -87,6 +87,7 @@ The following arguments are supported:
 
 * `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.
 * `log_options` - Options for logging from Yandex Cloud Function.
+* `tmpfs_size` - Tmpfs size for Yandex Cloud Function.
 
 
 ## Attributes Reference

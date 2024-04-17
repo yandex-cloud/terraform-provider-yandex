@@ -318,6 +318,12 @@ func resourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"tmpfs_size": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -417,7 +423,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
 		"environment", "tags", "package", "content", "secrets", "connectivity", "async_invocation",
-		"storage_mounts", "log_options",
+		"storage_mounts", "log_options", "tmpfs_size",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -659,6 +665,11 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		versionReq.LogOptions = logOptions
 	}
 
+	versionReq.TmpfsSize = 0
+	if v, ok := d.GetOk("tmpfs_size"); ok {
+		versionReq.TmpfsSize = int64(int(datasize.MB.Bytes()) * v.(int))
+	}
+
 	return versionReq, nil
 }
 
@@ -708,6 +719,7 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 
 	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
 	d.Set("storage_mounts", flattenVersionStorageMounts(version.StorageMounts))
+	d.Set("tmpfs_size", int(version.TmpfsSize/int64(datasize.MB.Bytes())))
 
 	return d.Set("tags", tags)
 }

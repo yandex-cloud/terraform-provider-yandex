@@ -145,6 +145,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 		disabled: false,
 		minLevel: "ERROR",
 	}
+	params.tmpfsSize = "0"
 
 	paramsUpdated := testYandexFunctionParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-function-updated")
@@ -177,6 +178,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 		disabled: false,
 		minLevel: "WARN",
 	}
+	paramsUpdated.tmpfsSize = "1024"
 
 	testConfigFunc := func(params testYandexFunctionParameters) resource.TestStep {
 		return resource.TestStep{
@@ -208,6 +210,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttr(functionResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 				resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
 				resource.TestCheckResourceAttrSet(functionResource, "log_options.0.log_group_id"),
+				resource.TestCheckResourceAttr(functionResource, "tmpfs_size", params.tmpfsSize),
 				testAccCheckCreatedAtAttr(functionResource),
 			),
 		}
@@ -388,6 +391,7 @@ type testYandexFunctionParameters struct {
 	zipFilename      string
 	maxAsyncRetries  string
 	logOptions       testLogOptions
+	tmpfsSize        string
 }
 
 type testSecretParameters struct {
@@ -455,6 +459,7 @@ resource "yandex_function" "test-function" {
 	log_group_id = yandex_logging_group.logging-group.id
 	min_level = "%s"
   }
+  tmpfs_size = "%s"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -521,6 +526,7 @@ resource "yandex_logging_group" "logging-group" {
 		params.maxAsyncRetries,
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
+		params.tmpfsSize,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

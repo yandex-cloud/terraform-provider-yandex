@@ -54,3 +54,4 @@ The following attributes are exported:
 * `connectivity.0.network_id` - Network the version will have access to. It's essential to specify network with subnets in all availability zones.
 * `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.
 * `log_options` - Options for logging from Yandex Cloud Function.
+* `tmpfs_size` - Tmpfs size for Yandex Cloud Function.

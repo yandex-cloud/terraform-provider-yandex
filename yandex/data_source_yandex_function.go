@@ -242,6 +242,11 @@ func dataSourceYandexFunction() *schema.Resource {
 					},
 				},
 			},
+
+			"tmpfs_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
 }
