@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'storage: added grant validation in `yandex_storage_bucket` resource'
-time: 2024-04-11T17:19:11.900091+03:00

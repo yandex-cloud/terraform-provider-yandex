@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'clickhouse: fixed default shard-name parameter when create cluster'
-time: 2024-04-16T11:02:49.821363+01:00

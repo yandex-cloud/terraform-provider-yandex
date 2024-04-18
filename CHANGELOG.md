@@ -1,3 +1,15 @@
+## 0.116.0 (April 18, 2024)
+
+FEATURES:
+* add MongoDB parameter minSnapshotHistoryWindowInSeconds
+* serverless: support `tmpfs_size` attribute in `yandex_function` resource
+
+BUG FIXES:
+* storage: added grant validation in `yandex_storage_bucket` resource
+* terraform import resource_yandex_mdb_postgresql_cluster fix
+* fix documentation for `yandex_cm_certificate` resource
+* clickhouse: fixed default shard-name parameter when create cluster
+
 ## 0.115.0 (April 10, 2024)
 
 FEATURES:
