@@ -915,7 +915,19 @@ func resourceYandexMDBClickHouseClusterCreate(d *schema.ResourceData, meta inter
 	}
 
 	for shardNameFromSpec, shardConfigFromSpec := range shardsFromSpec {
-		if req.ShardName != shardNameFromSpec {
+		shardExistsInSpec := false
+		if req.ShardName == "" {
+			for _, h := range req.HostSpecs {
+				if h.ShardName == shardNameFromSpec {
+					shardExistsInSpec = true
+					break
+				}
+			}
+		} else {
+			shardExistsInSpec = req.ShardName == shardNameFromSpec
+		}
+
+		if !shardExistsInSpec {
 			log.Printf("[ERROR] trying to update non-existent shard, name=%s\n", shardNameFromSpec)
 			continue
 		}
@@ -1002,10 +1014,8 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 	log.Printf("[DEBUG] hosts to add: %v\n", toAdd)
 
 	firstHosts := toAdd["zk"]
-	firstShard := ""
 	delete(toAdd, "zk")
 	for shardName, shardHosts := range toAdd {
-		firstShard = shardName
 		firstHosts = append(firstHosts, shardHosts...)
 		delete(toAdd, shardName)
 		break
@@ -1069,7 +1079,6 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		HostSpecs:          firstHosts,
 		UserSpecs:          users,
 		Labels:             labels,
-		ShardName:          firstShard,
 		SecurityGroupIds:   securityGroupIds,
 		ServiceAccountId:   d.Get("service_account_id").(string),
 		DeletionProtection: d.Get("deletion_protection").(bool),
