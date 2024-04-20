@@ -7082,6 +7082,18 @@ func parseDatatransferEndpointKafkaMechanism(str string) (endpoint.KafkaMechanis
 	return endpoint.KafkaMechanism(val), nil
 }
 
+func parseDatatransferEndpointMetrikaStreamType(str string) (endpoint.MetrikaStreamType, error) {
+	val, ok := endpoint.MetrikaStreamType_value[str]
+	if !ok {
+		return endpoint.MetrikaStreamType(0), fmt.Errorf(
+			"value for 'transfer_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(endpoint.MetrikaStreamType_value)),
+			str,
+		)
+	}
+	return endpoint.MetrikaStreamType(val), nil
+}
+
 func parseDatatransferEndpointObjectTransferStage(str string) (endpoint.ObjectTransferStage, error) {
 	val, ok := endpoint.ObjectTransferStage_value[str]
 	if !ok {
