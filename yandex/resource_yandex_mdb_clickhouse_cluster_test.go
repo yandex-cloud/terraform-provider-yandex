@@ -1702,7 +1702,7 @@ resource "yandex_vpc_subnet" "mdb-ch-test-subnet-b" {
 }
 
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-c" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -2601,7 +2601,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "ZOOKEEPER"
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-c.id}"
   }
 
@@ -2742,7 +2742,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 
   host {
     type             = "CLICKHOUSE"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-ch-test-subnet-c.id
     shard_name       = "shard3"
     assign_public_ip = true

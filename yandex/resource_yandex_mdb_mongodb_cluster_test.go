@@ -41,7 +41,7 @@ resource "yandex_vpc_subnet" "bar" {
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -764,7 +764,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 						DiskTypeId:       s2Small26hdd.DiskTypeId,
 					},
 					"Hosts": []map[string]interface{}{
-						{"ZoneId": "ru-central1-c", "SubnetId": "${yandex_vpc_subnet.baz.id}"},
+						{"ZoneId": "ru-central1-d", "SubnetId": "${yandex_vpc_subnet.baz.id}"},
 						{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
 					},
 					"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-y.id}"},

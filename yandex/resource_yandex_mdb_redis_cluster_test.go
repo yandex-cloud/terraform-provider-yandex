@@ -101,8 +101,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	baseDiskSize := 16
 	updatedDiskSize := 24
 	diskTypeId := "network-ssd"
-	baseFlavor := "hm1.nano"
-	updatedFlavor := "hm1.micro"
+	baseFlavor := "hm2.nano"
+	updatedFlavor := "hm2.micro"
 	tlsEnabled := true
 	persistenceMode := "ON"
 	announceHostnames := true
@@ -268,7 +268,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 	folderID := getExampleFolderID()
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
-	baseFlavor := "hm1.nano"
+	baseFlavor := "hm2.nano"
 	tlsEnabled := true
 	persistenceMode := "ON"
 	announceHostnames := true
@@ -353,7 +353,7 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	folderID := getExampleFolderID()
 	baseDiskSize := 100
 	diskTypeId := "local-ssd"
-	baseFlavor := "hm1.nano"
+	baseFlavor := "hm2.nano"
 	tlsEnabled := true
 	announceHostnames := true
 	announceHostnamesChanged := false
@@ -507,7 +507,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-						testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						testAccCheckMDBRedisClusterHasResources(&r, "hm2.nano", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
 					),
@@ -523,7 +523,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-						testAccCheckMDBRedisClusterHasResources(&r, "hm1.nano", baseDiskSize,
+						testAccCheckMDBRedisClusterHasResources(&r, "hm2.nano", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
 					),
@@ -726,7 +726,7 @@ const redisVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -772,7 +772,7 @@ resource "yandex_vpc_security_group" "sg-y" {
 func getSentinelShardedHosts(diskTypeId string, publicIPFlags []*bool, replicaPriorities []*int) string {
 	host := `
   host {
-  	zone      = "ru-central1-c"
+  	zone      = "ru-central1-d"
 	subnet_id = "${yandex_vpc_subnet.foo.id}"
     shard_name= "shard1"
 	%s
@@ -794,7 +794,7 @@ func getSentinelShardedHosts(diskTypeId string, publicIPFlags []*bool, replicaPr
 func getSentinelHosts(diskTypeId string, publicIPFlags []*bool, replicaPriorities []*int) string {
 	host := `
   host {
-  	zone      = "ru-central1-c"
+  	zone      = "ru-central1-d"
 	subnet_id = "${yandex_vpc_subnet.foo.id}"
 	%s
 	%s
@@ -817,37 +817,37 @@ func getShardedHosts(diskTypeId string, thirdShard string) string {
 	if diskTypeId == "local-ssd" {
 		res = fmt.Sprintf(`
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "first"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "second"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "%s"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "first"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "second"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "%s"
   }
@@ -855,19 +855,19 @@ func getShardedHosts(diskTypeId string, thirdShard string) string {
 	} else {
 		res = fmt.Sprintf(`
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "first"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "second"
   }
 
   host {
-    zone       = "ru-central1-c"
+    zone       = "ru-central1-d"
     subnet_id  = "${yandex_vpc_subnet.foo.id}"
 	shard_name = "%s"
   }
@@ -1136,7 +1136,7 @@ resource "yandex_mdb_redis_cluster" "foo" {
   %s
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = "${yandex_vpc_subnet.foo.id}"
 	%s
 	%s
@@ -1165,7 +1165,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
   resources {
-    resource_preset_id = "hm1.nano"
+    resource_preset_id = "hm2.nano"
     disk_size          = %d
     %s
   }
@@ -1193,7 +1193,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
   resources {
-    resource_preset_id = "hm1.nano"
+    resource_preset_id = "hm2.nano"
     disk_size          = %d
     %s
   }

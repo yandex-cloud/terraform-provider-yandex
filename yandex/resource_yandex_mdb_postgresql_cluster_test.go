@@ -339,7 +339,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet(clusterResource, "host.2.fqdn"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.zone", "ru-central1-b"),
-					resource.TestCheckResourceAttr(clusterResource, "host.2.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
@@ -1027,7 +1027,7 @@ resource "yandex_vpc_subnet" "mdb-pg-test-subnet-b" {
 }
 
 resource "yandex_vpc_subnet" "mdb-pg-test-subnet-c" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-pg-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -1385,7 +1385,7 @@ func testAccMDBPGClusterConfigHA(name, version string) string {
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
 	}
 	host {
-		zone             = "ru-central1-c"
+		zone             = "ru-central1-d"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 		assign_public_ip = true
 	}
@@ -1404,7 +1404,7 @@ func testAccMDBPGClusterConfigHAChangePublicIP(name, version string) string {
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
 	}
 	host {
-		zone             = "ru-central1-c"
+		zone             = "ru-central1-d"
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
 	}
 `, version)
@@ -1462,7 +1462,7 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
 
   host {
     name             = "nc"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
   }
 `, version)
@@ -1488,7 +1488,7 @@ func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string {
 
   host {
     name             = "nc"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
   }
 `, version)
@@ -1512,7 +1512,7 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
 
   host {
     name             = "nc"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
     
     assign_public_ip = true
@@ -1542,7 +1542,7 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 
   host {
     name             = "nc"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
     assign_public_ip = true
   }
@@ -1572,7 +1572,7 @@ func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string
 
   host {
     name             = "nc"
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
     assign_public_ip = true
     

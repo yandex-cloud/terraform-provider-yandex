@@ -328,7 +328,7 @@ resource "yandex_vpc_subnet" "mdb-sqlserver-test-subnet-b" {
 }
 
 resource "yandex_vpc_subnet" "mdb-sqlserver-test-subnet-c" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-sqlserver-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }

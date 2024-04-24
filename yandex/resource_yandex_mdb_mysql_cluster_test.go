@@ -279,8 +279,8 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					testAccCheckMDBMysqlClusterHasHosts(mysqlResource, 4),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.zone", "ru-central1-a"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.zone", "ru-central1-b"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-c"),
-					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.2.zone", "ru-central1-d"),
+					resource.TestCheckResourceAttr(mysqlResource, "host.3.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(mysqlResource, "host.2.assign_public_ip", "false"),
@@ -700,7 +700,7 @@ const mysqlVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo_c" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
@@ -803,7 +803,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
@@ -858,7 +858,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
@@ -953,7 +953,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
 	assign_public_ip = true
   }
@@ -998,7 +998,7 @@ func testAccMDBMysqlClusterHA(name string) string {
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
 `)
@@ -1018,12 +1018,12 @@ func testAccMDBMysqlClusterHA2(name string) string {
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
 
   host {
-    zone      = "ru-central1-c"
+    zone      = "ru-central1-d"
     subnet_id = yandex_vpc_subnet.foo_c.id
   }
 `)
@@ -1048,14 +1048,14 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
   }
 
   host {
-    zone             = "ru-central1-c"
+    zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.foo_c.id
     name             = "na"
   }
 
 
   host {
-    zone 		= "ru-central1-c"
+    zone 		= "ru-central1-d"
     subnet_id   = yandex_vpc_subnet.foo_c.id
     name        = "nb"
   }
@@ -1080,13 +1080,13 @@ func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
   }
 
   host {
-	zone             = "ru-central1-c"
+	zone             = "ru-central1-d"
 	subnet_id        = yandex_vpc_subnet.foo_c.id
 	name             = "na"
   }
 
   host {
-	zone 		= "ru-central1-c"
+	zone 		= "ru-central1-d"
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
   }
@@ -1113,13 +1113,13 @@ func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
   }
 
   host {
-	zone             = "ru-central1-c"
+	zone             = "ru-central1-d"
 	subnet_id        = yandex_vpc_subnet.foo_c.id
 	name             = "na"
   }
 
   host {
-	zone 		= "ru-central1-c"
+	zone 		= "ru-central1-d"
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
   }
@@ -1146,13 +1146,13 @@ func testAccMDBMysqlClusterWithPriorities(name string) string {
   }
 
   host {
-	zone             = "ru-central1-c"
+	zone             = "ru-central1-d"
 	subnet_id        = yandex_vpc_subnet.foo_c.id
 	name             = "na"
   }
 
   host {
-	zone 		= "ru-central1-c"
+	zone 		= "ru-central1-d"
 	subnet_id   = yandex_vpc_subnet.foo_c.id
 	name        = "nb"
   }

@@ -130,7 +130,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 	}
 
 	host {
-		zone      = "ru-central1-c"
+		zone      = "ru-central1-d"
 		subnet_id = yandex_vpc_subnet.foo_c.id
 	}
 }

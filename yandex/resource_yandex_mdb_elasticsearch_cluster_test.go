@@ -316,7 +316,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -396,7 +396,7 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-c",
+    "ru-central1-d",
   ]
 }
 
@@ -520,7 +520,7 @@ resource "yandex_vpc_subnet" "mdb-elasticsearch-test-subnet-b" {
 }
 
 resource "yandex_vpc_subnet" "mdb-elasticsearch-test-subnet-c" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.mdb-elasticsearch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
 }

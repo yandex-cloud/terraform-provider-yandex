@@ -15,7 +15,7 @@ func TestGetSentinelHosts(t *testing.T) {
 	replicaPriorities := []*int{nil}
 	expected := `
   host {
-  	zone      = "ru-central1-c"
+  	zone      = "ru-central1-d"
 	subnet_id = "${yandex_vpc_subnet.foo.id}"
 	
 	

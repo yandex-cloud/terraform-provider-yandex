@@ -453,7 +453,7 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 
 					{
 						Type:      clickhouse.Host_ZOOKEEPER,
-						ZoneId:    "ru-central1-c",
+						ZoneId:    "ru-central1-d",
 						ShardName: "zk",
 						SubnetId:  "subnet-c",
 					},
@@ -489,7 +489,7 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 
 					{
 						Type:      clickhouse.Host_ZOOKEEPER,
-						ZoneId:    "ru-central1-c",
+						ZoneId:    "ru-central1-d",
 						ShardName: "zk",
 						SubnetId:  "subnet-c",
 					},
@@ -530,7 +530,7 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 
 					{
 						Type:      clickhouse.Host_ZOOKEEPER,
-						ZoneId:    "ru-central1-c",
+						ZoneId:    "ru-central1-d",
 						ShardName: "zk",
 						SubnetId:  "subnet-c",
 					},
@@ -570,12 +570,12 @@ func Test_clickHouseHostsDiff(t *testing.T) {
 				},
 				[]*clickhouse.HostSpec{
 					{ZoneId: "ru-central1-a", Type: clickhouse.Host_CLICKHOUSE, SubnetId: "sub-a", AssignPublicIp: true, ShardName: "shard1"},
-					{ZoneId: "ru-central1-c", Type: clickhouse.Host_CLICKHOUSE, SubnetId: "sub-c", AssignPublicIp: true, ShardName: "shard3"},
+					{ZoneId: "ru-central1-d", Type: clickhouse.Host_CLICKHOUSE, SubnetId: "sub-d", AssignPublicIp: true, ShardName: "shard3"},
 				},
 			},
 			toDelete: map[string][]string{"shard2": {"host_b"}},
 			toAdd: map[string][]*clickhouse.HostSpec{
-				"shard3": {{ZoneId: "ru-central1-c", Type: clickhouse.Host_CLICKHOUSE, SubnetId: "sub-c", AssignPublicIp: true, ShardName: "shard3"}}},
+				"shard3": {{ZoneId: "ru-central1-d", Type: clickhouse.Host_CLICKHOUSE, SubnetId: "sub-d", AssignPublicIp: true, ShardName: "shard3"}}},
 			toUpdate: map[string]*clickhouse.UpdateHostSpec{
 				"host_a": {HostName: "host_a", AssignPublicIp: &wrapperspb.BoolValue{Value: true}, UpdateMask: &field_mask.FieldMask{Paths: []string{"assign_public_ip"}}},
 			},
@@ -689,7 +689,7 @@ var targetHostsHA = []*clickhouse.HostSpec{
 
 	{
 		Type:      clickhouse.Host_ZOOKEEPER,
-		ZoneId:    "ru-central1-c",
+		ZoneId:    "ru-central1-d",
 		ShardName: "zk",
 		SubnetId:  "subnet-c",
 	},
