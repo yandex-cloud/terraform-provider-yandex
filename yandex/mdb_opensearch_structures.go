@@ -1,7 +1,6 @@
 package yandex
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -633,27 +632,6 @@ func copyDashboardsNodeGroupsData(oldGroups []*opensearch.DashboardsCreateSpec_N
 	return modified
 }
 
-func opensearchNodeGroupsDiffCustomize(ctx context.Context, rdiff *schema.ResourceDiff, _ interface{}) error {
-	oc, nc := rdiff.GetChange("config")
-	if oc == nil {
-		if nc == nil {
-			return fmt.Errorf("Missing required option: config")
-		}
-	}
-
-	var (
-		oldConfig = expandOpenSearchConfigCreateSpec(oc)
-		newConfig = expandOpenSearchConfigCreateSpec(nc)
-	)
-
-	if modifyConfig(oldConfig, newConfig) {
-		flattened := flattenOpenSearchConfigCreateSpec(newConfig)
-		return rdiff.SetNew("config", flattened)
-	}
-
-	return nil
-}
-
 func modifyConfig(oldConfig, newConfig *opensearch.ConfigCreateSpec) bool {
 	var modified bool
 
@@ -664,19 +642,51 @@ func modifyConfig(oldConfig, newConfig *opensearch.ConfigCreateSpec) bool {
 		return false
 	}
 
-	if oldConfig != nil {
-		if copyOpenSearchNodeGroupsData(oldConfig.GetOpensearchSpec().GetNodeGroups(), newConfig.GetOpensearchSpec().GetNodeGroups()) {
-			modified = true
-		}
-		if copyDashboardsNodeGroupsData(oldConfig.GetDashboardsSpec().GetNodeGroups(), newConfig.GetDashboardsSpec().GetNodeGroups()) {
-			modified = true
-		}
+	if copyOpenSearchNodeGroupsData(oldConfig.GetOpensearchSpec().GetNodeGroups(), newConfig.GetOpensearchSpec().GetNodeGroups()) {
+		modified = true
+	}
+	if copyDashboardsNodeGroupsData(oldConfig.GetDashboardsSpec().GetNodeGroups(), newConfig.GetDashboardsSpec().GetNodeGroups()) {
+		modified = true
+	}
 
-		if newConfig.GetOpensearchSpec().GetPlugins() == nil || len(oldConfig.GetOpensearchSpec().GetPlugins()) == 0 {
-			newConfig.OpensearchSpec.Plugins = oldConfig.GetOpensearchSpec().Plugins
-			modified = true
-		}
+	if newConfig.GetOpensearchSpec().GetPlugins() == nil || len(oldConfig.GetOpensearchSpec().GetPlugins()) == 0 {
+		newConfig.OpensearchSpec.Plugins = oldConfig.GetOpensearchSpec().Plugins
+		modified = true
 	}
 
 	return modified
+}
+
+func opensearchHostFQDNHash(v interface{}) int {
+	m := v.(map[string]interface{})
+
+	if n, ok := m["fqdn"]; ok {
+		return hashcode.String(n.(string))
+	}
+	return 0
+}
+
+func flattenOpensearchHosts(hosts []*opensearch.Host) []interface{} {
+	res := []interface{}{}
+
+	for _, h := range hosts {
+		res = append(res, map[string]interface{}{
+			"type":             h.Type.String(),
+			"roles":            mapRoles(h.Roles),
+			"zone":             h.ZoneId,
+			"subnet_id":        h.SubnetId,
+			"assign_public_ip": h.AssignPublicIp,
+			"fqdn":             h.Name,
+		})
+	}
+
+	return res
+}
+
+func mapRoles(roles []opensearch.OpenSearch_GroupRole) []string {
+	res := make([]string, 0, len(roles))
+	for _, role := range roles {
+		res = append(res, role.String())
+	}
+	return res
 }

@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'opensearch: add `hosts` computed attribute'
+time: 2024-04-18T21:19:16.797354+02:00

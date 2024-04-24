@@ -117,7 +117,9 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "config.0.admin_password", "password"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
-					//$resource.TestCheckResourceAttrSet(openSearchResource, "host.0.fqdn"),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					testAccCheckCreatedAtAttr(openSearchResource),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
@@ -174,6 +176,12 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc2),
 					resource.TestCheckResourceAttr(openSearchResource, "service_account_id", ""),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "5"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.2.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.3.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.4.fqdn"),
 					testAccCheckCreatedAtAttr(openSearchResource),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key2", "test_value2"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
@@ -186,12 +194,14 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.0.type", "ANYTIME"),
 				),
 			},
+			//TODO: add step with changing roles after fix/implement https://st.yandex-team.ru/MDB-28703
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Add nodegroups
 			{
 				Config: testAccMDBOpenSearchClusterConfigWithManagerGroup(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 12),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "12"),
 					testAccCheckCreatedAtAttr(openSearchResource),
 					func(s *terraform.State) error {
 						time.Sleep(time.Minute * 5)
@@ -205,6 +215,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 				Config: testAccMDBOpenSearchClusterConfigRemoveGroup(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 11),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "11"),
 					testAccCheckCreatedAtAttr(openSearchResource),
 					func(s *terraform.State) error {
 						time.Sleep(time.Minute * 5)
@@ -670,7 +681,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
-        roles                = ["DATA"]
+        roles                = ["DATA", "MANAGER"]
         resources {
           resource_preset_id   = "s2.small"
           disk_size            = 11811160064

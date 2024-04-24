@@ -3,9 +3,10 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
+
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
@@ -206,6 +207,44 @@ func dataSourceYandexMDBOpenSearchCluster() *schema.Resource {
 									},
 								},
 							},
+						},
+					},
+				},
+			},
+
+			"hosts": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Set:      opensearchHostFQDNHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"roles": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"assign_public_ip": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},

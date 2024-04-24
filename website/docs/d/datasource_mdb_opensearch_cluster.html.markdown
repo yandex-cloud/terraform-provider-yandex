@@ -48,6 +48,7 @@ exported:
 * `health` - Aggregated health of the cluster.
 * `status` - Status of the cluster.
 * `config` - Configuration of the OpenSearch cluster. The structure is documented below.
+* `hosts` - A hosts of the OpenSearch cluster. The structure is documented below.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `service_account_id` - ID of the service account authorized for this cluster.
 
@@ -101,6 +102,22 @@ The `resources` block supports:
   For more information, see [the official documentation](https://cloud.yandex.com/en-ru/docs/managed-opensearch/concepts/instance-types).
 * `disk_size` - Volume of the storage available to a OpenSearch host, in gigabytes.
 * `disk_type_id` - Type of the storage of OpenSearch hosts.
+
+The `hosts` block supports:
+
+* `fqdn` - The fully qualified domain name of the host.
+
+* `zone` - The availability zone where the OpenSearch host was created.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+
+* `type` - The type of the deployed host. Can be either `OPENSEARCH` or `DASHBOARDS`.
+
+* `roles` - The roles of the deployed host. Can contain `DATA` and/or `MANAGER` roles. Will be empty for `DASHBOARDS` type.
+
+* `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must
+  be a part of the network to which the cluster belongs.
+
+* `assign_public_ip` - Sets whether the host should get a public IP address. Can be either `true` or `false`.
 
 The `maintenance_window` block supports:
 

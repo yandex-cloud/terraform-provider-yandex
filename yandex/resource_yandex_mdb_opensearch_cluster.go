@@ -3,13 +3,15 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"log"
+	"reflect"
+	"time"
+
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -271,6 +273,45 @@ func resourceYandexMDBOpenSearchCluster() *schema.Resource {
 				Computed: true,
 			},
 
+			// Current nodes in the cluster
+			"hosts": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Set:      opensearchHostFQDNHash,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"fqdn": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"roles": {
+							Type:     schema.TypeSet,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Set:      schema.HashString,
+						},
+						"assign_public_ip": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+
 			// User security groups
 			"security_group_ids": {
 				Type:     schema.TypeSet,
@@ -384,6 +425,17 @@ func resourceYandexMDBOpenSearchClusterReadEx(d *schema.ResourceData, meta inter
 		cluster.SecurityGroupIds = []string{}
 	}
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
+		return err
+	}
+
+	actualHosts, err := listOpensearchHosts(ctx, config, d.Id())
+	if err != nil {
+		return err
+	}
+
+	result := flattenOpensearchHosts(actualHosts)
+
+	if err := d.Set("hosts", result); err != nil {
 		return err
 	}
 
@@ -948,4 +1000,83 @@ func makeDeleteDashboardsNodeGroupRequest(req *opensearch.DeleteDashboardsNodeGr
 		return fmt.Errorf("Error updating OpenSearch Cluster (deleting dashboards nodegroup) %q: %s", d.Id(), err)
 	}
 	return nil
+}
+
+func listOpensearchHosts(ctx context.Context, config *Config, clusterID string) ([]*opensearch.Host, error) {
+	hosts := []*opensearch.Host{}
+	pageToken := ""
+	for {
+		resp, err := config.sdk.MDB().OpenSearch().Cluster().ListHosts(ctx, &opensearch.ListClusterHostsRequest{
+			ClusterId: clusterID,
+			PageSize:  defaultMDBPageSize,
+			PageToken: pageToken,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("error while getting list of hosts for '%s': %s", clusterID, err)
+		}
+		hosts = append(hosts, resp.Hosts...)
+		if resp.NextPageToken == "" || resp.NextPageToken == "0" {
+			break
+		}
+		pageToken = resp.NextPageToken
+	}
+	return hosts, nil
+}
+
+func opensearchNodeGroupsDiffCustomize(ctx context.Context, rdiff *schema.ResourceDiff, meta interface{}) error {
+	oc, nc := rdiff.GetChange("config")
+	if oc == nil {
+		if nc == nil {
+			return fmt.Errorf("Missing required option: config")
+		}
+	}
+
+	var (
+		oldConfig = expandOpenSearchConfigCreateSpec(oc)
+		newConfig = expandOpenSearchConfigCreateSpec(nc)
+	)
+
+	if isNodeGroupsChanged(oldConfig, newConfig) {
+		err := rdiff.SetNewComputed("hosts")
+		if err != nil {
+			return err
+		}
+	}
+
+	if modifyConfig(oldConfig, newConfig) {
+		flattened := flattenOpenSearchConfigCreateSpec(newConfig)
+		err := rdiff.SetNew("config", flattened)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func isNodeGroupsChanged(oldConfig, newConfig *opensearch.ConfigCreateSpec) bool {
+	if (oldConfig == nil || newConfig == nil) ||
+		(oldConfig.OpensearchSpec == nil || newConfig.OpensearchSpec == nil) ||
+		(oldConfig.DashboardsSpec == nil || newConfig.DashboardsSpec == nil) {
+
+		return false
+	}
+
+	if len(oldConfig.OpensearchSpec.NodeGroups) != len(newConfig.OpensearchSpec.NodeGroups) {
+		return true
+	}
+
+	if len(oldConfig.DashboardsSpec.NodeGroups) != len(newConfig.DashboardsSpec.NodeGroups) {
+		return true
+	}
+
+	if !reflect.DeepEqual(oldConfig.OpensearchSpec.NodeGroups, newConfig.OpensearchSpec.NodeGroups) {
+		return true
+	}
+
+	if !reflect.DeepEqual(oldConfig.DashboardsSpec.NodeGroups, newConfig.DashboardsSpec.NodeGroups) {
+		return true
+	}
+
+	return false
 }

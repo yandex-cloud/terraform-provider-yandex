@@ -264,6 +264,24 @@ In addition to the arguments listed above, the following computed attributes are
 * `status` - Status of the cluster. Can be either `CREATING`, `STARTING`, `RUNNING`, `UPDATING`, `STOPPING`, `STOPPED`, `ERROR` or `STATUS_UNKNOWN`.
   For more information see `status` field of JSON representation in [the official documentation](https://cloud.yandex.com/docs/managed-opensearch/api-ref/Cluster/).
 
+* `hosts` - A hosts of the OpenSearch cluster. The structure is documented below.
+
+The `hosts` block supports:
+
+* `fqdn` - The fully qualified domain name of the host.
+
+* `zone` - The availability zone where the OpenSearch host will be created.
+  For more information see [the official documentation](https://cloud.yandex.com/docs/overview/concepts/geo-scope).
+
+* `type` - The type of the deployed host. Can be either `OPENSEARCH` or `DASHBOARDS`.
+
+* `roles` - The roles of the deployed host. Can contain `DATA` and/or `MANAGER` roles. Will be empty for `DASHBOARDS` type.
+
+* `subnet_id` - The ID of the subnet, to which the host belongs. The subnet must
+  be a part of the network to which the cluster belongs.
+
+* `assign_public_ip` - Sets whether the host should get a public IP address. Can be either `true` or `false`.
+
 ## Import
 
 A cluster can be imported using the `id` of the resource, e.g.
