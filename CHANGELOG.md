@@ -1,3 +1,12 @@
+## 0.117.0 (April 25, 2024)
+
+FEATURES:
+* add provider_cname in cdn resource schema and set it for read and update operations.
+
+ENHANCEMENTS:
+* opensearch: add `hosts` computed attribute
+* opensearch: replace deprecated methods and logger 
+
 ## 0.116.0 (April 18, 2024)
 
 FEATURES:

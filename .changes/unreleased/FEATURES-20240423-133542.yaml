@@ -1,3 +1,0 @@
-kind: FEATURES
-body: add provider_cname in cdn resource schema and set it for read and update operations.
-time: 2024-04-23T13:35:42.460920502+03:00
