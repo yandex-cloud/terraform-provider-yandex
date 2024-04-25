@@ -4,15 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
 
 func dataSourceYandexMDBOpenSearchCluster() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexMDBOpenSearchClusterRead,
+		ReadContext: dataSourceYandexMDBOpenSearchClusterRead,
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
 				Type:     schema.TypeString,
@@ -309,13 +310,12 @@ func dataSourceYandexMDBOpenSearchCluster() *schema.Resource {
 	}
 }
 
-func dataSourceYandexMDBOpenSearchClusterRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceYandexMDBOpenSearchClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	ctx := context.Background()
 
 	err := checkOneOf(d, "cluster_id", "name")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	clusterID := d.Get("cluster_id").(string)
@@ -324,7 +324,7 @@ func dataSourceYandexMDBOpenSearchClusterRead(d *schema.ResourceData, meta inter
 	if clusterNameOk {
 		clusterID, err = resolveObjectID(ctx, config, d, sdkresolvers.OpenSearchClusterResolver)
 		if err != nil {
-			return fmt.Errorf("failed to resolve data source Opensearch Cluster by name: %v", err)
+			return diag.Errorf("failed to resolve data source Opensearch Cluster by name: %v", err)
 		}
 
 		d.Set("cluster_id", clusterID)
@@ -334,14 +334,17 @@ func dataSourceYandexMDBOpenSearchClusterRead(d *schema.ResourceData, meta inter
 		ClusterId: clusterID,
 	})
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string)))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Cluster %q", d.Get("name").(string))))
 	}
 
 	mw := flattenOpenSearchMaintenanceWindow(cluster.MaintenanceWindow)
 	if err := d.Set("maintenance_window", mw); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(clusterID)
-	return resourceYandexMDBOpenSearchClusterReadEx(d, meta, "DataSource")
+	if err := resourceYandexMDBOpenSearchClusterReadEx(ctx, d, meta, "DataSource"); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
 }

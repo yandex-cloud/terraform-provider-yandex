@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
@@ -13,6 +12,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"google.golang.org/genproto/protobuf/field_mask"
@@ -28,13 +29,12 @@ const (
 
 func resourceYandexMDBOpenSearchCluster() *schema.Resource {
 	return &schema.Resource{
-
-		Create: resourceYandexMDBOpenSearchClusterCreate,
-		Read:   resourceYandexMDBOpenSearchClusterRead,
-		Update: resourceYandexMDBOpenSearchClusterUpdate,
-		Delete: resourceYandexMDBOpenSearchClusterDelete,
+		CreateContext: resourceYandexMDBOpenSearchClusterCreate,
+		ReadContext:   resourceYandexMDBOpenSearchClusterRead,
+		UpdateContext: resourceYandexMDBOpenSearchClusterUpdate,
+		DeleteContext: resourceYandexMDBOpenSearchClusterDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -378,15 +378,17 @@ func openSearchResourcesSchema() *schema.Resource {
 	}
 }
 
-func resourceYandexMDBOpenSearchClusterRead(d *schema.ResourceData, meta interface{}) error {
-	return resourceYandexMDBOpenSearchClusterReadEx(d, meta, "ResourceRead")
+func resourceYandexMDBOpenSearchClusterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if err := resourceYandexMDBOpenSearchClusterReadEx(ctx, d, meta, "ResourceRead"); err != nil {
+		return diag.FromErr(err)
+	}
+	return nil
 }
 
-func resourceYandexMDBOpenSearchClusterReadEx(d *schema.ResourceData, meta interface{}, from string) error {
+func resourceYandexMDBOpenSearchClusterReadEx(ctx context.Context, d *schema.ResourceData, meta interface{}, from string) error {
 	config := meta.(*Config)
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
-	defer cancel()
+	tflog.Debug(ctx, "Reading OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
 
 	cluster, err := config.sdk.MDB().OpenSearch().Cluster().Get(ctx, &opensearch.GetClusterRequest{
 		ClusterId: d.Id(),
@@ -448,6 +450,8 @@ func resourceYandexMDBOpenSearchClusterReadEx(d *schema.ResourceData, meta inter
 		return err
 	}
 
+	tflog.Debug(ctx, "Finished reading OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
+
 	return nil
 }
 
@@ -470,7 +474,7 @@ func waitOperationWithRetry(operation *operation.Operation, ctx *context.Context
 		var op *sdkoperation.Operation
 		op, err = config.sdk.WrapOperation(operation, nil)
 		if err != nil {
-			return fmt.Errorf("error while requesting API for %s: %s", caller, err)
+			return fmt.Errorf("error while requesting API for %s: %w", caller, err)
 		}
 
 		err = op.Wait(*ctx)
@@ -488,13 +492,15 @@ func waitOperationWithRetry(operation *operation.Operation, ctx *context.Context
 	return err
 }
 
-func resourceYandexMDBOpenSearchClusterCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBOpenSearchClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+
+	tflog.Debug(ctx, "Creating OpenSearch Cluster")
 
 	req, err := prepareCreateOpenSearchRequest(d, config)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutCreate))
@@ -502,48 +508,50 @@ func resourceYandexMDBOpenSearchClusterCreate(d *schema.ResourceData, meta inter
 
 	op, err := config.sdk.WrapOperation(config.sdk.MDB().OpenSearch().Cluster().Create(ctx, req))
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to create OpenSearch Cluster: %s", err)
+		return diag.Errorf("Error while requesting API to create OpenSearch Cluster: %s", err)
 	}
 
 	protoMetadata, err := op.Metadata()
 	if err != nil {
-		return fmt.Errorf("Error while get OpenSearch Cluster create operation metadata: %s", err)
+		return diag.Errorf("Error while get OpenSearch Cluster create operation metadata: %s", err)
 	}
 
 	md, ok := protoMetadata.(*opensearch.CreateClusterMetadata)
 	if !ok {
-		return fmt.Errorf("Could not get OpenSearch Cluster ID from create operation metadata")
+		return diag.Errorf("Could not get OpenSearch Cluster ID from create operation metadata")
 	}
 
 	d.SetId(md.ClusterId)
 
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("Error while waiting for operation to create OpenSearch Cluster: %s", err)
+		return diag.Errorf("Error while waiting for operation to create OpenSearch Cluster: %s", err)
 	}
 
 	if _, err := op.Response(); err != nil {
-		return fmt.Errorf("OpenSearch Cluster creation failed: %s", err)
+		return diag.FromErr(fmt.Errorf("OpenSearch Cluster creation failed: %w", err))
 	}
 
-	return resourceYandexMDBOpenSearchClusterRead(d, meta)
+	tflog.Debug(ctx, "Finishing creating OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
+
+	return resourceYandexMDBOpenSearchClusterRead(ctx, d, meta)
 }
 
 func prepareCreateOpenSearchRequest(d *schema.ResourceData, meta *Config) (*opensearch.CreateClusterRequest, error) {
 	labels, err := expandLabels(d.Get("labels"))
 	if err != nil {
-		return nil, fmt.Errorf("error while expanding labels on OpenSearch Cluster create: %s", err)
+		return nil, fmt.Errorf("error while expanding labels on OpenSearch Cluster create: %w", err)
 	}
 
 	folderID, err := getFolderID(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting folder ID while creating OpenSearch Cluster: %s", err)
+		return nil, fmt.Errorf("Error getting folder ID while creating OpenSearch Cluster: %w", err)
 	}
 
 	e := d.Get("environment").(string)
 	env, err := parseOpenSearchEnv(e)
 	if err != nil {
-		return nil, fmt.Errorf("Error resolving environment while creating OpenSearch Cluster: %s", err)
+		return nil, fmt.Errorf("Error resolving environment while creating OpenSearch Cluster: %w", err)
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -552,12 +560,12 @@ func prepareCreateOpenSearchRequest(d *schema.ResourceData, meta *Config) (*open
 
 	networkID, err := expandAndValidateNetworkId(d, meta)
 	if err != nil {
-		return nil, fmt.Errorf("Error while expanding network id on OpenSearch Cluster create: %s", err)
+		return nil, fmt.Errorf("Error while expanding network id on OpenSearch Cluster create: %w", err)
 	}
 
 	mntWindow, err := expandOpenSearchMaintenanceWindow(d)
 	if err != nil {
-		return nil, fmt.Errorf("Error while expanding maintenance window on OpenSearch Cluster create: %s", err)
+		return nil, fmt.Errorf("Error while expanding maintenance window on OpenSearch Cluster create: %w", err)
 	}
 
 	req := &opensearch.CreateClusterRequest{
@@ -580,53 +588,55 @@ func prepareCreateOpenSearchRequest(d *schema.ResourceData, meta *Config) (*open
 	return req, nil
 }
 
-func resourceYandexMDBOpenSearchClusterDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBOpenSearchClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	log.Printf("[DEBUG] Deleting OpenSearch Cluster %q", d.Id())
+	tflog.Debug(ctx, "Deleting OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
 
 	req := &opensearch.DeleteClusterRequest{
 		ClusterId: d.Id(),
 	}
 
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutDelete))
-	defer cancel()
-
 	op, err := config.sdk.MDB().OpenSearch().Cluster().Delete(ctx, req)
 	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Opensearch Cluster %q", d.Id()))
+		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("Opensearch Cluster %q", d.Id())))
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Cluster Delete")
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Finished deleting OpenSearch Cluster %q", d.Id())
+	tflog.Debug(ctx, "Finished deleting OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
 
 	return nil
 }
 
-func resourceYandexMDBOpenSearchClusterUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceYandexMDBOpenSearchClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	tflog.Debug(ctx, "Updating OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
+
 	d.Partial(true)
 
-	if err := updateOpenSearchClusterParams(d, meta); err != nil {
-		return err
+	if err := updateOpenSearchClusterParams(ctx, d, meta); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if err := updateOpenSearchNodeGroupsParams(d, meta); err != nil {
-		return err
+	if err := updateOpenSearchNodeGroupsParams(ctx, d, meta); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if err := updateDashboardsNodeGroupsParams(d, meta); err != nil {
-		return err
+	if err := updateDashboardsNodeGroupsParams(ctx, d, meta); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.Partial(false)
-	return resourceYandexMDBOpenSearchClusterRead(d, meta)
+
+	tflog.Debug(ctx, "Finishing updating OpenSearch Cluster", map[string]interface{}{"id": d.Id()})
+
+	return resourceYandexMDBOpenSearchClusterRead(ctx, d, meta)
 }
 
-func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) error {
+func updateOpenSearchNodeGroupsParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	oc, nc := d.GetChange("config")
 	oldConfig := expandOpenSearchConfigCreateSpec(oc)
 	newConfig := expandOpenSearchConfigCreateSpec(nc)
@@ -660,7 +670,7 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		err = makeAddOpenSearchNodeGroupRequest(request, d, meta)
+		err = makeAddOpenSearchNodeGroupRequest(ctx, request, d, meta)
 		if err != nil {
 			return err
 		}
@@ -704,14 +714,14 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	}
 	//1) increase managers count
 	for _, request := range managersToIncrease {
-		err := makeUpdateOpenSearchNodeGroupRequest(request, d, meta)
+		err := makeUpdateOpenSearchNodeGroupRequest(ctx, request, d, meta)
 		if err != nil {
 			return err
 		}
 	}
 	//2) decrease data/managers host count
 	for _, request := range dataManagersToDecrease {
-		err := makeUpdateOpenSearchNodeGroupRequest(request, d, meta)
+		err := makeUpdateOpenSearchNodeGroupRequest(ctx, request, d, meta)
 		if err != nil {
 			return err
 		}
@@ -719,7 +729,7 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 
 	//3) all other activities
 	for _, request := range otherGroupsToUpdate {
-		err := makeUpdateOpenSearchNodeGroupRequest(request, d, meta)
+		err := makeUpdateOpenSearchNodeGroupRequest(ctx, request, d, meta)
 		if err != nil {
 			return err
 		}
@@ -729,7 +739,7 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	for _, g := range oldGroups {
 		if _, ok := newGroupsByName[g.Name]; !ok {
 			request := createDeleteOpenSearchNodeGroupRequest(d.Id(), g)
-			err := makeDeleteOpenSearchNodeGroupRequest(request, d, meta)
+			err := makeDeleteOpenSearchNodeGroupRequest(ctx, request, d, meta)
 			if err != nil {
 				return err
 			}
@@ -737,7 +747,7 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	}
 	//4) finally decrease host count in managers group
 	for _, request := range managersToDecrease {
-		err := makeUpdateOpenSearchNodeGroupRequest(request, d, meta)
+		err := makeUpdateOpenSearchNodeGroupRequest(ctx, request, d, meta)
 		if err != nil {
 			return err
 		}
@@ -746,7 +756,7 @@ func updateOpenSearchNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) error {
+func updateDashboardsNodeGroupsParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	oc, nc := d.GetChange("config")
 	oldConfig := expandOpenSearchConfigCreateSpec(oc)
 	newConfig := expandOpenSearchConfigCreateSpec(nc)
@@ -769,7 +779,7 @@ func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return err
 			}
-			err = makeAddDashboardsNodeGroupRequest(request, d, meta)
+			err = makeAddDashboardsNodeGroupRequest(ctx, request, d, meta)
 			if err != nil {
 				return err
 			}
@@ -786,7 +796,7 @@ func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 			if err != nil {
 				return err
 			}
-			err = makeUpdateDashboardsNodeGroupRequest(request, d, meta)
+			err = makeUpdateDashboardsNodeGroupRequest(ctx, request, d, meta)
 			if err != nil {
 				return err
 			}
@@ -797,7 +807,7 @@ func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	for _, g := range oldGroups {
 		if _, ok := newGroupsByName[g.Name]; !ok {
 			request := createDeleteDashboardsNodeGroupRequest(d.Id(), g)
-			err := makeDeleteDashboardsNodeGroupRequest(request, d, meta)
+			err := makeDeleteDashboardsNodeGroupRequest(ctx, request, d, meta)
 			if err != nil {
 				return err
 			}
@@ -806,7 +816,7 @@ func updateDashboardsNodeGroupsParams(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func updateOpenSearchClusterParams(d *schema.ResourceData, meta interface{}) error {
+func updateOpenSearchClusterParams(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
 	req := &opensearch.UpdateClusterRequest{
 		ClusterId: d.Id(),
 		UpdateMask: &field_mask.FieldMask{
@@ -868,7 +878,7 @@ func updateOpenSearchClusterParams(d *schema.ResourceData, meta interface{}) err
 	if len(req.UpdateMask.Paths) == 0 {
 		return nil
 	}
-	err := makeOpenSearchClusterUpdateRequest(req, d, meta)
+	err := makeOpenSearchClusterUpdateRequest(ctx, req, d, meta)
 	if err != nil {
 		return err
 	}
@@ -876,128 +886,107 @@ func updateOpenSearchClusterParams(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func makeOpenSearchClusterUpdateRequest(req *opensearch.UpdateClusterRequest, d *schema.ResourceData, meta interface{}) error {
+func makeOpenSearchClusterUpdateRequest(ctx context.Context, req *opensearch.UpdateClusterRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().Update(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Cluster Update")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeAddOpenSearchNodeGroupRequest(req *opensearch.AddOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeAddOpenSearchNodeGroupRequest(ctx context.Context, req *opensearch.AddOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().AddOpenSearchNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (adding nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (adding nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Add Nodegroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (adding nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (adding nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeUpdateOpenSearchNodeGroupRequest(req *opensearch.UpdateOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeUpdateOpenSearchNodeGroupRequest(ctx context.Context, req *opensearch.UpdateOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().UpdateOpenSearchNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (updating nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (updating nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Update NodeGroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (updating nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (updating nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeDeleteOpenSearchNodeGroupRequest(req *opensearch.DeleteOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeDeleteOpenSearchNodeGroupRequest(ctx context.Context, req *opensearch.DeleteOpenSearchNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().DeleteOpenSearchNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (deleting nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (deleting nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Delete NodeGroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (deleting nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (deleting nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeAddDashboardsNodeGroupRequest(req *opensearch.AddDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeAddDashboardsNodeGroupRequest(ctx context.Context, req *opensearch.AddDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().AddDashboardsNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (adding dashboards nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (adding dashboards nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Add Dashboards NodeGroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (adding nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (adding nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeUpdateDashboardsNodeGroupRequest(req *opensearch.UpdateDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeUpdateDashboardsNodeGroupRequest(ctx context.Context, req *opensearch.UpdateDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().UpdateDashboardsNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (updating dashboards nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (updating dashboards nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Update Dashboards NodeGroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (updating dashboards nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (updating dashboards nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
 
-func makeDeleteDashboardsNodeGroupRequest(req *opensearch.DeleteDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
+func makeDeleteDashboardsNodeGroupRequest(ctx context.Context, req *opensearch.DeleteDashboardsNodeGroupRequest, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout(schema.TimeoutUpdate))
-	defer cancel()
 
 	op, err := config.sdk.MDB().OpenSearch().Cluster().DeleteDashboardsNodeGroup(ctx, req)
 	if err != nil {
-		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (deleting dashboards nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error while requesting API to update OpenSearch Cluster (deleting dashboards nodegroup) %q: %w", d.Id(), err)
 	}
 
 	err = waitOperationWithRetry(op, &ctx, config, "Delete Dashboards NodeGroup")
 	if err != nil {
-		return fmt.Errorf("Error updating OpenSearch Cluster (deleting dashboards nodegroup) %q: %s", d.Id(), err)
+		return fmt.Errorf("Error updating OpenSearch Cluster (deleting dashboards nodegroup) %q: %w", d.Id(), err)
 	}
 	return nil
 }
