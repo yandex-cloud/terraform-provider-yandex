@@ -1745,6 +1745,7 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 	// Do not remove implicit ZooKeeper subcluster.
 	if len(currZkHosts) > 1 && len(targetZkHosts) == 0 {
 		delete(toDelete, "zk")
+		delete(toDelete, "") // no shard == zk subcluster
 	}
 
 	currShards, err := listClickHouseShards(ctx, config, d.Id())
@@ -1752,6 +1753,7 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
+	hostSpecsToAdd := []*clickhouse.HostSpec{}
 	for shardName, specs := range toAdd {
 		shardExists := false
 		for _, s := range currShards {
@@ -1766,15 +1768,18 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 				return err
 			}
 		} else {
-			for _, h := range specs {
-				err := createClickHouseHost(ctx, config, d, h)
-				if err != nil {
-					return err
-				}
-			}
+			hostSpecsToAdd = append(hostSpecsToAdd, specs...)
 		}
 	}
 
+	if len(hostSpecsToAdd) > 0 {
+		err := createClickHouseHosts(ctx, config, d, hostSpecsToAdd)
+		if err != nil {
+			return err
+		}
+	}
+
+	hostFqdnsToDelete := []string{}
 	for shardName, fqdns := range toDelete {
 		deleteShard := true
 		for _, th := range targetHosts {
@@ -1782,18 +1787,20 @@ func updateClickHouseClusterHosts(d *schema.ResourceData, meta interface{}) erro
 				deleteShard = false
 			}
 		}
-		if shardName != "zk" && deleteShard {
+		if shardName != "zk" && shardName != "" && deleteShard {
 			err = deleteClickHouseShard(ctx, config, d, shardName)
 			if err != nil {
 				return err
 			}
 		} else {
-			for _, h := range fqdns {
-				err := deleteClickHouseHost(ctx, config, d, h)
-				if err != nil {
-					return err
-				}
-			}
+			hostFqdnsToDelete = append(hostFqdnsToDelete, fqdns...)
+		}
+	}
+
+	if len(hostFqdnsToDelete) > 0 {
+		err := deleteClickHouseHosts(ctx, config, d, hostFqdnsToDelete)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -2043,20 +2050,20 @@ func updateClickHouseUser(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
-func createClickHouseHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *clickhouse.HostSpec) error {
+func createClickHouseHosts(ctx context.Context, config *Config, d *schema.ResourceData, spec []*clickhouse.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().AddHosts(ctx, &clickhouse.AddClusterHostsRequest{
 			ClusterId:  d.Id(),
-			HostSpecs:  []*clickhouse.HostSpec{spec},
+			HostSpecs:  spec,
 			CopySchema: &wrappers.BoolValue{Value: d.Get("copy_schema_on_new_hosts").(bool)},
 		}),
 	)
 	if err != nil {
-		return fmt.Errorf("error while requesting API to add host to ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to add hosts to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while adding host to ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while adding hosts to ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }
@@ -2078,19 +2085,19 @@ func updateClickHouseHost(ctx context.Context, config *Config, d *schema.Resourc
 	return nil
 }
 
-func deleteClickHouseHost(ctx context.Context, config *Config, d *schema.ResourceData, fqdn string) error {
+func deleteClickHouseHosts(ctx context.Context, config *Config, d *schema.ResourceData, fqdns []string) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().Clickhouse().Cluster().DeleteHosts(ctx, &clickhouse.DeleteClusterHostsRequest{
 			ClusterId: d.Id(),
-			HostNames: []string{fqdn},
+			HostNames: fqdns,
 		}),
 	)
 	if err != nil {
-		return fmt.Errorf("error while requesting API to delete host from ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to delete hosts from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while deleting host from ClickHouse Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while deleting hosts from ClickHouse Cluster %q: %s", d.Id(), err)
 	}
 	return nil
 }

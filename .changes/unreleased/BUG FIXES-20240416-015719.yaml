@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'clickhouse: save implicit zookeeper subcluster on hosts changes'
+time: 2024-04-16T01:57:19.316977611+03:00
