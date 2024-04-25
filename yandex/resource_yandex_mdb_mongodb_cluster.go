@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
+
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -67,6 +69,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			"user": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Set:      mongodbUserHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -107,6 +110,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 			"database": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Set:      mongodbDatabaseHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -730,6 +734,24 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 				Computed: true,
 			},
 		},
+		CustomizeDiff: customdiff.All(
+			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+				stateDbsCnt := d.Get("database").(*schema.Set).Len()
+				if stateDbsCnt == 0 {
+					if err := d.Clear("database"); err != nil {
+						return err
+					}
+				}
+
+				stateUsersCnt := d.Get("user").(*schema.Set).Len()
+				if stateUsersCnt == 0 {
+					if err := d.Clear("user"); err != nil {
+						return err
+					}
+				}
+				return nil
+			},
+		),
 	}
 }
 

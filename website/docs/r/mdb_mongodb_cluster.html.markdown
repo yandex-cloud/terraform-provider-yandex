@@ -90,9 +90,9 @@ The following arguments are supported:
 
 * `cluster_config` - (Required) Configuration of the MongoDB subcluster. The structure is documented below.
 
-* `user` - (Required) A user of the MongoDB cluster. The structure is documented below.
+* `user` - (Optional) A user of the MongoDB cluster. The structure is documented below.
 
-* `database` - (Required) A database of the MongoDB cluster. The structure is documented below.
+* `database` - (Optional) A database of the MongoDB cluster. The structure is documented below.
 
 * `host` - (Required) A host of the MongoDB cluster. The structure is documented below.
 
