@@ -29,6 +29,7 @@ resource "yandex_compute_instance" "default" {
   }
 
   network_interface {
+    index  = 1
     subnet_id = "${yandex_vpc_subnet.foo.id}"
   }
 
@@ -160,6 +161,9 @@ The `network_interface` block supports:
 * `subnet_id` - (Required) ID of the subnet to attach this
     interface to. The subnet must exist in the same zone where this instance will be
     created.
+
+* `index` - (Optional) Index of network interface, will be calculated automatically for instance create or update operations
+    if not specified. Required for attach/detach operations.
 
 * `ipv4` - (Optional) Allocate an IPv4 address for the interface. The default value is `true`.
 

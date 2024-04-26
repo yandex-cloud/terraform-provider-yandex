@@ -721,7 +721,36 @@ func TestAccComputeInstance_stopInstanceToUpdateResourcesAndPlatform(t *testing.
 					testAccCheckComputeInstanceHasResources(&instance, 2, 50, 1),
 				),
 			},
+		},
+	})
+}
+
+func TestAccComputeInstance_stopInstanceToUpdateAttachDetachNetworkIfaces(t *testing.T) {
+	var instance compute.Instance
+	var instanceName = fmt.Sprintf("instance-test-%s", acctest.RandString(10))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_stopInstanceToUpdate_attach_detach_NetworkInterfaces(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						instanceResource, &instance),
+				),
+			},
 			computeInstanceImportStep(),
+			// Check that instance interfaces was updated
+			{
+				Config: testAccComputeInstance_stopInstanceToUpdate_attach_detach_NetworkInterfaces2(instanceName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(
+						instanceResource, &instance),
+					testAccCheckComputeInstanceHasNetworkInterfaces(&instance, []string{"0", "2", "3"}),
+				),
+			},
 		},
 	})
 }
@@ -1800,6 +1829,22 @@ func testAccCheckComputeInstanceHasNoLabel(instance *compute.Instance, key strin
 	}
 }
 
+func testAccCheckComputeInstanceHasNetworkInterfaces(instance *compute.Instance, networkInterfacesIndexes []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		instanceNetworkIfaces := instance.GetNetworkInterfaces()
+		if len(instanceNetworkIfaces) != len(networkInterfacesIndexes) {
+			return fmt.Errorf("Wrong instance network interfaces count: expected %d, got %d", len(networkInterfacesIndexes), len(instanceNetworkIfaces))
+		}
+		for index, iface := range instanceNetworkIfaces {
+			if iface.Index != networkInterfacesIndexes[index] {
+				return fmt.Errorf("Wrong instance network interface resource: expected index #%s, got index #%s",
+					iface.Index, networkInterfacesIndexes[index])
+			}
+		}
+		return nil
+	}
+}
+
 func testAccCheckComputeInstanceHasPlatformID(instance *compute.Instance, platformID string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if instance.PlatformId != platformID {
@@ -2843,6 +2888,206 @@ resource "yandex_compute_instance" "foobar" {
     subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
     nat                = false
     security_group_ids = []
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_security_group" "sg1" {
+  depends_on  = ["yandex_vpc_network.inst-test-network"]
+  name        = "tf-test-sg-2"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-test-network.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+// Attach/detach network_interface
+func testAccComputeInstance_stopInstanceToUpdate_attach_detach_NetworkInterfaces(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
+  }
+
+  network_interface {
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
+  }
+
+  metadata = {
+    bar            = "baz"
+    startup-script = "echo Hello"
+  }
+
+  labels = {
+    only_me = "nothing_else"
+  }
+
+  service_account_id = "${yandex_iam_service_account.inst-test-sa.id}"
+}
+
+resource "yandex_iam_service_account" "inst-test-sa" {
+  name        = "%[1]s"
+  description = "instance update test service account"
+}
+
+resource "yandex_vpc_network" "inst-test-network" {}
+
+resource "yandex_vpc_security_group" "sg1" {
+  depends_on  = ["yandex_vpc_network.inst-test-network"]
+  name        = "tf-test-sg-2"
+  description = "description"
+  network_id  = "${yandex_vpc_network.inst-test-network.id}"
+
+  labels = {
+    tf-label    = "tf-label-value-a"
+    empty-label = ""
+  }
+
+  ingress {
+    description    = "rule1 description"
+    protocol       = "TCP"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    description    = "rule2 description"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+
+resource "yandex_vpc_subnet" "inst-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["192.168.0.0/24"]
+}
+
+resource "yandex_vpc_subnet" "inst-update-test-subnet" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.inst-test-network.id}"
+  v4_cidr_blocks = ["10.0.0.0/24"]
+}
+`, instance)
+}
+
+func testAccComputeInstance_stopInstanceToUpdate_attach_detach_NetworkInterfaces2(instance string) string {
+	// language=tf
+	return fmt.Sprintf(`
+data "yandex_compute_image" "ubuntu" {
+  family = "ubuntu-1804-lts"
+}
+
+resource "yandex_compute_instance" "foobar" {
+  name = "%[1]s"
+  zone = "ru-central1-a"
+  platform_id = "standard-v2"
+
+  allow_stopping_for_update = true
+
+  resources {
+    cores  = 2
+    memory = 2
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = "${data.yandex_compute_image.ubuntu.id}"
+    }
+  }
+
+  network_interface {
+	index              = 0
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
+  }
+
+  network_interface {
+	index              = 2
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
+  }
+
+  network_interface {
+	index              = 3
+    subnet_id          = "${yandex_vpc_subnet.inst-update-test-subnet.id}"
+    nat                = true
+    security_group_ids = ["${yandex_vpc_security_group.sg1.id}"]
   }
 
   metadata = {

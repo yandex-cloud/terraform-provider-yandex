@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -231,6 +232,7 @@ func resourceYandexComputeInstance() *schema.Resource {
 
 						"index": {
 							Type:     schema.TypeInt,
+							Optional: true,
 							Computed: true,
 						},
 
@@ -1000,120 +1002,32 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 	var addNatRequests []*compute.AddInstanceOneToOneNatRequest
 	var removeNatRequests []*compute.RemoveInstanceOneToOneNatRequest
 	var updateInterfaceRequests []*compute.UpdateInstanceNetworkInterfaceRequest
+	var attachInterfaceRequests []*compute.AttachInstanceNetworkInterfaceRequest
+	var detachInterfaceRequests []*compute.DetachInstanceNetworkInterfaceRequest
 	if d.HasChange(networkInterfacesPropName) {
 		o, n := d.GetChange(networkInterfacesPropName)
 		oldList := o.([]interface{})
 		newList := n.([]interface{})
 
 		if len(oldList) != len(newList) {
-			return fmt.Errorf("Changing count of network interfaces is't supported yet")
-		}
+			log.Printf("[DEBUG] Number of network interfaces has changed, processing attach/detach interfaces. " +
+				"Instance will be stopped")
+			needUpdateInterfacesOnStoppedInstance = true
 
-		for ifaceIndex := 0; ifaceIndex < len(oldList); ifaceIndex++ {
-			log.Printf("[DEBUG] Processing interface #%d", ifaceIndex)
-			oldIface := oldList[ifaceIndex].(map[string]interface{})
-			newIface := newList[ifaceIndex].(map[string]interface{})
-			req := &compute.UpdateInstanceNetworkInterfaceRequest{
-				InstanceId:            d.Id(),
-				NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-				UpdateMask: &field_mask.FieldMask{
-					Paths: []string{},
-				},
-			}
-
-			oldV4Spec, err := expandPrimaryV4AddressSpec(oldIface)
-			if err != nil {
-				return err
-			}
-			oldV6Spec, err := expandPrimaryV6AddressSpec(oldIface)
-			if err != nil {
-				return err
-			}
-			newV4Spec, err := expandPrimaryV4AddressSpec(newIface)
-			if err != nil {
-				return err
-			}
-			newV6Spec, err := expandPrimaryV6AddressSpec(newIface)
+			attachInterfaceRequests, detachInterfaceRequests, err = getSpecsForAttachDetachNetworkInterfaces(newList,
+				d.Id(), instance.NetworkInterfaces)
 			if err != nil {
 				return err
 			}
 
-			if oldIface["subnet_id"].(string) != newIface["subnet_id"].(string) {
-				// change subnet, update all the properties!
-				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "subnet_id", "primary_v4_address_spec", "primary_v6_address_spec")
-				// ...on stopped instance
-				needUpdateInterfacesOnStoppedInstance = true
-
-				req.SubnetId = newIface["subnet_id"].(string)
-				req.PrimaryV4AddressSpec = newV4Spec
-				if newV4Spec != nil && !d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ip_address")) {
-					req.PrimaryV4AddressSpec.Address = ""
-				}
-				req.PrimaryV6AddressSpec = newV6Spec
-				if newV6Spec != nil && d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ipv6_address")) {
-					req.PrimaryV6AddressSpec.Address = ""
-				}
-			} else {
-				if wantChangeAddressSpec(oldV4Spec, newV4Spec) {
-					// change primary v4 address
-					// ...on stopped instance?
-					if needToRestartDueToAddressChange(oldV4Spec, newV4Spec) {
-						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec")
-						needUpdateInterfacesOnStoppedInstance = true
-					} else if dnsSpecChanged(oldV4Spec, newV4Spec) {
-						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.dns_record_specs")
-						if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
-							req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
-						}
-					} else if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
-						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
-					}
-
-					req.PrimaryV4AddressSpec = newV4Spec
-				}
-				if natAddressSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
-					// changing nat address on maybe running instance, safer to use add/remove nat calls
-					if oldV4Spec.OneToOneNatSpec != nil {
-						removeNatRequests = append(removeNatRequests, &compute.RemoveInstanceOneToOneNatRequest{
-							InstanceId:            d.Id(),
-							NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-						})
-					}
-					if newV4Spec.OneToOneNatSpec != nil {
-						addNatRequests = append(addNatRequests, &compute.AddInstanceOneToOneNatRequest{
-							InstanceId:            d.Id(),
-							NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
-							OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
-						})
-					}
-				}
-
-				if wantChangeAddressSpec(oldV6Spec, newV6Spec) {
-					// change primary v6 address
-					// ...on stopped instance?
-					if needToRestartDueToAddressChange(oldV6Spec, newV6Spec) {
-						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec")
-						needUpdateInterfacesOnStoppedInstance = true
-					} else {
-						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec.dns_record_specs")
-					}
-
-					req.PrimaryV6AddressSpec = newV6Spec
-				}
+		} else {
+			updateInterfaceRequests, needUpdateInterfacesOnStoppedInstance, err = getSpecsForUpdateNetworkInterfaces(d, networkInterfacesPropName, oldList, newList)
+			if err != nil {
+				return err
 			}
-
-			oldSgs := expandSecurityGroupIds(oldIface["security_group_ids"])
-			newSgs := expandSecurityGroupIds(newIface["security_group_ids"])
-			if !reflect.DeepEqual(oldSgs, newSgs) {
-				log.Printf("[DEBUG]  changing sgs form %s to %s", oldSgs, newSgs)
-				// change security groups
-				req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
-
-				req.SecurityGroupIds = newSgs
-			}
-
-			if len(req.UpdateMask.Paths) > 0 {
-				updateInterfaceRequests = append(updateInterfaceRequests, req)
+			addNatRequests, removeNatRequests, err = getSpecsForAddRemoveNatNetworkInterfaces(d.Id(), oldList, newList)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -1136,7 +1050,6 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 					return err
 				}
 			}
-
 		}
 	}
 
@@ -1325,6 +1238,21 @@ func resourceYandexComputeInstanceUpdate(d *schema.ResourceData, meta interface{
 			}
 			for _, req := range updateInterfaceRequests {
 				err := makeInstanceUpdateNetworkInterfaceRequest(req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+			// Attach network interfaces
+			for _, req := range attachInterfaceRequests {
+				err := makeInstanceAttachNetworkInterfaceRequest(req, d, meta)
+				if err != nil {
+					return err
+				}
+			}
+
+			// Detach network interfaces
+			for _, req := range detachInterfaceRequests {
+				err := makeInstanceDetachNetworkInterfaceRequest(req, d, meta)
 				if err != nil {
 					return err
 				}
@@ -1741,6 +1669,44 @@ func makeInstanceRemoveOneToOneNatRequest(req *compute.RemoveInstanceOneToOneNat
 	return nil
 }
 
+func makeInstanceAttachNetworkInterfaceRequest(req *compute.AttachInstanceNetworkInterfaceRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().AttachNetworkInterface(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to attach network interface to the Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func makeInstanceDetachNetworkInterfaceRequest(req *compute.DetachInstanceNetworkInterfaceRequest, d *schema.ResourceData, meta interface{}) error {
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	op, err := config.sdk.WrapOperation(config.sdk.Compute().Instance().DetachNetworkInterface(ctx, req))
+	if err != nil {
+		return fmt.Errorf("Error while requesting API to detach network interface from the Instance %q: %s", d.Id(), err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("Error updating Instance %q: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
 func makeInstanceActionRequest(action instanceAction, d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -1926,6 +1892,182 @@ func ensureAllowStoppingForUpdate(d *schema.ResourceData, propNames ...string) e
 		return fmt.Errorf(message + "To acknowledge this action, please set allow_stopping_for_update = true in your config file.")
 	}
 	return nil
+}
+
+func getSpecsForAttachDetachNetworkInterfaces(newList []interface{}, instanceId string, instanceNetworkInterfaces []*compute.NetworkInterface) (attachInterfaceRequests []*compute.AttachInstanceNetworkInterfaceRequest, detachInterfaceRequests []*compute.DetachInstanceNetworkInterfaceRequest, err error) {
+	curIfaces := make(map[string]*compute.NetworkInterface, len(instanceNetworkInterfaces))
+	newIfaces := make(map[string]*compute.NetworkInterfaceSpec)
+
+	for _, iface := range instanceNetworkInterfaces {
+		curIfaces[iface.Index] = iface
+	}
+	for ifaceIndex := 0; ifaceIndex < len(newList); ifaceIndex++ {
+		newIface := newList[ifaceIndex].(map[string]interface{})
+		newIfaceindex, ok := newIface["index"].(int)
+		if !ok {
+			return nil, nil, fmt.Errorf("NIC number #%d does not have a 'index' attribute defined, you have "+
+				"to specify it", ifaceIndex)
+		}
+		index := strconv.Itoa(newIfaceindex)
+		iface, err := expandNetworkInterfaceSpec(newIface)
+		if err != nil {
+			return nil, nil, fmt.Errorf("Failed to process NIC number: #%d: %s", ifaceIndex, err)
+		}
+		newIfaces[index] = iface
+		if _, ok := curIfaces[index]; !ok {
+			attachInterfaceRequests = append(attachInterfaceRequests, &compute.AttachInstanceNetworkInterfaceRequest{
+				InstanceId:            instanceId,
+				NetworkInterfaceIndex: index,
+				PrimaryV4AddressSpec:  iface.PrimaryV4AddressSpec,
+				SecurityGroupIds:      iface.SecurityGroupIds,
+				SubnetId:              iface.SubnetId,
+			})
+		}
+	}
+	for index := range curIfaces {
+		if _, ok := newIfaces[index]; !ok {
+			detachInterfaceRequests = append(detachInterfaceRequests,
+				&compute.DetachInstanceNetworkInterfaceRequest{
+					InstanceId:            instanceId,
+					NetworkInterfaceIndex: index,
+				})
+		}
+	}
+	return attachInterfaceRequests, detachInterfaceRequests, nil
+}
+
+func getSpecsForUpdateNetworkInterfaces(d *schema.ResourceData, networkInterfacesPropName string, oldList []interface{}, newList []interface{}) (
+	updateInterfaceRequests []*compute.UpdateInstanceNetworkInterfaceRequest, stopInstance bool, err error) {
+	for ifaceIndex := 0; ifaceIndex < len(oldList); ifaceIndex++ {
+		log.Printf("[DEBUG] Processing interface #%d", ifaceIndex)
+		oldIface := oldList[ifaceIndex].(map[string]interface{})
+		newIface := newList[ifaceIndex].(map[string]interface{})
+
+		req := &compute.UpdateInstanceNetworkInterfaceRequest{
+			InstanceId:            d.Id(),
+			NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{},
+			},
+		}
+
+		oldV4Spec, err := expandPrimaryV4AddressSpec(oldIface)
+		if err != nil {
+			return nil, stopInstance, err
+		}
+		oldV6Spec, err := expandPrimaryV6AddressSpec(oldIface)
+		if err != nil {
+			return nil, stopInstance, err
+		}
+		newV4Spec, err := expandPrimaryV4AddressSpec(newIface)
+		if err != nil {
+			return nil, stopInstance, err
+		}
+		newV6Spec, err := expandPrimaryV6AddressSpec(newIface)
+		if err != nil {
+			return nil, stopInstance, err
+		}
+
+		if oldIface["subnet_id"].(string) != newIface["subnet_id"].(string) {
+			// change subnet, update all the properties!
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "subnet_id", "primary_v4_address_spec", "primary_v6_address_spec")
+			// ...on stopped instance
+			stopInstance = true
+
+			req.SubnetId = newIface["subnet_id"].(string)
+			req.PrimaryV4AddressSpec = newV4Spec
+			if newV4Spec != nil && !d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ip_address")) {
+				req.PrimaryV4AddressSpec.Address = ""
+			}
+			req.PrimaryV6AddressSpec = newV6Spec
+			if newV6Spec != nil && d.HasChange(fmt.Sprintf("%s.%d.%s", networkInterfacesPropName, ifaceIndex, "ipv6_address")) {
+				req.PrimaryV6AddressSpec.Address = ""
+			}
+		} else {
+			if wantChangeAddressSpec(oldV4Spec, newV4Spec) {
+				// change primary v4 address
+				// ...on stopped instance?
+				if needToRestartDueToAddressChange(oldV4Spec, newV4Spec) {
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec")
+					stopInstance = true
+				} else if dnsSpecChanged(oldV4Spec, newV4Spec) {
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.dns_record_specs")
+					if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+						req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
+					}
+				} else if natDnsSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v4_address_spec.one_to_one_nat_spec.dns_record_specs")
+				}
+
+				req.PrimaryV4AddressSpec = newV4Spec
+			}
+
+			if wantChangeAddressSpec(oldV6Spec, newV6Spec) {
+				// change primary v6 address
+				// ...on stopped instance?
+				if needToRestartDueToAddressChange(oldV6Spec, newV6Spec) {
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec")
+					stopInstance = true
+				} else {
+					req.UpdateMask.Paths = append(req.UpdateMask.Paths, "primary_v6_address_spec.dns_record_specs")
+				}
+
+				req.PrimaryV6AddressSpec = newV6Spec
+			}
+		}
+
+		oldSgs := expandSecurityGroupIds(oldIface["security_group_ids"])
+		newSgs := expandSecurityGroupIds(newIface["security_group_ids"])
+		if !reflect.DeepEqual(oldSgs, newSgs) {
+			log.Printf("[DEBUG]  changing sgs form %s to %s", oldSgs, newSgs)
+			// change security groups
+			req.UpdateMask.Paths = append(req.UpdateMask.Paths, "security_group_ids")
+
+			req.SecurityGroupIds = newSgs
+		}
+
+		if len(req.UpdateMask.Paths) > 0 {
+			updateInterfaceRequests = append(updateInterfaceRequests, req)
+		}
+	}
+	return updateInterfaceRequests, stopInstance, nil
+}
+
+func getSpecsForAddRemoveNatNetworkInterfaces(instanceId string, oldList []interface{}, newList []interface{}) (
+	addNatRequests []*compute.AddInstanceOneToOneNatRequest, removeNatRequests []*compute.RemoveInstanceOneToOneNatRequest, err error) {
+	for ifaceIndex := 0; ifaceIndex < len(oldList); ifaceIndex++ {
+		log.Printf("[DEBUG] Processing interface #%d", ifaceIndex)
+		oldIface := oldList[ifaceIndex].(map[string]interface{})
+		newIface := newList[ifaceIndex].(map[string]interface{})
+
+		oldV4Spec, err := expandPrimaryV4AddressSpec(oldIface)
+		if err != nil {
+			return nil, nil, err
+		}
+		newV4Spec, err := expandPrimaryV4AddressSpec(newIface)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if natAddressSpecChanged(oldV4Spec.OneToOneNatSpec, newV4Spec.OneToOneNatSpec) {
+			// changing nat address on maybe running instance, safer to use add/remove nat calls
+			if oldV4Spec.OneToOneNatSpec != nil {
+				removeNatRequests = append(removeNatRequests, &compute.RemoveInstanceOneToOneNatRequest{
+					InstanceId:            instanceId,
+					NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+				})
+			}
+			if newV4Spec.OneToOneNatSpec != nil {
+				addNatRequests = append(addNatRequests, &compute.AddInstanceOneToOneNatRequest{
+					InstanceId:            instanceId,
+					NetworkInterfaceIndex: fmt.Sprint(ifaceIndex),
+					OneToOneNatSpec:       newV4Spec.OneToOneNatSpec,
+				})
+			}
+		}
+
+	}
+	return addNatRequests, removeNatRequests, err
 }
 
 func hostnameDiffSuppressFunc(_, oldValue, newValue string, _ *schema.ResourceData) bool {

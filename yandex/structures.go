@@ -515,6 +515,88 @@ func expandPrimaryV6AddressSpec(config map[string]interface{}) (*compute.Primary
 	return nil, nil
 }
 
+func expandNetworkInterfaceSpec(data map[string]interface{}) (*compute.NetworkInterfaceSpec, error) {
+	subnetID := data["subnet_id"].(string)
+	if subnetID == "" {
+		return nil, fmt.Errorf("does not have a 'subnet_id' attribute defined")
+	}
+
+	iface := &compute.NetworkInterfaceSpec{
+		SubnetId: subnetID,
+	}
+
+	if sgids, ok := data["security_group_ids"]; ok {
+		iface.SecurityGroupIds = expandSecurityGroupIds(sgids)
+	}
+
+	ipV4Address := data["ip_address"].(string)
+	ipV6Address := data["ipv6_address"].(string)
+
+	// By default allocate any unassigned IPv4 address
+	if ipV4Address == "" && ipV6Address == "" {
+		iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
+	}
+
+	if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
+		iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
+	}
+
+	if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
+		iface.PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{}
+	}
+
+	if ipV4Address != "" {
+		iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+			Address: ipV4Address,
+		}
+	}
+
+	if ipV6Address != "" {
+		iface.PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{
+			Address: ipV6Address,
+		}
+	}
+
+	if nat, ok := data["nat"].(bool); ok && nat {
+		natSpec := &compute.OneToOneNatSpec{
+			IpVersion: compute.IpVersion_IPV4,
+		}
+
+		if natAddress, ok := data["nat_ip_address"].(string); ok && natAddress != "" {
+			natSpec = &compute.OneToOneNatSpec{
+				Address: natAddress,
+			}
+		}
+
+		if iface.PrimaryV4AddressSpec == nil {
+			iface.PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
+				OneToOneNatSpec: natSpec,
+			}
+		} else {
+			iface.PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
+		}
+	}
+
+	if rec, ok := data["dns_record"]; ok {
+		if iface.PrimaryV4AddressSpec != nil {
+			iface.PrimaryV4AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+		}
+	}
+
+	if rec, ok := data["ipv6_dns_record"]; ok {
+		if iface.PrimaryV6AddressSpec != nil {
+			iface.PrimaryV6AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+		}
+	}
+
+	if rec, ok := data["nat_dns_record"]; ok {
+		if iface.PrimaryV4AddressSpec != nil && iface.PrimaryV4AddressSpec.OneToOneNatSpec != nil {
+			iface.PrimaryV4AddressSpec.OneToOneNatSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
+		}
+	}
+	return iface, nil
+}
+
 func expandSecurityGroupIds(v interface{}) []string {
 	if v == nil {
 		return nil
@@ -597,84 +679,11 @@ func expandInstanceNetworkInterfaceSpecs(d *schema.ResourceData) ([]*compute.Net
 	for i, raw := range nicsConfig {
 		data := raw.(map[string]interface{})
 
-		subnetID := data["subnet_id"].(string)
-		if subnetID == "" {
-			return nil, fmt.Errorf("NIC number %d does not have a 'subnet_id' attribute defined", i)
+		iface, err := expandNetworkInterfaceSpec(data)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to process NIC number #%d:%v", i, err)
 		}
-
-		nics[i] = &compute.NetworkInterfaceSpec{
-			SubnetId: subnetID,
-		}
-
-		if sgids, ok := data["security_group_ids"]; ok {
-			nics[i].SecurityGroupIds = expandSecurityGroupIds(sgids)
-		}
-
-		ipV4Address := data["ip_address"].(string)
-		ipV6Address := data["ipv6_address"].(string)
-
-		// By default allocate any unassigned IPv4 address
-		if ipV4Address == "" && ipV6Address == "" {
-			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
-		}
-
-		if enableIPV4, ok := data["ipv4"].(bool); ok && enableIPV4 {
-			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{}
-		}
-
-		if enableIPV6, ok := data["ipv6"].(bool); ok && enableIPV6 {
-			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{}
-		}
-
-		if ipV4Address != "" {
-			nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
-				Address: ipV4Address,
-			}
-		}
-
-		if ipV6Address != "" {
-			nics[i].PrimaryV6AddressSpec = &compute.PrimaryAddressSpec{
-				Address: ipV6Address,
-			}
-		}
-
-		if nat, ok := data["nat"].(bool); ok && nat {
-			natSpec := &compute.OneToOneNatSpec{
-				IpVersion: compute.IpVersion_IPV4,
-			}
-
-			if natAddress, ok := data["nat_ip_address"].(string); ok && natAddress != "" {
-				natSpec = &compute.OneToOneNatSpec{
-					Address: natAddress,
-				}
-			}
-
-			if nics[i].PrimaryV4AddressSpec == nil {
-				nics[i].PrimaryV4AddressSpec = &compute.PrimaryAddressSpec{
-					OneToOneNatSpec: natSpec,
-				}
-			} else {
-				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec = natSpec
-			}
-		}
-
-		if rec, ok := data["dns_record"]; ok {
-			if nics[i].PrimaryV4AddressSpec != nil {
-				nics[i].PrimaryV4AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
-			}
-		}
-
-		if rec, ok := data["ipv6_dns_record"]; ok {
-			if nics[i].PrimaryV6AddressSpec != nil {
-				nics[i].PrimaryV6AddressSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
-			}
-		}
-
-		if rec, ok := data["nat_dns_record"]; ok {
-			if nics[i].PrimaryV4AddressSpec != nil && nics[i].PrimaryV4AddressSpec.OneToOneNatSpec != nil {
-				nics[i].PrimaryV4AddressSpec.OneToOneNatSpec.DnsRecordSpecs = expandComputeInstanceDnsRecords(rec.([]interface{}))
-			}
-		}
+		nics[i] = iface
 	}
 
 	return nics, nil
@@ -998,7 +1007,6 @@ func expandStaticRoutes(v interface{}) ([]*vpc.StaticRoute, error) {
 		}
 		staticRoutes = append(staticRoutes, sr)
 	}
-
 	return staticRoutes, nil
 }
 
@@ -1998,7 +2006,6 @@ func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Co
 	} else {
 		return nil, fmt.Errorf("cannot determine zone: please set 'compute_instance.0.zone_id' key in this resource or at provider level")
 	}
-
 	if v, ok := d.GetOk(prefix + "service_account_id"); ok {
 		serviceAccountId = v.(string)
 	}
