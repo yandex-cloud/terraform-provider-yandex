@@ -1059,7 +1059,7 @@ func TestComputeInstancePlacementPolicyRequest(t *testing.T) {
 	rawInstance := map[string]interface{}{
 		"name":        "test-instance",
 		"description": "test instance",
-		"zone":        "ru-central1-c",
+		"zone":        "ru-central1-d",
 		"platform_id": "standard-v2",
 
 		"resources": []interface{}{
@@ -1305,7 +1305,7 @@ func TestComputeInstanceLocalDisksRequest(t *testing.T) {
 	rawInstance := map[string]interface{}{
 		"name":        "test-instance",
 		"description": "test instance",
-		"zone":        "ru-central1-c",
+		"zone":        "ru-central1-d",
 		"platform_id": "standard-v2",
 
 		"resources": []interface{}{
@@ -2969,7 +2969,7 @@ data "yandex_compute_image" "ubuntu" {
 
 resource "yandex_compute_instance" "foobar" {
   name = "%s"
-  zone = "ru-central1-c"
+  zone = "ru-central1-d"
   platform_id = "standard-v2"
 
   resources {
@@ -2996,7 +2996,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4051,7 +4051,7 @@ data "yandex_compute_image" "ubuntu" {
 resource "yandex_compute_instance" "foobar" {
   name               = "%s"
   description        = "testAccComputeInstance_basic"
-  zone               = "ru-central1-c"
+  zone               = "ru-central1-d"
   platform_id        = "standard-v2"
 
   resources {
@@ -4086,7 +4086,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
@@ -4120,7 +4120,7 @@ resource "yandex_compute_instance" "foobar" {
   name        = "%s"
   description = "testAccComputeInstance_basic"
   platform_id = "standard-v2"
-  zone        = "ru-central1-c"
+  zone        = "ru-central1-d"
   allow_stopping_for_update = true
 
   resources {
@@ -4155,7 +4155,7 @@ resource "yandex_compute_instance" "foobar" {
 resource "yandex_vpc_network" "inst-test-network" {}
 
 resource "yandex_vpc_subnet" "inst-test-subnet" {
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.inst-test-network.id}"
   v4_cidr_blocks = ["192.168.0.0/24"]
 }
