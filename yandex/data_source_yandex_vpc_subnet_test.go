@@ -53,7 +53,7 @@ func TestAccDataSourceVPCSubnet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "name", subnetName2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "description", subnetDesc2),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "folder_id", folderID),
-					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "zone", "ru-central1-c"),
+					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v4_cidr_blocks.#", "1"),
 					resource.TestCheckResourceAttr("data.yandex_vpc_subnet.bar2", "v4_cidr_blocks.0", "172.16.2.0/24"),
 					resource.TestCheckResourceAttrSet("data.yandex_vpc_subnet.bar2", "network_id"),
@@ -195,7 +195,7 @@ resource "yandex_vpc_subnet" "foo2" {
   network_id     = "${yandex_vpc_network.foo.id}"
   description    = "%s"
   v4_cidr_blocks = ["172.16.2.0/24"]
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
 }
 `, acctest.RandomWithPrefix("tf-network"), name1, desc1, name2, desc2)
 }

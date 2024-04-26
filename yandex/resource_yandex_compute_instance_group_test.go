@@ -2396,7 +2396,7 @@ resource "yandex_compute_instance_group" "group1" {
   }
 
   allocation_policy {
-    zones = ["ru-central1-a", "ru-central1-b", "ru-central1-c"]
+    zones = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
     instance_tags_pool {
       zone = "ru-central1-a" 
       tags = ["atag"]
@@ -2406,7 +2406,7 @@ resource "yandex_compute_instance_group" "group1" {
       tags = ["btag"]
     }
     instance_tags_pool {
-      zone = "ru-central1-c"
+      zone = "ru-central1-d"
       tags = ["ctag"]
     }
   }
@@ -2439,7 +2439,7 @@ resource "yandex_vpc_subnet" "subnet-b" {
 
 resource "yandex_vpc_subnet" "subnet-c" {
   description    = "tf-test"
-  zone           = "ru-central1-c"
+  zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.inst-group-test-network.id}"
   v4_cidr_blocks = ["192.168.13.0/24"]
 }
@@ -2871,7 +2871,7 @@ func testAccCheckComputeInstanceGroupHasInstanceTagsPool(ig *instancegroup.Insta
 		if err != nil {
 			return err
 		}
-		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-c", []string{"ctag"})
+		err = assertZoneExists(ig.AllocationPolicy.Zones, "ru-central1-d", []string{"ctag"})
 		if err != nil {
 			return err
 		}

@@ -976,7 +976,7 @@ func checkClusterAttributes(cluster *k8s.Cluster, info *resourceClusterInfo, rs 
 					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.1.zone",
 						"ru-central1-b"),
 					resource.TestCheckResourceAttr(resourceFullName, "master.0.regional.0.location.2.zone",
-						"ru-central1-c"),
+						"ru-central1-d"),
 				)
 
 				if !clusterVPCDepsPrecreated(info) {
@@ -1395,7 +1395,7 @@ resource "yandex_kubernetes_cluster" "{{.ClusterResourceName}}" {
         subnet_id = "{{.SubnetResourceNameB}}"
       }
       location {
-        zone = "ru-central1-c"
+        zone = "ru-central1-d"
         subnet_id = "{{.SubnetResourceNameC}}"
       }
 {{else}}
@@ -1468,7 +1468,7 @@ resource "yandex_vpc_subnet" "{{.SubnetResourceNameB}}" {
 
 resource "yandex_vpc_subnet" "{{.SubnetResourceNameC}}" {
   description = "{{.TestDescription}}"
-  zone = "ru-central1-c"
+  zone = "ru-central1-d"
   network_id     = "${yandex_vpc_network.{{.NetworkResourceName}}.id}"
   v4_cidr_blocks = ["192.168.2.0/24"]
 }

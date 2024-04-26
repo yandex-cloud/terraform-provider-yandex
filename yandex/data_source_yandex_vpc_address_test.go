@@ -23,7 +23,7 @@ resource "yandex_vpc_address" "addr" {
   name = "%s"
 
   external_ipv4_address {
-    zone_id = "ru-central1-c"
+    zone_id = "ru-central1-d"
   }
 }
 `, name)

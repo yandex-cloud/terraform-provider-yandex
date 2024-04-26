@@ -29,7 +29,7 @@ resource "yandex_vpc_address" "addr1" {
   }
 
   external_ipv4_address {
-    zone_id                  = "ru-central1-c"
+    zone_id                  = "ru-central1-d"
     ddos_protection_provider = "qrator"
   }
   deletion_protection = true
@@ -59,7 +59,7 @@ resource "yandex_vpc_address" "addr1" {
   }
 
   external_ipv4_address {
-    zone_id                  = "ru-central1-c"
+    zone_id                  = "ru-central1-d"
   }
 
   dns_record {
@@ -82,7 +82,7 @@ resource "yandex_vpc_address" "addr1" {
   }
 
   external_ipv4_address {
-    zone_id                  = "ru-central1-c"
+    zone_id                  = "ru-central1-d"
     ddos_protection_provider = "qrator"
   }
   deletion_protection = false
@@ -112,7 +112,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "description", "desc"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "external_ipv4_address.#", "1"),
 					resource.TestCheckResourceAttr(
-						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-c",
+						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-d",
 					),
 					resource.TestCheckResourceAttr(
 						"yandex_vpc_address.addr1", "external_ipv4_address.0.ddos_protection_provider", "qrator",
@@ -136,7 +136,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "description", "new desc"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "external_ipv4_address.#", "1"),
 					resource.TestCheckResourceAttr(
-						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-c",
+						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-d",
 					),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "reserved", "true"),
 					resource.TestCheckResourceAttr("yandex_vpc_address.addr1", "used", "false"),
@@ -155,7 +155,7 @@ func TestAccVPCAddress_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckVPCAddressRecreated("yandex_vpc_address.addr1", address.GetId()),
 					resource.TestCheckResourceAttr(
-						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-c",
+						"yandex_vpc_address.addr1", "external_ipv4_address.0.zone_id", "ru-central1-d",
 					),
 					resource.TestCheckResourceAttr(
 						"yandex_vpc_address.addr1", "external_ipv4_address.0.ddos_protection_provider", "qrator",
