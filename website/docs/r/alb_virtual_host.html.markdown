@@ -241,8 +241,9 @@ This resource provides the following configuration options for timeouts:
 
 ## Import
 
-A virtual host can be imported using the `id` of the resource, e.g.:
+A virtual host can be imported using the `id` of the resource, which for a virtual host is defined as its 
+http router id separated by `/` from the virtual host's name, e.g.:
 
 ```
-$ terraform import yandex_alb_virtual_host.default virtual_host_id
+$ terraform import yandex_alb_virtual_host.default http_router_id/vhost_name
 ```
