@@ -78,6 +78,9 @@ The following arguments are supported:
 ~> **NOTE:** Can't use specified port if protocol is one of `ICMP` or `IPV6_ICMP`.
 
 
+~> **NOTE:** One of arguments `v4_cidr_blocks`/`v6_cidr_blocks` or `predefined_target` or `security_group_id` must be specified.
+
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
