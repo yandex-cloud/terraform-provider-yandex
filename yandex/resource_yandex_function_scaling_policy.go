@@ -15,7 +15,7 @@ func resourceYandexFunctionScalingPolicy() *schema.Resource {
 		Update: resourceYandexFunctionScalingPolicyUpdate,
 		Delete: resourceYandexFunctionScalingPolicyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			State: resourceYandexFunctionScalingPolicyImporterFunc,
 		},
 
 		SchemaVersion: 0,
@@ -92,6 +92,12 @@ func resourceYandexFunctionScalingPolicyUpdate(d *schema.ResourceData, meta inte
 
 func resourceYandexFunctionScalingPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	return compareAndUpdateFunctionScalingPolicies(d.Get("policy").(*schema.Set), nil, d, meta)
+}
+
+func resourceYandexFunctionScalingPolicyImporterFunc(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("function_id", d.Id())
+
+	return []*schema.ResourceData{d}, nil
 }
 
 func fetchFunctionScalingPolicies(ctx context.Context, config *Config, functionID string) ([]*functions.ScalingPolicy, error) {
