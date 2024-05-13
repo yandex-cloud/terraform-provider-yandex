@@ -10,8 +10,13 @@ description: |-
 
 Allows management of [trail](https://cloud.yandex.ru/en/docs/audit-trails/concepts/trail)
 
-## Example usage
+## Example Usage
 
+Trail delivering logs to Cloud Logging and gathering such logs:
+
+* Control plane logs from the 'home-folder' folder
+* Object Storage data plane logs from the 'home-folder' folder
+* DNS data plane logs from networks in the 'home-folder' folder
 ```hcl
 resource "yandex_audit_trails_trail" "basic_trail" {
   name        = "a-trail"
@@ -66,6 +71,110 @@ resource "yandex_audit_trails_trail" "basic_trail" {
             resource_id   = "vpc-net-id-2"
             resource_type = "vpc.network"
           }
+        }
+      }
+    }
+  }
+}
+```
+
+Trail delivering logs to YDS and gathering such logs:
+
+* Control plane logs from the 'some-organization' organization
+* DNS data plane logs from the 'some-organization' organization
+* Object Storage data plane logs from the 'some-organization' organization
+```hcl
+resource "yandex_audit_trails_trail" "basic_trail" {
+  name        = "a-trail"
+  folder_id   = "home-folder"
+  description = "Some trail description"
+
+  labels = {
+    key = "value"
+  }
+
+  service_account_id = "trail-service-account"
+
+  data_stream_destination {
+    database_id = "some-database"
+    stream_name = "some-stream"
+  }
+
+  filter {
+    path_filter {
+      any_filter {
+        resource_id   = "some-organization"
+        resource_type = "organization-manager.organization"
+      }
+    }
+    event_filters {
+      service = "storage"
+      categories {
+        plane = "DATA_PLANE"
+        type  = "WRITE"
+      }
+      path_filter {
+        any_filter {
+          resource_id   = "some-organization"
+          resource_type = "organization-manager.organization"
+        }
+      }
+    }
+    event_filters {
+      service = "dns"
+      categories {
+        plane = "DATA_PLANE"
+        type  = "READ"
+      }
+      path_filter {
+        any_filter {
+          resource_id   = "some-organization"
+          resource_type = "organization-manager.organization"
+        }
+      }
+    }
+  }
+}
+```
+
+Trail delivering logs to Object Storage and gathering such logs:
+
+* Control plane logs from the 'home-folder' folder
+* Managed PostgreSQL data plane logs from the 'home-folder' folder
+```hcl
+resource "yandex_audit_trails_trail" "basic_trail" {
+  name        = "a-trail"
+  folder_id   = "home-folder"
+  description = "Some trail description"
+
+  labels = {
+    key = "value"
+  }
+
+  service_account_id = "trail-service-account"
+
+  storage_destination {
+    bucket_name = "some-bucket"
+    object_prefix = "some-prefix"
+  }
+
+  filter {
+    path_filter {
+      any_filter {
+        resource_id   = "home-folder"
+        resource_type = "resource-manager.folder"
+      }
+    }
+    event_filters {
+      service = "mdb.postgresql"
+      categories {
+        plane = "DATA_PLANE"
+        type  = "WRITE"
+      }
+      path_filter {
+        any_filter {
+          resource_id   = "home-folder"
+          resource_type = "resource-manager.folder"
         }
       }
     }
