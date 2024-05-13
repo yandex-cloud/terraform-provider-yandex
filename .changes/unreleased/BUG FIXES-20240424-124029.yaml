@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'redis: fix bug with enable sharding, no longer recreates cluster'
+time: 2024-04-24T12:40:29.339643396+03:00

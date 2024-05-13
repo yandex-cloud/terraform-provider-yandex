@@ -101,8 +101,8 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	baseDiskSize := 16
 	updatedDiskSize := 24
 	diskTypeId := "network-ssd"
-	baseFlavor := "hm2.nano"
-	updatedFlavor := "hm2.micro"
+	baseFlavor := "hm3-c2-m8"
+	updatedFlavor := "hm3-c2-m12"
 	tlsEnabled := true
 	persistenceMode := "ON"
 	announceHostnames := true
@@ -268,7 +268,7 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 	folderID := getExampleFolderID()
 	baseDiskSize := 16
 	diskTypeId := "network-ssd"
-	baseFlavor := "hm2.nano"
+	baseFlavor := "hm3-c2-m8"
 	tlsEnabled := true
 	persistenceMode := "ON"
 	announceHostnames := true
@@ -351,9 +351,9 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 	redisDesc := "Redis Cluster Localssd Terraform Test"
 	redisDesc2 := "Redis Cluster Localssd Terraform Test Updated"
 	folderID := getExampleFolderID()
-	baseDiskSize := 100
+	baseDiskSize := 368
 	diskTypeId := "local-ssd"
-	baseFlavor := "hm2.nano"
+	baseFlavor := "hm3-c2-m8"
 	tlsEnabled := true
 	announceHostnames := true
 	announceHostnamesChanged := false
@@ -507,7 +507,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "third"}),
-						testAccCheckMDBRedisClusterHasResources(&r, "hm2.nano", baseDiskSize,
+						testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
 					),
@@ -523,7 +523,7 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResourceSharded, "folder_id", folderID),
 						resource.TestCheckResourceAttr(redisResourceSharded, "description", redisDesc),
 						testAccCheckMDBRedisClusterHasShards(&r, []string{"first", "second", "new"}),
-						testAccCheckMDBRedisClusterHasResources(&r, "hm2.nano", baseDiskSize,
+						testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
 					),
@@ -1165,7 +1165,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
   resources {
-    resource_preset_id = "hm2.nano"
+    resource_preset_id = "hm3-c2-m8"
     disk_size          = %d
     %s
   }
@@ -1193,7 +1193,7 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
   resources {
-    resource_preset_id = "hm2.nano"
+    resource_preset_id = "hm3-c2-m8"
     disk_size          = %d
     %s
   }

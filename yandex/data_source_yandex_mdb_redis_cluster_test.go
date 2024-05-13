@@ -208,11 +208,11 @@ func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnab
 	persistenceMode, version string, useDataID bool) string {
 	if useDataID {
 		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-			tlsEnabled, announceHostnames, persistenceMode, version, "hm1.nano", 16, "", "", "",
+			tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", 16, "", "", "",
 			[]*bool{nil}, []*int{nil}) + mdbRedisClusterByIDConfig
 	}
 
 	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-		tlsEnabled, announceHostnames, persistenceMode, version, "hm1.nano", 16, "", "", "",
+		tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", 16, "", "", "",
 		[]*bool{nil}, []*int{nil}) + mdbRedisClusterByNameConfig
 }

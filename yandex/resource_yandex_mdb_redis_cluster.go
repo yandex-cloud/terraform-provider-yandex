@@ -192,7 +192,7 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"tls_enabled": {
 				Type:     schema.TypeBool,
