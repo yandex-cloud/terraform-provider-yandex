@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'serverless: fixed yandex_function_scaling_policy resource import'
-time: 2024-05-06T18:53:45.641422713+03:00

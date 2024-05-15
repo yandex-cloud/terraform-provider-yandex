@@ -1,3 +1,18 @@
+## 0.118.0 (May 15, 2024)
+
+FEATURES:
+* no diff on migrate mongodb users to separate resource
+* clickhouse: batch hosts creation and deletion
+* Add support for attach detach instance network interfaces
+
+BUG FIXES:
+* clickhouse: save implicit zookeeper subcluster on hosts changes
+* redis: fix bug with enable sharding, no longer recreates cluster
+* serverless: fixed yandex_function_scaling_policy resource import
+
+ENHANCEMENTS:
+* clarified id value in the documentation for `yandex_alb_virtual_host` resource
+
 ## 0.117.0 (April 25, 2024)
 
 FEATURES:
