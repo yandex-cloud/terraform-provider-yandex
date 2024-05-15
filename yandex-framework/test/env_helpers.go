@@ -8,40 +8,36 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
+	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
 )
 
-const providerDefaultValueInsecure = false
-const providerDefaultValuePlaintext = false
-const providerDefaultValueEndpoint = "api.cloud.yandex.net:443"
-
-var testAccProviders map[string]tfprotov6.ProviderServer
-var testAccProviderFactories map[string]func() (tfprotov6.ProviderServer, error)
+var AccProviders map[string]tfprotov6.ProviderServer
+var AccProviderFactories map[string]func() (tfprotov6.ProviderServer, error)
 
 // WARNING!!!! do not use testAccProviderEmptyFolder in tests, that use testAccCheck***Destroy functions.
 // testAccCheck***Destroy functions tend to use static testAccProviderServer
 var testAccProviderEmptyFolder map[string]tfprotov6.ProviderServer
 
 var testAccProviderServer tfprotov6.ProviderServer
-var testAccProvider provider.Provider
+var AccProvider provider.Provider
 
-var testAccEnvVars = []string{
+var AccEnvVars = []string{
 	"YC_FOLDER_ID",
 	"YC_ZONE",
 	"YC_LOGIN",
@@ -50,22 +46,22 @@ var testAccEnvVars = []string{
 	"YC_MESSAGE_QUEUE_ENDPOINT",
 }
 
-var testAccForAuthEnvVars = []string{
+var AccForAuthEnvVars = []string{
 	"YC_TOKEN",
 	"YC_SERVICE_ACCOUNT_KEY_FILE",
 }
 
-var testCloudID = "not initialized"
-var testOrganizationID = "not initialized"
-var testCloudName = "not initialized"
-var testFolderID = "not initialized"
-var testFolderName = "not initialized"
-var testRoleID = "resource-manager.clouds.member"
-var testUserLogin1 = "no user login"
-var testUserLogin2 = "no user login"
-var testUserID1 = "no user id"
-var testUserID2 = "no user id"
-var testStorageEndpoint = "no.storage.endpoint"
+var cloudID = "not initialized"
+var organizationID = "not initialized"
+var cloudName = "not initialized"
+var folderID = "not initialized"
+var folderName = "not initialized"
+var roleID = "resource-manager.clouds.member"
+var userLogin1 = "no user login"
+var userLogin2 = "no user login"
+var userID1 = "no user id"
+var userID2 = "no user id"
+var storageEndpoint = "no.storage.endpoint"
 
 func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {
 	upgradedSdkProvider, _ := tf5to6server.UpgradeServer(
@@ -73,7 +69,7 @@ func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderS
 		yandex.NewSDKProvider().GRPCProvider,
 	)
 	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(testAccProvider),
+		providerserver.NewProtocol6(AccProvider),
 		func() tfprotov6.ProviderServer {
 			return upgradedSdkProvider
 		},
@@ -88,10 +84,10 @@ func NewFrameworkProviderServer(ctx context.Context) (func() tfprotov6.ProviderS
 }
 
 func init() {
-	testAccProvider = yandex_framework.NewFrameworkProvider()
+	AccProvider = yandex_framework.NewFrameworkProvider()
 	testAccProviderFunc, _ := NewFrameworkProviderServer(context.Background())
 	testAccProviderServer = testAccProviderFunc()
-	testAccProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+	AccProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"yandex": func() (tfprotov6.ProviderServer, error) {
 			return testAccProviderServer, nil
 		},
@@ -107,66 +103,66 @@ func init() {
 	//}
 }
 
-func testAccPreCheck(t *testing.T) {
-	for _, varName := range testAccEnvVars {
+func AccPreCheck(t *testing.T) {
+	for _, varName := range AccEnvVars {
 		if val := os.Getenv(varName); val == "" {
 			t.Fatalf("%s must be set for acceptance tests", varName)
 		}
 	}
 
-	for _, varName := range testAccForAuthEnvVars {
+	for _, varName := range AccForAuthEnvVars {
 		if val := os.Getenv(varName); val != "" {
 			return
 		}
 	}
-	t.Fatalf("one of the variables: %s must be set for acceptance tests", strings.Join(testAccForAuthEnvVars, ", "))
+	t.Fatalf("one of the variables: %s must be set for acceptance tests", strings.Join(AccForAuthEnvVars, ", "))
 }
 
-func getExampleFolderName() string {
-	return testFolderName
+func GetExampleFolderName() string {
+	return folderName
 }
 
-func getExampleCloudName() string {
-	return testCloudName
+func GetExampleCloudName() string {
+	return cloudName
 }
 
-func getExampleRoleID() string {
-	return testRoleID
+func GetExampleRoleID() string {
+	return roleID
 }
 
-func getExampleCloudID() string {
-	return testCloudID
+func GetExampleCloudID() string {
+	return cloudID
 }
 
-func getExampleOrganizationID() string {
-	return testOrganizationID
+func GetExampleOrganizationID() string {
+	return organizationID
 }
 
-func getExampleFolderID() string {
-	return testFolderID
+func GetExampleFolderID() string {
+	return folderID
 }
 
-func getExampleUserID1() string {
-	return testUserID1
+func GetExampleUserID1() string {
+	return userID1
 }
 
-func getExampleUserID2() string {
-	return testUserID2
+func GetExampleUserID2() string {
+	return userID2
 }
 
-func getExampleUserLogin1() string {
-	return testUserLogin1
+func GetExampleUserLogin1() string {
+	return userLogin1
 }
 
-func getExampleUserLogin2() string {
-	return testUserLogin2
+func GetExampleUserLogin2() string {
+	return userLogin2
 }
 
-func getExampleStorageEndpoint() string {
-	return testStorageEndpoint
+func GetExampleStorageEndpoint() string {
+	return storageEndpoint
 }
 
-func getBillingAccountId() string {
+func GetBillingAccountId() string {
 	return os.Getenv("YC_BILLING_TEST_ACCOUNT_ID_1")
 }
 
@@ -178,8 +174,8 @@ func setTestIDs() error {
 	}
 	ctx := context.Background()
 
-	providerConfig := &provider_config.Config{
-		ProviderState: provider_config.State{
+	providerConfig := &config.Config{
+		ProviderState: config.State{
 			Token:                          types.StringValue(os.Getenv("YC_TOKEN")),
 			ServiceAccountKeyFileOrContent: types.StringValue(os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE")),
 		},
@@ -200,30 +196,30 @@ func setTestIDs() error {
 	}
 
 	// setup example ID values for test cases
-	testCloudID = os.Getenv("YC_CLOUD_ID")
-	testOrganizationID = os.Getenv("YC_ORGANIZATION_ID")
+	cloudID = os.Getenv("YC_CLOUD_ID")
+	organizationID = os.Getenv("YC_ORGANIZATION_ID")
 
-	testFolderID = os.Getenv("YC_FOLDER_ID")
-	folder := getFolderByID(sdk, testFolderID)
+	folderID = os.Getenv("YC_FOLDER_ID")
+	folder := getFolderByID(sdk, folderID)
 	if folder != nil {
-		testFolderName = folder.Name
-		if testCloudID == "" {
-			testCloudID = folder.CloudId
-		} else if testCloudID != folder.CloudId {
-			return fmt.Errorf("Invalid cloud id: %s != %s", testCloudID, folder.CloudId)
+		folderName = folder.Name
+		if cloudID == "" {
+			cloudID = folder.CloudId
+		} else if cloudID != folder.CloudId {
+			return fmt.Errorf("Invalid cloud id: %s != %s", cloudID, folder.CloudId)
 		}
 	} else {
-		testFolderName = "no folder name detected"
+		folderName = "no folder name detected"
 	}
-	testCloudName = getCloudNameByID(sdk, testCloudID)
+	cloudName = getCloudNameByID(sdk, cloudID)
 
-	testUserLogin1 = os.Getenv("YC_LOGIN")
-	testUserLogin2 = os.Getenv("YC_LOGIN_2")
+	userLogin1 = os.Getenv("YC_LOGIN")
+	userLogin2 = os.Getenv("YC_LOGIN_2")
 
-	testUserID1 = loginToUserID(sdk, testUserLogin1)
-	testUserID2 = loginToUserID(sdk, testUserLogin2)
+	userID1 = loginToUserID(sdk, userLogin1)
+	userID2 = loginToUserID(sdk, userLogin2)
 
-	testStorageEndpoint = os.Getenv("YC_STORAGE_ENDPOINT_URL")
+	storageEndpoint = os.Getenv("YC_STORAGE_ENDPOINT_URL")
 
 	return nil
 }

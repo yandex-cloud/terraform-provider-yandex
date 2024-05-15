@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
+func AccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		const createdAtAttrName = "created_at"
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -30,7 +30,7 @@ func testAccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
 	}
 }
 
-func importIamBindingIdFunc(resourceName, role string) func(*terraform.State) (string, error) {
+func ImportIamBindingIdFunc(resourceName, role string) func(*terraform.State) (string, error) {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {

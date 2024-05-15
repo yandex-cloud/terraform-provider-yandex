@@ -38,7 +38,6 @@ linters-settings:
 
 issues:
   new-from-rev: master # Analyse only differense between master->${git branch git branch --show-current}
-  max-per-linter: 0
   max-same-issues: 0
   exclude-rules:
     - linters:

@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"flag"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf5to6server"
 	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
-
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex"
-	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework"
+	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 )
 
 func NewMuxProviderServer(ctx context.Context) (func() tfprotov6.ProviderServer, error) {

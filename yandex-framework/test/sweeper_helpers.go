@@ -8,24 +8,25 @@ import (
 	"strconv"
 	"strings"
 
+	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
-	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider-config"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 const (
 	defaultZoneForSweepers = "ru-central1-a"
-	testAccTestsUser       = "yc.terraform.acctest-sa"
-	testResourseNamePrefix = "yc-tf-acc-tests"
+	AccTestsUser           = "yc.terraform.acctest-sa"
+	testResourceNamePrefix = "yc-tf-acc-tests"
 )
 
 type sweeperFunc func(*provider_config.Config, string) error
 
-func configForSweepers() (*provider_config.Config, error) {
+func ConfigForSweepers() (*provider_config.Config, error) {
 	token, saKeyFile := os.Getenv("YC_TOKEN"), os.Getenv("YC_SERVICE_ACCOUNT_KEY_FILE")
 	if token == "" && saKeyFile == "" {
 		return nil, fmt.Errorf("environmental variables YC_TOKEN or YC_SERVICE_ACCOUNT_KEY_FILE must be set")
@@ -72,32 +73,32 @@ func configForSweepers() (*provider_config.Config, error) {
 	return conf, nil
 }
 
-func sweepWithRetry(sf sweeperFunc, conf *provider_config.Config, resource, id string) bool {
+func SweepWithRetry(sf sweeperFunc, conf *provider_config.Config, resource, id string) bool {
 	return sweepWithRetryByFunc(conf, fmt.Sprintf("%s '%s'", resource, id), func(conf *provider_config.Config) error {
 		return sf(conf, id)
 	})
 }
 
 func sweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(conf *provider_config.Config) error) bool {
-	debugLog("started sweeping %s", message)
+	DebugLog("started sweeping %s", message)
 	for i := 1; i <= int(conf.ProviderState.MaxRetries.ValueInt64()); i++ {
 		err := sf(conf)
 		if err != nil {
-			debugLog("[%s] delete try #%d: %v", message, i, err)
+			DebugLog("[%s] delete try #%d: %v", message, i, err)
 		} else {
-			debugLog("[%s] delete try #%d: deleted", message, i)
+			DebugLog("[%s] delete try #%d: deleted", message, i)
 			return true
 		}
 	}
 
-	debugLog("failed to sweep %s", message)
+	DebugLog("failed to sweep %s", message)
 	return false
 }
 
-func handleSweepOperation(ctx context.Context, conf *provider_config.Config, op *operation.Operation, err error) error {
+func HandleSweepOperation(ctx context.Context, conf *provider_config.Config, op *operation.Operation, err error) error {
 	sdkop, err := conf.SDK.WrapOperation(op, err)
 	if err != nil {
-		if isStatusWithCode(err, codes.NotFound) {
+		if IsStatusWithCode(err, codes.NotFound) {
 			return nil
 		}
 		return err
@@ -112,25 +113,25 @@ func handleSweepOperation(ctx context.Context, conf *provider_config.Config, op 
 	return err
 }
 
-func debugLog(format string, v ...interface{}) {
+func DebugLog(format string, v ...interface{}) {
 	log.Printf("[DEBUG] "+format, v...)
 }
 
-func isStatusWithCode(err error, code codes.Code) bool {
+func IsStatusWithCode(err error, code codes.Code) bool {
 	grpcStatus, ok := status.FromError(err)
 	return ok && grpcStatus.Code() == code
 }
 
-func isTestResourseName(name string) bool {
-	return strings.HasPrefix(name, testResourseNamePrefix)
+func IsTestResourceName(name string) bool {
+	return strings.HasPrefix(name, testResourceNamePrefix)
 }
 
-// testResourseName - return randomized name for resourse with common preffix
-func testResourseName(length int) string {
-	saltLen := length - len(testResourseNamePrefix) - 1
+// ResourceName - return randomized name for resource with common prefix
+func ResourceName(length int) string {
+	saltLen := length - len(testResourceNamePrefix) - 1
 	return fmt.Sprintf(
 		"%s-%s",
-		testResourseNamePrefix,
+		testResourceNamePrefix,
 		acctest.RandStringFromCharSet(saltLen, acctest.CharSetAlpha),
 	)
 }

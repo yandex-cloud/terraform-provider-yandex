@@ -2,7 +2,7 @@ package test
 
 import "testing"
 
-func Test_testResourseName(t *testing.T) {
+func Test_testResourceName(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
@@ -21,8 +21,8 @@ func Test_testResourseName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := len(testResourseName(tt.args.length)); got != tt.wantLen {
-				t.Errorf("testResourseName() = %v, want %v", got, tt.wantLen)
+			if got := len(ResourceName(tt.args.length)); got != tt.wantLen {
+				t.Errorf("ResourceName() = %v, want %v", got, tt.wantLen)
 			}
 		})
 	}
