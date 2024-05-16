@@ -52,6 +52,8 @@ The following arguments are supported:
 * `secondary_hostnames` (Optional) - list of secondary hostname strings.
 
 * `ssl_certificate` (Optional) - SSL certificate of CDN resource.
+
+* `provider_cname` (Optional) - provider CNAME of CDN resource, computed value for read and update operations.
 ---
 
 Resource block supports following options:
