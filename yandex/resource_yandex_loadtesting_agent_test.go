@@ -107,7 +107,8 @@ func TestAccResourceLoadtestingAgent_full(t *testing.T) {
 					resource.TestCheckResourceAttr(loadtestingAgentResource, "compute_instance.0.computed_metadata.field2", "other value 2"),
 					resource.TestCheckResourceAttrSet(loadtestingAgentResource, "compute_instance.0.computed_metadata.loadtesting-created"),
 					testAccCheckLoadtestingComputeInstanceServiceAccount(&instance, saName),
-					testAccCheckLoadtestingComputeInstanceHasResources(&instance, 4, 50, 4.0),
+					testAccCheckLoadtestingComputeInstancePlatformId(&instance, "standard-v1"),
+					testAccCheckLoadtestingComputeInstanceHasResources(&instance, 4, 20, 4.0),
 					testAccCheckLoadtestingComputeInstanceLabel(&instance, "purpose", "loadtesting-agent"),
 					testAccCheckLoadtestingComputeInstanceMetadata(&instance, "field1", "metavalue1"),
 					testAccCheckLoadtestingComputeInstanceMetadata(&instance, "field2", "other value 2"),
@@ -343,6 +344,16 @@ func testAccCheckLoadtestingComputeInstanceDescription(instance *compute.Instanc
 	}
 }
 
+func testAccCheckLoadtestingComputeInstancePlatformId(instance *compute.Instance, platformId string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if instance.PlatformId != platformId {
+			return fmt.Errorf("Expected platform id '%s' but found '%s' on instance %s", platformId, instance.PlatformId, instance.Name)
+		}
+
+		return nil
+	}
+}
+
 func testAccCheckLoadtestingComputeInstanceServiceAccount(instance *compute.Instance, saName string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		saId := instance.ServiceAccountId
@@ -478,10 +489,11 @@ resource "yandex_loadtesting_agent" "test-lt-agent" {
 	compute_instance {
 		zone_id = "ru-central1-b"
 		service_account_id = "${yandex_iam_service_account.loadtesting-agent-test-sa.id}"
+		platform_id = "standard-v1"
 		resources {
 			memory = 4
 			cores = 4
-			core_fraction = 50
+			core_fraction = 20
 		}
 		metadata = {
 			field1 = "metavalue1"
@@ -531,10 +543,11 @@ resource "yandex_loadtesting_agent" "test-lt-agent" {
 	compute_instance {
 		zone_id = "ru-central1-b"
 		service_account_id = "${yandex_iam_service_account.new-loadtesting-agent-test-sa.id}"
+		platform_id = "standard-v1"
 		resources {
 			memory = 4
 			cores = 4
-			core_fraction = 50
+			core_fraction = 20
 		}
 		metadata = {
 			meta-field = "meta-value"

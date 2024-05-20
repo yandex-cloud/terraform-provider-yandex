@@ -66,6 +66,11 @@ func dataSourceYandexLoadtestingAgent() *schema.Resource {
 							Computed: true,
 						},
 
+						"platform_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"resources": {
 							Type:     schema.TypeList,
 							Computed: true,

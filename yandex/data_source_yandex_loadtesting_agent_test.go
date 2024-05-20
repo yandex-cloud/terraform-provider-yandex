@@ -48,6 +48,7 @@ func TestAccDataSourceLoadtestingAgent_byID(t *testing.T) {
 					resource.TestCheckResourceAttr(agentDataSourceResource, "compute_instance.0.labels.purpose", "loadtesting-agent"),
 					resource.TestCheckResourceAttr(agentDataSourceResource, "compute_instance.0.computed_metadata.field1", "metavalue1"),
 					resource.TestCheckResourceAttr(agentDataSourceResource, "compute_instance.0.computed_metadata.field2", "other value 2"),
+					resource.TestCheckResourceAttr(agentDataSourceResource, "compute_instance.0.platform_id", "standard-v1"),
 					resource.TestCheckResourceAttrSet(agentDataSourceResource, "compute_instance.0.computed_metadata.loadtesting-created"),
 				),
 			},

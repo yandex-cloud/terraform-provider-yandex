@@ -1996,7 +1996,7 @@ func expandSnapshotScheduleSnapshotSpec(d *schema.ResourceData) (*compute.Snapsh
 }
 
 func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Config) (*ltagent.CreateComputeInstance, error) {
-	var zoneId, serviceAccountId string
+	var zoneId, serviceAccountId, platformId string
 	prefix := "compute_instance.0."
 
 	if v, ok := d.GetOk(prefix + "zone_id"); ok {
@@ -2008,6 +2008,9 @@ func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Co
 	}
 	if v, ok := d.GetOk(prefix + "service_account_id"); ok {
 		serviceAccountId = v.(string)
+	}
+	if v, ok := d.GetOk(prefix + "platform_id"); ok {
+		platformId = v.(string)
 	}
 
 	resourceSpec, err := expandLoadtestingComputeInstanceResourcesSpec(d, prefix)
@@ -2043,6 +2046,7 @@ func expandLoadtestingComputeInstanceTemplate(d *schema.ResourceData, config *Co
 		BootDiskSpec:          bootDiskSpec,
 		NetworkInterfaceSpecs: nicSpecs,
 		ServiceAccountId:      serviceAccountId,
+		PlatformId:            platformId,
 	}
 
 	return template, nil
@@ -2203,6 +2207,7 @@ func flattenLoadtestingComputeInstanceTemplate(ctx context.Context, instance *co
 	templateMap["metadata"] = origMetadata
 	templateMap["computed_metadata"] = instance.GetMetadata()
 	templateMap["service_account_id"] = instance.GetServiceAccountId()
+	templateMap["platform_id"] = instance.GetPlatformId()
 
 	resourceSpec, err := flattenLoadtestingComputeInstanceResources(instance)
 	if err != nil {

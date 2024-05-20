@@ -54,8 +54,8 @@ github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0 h1:+r1rSv4gvYn0wmRjC8X7I
 github.com/GaijinEntertainment/go-exhaustruct/v2 v2.3.0/go.mod h1:b3g59n2Y+T5xmcxJL+UEG2f8cQploZm1mR/v6BW0mU0=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
-github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.5.2/go.mod h1:WpS1mjBmmwHBEWmogvA2mj8546UReBk4v8QkMxJ6pZY=
+github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OpenPeeDeeP/depguard/v2 v2.1.0 h1:aQl70G173h/GZYhWf36aE5H0KaujXfVMnn/f1kSDVYY=
 github.com/OpenPeeDeeP/depguard/v2 v2.1.0/go.mod h1:PUBgk35fX4i7JDmwzlJwJ+GMe6NfO1723wmJMgPThNQ=
@@ -179,10 +179,10 @@ github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32/go.mod h1:GIjDIg/heH
 github.com/go-critic/go-critic v0.8.1 h1:16omCF1gN3gTzt4j4J6fKI/HnRojhEp+Eks6EuKw3vw=
 github.com/go-critic/go-critic v0.8.1/go.mod h1:kpzXl09SIJX1cr9TB/g/sAG+eFEl7ZS9f9cqvZtyNl0=
 github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 h1:+zs/tPmkDkHx3U66DAb0lQFJrpS6731Oaa12ikc+DiI=
-github.com/go-git/go-billy/v5 v5.5.0 h1:yEY4yhzCDuMGSv83oGxiBotRzhwhNr8VZyphhiu+mTU=
 github.com/go-git/go-billy/v5 v5.4.1/go.mod h1:vjbugF6Fz7JIflbVpl1hJsGjSHNltrSw45YK/ukIvQg=
-github.com/go-git/go-git/v5 v5.11.0 h1:XIZc1p+8YzypNr34itUfSvYJcv+eYdTnTvOZ2vD3cA4=
+github.com/go-git/go-billy/v5 v5.5.0 h1:yEY4yhzCDuMGSv83oGxiBotRzhwhNr8VZyphhiu+mTU=
 github.com/go-git/go-git/v5 v5.6.1/go.mod h1:mvyoL6Unz0PiTQrGQfSfiLFhBH1c1e84ylC2MDs4ee8=
+github.com/go-git/go-git/v5 v5.11.0 h1:XIZc1p+8YzypNr34itUfSvYJcv+eYdTnTvOZ2vD3cA4=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
@@ -625,8 +625,8 @@ github.com/sivchari/nosnakecase v1.7.0 h1:7QkpWIRMe8x25gckkFd2A5Pi6Ymo0qgr4JrhGt
 github.com/sivchari/nosnakecase v1.7.0/go.mod h1:CwDzrzPea40/GB6uynrNLiorAlgFRvRbFSgJx2Gs+QY=
 github.com/sivchari/tenv v1.7.1 h1:PSpuD4bu6fSmtWMxSGWcvqUUgIn7k3yOJhOIzVWn8Ak=
 github.com/sivchari/tenv v1.7.1/go.mod h1:64yStXKSOxDfX47NlhVwND4dHwfZDdbp2Lyl018Icvg=
-github.com/skeema/knownhosts v1.2.1 h1:SHWdIUa82uGZz+F+47k8SY4QhhI291cXCpopT1lK2AQ=
 github.com/skeema/knownhosts v1.1.0/go.mod h1:sKFq3RD6/TKZkSWn8boUbDC7Qkgcv+8XXijpFO6roag=
+github.com/skeema/knownhosts v1.2.1 h1:SHWdIUa82uGZz+F+47k8SY4QhhI291cXCpopT1lK2AQ=
 github.com/sonatard/noctx v0.0.2 h1:L7Dz4De2zDQhW8S0t+KUjY0MAQJd6SgVwhzNIc4ok00=
 github.com/sonatard/noctx v0.0.2/go.mod h1:kzFz+CzWSjQ2OzIm46uJZoXuBpa2+0y3T36U18dWqIo=
 github.com/sourcegraph/go-diff v0.7.0 h1:9uLlrd5T46OXs5qpp8L/MTltk0zikUGi0sNNyCpA8G0=
@@ -708,10 +708,14 @@ github.com/yandex-cloud/go-genproto v0.0.0-20240305150537-d19591d7d196 h1:6AgZ3P
 github.com/yandex-cloud/go-genproto v0.0.0-20240305150537-d19591d7d196/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-genproto v0.0.0-20240401111333-b9ee0d3d9e6b h1:mOhpdzir8wyeM0AzMPKj6RteKpRjaP661fBPzJcRD+g=
 github.com/yandex-cloud/go-genproto v0.0.0-20240401111333-b9ee0d3d9e6b/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
+github.com/yandex-cloud/go-genproto v0.0.0-20240513082302-2e0a3cd8443b h1:dVGX0V6GkBxfYgq3F4LB+k8QW9U+OdpaEdfd4ztzKeo=
+github.com/yandex-cloud/go-genproto v0.0.0-20240513082302-2e0a3cd8443b/go.mod h1:HEUYX/p8966tMUHHT+TsS0hF/Ca/NYwqprC5WXSDMfE=
 github.com/yandex-cloud/go-sdk v0.0.0-20240306121756-2977336ccf27 h1:FLrRYG5PBNr2s4WptQ/YaZAEzdGfIstlTnDXpTAvaUg=
 github.com/yandex-cloud/go-sdk v0.0.0-20240306121756-2977336ccf27/go.mod h1:35tkggOFycUxMV2KsxNbMsOrEdzExxJPIKe1bjeBqCM=
 github.com/yandex-cloud/go-sdk v0.0.0-20240318084659-dfa50323a0b4 h1:wtzLQJmghkSUb1YkeFphIh7ST7NNVDaVOJZSAJcjMdw=
 github.com/yandex-cloud/go-sdk v0.0.0-20240318084659-dfa50323a0b4/go.mod h1:9d1MV6u4lK715YXnZceKqhP4L0bKBKmv4mSLnVSjJaM=
+github.com/yandex-cloud/go-sdk v0.0.0-20240513082658-e33b8a503812 h1:gLo7wF5FNdnTf5HT70eqgYwU/eqRr3jLVftrw7LKlx0=
+github.com/yandex-cloud/go-sdk v0.0.0-20240513082658-e33b8a503812/go.mod h1:1VId8ra1WVRwxujGrJea5CAGa38TG65hjlP9SfFkPN0=
 github.com/ydb-platform/terraform-provider-ydb v0.0.19 h1:wg85OFJ5q1Hve3TceIwn6n7Qc4KP1AUzlR9okEPC+kE=
 github.com/ydb-platform/terraform-provider-ydb v0.0.19/go.mod h1:OSFQZZXv8p1gpjcXXikvTUFiHrH5fyLA5Zz2Jgy3S/w=
 github.com/ydb-platform/ydb-go-genproto v0.0.0-20240315124112-fc0fbffd6613 h1:M3jRVL6CkCsgKb7d2s1Jnc9gdiSfzcmbMUMvNHWuWbw=

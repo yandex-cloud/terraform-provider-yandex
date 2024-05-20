@@ -74,6 +74,13 @@ func resourceYandexLoadtestingAgent() *schema.Resource {
 							Required: true,
 						},
 
+						"platform_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+
 						"resources": {
 							Type:     schema.TypeList,
 							ForceNew: true,
