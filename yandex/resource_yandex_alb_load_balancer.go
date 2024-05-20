@@ -15,6 +15,15 @@ import (
 
 const yandexALBLoadBalancerDefaultTimeout = 10 * time.Minute
 
+const (
+	resourceNameRedirects   = "redirects"
+	resourceNameHTTPToHTTPS = "http_to_https"
+)
+
+type redirect struct {
+	httpToHTTPS bool
+}
+
 func resourceYandexALBLoadBalancer() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexALBLoadBalancerCreate,
@@ -263,9 +272,10 @@ func resourceYandexALBLoadBalancer() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"handler": httpHandler(),
 									"redirects": {
-										Type:     schema.TypeList,
-										MaxItems: 1,
-										Optional: true,
+										Type:             schema.TypeList,
+										MaxItems:         1,
+										Optional:         true,
+										DiffSuppressFunc: redirectsDiffSuppress,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"http_to_https": {
@@ -626,4 +636,67 @@ func resourceYandexALBLoadBalancerDelete(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Finished deleting ALB Load Balancer %q", d.Id())
 	return nil
+}
+
+// redirectsDiffSuppress is a custom diff function for http redirects resource and it's inner fields.
+//
+// Main thing is to suppress diff between nil and empty redirect objects since they have no sense and we
+// do not handle them during create or update operations.
+//
+// Handles redirect lists with at most 1 element, panics if any state contains more than 1 element.
+func redirectsDiffSuppress(key, oldValue, newValue string, d *schema.ResourceData) bool {
+	if strings.HasSuffix(key, resourceNameRedirects+".#") {
+		var oldRedirectUntyped, newRedirectUntyped interface{}
+
+		oldRedirectsUntyped, newRedirectsUntyped := d.GetChange(strings.ReplaceAll(key, ".#", ""))
+
+		oldRedirects := oldRedirectsUntyped.([]interface{})
+		newRedirects := newRedirectsUntyped.([]interface{})
+
+		if len(oldRedirects) > 1 {
+			panic("redirects diff suppress: too many redirect elements for previous state")
+		}
+
+		if len(newRedirects) > 1 {
+			panic("redirects diff suppress: too many redirect elements for new state")
+		}
+
+		if len(oldRedirects) == 1 {
+			oldRedirectUntyped = oldRedirects[0]
+		}
+
+		if len(newRedirects) == 1 {
+			newRedirectUntyped = newRedirects[0]
+		}
+
+		oldRedirect := expandRedirect(oldRedirectUntyped)
+		newRedirect := expandRedirect(newRedirectUntyped)
+
+		return oldRedirect == newRedirect
+	}
+
+	if !strings.HasSuffix(key, resourceNameHTTPToHTTPS) {
+		panic(fmt.Sprintf("redirects diff suppress: unexpected resource key '%v'", key))
+	}
+
+	return oldValue == newValue
+}
+
+// expandRedirect parses redirect object from dynamic data.
+//
+// Panics on any type assertion error.
+func expandRedirect(data interface{}) redirect {
+	r := redirect{}
+
+	if data == nil {
+		return r
+	}
+
+	redirectMap := data.(map[string]interface{})
+
+	if v, ok := redirectMap[resourceNameHTTPToHTTPS]; ok {
+		r.httpToHTTPS = v.(bool)
+	}
+
+	return r
 }

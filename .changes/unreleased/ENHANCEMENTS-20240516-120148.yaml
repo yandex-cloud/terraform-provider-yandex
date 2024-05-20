@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'alb: suppress diff for empty object and nil value of http listener redirect object;'
+time: 2024-05-16T12:01:48.698586+03:00

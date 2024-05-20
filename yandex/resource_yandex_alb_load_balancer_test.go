@@ -1121,3 +1121,340 @@ func mergeMaps[K comparable, V any](maps ...map[K]V) map[K]V {
 
 	return merged
 }
+
+func Test_redirectsDiffSuppress(t *testing.T) {
+	t.Parallel()
+
+	testsTable := []struct {
+		name           string
+		key            string
+		oldValue       string
+		newValue       string
+		oldState       map[string]string
+		newState       map[string]interface{}
+		expectPanic    bool
+		expectedResult bool
+	}{
+		{
+			name:        "unexpected resource key",
+			key:         fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, "unexpected_key"),
+			oldValue:    "false",
+			newValue:    "false",
+			expectPanic: true,
+		},
+		{
+			name:           "compare inner fields: no changes: http_to_https is false",
+			key:            fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue:       "false",
+			newValue:       "false",
+			expectedResult: true,
+		},
+		{
+			name:           "compare inner fields: no changes: http_to_https is true",
+			key:            fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue:       "true",
+			newValue:       "true",
+			expectedResult: true,
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is 'false', new one is 'true'",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue: "false",
+			newValue: "true",
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is 'true', new one is 'false'",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue: "true",
+			newValue: "false",
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is empty, new one is 'true'",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			newValue: "true",
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is empty, new one is 'false'",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			newValue: "false",
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is 'false', new one is empty",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue: "false",
+		},
+		{
+			name:     "compare inner fields: has changes: old http_to_https is 'true', new one is empty",
+			key:      fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS),
+			oldValue: "true",
+		},
+		{
+			name: "compare redirects: too many elements for old state",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				"listener.0.http.0.redirects.#": "2",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "false",
+				fmt.Sprintf("listener.0.http.0.%v.1.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "true",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								"redirects": []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "false",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectPanic: true,
+		},
+		{
+			name: "compare redirects: too many elements for new state",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects):                             "1",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "false",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "false",
+									},
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "true",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectPanic: true,
+		},
+		{
+			name: "compare redirects: no changes: no redirects",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects): "0",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name: "compare redirects: no changes: add new redirect as empty object",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects): "0",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{
+									map[string]interface{}{},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name: "compare redirects: no changes: add new redirect object with zero values",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects): "0",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "false",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name: "compare redirects: no changes: add new redirect object",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects): "0",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								"redirects": []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "true",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "compare redirects: no changes: remove redirect object with zero values",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects):                             "1",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "false",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{},
+						},
+					},
+				},
+			},
+			expectedResult: true,
+		},
+		{
+			name: "compare redirects: has changes: remove redirect object",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects):                             "1",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "true",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{nil},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "compare redirects: has changes: change redirect object: http_to_https = false -> true",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects):                             "1",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "false",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "true",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "compare redirects: has changes: change redirect object: http_to_https = true -> false",
+			key:  fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects),
+			oldState: map[string]string{
+				fmt.Sprintf("listener.0.http.0.%v.#", resourceNameRedirects):                             "1",
+				fmt.Sprintf("listener.0.http.0.%v.0.%v", resourceNameRedirects, resourceNameHTTPToHTTPS): "true",
+			},
+			newState: map[string]interface{}{
+				"listener": []interface{}{
+					map[string]interface{}{
+						"http": []interface{}{
+							map[string]interface{}{
+								resourceNameRedirects: []interface{}{
+									map[string]interface{}{
+										resourceNameHTTPToHTTPS: "false",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testsTable {
+		testCase := testCase
+
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			// initialize terraform resource data.
+
+			if testCase.expectPanic {
+				assert.Panics(t, func() {
+					data := terraformResourceData(t, testCase.oldState, testCase.newState)
+
+					redirectsDiffSuppress(
+						testCase.key,
+						testCase.oldValue,
+						testCase.newValue,
+						data,
+					)
+				})
+				return
+			}
+
+			data := terraformResourceData(t, testCase.oldState, testCase.newState)
+
+			actualResult := redirectsDiffSuppress(
+				testCase.key,
+				testCase.oldValue,
+				testCase.newValue,
+				data,
+			)
+
+			assert.Equal(t, testCase.expectedResult, actualResult)
+		})
+	}
+}
+
+func terraformResourceData(t *testing.T, oldState map[string]string, newState map[string]interface{}) *schema.ResourceData {
+	config := terraform2.NewResourceConfigRaw(newState)
+
+	sm := schema.InternalMap(resourceYandexALBLoadBalancer().Schema)
+	diff, err := sm.Diff(context.Background(), nil, config, nil, nil, false)
+	require.NoError(t, err)
+
+	data, err := sm.Data(&terraform2.InstanceState{Attributes: oldState}, diff)
+	require.NoError(t, err)
+
+	return data
+}
