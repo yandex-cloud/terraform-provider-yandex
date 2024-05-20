@@ -36,6 +36,10 @@ resource "yandex_dataproc_cluster" "foo" {
       }
       ssh_public_keys = [
       file("~/.ssh/id_rsa.pub")]
+      initialization_action {
+        uri = "s3a://yandex_storage_bucket.foo.bucket/scripts/script.sh"
+        args = ["arg1", "arg2"]
+      }
     }
 
     subcluster_spec {
@@ -181,6 +185,15 @@ The `hadoop` block supports:
 * `services` - (Optional) List of services to run on Data Proc cluster.
 * `properties` - (Optional) A set of key/value pairs that are used to configure cluster services.
 * `ssh_public_keys` - (Optional) List of SSH public keys to put to the hosts of the cluster. For information on how to connect to the cluster, see [the official documentation](https://cloud.yandex.com/docs/data-proc/operations/connect).
+* `initialization_action` - (Optional) List of initialization scripts. The structure is documented below.
+
+---
+
+The `initialization_action` block supports:
+
+* `uri` - (Required) Script URI.
+* `args` - (Optional) List of arguments of the initialization script.
+* `timeout` - (Optional) Script execution timeout, in seconds.
 
 ---
 
