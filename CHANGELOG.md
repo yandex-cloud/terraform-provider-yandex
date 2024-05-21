@@ -1,3 +1,12 @@
+## 0.119.0 (May 21, 2024)
+
+FEATURES:
+* postgresql: add 15-1c support
+
+ENHANCEMENTS:
+* alb: suppress diff for empty object and nil value of http listener redirect object;
+* loadtesting: added `platform_id` parameter for `yandex_loadtesting_agent` resource
+
 ## 0.118.0 (May 15, 2024)
 
 FEATURES:
