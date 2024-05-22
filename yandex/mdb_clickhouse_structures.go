@@ -2583,7 +2583,7 @@ func expandClickHouseDatabases(d *schema.ResourceData) ([]*clickhouse.DatabaseSp
 	return result, nil
 }
 
-func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStorage {
+func expandClickHouseCloudStorage(d *schema.ResourceData) (*clickhouse.CloudStorage, error) {
 	result := &clickhouse.CloudStorage{}
 	cloudStorage := d.Get("cloud_storage").([]interface{})
 
@@ -2595,14 +2595,24 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 				if moveFactor, ok := cloudStorageSpec["move_factor"]; ok {
 					result.SetMoveFactor(&wrapperspb.DoubleValue{Value: moveFactor.(float64)})
 				}
+
+				var dataCacheEnabled *wrapperspb.BoolValue
 				if cacheEnabled, ok := cloudStorageSpec["data_cache_enabled"]; ok {
-					result.SetDataCacheEnabled(&wrapperspb.BoolValue{Value: cacheEnabled.(bool)})
-					if result.GetDataCacheEnabled() != nil && result.GetDataCacheEnabled().Value {
-						if data, ok := cloudStorageSpec["data_cache_max_size"]; ok {
-							result.SetDataCacheMaxSize(&wrapperspb.Int64Value{Value: int64(data.(int))})
-						}
+					dataCacheEnabled = &wrapperspb.BoolValue{Value: cacheEnabled.(bool)}
+				}
+				var dataCacheMaxSize *wrapperspb.Int64Value
+				if data, ok := cloudStorageSpec["data_cache_max_size"]; ok {
+					cacheMaxSize := int64(data.(int))
+					if cacheMaxSize > 0 {
+						dataCacheMaxSize = &wrapperspb.Int64Value{Value: cacheMaxSize}
 					}
 				}
+				if dataCacheMaxSize != nil && (dataCacheEnabled == nil || !dataCacheEnabled.Value) {
+					return nil, fmt.Errorf("setting data_cache_enabled should be enabled to use data_cache_max_size")
+				}
+				result.SetDataCacheEnabled(dataCacheEnabled)
+				result.SetDataCacheMaxSize(dataCacheMaxSize)
+
 				if preferNotToMerge, ok := cloudStorageSpec["prefer_not_to_merge"]; ok {
 					result.SetPreferNotToMerge(&wrapperspb.BoolValue{Value: preferNotToMerge.(bool)})
 				}
@@ -2610,7 +2620,7 @@ func expandClickHouseCloudStorage(d *schema.ResourceData) *clickhouse.CloudStora
 		}
 	}
 
-	return result
+	return result, nil
 }
 
 func flattenClickHouseCloudStorage(cs *clickhouse.CloudStorage) []map[string]interface{} {

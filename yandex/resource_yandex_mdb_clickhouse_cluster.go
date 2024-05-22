@@ -1026,13 +1026,18 @@ func prepareCreateClickHouseCreateRequest(d *schema.ResourceData, meta *Config) 
 		return nil, nil, nil, err
 	}
 
+	cloudStorage, err := expandClickHouseCloudStorage(d)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("error while expanding cloud storage on ClickHouse Cluster create: %s", err)
+	}
+
 	configSpec := &clickhouse.ConfigSpec{
 		Version:           d.Get("version").(string),
 		Clickhouse:        clickhouseConfigSpec,
 		Zookeeper:         expandClickHouseZookeeperSpec(d),
 		BackupWindowStart: expandClickHouseBackupWindowStart(d),
 		Access:            expandClickHouseAccess(d),
-		CloudStorage:      expandClickHouseCloudStorage(d),
+		CloudStorage:      cloudStorage,
 	}
 
 	shardsFromSpec, err := expandClickhouseShardSpecs(d)
@@ -1562,8 +1567,13 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 	if err != nil {
 		return nil, err
 	}
-
 	log.Printf("[DEBUG] resource for cluster update request: %+v\n", clickhouseConfigSpec.Resources)
+
+	cloudStorage, err := expandClickHouseCloudStorage(d)
+	if err != nil {
+		return nil, fmt.Errorf("update error while expand clickhouse cloud_storage: %s", err)
+	}
+
 	mw, err := expandClickHouseMaintenanceWindow(d)
 	if err != nil {
 		return nil, fmt.Errorf("update error while expand clickhouse maintenance_window: %s", err)
@@ -1582,7 +1592,7 @@ func getClickHouseClusterUpdateRequest(d *schema.ResourceData) (*clickhouse.Upda
 			Access:                expandClickHouseAccess(d),
 			SqlUserManagement:     &wrappers.BoolValue{Value: d.Get("sql_user_management").(bool)},
 			SqlDatabaseManagement: &wrappers.BoolValue{Value: d.Get("sql_database_management").(bool)},
-			CloudStorage:          expandClickHouseCloudStorage(d),
+			CloudStorage:          cloudStorage,
 		},
 		SecurityGroupIds:   expandSecurityGroupIds(d.Get("security_group_ids")),
 		ServiceAccountId:   d.Get("service_account_id").(string),
