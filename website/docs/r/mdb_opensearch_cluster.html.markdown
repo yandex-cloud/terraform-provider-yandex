@@ -216,9 +216,9 @@ The OpenSearch `node_groups` block supports:
 
 * `host_count` - (Required) Number of hosts in this node group.
 
-* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated.
+* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated. No other parameters should be changed simultaneously with this one, except `subnet_ids`.
 
-* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.
+* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs. No other parameters should be changed simultaneously with this one, except `zones_ids`.
 
 * `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address on creation.
 
@@ -232,9 +232,9 @@ The Dashboards `node_groups` block supports:
 
 * `host_count` - (Required) Number of hosts in this node group.
 
-* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated.
+* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated. No other parameters should be changed simultaneously with this one, except `subnet_ids`.
 
-* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.
+* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs. No other parameters should be changed simultaneously with this one, except `zones_ids`.
 
 * `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address on creation.
 

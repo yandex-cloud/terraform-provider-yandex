@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"golang.org/x/exp/slices"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -514,6 +515,14 @@ func createUpdateOpenSearchNodeGroupRequest(clusterId string, oldGroup *opensear
 		}
 		nodeGroupSpec.Roles = newGroup.Roles
 	}
+	if !slices.Equal(oldGroup.ZoneIds, newGroup.ZoneIds) {
+		paths = append(paths, "zone_ids")
+		nodeGroupSpec.ZoneIds = newGroup.ZoneIds
+	}
+	if !slices.Equal(oldGroup.SubnetIds, newGroup.SubnetIds) {
+		paths = append(paths, "subnet_ids")
+		nodeGroupSpec.SubnetIds = newGroup.SubnetIds
+	}
 	request.UpdateMask = &field_mask.FieldMask{
 		Paths: paths,
 	}
@@ -545,6 +554,14 @@ func createUpdateDashboardsNodeGroupRequest(clusterId string, oldGroup *opensear
 	if oldGroup.HostsCount != newGroup.HostsCount {
 		paths = append(paths, "hosts_count")
 		nodeGroupSpec.HostsCount = newGroup.HostsCount
+	}
+	if !slices.Equal(oldGroup.ZoneIds, newGroup.ZoneIds) {
+		paths = append(paths, "zone_ids")
+		nodeGroupSpec.ZoneIds = newGroup.ZoneIds
+	}
+	if !slices.Equal(oldGroup.SubnetIds, newGroup.SubnetIds) {
+		paths = append(paths, "subnet_ids")
+		nodeGroupSpec.SubnetIds = newGroup.SubnetIds
 	}
 	request.UpdateMask = &field_mask.FieldMask{
 		Paths: paths,
