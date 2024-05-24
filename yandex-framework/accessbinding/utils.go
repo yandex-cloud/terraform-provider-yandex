@@ -1,4 +1,4 @@
-package iam
+package accessbinding
 
 import (
 	"fmt"

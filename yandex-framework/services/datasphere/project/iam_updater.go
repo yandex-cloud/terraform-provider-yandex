@@ -10,10 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/accessbinding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/math"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/iam"
 )
 
 type ProjectIAMUpdater struct {
@@ -21,7 +20,7 @@ type ProjectIAMUpdater struct {
 	ProviderConfig *provider_config.Config
 }
 
-func newProjectIamUpdater() iam.ResourceIamUpdater {
+func newProjectIamUpdater() accessbinding.ResourceIamUpdater {
 	return &ProjectIAMUpdater{}
 }
 
@@ -61,21 +60,21 @@ func (u *ProjectIAMUpdater) Configure(_ context.Context, req resource.ConfigureR
 	u.ProviderConfig = providerConfig
 }
 
-func (u *ProjectIAMUpdater) Initialize(ctx context.Context, state iam.Extractable, diag *diag.Diagnostics) {
+func (u *ProjectIAMUpdater) Initialize(ctx context.Context, state accessbinding.Extractable, diag *diag.Diagnostics) {
 	var id types.String
 	diag.Append(state.GetAttribute(ctx, path.Root("project_id"), &id)...)
 	u.ProjectId = id.ValueString()
 }
 
-func (u *ProjectIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*iam.Policy, error) {
+func (u *ProjectIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
 	bindings, err := u.GeAccessBindings(ctx, u.ProjectId)
 	if err != nil {
 		return nil, err
 	}
-	return &iam.Policy{Bindings: bindings}, nil
+	return &accessbinding.Policy{Bindings: bindings}, nil
 }
 
-func (u *ProjectIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *iam.Policy) error {
+func (u *ProjectIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *accessbinding.Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.ProjectId,
 		AccessBindings: policy.Bindings,
@@ -97,17 +96,16 @@ func (u *ProjectIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *ia
 	return nil
 }
 
-func (u *ProjectIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *iam.PolicyDelta) error {
+func (u *ProjectIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *accessbinding.PolicyDelta) error {
 	bSize := 1000
 	deltas := policy.Deltas
 	dLen := len(deltas)
 
-	for i := 0; i < iam.CountBatches(dLen, bSize); i++ {
+	for i := 0; i < accessbinding.CountBatches(dLen, bSize); i++ {
 		req := &access.UpdateAccessBindingsRequest{
 			ResourceId:          u.ProjectId,
 			AccessBindingDeltas: deltas[i*bSize : math.Min((i+1)*bSize, dLen)],
 		}
-
 		op, err := u.ProviderConfig.SDK.WrapOperation(u.ProviderConfig.SDK.Datasphere().Project().UpdateAccessBindings(ctx, req))
 		if err != nil {
 			return fmt.Errorf("error updating access bindings of %s: %w", u.DescribeResource(), err)
@@ -137,7 +135,7 @@ func (u *ProjectIAMUpdater) GeAccessBindings(ctx context.Context, id string) ([]
 	for {
 		resp, err := u.ProviderConfig.SDK.Datasphere().Project().ListAccessBindings(ctx, &access.ListAccessBindingsRequest{
 			ResourceId: id,
-			PageSize:   datasphere.DefaultPageSize,
+			PageSize:   accessbinding.DefaultPageSize,
 			PageToken:  pageToken,
 		})
 		if err != nil {

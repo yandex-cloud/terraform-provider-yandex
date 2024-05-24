@@ -10,10 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/accessbinding"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/math"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/iam"
 )
 
 type CommunityIAMUpdater struct {
@@ -21,7 +20,7 @@ type CommunityIAMUpdater struct {
 	ProviderConfig *provider_config.Config
 }
 
-func newCommunityIamUpdater() iam.ResourceIamUpdater {
+func newCommunityIamUpdater() accessbinding.ResourceIamUpdater {
 	return &CommunityIAMUpdater{}
 }
 
@@ -61,21 +60,21 @@ func (u *CommunityIAMUpdater) Configure(_ context.Context, req resource.Configur
 	u.ProviderConfig = providerConfig
 }
 
-func (u *CommunityIAMUpdater) Initialize(ctx context.Context, state iam.Extractable, diag *diag.Diagnostics) {
+func (u *CommunityIAMUpdater) Initialize(ctx context.Context, state accessbinding.Extractable, diag *diag.Diagnostics) {
 	var id types.String
 	diag.Append(state.GetAttribute(ctx, path.Root("community_id"), &id)...)
 	u.CommunityId = id.ValueString()
 }
 
-func (u *CommunityIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*iam.Policy, error) {
+func (u *CommunityIAMUpdater) GetResourceIamPolicy(ctx context.Context) (*accessbinding.Policy, error) {
 	bindings, err := u.GeAccessBindings(ctx, u.CommunityId)
 	if err != nil {
 		return nil, err
 	}
-	return &iam.Policy{Bindings: bindings}, nil
+	return &accessbinding.Policy{Bindings: bindings}, nil
 }
 
-func (u *CommunityIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *iam.Policy) error {
+func (u *CommunityIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *accessbinding.Policy) error {
 	req := &access.SetAccessBindingsRequest{
 		ResourceId:     u.CommunityId,
 		AccessBindings: policy.Bindings,
@@ -99,12 +98,12 @@ func (u *CommunityIAMUpdater) SetResourceIamPolicy(ctx context.Context, policy *
 	return nil
 }
 
-func (u *CommunityIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *iam.PolicyDelta) error {
+func (u *CommunityIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, policy *accessbinding.PolicyDelta) error {
 	bSize := 1000
 	deltas := policy.Deltas
 	dLen := len(deltas)
 
-	for i := 0; i < iam.CountBatches(dLen, bSize); i++ {
+	for i := 0; i < accessbinding.CountBatches(dLen, bSize); i++ {
 		req := &access.UpdateAccessBindingsRequest{
 			ResourceId:          u.CommunityId,
 			AccessBindingDeltas: deltas[i*bSize : math.Min((i+1)*bSize, dLen)],
@@ -143,7 +142,7 @@ func (u *CommunityIAMUpdater) GeAccessBindings(ctx context.Context, id string) (
 			ctx,
 			&access.ListAccessBindingsRequest{
 				ResourceId: id,
-				PageSize:   datasphere.DefaultPageSize,
+				PageSize:   accessbinding.DefaultPageSize,
 				PageToken:  pageToken,
 			},
 		)

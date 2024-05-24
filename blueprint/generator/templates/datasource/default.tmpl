@@ -1,0 +1,137 @@
+// Code generated with blueprint. You should edit it, based on your certain requirements.
+
+package {{ .ServicePackage }}
+
+{{ if .TipsIncluded }}
+/*  Удалите этот комментарий и все коментарии с пометкой: TIP из итогового кода перед отправкой PR.
+
+        Сгенерированный файл является каркасом для создания data source для terraform provider yandex.
+    Ниже представлен сгенерированный код, и подсказки отмеченные как TIP: --Название подсказки.
+    Следуя этим подсказкам вы доработаете сгенерированный код и доведете его то рабочего состояния.
+
+        Важно понимать, что сгенерированный код это точно не конечный вариант того, как будет выглядеть ваш data source.
+    Вам нужно существенно доработать сгенерированный код, ориентируясь на подсказки и на конкретно ваши потребности в
+    данном data source.
+
+*/
+{{- end }}
+
+imports (
+    {{ range $alias, $import := range .Imports.Internal }}
+        {{ $alias }} "{{ $import }}"
+    {{ end }}
+
+    {{ range $alias, $import := range .Imports.External }}
+        {{ $alias }} "{{ $import }}"
+    {{ end }}
+)
+
+{{ if .TipsIncluded }}
+    /*
+        Все файлы с описанием datasource ДОЛЖНЫ иметь похожую структуру.
+        От части она базируется на стандарте языка Go, от части на сложившихся в этом репозитории правилах и здравом смысле.
+
+        Структура файла:
+            1 - Наименование пакета
+            2 - Импорты сгруппированные в две группы (1 - стандартные импорты, 2 - все остальное)
+            3 - Объявление структуры datasource
+            4 - Конструктор возвращающий инстанс datasource
+            5 - Метод возвращающий описание scheme для datasource
+            6 - Metadata метод
+            7 - Read метод (т.к. в datasource нет методов кроме Read - то только он)
+            8 - Configure метод
+            9 - Внутренние вспомогательные функции. (flatteners, expanders и прочее)
+
+    */
+{{- end }}
+
+var (
+	_ datasource.DataSource              = &{{ .DataSource }}Datasource{}
+	_ datasource.DataSourceWithConfigure = &{{ .DataSource }}Datasource{}
+)
+
+{{ if .TipsIncluded }}
+// TIP: --data_model: Тут добавить коммент про то - что тут все мапится на схему и че это такое
+{{ -end }}
+type {{ .DataSource }}DataModel struct {
+	Id types.String `tfsdk:"id"`
+}
+
+
+type {{ .DataSource }}Datasource struct {
+    providerConfig *provider_config.Config
+}
+
+func New{{ .DataSource }}Datasource() {
+    return &{{ .DataSource }}Datasource{}
+}
+
+func (d *{{ .DataSource }}Datasource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{ {{if .TipsIncluded}} // TIP: --id_field не все datasource, но большинство имеют поле id. Удалите его если считаете лишним. {{- end}}
+				Computed:            true,
+			},
+		},
+	}
+}
+
+func (d *{{ .DataSource }}Datasource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = "{{ .DataSourceFullNameSnakeCase }}"
+}
+
+{{ if .TipsIncluded }}
+/*
+    TIP: --read_method:
+        В большинстве случаев логика Read метода сводится к следующему алгоритму:
+        1 - Прочитать стейт
+        2 - Инициализировать SDK
+        3 - сделать запрос по переданному id
+        4 - замапить структуру из SDK на структуру tf
+
+        Если ваша логика значительно отличается от этой,то стоит задуматься - все ли правильно я делаю.
+*/
+{{ -end }}
+
+func (d *{{ .DataSource }}Datasource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+    var state {{ .DataSource }}DataModel
+    resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
+    if resp.Diagnostics.HasError() {
+    	return
+    }
+
+    output, err := {{ .SDKPath }}.Get({{ .SdkPackage }}.{{ .SDKReadName }})
+
+    if err != nil {
+        resp.Diagnostics.AddError(
+            "Failed to Read resource",
+        	"Error while requesting API to get {{ .DataSource }}:"+err.Error(),
+        )
+        return
+    }
+
+    {{ .DataSource }}toState(&state, output)
+    resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
+}
+
+func (d *{{ .DataSource }}Datasource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	providerConfig, ok := req.ProviderData.(*provider_config.Config)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected DataSource Configure Type",
+			fmt.Sprintf("Expected *provider_config.Config, got: %T. "+
+				"Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+
+	d.providerConfig = providerConfig
+}
+
+func {{ .DataSource }}toState(state *{{ .DataSource }}DataModel, output {{ .SdkPackage }}.{{ .SDKReadName }}) {
+    // todo: fixme - реализовать метод
+}
