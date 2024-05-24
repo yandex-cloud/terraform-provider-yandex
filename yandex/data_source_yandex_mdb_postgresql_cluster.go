@@ -457,7 +457,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	hosts, err := listPGHosts(ctx, config, clusterID)
+	hosts, err := retryListPGHostsWrapper(ctx, config, clusterID)
 	if err != nil {
 		return err
 	}

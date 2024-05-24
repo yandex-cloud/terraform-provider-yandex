@@ -261,7 +261,7 @@ func testAccPGGetHostNames(resource string, hostNames *[]string) resource.TestCh
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		hosts, err := listPGHosts(context.Background(), config, rs.Primary.ID)
+		hosts, err := retryListPGHostsWrapper(context.Background(), config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -286,7 +286,7 @@ func testAccPGCompareHostNames(resource string, oldHosts *[]string) resource.Tes
 		}
 
 		config := testAccProvider.Meta().(*Config)
-		currentHosts, err := listPGHosts(context.Background(), config, rs.Primary.ID)
+		currentHosts, err := retryListPGHostsWrapper(context.Background(), config, rs.Primary.ID)
 		if err != nil {
 			return err
 		}
