@@ -871,14 +871,27 @@ func updatePGClusterAfterCreate(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("error expanding maintenance_window while updating PostgreSQL after creation: %s", err)
 	}
 
-	if maintenanceWindow == nil {
+	paths := make([]string, 0)
+	if maintenanceWindow != nil {
+		paths = append(paths, "maintenance_window")
+	}
+
+	configSpec := &postgresql.ConfigSpec{}
+	diskSizeAutoscaling := expandPGDiskSizeAutoscaling(d)
+	if diskSizeAutoscaling != nil {
+		paths = append(paths, "config_spec.disk_size_autoscaling")
+		configSpec.DiskSizeAutoscaling = diskSizeAutoscaling
+	}
+
+	if len(paths) < 1 {
 		return nil
 	}
 
 	request := &postgresql.UpdateClusterRequest{
 		ClusterId:         d.Id(),
 		MaintenanceWindow: maintenanceWindow,
-		UpdateMask:        &field_mask.FieldMask{Paths: []string{"maintenance_window"}},
+		ConfigSpec:        configSpec,
+		UpdateMask:        &field_mask.FieldMask{Paths: paths},
 	}
 
 	config := meta.(*Config)

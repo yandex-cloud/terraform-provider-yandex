@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'postgresql create: set disk_size_autoscaling after cluster is created'
+time: 2024-05-23T11:58:45.104056+03:00
