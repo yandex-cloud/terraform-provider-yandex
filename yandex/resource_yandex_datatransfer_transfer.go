@@ -9,7 +9,7 @@ import (
 	validation "github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	datatransfer "github.com/yandex-cloud/go-genproto/yandex/cloud/datatransfer/v1"
 	errdetails "google.golang.org/genproto/googleapis/rpc/errdetails"
-	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc"
 	metadata "google.golang.org/grpc/metadata"
 	status "google.golang.org/grpc/status"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"

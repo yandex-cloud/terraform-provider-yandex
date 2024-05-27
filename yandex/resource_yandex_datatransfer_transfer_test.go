@@ -911,3 +911,68 @@ resource "yandex_datatransfer_endpoint" "yds_target" {
 }
 `, name, description)
 }
+
+func TestAccDataTransferMetrikaSourceEndpoint(t *testing.T) {
+	t.Parallel()
+	const metrikaSourceEndpointResourceName = "metrika-source"
+	const fullResourceName = "yandex_datatransfer_endpoint.metrika_source"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDataTransferDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataTransferConfigMetrikaSource(metrikaSourceEndpointResourceName+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", metrikaSourceEndpointResourceName+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+				),
+			},
+			{
+				Config: testAccDataTransferConfigMetrikaSource("new-metrika-source-name"+randomPostfix, "TestAccDataTransfer"+randomPostfix),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(fullResourceName, "name", "new-metrika-source-name"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "description", "TestAccDataTransfer"+randomPostfix),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.0", "1"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.1", "2"),
+					resource.TestCheckResourceAttr(fullResourceName, "settings.0.metrika_source.0.counter_ids.2", "3"),
+				),
+			},
+			{
+				ResourceName:            fullResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"settings.0.metrika_source.0.token"},
+			},
+		},
+	})
+}
+
+func testAccDataTransferConfigMetrikaSource(name, description string) string {
+	return fmt.Sprintf(`
+resource "yandex_datatransfer_endpoint" "metrika_source" {
+  name        = "%[1]s"
+  description = "%[2]s"
+  settings {
+    metrika_source {
+      counter_ids = [1, 2, 3]
+      streams {
+        columns = ["col1", "col2"]
+        type = "METRIKA_STREAM_TYPE_HITS"
+      }
+      streams {
+        columns = ["col1", "col2"]
+        type = "METRIKA_STREAM_TYPE_HITS_V2"
+      }
+      streams {
+        columns = ["col1", "col2"]
+        type = "METRIKA_STREAM_TYPE_VISITS"
+      }
+      token {
+        raw = "my_token"
+      }
+    }
+  }
+}
+`, name, description)
+}

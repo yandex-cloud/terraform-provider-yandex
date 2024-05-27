@@ -50,6 +50,15 @@ func expandDatatransferEndpointSettings(d *schema.ResourceData) (*datatransfer.E
 		val.SetKafkaTarget(kafkaTarget)
 	}
 
+	if _, ok := d.GetOk("settings.0.metrika_source"); ok {
+		metrikaSource, err := expandDatatransferEndpointSettingsMetrikaSource(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetMetrikaSource(metrikaSource)
+	}
+
 	if _, ok := d.GetOk("settings.0.mongo_source"); ok {
 		mongoSource, err := expandDatatransferEndpointSettingsMongoSource(d)
 		if err != nil {
@@ -1942,6 +1951,81 @@ func expandDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resource
 
 	if v, ok := d.GetOk(fmt.Sprintf("settings.0.mongo_source.0.collections.%d.database_name", indexes...)); ok {
 		val.SetDatabaseName(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsMetrikaSource(d *schema.ResourceData) (*endpoint.MetrikaSource, error) {
+	val := new(endpoint.MetrikaSource)
+
+	if v, ok := d.GetOk("settings.0.metrika_source.0.counter_ids"); ok {
+		val.SetCounterIds(expandInt64Slice(v.([]interface{})))
+	}
+
+	if _, ok := d.GetOk("settings.0.metrika_source.0.streams"); ok {
+		streams, err := expandDatatransferEndpointSettingsMetrikaSourceStreamsSlice(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetStreams(streams)
+	}
+
+	if _, ok := d.GetOk("settings.0.metrika_source.0.token"); ok {
+		token, err := expandDatatransferEndpointSettingsMetrikaSourceToken(d)
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetToken(token)
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsMetrikaSourceToken(d *schema.ResourceData) (*endpoint.Secret, error) {
+	val := new(endpoint.Secret)
+
+	if v, ok := d.GetOk("settings.0.metrika_source.0.token.0.raw"); ok {
+		val.SetRaw(v.(string))
+	}
+
+	return val, nil
+}
+
+func expandDatatransferEndpointSettingsMetrikaSourceStreamsSlice(d *schema.ResourceData, indexes ...interface{}) ([]*endpoint.MetrikaStream, error) {
+	count := d.Get("settings.0.metrika_source.0.streams.#").(int)
+	slice := make([]*endpoint.MetrikaStream, count)
+
+	for i := 0; i < count; i++ {
+		indexes = append(indexes, i)
+		expandedItem, err := expandDatatransferEndpointSettingsMetrikaSourceStreams(d, indexes...)
+		if err != nil {
+			return nil, err
+		}
+
+		slice[i] = expandedItem
+		indexes = indexes[:len(indexes)-1]
+	}
+
+	return slice, nil
+}
+
+func expandDatatransferEndpointSettingsMetrikaSourceStreams(d *schema.ResourceData, indexes ...interface{}) (*endpoint.MetrikaStream, error) {
+	val := new(endpoint.MetrikaStream)
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.metrika_source.0.streams.%d.columns", indexes...)); ok {
+		val.SetColumns(expandStringSlice(v.([]interface{})))
+	}
+
+	if v, ok := d.GetOk(fmt.Sprintf("settings.0.metrika_source.0.streams.%d.type", indexes...)); ok {
+		vv, err := parseDatatransferEndpointMetrikaStreamType(v.(string))
+		if err != nil {
+			return nil, err
+		}
+
+		val.SetType(vv)
 	}
 
 	return val, nil
@@ -4006,6 +4090,12 @@ func flattenDatatransferEndpointSettings(d *schema.ResourceData, v *datatransfer
 	}
 	m["kafka_target"] = kafkaTarget
 
+	metrikaSource, err := flattenDatatransferEndpointSettingsMetrikaSource(d, v.GetMetrikaSource())
+	if err != nil {
+		return nil, err
+	}
+	m["metrika_source"] = metrikaSource
+
 	mongoSource, err := flattenDatatransferEndpointSettingsMongoSource(d, v.GetMongoSource())
 	if err != nil {
 		return nil, err
@@ -5296,6 +5386,57 @@ func flattenDatatransferEndpointSettingsMongoSourceCollections(d *schema.Resourc
 
 	m["collection_name"] = v.GetCollectionName()
 	m["database_name"] = v.GetDatabaseName()
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsMetrikaSource(d *schema.ResourceData, v *endpoint.MetrikaSource) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["counter_ids"] = v.GetCounterIds()
+
+	streams, err := flattenDatatransferEndpointSettingsMetrikaSourceStreamsSlice(d, v.GetStreams())
+	if err != nil {
+		return nil, err
+	}
+	m["streams"] = streams
+	if token, ok := d.GetOk("settings.0.metrika_source.0.token.0.raw"); ok {
+		m["token"] = []map[string]interface{}{{"raw": token}}
+	}
+
+	return []map[string]interface{}{m}, nil
+}
+
+func flattenDatatransferEndpointSettingsMetrikaSourceStreamsSlice(d *schema.ResourceData, v []*endpoint.MetrikaStream) ([]interface{}, error) {
+	s := make([]interface{}, 0, len(v))
+
+	for _, item := range v {
+		flattenedItem, err := flattenDatatransferEndpointSettingsMetrikaSourceStreams(d, item)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(flattenedItem) != 0 {
+			s = append(s, flattenedItem[0])
+		}
+	}
+
+	return s, nil
+}
+
+func flattenDatatransferEndpointSettingsMetrikaSourceStreams(d *schema.ResourceData, v *endpoint.MetrikaStream) ([]map[string]interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["columns"] = v.GetColumns()
+	m["type"] = v.GetType().String()
 
 	return []map[string]interface{}{m}, nil
 }
@@ -7080,6 +7221,18 @@ func parseDatatransferEndpointKafkaMechanism(str string) (endpoint.KafkaMechanis
 		)
 	}
 	return endpoint.KafkaMechanism(val), nil
+}
+
+func parseDatatransferEndpointMetrikaStreamType(str string) (endpoint.MetrikaStreamType, error) {
+	val, ok := endpoint.MetrikaStreamType_value[str]
+	if !ok {
+		return endpoint.MetrikaStreamType(0), fmt.Errorf(
+			"value for 'transfer_type' must be one of %s, not `%s`",
+			getJoinedKeys(getEnumValueMapKeys(endpoint.MetrikaStreamType_value)),
+			str,
+		)
+	}
+	return endpoint.MetrikaStreamType(val), nil
 }
 
 func parseDatatransferEndpointObjectTransferStage(str string) (endpoint.ObjectTransferStage, error) {

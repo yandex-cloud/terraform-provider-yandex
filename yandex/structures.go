@@ -82,6 +82,17 @@ func expandStringStringMap(v map[string]interface{}) map[string]string {
 	return m
 }
 
+func expandInt64Slice(v []interface{}) []int64 {
+	if v == nil {
+		return nil
+	}
+	s := make([]int64, len(v))
+	for i, val := range v {
+		s[i] = int64(val.(int))
+	}
+	return s
+}
+
 func expandLabels(v interface{}) (map[string]string, error) {
 	m := make(map[string]string)
 	if v == nil {
