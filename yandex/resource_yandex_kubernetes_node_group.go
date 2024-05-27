@@ -669,24 +669,38 @@ func getNodeGroupMaintenancePolicy(d *schema.ResourceData) (*k8s.NodeGroupMainte
 
 func getNodeGroupAllocationPolicy(d *schema.ResourceData) *k8s.NodeGroupAllocationPolicy {
 	return &k8s.NodeGroupAllocationPolicy{
-		Locations: getNodeGroupAllocationPolicyLocations(d),
+		Locations: getNodeGroupAllocationPolicyLocationsFromConfig(d),
 	}
 }
 
-func getNodeGroupAllocationPolicyLocations(d *schema.ResourceData) []*k8s.NodeGroupLocation {
+// getNodeGroupAllocationPolicyLocationsFromConfig returns  AllocationPolicy Locations from config. It will NOT get values from state even if they absent in a config.
+func getNodeGroupAllocationPolicyLocationsFromConfig(d *schema.ResourceData) []*k8s.NodeGroupLocation {
 	var locations []*k8s.NodeGroupLocation
-	h := schemaHelper(d, "allocation_policy.0.location.")
-	locationCount := h.GetInt("#")
-	for i := 0; i < locationCount; i++ {
-		location := h.Get(fmt.Sprintf("%d", i)).(map[string]interface{})
+
+	ap := d.GetRawConfig().GetAttr("allocation_policy")
+	if ap.IsNull() {
+		return locations
+	}
+
+	aps := ap.AsValueSlice()
+	if len(aps) < 1 {
+		return locations
+	}
+
+	locs, ok := aps[0].AsValueMap()["location"]
+	if !ok || locs.IsNull() {
+		return locations
+	}
+
+	for _, locationAttr := range locs.AsValueSlice() {
 		locationSpec := &k8s.NodeGroupLocation{}
 
-		if zone, ok := location["zone"]; ok {
-			locationSpec.ZoneId = zone.(string)
+		if zone, ok := locationAttr.AsValueMap()["zone"]; ok && !zone.IsNull() {
+			locationSpec.ZoneId = zone.AsString()
 		}
 
-		if subnet, ok := location["subnet_id"]; ok {
-			locationSpec.SubnetId = subnet.(string)
+		if subnet, ok := locationAttr.AsValueMap()["subnet_id"]; ok && !subnet.IsNull() {
+			locationSpec.SubnetId = subnet.AsString()
 		}
 
 		locations = append(locations, locationSpec)
