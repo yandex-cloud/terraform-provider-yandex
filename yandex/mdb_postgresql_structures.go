@@ -989,6 +989,7 @@ func expandPGConfigSpec(d *schema.ResourceData) (*postgresql.ConfigSpec, []strin
 		BackupWindowStart:      expandMDBBackupWindowStart(d, "config.0.backup_window_start.0"),
 		Access:                 expandPGAccess(d),
 		PerformanceDiagnostics: expandPGPerformanceDiagnostics(d),
+		DiskSizeAutoscaling:    expandPGDiskSizeAutoscaling(d),
 	}
 
 	settingNames, err := expandPGConfigSpecSettings(d, cs)

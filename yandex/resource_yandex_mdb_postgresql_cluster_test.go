@@ -1182,11 +1182,11 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
       statements_sampling_interval = 60
     }
 
-	disk_size_autoscaling {
-		disk_size_limit           	= 40
-		planned_usage_threshold 	= 70
-		emergency_usage_threshold	= 90
-	}
+    disk_size_autoscaling {
+      disk_size_limit           = 40
+      planned_usage_threshold   = 70
+      emergency_usage_threshold = 90
+    }
     
     backup_retain_period_days = 12
     

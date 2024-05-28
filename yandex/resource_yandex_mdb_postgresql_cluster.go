@@ -824,6 +824,8 @@ func prepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *Config) (*post
 		return nil, fmt.Errorf("Error while expanding cluster config on PostgreSQL Cluster create: %s", err)
 	}
 
+	confSpec.DiskSizeAutoscaling = nil
+
 	userSpecs, err := expandPGUserSpecs(d)
 	if err != nil {
 		return nil, fmt.Errorf("Error while expanding user specs on PostgreSQL Cluster create: %s", err)
