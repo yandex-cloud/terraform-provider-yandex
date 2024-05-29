@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: increase timeouts for `mongodb` and `redis` resources
+time: 2024-05-29T13:18:50.078546+03:00

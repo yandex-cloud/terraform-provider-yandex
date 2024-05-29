@@ -56,7 +56,7 @@ func sweepMDBRedisCluster(conf *Config, id string) bool {
 }
 
 func sweepMDBRedisClusterOnce(conf *Config, id string) error {
-	ctx, cancel := conf.ContextWithTimeout(yandexMDBRedisClusterDefaultTimeout)
+	ctx, cancel := conf.ContextWithTimeout(yandexMDBRedisClusterCreateTimeout)
 	defer cancel()
 
 	mask := field_mask.FieldMask{Paths: []string{"deletion_protection"}}

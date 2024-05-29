@@ -19,9 +19,10 @@ import (
 )
 
 const (
-	yandexMDBRedisClusterDefaultTimeout = 15 * time.Minute
-	yandexMDBRedisClusterUpdateTimeout  = 60 * time.Minute
-	defaultMDBPageSize                  = 1000
+	yandexMDBRedisClusterCreateTimeout = 45 * time.Minute
+	yandexMDBRedisClusterUpdateTimeout = 60 * time.Minute
+	yandexMDBRedisClusterDeleteTimeout = 20 * time.Minute
+	defaultMDBPageSize                 = 1000
 )
 
 func resourceYandexMDBRedisCluster() *schema.Resource {
@@ -35,9 +36,9 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(yandexMDBRedisClusterDefaultTimeout),
+			Create: schema.DefaultTimeout(yandexMDBRedisClusterCreateTimeout),
 			Update: schema.DefaultTimeout(yandexMDBRedisClusterUpdateTimeout),
-			Delete: schema.DefaultTimeout(yandexMDBRedisClusterDefaultTimeout),
+			Delete: schema.DefaultTimeout(yandexMDBRedisClusterDeleteTimeout),
 		},
 
 		SchemaVersion: 0,

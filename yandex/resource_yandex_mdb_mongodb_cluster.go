@@ -27,9 +27,9 @@ const (
 )
 
 const (
-	yandexMDBMongoDBClusterCreateTimeout = 30 * time.Minute
-	yandexMDBMongoDBClusterDeleteTimeout = 60 * time.Minute
-	yandexMDBMongoDBClusterUpdateTimeout = 60 * time.Minute
+	yandexMDBMongoDBClusterCreateTimeout = time.Hour
+	yandexMDBMongoDBClusterDeleteTimeout = time.Hour
+	yandexMDBMongoDBClusterUpdateTimeout = 2 * time.Hour
 )
 
 func resourceYandexMDBMongodbCluster() *schema.Resource {
