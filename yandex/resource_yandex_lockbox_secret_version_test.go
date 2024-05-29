@@ -3,7 +3,6 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -102,11 +101,103 @@ func TestAccLockboxVersion_update_entries(t *testing.T) {
 	})
 }
 
+func testAccLockboxSecretVersionBasic(name, secretDesc, versionDesc string) string {
+	entries := []*lockboxEntryCheck{
+		{Key: "key1", Val: "val1"},
+		{Key: "key2", Val: "val2"},
+	}
+	return testAccLockboxSecretVersion(name, secretDesc, versionDesc, entries)
+}
+
+func testAccLockboxSecretVersion(name, secretDesc, versionDesc string, entries []*lockboxEntryCheck) string {
+	return fmt.Sprintf(`
+resource "yandex_lockbox_secret" "basic_secret" {
+  name        = "%v"
+  description = "%v"
+}
+
+resource "yandex_lockbox_secret_version" "basic_version" {
+  secret_id = yandex_lockbox_secret.basic_secret.id
+  description = "%v"
+  %v
+}
+`, name, secretDesc, versionDesc, linesForEntries(entries))
+}
+
+func linesForEntries(entries []*lockboxEntryCheck) string {
+	result := ""
+	for _, e := range entries {
+		result += lineForEntry(e.Key, e.Val)
+	}
+	return result
+}
+
+func lineForEntry(k string, v string) string {
+	return fmt.Sprintf(`
+entries {
+    key        = "%v"
+    text_value = "%v"
+}
+`, k, v)
+}
+
+// Checks expectedEntries in the real secret version of the versionResource
+// We can't check entries in state because the resource doesn't read the entries.
+func testAccCheckYandexLockboxVersionEntries(versionResource string, expectedEntries []*lockboxEntryCheck) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		config := testAccProvider.Meta().(*Config)
+		rs, ok := s.RootModule().Resources[versionResource]
+		if !ok {
+			return fmt.Errorf("not found resource: %s", versionResource)
+		}
+		payload, err := config.sdk.LockboxPayload().Payload().Get(context.Background(), &lockbox.GetPayloadRequest{
+			SecretId:  rs.Primary.Attributes["secret_id"],
+			VersionId: rs.Primary.ID,
+		})
+		if err != nil {
+			return err
+		}
+		if len(expectedEntries) != len(payload.GetEntries()) {
+			return fmt.Errorf("expected %d entries but found %d", len(expectedEntries), len(payload.GetEntries()))
+		}
+		for i, entry := range payload.GetEntries() {
+			expectedEntry := expectedEntries[i]
+			if entry.Key != expectedEntry.Key {
+				return fmt.Errorf("entry at index %d should have key '%s' but has key '%s'", i, expectedEntry.Key, entry.Key)
+			}
+			if expectedEntry.Regexp != nil {
+				if !expectedEntry.Regexp.MatchString(entry.GetTextValue()) {
+					return fmt.Errorf("entry at index %d should have value that matches '%v' but has value '%s'", i, expectedEntry.Regexp, entry.GetTextValue())
+				}
+			} else {
+				if entry.GetTextValue() != expectedEntry.Val {
+					return fmt.Errorf("entry at index %d should have value '%s' but has value '%s'", i, expectedEntry.Val, entry.GetTextValue())
+				}
+			}
+		}
+		return nil
+	}
+}
+
+/*
 func TestAccLockboxVersion_command(t *testing.T) {
 	secretName := "a" + acctest.RandString(10)
 	versionResource := "yandex_lockbox_secret_version.exec_version"
 	versionID := ""
-	script := "test-fixtures/fake_secret_generator.sh"
+
+	// TODO - although checkTestFilesFolder output looks fine, we can't read the script file
+	//  we get: Error: fork/exec /go/src/github.com/terraform-providers/terraform-provider-yandex/yandex/test-fixtures/fake_secret_generator.sh: no such file or directory
+	checkTestFilesFolder(t)
+	// TODO - this also doen't work, the file is created but it's not found later (same "no such file or directory" error)
+	scriptFile := createTempFile(t, "fake_secret_generator.sh", `#!/bin/bash
+set -e
+# As a proof of concept, we return an argument, an env var and a random number.
+echo -n "arg: $1, var: $VALUE, rnd: $RANDOM"
+`)
+	defer os.Remove(scriptFile.Name())
+	script := scriptFile.Name()
+	t.Logf("Created a temp file for the script: %v", script)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
@@ -149,46 +240,6 @@ func TestAccLockboxVersion_command(t *testing.T) {
 	})
 }
 
-func testAccLockboxSecretVersionBasic(name, secretDesc, versionDesc string) string {
-	entries := []*lockboxEntryCheck{
-		{Key: "key1", Val: "val1"},
-		{Key: "key2", Val: "val2"},
-	}
-	return testAccLockboxSecretVersion(name, secretDesc, versionDesc, entries)
-}
-
-func testAccLockboxSecretVersion(name, secretDesc, versionDesc string, entries []*lockboxEntryCheck) string {
-	return fmt.Sprintf(`
-resource "yandex_lockbox_secret" "basic_secret" {
-  name        = "%v"
-  description = "%v"
-}
-
-resource "yandex_lockbox_secret_version" "basic_version" {
-  secret_id = yandex_lockbox_secret.basic_secret.id
-  description = "%v"
-  %v
-}
-`, name, secretDesc, versionDesc, linesForEntries(entries))
-}
-
-func linesForEntries(entries []*lockboxEntryCheck) string {
-	result := ""
-	for _, e := range entries {
-		result += lineForEntry(e.Key, e.Val)
-	}
-	return result
-}
-
-func lineForEntry(k string, v string) string {
-	return fmt.Sprintf(`
-entries {
-    key        = "%v"
-    text_value = "%v"
-}
-`, k, v)
-}
-
 func testAccLockboxSecretVersionWithCommand(name, cmd, arg, env string) string {
 	if arg != "" {
 		arg = fmt.Sprintf(`args = ["%s"]`, arg)
@@ -219,40 +270,49 @@ resource "yandex_lockbox_secret_version" "exec_version" {
 `, name, cmd, arg, env)
 }
 
-// Checks expectedEntries in the real secret version of the versionResource
-// We can't check entries in state because the resource doesn't read the entries.
-func testAccCheckYandexLockboxVersionEntries(versionResource string, expectedEntries []*lockboxEntryCheck) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		config := testAccProvider.Meta().(*Config)
-		rs, ok := s.RootModule().Resources[versionResource]
-		if !ok {
-			return fmt.Errorf("not found resource: %s", versionResource)
-		}
-		payload, err := config.sdk.LockboxPayload().Payload().Get(context.Background(), &lockbox.GetPayloadRequest{
-			SecretId:  rs.Primary.Attributes["secret_id"],
-			VersionId: rs.Primary.ID,
-		})
-		if err != nil {
-			return err
-		}
-		if len(expectedEntries) != len(payload.GetEntries()) {
-			return fmt.Errorf("expected %d entries but found %d", len(expectedEntries), len(payload.GetEntries()))
-		}
-		for i, entry := range payload.GetEntries() {
-			expectedEntry := expectedEntries[i]
-			if entry.Key != expectedEntry.Key {
-				return fmt.Errorf("entry at index %d should have key '%s' but has key '%s'", i, expectedEntry.Key, entry.Key)
-			}
-			if expectedEntry.Regexp != nil {
-				if !expectedEntry.Regexp.MatchString(entry.GetTextValue()) {
-					return fmt.Errorf("entry at index %d should have value that matches '%v' but has value '%s'", i, expectedEntry.Regexp, entry.GetTextValue())
-				}
-			} else {
-				if entry.GetTextValue() != expectedEntry.Val {
-					return fmt.Errorf("entry at index %d should have value '%s' but has value '%s'", i, expectedEntry.Val, entry.GetTextValue())
-				}
-			}
-		}
-		return nil
+func getYandexDir() string {
+	pwd, _ := os.Getwd()
+	if strings.HasSuffix(pwd, "yandex") {
+		// when running `go test ./yandex ...`, like explained in:
+		// https://wiki.yandex-team.ru/cloud/devel/terraform/acceptance-tests/
+		return pwd
 	}
+	return pwd + "/yandex" // when tests are executed from the repo root folder (in builds)
 }
+
+func checkTestFilesFolder(t *testing.T) {
+	yandexDir := getYandexDir()
+	testFixturesDir := yandexDir + "/test-fixtures"
+	t.Logf("Checking files in test-fixtures dir: %v", testFixturesDir)
+	files, err := os.ReadDir(testFixturesDir)
+	if err == nil {
+		for _, file := range files {
+			t.Logf("- %v", file.Name())
+		}
+	} else {
+		t.Errorf("%v", err)
+	}
+
+	script := yandexDir + "/test-fixtures/fake_secret_generator.sh"
+	t.Logf("Script file is expected at: %v", script)
+}
+
+func createTempFile(t *testing.T, filename, content string) *os.File {
+	scriptFile, err := os.CreateTemp("", filename)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = scriptFile.WriteString(content)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = scriptFile.Chmod(0755)
+	if err != nil {
+		t.Error(err)
+	}
+
+	return scriptFile
+}
+*/

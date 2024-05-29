@@ -8,7 +8,7 @@ description: |-
 
 # yandex\_lockbox\_secret\_version
 
-Yandex Cloud Lockbox secret vesrion resource. For more information, see
+Yandex Cloud Lockbox secret version resource. For more information, see
 [the official documentation](https://cloud.yandex.com/en/docs/lockbox/).
 
 ## Example Usage

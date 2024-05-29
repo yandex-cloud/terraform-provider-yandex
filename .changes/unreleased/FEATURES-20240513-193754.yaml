@@ -1,0 +1,4 @@
+kind: FEATURES
+body: '**New Resource:** `yandex_lockbox_secret_version_hashed` that stores sensitive
+  values in hash form'
+time: 2024-05-13T19:37:54.767715+03:00

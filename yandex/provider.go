@@ -283,6 +283,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_loadtesting_agent":                                resourceYandexLoadtestingAgent(),
 			"yandex_lockbox_secret":                                   resourceYandexLockboxSecret(),
 			"yandex_lockbox_secret_version":                           resourceYandexLockboxSecretVersion(),
+			"yandex_lockbox_secret_version_hashed":                    resourceYandexLockboxSecretVersionHashed(),
 			"yandex_lockbox_secret_iam_binding":                       resourceYandexLockboxSecretIAMBinding(),
 			"yandex_logging_group":                                    resourceYandexLoggingGroup(),
 			"yandex_mdb_clickhouse_cluster":                           resourceYandexMDBClickHouseCluster(),

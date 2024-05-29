@@ -190,8 +190,7 @@ func resourceYandexLockboxSecretVersionRead(ctx context.Context, d *schema.Resou
 }
 
 func resourceYandexLockboxSecretVersionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// In secret_service.proto there is ScheduleVersionDestruction but not DeleteVersion.
-	// Versions will be deleted if you delete the secret.
+	// TODO - we could call ScheduleVersionDestruction
 	log.Printf("[INFO] Versions are only deleted when secret is deleted, version ID: %s", d.Id())
 	return nil
 }
