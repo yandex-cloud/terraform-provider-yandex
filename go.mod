@@ -1,6 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.20
+go 1.21
 
 require (
 	github.com/aws/aws-sdk-go v1.37.0
@@ -31,6 +31,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
+	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
 	github.com/yandex-cloud/go-genproto v0.0.0-20240513082302-2e0a3cd8443b
@@ -197,7 +198,6 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
-	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
