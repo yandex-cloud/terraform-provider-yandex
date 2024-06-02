@@ -147,6 +147,8 @@ The following arguments are supported:
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
+* `backup_window_start` - Time to start the daily backup in UTC. The structure is documented below.
+
 - - -
 
 The `config` block supports:
@@ -200,6 +202,11 @@ The `host` block supports:
 * `replica_priority` - (Optional) Replica priority of a current replica (usable for non-sharded only).
 
 * `assign_public_ip` - (Optional) Sets whether the host should get a public IP address or not.
+
+The `backup_window_start` block supports:
+
+* `hours` - (Optional) The hour at which the backup will be started. Defaults to 0.
+* `minutes` - (Optional) The minute at which the backup will be started. Defaults to 0.
 
 The `maintenance_window` block supports:
 

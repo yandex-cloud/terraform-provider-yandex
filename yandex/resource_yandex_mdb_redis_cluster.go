@@ -183,6 +183,28 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"backup_window_start": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hours": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 23),
+						},
+						"minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 59),
+						},
+					},
+				},
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -356,9 +378,10 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	}
 
 	configSpec := &redis.ConfigSpec{
-		Redis:     conf,
-		Resources: resources,
-		Version:   version,
+		Redis:             conf,
+		Resources:         resources,
+		Version:           version,
+		BackupWindowStart: expandMDBBackupWindowStart(d, "backup_window_start.0"),
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -474,6 +497,11 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
+	if err := d.Set("backup_window_start", backupWindowStart); err != nil {
+		return err
+	}
+
 	if err := d.Set("security_group_ids", cluster.SecurityGroupIds); err != nil {
 		return err
 	}
@@ -568,6 +596,14 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.Description = d.Get("description").(string)
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "description")
 
+	}
+
+	if d.HasChange("backup_window_start") {
+		if req.ConfigSpec == nil {
+			req.ConfigSpec = &redis.ConfigSpec{}
+		}
+		req.ConfigSpec.BackupWindowStart = expandMDBBackupWindowStart(d, "backup_window_start.0")
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.backup_window_start")
 	}
 
 	if d.HasChange("resources") {

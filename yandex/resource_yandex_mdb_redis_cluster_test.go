@@ -11,10 +11,14 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
+	timeofday "google.golang.org/genproto/googleapis/type/timeofday"
 )
 
 const redisResource = "yandex_mdb_redis_cluster.foo"
@@ -1202,4 +1206,31 @@ resource "yandex_mdb_redis_cluster" "bar" {
 }
 `, name, desc, getPersistenceMode(persistenceMode), version, diskSize, getDiskTypeStr(diskTypeId),
 		getShardedHosts(diskTypeId, "new"))
+}
+
+func TestRedisClusterCreate(t *testing.T) {
+	raw := map[string]interface{}{
+		"environment": "ENVIRONMENT_UNSPECIFIED",
+		"backup_window_start": []interface{}{map[string]interface{}{
+			"hours":   4,
+			"minutes": 20,
+		}},
+	}
+	resourceData := schema.TestResourceDataRaw(t, resourceYandexMDBRedisCluster().Schema, raw)
+	config := &Config{
+		FolderID: "blabla",
+	}
+	req, err := prepareCreateRedisRequest(resourceData, config)
+	require.NoError(t, err)
+
+	expected := &redis.CreateClusterRequest{
+		ConfigSpec: &redis.ConfigSpec{
+			BackupWindowStart: &timeofday.TimeOfDay{
+				Hours:   4,
+				Minutes: 20,
+			},
+		},
+	}
+
+	assert.Equal(t, req.ConfigSpec.BackupWindowStart, expected.ConfigSpec.BackupWindowStart)
 }
