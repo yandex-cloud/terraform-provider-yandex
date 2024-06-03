@@ -24,8 +24,8 @@ import (
 	cfg "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 )
 
-const chVersion = "23.3"
-const chUpdatedVersion = "23.8"
+const chVersion = "23.8"
+const chUpdatedVersion = "24.3"
 const chResource = "yandex_mdb_clickhouse_cluster.foo"
 const chResourceSharded = "yandex_mdb_clickhouse_cluster.bar"
 const chResourceCloudStorage = "yandex_mdb_clickhouse_cluster.cloud"
@@ -742,7 +742,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 100006},
 			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 100007},
 			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 1},
-			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 100008},
+			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 120},
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 100009},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 100010},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: false},
@@ -877,7 +877,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MergeWithRecompressionTtlTimeout:               &wrappers.Int64Value{Value: 200012},
 			MaxPartsInTotal:                                &wrappers.Int64Value{Value: 200014},
 			MaxNumberOfMergesWithTtlInPool:                 &wrappers.Int64Value{Value: 2},
-			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 200016},
+			CleanupDelayPeriod:                             &wrappers.Int64Value{Value: 240},
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 200018},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 200020},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: true},
@@ -1108,7 +1108,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "100006"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "100007"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "1"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "100008"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "120"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "100009"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "100010"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "false"),
@@ -1224,7 +1224,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_with_recompression_ttl_timeout", "200012"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_parts_in_total", "200014"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_number_of_merges_with_ttl_in_pool", "2"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "200016"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.cleanup_delay_period", "240"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "200018"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "200020"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "true"),
