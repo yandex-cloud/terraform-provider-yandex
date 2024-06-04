@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'opensearch: add retry on conflicting operation error'
-time: 2024-06-03T21:41:49.255962+02:00

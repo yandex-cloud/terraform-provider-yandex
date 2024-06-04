@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'k8s: fix to pass `AllocationPolicy.Location` config during update as is'
-time: 2024-05-27T15:06:47.487829+02:00
