@@ -459,6 +459,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     day  = "FRI"
     hour = 20
   }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
 }
 `, name, desc, environment, deletionProtection)
 }
@@ -623,6 +628,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   maintenance_window {
     type = "ANYTIME"
   }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
 }
 `, name, desc)
 }
@@ -755,6 +765,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   maintenance_window {
     type = "ANYTIME"
   }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
 }
 `, name, desc)
 }
@@ -869,6 +884,11 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
 
   maintenance_window {
     type = "ANYTIME"
+  }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
   }
 }
 `, name, desc)
