@@ -1,3 +1,8 @@
+## 0.121.0 (June 5, 2024)
+
+FEATURES:
+* ydb: add imortant consumer flag to yandex_ydb_topic
+
 ## 0.120.0 (June 4, 2024)
 
 FEATURES:
