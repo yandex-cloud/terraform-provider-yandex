@@ -36,7 +36,8 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/yandex-cloud/go-genproto v0.0.0-20240513082302-2e0a3cd8443b
 	github.com/yandex-cloud/go-sdk v0.0.0-20240513082658-e33b8a503812
-	github.com/ydb-platform/terraform-provider-ydb v0.0.19
+	github.com/ydb-platform/terraform-provider-ydb v0.0.20
+	golang.org/x/crypto v0.21.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
 	golang.org/x/net v0.22.0
 	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa
@@ -229,7 +230,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
 	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
