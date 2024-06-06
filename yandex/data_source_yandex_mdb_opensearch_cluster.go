@@ -14,6 +14,9 @@ import (
 func dataSourceYandexMDBOpenSearchCluster() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceYandexMDBOpenSearchClusterRead,
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(yandexMDBOpenSearchClusterCreateTimeout),
+		},
 		Schema: map[string]*schema.Schema{
 			"cluster_id": {
 				Type:     schema.TypeString,

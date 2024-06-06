@@ -191,7 +191,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Networks remove
 			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc, randInt),
+				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
@@ -200,7 +200,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Networks restore
 			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc, randInt),
+				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
