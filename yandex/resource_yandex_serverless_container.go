@@ -213,6 +213,20 @@ func resourceYandexServerlessContainer() *schema.Resource {
 				},
 			},
 
+			"provision_policy": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"min_instances": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+					},
+				},
+			},
+
 			"log_options": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -332,7 +346,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
-		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "log_options",
+		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "log_options", "provision_policy",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -454,6 +468,12 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 
 	if v, ok := d.GetOk("concurrency"); ok {
 		revisionReq.Concurrency = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("provision_policy.0.min_instances"); ok {
+		revisionReq.ProvisionPolicy = &containers.ProvisionPolicy{
+			MinInstances: int64(v.(int)),
+		}
 	}
 
 	if v, ok := d.GetOk("service_account_id"); ok {
@@ -611,6 +631,14 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	}
 	if logOptions := flattenRevisionLogOptions(revision.LogOptions); logOptions != nil {
 		d.Set("log_options", logOptions)
+	}
+
+	if revision.ProvisionPolicy != nil {
+		d.Set("provision_policy", []map[string]interface{}{
+			{
+				"min_instances": revision.ProvisionPolicy.MinInstances,
+			},
+		})
 	}
 
 	return nil
