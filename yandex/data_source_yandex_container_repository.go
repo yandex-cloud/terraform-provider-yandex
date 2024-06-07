@@ -25,6 +25,11 @@ func dataSourceYandexContainerRepository() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"folder_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
