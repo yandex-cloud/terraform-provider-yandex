@@ -264,7 +264,7 @@ func resourceYandexStorageObjectRead(ctx context.Context, d *schema.ResourceData
 		d.Set("object_lock_retain_until_date", untilDate.Format(time.RFC3339))
 	}
 
-	tagsResponseRaw, err := retryFlakyS3Responses(func() (interface{}, error) {
+	tagsResponseRaw, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
 		return s3conn.GetObjectTaggingWithContext(ctx, &s3.GetObjectTaggingInput{
 			Bucket:    aws.String(bucket),
 			Key:       aws.String(key),
@@ -402,7 +402,7 @@ func resourceYandexStorageObjectTaggingUpdate(ctx context.Context, s3conn *s3.S3
 				TagSet: tags,
 			},
 		}
-		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
 			return s3conn.PutObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {
@@ -418,7 +418,7 @@ func resourceYandexStorageObjectTaggingUpdate(ctx context.Context, s3conn *s3.S3
 			Bucket: bucket,
 			Key:    key,
 		}
-		_, err := retryFlakyS3Responses(func() (interface{}, error) {
+		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
 			return s3conn.DeleteObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {
