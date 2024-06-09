@@ -1480,11 +1480,14 @@ func expandALBHTTPHealthCheck(v interface{}) *apploadbalancer.HealthCheck_HttpHe
 
 func expandALBGRPCHealthCheck(v interface{}) *apploadbalancer.HealthCheck_GrpcHealthCheck {
 	healthCheck := &apploadbalancer.HealthCheck_GrpcHealthCheck{}
-	config := v.(map[string]interface{})
 
-	if val, ok := config["service_name"]; ok {
-		healthCheck.SetServiceName(val.(string))
-	}
+	if config, ok := v.(map[string]interface{}); ok {
+        if val, ok := config["service_name"]; ok {
+            if serviceName, ok := val.(string); ok {
+                healthCheck.SetServiceName(serviceName)
+            }
+        }
+    }
 
 	return healthCheck
 }
