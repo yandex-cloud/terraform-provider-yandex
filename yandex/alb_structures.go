@@ -1482,12 +1482,12 @@ func expandALBGRPCHealthCheck(v interface{}) *apploadbalancer.HealthCheck_GrpcHe
 	healthCheck := &apploadbalancer.HealthCheck_GrpcHealthCheck{}
 
 	if config, ok := v.(map[string]interface{}); ok {
-        if val, ok := config["service_name"]; ok {
-            if serviceName, ok := val.(string); ok {
-                healthCheck.SetServiceName(serviceName)
-            }
-        }
-    }
+		if val, ok := config["service_name"]; ok {
+			if serviceName, ok := val.(string); ok {
+				healthCheck.SetServiceName(serviceName)
+			}
+		}
+	}
 
 	return healthCheck
 }
