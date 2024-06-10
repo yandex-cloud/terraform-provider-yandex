@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -113,7 +112,7 @@ func mdbPGClusterImportStep(name string) resource.TestStep {
 // Test that a PostgreSQL Cluster can be created, updated and destroyed
 func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 	t.Parallel()
-	rand.Seed(time.Now().Unix())
+
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_full: version %s", version)
 	var cluster postgresql.Cluster
@@ -316,7 +315,6 @@ func testAccPGCompareHostNames(resource string, oldHosts *[]string) resource.Tes
 func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	t.Parallel()
 
-	rand.Seed(time.Now().Unix())
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HAWithoutNames_update: version %s", version)
 	var cluster postgresql.Cluster
@@ -366,7 +364,6 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	t.Parallel()
 
-	rand.Seed(time.Now().Unix())
 	version := postgresql_versions[rand.Intn(len(postgresql_versions))]
 	log.Printf("TestAccMDBPostgreSQLCluster_HAWithNames_update: version %s", version)
 	var cluster postgresql.Cluster
@@ -390,17 +387,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "na"),
 					testAccPGGetHostNames(clusterResource, hostNames),
-				),
-			},
-			mdbPGClusterImportStep(clusterResource),
-			{
-				Config: testAccMDBPGClusterConfigHANamedSwitchMaster(clusterName, version),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
-					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
-					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -412,7 +399,6 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
-					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 					testAccPGCompareHostNames(clusterResource, hostNames),
 				),
 			},
@@ -422,11 +408,10 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 3),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
-					resource.TestCheckResourceAttrSet(clusterResource, "host.0.replication_source"),
-					resource.TestCheckResourceAttr(clusterResource, "host.0.replication_source_name", "nb"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.1.replication_source"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", "nc"),
-					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.replication_source_name", "na"),
+					resource.TestCheckResourceAttrSet(clusterResource, "host.2.replication_source"),
+					resource.TestCheckResourceAttr(clusterResource, "host.2.replication_source_name", "nb"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -437,9 +422,28 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "host.1.priority", "5"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.priority", "10"),
-					resource.TestCheckResourceAttr(clusterResource, "host_master_name", "nc"),
 				),
 			},
+			mdbPGClusterImportStep(clusterResource),
+			{
+				Config: testAccMDBPGClusterConfigHANamedDeleteLastHost(clusterName, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 2),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "na"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.name", "nb"),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
+			{
+				Config: testAccMDBPGClusterConfigHANamedDeleteFirstHost(clusterName, version),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
+					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.name", "nb"),
+				),
+			},
+			mdbPGClusterImportStep(clusterResource),
 		},
 	})
 }
@@ -1457,8 +1461,6 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
 
 func testAccMDBPGClusterConfigHANamed(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host_master_name = "na"
-
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
@@ -1483,34 +1485,30 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
 
 func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host_master_name = "nc"
-
   host {
-    name                    = "na"
-    zone                    = "ru-central1-a"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    name      = "na"
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
     
     assign_public_ip = true
   }
 
   host {
-    name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    name      = "nb"
+    zone      = "ru-central1-b"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
   }
 
   host {
-    name             = "nc"
-    zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    name      = "nc"
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
   }
 `, version)
 }
 
 func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host_master_name = "nc"
-
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
@@ -1535,14 +1533,10 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
 
 func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host_master_name = "nc"
-
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
-    
-    replication_source_name = "nb"
   }
 
   host {
@@ -1550,7 +1544,7 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
     
-    replication_source_name = "nc"
+    replication_source_name = "na"
   }
 
   host {
@@ -1558,38 +1552,69 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
     zone             = "ru-central1-d"
     subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
     assign_public_ip = true
+
+    replication_source_name = "nb"
   }
 `, version)
 }
 
 func testAccMDBPGClusterConfigHANamedWithPriorities(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
-  host_master_name = "nc"
-
   host {
     name                    = "na"
     zone                    = "ru-central1-a"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
 
-    replication_source_name = "nb"
   }
 
   host {
     name                    = "nb"
     zone                    = "ru-central1-b"
     subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
-    replication_source_name = "nc"
+    replication_source_name = "na"
     
     priority                = 5
   }
 
   host {
-    name             = "nc"
-    zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
-    assign_public_ip = true
+    name                    = "nc"
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    assign_public_ip        = true
+    replication_source_name = "nb"
     
     priority         = 10
+  }
+`, version)
+}
+
+func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string {
+	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host {
+    name                    = "na"
+    zone                    = "ru-central1-a"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+  }
+
+  host {
+    name                    = "nb"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    replication_source_name = "na"
+    
+    priority                = 5
+  }
+`, version)
+}
+
+func testAccMDBPGClusterConfigHANamedDeleteFirstHost(name, version string) string {
+	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
+  host {
+    name                    = "nb"
+    zone                    = "ru-central1-b"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    
+    priority                = 5
   }
 `, version)
 }
