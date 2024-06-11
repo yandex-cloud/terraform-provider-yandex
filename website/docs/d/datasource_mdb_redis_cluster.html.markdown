@@ -54,6 +54,7 @@ exported:
 * `persistence_mode` - Persistence mode. 
 * `announce_hostnames` - Announce fqdn instead of ip address. 
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
+* `backup_window_start` - Time to start the daily backup in UTC. The structure is documented below.
 
 The `config` block supports:
 
@@ -84,6 +85,11 @@ The `host` block supports:
 * `fqdn` - The fully qualified domain name of the host.
 * `replica_priority` - Replica priority of a current replica (usable for non-sharded only).
 * `assign_public_ip` - Sets whether the host should get a public IP address or not.
+
+The `backup_window_start` block supports:
+
+* `hours` - The hour at which the backup will be started.
+* `minutes` - The minute at which the backup will be started.
 
 The `maintenance_window` block supports:
 
