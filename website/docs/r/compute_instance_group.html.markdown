@@ -427,6 +427,8 @@ the instance group will increase the number of virtual machines in the group.
 
 * `cpu_utilization_target` - (Required) Target CPU load level.
 
+* `auto_scale_type` - (Optional). Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
+
 * `min_zone_size` - (Optional) The minimum number of virtual machines in a single availability zone.
 
 * `max_size` - (Optional) The maximum number of virtual machines in the group.
@@ -451,6 +453,8 @@ If the average value at the end of the interval is higher than the `cpu_utilizat
 the instance group will increase the number of virtual machines in the group.
 
 * `cpu_utilization_target` - (Required) Target CPU load level.
+
+* `auto_scale_type` - (Optional). Autoscale type, can be `ZONAL` or `REGIONAL`. By default `ZONAL` type is used.
 
 * `min_zone_size` - (Optional) The minimum number of virtual machines in a single availability zone.
 

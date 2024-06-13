@@ -272,6 +272,7 @@ func flattenInstanceGroupAutoScale(sp *instancegroup.ScalePolicy_AutoScale) ([]m
 	subres["min_zone_size"] = int(sp.MinZoneSize)
 	subres["max_size"] = int(sp.MaxSize)
 	subres["initial_size"] = int(sp.InitialSize)
+	subres["auto_scale_type"] = instancegroup.ScalePolicy_AutoScale_AutoScaleType_name[int32(sp.AutoScaleType)]
 
 	if sp.MeasurementDuration != nil {
 		subres["measurement_duration"] = int(sp.MeasurementDuration.Seconds)
@@ -861,6 +862,14 @@ func expandInstanceGroupAutoScale(d *schema.ResourceData, prefix string) (*insta
 		MinZoneSize: int64(d.Get(prefix + ".min_zone_size").(int)),
 		MaxSize:     int64(d.Get(prefix + ".max_size").(int)),
 		InitialSize: int64(d.Get(prefix + ".initial_size").(int)),
+	}
+
+	if v, ok := d.GetOk(prefix + ".auto_scale_type"); ok {
+		autoScaleType, ok := instancegroup.ScalePolicy_AutoScale_AutoScaleType_value[strings.ToUpper(v.(string))]
+		if !ok {
+			return nil, fmt.Errorf("failed to resolve AutoScaleType: found %s", v)
+		}
+		autoScale.AutoScaleType = instancegroup.ScalePolicy_AutoScale_AutoScaleType(autoScaleType)
 	}
 
 	if v, ok := d.GetOk(prefix + ".measurement_duration"); ok {
