@@ -1,3 +1,13 @@
+## 0.122.0 (June 19, 2024)
+
+BUG FIXES:
+* opensearch: fix opensearch acceptance test
+* alb: fix panic error in Grpc Healthcheck
+
+ENHANCEMENTS:
+* provider: freeze goreleaser version
+* postgresql: update PostgreSQL Host tests
+
 ## 0.121.0 (June 5, 2024)
 
 FEATURES:
