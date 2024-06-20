@@ -177,7 +177,7 @@ The `network_interface` block supports:
 
 * `nat` - (Optional) Provide a public address, for instance, to access the internet over NAT.
 
-* `nat_ip_address` - (Optional) Provide a public address, for instance, to access the internet over NAT. Address should be already reserved in web UI.
+* `nat_ip_address` - (Optional) Provide a public address, for instance, to access the internet over NAT. You can use `yandex_vpc_address` resource to create and manage a public address or address should be already reserved in web UI.
 
 * `security_group_ids` - (Optional) Security group ids for network interface.
 
