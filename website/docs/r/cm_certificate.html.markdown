@@ -91,7 +91,7 @@ The following arguments are supported:
 * `folder_id` - (Optional) Folder that the resource belongs to. If value is omitted, the default provider folder is used.
 * `description` - (Optional) Certificate description.
 * `labels` - (Optional) Labels to assign to this certificate.
-* `domains` - (Optional) Domains for this certificate. Should be specified for managed certificates.
+* `domains` - (Optional) Domains for this certificate. Should be specified only for managed certificates.
 * `managed` - (Optional) Managed specification. Structure is documented below.
 * `self_managed` - (Optional) Self-managed specification. Structure is documented below.
 
