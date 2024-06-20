@@ -102,6 +102,7 @@ The `stream_backend` block supports:
 * `load_balancing_config` - (Optional) Load Balancing Config specification that will be used by this backend. Structure is documented below.
 * `healthcheck` - (Optional) Healthcheck specification that will be used by this backend. Structure is documented below.
 * `tls` - (Optional) Tls specification that will be used by this backend. Structure is documented below.
+* `enable_proxy_protocol` - (Optional) If this option is enabled, the load balancer will pass metadata about its connection with the client, including the IP address, to the backend over PROXY protocol from HAProxy.
 
 The `grpc_backend` block supports:
 
