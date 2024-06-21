@@ -522,7 +522,7 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 			"copy_schema_on_new_hosts": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  true,
 			},
 			"host": {
 				Type:     schema.TypeList,
