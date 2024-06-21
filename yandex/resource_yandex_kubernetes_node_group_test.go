@@ -482,13 +482,8 @@ func TestAccKubernetesNodeGroup_networkSettings(t *testing.T) {
 func TestAccKubernetesNodeGroup_containerRuntime(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerRuntime", true)
 
-	nodeResourceDocker := nodeGroupInfo(clusterResource.ClusterResourceName)
-	nodeResourceContainerd := nodeResourceDocker
-
-	nodeResourceDocker.ContainerRuntimeType = "docker"
-	nodeResourceContainerd.ContainerRuntimeType = "containerd"
-
-	nodeResourceFullName := nodeResourceDocker.ResourceFullName(true)
+	nodeResourceContainerd := nodeGroupInfo(clusterResource.ClusterResourceName)
+	nodeResourceFullName := nodeResourceContainerd.ResourceFullName(true)
 
 	var ng k8s.NodeGroup
 
@@ -497,13 +492,6 @@ func TestAccKubernetesNodeGroup_containerRuntime(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckKubernetesNodeGroupDestroy,
 		Steps: []resource.TestStep{
-			{
-				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceDocker),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKubernetesNodeGroupExists(nodeResourceFullName, &ng),
-					checkNodeGroupAttributes(&ng, &nodeResourceDocker, true, false),
-				),
-			},
 			{
 				Config: testAccKubernetesNodeGroupConfig_basic(clusterResource, nodeResourceContainerd),
 				Check: resource.ComposeTestCheckFunc(
@@ -539,7 +527,6 @@ func TestAccKubernetesNodeGroup_containerNetwork(t *testing.T) {
 	clusterResource := clusterInfo("TestAccKubernetesNodeGroup_containerNetwork", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
-	nodeResource.ContainerRuntimeType = "containerd"
 	nodeResource.PodMTU = 8910
 
 	var ng k8s.NodeGroup
@@ -651,6 +638,7 @@ func nodeGroupInfoWithMaintenance(clusterResourceName string, autoUpgrade, autoR
 		NodeName:              "node-{instance.short_id}",
 		TemplateLabelKey:      "one",
 		TemplateLabelValue:    "1",
+		ContainerRuntimeType:  "containerd",
 	}
 
 	info.constructMaintenancePolicyField(autoUpgrade, autoRepair, policyType)

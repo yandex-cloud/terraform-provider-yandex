@@ -194,7 +194,6 @@ func TestAccDataSourceKubernetesNodeGroup_containerRuntimeContainerd(t *testing.
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroup_containerRuntimeContainerd", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResourceFullName := nodeResource.ResourceFullName(false)
-	nodeResource.ContainerRuntimeType = "containerd"
 
 	var ng k8s.NodeGroup
 
@@ -244,7 +243,6 @@ func TestAccDataSourceKubernetesNodeGroupContainerNetwork_basic(t *testing.T) {
 	clusterResource := clusterInfo("TestAccDataSourceKubernetesNodeGroupContainerNetwork_basic", true)
 	nodeResource := nodeGroupInfo(clusterResource.ClusterResourceName)
 	nodeResourceFullName := nodeResource.ResourceFullName(true)
-	nodeResource.ContainerRuntimeType = "containerd"
 	nodeResource.PodMTU = 8910
 
 	var ng k8s.NodeGroup
