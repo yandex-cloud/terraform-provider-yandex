@@ -71,4 +71,8 @@ ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
 endif
 	@$(MAKE) -C $(GOPATH)/src/$(WEBSITE_REPO) website-provider PROVIDER_PATH=$(shell pwd) PROVIDER_NAME=$(PKG_NAME)
 
-.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website
+
+changie-lint:
+	go run lint/cmd/changie/changie.go batch patch -d
+
+.PHONY: build sweep test testacc vet fmt fmtcheck lint tools test-compile website changie-lint
