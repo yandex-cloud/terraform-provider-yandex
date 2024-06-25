@@ -1,4 +1,4 @@
-package iam
+package project
 
 import (
 	"context"
@@ -10,14 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
-	yandex_datasphere_community "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/community"
+	yandex_datasphere_project "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 	dataspheretest "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/datasphere"
 )
 
-func TestAccDatasphereCommunityResourceIamBinding(t *testing.T) {
+func TestAccDatasphereProjectResourceIamBinding(t *testing.T) {
 	var (
 		communityName = test.ResourceName(63)
+		projectName   = test.ResourceName(63)
 
 		userID = "allUsers"
 		role   = "datasphere.community-projects.viewer"
@@ -26,26 +27,26 @@ func TestAccDatasphereCommunityResourceIamBinding(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
-		CheckDestroy:             dataspheretest.AccCheckCommunityDestroy,
+		CheckDestroy:             dataspheretest.AccCheckProjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCommunityIamBindingConfig(communityName, role, userID),
+				Config: testAccDatasphereProjectIamBindingConfig(communityName, projectName, role, userID),
 				Check: resource.ComposeTestCheckFunc(
-					dataspheretest.CommunityExists(dataspheretest.CommunityResourceName),
-					testAccCheckCommunityIam(dataspheretest.CommunityResourceName, role, []string{"system:" + userID}),
+					dataspheretest.ProjectExists(dataspheretest.ProjectResourceName),
+					testAccCheckDatasphereProjectIam(dataspheretest.ProjectResourceName, role, []string{"system:" + userID}),
 				),
 			},
 			{
-				ResourceName:                         "yandex_datasphere_community_iam_binding.test-community-binding",
-				ImportStateIdFunc:                    test.ImportIamBindingIdFunc(dataspheretest.CommunityResourceName, role),
+				ResourceName:                         "yandex_datasphere_project_iam_binding.test-project-binding",
+				ImportStateIdFunc:                    test.ImportIamBindingIdFunc(dataspheretest.ProjectResourceName, role),
 				ImportState:                          true,
-				ImportStateVerifyIdentifierAttribute: "community_id",
+				ImportStateVerifyIdentifierAttribute: "project_id",
 			},
 		},
 	})
 }
 
-func testAccCommunityIamBindingConfig(name, role, userID string) string {
+func testAccDatasphereProjectIamBindingConfig(communityName, projectName, role, userID string) string {
 	return fmt.Sprintf(`
 resource "yandex_datasphere_community" "test-community" {
   name = "%s"
@@ -53,15 +54,20 @@ resource "yandex_datasphere_community" "test-community" {
   organization_id = "%s"
 }
 
-resource "yandex_datasphere_community_iam_binding" "test-community-binding" {
+resource "yandex_datasphere_project_iam_binding" "test-project-binding" {
   role = "%s"
   members = ["system:%s"]
-  community_id = yandex_datasphere_community.test-community.id
-}
-`, name, test.GetBillingAccountId(), test.GetExampleOrganizationID(), role, userID)
+  project_id = yandex_datasphere_project.test-project.id
 }
 
-func testAccCheckCommunityIam(resourceName, role string, members []string) resource.TestCheckFunc {
+resource "yandex_datasphere_project" "test-project" {
+  name = "%s"
+  community_id = yandex_datasphere_community.test-community.id
+}
+`, communityName, test.GetBillingAccountId(), test.GetExampleOrganizationID(), role, userID, projectName)
+}
+
+func testAccCheckDatasphereProjectIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := test.AccProvider.(*yandex_framework.Provider).GetConfig()
 
@@ -69,12 +75,12 @@ func testAccCheckCommunityIam(resourceName, role string, members []string) resou
 		if !ok {
 			return fmt.Errorf("can't find %s in state", resourceName)
 		}
-		communityUpdater := yandex_datasphere_community.CommunityIAMUpdater{
-			CommunityId:    rs.Primary.ID,
+		projectUpdater := yandex_datasphere_project.ProjectIAMUpdater{
+			ProjectId:      rs.Primary.ID,
 			ProviderConfig: &config,
 		}
 
-		bindings, err := communityUpdater.GeAccessBindings(context.Background(), rs.Primary.ID)
+		bindings, err := projectUpdater.GeAccessBindings(context.Background(), rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -93,6 +99,6 @@ func testAccCheckCommunityIam(resourceName, role string, members []string) resou
 			return nil
 		}
 
-		return fmt.Errorf("Binding found but expected members is %v, got %v", members, roleMembers)
+		return fmt.Errorf("binding found but expected members is %v, got %v", members, roleMembers)
 	}
 }

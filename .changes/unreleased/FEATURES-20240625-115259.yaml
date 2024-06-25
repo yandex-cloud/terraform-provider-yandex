@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'compute: add access binding resource for `snapshot_schedule` resource.'
+time: 2024-06-25T11:52:59.851653+02:00

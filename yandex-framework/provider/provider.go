@@ -18,6 +18,15 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/disk"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/diskplacementgroup"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/filesystem"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/gpucluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/image"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/instance"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/placementgroup"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshot"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshotschedule"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
@@ -245,6 +254,15 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		community.NewIamBinding,
 		database.NewResource,
 		user.NewResource,
+		disk.NewIamBinding,
+		diskplacementgroup.NewIamBinding,
+		filesystem.NewIamBinding,
+		gpucluster.NewIamBinding,
+		image.NewIamBinding,
+		instance.NewIamBinding,
+		placementgroup.NewIamBinding,
+		snapshot.NewIamBinding,
+		snapshotschedule.NewIamBinding,
 	}
 }
 
