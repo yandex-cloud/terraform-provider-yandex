@@ -3574,10 +3574,30 @@ func flattenMongoDBHosts(hs []*mongodb.Host) ([]map[string]interface{}, error) {
 		m["assign_public_ip"] = h.AssignPublicIp
 		m["shard_name"] = h.ShardName
 		m["type"] = h.Type.String()
+		m["host_parameters"] = flattenMongoDBHostParameters(h.HostParameters)
 		res = append(res, m)
 	}
 
 	return res, nil
+}
+
+func flattenMongoDBHostParameters(hp *mongodb.Host_HostParameters) []map[string]interface{} {
+	if hp == nil {
+		return nil
+	}
+	flattenTags := make(map[string]interface{})
+	for k, v := range hp.Tags {
+		flattenTags[k] = v
+	}
+
+	return []map[string]interface{}{
+		{
+			"hidden":               hp.Hidden,
+			"priority":             hp.Priority,
+			"secondary_delay_secs": hp.SecondaryDelaySecs,
+			"tags":                 flattenTags,
+		},
+	}
 }
 
 func expandMongoDBHosts(d *schema.ResourceData) ([]*mongodb.HostSpec, error) {
@@ -3614,7 +3634,42 @@ func expandMongoDBHost(config map[string]interface{}) *mongodb.HostSpec {
 	if v, ok := config["assign_public_ip"]; ok {
 		host.AssignPublicIp = v.(bool)
 	}
+
+	if v, ok := config["host_parameters"]; ok {
+		hostParameters := v.([]interface{})
+		for _, hpl := range hostParameters {
+			hpConf := hpl.(map[string]interface{})
+			if val, found := hpConf["hidden"]; found {
+				host.SetHidden(&wrappers.BoolValue{Value: val.(bool)})
+			}
+
+			if val, found := hpConf["priority"]; found {
+				host.SetPriority(&wrappers.DoubleValue{Value: val.(float64)})
+			}
+
+			if val, found := hpConf["secondary_delay_secs"]; found {
+				host.SetSecondaryDelaySecs(&wrappers.Int64Value{Value: int64(val.(int))})
+			}
+
+			if val, found := hpConf["tags"]; found {
+				host.Tags = expandTags(val)
+			}
+		}
+
+	}
+
 	return host
+}
+
+func expandTags(v interface{}) map[string]string {
+	m := make(map[string]string)
+	if v == nil {
+		return m
+	}
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m
 }
 
 func parseMongoDBEnv(e string) (mongodb.Cluster_Environment, error) {

@@ -200,6 +200,12 @@ The `host` block supports:
 
 * `type` - (Optional) type of mongo daemon which runs on this host (mongod, mongos, mongocfg, mongoinfra). Defaults to mongod.
 
+* `host_parameters` - (Optional) The parameters of mongod host in replicaset.
+  - `hidden` - (Optional) Should this host be hidden in replicaset. Can be either `true` of `false`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.hidden)
+  - `priority` - (Optional) A floating point number that indicates the relative likelihood of a replica set member to become the primary. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.priority)
+  - `secondary_delay_secs` - (Optional) The number of seconds "behind" the primary that this replica set member should "lag". For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.secondaryDelaySecs)
+  - `tags` - (Optional) A set of key/value pairs to assign for the replica set member. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.tags)
+
 The `performance_diagnostics` block supports:
 
 * `enabled` - (Optional) Enable or disable performance diagnostics.

@@ -3,21 +3,21 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
-
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
+
+	"golang.org/x/exp/maps"
+	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type key int
@@ -151,7 +151,7 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 						"assign_public_ip": {
 							Type:     schema.TypeBool,
 							Optional: true,
-							Computed: true,
+							Default:  false,
 						},
 						"shard_name": {
 							Type:     schema.TypeString,
@@ -164,6 +164,34 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 							Default:      "MONGOD",
 							ValidateFunc: validation.StringInSlice([]string{"MONGOS", "MONGOINFRA", "MONGOD", "MONGOCFG"}, true),
 							StateFunc:    stateToUpper,
+						},
+						"host_parameters": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"hidden": {
+										Type:     schema.TypeBool,
+										Optional: true,
+									},
+									"priority": {
+										Type:     schema.TypeFloat,
+										Optional: true,
+									},
+									"secondary_delay_secs": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"tags": {
+										Type:     schema.TypeMap,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+										Set:      schema.HashString,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -1166,7 +1194,20 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 func sortMongoDBHosts(hosts []*mongodb.Host, specs []*mongodb.HostSpec) []*mongodb.Host {
 	for i, h := range specs {
 		for j := i + 1; j < len(hosts); j++ {
-			if h.ZoneId == hosts[j].ZoneId && (h.ShardName == "" || h.ShardName == hosts[j].ShardName) && h.Type == hosts[j].Type {
+			if matchHosts(h, hosts[j]) {
+				hosts[i], hosts[j] = hosts[j], hosts[i]
+				break
+			}
+		}
+	}
+
+	for i, h := range specs {
+		for j := i + 1; j < len(hosts); j++ {
+			if !matchHosts(h, hosts[j]) {
+				break
+			}
+
+			if matchHostParameters(h, hosts[j]) {
 				hosts[i], hosts[j] = hosts[j], hosts[i]
 				break
 			}
@@ -1174,6 +1215,44 @@ func sortMongoDBHosts(hosts []*mongodb.Host, specs []*mongodb.HostSpec) []*mongo
 	}
 
 	return hosts
+}
+
+func matchHosts(hostSpec *mongodb.HostSpec, host *mongodb.Host) bool {
+	return hostSpec.ZoneId == host.ZoneId && (hostSpec.ShardName == "" || hostSpec.ShardName == host.ShardName) && hostSpec.Type == host.Type && hostSpec.SubnetId == host.SubnetId
+}
+
+func matchHostParameters(hostSpec *mongodb.HostSpec, host *mongodb.Host) bool {
+	if host.AssignPublicIp != hostSpec.AssignPublicIp {
+		return false
+	}
+
+	hostParameters := host.HostParameters
+	if hostParameters == nil {
+		// Default values
+		hostParameters = &mongodb.Host_HostParameters{
+			Hidden:             false,
+			SecondaryDelaySecs: 0,
+			Priority:           1.0,
+		}
+	}
+
+	if hostParameters.Hidden != getOrDefault(hostSpec.Hidden, false) {
+		return false
+	}
+
+	if hostParameters.SecondaryDelaySecs != getOrDefault(hostSpec.SecondaryDelaySecs, int64(0)) {
+		return false
+	}
+
+	if hostParameters.Priority != getOrDefault(hostSpec.Priority, 1.0) {
+		return false
+	}
+
+	if len(hostParameters.Tags) != len(hostSpec.Tags) {
+		return false
+	}
+
+	return maps.Equal(hostSpec.Tags, hostParameters.Tags)
 }
 
 func resourceYandexMDBMongodbClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1534,7 +1613,7 @@ func updateMongoDBClusterHosts(ctx context.Context, d *schema.ResourceData, meta
 
 	currHosts = sortMongoDBHosts(currHosts, targetHosts)
 
-	toDelete, toAdd := mongodbHostsDiff(currHosts, targetHosts)
+	toDelete, toAdd, toUpdate := mongodbHostsDiff(currHosts, targetHosts)
 
 	for _, hs := range toAdd {
 		for _, h := range hs {
@@ -1549,6 +1628,15 @@ func updateMongoDBClusterHosts(ctx context.Context, d *schema.ResourceData, meta
 	for _, hs := range toDelete {
 		for _, h := range hs {
 			err = deleteMongoDBHost(ctx, config, d, h)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, hs := range toUpdate {
+		for _, h := range hs {
+			err = updateMongoDBHost(ctx, config, d, h)
 			if err != nil {
 				return err
 			}
@@ -1728,6 +1816,23 @@ func deleteMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceDa
 	return nil
 }
 
+func updateMongoDBHost(ctx context.Context, config *Config, d *schema.ResourceData, spec *mongodb.UpdateHostSpec) error {
+	op, err := config.sdk.WrapOperation(
+		config.sdk.MDB().MongoDB().Cluster().UpdateHosts(ctx, &mongodb.UpdateClusterHostsRequest{
+			ClusterId:       d.Id(),
+			UpdateHostSpecs: []*mongodb.UpdateHostSpec{spec},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("error while requesting API to update host in MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	err = op.Wait(ctx)
+	if err != nil {
+		return fmt.Errorf("error while updating host to MongoDB Cluster %q: %s", d.Id(), err)
+	}
+	return nil
+}
+
 func createMongoDBShard(ctx context.Context, config *Config, d *schema.ResourceData, shardName string, hosts []*mongodb.HostSpec) error {
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().MongoDB().Cluster().AddShard(ctx, &mongodb.AddClusterShardRequest{
@@ -1812,8 +1917,9 @@ func enableShardingMongoDB(ctx context.Context, config *Config, d *schema.Resour
 	return nil
 }
 
-func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec) (map[string][]string, map[string][]*mongodb.HostSpec) {
+func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec) (map[string][]string, map[string][]*mongodb.HostSpec, map[string][]*mongodb.UpdateHostSpec) {
 	m := map[string][]*mongodb.HostSpec{}
+	toUpdate := map[string][]*mongodb.UpdateHostSpec{}
 
 	for _, h := range targetHosts {
 		key := h.Type.String() + h.ZoneId + h.SubnetId
@@ -1832,7 +1938,13 @@ func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec
 		hs, ok := m[key]
 		if !ok {
 			toDelete[h.ShardName] = append(toDelete[h.ShardName], h.Name)
+		} else if !matchHostParameters(hs[0], h) {
+			updateSpec := getHostUpdateSpec(hs[0], h)
+			if len(updateSpec.UpdateMask.Paths) > 0 {
+				toUpdate[h.ShardName] = append(toUpdate[h.ShardName], updateSpec)
+			}
 		}
+
 		if len(hs) > 1 {
 			m[key] = hs[1:]
 		} else {
@@ -1847,7 +1959,43 @@ func mongodbHostsDiff(currHosts []*mongodb.Host, targetHosts []*mongodb.HostSpec
 		}
 	}
 
-	return toDelete, toAdd
+	return toDelete, toAdd, toUpdate
+}
+
+func getHostUpdateSpec(hostSpec *mongodb.HostSpec, host *mongodb.Host) *mongodb.UpdateHostSpec {
+	result := &mongodb.UpdateHostSpec{
+		HostName: host.Name,
+	}
+	updatePaths := make([]string, 0)
+
+	if (host.HostParameters == nil && getOrDefault(hostSpec.Hidden, false)) || host.HostParameters.Hidden != getOrDefault(hostSpec.Hidden, false) {
+		updatePaths = append(updatePaths, "hidden")
+		result.Hidden = &wrapperspb.BoolValue{Value: getOrDefault(hostSpec.Hidden, false)}
+	}
+
+	if (host.HostParameters == nil && getOrDefault(hostSpec.Priority, 1.0) != 1.0) || host.HostParameters.Priority != getOrDefault(hostSpec.Priority, 1.0) {
+		updatePaths = append(updatePaths, "priority")
+		result.Priority = &wrapperspb.DoubleValue{Value: getOrDefault(hostSpec.Priority, 1.0)}
+	}
+
+	if (host.HostParameters == nil && getOrDefault(hostSpec.SecondaryDelaySecs, int64(0)) != 0) || host.HostParameters.SecondaryDelaySecs != getOrDefault(hostSpec.SecondaryDelaySecs, int64(0)) {
+		updatePaths = append(updatePaths, "secondary_delay_secs")
+		result.SecondaryDelaySecs = &wrapperspb.Int64Value{Value: getOrDefault(hostSpec.SecondaryDelaySecs, int64(0))}
+	}
+
+	if (host.HostParameters == nil && len(hostSpec.Tags) != 0) || !maps.Equal(host.HostParameters.Tags, hostSpec.Tags) {
+		updatePaths = append(updatePaths, "tags")
+		result.Tags = hostSpec.Tags
+	}
+
+	if hostSpec.AssignPublicIp != host.AssignPublicIp {
+		updatePaths = append(updatePaths, "assign_public_ip")
+		result.AssignPublicIp = hostSpec.AssignPublicIp
+	}
+
+	result.UpdateMask = &field_mask.FieldMask{Paths: updatePaths}
+
+	return result
 }
 
 func mongodbShardsDiff(currShards map[string]struct{}, targetShards map[string][]*mongodb.HostSpec) ([]string, []string) {

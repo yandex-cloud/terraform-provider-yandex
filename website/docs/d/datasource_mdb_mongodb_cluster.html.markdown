@@ -72,6 +72,11 @@ The `host` block supports:
 * `assign_public_ip` - Has assigned public IP.
 * `shard_name` - The name of the shard to which the host belongs.
 * `type` - type of mongo demon which runs on this host (mongod, mongos or monogcfg).
+* `host_parameters` - (Optional) The parameters of mongod host in replicaset.
+  - `hidden` - (Optional) Should this host be hidden in replicaset. Can be either `true` of `false`. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.hidden)
+  - `priority` - (Optional) A floating point number that indicates the relative likelihood of a replica set member to become the primary. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.priority)
+  - `secondary_delay_secs` - (Optional) The number of seconds "behind" the primary that this replica set member should "lag". For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.secondaryDelaySecs)
+  - `tags` - (Optional) A set of key/value pairs to assign for the replica set member. For more information see [the official documentation](https://www.mongodb.com/docs/current/reference/replica-configuration/#mongodb-rsconf-rsconf.members-n-.tags)
 
 The `cluster_config` block supports:
 

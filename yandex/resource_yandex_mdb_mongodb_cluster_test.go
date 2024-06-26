@@ -16,9 +16,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"google.golang.org/genproto/protobuf/field_mask"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
+
+	"golang.org/x/exp/maps"
+	"google.golang.org/genproto/protobuf/field_mask"
 )
 
 const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:c9qhh0gi4hn06qkdoqke"
@@ -295,6 +296,30 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 {{if $r.ShardName}}
 	shard_name 	  = "{{$r.ShardName}}"
 {{end}}
+{{if $r.AssignPublicIp}}
+	assign_public_ip = "{{$r.AssignPublicIp}}"
+{{end}}
+{{if $r.HostParameters}}
+	host_parameters {
+{{if $r.HostParameters.Hidden}}
+		hidden = "{{$r.HostParameters.Hidden}}"
+{{end}}
+{{if $r.HostParameters.Priority}}
+		priority = "{{$r.HostParameters.Priority}}"
+{{end}}
+{{if $r.HostParameters.SecondaryDelaySecs}}
+		secondary_delay_secs = "{{$r.HostParameters.SecondaryDelaySecs}}"
+{{end}}
+{{if $r.HostParameters.Tags}}
+		tags = {
+			{{- range $k, $v := $r.HostParameters.Tags}}
+				{{$k}} = "{{$v}}"
+			{{- end}}
+		}
+{{end}}
+	}
+{{end}}
+
   }
 {{end}}
 
@@ -364,12 +389,14 @@ var s2Small26hdd = mongodb.Resources{
 
 var mongoHosts = []mongodb.Host{
 	{
-		ZoneId:   "ru-central1-a",
-		SubnetId: "${yandex_vpc_subnet.foo.id}",
+		ZoneId:         "ru-central1-a",
+		SubnetId:       "${yandex_vpc_subnet.foo.id}",
+		AssignPublicIp: false,
 	},
 	{
-		ZoneId:   "ru-central1-b",
-		SubnetId: "${yandex_vpc_subnet.bar.id}",
+		ZoneId:         "ru-central1-b",
+		SubnetId:       "${yandex_vpc_subnet.bar.id}",
+		AssignPublicIp: true,
 	},
 }
 
@@ -647,6 +674,11 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
 					resource.TestCheckResourceAttr(mongodbResource, "deletion_protection", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.1.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.0.host_parameters.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.1.host_parameters.#", "1"),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "secondary_delay_secs": int64(0)}, 2),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -764,8 +796,34 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 						DiskTypeId:       s2Small26hdd.DiskTypeId,
 					},
 					"Hosts": []map[string]interface{}{
+						{
+							"ZoneId":   "ru-central1-d",
+							"SubnetId": "${yandex_vpc_subnet.baz.id}",
+							"HostParameters": map[string]interface{}{
+								"Priority": 1.05,
+							},
+						},
+						{
+							"ZoneId":   "ru-central1-d",
+							"SubnetId": "${yandex_vpc_subnet.baz.id}",
+							"HostParameters": map[string]interface{}{
+								"Priority": 1.15,
+							},
+						},
 						{"ZoneId": "ru-central1-d", "SubnetId": "${yandex_vpc_subnet.baz.id}"},
-						{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+						{
+							"ZoneId":   "ru-central1-b",
+							"SubnetId": "${yandex_vpc_subnet.bar.id}",
+							"HostParameters": map[string]interface{}{
+								"Priority": 0.0,
+								"Hidden":   true,
+								"Tags": map[string]interface{}{
+									"abc": "def",
+								},
+							},
+							"Type":      "MONGOD",
+							"ShardName": "rs01",
+						},
 					},
 					"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-y.id}"},
 					"MaintenanceWindow": map[string]interface{}{
@@ -775,7 +833,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 4),
 					resource.TestCheckResourceAttr(mongodbResource, "name", clusterName+"-changed"),
 					resource.TestCheckResourceAttr(mongodbResource, "folder_id", folderID),
 					resource.TestCheckResourceAttr(mongodbResource, "description", "Updated MongDB cluster"),
@@ -789,6 +847,10 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.type", "WEEKLY"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(mongodbResource, "maintenance_window.0.hour", "20"),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.05, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.15, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "secondary_delay_secs": int64(0)}, 1),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{"abc": "def"}, "priority": 0.0, "hidden": true, "secondary_delay_secs": int64(0)}, 1),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -798,7 +860,7 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 					"ClusterDescription": "",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 4),
 					resource.TestCheckResourceAttr(mongodbResource, "description", ""),
 				),
 			},
@@ -825,7 +887,7 @@ func create6_0_enterpriseConfigData() map[string]interface{} {
 				"AuditAuthorizationSuccess": true,
 			},
 			"Net": map[string]interface{}{
-				"MaxConnections": 16,
+				"MaxConnections": 1100,
 			},
 			"OperationProfiling": map[string]interface{}{
 				"Mode":         "ALL",
@@ -922,7 +984,7 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "true"),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "1100"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "ALL"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -936,6 +998,11 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.storage.0.journal.0.commit_interval", "404"),
 					resource.TestCheckNoResourceAttr(mongodbResource, "cluster_config.0.mongod.0.net.0.compressors"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.0.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.1.assign_public_ip", "true"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.0.host_parameters.#", "1"),
+					resource.TestCheckResourceAttr(mongodbResource, "host.1.host_parameters.#", "1"),
+					testAccCheckMDBMongoDBClusterHasHostParameters(mongodbResource, map[string]interface{}{"tags": map[string]string{}, "hidden": false, "priority": 1.0, "secondary_delay_secs": int64(0)}, 2),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
@@ -961,7 +1028,7 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 							"MinSnapshotHistoryWindowInSeconds": 300,
 						},
 						"Net": map[string]interface{}{
-							"MaxConnections": 22,
+							"MaxConnections": 1101,
 							"Compressors":    []string{"\"SNAPPY\""},
 						},
 						"OperationProfiling": map[string]interface{}{
@@ -1009,7 +1076,7 @@ func TestAccMDBMongoDBCluster_6_0_enterprise(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.audit_authorization_success", "false"),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "22"),
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "1101"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.operation_profiling.0.mode", "SLOW_OP"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1200,6 +1267,7 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV0(t *testing.T) {
 		},
 	})
 }
+
 func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 	t.Parallel()
 
@@ -1304,6 +1372,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 		},
 	})
 }
+
 func TestAccMDBMongoDBCluster_6_0ShardedInfraV0(t *testing.T) {
 	t.Parallel()
 
@@ -1484,7 +1553,7 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 				Config: makeConfig(t, &configData, &map[string]interface{}{
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
-							"MaxConnections": 16,
+							"MaxConnections": 1100,
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 						"SetParameter": map[string]interface{}{
@@ -1510,7 +1579,7 @@ func TestAccMDBMongoDBCluster_6_0NotShardedV1(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 2),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "1100"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1666,7 +1735,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 				Config: makeConfig(t, &configData, &map[string]interface{}{
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
-							"MaxConnections": 16,
+							"MaxConnections": 1100,
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 						"SetParameter": map[string]interface{}{
@@ -1690,7 +1759,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 					},
 					"Mongos": map[string]interface{}{
 						"Net": map[string]interface{}{
-							"MaxConnections": 32,
+							"MaxConnections": 1101,
 							"Compressors":    []string{"\"ZLIB\""},
 						},
 					},
@@ -1700,14 +1769,14 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 							"OpThreshold": 1024,
 						},
 						"Net": map[string]interface{}{
-							"MaxConnections": 64,
+							"MaxConnections": 1102,
 						},
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "1100"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.compressors.0", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1730,14 +1799,14 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV1(t *testing.T) {
 						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
+						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "1101"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.compressors.0", "ZLIB"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongos.0.net.0.compressors.#", "1"),
 
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "64"),
+						"cluster_config.0.mongocfg.0.net.0.max_incoming_connections", "1102"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.operation_profiling.0.mode", "SLOW_OP"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1851,7 +1920,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 				Config: makeConfig(t, &configData, &map[string]interface{}{
 					"Mongod": map[string]interface{}{
 						"Net": map[string]interface{}{
-							"MaxConnections": 16,
+							"MaxConnections": 1100,
 							"Compressors":    []string{"\"DISABLED\""},
 						},
 						"SetParameter": map[string]interface{}{
@@ -1875,7 +1944,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					},
 					"Mongos": map[string]interface{}{
 						"Net": map[string]interface{}{
-							"MaxConnections": 32,
+							"MaxConnections": 1101,
 						},
 					},
 					"MongoCfg": map[string]interface{}{
@@ -1887,7 +1956,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 5),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "16"),
+						"cluster_config.0.mongod.0.net.0.max_incoming_connections", "1100"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.net.0.compressors.0", "DISABLED"),
 					resource.TestCheckResourceAttr(mongodbResource,
@@ -1909,7 +1978,7 @@ func TestAccMDBMongoDBCluster_6_0ShardedInfraV1(t *testing.T) {
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongod.0.set_parameter.0.min_snapshot_history_window_in_seconds", "300"),
 					resource.TestCheckResourceAttr(mongodbResource,
-						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "32"),
+						"cluster_config.0.mongos.0.net.0.max_incoming_connections", "1101"),
 					resource.TestCheckResourceAttr(mongodbResource,
 						"cluster_config.0.mongocfg.0.operation_profiling.0.slow_op_threshold", "1000"),
 				),
@@ -2186,6 +2255,58 @@ func supportTestResources(actual *mongodb.Resources, expected *mongodb.Resources
 	}
 
 	return nil
+}
+
+func testAccCheckMDBMongoDBClusterHasHostParameters(n string, expected map[string]interface{}, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		config := testAccProvider.Meta().(*Config)
+
+		resp, err := config.sdk.MDB().MongoDB().Cluster().ListHosts(context.Background(), &mongodb.ListClusterHostsRequest{
+			ClusterId: rs.Primary.ID,
+			PageSize:  defaultMDBPageSize,
+		})
+		if err != nil {
+			return err
+		}
+		hosts := resp.Hosts
+
+		matchCount := 0
+
+		for _, host := range hosts {
+			if expected == nil && host.HostParameters == nil {
+				return nil
+			}
+
+			if host.HostParameters == nil {
+				continue
+			}
+			if host.HostParameters.Hidden != expected["hidden"].(bool) {
+				continue
+			}
+			if host.HostParameters.Priority != expected["priority"].(float64) {
+				continue
+			}
+			if host.HostParameters.SecondaryDelaySecs != expected["secondary_delay_secs"].(int64) {
+				continue
+			}
+			if maps.Equal(host.HostParameters.Tags, expected["tags"].(map[string]string)) {
+				matchCount += 1
+			}
+		}
+		if matchCount != count {
+			return fmt.Errorf("found %v matching host parameters, expected %v", matchCount, count)
+		}
+		return nil
+	}
 }
 
 func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map[string]interface{}) resource.TestCheckFunc {
