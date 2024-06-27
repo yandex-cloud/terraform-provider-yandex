@@ -104,6 +104,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 		minLevel: "WARN",
 	}
 	params.tmpfsSize = "0"
+	params.concurrency = "0"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -139,6 +140,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
 					resource.TestCheckResourceAttrSet(functionResource, "log_options.0.log_group_id"),
 					resource.TestCheckResourceAttr(functionDataSource, "tmpfs_size", params.tmpfsSize),
+					resource.TestCheckResourceAttr(functionDataSource, "concurrency", params.concurrency),
 					testAccCheckCreatedAtAttr(functionDataSource),
 				),
 			},
@@ -236,6 +238,7 @@ resource "yandex_function" "test-function" {
 	min_level = "%s"
   }
   tmpfs_size = "%s"
+  concurrency = "%s"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -305,6 +308,7 @@ resource "yandex_logging_group" "logging-group" {
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
 		params.tmpfsSize,
+		params.concurrency,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,

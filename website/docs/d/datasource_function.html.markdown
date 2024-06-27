@@ -55,3 +55,5 @@ The following attributes are exported:
 * `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.
 * `log_options` - Options for logging from Yandex Cloud Function.
 * `tmpfs_size` - Tmpfs size for Yandex Cloud Function.
+* `concurrency` - The maximum number of requests processed by a function instance at the same time.
+

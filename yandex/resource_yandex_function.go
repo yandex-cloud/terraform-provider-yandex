@@ -324,6 +324,11 @@ func resourceYandexFunction() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"concurrency": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -423,7 +428,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
 		"environment", "tags", "package", "content", "secrets", "connectivity", "async_invocation",
-		"storage_mounts", "log_options", "tmpfs_size",
+		"storage_mounts", "log_options", "tmpfs_size", "concurrency",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -670,6 +675,10 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		versionReq.TmpfsSize = int64(int(datasize.MB.Bytes()) * v.(int))
 	}
 
+	if v, ok := d.GetOk("concurrency"); ok {
+		versionReq.Concurrency = int64(v.(int))
+	}
+
 	return versionReq, nil
 }
 
@@ -720,6 +729,7 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
 	d.Set("storage_mounts", flattenVersionStorageMounts(version.StorageMounts))
 	d.Set("tmpfs_size", int(version.TmpfsSize/int64(datasize.MB.Bytes())))
+	d.Set("concurrency", version.Concurrency)
 
 	return d.Set("tags", tags)
 }

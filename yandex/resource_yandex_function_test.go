@@ -146,6 +146,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 		minLevel: "ERROR",
 	}
 	params.tmpfsSize = "0"
+	params.concurrency = "0"
 
 	paramsUpdated := testYandexFunctionParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-function-updated")
@@ -179,6 +180,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 		minLevel: "WARN",
 	}
 	paramsUpdated.tmpfsSize = "1024"
+	paramsUpdated.concurrency = "3"
 
 	testConfigFunc := func(params testYandexFunctionParameters) resource.TestStep {
 		return resource.TestStep{
@@ -211,6 +213,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
 				resource.TestCheckResourceAttrSet(functionResource, "log_options.0.log_group_id"),
 				resource.TestCheckResourceAttr(functionResource, "tmpfs_size", params.tmpfsSize),
+				resource.TestCheckResourceAttr(functionResource, "concurrency", params.concurrency),
 				testAccCheckCreatedAtAttr(functionResource),
 			),
 		}
@@ -392,6 +395,7 @@ type testYandexFunctionParameters struct {
 	maxAsyncRetries  string
 	logOptions       testLogOptions
 	tmpfsSize        string
+	concurrency      string
 }
 
 type testSecretParameters struct {
@@ -460,6 +464,7 @@ resource "yandex_function" "test-function" {
 	min_level = "%s"
   }
   tmpfs_size = "%s"
+  concurrency = "%s"
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
@@ -527,6 +532,7 @@ resource "yandex_logging_group" "logging-group" {
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
 		params.tmpfsSize,
+		params.concurrency,
 		params.storageMount.storageMountBucket,
 		params.serviceAccount,
 		params.secret.secretName,
