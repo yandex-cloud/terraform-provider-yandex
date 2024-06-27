@@ -40,6 +40,7 @@ resource "yandex_api_gateway" "test-api-gateway" {
     log_group_id = "<log group id>"
     min_level = "ERROR"
   }
+  execution_timeout = "300"
   spec = <<-EOT
 openapi: "3.0.0"
 info:
@@ -100,6 +101,7 @@ The following arguments are supported:
 * `canary.0.weight` - Percentage of requests, which will be processed by canary release.
 * `canary.0.variables` - A list of values for variables in gateway specification of canary release.
 * `log_options` - Options for logging from Yandex Cloud API Gateway.
+* `execution_timeout` - Execution timeout in seconds for the Yandex Cloud API Gateway.
 
 
 ## Attributes Reference

@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 )
 
@@ -81,6 +80,7 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 		disabled: false,
 		minLevel: "WARN",
 	}
+	params.executionTimeoutSeconds = "5"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -101,6 +101,7 @@ func TestAccDataSourceYandexAPIGateway_full(t *testing.T) {
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 					resource.TestCheckResourceAttr(apiGatewayDataSource, "log_options.0.min_level", params.logOptions.minLevel),
 					resource.TestCheckResourceAttrSet(apiGatewayDataSource, "log_options.0.log_group_id"),
+					resource.TestCheckResourceAttr(apiGatewayDataSource, executionTimeoutKey, "5"),
 
 					testYandexAPIGatewayContainsLabel(&apiGateway, params.labelKey, params.labelValue),
 					testAccCheckCreatedAtAttr(apiGatewayDataSource),
@@ -157,11 +158,12 @@ resource "yandex_api_gateway" "test-api-gateway" {
     certificate_id = "%s"
     fqdn = "%s"
   }
- log_options {
- 	disabled = "%t"
+  log_options {
+	disabled = "%t"
 	log_group_id = yandex_logging_group.logging-group.id
-	min_level = "%s"
- }
+    min_level = "%s"
+  }
+  execution_timeout = "%s"
  spec = <<EOF
 %sEOF
 }
@@ -177,5 +179,6 @@ resource "yandex_logging_group" "logging-group" {
 		params.domain,
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
+		params.executionTimeoutSeconds,
 		spec)
 }

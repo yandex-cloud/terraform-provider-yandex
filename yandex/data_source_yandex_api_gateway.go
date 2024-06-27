@@ -159,6 +159,12 @@ func dataSourceYandexApiGateway() *schema.Resource {
 					},
 				},
 			},
+
+			"execution_timeout": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }

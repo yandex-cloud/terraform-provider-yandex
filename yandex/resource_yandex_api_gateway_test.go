@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 )
 
@@ -128,6 +127,7 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 		disabled: false,
 		minLevel: "ERROR",
 	}
+	params.executionTimeoutSeconds = "5"
 
 	paramsUpdated := testYandexAPIGatewayParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-api-gateway-updated")
@@ -138,6 +138,7 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 		disabled: false,
 		minLevel: "WARN",
 	}
+	paramsUpdated.executionTimeoutSeconds = "60"
 
 	testConfigFunc := func(params testYandexAPIGatewayParameters) resource.TestStep {
 		return resource.TestStep{
@@ -154,6 +155,7 @@ func TestAccYandexAPIGateway_full(t *testing.T) {
 				resource.TestCheckResourceAttr(apiGatewayResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 				resource.TestCheckResourceAttr(apiGatewayResource, "log_options.0.min_level", params.logOptions.minLevel),
 				resource.TestCheckResourceAttrSet(apiGatewayResource, "log_options.0.log_group_id"),
+				resource.TestCheckResourceAttr(apiGatewayResource, executionTimeoutKey, params.executionTimeoutSeconds),
 			),
 		}
 	}
@@ -309,6 +311,50 @@ resource "yandex_api_gateway" "test-api-gateway" {
 						"bool":         false,
 						"double":       7.7,
 					}),
+				),
+			},
+		},
+	})
+}
+
+func TestAccYandexAPIGateway_executionTimeout(t *testing.T) {
+	t.Parallel()
+
+	var apiGateway apigateway.ApiGateway
+
+	params := testYandexAPIGatewayParameters{
+		name:                    acctest.RandomWithPrefix("tf-api-gateway"),
+		desc:                    acctest.RandomWithPrefix("tf-api-gateway-desc"),
+		executionTimeoutSeconds: "238",
+	}
+
+	createConfig := fmt.Sprintf(`
+resource "yandex_api_gateway" "test-api-gateway" {
+  name        = "%s"
+  description = "%s"
+  execution_timeout = "%s"
+  spec = <<EOF
+%sEOF
+}`, params.name, params.desc, params.executionTimeoutSeconds, spec)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testYandexAPIGatewayDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: createConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testYandexAPIGatewayExists(apiGatewayResource, &apiGateway),
+					func(*terraform.State) error {
+						if apiGateway.ExecutionTimeout == nil {
+							return fmt.Errorf("execution timeout must be not nil")
+						}
+						if apiGateway.ExecutionTimeout.Seconds != 238 {
+							return fmt.Errorf("incorrect execution timeout value, expected \"238\", but found \"%s\"", apiGateway.ExecutionTimeout)
+						}
+						return nil
+					},
 				),
 			},
 		},
@@ -486,13 +532,14 @@ resource "yandex_api_gateway" "test-api-gateway" {
 }
 
 type testYandexAPIGatewayParameters struct {
-	name          string
-	desc          string
-	labelKey      string
-	labelValue    string
-	certificateId string
-	domain        string
-	logOptions    testLogOptions
+	name                    string
+	desc                    string
+	labelKey                string
+	labelValue              string
+	certificateId           string
+	domain                  string
+	logOptions              testLogOptions
+	executionTimeoutSeconds string
 }
 
 func testYandexAPIGatewayFull(params testYandexAPIGatewayParameters) string {
@@ -509,6 +556,7 @@ resource "yandex_api_gateway" "test-api-gateway" {
 	log_group_id = yandex_logging_group.logging-group.id
 	min_level = "%s"
   }
+  execution_timeout = "%s"
   spec = <<EOF
 %sEOF
 }
@@ -522,6 +570,7 @@ resource "yandex_logging_group" "logging-group" {
 		params.labelValue,
 		params.logOptions.disabled,
 		params.logOptions.minLevel,
+		params.executionTimeoutSeconds,
 		spec)
 }
 

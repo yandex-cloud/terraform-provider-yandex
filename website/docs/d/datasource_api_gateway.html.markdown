@@ -48,3 +48,4 @@ The following attributes are exported:
 * `canary.0.weight` - Percentage of requests, which will be processed by canary release.
 * `canary.0.variables` - A list of values for variables in gateway specification of canary release.
 * `log_options` - Options for logging from Yandex Cloud Function.
+* `execution_timeout` - Execution timeout in seconds for the Yandex Cloud API Gateway.

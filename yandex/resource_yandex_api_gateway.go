@@ -3,15 +3,16 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 const yandexApiGatewayDefaultTimeout = 5 * time.Minute
@@ -183,6 +184,12 @@ func resourceYandexApiGateway() *schema.Resource {
 					},
 				},
 			},
+
+			"execution_timeout": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -252,6 +259,11 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		return nil, fmt.Errorf("Error expanding log options while creating Yandex Cloud API Gateway: %s", err)
 	}
 
+	executionTimeout, err := expandApiGatewayExecutionTimeout(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error expanding execution timeout while creating Yandex Cloud API Gateway: %s", err)
+	}
+
 	req := &apigateway.CreateApiGatewayRequest{
 		FolderId:    folderID,
 		Name:        d.Get("name").(string),
@@ -260,9 +272,10 @@ func getCreateApiGatewayRequest(d *schema.ResourceData, config *Config) (*apigat
 		Spec: &apigateway.CreateApiGatewayRequest_OpenapiSpec{
 			OpenapiSpec: d.Get("spec").(string),
 		},
-		Variables:  expandApiGatewayVariables(d),
-		Canary:     expandApiGatewayCanary(d),
-		LogOptions: logOptions,
+		Variables:        expandApiGatewayVariables(d),
+		Canary:           expandApiGatewayCanary(d),
+		LogOptions:       logOptions,
+		ExecutionTimeout: executionTimeout,
 	}
 
 	if connectivity := expandApiGatewayConnectivity(d); connectivity != nil {
@@ -319,6 +332,10 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		updatePaths = append(updatePaths, "log_options")
 	}
 
+	if d.HasChange("execution_timeout") {
+		updatePaths = append(updatePaths, "execution_timeout")
+	}
+
 	if len(updatePaths) != 0 {
 		req := apigateway.UpdateApiGatewayRequest{
 			ApiGatewayId: d.Id(),
@@ -341,6 +358,12 @@ func resourceYandexApiGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 			return fmt.Errorf("Error expanding log options while updating Yandex Cloud API Gateway: %s", err)
 		} else {
 			req.LogOptions = logOptions
+		}
+
+		if executionTimeout, err := expandApiGatewayExecutionTimeout(d); err != nil {
+			return fmt.Errorf("Error expanding execution timeout while updating Yandex Cloud API Gateway: %s", err)
+		} else {
+			req.ExecutionTimeout = executionTimeout
 		}
 
 		op, err := config.sdk.Serverless().APIGateway().ApiGateway().Update(ctx, &req)
@@ -459,7 +482,9 @@ func flattenYandexApiGateway(d *schema.ResourceData, apiGateway *apigateway.ApiG
 	if logOptions := flattenApiGatewayLogOptions(apiGateway.LogOptions); logOptions != nil {
 		d.Set("log_options", logOptions)
 	}
-
+	if apiGateway.ExecutionTimeout != nil && apiGateway.ExecutionTimeout.Seconds != 0 {
+		d.Set("execution_timeout", strconv.FormatInt(apiGateway.ExecutionTimeout.Seconds, 10))
+	}
 	domains := make([]string, len(apiGateway.AttachedDomains))
 	for i, domain := range apiGateway.AttachedDomains {
 		domains[i] = domain.DomainId
@@ -639,4 +664,18 @@ func flattenApiGatewayLogOptions(logOptions *apigateway.LogOptions) []interface{
 		}
 	}
 	return []interface{}{res}
+}
+
+func expandApiGatewayExecutionTimeout(d *schema.ResourceData) (*durationpb.Duration, error) {
+	strTimeout, ok := d.GetOk("execution_timeout")
+	if !ok {
+		return nil, nil
+	}
+
+	timeout, err := strconv.ParseInt(strTimeout.(string), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	return &durationpb.Duration{Seconds: timeout}, nil
 }

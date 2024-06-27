@@ -1,11 +1,20 @@
 package yandex
 
 import (
+	"errors"
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/apigateway/v1"
-	"testing"
+	"google.golang.org/protobuf/types/known/durationpb"
+)
+
+const (
+	executionTimeoutKey = "execution_timeout"
 )
 
 func TestExpandApiGatewayConnectivity(t *testing.T) {
@@ -271,6 +280,73 @@ func TestFlattenApiGatewayCanary(t *testing.T) {
 				return
 			}
 			require.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestExpandApiGatewayExecutionTimeout(t *testing.T) {
+	for _, test := range []struct {
+		name          string
+		raw           map[string]interface{}
+		expected      *durationpb.Duration
+		expectedError error
+	}{
+		{
+			name:          "nil",
+			raw:           nil,
+			expected:      nil,
+			expectedError: nil,
+		},
+		{
+			name:          "empty",
+			raw:           map[string]interface{}{},
+			expected:      nil,
+			expectedError: nil,
+		},
+		{
+			name: "valid",
+			raw: map[string]interface{}{
+				executionTimeoutKey: "200",
+			},
+			expected:      durationpb.New(200 * time.Second),
+			expectedError: nil,
+		},
+		{
+			name: "invalid",
+			raw: map[string]interface{}{
+				executionTimeoutKey: "invalid duration",
+			},
+			expected: nil,
+			expectedError: &strconv.NumError{
+				Func: "ParseInt",
+				Num:  "invalid duration",
+				Err:  errors.New("invalid syntax"),
+			},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			resourceData := schema.TestResourceDataRaw(t, resourceYandexApiGateway().Schema, test.raw)
+			actual, err := expandApiGatewayExecutionTimeout(resourceData)
+			require.Equal(t, test.expected, actual)
+			require.Equal(t, test.expectedError, err)
+		})
+	}
+}
+
+func TestFlattenApiGatewayExecutionTimeout(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		duration *durationpb.Duration
+		expected string
+	}{
+		{
+			name:     "valid",
+			duration: durationpb.New(100 * time.Second),
+			expected: "100",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, strconv.FormatInt(test.duration.Seconds, 10))
 		})
 	}
 }
