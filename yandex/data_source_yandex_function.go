@@ -251,6 +251,7 @@ func dataSourceYandexFunction() *schema.Resource {
 			"concurrency": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}

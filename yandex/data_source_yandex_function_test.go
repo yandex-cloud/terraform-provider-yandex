@@ -104,7 +104,7 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 		minLevel: "WARN",
 	}
 	params.tmpfsSize = "0"
-	params.concurrency = "0"
+	params.concurrency = "2"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

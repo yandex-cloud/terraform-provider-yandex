@@ -146,7 +146,7 @@ func TestAccYandexFunction_full(t *testing.T) {
 		minLevel: "ERROR",
 	}
 	params.tmpfsSize = "0"
-	params.concurrency = "0"
+	params.concurrency = "2"
 
 	paramsUpdated := testYandexFunctionParameters{}
 	paramsUpdated.name = acctest.RandomWithPrefix("tf-function-updated")

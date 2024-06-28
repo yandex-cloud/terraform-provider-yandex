@@ -328,6 +328,7 @@ func resourceYandexFunction() *schema.Resource {
 			"concurrency": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}
