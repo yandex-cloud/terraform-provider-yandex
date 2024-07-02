@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'ClickHouse: enable copy_schema_on_new_hosts by default'
-time: 2024-06-17T20:07:17.862666346+03:00

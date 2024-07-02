@@ -1,3 +1,26 @@
+## 0.123.0 (July 2, 2024)
+
+FEATURES:
+* mongodb: support host_parameters and update hosts operation
+* Serverless: add concurrency in function resource schema and data source function schema
+* serverless: added `execution_timeout` attribute to `api_gateway` resource and data source
+* SmartWebSecurity: **New Resource:** `yandex_sws_security_profile`
+* SmartCaptcha: **New Resource:** `yandex_smartcaptcha_captcha`
+* SmartWebSecurity: **New Data Source:** `yandex_sws_security_profile`
+* SmartCaptcha: **New Data Source:** `yandex_smartcaptcha_captcha`
+* compute: add access binding resource for `disk` resource.
+* compute: add access binding resource for `disk_placement_group` resource.
+* compute: add access binding resource for `file_system` resource.
+* compute: add access binding resource for `gpu_cluster` resource.
+* compute: add access binding resource for `image` resource.
+* compute: add access binding resource for `instance` resource.
+* compute: add access binding resource for `placement_group` resource.
+* compute: add access binding resource for `snapshot` resource.
+* compute: add access binding resource for `snapshot_schedule` resource.
+
+BUG FIXES:
+* ClickHouse: enable copy_schema_on_new_hosts by default
+
 ## 0.122.0 (June 19, 2024)
 
 BUG FIXES:
@@ -7,7 +30,6 @@ BUG FIXES:
 ENHANCEMENTS:
 * provider: freeze goreleaser version
 * postgresql: update PostgreSQL Host tests
-
 ## 0.121.0 (June 5, 2024)
 
 FEATURES:
