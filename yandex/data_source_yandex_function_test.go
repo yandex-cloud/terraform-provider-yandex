@@ -208,7 +208,7 @@ resource "yandex_function" "test-function" {
   execution_timeout  = "%s"
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
-	yandex_resourcemanager_folder_iam_binding.payload-viewer
+	yandex_resourcemanager_folder_iam_member.payload-viewer
   ]
   environment = {
     %s = "%s"
@@ -242,9 +242,10 @@ resource "yandex_function" "test-function" {
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
-  folder_id = yandex_iam_service_account.test-account.folder_id
-  role      = "storage.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  folder_id   = yandex_iam_service_account.test-account.folder_id
+  role        = "storage.editor"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  sleep_after = 30
 }
 
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
@@ -264,12 +265,11 @@ resource "yandex_iam_service_account" "test-account" {
   name = "%s"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "payload-viewer" {
+resource "yandex_resourcemanager_folder_iam_member" "payload-viewer" {
   folder_id   = yandex_lockbox_secret.secret.folder_id
   role        = "lockbox.payloadViewer"
-  members     = [
-    "serviceAccount:${yandex_iam_service_account.test-account.id}",
-  ]
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  sleep_after = 30
 }
 
 resource "yandex_lockbox_secret" "secret" {
