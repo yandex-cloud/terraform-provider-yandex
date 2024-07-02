@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.37.0
 	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/client9/misspell v0.3.4
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/structs v1.1.0
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.4
@@ -36,7 +37,7 @@ require (
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
 	github.com/yandex-cloud/go-genproto v0.0.0-20240618172339-aafa8543bd63
-	github.com/yandex-cloud/go-sdk v0.0.0-20240513082658-e33b8a503812
+	github.com/yandex-cloud/go-sdk v0.0.0-20240621081111-1018f7c96dc7
 	github.com/ydb-platform/terraform-provider-ydb v0.0.20
 	golang.org/x/crypto v0.21.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
@@ -94,7 +95,6 @@ require (
 	github.com/cqroot/prompt v0.9.3 // indirect
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
 	github.com/daixiang0/gci v0.10.1 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.4.3 // indirect
 	github.com/esimonov/ifshort v1.0.4 // indirect
 	github.com/ettle/strcase v0.1.1 // indirect

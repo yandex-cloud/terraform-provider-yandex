@@ -21,9 +21,12 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1"
@@ -45,6 +48,21 @@ const (
 
 const defaultTimeFormat = time.RFC3339
 const defaultListSize = 1000
+
+func protoDump(msg proto.Message) string {
+	data, err := protojson.MarshalOptions{UseProtoNames: true}.Marshal(msg)
+	if err != nil {
+		return fmt.Sprintf("**ERROR json mashal failed: %+v** message dump: %s", err, spewConfig.Sdump(msg))
+	}
+	return string(data)
+}
+
+var spewConfig = spew.ConfigState{
+	Indent:                  " ",
+	DisablePointerAddresses: true,
+	DisableCapacities:       true,
+	SortKeys:                true,
+}
 
 type Policy struct {
 	Bindings []*access.AccessBinding

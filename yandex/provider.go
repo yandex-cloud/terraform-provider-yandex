@@ -219,6 +219,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_vpc_subnet":                                       dataSourceYandexVPCSubnet(),
 			"yandex_ydb_database_dedicated":                           dataSourceYandexYDBDatabaseDedicated(),
 			"yandex_ydb_database_serverless":                          dataSourceYandexYDBDatabaseServerless(),
+			"yandex_sws_security_profile":                             dataSourceYandexSmartwebsecuritySecurityProfile(),
+			"yandex_smartcaptcha_captcha":                             dataSourceYandexSmartcaptchaCaptcha(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -340,6 +342,8 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_ydb_table":                                        resourceYandexYDBTable(),
 			"yandex_ydb_table_changefeed":                             resourceYandexYDBTableChangefeed(),
 			"yandex_ydb_table_index":                                  resourceYandexYDBTableIndex(),
+			"yandex_sws_security_profile":                             resourceYandexSmartwebsecuritySecurityProfile(),
+			"yandex_smartcaptcha_captcha":                             resourceYandexSmartcaptchaCaptcha(),
 		},
 	}
 
