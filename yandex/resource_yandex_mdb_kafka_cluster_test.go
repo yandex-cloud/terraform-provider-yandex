@@ -181,6 +181,13 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 						},
 					},
 				},
+				"disk_size_autoscaling": []interface{}{
+					map[string]interface{}{
+						"disk_size_limit":           200,
+						"planned_usage_threshold":   50,
+						"emergency_usage_threshold": 70,
+					},
+				},
 			},
 		},
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -306,6 +313,11 @@ func TestExpandKafkaClusterConfig(t *testing.T) {
 					DiskSize:         34359738368,
 					DiskTypeId:       "network-ssd",
 				},
+			},
+			DiskSizeAutoscaling: &kafka.DiskSizeAutoscaling{
+				DiskSizeLimit:           200 * 1024 * 1024 * 1024,
+				PlannedUsageThreshold:   50,
+				EmergencyUsageThreshold: 70,
 			},
 		},
 		SubnetId: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -595,6 +607,13 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 						},
 					},
 				},
+				"disk_size_autoscaling": []interface{}{
+					map[string]interface{}{
+						"disk_size_limit":           200,
+						"planned_usage_threshold":   50,
+						"emergency_usage_threshold": 70,
+					},
+				},
 			},
 		},
 		"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -659,6 +678,11 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 					DiskTypeId:       "network-ssd",
 				},
 			},
+			DiskSizeAutoscaling: &kafka.DiskSizeAutoscaling{
+				DiskSizeLimit:           200 * 1024 * 1024 * 1024,
+				PlannedUsageThreshold:   50,
+				EmergencyUsageThreshold: 70,
+			},
 		},
 		SecurityGroupIds: []string{"security-group-x", "security-group-y"},
 		MaintenanceWindow: &kafka.MaintenanceWindow{
@@ -669,6 +693,9 @@ func TestKafkaClusterUpdateRequest(t *testing.T) {
 		SubnetIds: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 		UpdateMask: &field_mask.FieldMask{Paths: []string{
 			"config_spec.brokers_count",
+			"config_spec.disk_size_autoscaling.disk_size_limit",
+			"config_spec.disk_size_autoscaling.emergency_usage_threshold",
+			"config_spec.disk_size_autoscaling.planned_usage_threshold",
 			"config_spec.kafka.kafka_config_2_8.auto_create_topics_enable",
 			"config_spec.kafka.kafka_config_2_8.compression_type",
 			"config_spec.kafka.kafka_config_2_8.default_replication_factor",
@@ -765,6 +792,13 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 							},
 						},
 					},
+					"disk_size_autoscaling": []interface{}{
+						map[string]interface{}{
+							"disk_size_limit":           200,
+							"planned_usage_threshold":   50,
+							"emergency_usage_threshold": 70,
+						},
+					},
 				},
 			},
 			"subnet_ids":         []interface{}{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
@@ -829,6 +863,11 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 						DiskTypeId:       "network-ssd",
 					},
 				},
+				DiskSizeAutoscaling: &kafka.DiskSizeAutoscaling{
+					DiskSizeLimit:           200 * 1024 * 1024 * 1024,
+					PlannedUsageThreshold:   50,
+					EmergencyUsageThreshold: 70,
+				},
 			},
 			SecurityGroupIds: []string{"security-group-x", "security-group-y"},
 			MaintenanceWindow: &kafka.MaintenanceWindow{
@@ -839,6 +878,9 @@ func TestKafka3xClusterUpdateRequest(t *testing.T) {
 			SubnetIds: []string{"rc1a-subnet", "rc1b-subnet", "rc1c-subnet"},
 			UpdateMask: &field_mask.FieldMask{Paths: []string{
 				"config_spec.brokers_count",
+				"config_spec.disk_size_autoscaling.disk_size_limit",
+				"config_spec.disk_size_autoscaling.emergency_usage_threshold",
+				"config_spec.disk_size_autoscaling.planned_usage_threshold",
 				"config_spec.kafka.kafka_config_3.auto_create_topics_enable",
 				"config_spec.kafka.kafka_config_3.compression_type",
 				"config_spec.kafka.kafka_config_3.default_replication_factor",

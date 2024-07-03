@@ -212,6 +212,28 @@ func resourceYandexMDBKafkaClusterConfig() *schema.Resource {
 				MaxItems: 1,
 				Elem:     resourceYandexMDBKafkaClusterZookeeperConfig(),
 			},
+			"disk_size_autoscaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"access": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -947,6 +969,9 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.assign_public_ip": "config_spec.assign_public_ip",
 	"config.0.schema_registry":  "config_spec.schema_registry",
 	"config.0.access":           "config_spec.access",
+	"config.0.disk_size_autoscaling.0.disk_size_limit":                "config_spec.disk_size_autoscaling.disk_size_limit",
+	"config.0.disk_size_autoscaling.0.planned_usage_threshold":        "config_spec.disk_size_autoscaling.planned_usage_threshold",
+	"config.0.disk_size_autoscaling.0.emergency_usage_threshold":      "config_spec.disk_size_autoscaling.emergency_usage_threshold",
 	"config.0.kafka.0.resources.0.resource_preset_id":                 "config_spec.kafka.resources.resource_preset_id",
 	"config.0.kafka.0.resources.0.disk_type_id":                       "config_spec.kafka.resources.disk_type_id",
 	"config.0.kafka.0.resources.0.disk_size":                          "config_spec.kafka.resources.disk_size",

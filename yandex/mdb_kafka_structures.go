@@ -460,8 +460,31 @@ func expandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	}
 
 	result.SetAccess(expandKafkaAccess(d))
+	result.DiskSizeAutoscaling = expandKafkaDiskSizeAutoscaling(d)
 
 	return result, nil
+}
+
+func expandKafkaDiskSizeAutoscaling(d *schema.ResourceData) *kafka.DiskSizeAutoscaling {
+	if _, ok := d.GetOkExists("config.0.disk_size_autoscaling"); !ok {
+		return nil
+	}
+
+	out := &kafka.DiskSizeAutoscaling{}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.disk_size_limit"); ok {
+		out.DiskSizeLimit = toBytes(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.planned_usage_threshold"); ok {
+		out.PlannedUsageThreshold = int64(v.(int))
+	}
+
+	if v, ok := d.GetOk("config.0.disk_size_autoscaling.0.emergency_usage_threshold"); ok {
+		out.EmergencyUsageThreshold = int64(v.(int))
+	}
+
+	return out
 }
 
 func expandKafkaTopics(d *schema.ResourceData) ([]*kafka.TopicSpec, error) {
@@ -590,8 +613,23 @@ func flattenKafkaConfig(cluster *kafka.Cluster) ([]map[string]interface{}, error
 	if cluster.Config.GetAccess() != nil {
 		config["access"] = flattenKafkaAccess(cluster.Config)
 	}
+	config["disk_size_autoscaling"] = flattenKafkaDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
 
 	return []map[string]interface{}{config}, nil
+}
+
+func flattenKafkaDiskSizeAutoscaling(p *kafka.DiskSizeAutoscaling) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	out := map[string]interface{}{}
+
+	out["disk_size_limit"] = toGigabytes(p.DiskSizeLimit)
+	out["planned_usage_threshold"] = int(p.PlannedUsageThreshold)
+	out["emergency_usage_threshold"] = int(p.EmergencyUsageThreshold)
+
+	return []interface{}{out}
 }
 
 type KafkaConfigSettings interface {
