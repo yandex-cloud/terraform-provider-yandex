@@ -49,7 +49,6 @@ The following attributes are exported:
 * `storage_mounts` - Storage Mounts for Yandex Cloud Function.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.
-* `loggroup_id` - Log group ID size for Yandex Cloud Function.
 * `connectivity` - Function version connectivity. If specified the version will be attached to specified network.
 * `connectivity.0.network_id` - Network the version will have access to. It's essential to specify network with subnets in all availability zones.
 * `async_invocation` - Config for asynchronous invocations of Yandex Cloud Function.

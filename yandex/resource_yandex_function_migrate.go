@@ -1,86 +1,139 @@
 package yandex
 
 import (
-	"fmt"
-
+	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"google.golang.org/grpc/codes"
-
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/functions/v1"
-	"github.com/yandex-cloud/go-sdk/sdkresolvers"
+	"log"
 )
 
-func dataSourceYandexFunction() *schema.Resource {
+func resourceYandexFunctionV0() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceYandexFunctionRead,
-
-		SchemaVersion: 0,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 
-			"function_id": {
+			"user_hash": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"runtime": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"entrypoint": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"memory": {
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
 			"folder_id": {
 				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"description": {
-				Type:     schema.TypeString,
 				Computed: true,
+				Optional: true,
+				ForceNew: true,
 			},
 
 			"labels": {
 				Type:     schema.TypeMap,
-				Computed: true,
+				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
-			"runtime": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"entrypoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"memory": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-
 			"execution_timeout": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 
 			"service_account_id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 
 			"environment": {
 				Type:     schema.TypeMap,
-				Computed: true,
+				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 
 			"tags": {
 				Type:     schema.TypeSet,
+				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"package": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ConflictsWith: []string{"content"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"bucket_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"object_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"sha_256": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
+
+			"content": {
+				Type:          schema.TypeList,
+				MaxItems:      1,
+				Optional:      true,
+				ConflictsWith: []string{"package"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"zip_filename": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"image_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"loggroup_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			"secrets": {
@@ -135,21 +188,6 @@ func dataSourceYandexFunction() *schema.Resource {
 				},
 			},
 
-			"version": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			"image_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
 			"connectivity": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -166,45 +204,48 @@ func dataSourceYandexFunction() *schema.Resource {
 
 			"async_invocation": {
 				Type:     schema.TypeList,
-				Computed: true,
+				MaxItems: 1,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"retries_count": {
 							Type:     schema.TypeInt,
-							Computed: true,
+							Optional: true,
 						},
 						"service_account_id": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Optional: true,
 						},
 						"ymq_success_target": {
 							Type:     schema.TypeList,
-							Computed: true,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"arn": {
 										Type:     schema.TypeString,
-										Computed: true,
+										Required: true,
 									},
 									"service_account_id": {
 										Type:     schema.TypeString,
-										Computed: true,
+										Required: true,
 									},
 								},
 							},
 						},
 						"ymq_failure_target": {
 							Type:     schema.TypeList,
-							Computed: true,
+							MaxItems: 1,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"arn": {
 										Type:     schema.TypeString,
-										Computed: true,
+										Required: true,
 									},
 									"service_account_id": {
 										Type:     schema.TypeString,
-										Computed: true,
+										Required: true,
 									},
 								},
 							},
@@ -215,35 +256,36 @@ func dataSourceYandexFunction() *schema.Resource {
 
 			"log_options": {
 				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disabled": {
 							Type:     schema.TypeBool,
-							Computed: true,
+							Optional: true,
 						},
 						"log_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.folder_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"folder_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:          schema.TypeString,
+							Optional:      true,
+							ConflictsWith: []string{"log_options.0.log_group_id"},
+							ExactlyOneOf:  []string{"log_options.0.folder_id", "log_options.0.log_group_id"},
 						},
 						"min_level": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Optional: true,
 						},
 					},
 				},
 			},
 
 			"tmpfs_size": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-
-			"concurrency": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -252,50 +294,17 @@ func dataSourceYandexFunction() *schema.Resource {
 	}
 }
 
-func dataSourceYandexFunctionRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*Config)
-
-	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutRead))
-	defer cancel()
-
-	err := checkOneOf(d, "function_id", "name")
-	if err != nil {
-		return err
-	}
-
-	functionID := d.Get("function_id").(string)
-	_, tgNameOk := d.GetOk("name")
-
-	if tgNameOk {
-		functionID, err = resolveObjectID(ctx, config, d, sdkresolvers.FunctionResolver)
-		if err != nil {
-			return fmt.Errorf("failed to resolve data source Yandex Cloud Function by name: %v", err)
+func resourceYandexFunctionStateUpgradeV0(ctx context.Context, rawState map[string]any,
+	meta any) (map[string]any, error) {
+	if rawState != nil {
+		deprecatedItem := "loggroup_id"
+		if value, exists := rawState[deprecatedItem]; exists {
+			log.Printf(
+				"[WARNING] loggroup_id is not supported and will not have any impact. The value given is: %s",
+				value)
+			delete(rawState, deprecatedItem)
 		}
 	}
 
-	req := functions.GetFunctionRequest{
-		FunctionId: functionID,
-	}
-
-	function, err := config.sdk.Serverless().Functions().Function().Get(ctx, &req)
-	if err != nil {
-		return handleNotFoundError(err, d, fmt.Sprintf("Yandex Cloud Function %q", d.Id()))
-	}
-
-	versionReq := functions.GetFunctionVersionByTagRequest{
-		FunctionId: function.Id,
-		Tag:        "$latest",
-	}
-
-	version, err := config.sdk.Serverless().Functions().Function().GetVersionByTag(ctx, &versionReq)
-	if err != nil {
-		if isStatusWithCode(err, codes.NotFound) {
-			return nil
-		}
-		return err
-	}
-
-	d.SetId(function.Id)
-	d.Set("function_id", function.Id)
-	return flattenYandexFunction(d, function, version)
+	return rawState, nil
 }

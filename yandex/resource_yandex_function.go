@@ -40,7 +40,14 @@ func resourceYandexFunction() *schema.Resource {
 			Delete: schema.DefaultTimeout(yandexFunctionDefaultTimeout),
 		},
 
-		SchemaVersion: 0,
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceYandexFunctionV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceYandexFunctionStateUpgradeV0,
+				Version: 0,
+			},
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -157,11 +164,6 @@ func resourceYandexFunction() *schema.Resource {
 
 			"image_size": {
 				Type:     schema.TypeInt,
-				Computed: true,
-			},
-
-			"loggroup_id": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -698,7 +700,6 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 
 	d.Set("version", version.Id)
 	d.Set("image_size", version.ImageSize)
-	d.Set("loggroup_id", version.LogGroupId)
 	d.Set("runtime", version.Runtime)
 	d.Set("entrypoint", version.Entrypoint)
 	d.Set("service_account_id", version.ServiceAccountId)

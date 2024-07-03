@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'functions: unsupported loggroup_id field is removed from function schema'
+time: 2024-06-26T17:52:11.743748746+03:00

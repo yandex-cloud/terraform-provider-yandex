@@ -72,7 +72,6 @@ The following arguments are supported:
 * `storage_mounts` - Storage mounts for Yandex Cloud Function.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.
-* `loggroup_id` - Loggroup ID size for Yandex Cloud Function.
 
 * `connectivity` - Function version connectivity. If specified the version will be attached to specified network.
 * `connectivity.0.network_id` - Network the version will have access to. It's essential to specify network with subnets in all availability zones.
@@ -98,7 +97,6 @@ In addition to the arguments listed above, the following computed attributes are
 * `created_at` - Creation timestamp of the Yandex Cloud Function.
 * `version` - Version for Yandex Cloud Function.
 * `image_size` - Image size for Yandex Cloud Function.
-* `loggroup_id` - Log group ID size for Yandex Cloud Function.
 
 ---
 
