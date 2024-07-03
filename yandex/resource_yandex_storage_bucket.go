@@ -2182,7 +2182,6 @@ type S3Website struct {
 
 func retryOnAwsCodes(ctx context.Context, codes []string, f func() (interface{}, error)) (interface{}, error) {
 	var resp interface{}
-	// 
 	err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
 		var err error
 		resp, err = f()
