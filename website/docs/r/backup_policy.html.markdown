@@ -33,7 +33,9 @@ resource "yandex_backup_policy" "basic_policy" {
 
   scheduling {
     enabled = false
-    execute_by_interval = 86400
+    backup_sets {
+      execute_by_interval = 86400
+    }
   }
 
   retention {
@@ -51,58 +53,61 @@ For the full policy attributes, take a look at the following example:
 ```hcl
 
 resource "yandex_backup_policy" "my_policy" {
-    archive_name                      = "[Machine Name]-[Plan ID]-[Unique ID]a"
-    cbt                               = "USE_IF_ENABLED"
-    compression                       = "NORMAL"
-    fast_backup_enabled               = true
-    format                            = "AUTO"
-    multi_volume_snapshotting_enabled = true
-    name                              = "example_name"
-    performance_window_enabled        = true
-    preserve_file_security_settings   = true
-    quiesce_snapshotting_enabled      = true
-    silent_mode_enabled               = true
-    splitting_bytes                   = "9223372036854775807"
-    vss_provider                      = "NATIVE"
+  archive_name                      = "[Machine Name]-[Plan ID]-[Unique ID]a"
+  cbt                               = "USE_IF_ENABLED"
+  compression                       = "NORMAL"
+  fast_backup_enabled               = true
+  format                            = "AUTO"
+  multi_volume_snapshotting_enabled = true
+  name                              = "example_name"
+  performance_window_enabled        = true
+  preserve_file_security_settings   = true
+  quiesce_snapshotting_enabled      = true
+  silent_mode_enabled               = true
+  splitting_bytes                   = "9223372036854775807"
+  vss_provider                      = "NATIVE"
 
-    reattempts {
-        enabled      = true
-        interval     = "1m"
-        max_attempts = 10
+  reattempts {
+    enabled      = true
+    interval     = "1m"
+    max_attempts = 10
+  }
+
+  retention {
+    after_backup = false
+
+    rules {
+      max_age       = "365d"
+      repeat_period = []
     }
+  }
 
-    retention {
-        after_backup = false
+  scheduling {
+    enabled              = false
+    max_parallel_backups = 0
+    random_max_delay     = "30m"
+    scheme               = "ALWAYS_INCREMENTAL"
+    weekly_backup_day    = "MONDAY"
 
-        rules {
-            max_age       = "365d"
-            repeat_period = []
-        }
+
+    backup_sets {
+      execute_by_time {
+        include_last_day_of_month = true
+        monthdays                 = []
+        months                    = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        repeat_at                 = ["04:10"]
+        repeat_every              = "30m"
+        type                      = "MONTHLY"
+        weekdays                  = []
+      }
     }
+  }
 
-    scheduling {
-        enabled              = false
-        max_parallel_backups = 0
-        random_max_delay     = "30m"
-        scheme               = "ALWAYS_INCREMENTAL"
-        weekly_backup_day    = "MONDAY"
-
-        execute_by_time {
-            include_last_day_of_month = true
-            monthdays                 = []
-            months                    = [1,2,3,4,5,6,7,8,9,10,11,12]
-            repeat_at                 = ["04:10"]
-            repeat_every              = "30m"
-            type                      = "MONTHLY"
-            weekdays                  = []
-        }
-    }
-
-    vm_snapshot_reattempts {
-        enabled      = true
-        interval     = "1m"
-        max_attempts = 10
-    }
+  vm_snapshot_reattempts {
+    enabled      = true
+    interval     = "1m"
+    max_attempts = 10
+  }
 }
 ```
 
@@ -143,6 +148,18 @@ The following arguments are supported:
   - `after_backup` — Defines whether retention rule applies after creating backup or before.
 - `scheduling` (**Required**) — Schedule settings for creating backups on the host.
   - `enabled` (Optional. Default: true) — enables or disables scheduling.
+  - `backup_sets` (Required) - A list of schedules with backup sets that compose the whole scheme.
+    - `execute_by_interval` (Optional) — Perform backup by interval, since last backup of the host. Maximum value is: 9999 days.
+      See `interval_type` for available values. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
+    - `execute_by_time` (Optional) — Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
+      - `type` (**Required**) — Type of the scheduling. Available values are: `"HOURLY"`, `"DAILY"`, `"WEEKLY"`, `"MONTHLY"`.
+      - `weekdays` (Optional. Default: []) — List of weekdays when the backup will be applied. Used in `"WEEKLY"` type.
+      - `repeat_at` (Optional. Default: []) — List of time in format `"HH:MM" (24-hours format)`, when the schedule applies.
+      - `repeat_every` (Optional) — Frequency of backup repetition. See `interval_type` for available values.
+      - `monthdays` (Optional. Default: []) — List of days when schedule applies. Used in `"MONTHLY"` type.
+      - `include_last_day_of_month` (Optional. Default: false) — If true, schedule will be applied on the last day of month.
+        See `day_type` for available values. 
+    - `type` - (Optional. Default: TYPE_AUTO) - BackupSet type. See `backup_set_type` for available values.
   - `max_parallel_backups` (Optional. Default: 0) — Maximum number of backup processes allowed to run in parallel. 0 for unlimited.
   - `random_max_delay` (Optional. Default: 30m) — Configuration of the random delay between the execution of parallel tasks.
     See `interval_type` for available values.
@@ -150,9 +167,9 @@ The following arguments are supported:
     Available values are: `"ALWAYS_INCREMENTAL"`, `"ALWAYS_FULL"`, `"WEEKLY_FULL_DAILY_INCREMENTAL"`, `'WEEKLY_INCREMENTAL"`.
   - `weekly_backup_day` (Optional. Default: MONDAY) — A day of week to start weekly backups.
     See `day_type` for available values.
-  - `execute_by_interval` (Optional) — Perform backup by interval, since last backup of the host. Maximum value is: 9999 days.
+  - `execute_by_interval` (Deprecated, use backup_sets instead) — Perform backup by interval, since last backup of the host. Maximum value is: 9999 days.
     See `interval_type` for available values. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
-  - `execute_by_time` (Optional) — Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
+  - `execute_by_time` (Deprecated, use backup_sets instead) — Perform backup periodically at specific time. Exactly on of options should be set: `execute_by_interval` or `execute_by_time`.
     - `type` (**Required**) — Type of the scheduling. Available values are: `"HOURLY"`, `"DAILY"`, `"WEEKLY"`, `"MONTHLY"`.
     - `weekdays` (Optional. Default: []) — List of weekdays when the backup will be applied. Used in `"WEEKLY"` type.
     - `repeat_at` (Optional. Default: []) — List of time in format `"HH:MM" (24-hours format)`, when the schedule applies.
@@ -180,3 +197,6 @@ Example of interval value: `"5m", "10d", "2M", "5w"`
 
 A string type, that accepts the following values:
 `"ALWAYS_INCREMENTAL"`, `"ALWAYS_FULL"`, `"WEEKLY_FULL_DAILY_INCREMENTAL"`, `'WEEKLY_INCREMENTAL"`.
+
+### backup_set_type
+`"TYPE_AUTO"`, `"TYPE_FULL"`, `"TYPE_INCREMENTAL"`, `'TYPE_DIFFERENTIAL"`.

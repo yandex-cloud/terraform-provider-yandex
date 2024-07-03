@@ -144,7 +144,7 @@ func resourceYandexBackupPolicy() *schema.Resource {
 				Required: true,
 				MinItems: 1,
 				MaxItems: 1,
-				Elem:     resourceYandexBacupPolicySchedulingResource(),
+				Elem:     resourceYandexBackupPolicySchedulingResource(),
 			},
 
 			"cbt": {
@@ -259,20 +259,30 @@ func resourceYandexBacupPolicyRetentionSchema() *schema.Resource {
 	}
 }
 
-func resourceYandexBacupPolicySchedulingResource() *schema.Resource {
+func resourceYandexBackupPolicySchedulingResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"execute_by_interval": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: resourceYandexBackupSchedulingIntervalValidateFunc,
+				Deprecated:   fieldDeprecatedForAnother("execute_by_interval", "backup_sets"),
 			},
 
 			"execute_by_time": {
+				Type:       schema.TypeSet,
+				Optional:   true,
+				Set:        storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Elem:       resourceYandexBackupPolicySchedulingRuleTimeResource(),
+				Deprecated: fieldDeprecatedForAnother("execute_by_time", "backup_sets"),
+			},
+
+			"backup_sets": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				Set:      storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
-				Elem:     resourceYandexackupPolicySchedulingRuleTimeResource(),
+				MinItems: 1,
+				Set:      storageBucketS3SetFunc("execute_by_interval", "execute_by_time", "type"),
+				Elem:     resourceYandexBackupPolicySchedulingBackupSetResource(),
 			},
 
 			"enabled": {
@@ -311,7 +321,33 @@ func resourceYandexBacupPolicySchedulingResource() *schema.Resource {
 	}
 }
 
-func resourceYandexackupPolicySchedulingRuleTimeResource() *schema.Resource {
+func resourceYandexBackupPolicySchedulingBackupSetResource() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"execute_by_interval": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: resourceYandexBackupSchedulingIntervalValidateFunc,
+			},
+
+			"execute_by_time": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Set:      storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type"),
+				Elem:     resourceYandexBackupPolicySchedulingRuleTimeResource(),
+			},
+
+			"type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      resourceYandexBackupSchedulingBackupSetTypeValues[0],
+				ValidateFunc: validation.StringInSlice(resourceYandexBackupSchedulingBackupSetTypeValues, false),
+			},
+		},
+	}
+}
+
+func resourceYandexBackupPolicySchedulingRuleTimeResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"weekdays": {
@@ -392,7 +428,7 @@ func expandBackupPolicySettingsInterval(v any) *backuppb.PolicySettings_Interval
 	out := &backuppb.PolicySettings_Interval{}
 	out.Count, err = strconv.ParseInt(result[1], 10, 64)
 	if err != nil {
-		panic("unexpected digits for interva " + err.Error())
+		panic("unexpected digits for interval " + err.Error())
 	}
 
 	switch result[2] {

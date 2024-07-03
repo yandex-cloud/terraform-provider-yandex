@@ -47,11 +47,19 @@ var (
 		backuppb.PolicySettings_SUNDAY.String(),
 	}
 
+	resourceYandexBackupSchedulingBackupSetTypeValues = []string{
+		backuppb.PolicySettings_Scheduling_BackupSet_TYPE_AUTO.String(),
+		backuppb.PolicySettings_Scheduling_BackupSet_TYPE_FULL.String(),
+		backuppb.PolicySettings_Scheduling_BackupSet_TYPE_INCREMENTAL.String(),
+		backuppb.PolicySettings_Scheduling_BackupSet_TYPE_DIFFERENTIAL.String(),
+	}
+
 	resourceYandexBackupTypeValues = []string{
 		backuppb.PolicySettings_Scheduling_ALWAYS_INCREMENTAL.String(),
 		backuppb.PolicySettings_Scheduling_ALWAYS_FULL.String(),
 		backuppb.PolicySettings_Scheduling_WEEKLY_FULL_DAILY_INCREMENTAL.String(),
 		backuppb.PolicySettings_Scheduling_WEEKLY_INCREMENTAL.String(),
+		backuppb.PolicySettings_Scheduling_CUSTOM.String(),
 	}
 
 	resourceYandexBackupRepeatPeriodValues = []string{
@@ -296,8 +304,10 @@ func expandBackupPolicyScheduling(v any) (scheduling *backuppb.PolicySettings_Sc
 
 	settings := settingsSet.List()[0].(map[string]any)
 
-	var byTime, byInterval bool
 	scheduling = new(backuppb.PolicySettings_Scheduling)
+
+	// TODO: deprecated, remove later
+	var byTime, byInterval bool
 	bs := expandBackupPolicySettingsSchedulingExecuteByInterval(settings["execute_by_interval"])
 	if bs != nil {
 		byInterval = true
@@ -313,8 +323,22 @@ func expandBackupPolicyScheduling(v any) (scheduling *backuppb.PolicySettings_Sc
 		scheduling.BackupSets = append(scheduling.BackupSets, bs)
 	}
 
-	if byTime == byInterval {
+	if byTime && byInterval {
 		return nil, fmt.Errorf("should be set exactly one of: execute_by_interval, execute_by_time")
+	}
+	////////////
+
+	backupSets := settings["backup_sets"].(*schema.Set)
+	for _, s := range backupSets.List() {
+		bs, err := expandBackupPolicySchedulingBackupSet(s)
+		if err != nil {
+			return nil, err
+		}
+		scheduling.BackupSets = append(scheduling.BackupSets, bs)
+	}
+
+	if len(scheduling.BackupSets) == 0 {
+		return nil, fmt.Errorf("at least one backup set should be specified")
 	}
 
 	scheduling.Enabled = settings["enabled"].(bool)
@@ -324,6 +348,36 @@ func expandBackupPolicyScheduling(v any) (scheduling *backuppb.PolicySettings_Sc
 	scheduling.WeeklyBackupDay = expandBackupPolicySettingsDay(settings["weekly_backup_day"])
 
 	return scheduling, nil
+}
+
+func expandBackupPolicySchedulingBackupSet(v any) (bs *backuppb.PolicySettings_Scheduling_BackupSet, err error) {
+	settings := v.(map[string]any)
+
+	bsInterval := expandBackupPolicySettingsSchedulingExecuteByInterval(settings["execute_by_interval"])
+	bsTime, err := expandBackupPolicySettingsSchedulingExecuteByTime(settings["execute_by_time"])
+	if err != nil {
+		return nil, fmt.Errorf("expanding Cloud Backup Policy Scheduling execute_by_time: %w", err)
+	}
+
+	exactlyOne := (bsInterval == nil) != (bsTime == nil)
+	if !exactlyOne {
+		return nil, fmt.Errorf("should be set exactly one of: execute_by_interval, execute_by_time")
+	}
+
+	if bsInterval != nil {
+		bsInterval.Type = expandBackupPolicySchedulingBackupSetType(settings["type"])
+		return bsInterval, nil
+	} else {
+		bsTime.Type = expandBackupPolicySchedulingBackupSetType(settings["type"])
+		return bsTime, nil
+	}
+}
+
+func expandBackupPolicySchedulingBackupSetType(v any) backuppb.PolicySettings_Scheduling_BackupSet_Type {
+	value := v.(string)
+	value = strings.ToUpper(value)
+	out := backuppb.PolicySettings_Scheduling_BackupSet_Type_value[value]
+	return backuppb.PolicySettings_Scheduling_BackupSet_Type(out)
 }
 
 func expandYandexBackupPolicyRetentionRule(v any) (out *backuppb.PolicySettings_Retention_RetentionRule) {
@@ -340,7 +394,7 @@ func expandYandexBackupPolicyRetentionRule(v any) (out *backuppb.PolicySettings_
 	}
 
 	out = new(backuppb.PolicySettings_Retention_RetentionRule)
-	if maxAgeOk {
+	if isMaxAgeSet {
 		out.Condition = &backuppb.PolicySettings_Retention_RetentionRule_MaxAge{
 			MaxAge: expandBackupPolicySettingsInterval(maxAge),
 		}
@@ -537,43 +591,54 @@ func flattenYandexBackupPolicyScheduling(d *schema.ResourceData, scheduling *bac
 	result["scheme"] = scheduling.Scheme.String()
 	result["weekly_backup_day"] = scheduling.WeeklyBackupDay.String()
 
-	bss := scheduling.GetBackupSets()
-	if len(bss) != 1 {
-		return fmt.Errorf("expected to have only one scheduling backup set")
+	bss, err := flattenYandexBackupPolicySchedulingBackupSet(scheduling.GetBackupSets())
+	if err != nil {
+		return err
+	}
+	result["backup_sets"] = bss
+
+	return d.Set("scheduling", []any{result})
+}
+
+func flattenYandexBackupPolicySchedulingBackupSet(bss []*backuppb.PolicySettings_Scheduling_BackupSet) ([]map[string]any, error) {
+	if len(bss) == 0 {
+		return nil, fmt.Errorf("expected to have at least one scheduling backup set")
 	}
 
-	bs := bss[0]
-	switch typedBS := bs.Setting.(type) {
-	case *backuppb.PolicySettings_Scheduling_BackupSet_SinceLastExecTime_:
-		delay := resourceYandexBackupIntervalSchedulingAdjust(typedBS.SinceLastExecTime.GetDelay())
-		result["execute_by_interval"] = delay.Count
-	case *backuppb.PolicySettings_Scheduling_BackupSet_Time_:
-		timeRule := typedBS.Time
+	result := make([]map[string]any, len(bss))
+	for i, bs := range bss {
+		result[i] = make(map[string]any, 2)
+		switch typedBS := bs.Setting.(type) {
+		case *backuppb.PolicySettings_Scheduling_BackupSet_SinceLastExecTime_:
+			delay := resourceYandexBackupIntervalSchedulingAdjust(typedBS.SinceLastExecTime.GetDelay())
+			result[i]["execute_by_interval"] = delay.Count
+		case *backuppb.PolicySettings_Scheduling_BackupSet_Time_:
+			timeRule := typedBS.Time
 
-		repeatAt := make([]string, 0, len(timeRule.RepeatAt))
-		for _, repeatAtValue := range timeRule.RepeatAt {
-			repeatAt = append(repeatAt, flattenBackupPolicySettingsTimeOfDay(repeatAtValue))
+			repeatAt := make([]string, 0, len(timeRule.RepeatAt))
+			for _, repeatAtValue := range timeRule.RepeatAt {
+				repeatAt = append(repeatAt, flattenBackupPolicySettingsTimeOfDay(repeatAtValue))
+			}
+
+			schemaSetFunc := storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type")
+			item := schema.NewSet(schemaSetFunc, []any{
+				map[string]any{
+					"repeat_at":                 repeatAt,
+					"weekdays":                  asStringSlice(timeRule.Weekdays...),
+					"repeat_every":              flattenBackupInterval(timeRule.RepeatEvery),
+					"monthdays":                 asAnySlice(timeRule.Monthdays...),
+					"include_last_day_of_month": timeRule.IncludeLastDayOfMonth,
+					"months":                    asAnySlice(timeRule.Months...),
+					"type":                      timeRule.Type.String(),
+				},
+			})
+
+			result[i]["execute_by_time"] = item
 		}
-
-		schemaSetFunc := storageBucketS3SetFunc("weekdays", "repeat_at", "repeat_every", "monthdays", "include_last_day_of_month", "months", "type")
-		item := schema.NewSet(schemaSetFunc, []any{
-			map[string]any{
-				"repeat_at":                 repeatAt,
-				"weekdays":                  asStringSlice(timeRule.Weekdays...),
-				"repeat_every":              flattenBackupInterval(timeRule.RepeatEvery),
-				"monthdays":                 asAnySlice(timeRule.Monthdays...),
-				"include_last_day_of_month": timeRule.IncludeLastDayOfMonth,
-				"months":                    asAnySlice(timeRule.Months...),
-				"type":                      timeRule.Type.String(),
-			},
-		})
-
-		result["execute_by_time"] = item
+		result[i]["type"] = bs.Type.String()
 	}
 
-	d.Set("scheduling", []any{result})
-
-	return nil
+	return result, nil
 }
 
 func flattenYandBackupPolicySettings(d *schema.ResourceData, settings *backuppb.PolicySettings) (err error) {
