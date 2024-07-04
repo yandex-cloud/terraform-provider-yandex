@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
@@ -142,6 +143,28 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"backup_window_start": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"hours": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 23),
+						},
+						"minutes": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      0,
+							ValidateFunc: validation.IntBetween(0, 59),
+						},
+					},
+				},
 			},
 			"labels": {
 				Type:     schema.TypeMap,
@@ -299,6 +322,11 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 
 	hs, err := flattenRedisHosts(cluster.Sharded, hosts)
 	if err != nil {
+		return err
+	}
+
+	backupWindowStart := flattenMDBBackupWindowStart(cluster.GetConfig().GetBackupWindowStart())
+	if err := d.Set("backup_window_start", backupWindowStart); err != nil {
 		return err
 	}
 
