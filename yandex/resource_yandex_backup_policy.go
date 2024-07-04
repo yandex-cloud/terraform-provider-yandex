@@ -15,7 +15,7 @@ import (
 
 const (
 	yandexBackupDefaultTimeout                            = 5 * time.Minute
-	yandexBackupPolicySchedulingIntervalMaxAvailableValue = 1 * 60 * 60 * 24 * 9999 // max is 9999 days)
+	yandexBackupPolicySchedulingIntervalMaxAvailableValue = 1 * 60 * 60 * 24 * 9999 // max is 9999 days
 )
 
 func resourceYandexBackupPolicy() *schema.Resource {

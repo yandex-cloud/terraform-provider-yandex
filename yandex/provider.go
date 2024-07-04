@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/common/mutexkv"
 
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
@@ -141,6 +142,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_alb_virtual_host":                                 dataSourceYandexALBVirtualHost(),
 			"yandex_api_gateway":                                      dataSourceYandexApiGateway(),
 			"yandex_audit_trails_trail":                               dataSourceYandexAuditTrailsTrail(),
+			"yandex_backup_policy":                                    dataSourceYandexBackupPolicy(),
 			"yandex_client_config":                                    dataSourceYandexClientConfig(),
 			"yandex_cdn_origin_group":                                 dataSourceYandexCDNOriginGroup(),
 			"yandex_cdn_resource":                                     dataSourceYandexCDNResource(),
