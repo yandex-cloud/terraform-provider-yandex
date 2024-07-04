@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_gpu_cluster_iam_binding"
 sidebar_current: "docs-yandex-compute-gpu-cluster-iam-binding"
 description: |-
-Allows management of a single IAM binding for a GPU Cluster.
+  Allows management of a single IAM binding for a GPU Cluster.
 ---
 
 # yandex\_compute\_gpu\_cluster\_iam\_binding

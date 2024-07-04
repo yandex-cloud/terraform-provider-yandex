@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_snapshot_iam_binding"
 sidebar_current: "docs-yandex-compute-snapshot-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Snapshot.
+  Allows management of a single IAM binding for a Snapshot.
 ---
 
 # yandex\_compute\_snapshot\_iam\_binding

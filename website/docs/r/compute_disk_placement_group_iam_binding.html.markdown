@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_disk_placement_group_iam_binding"
 sidebar_current: "docs-yandex-compute-disk-placement-group-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Disk Placement Group.
+  Allows management of a single IAM binding for a Disk Placement Group.
 ---
 
 # yandex\_compute\_disk\_placement\_group\_iam\_binding

@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_disk_iam_binding"
 sidebar_current: "docs-yandex-compute-disk-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Disk.
+  Allows management of a single IAM binding for a Disk.
 ---
 
 # yandex\_compute\_disk\_iam\_binding

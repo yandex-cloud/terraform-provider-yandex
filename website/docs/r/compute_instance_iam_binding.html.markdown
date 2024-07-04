@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_instance_iam_binding"
 sidebar_current: "docs-yandex-compute-instance-iam-binding"
 description: |-
-Allows management of a single IAM binding for an instance.
+  Allows management of a single IAM binding for an instance.
 ---
 
 # yandex\_compute\_instance\_iam\_binding

@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_snapshot_schedule_iam_binding"
 sidebar_current: "docs-yandex-compute-snapshot-schedule-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Snapshot Schedule.
+  Allows management of a single IAM binding for a Snapshot Schedule.
 ---
 
 # yandex\_compute\_snapshot_schedule\_iam\_binding

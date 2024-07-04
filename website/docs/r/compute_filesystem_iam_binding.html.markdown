@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_filesystem_iam_binding"
 sidebar_current: "docs-yandex-compute-filesystem-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Filesystem.
+  Allows management of a single IAM binding for a Filesystem.
 ---
 
 # yandex\_compute\_filesystem\_iam\_binding

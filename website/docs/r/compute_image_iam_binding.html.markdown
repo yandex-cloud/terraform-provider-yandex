@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_image_iam_binding"
 sidebar_current: "docs-yandex-compute-image-iam-binding"
 description: |-
-Allows management of a single IAM binding for an image.
+  Allows management of a single IAM binding for an image.
 ---
 
 # yandex\_compute\_image\_iam\_binding

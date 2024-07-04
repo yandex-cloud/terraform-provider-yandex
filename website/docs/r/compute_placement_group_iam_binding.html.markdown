@@ -3,7 +3,7 @@ layout: "yandex"
 page_title: "Yandex: yandex_compute_placement_group_iam_binding"
 sidebar_current: "docs-yandex-compute-placement-group-iam-binding"
 description: |-
-Allows management of a single IAM binding for a Placement Group.
+  Allows management of a single IAM binding for a Placement Group.
 ---
 
 # yandex\_compute\_placement\_group\_iam\_binding
