@@ -2004,15 +2004,15 @@ func testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(randI
 
 func testAccStorageBucketConfigWithValidGrant(randInt int) string {
 	const grants = `grant {
-		id          = "id1"
+		id          = yandex_iam_service_account.sa.id
 		type        = "CanonicalUser"
 		permissions = ["READ", "WRITE"]
   	}
 
 	grant {
 		type        = "Group"
-		permissions = ["READ"]
-		uri         = "http://some.uri"
+		permissions = ["FULL_CONTROL"]
+		uri         = "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"
 	}`
 
 	return newBucketConfigBuilder(randInt).
@@ -2383,12 +2383,16 @@ func TestAccStorageBucket_Grants(t *testing.T) {
 				Config: testAccStorageBucketConfigWithValidGrant(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.id", "id1"),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.type", "CanonicalUser"),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions", "[\"READ\", \"WRITE\"]"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.uri", "http://some.uri"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.type", "Group"),
-					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions", "[\"READ\"]"),
+					resource.TestCheckResourceAttr(resourceName, "grant.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.uri", "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.type", "Group"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "FULL_CONTROL"),
+					resource.TestCheckResourceAttrSet(resourceName, "grant.1.id"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.type", "CanonicalUser"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.0", "READ"),
+					resource.TestCheckResourceAttr(resourceName, "grant.1.permissions.1", "WRITE"),
 				),
 			},
 		},
