@@ -267,7 +267,6 @@ func resourceYandexMDBKafkaClusterResources() *schema.Resource {
 			"disk_type_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 		},
 	}
