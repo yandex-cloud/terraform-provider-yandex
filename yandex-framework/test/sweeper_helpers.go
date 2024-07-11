@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/validate"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -98,7 +98,7 @@ func sweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(
 func HandleSweepOperation(ctx context.Context, conf *provider_config.Config, op *operation.Operation, err error) error {
 	sdkop, err := conf.SDK.WrapOperation(op, err)
 	if err != nil {
-		if IsStatusWithCode(err, codes.NotFound) {
+		if validate.IsStatusWithCode(err, codes.NotFound) {
 			return nil
 		}
 		return err
@@ -115,11 +115,6 @@ func HandleSweepOperation(ctx context.Context, conf *provider_config.Config, op 
 
 func DebugLog(format string, v ...interface{}) {
 	log.Printf("[DEBUG] "+format, v...)
-}
-
-func IsStatusWithCode(err error, code codes.Code) bool {
-	grpcStatus, ok := status.FromError(err)
-	return ok && grpcStatus.Code() == code
 }
 
 func IsTestResourceName(name string) bool {

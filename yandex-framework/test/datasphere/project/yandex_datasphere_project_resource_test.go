@@ -13,6 +13,7 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 	dataspheretest "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test/datasphere"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/validate"
 	"google.golang.org/grpc/codes"
 )
 
@@ -88,7 +89,7 @@ func getAllCommunityIDs(conf *provider_config.Config) ([]string, error) {
 	}
 
 	if err := it.Error(); err != nil {
-		if test.IsStatusWithCode(err, codes.NotFound) {
+		if validate.IsStatusWithCode(err, codes.NotFound) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("iterator err: %w", err)

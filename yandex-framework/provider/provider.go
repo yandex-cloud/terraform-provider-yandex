@@ -31,6 +31,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
 )
 
 type saKeyValidator struct{}
@@ -254,6 +255,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		community.NewIamBinding,
 		database.NewResource,
 		user.NewResource,
+		opensearch.NewResource,
 		disk.NewIamBinding,
 		diskplacementgroup.NewIamBinding,
 		filesystem.NewIamBinding,
@@ -277,6 +279,7 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		community.NewDataSource,
 		database.NewDataSource,
 		user.NewDataSource,
+		opensearch.NewDataSource,
 	}
 }
 

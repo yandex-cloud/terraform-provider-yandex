@@ -1,4 +1,4 @@
-package yandex
+package opensearch
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 )
 
 func TestAccDataSourceMDBOpenSearchCluster_byID(t *testing.T) {
@@ -17,9 +18,9 @@ func TestAccDataSourceMDBOpenSearchCluster_byID(t *testing.T) {
 	randInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBOpenSearchClusterDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBOpenSearchClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, true),
@@ -39,9 +40,9 @@ func TestAccDataSourceMDBOpenSearchCluster_byName(t *testing.T) {
 	randInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckMDBOpenSearchClusterDestroy,
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBOpenSearchClusterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, false),
@@ -85,9 +86,9 @@ func testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName string,
 			"security_group_ids",
 			"service_account_id",
 			"deletion_protection",
-			"maintenance_window.0.type",
-			"maintenance_window.0.day",
-			"maintenance_window.0.hour",
+			"maintenance_window.type",
+			"maintenance_window.day",
+			"maintenance_window.hour",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -106,27 +107,27 @@ func testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName string,
 }
 
 func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, resourceName string, name string, desc string) resource.TestCheckFunc {
-	folderID := getExampleFolderID()
+	folderID := test.GetExampleFolderID()
 	env := "PRESTABLE"
 
 	return resource.ComposeTestCheckFunc(
 		testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName, resourceName),
-		testAccCheckResourceIDField(datasourceName, "cluster_id"),
+		test.AccCheckResourceIDField(datasourceName, "cluster_id"),
 		resource.TestCheckResourceAttr(datasourceName, "name", name),
 		resource.TestCheckResourceAttr(datasourceName, "folder_id", folderID),
 		resource.TestCheckResourceAttr(datasourceName, "description", desc),
 		resource.TestCheckResourceAttr(datasourceName, "environment", env),
 		resource.TestCheckResourceAttr(datasourceName, "labels.test_key", "test_value"),
-		resource.TestCheckResourceAttr(datasourceName, "config.#", "1"),
+		// resource.TestCheckResourceAttr(datasourceName, "config", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
 		resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
 		resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 		resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
-		testAccCheckCreatedAtAttr(datasourceName),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
+		test.AccCheckCreatedAtAttr(datasourceName),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.type", "WEEKLY"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.day", "FRI"),
+		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.hour", "20"),
 	)
 }
 

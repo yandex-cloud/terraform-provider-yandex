@@ -8,6 +8,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
+	"google.golang.org/grpc/status"
 )
 
 func AccCheckCreatedAtAttr(resourceName string) resource.TestCheckFunc {
@@ -39,5 +41,28 @@ func ImportIamBindingIdFunc(resourceName, role string) func(*terraform.State) (s
 		tflog.Error(context.Background(), rs.Primary.ID)
 		return fmt.Sprintf("%s,%s", rs.Primary.ID, role), nil
 	}
+}
 
+func AccCheckResourceIDField(resourceName string, idFieldName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ID is set")
+		}
+
+		if rs.Primary.Attributes[idFieldName] != rs.Primary.ID {
+			return fmt.Errorf("Resource: %s id field: %s, doesn't match resource ID", resourceName, idFieldName)
+		}
+
+		return nil
+	}
+}
+
+func ErrorMessage(err error) string {
+	grpcStatus, _ := status.FromError(err)
+	return grpcStatus.Message()
 }
