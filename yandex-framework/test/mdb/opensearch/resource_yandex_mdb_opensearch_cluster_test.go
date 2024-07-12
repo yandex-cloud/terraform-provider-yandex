@@ -212,7 +212,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
@@ -270,7 +270,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.3.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.4.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key2", "test_value2"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
@@ -279,18 +279,9 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 				),
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Networks remove
+			//Networks change
 			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc2, randInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
-				),
-			},
-			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Networks restore
-			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc2, randInt),
+				Config: testAccMDBOpenSearchClusterConfigAdditionalZone(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
 					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
@@ -647,7 +638,6 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-d",
   ]
 }
 
@@ -676,7 +666,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
         resources {
@@ -697,7 +686,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
           resource_preset_id   = "s2.micro"
@@ -728,13 +716,14 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
 `, name, desc, environment, deletionProtection)
 }
 
-func testAccMDBOpenSearchClusterConfigNetworksRemove(name, desc string, randInt int) string {
+func testAccMDBOpenSearchClusterConfigAdditionalZone(name, desc string, randInt int) string {
 	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
 
 locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
+    "ru-central1-d",
   ]
 }
 
@@ -761,6 +750,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
         resources {
@@ -781,6 +771,7 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
           resource_preset_id   = "s2.small"
@@ -822,7 +813,6 @@ locals {
   zones = [
     "ru-central1-a",
     "ru-central1-b",
-    "ru-central1-d",
   ]
 }
 
@@ -850,7 +840,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
         resources {
@@ -871,7 +860,6 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
           resource_preset_id   = "s2.small"
