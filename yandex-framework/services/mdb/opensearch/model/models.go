@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/opensearch/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/timestamp"
-	"golang.org/x/exp/maps"
 )
 
 var defaultOpts = basetypes.ObjectAsOptions{UnhandledNullAsEmpty: false, UnhandledUnknownAsEmpty: false}
@@ -334,7 +333,7 @@ func dashboardSubConfigToObject(ctx context.Context, cfg *opensearch.Dashboards,
 func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.OpenSearch_NodeGroup, state []OpenSearchNode) (types.List, diag.Diagnostics) {
 	groupsByName := GetGroupByName(nodeGroups)
 	var ret = make([]OpenSearchNode, 0, len(nodeGroups))
-	nodeGroupNames := maps.Keys(groupsByName)
+	nodeGroupNames := getGroupNames(nodeGroups)
 	stateGroupsByName := make(map[string]OpenSearchNode, len(state))
 
 	if len(state) != 0 && len(state) == len(nodeGroups) {
@@ -440,7 +439,7 @@ func sameNodeGroup(ctx context.Context, res *opensearch.OpenSearch_NodeGroup, st
 func dashboardsNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Dashboards_NodeGroup, state []DashboardNode) (types.List, diag.Diagnostics) {
 	groupsByName := GetGroupByName(nodeGroups)
 	var ret = make([]DashboardNode, 0, len(nodeGroups))
-	nodeGroupNames := maps.Keys(groupsByName)
+	nodeGroupNames := getGroupNames(nodeGroups)
 	if len(state) != 0 {
 		nodeGroupNames = make([]string, 0, len(state))
 		for _, s := range state {
@@ -664,4 +663,13 @@ func GetGroupByName[T withName](groups []T) map[string]T {
 	}
 
 	return groupsByName
+}
+
+func getGroupNames[T withName](groups []T) []string {
+	names := make([]string, len(groups))
+	for i, g := range groups {
+		names[i] = g.GetName()
+	}
+
+	return names
 }

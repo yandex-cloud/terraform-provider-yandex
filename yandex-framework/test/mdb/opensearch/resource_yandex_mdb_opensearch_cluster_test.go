@@ -255,6 +255,28 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 				),
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
+			//Networks remove
+			{
+				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc2, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			//Networks restore
+			{
+				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc2, "PRESTABLE", randInt),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					func(s *terraform.State) error {
+						time.Sleep(1 * time.Minute)
+						return nil
+					},
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
 			//Update OpenSearch Cluster
 			{
 				Config: testAccMDBOpenSearchClusterConfigUpdated(openSearchName, openSearchDesc2, randInt),
@@ -276,26 +298,8 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterHasPlugins(&r, "repository-s3"),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "ANYTIME"),
-				),
-			},
-			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Networks remove
-			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc2, randInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
-				),
-			},
-			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Networks restore
-			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc2, randInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 5),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
 					func(s *terraform.State) error {
-						time.Sleep(5 * time.Minute)
+						time.Sleep(1 * time.Minute)
 						return nil
 					},
 				),
@@ -308,6 +312,10 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 12),
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "12"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
+					func(s *terraform.State) error {
+						time.Sleep(1 * time.Minute)
+						return nil
+					},
 				),
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
@@ -325,6 +333,10 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 							}
 
 						}
+						return nil
+					},
+					func(s *terraform.State) error {
+						time.Sleep(1 * time.Minute)
 						return nil
 					},
 					test.AccCheckCreatedAtAttr(openSearchResource),
@@ -746,17 +758,19 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
   }
   environment = "PRESTABLE"
   network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
-  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id, yandex_vpc_security_group.mdb-opensearch-test-sg-y.id]
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = false
 
   config {
 
-    admin_password = "password_updated"
+    admin_password = "password"
 
     opensearch {
       node_groups {
         name = "datamaster0"
         assign_public_ip     = false
-        hosts_count          = 3
+        hosts_count          = 1
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
@@ -764,27 +778,27 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
         ]
         roles                = ["DATA", "MANAGER"]
         resources {
-          resource_preset_id   = "s2.small"
-          disk_size            = 11811160064
-          disk_type_id         = "network-ssd"
+          resource_preset_id = "s2.micro"
+          disk_size          = 10737418240
+          disk_type_id       = "network-ssd"
         }
       }
-      plugins = ["repository-s3"]
+      plugins = ["analysis-icu", "repository-s3"]
     }
 
     dashboards {
       node_groups {
         name = "dash0"
         assign_public_ip     = false
-        hosts_count          = 2
+        hosts_count          = 1
         zone_ids             = local.zones  
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
         ]
         resources {
-          resource_preset_id   = "s2.small"
-          disk_size            = 11811160064
+          resource_preset_id   = "s2.micro"
+          disk_size            = 10737418240
           disk_type_id         = "network-ssd"
         }
       }
@@ -811,8 +825,8 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
 `, name, desc)
 }
 
-func testAccMDBOpenSearchClusterConfigNetworksRestore(name, desc string, randInt int) string {
-	return testAccMDBOpenSearchClusterConfigUpdated(name, desc, randInt)
+func testAccMDBOpenSearchClusterConfigNetworksRestore(name, desc, environment string, randInt int) string {
+	return testAccMDBOpenSearchClusterConfig(name, desc, environment, false, randInt)
 }
 
 func testAccMDBOpenSearchClusterConfigUpdated(name, desc string, randInt int) string {
