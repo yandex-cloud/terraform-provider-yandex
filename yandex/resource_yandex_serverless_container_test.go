@@ -543,7 +543,8 @@ resource "yandex_serverless_container" "test-container" {
   concurrency        = %d
   service_account_id = "${yandex_iam_service_account.test-account.id}"
   depends_on = [
-	yandex_resourcemanager_folder_iam_member.payload-viewer
+	yandex_resourcemanager_folder_iam_member.payload-viewer,
+    yandex_resourcemanager_folder_iam_member.sa-editor
   ]
   secrets {
     id = yandex_lockbox_secret.secret.id
@@ -575,9 +576,10 @@ resource "yandex_serverless_container" "test-container" {
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
-  folder_id = yandex_iam_service_account.test-account.folder_id
-  role      = "storage.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  folder_id   = yandex_iam_service_account.test-account.folder_id
+  role        = "storage.editor"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  sleep_after = 30
 }
 
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
@@ -598,9 +600,10 @@ resource "yandex_iam_service_account" "test-account" {
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "payload-viewer" {
-  folder_id = yandex_lockbox_secret.secret.folder_id
-  role      = "lockbox.payloadViewer"
-  member    = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  folder_id   = yandex_lockbox_secret.secret.folder_id
+  role        = "lockbox.payloadViewer"
+  member      = "serviceAccount:${yandex_iam_service_account.test-account.id}"
+  sleep_after = 30
 }
 
 resource "yandex_lockbox_secret" "secret" {
