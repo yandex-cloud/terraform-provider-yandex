@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: "storage: fix cancellation in bucket operation retries"
-time: 2024-06-08T01:01:49.1198323+03:00

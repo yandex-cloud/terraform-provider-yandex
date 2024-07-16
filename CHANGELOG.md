@@ -1,3 +1,19 @@
+## 0.124.0 (July 16, 2024)
+
+FEATURES:
+* backup: added `yandex_backup_policy` data source
+* kafka: added `disk_size_autoscaling` field for update method in `resource_yandex_mdb_kafka_cluster`
+* backup: add scheduling backup sets, fix max_count retention rule
+* opensearch: migrate from SDKv2 to framework. Improve plan output.
+
+BUG FIXES:
+* storage: fix cancellation in bucket operation retries
+* functions: unsupported loggroup_id field is removed from function schema
+* opensearch: fix remove/add network acceptance test
+
+ENHANCEMENTS:
+* kafka: disabled recreation of kafka cluster after updating `disk_type_id` field in `resource_yandex_mdb_kafka_cluster`
+
 ## 0.123.0 (July 2, 2024)
 
 FEATURES:
