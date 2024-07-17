@@ -106,6 +106,26 @@ func dataSourceYandexMDBRedisCluster() *schema.Resource {
 					},
 				},
 			},
+			"disk_size_autoscaling": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"host": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -289,6 +309,15 @@ func dataSourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{
 		},
 	})
 	if err != nil {
+		return err
+	}
+
+	dsa, err := flattenRedisDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("disk_size_autoscaling", dsa); err != nil {
 		return err
 	}
 

@@ -340,6 +340,16 @@ func flattenRedisResources(r *redis.Resources) ([]map[string]interface{}, error)
 	return []map[string]interface{}{res}, nil
 }
 
+func flattenRedisDiskSizeAutoscaling(r *redis.DiskSizeAutoscaling) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	res["disk_size_limit"] = toGigabytes(r.GetDiskSizeLimit().GetValue())
+	res["planned_usage_threshold"] = int(r.GetPlannedUsageThreshold().GetValue())
+	res["emergency_usage_threshold"] = int(r.GetEmergencyUsageThreshold().GetValue())
+
+	return []map[string]interface{}{res}, nil
+}
+
 func expandRedisResources(d *schema.ResourceData) (*redis.Resources, error) {
 	rs := &redis.Resources{}
 
@@ -356,6 +366,24 @@ func expandRedisResources(d *schema.ResourceData) (*redis.Resources, error) {
 	}
 
 	return rs, nil
+}
+
+func expandRedisDiskSizeAutoscaling(d *schema.ResourceData) (*redis.DiskSizeAutoscaling, error) {
+	dsa := &redis.DiskSizeAutoscaling{}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.disk_size_limit"); ok {
+		dsa.DiskSizeLimit = &wrappers.Int64Value{Value: toBytes(v.(int))}
+	}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.planned_usage_threshold"); ok {
+		dsa.PlannedUsageThreshold = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk("disk_size_autoscaling.0.emergency_usage_threshold"); ok {
+		dsa.EmergencyUsageThreshold = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return dsa, nil
 }
 
 func parseRedisWeekDay(wd string) (redis.WeeklyMaintenanceWindow_WeekDay, error) {

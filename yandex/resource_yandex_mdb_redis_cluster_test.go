@@ -145,10 +145,10 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
 						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -212,7 +212,12 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
 						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "2"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", updatedDiskSize*3)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -303,10 +308,10 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
 						testAccCheckCreatedAtAttr(redisResource),
 						resource.TestCheckResourceAttr(redisResource, "security_group_ids.#", "1"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -335,6 +340,9 @@ func TestAccMDBRedisCluster_enable_sharding(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "false"),
 						resource.TestCheckResourceAttr(redisResource, "sharded", "true"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -404,9 +412,9 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 							normalLimits, pubsubLimits, 75),
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "test_key", "test_value"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 						testAccCheckCreatedAtAttr(redisResource),
 					),
 				},
@@ -436,7 +444,12 @@ func TestAccMDBRedisCluster_full_localssd(t *testing.T) {
 						testAccCheckMDBRedisClusterHasResources(&r, baseFlavor, baseDiskSize, diskTypeId),
 						testAccCheckMDBRedisClusterContainsLabel(&r, "new_key", "new_value"),
 						testAccCheckCreatedAtAttr(redisResource),
-						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "ANYTIME"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+						resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*3)),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
+						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -510,6 +523,8 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
+						resource.TestCheckResourceAttr(redisResourceSharded, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
+						resource.TestCheckResourceAttr(redisResourceSharded, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResourceSharded),
@@ -526,6 +541,9 @@ func TestAccMDBRedisCluster_sharded(t *testing.T) {
 						testAccCheckMDBRedisClusterHasResources(&r, "hm3-c2-m8", baseDiskSize,
 							diskTypeId),
 						testAccCheckCreatedAtAttr(redisResourceSharded),
+						resource.TestCheckResourceAttr(redisResourceSharded, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*3)),
+						resource.TestCheckResourceAttr(redisResourceSharded, "disk_size_autoscaling.0.planned_usage_threshold", "75"),
+						resource.TestCheckResourceAttr(redisResourceSharded, "disk_size_autoscaling.0.emergency_usage_threshold", "90"),
 					),
 				},
 			},
@@ -975,17 +993,82 @@ resource "yandex_mdb_redis_cluster" "foo" {
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
 
   maintenance_window {
-    type = "WEEKLY"
-    day  = "FRI"
-    hour = 20
+    type = "ANYTIME"
   }
   
   deletion_protection = %t
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+    emergency_usage_threshold = 85
+  }
 }
 `, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
 		getAnnounceHostnames(announceHostnames), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
-		getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection)
+		getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection, diskSize*2)
+}
+
+func testAccMDBRedisClusterConfigMainWithMW(name, desc, environment string, deletionProtection bool,
+	tlsEnabled, announceHostnames *bool,
+	persistenceMode, version, flavor string, diskSize int, diskTypeId, normalLimits, pubsubLimits string,
+	publicIPFlags []*bool, replicaPriorities []*int) string {
+	return fmt.Sprintf(redisVPCDependencies+`
+resource "yandex_mdb_redis_cluster" "foo" {
+  name        = "%s"
+  description = "%s"
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.foo.id}"
+  %s
+  %s
+  %s
+
+  labels = {
+    test_key = "test_value"
+  }
+
+  config {
+    password         = "passw0rd"
+    timeout          = 100
+    maxmemory_policy = "ALLKEYS_LRU"
+	notify_keyspace_events = "Elg"
+	slowlog_log_slower_than = 5000
+	slowlog_max_len = 10
+	databases = 15
+	maxmemory_percent = 75
+	version	= "%s"
+	%s
+	%s
+  }
+
+  resources {
+    resource_preset_id = "%s"
+    disk_size          = %d
+    %s
+  }
+
+  %s
+
+  security_group_ids = ["${yandex_vpc_security_group.sg-x.id}"]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  deletion_protection = %t
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+	planned_usage_threshold   = 70
+    emergency_usage_threshold = 85
+  }
+}
+`, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
+		getAnnounceHostnames(announceHostnames), version,
+		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
+		getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection, diskSize*2)
 }
 
 func testAccMDBRedisClusterConfigMainSharded(name, desc, environment string, deletionProtection bool,
@@ -1038,11 +1121,17 @@ resource "yandex_mdb_redis_cluster" "foo" {
   }
   
   deletion_protection = %t
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+    planned_usage_threshold   = 70
+    emergency_usage_threshold = 85
+  }
 }
 `, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
 		getAnnounceHostnames(announceHostnames), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits), flavor, diskSize, getDiskTypeStr(diskTypeId),
-		getSentinelShardedHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection)
+		getSentinelShardedHosts(diskTypeId, publicIPFlags, replicaPriorities), deletionProtection, diskSize*2)
 }
 
 func testAccMDBRedisClusterConfigUpdated(name, desc string, tlsEnabled, announceHostnames *bool, persistenceMode, version, flavor string,
@@ -1086,12 +1175,20 @@ resource "yandex_mdb_redis_cluster" "foo" {
   security_group_ids = ["${yandex_vpc_security_group.sg-x.id}", "${yandex_vpc_security_group.sg-y.id}"]
 
   maintenance_window {
-    type = "ANYTIME"
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+    planned_usage_threshold   = 75
+    emergency_usage_threshold = 90
   }
 }
 `, name, desc, getTlsEnabled(tlsEnabled), getAnnounceHostnames(announceHostnames), getPersistenceMode(persistenceMode), version,
 		getNormalLimitStr(normalLimits), getPubsubLimitStr(pubsubLimits),
-		flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities))
+		flavor, diskSize, getDiskTypeStr(diskTypeId), getSentinelHosts(diskTypeId, publicIPFlags, replicaPriorities), diskSize*3)
 }
 
 func testAccMDBRedisClusterConfigAddedHost(name, desc string, tlsEnabled, announceHostnames *bool, persistenceMode, version, flavor string,
@@ -1171,9 +1268,18 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
 %s
+
+  maintenance_window {
+    type = "ANYTIME"
+  }
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+    emergency_usage_threshold = 85
+  }
 }
 `, name, desc, getPersistenceMode(persistenceMode), version, diskSize, getDiskTypeStr(diskTypeId),
-		getShardedHosts(diskTypeId, "third"))
+		getShardedHosts(diskTypeId, "third"), diskSize*2)
 }
 
 func testAccMDBRedisShardedClusterConfigUpdated(name, desc, persistenceMode string, version string, diskSize int,
@@ -1199,7 +1305,19 @@ resource "yandex_mdb_redis_cluster" "bar" {
   }
 
 %s
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  disk_size_autoscaling {
+    disk_size_limit           = %d
+    planned_usage_threshold   = 75
+    emergency_usage_threshold = 90
+  }
 }
 `, name, desc, getPersistenceMode(persistenceMode), version, diskSize, getDiskTypeStr(diskTypeId),
-		getShardedHosts(diskTypeId, "new"))
+		getShardedHosts(diskTypeId, "new"), diskSize*3)
 }

@@ -133,6 +133,9 @@ func testAccDataSourceMDBRedisClusterAttributesCheck(datasourceName string, reso
 			"maintenance_window.0.day",
 			"maintenance_window.0.hour",
 			"deletion_protection",
+			"disk_size_autoscaling.0.disk_size_limit",
+			"disk_size_autoscaling.0.planned_usage_threshold",
+			"disk_size_autoscaling.0.emergency_usage_threshold",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {
@@ -185,10 +188,13 @@ func testAccDataSourceMDBRedisClusterCheck(datasourceName string, resourceName s
 		resource.TestCheckResourceAttr(datasourceName, "host.0.assign_public_ip", "false"),
 		testAccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "security_group_ids.#", "1"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.type", "WEEKLY"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
-		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
+		resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.type", "WEEKLY"),
+		resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.day", "FRI"),
+		resource.TestCheckResourceAttr(redisResource, "maintenance_window.0.hour", "20"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+		resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", mdbRedisDiskSizeGB*2)),
+		resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.0.planned_usage_threshold", "70"),
+		resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
 	)
 }
 
@@ -204,15 +210,17 @@ data "yandex_mdb_redis_cluster" "bar" {
 }
 `
 
+const mdbRedisDiskSizeGB = 16
+
 func testAccDataSourceMDBRedisClusterConfig(redisName, redisDesc string, tlsEnabled, announceHostnames *bool,
 	persistenceMode, version string, useDataID bool) string {
 	if useDataID {
-		return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-			tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", 16, "", "", "",
+		return testAccMDBRedisClusterConfigMainWithMW(redisName, redisDesc, "PRESTABLE", false,
+			tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
 			[]*bool{nil}, []*int{nil}) + mdbRedisClusterByIDConfig
 	}
 
-	return testAccMDBRedisClusterConfigMain(redisName, redisDesc, "PRESTABLE", false,
-		tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", 16, "", "", "",
+	return testAccMDBRedisClusterConfigMainWithMW(redisName, redisDesc, "PRESTABLE", false,
+		tlsEnabled, announceHostnames, persistenceMode, version, "hm2.nano", mdbRedisDiskSizeGB, "", "", "",
 		[]*bool{nil}, []*int{nil}) + mdbRedisClusterByNameConfig
 }

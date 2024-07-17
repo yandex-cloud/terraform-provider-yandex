@@ -207,6 +207,12 @@ The `maintenance_window` block supports:
 * `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
 * `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
 
+The `disk_size_autoscaling` block supports:
+
+* `disk_size_limit` - Limit of disk size after autoscaling (GiB).
+* `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
+* `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:

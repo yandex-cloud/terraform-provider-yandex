@@ -16,6 +16,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
+	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1/config"
 )
 
 const (
@@ -139,6 +140,28 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
 						},
 					},
 				},
@@ -307,17 +330,6 @@ func resourceYandexMDBRedisClusterCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Redis Cluster creation failed: %s", err)
 	}
 
-	mw, err := expandRedisMaintenanceWindow(d)
-	if err != nil {
-		return err
-	}
-	if mw != nil && mw.GetAnytime() == nil {
-		err = updateRedisMaintenanceWindow(ctx, config, d, mw)
-		if err != nil {
-			return err
-		}
-	}
-
 	return resourceYandexMDBRedisClusterRead(d, meta)
 }
 
@@ -355,10 +367,16 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		return nil, fmt.Errorf("Error while expanding resources on Redis Cluster create: %s", err)
 	}
 
+	dsa, err := expandRedisDiskSizeAutoscaling(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding disk size autoscaling on Redis Cluster create: %s", err)
+	}
+
 	configSpec := &redis.ConfigSpec{
-		Redis:     conf,
-		Resources: resources,
-		Version:   version,
+		Redis:               conf,
+		Resources:           resources,
+		Version:             version,
+		DiskSizeAutoscaling: dsa,
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -371,6 +389,11 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 	persistenceMode, err := parsePersistenceMode(d.Get("persistence_mode"))
 	if err != nil {
 		return nil, fmt.Errorf("Error resolving persistence_mode while creating Redis Cluster: %s", err)
+	}
+
+	mw, err := expandRedisMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding maintenance window on Redis Cluster create: %s", err)
 	}
 
 	req := redis.CreateClusterRequest{
@@ -388,6 +411,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		AnnounceHostnames:  d.Get("announce_hostnames").(bool),
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  mw,
 	}
 	return &req, nil
 }
@@ -428,6 +452,11 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	dsa, err := flattenRedisDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
+	if err != nil {
+		return err
+	}
+
 	conf := extractRedisConfig(cluster.Config)
 	password := ""
 	if v, ok := d.GetOk("config.0.password"); ok {
@@ -454,6 +483,10 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if err := d.Set("resources", resources); err != nil {
+		return err
+	}
+
+	if err := d.Set("disk_size_autoscaling", dsa); err != nil {
 		return err
 	}
 
@@ -585,6 +618,21 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
+	if d.HasChange("disk_size_autoscaling") {
+		res, err := expandRedisDiskSizeAutoscaling(d)
+		if err != nil {
+			return err
+		}
+
+		if req.ConfigSpec == nil {
+			req.ConfigSpec = &redis.ConfigSpec{}
+		}
+
+		req.ConfigSpec.DiskSizeAutoscaling = res
+		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "config_spec.disk_size_autoscaling")
+	}
+
+	var password string
 	if d.HasChange("config") {
 		conf, ver, err := expandRedisConfig(d)
 		if err != nil {
@@ -595,9 +643,14 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 			req.ConfigSpec = &redis.ConfigSpec{}
 		}
 
+		// Password change cannot be mixed with other updates
+		if conf.Password != "" {
+			password = conf.Password
+			conf.Password = ""
+		}
+
 		req.ConfigSpec.Redis = conf
 		fields := [...]string{
-			"password",
 			"timeout",
 			"maxmemory_policy",
 			"notify_keyspace_events",
@@ -645,13 +698,30 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
-	if len(req.UpdateMask.Paths) == 0 {
+	if len(req.UpdateMask.Paths) == 0 && password == "" {
 		return nil
+	} else if len(req.UpdateMask.Paths) != 0 {
+		err := makeRedisClusterUpdateRequest(req, d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
-	err := makeRedisClusterUpdateRequest(req, d, meta)
-	if err != nil {
-		return err
+	// Password change cannot be mixed with other updates
+	if d.HasChange("config.0.password") && password != "" {
+		reqPasswordUpdate := &redis.UpdateClusterRequest{
+			ClusterId: d.Id(),
+			ConfigSpec: &redis.ConfigSpec{
+				Redis: &config.RedisConfig{Password: password},
+			},
+			UpdateMask: &field_mask.FieldMask{
+				Paths: []string{"config_spec.redis.password"},
+			},
+		}
+		err := makeRedisClusterUpdateRequest(reqPasswordUpdate, d, meta)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

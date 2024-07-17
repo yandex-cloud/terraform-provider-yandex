@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'redis: added `disk_size_autoscaling` field for update method in `resource_yandex_mdb_redis_cluster`'
+time: 2024-07-08T23:31:09.271475+03:00
