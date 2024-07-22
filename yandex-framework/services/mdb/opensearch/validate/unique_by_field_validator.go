@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
+// UniqueByField validates that the list does not contain two or more items with same "field" value.
 func UniqueByField[T any](fieldName string, getter func(T) string) validator.List {
 	return uniqueByFieldValidator[T]{
 		fieldName: fieldName,

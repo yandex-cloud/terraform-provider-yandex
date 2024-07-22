@@ -25,6 +25,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/log"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/model"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request/cluster"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request/nodegroups"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/schema"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/validate"
 )
@@ -102,9 +104,7 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 	ctx, cancel := context.WithTimeout(ctx, createTimeout)
 	defer cancel()
 
-	// o.providerConfig.ProviderState.FolderID -- as default FolderID if not specified
-	// o.providerConfig.ProviderState.Endpoint -- to restrict network_id (in compute network_id is required)
-	clusterCreateRequest, diags := request.PrepareCreateOpenSearchRequest(ctx, &plan, &o.providerConfig.ProviderState)
+	clusterCreateRequest, diags := cluster.PrepareCreateRequest(ctx, &plan, &o.providerConfig.ProviderState)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -120,7 +120,7 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 	//TODO: check maybe we need to getClusterById and store result to state?
 	plan.ID = types.StringValue(clusterID)
 
-	getData(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -163,7 +163,7 @@ func (o *openSearchClusterResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	getData(ctx, o.providerConfig.SDK, &state, &resp.Diagnostics, true)
+	updateState(ctx, o.providerConfig.SDK, &state, &resp.Diagnostics, true)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -196,7 +196,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster state: %+v", state))
 	tflog.Debug(ctx, fmt.Sprintf("UpdateOpenSearch Cluster plan: %+v", plan))
 
-	updateReq, d := request.PrepareUpdateClusterParamsRequest(ctx, &state, &plan)
+	updateReq, d := cluster.PrepareUpdateParamsRequest(ctx, &state, &plan)
 	resp.Diagnostics.Append(d...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -230,7 +230,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	getData(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 	tflog.Debug(ctx, "Finishing updating OpenSearch Cluster", log.IdFromModel(&plan))
 }
@@ -251,14 +251,14 @@ func (o *openSearchClusterResource) processOpenSearchNodeGroupsUpdate(ctx contex
 		return nil
 	}
 
-	planNodeGroups, stateNodeGroups, diags := model.ParseGenerics(ctx, planOpenSearchBlock, stateOpenSearchBlock, request.ParseOpenSearchCreateSpecNodeGroups)
+	planNodeGroups, stateNodeGroups, diags := model.ParseGenerics(ctx, planOpenSearchBlock, stateOpenSearchBlock, nodegroups.PrepareOpenSearchCreate)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Create new nodegroups
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareAddOpenSearchNodeGroupRequests, request.AddOpenSearchNodeGroup)
+		nodegroups.PrepareAddOpenSearchRequests, request.AddOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
@@ -272,39 +272,39 @@ func (o *openSearchClusterResource) processOpenSearchNodeGroupsUpdate(ctx contex
 	//3) do all other operations, including deleting of a group(s)
 	//4) decrease hostcount in dedicated manager group if exists
 
-	//TODO: maybe we should separate changing hostcount and other operations?
+	//TODO: maybe we should separate changing hostcount from other operations?
 
 	//1) increase managers count
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareManagersToIncreaseRequests, request.UpdateOpenSearchNodeGroup)
+		nodegroups.PrepareManagersToIncreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//2) decrease data/managers host count
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareDataManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
+		nodegroups.PrepareDataManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//3) all other activities
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareOtherGroupsToUpdateRequests, request.UpdateOpenSearchNodeGroup)
+		nodegroups.PrepareOtherGroupsToUpdateRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
-	//Delete old nodegroups
+	// Delete old nodegroups
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareDeleteOpenSearchNodeGroupRequests, request.DeleteOpenSearchNodeGroup)
+		nodegroups.PrepareDeleteOpenSearchRequests, request.DeleteOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
-	//4) finally decrease host count in managers group
+	//4) decrease host count in managers group
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
+		nodegroups.PrepareManagersToDecreaseRequests, request.UpdateOpenSearchNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
@@ -328,28 +328,35 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 		return nil
 	}
 
-	planNodeGroups, stateNodeGroups, diags := model.ParseGenerics(ctx, planDashboardsBlock, stateDashboardsBlock, request.ParseDashboardsCreateSpecNodeGroups)
+	planNodeGroups, stateNodeGroups, diags := model.ParseGenerics(ctx, planDashboardsBlock, stateDashboardsBlock, nodegroups.PrepareDashboardsCreate)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Create new nodegroups
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareAddDashboardsNodeGroupRequests, request.AddDashboardsNodeGroup)
+		nodegroups.PrepareAddDashboardsRequests, request.AddDashboardsNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Update existing nodegroups
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareUpdateDashboardsNodeGroupRequests, request.UpdateDashboardsNodeGroup)
+		nodegroups.PrepareUpdateDashboardsRequests, request.UpdateDashboardsNodeGroup)
+	if diags.HasError() {
+		return diags
+	}
+
+	//Update existing nodegroups network settings
+	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
+		nodegroups.PrepareUpdateDashboardsZoneAndSubnetIdsRequests, request.UpdateDashboardsNodeGroup)
 	if diags.HasError() {
 		return diags
 	}
 
 	//Delete old nodegroups
 	diags = request.PrepareAndExecute(ctx, o.providerConfig.SDK, cid, planNodeGroups, stateNodeGroups,
-		request.PrepareDeleteDashboardsNodeGroupRequests, request.DeleteDashboardsNodeGroup)
+		nodegroups.PrepareDeleteDashboardsRequests, request.DeleteDashboardsNodeGroup)
 
 	return diags
 }
@@ -408,7 +415,10 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 										"roles": schema.SetAttribute{
 											Optional:    true,
 											Computed:    true,
-											ElementType: types.StringType, //TODO: validate that is unique case insesitive
+											ElementType: types.StringType,
+											Validators: []validator.Set{
+												validate.UniqueCaseInsensitive(),
+											},
 										},
 									},
 								},
@@ -558,8 +568,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 	}
 }
 
-// TODO: maybe rename this function
-func getData(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, diagnostics *diag.Diagnostics, createIfMissing bool) {
+func updateState(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, diagnostics *diag.Diagnostics, createIfMissing bool) {
 	clusterID := state.ID.ValueString()
 	tflog.Debug(ctx, "Reading OpenSearch Cluster", log.IdFromStr(clusterID))
 	cluster := request.GetCusterByID(ctx, sdk, diagnostics, clusterID)
@@ -582,8 +591,8 @@ func getData(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, diagn
 
 	state.ClusterID = state.ID
 
-	tflog.Debug(ctx, fmt.Sprintf("GetData: OpenSearch Cluster state: %+v", state))
-	tflog.Debug(ctx, fmt.Sprintf("GetData: Received OpenSearch Cluster data: %+v", cluster))
+	tflog.Debug(ctx, fmt.Sprintf("updateState: OpenSearch Cluster state: %+v", state))
+	tflog.Debug(ctx, fmt.Sprintf("updateState: Received OpenSearch Cluster data: %+v", cluster))
 
 	diags := model.ClusterToState(ctx, cluster, state)
 	diagnostics.Append(diags...)

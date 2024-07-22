@@ -170,13 +170,13 @@ The following arguments are supported:
 
 * `name` - (Required) Name of the OpenSearch cluster. Provided by the client when the cluster is created.
 
-* `network_id` - (Required) ID of the network, to which the OpenSearch cluster belongs.
+* `network_id` - (Required) ID of the network, to which the OpenSearch cluster belongs. It is not possible to change this value after cluster creation.
 
 * `config` - (Required) Configuration of the OpenSearch cluster. The structure is documented below.
 
 - - -
 
-* `environment` - (Optional) Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`
+* `environment` - (Optional) Deployment environment of the OpenSearch cluster. Can be either `PRESTABLE` or `PRODUCTION`. Default: `PRODUCTION`. It is not possible to change this value after cluster creation.
 
 * `description` - (Optional) Description of the OpenSearch cluster.
 
@@ -216,11 +216,11 @@ The OpenSearch `node_groups` block supports:
 
 * `host_count` - (Required) Number of hosts in this node group.
 
-* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated. No other parameters should be changed simultaneously with this one, except `subnet_ids`.
+* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated.
 
-* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs. No other parameters should be changed simultaneously with this one, except `zones_ids`.
+* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.
 
-* `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address on creation.
+* `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address.
 
 * `roles` - (Optional) A set of OpenSearch roles assigned to hosts. Available roles are: `DATA`, `MANAGER`. Default: [`DATA`, `MANAGER`]
 
@@ -232,11 +232,11 @@ The Dashboards `node_groups` block supports:
 
 * `host_count` - (Required) Number of hosts in this node group.
 
-* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated. No other parameters should be changed simultaneously with this one, except `subnet_ids`.
+* `zones_ids` - (Required) A set of availability zones where hosts of node group may be allocated.
 
-* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs. No other parameters should be changed simultaneously with this one, except `zones_ids`.
+* `subnet_ids` - (Optional) A set of the subnets, to which the hosts belongs. The subnets must be a part of the network to which the cluster belongs.
 
-* `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address on creation.
+* `assign_public_ip` - (Optional) Sets whether the hosts should get a public IP address.
 
 The `resources` block supports:
 

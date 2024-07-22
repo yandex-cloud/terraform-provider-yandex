@@ -86,7 +86,7 @@ func (o *openSearchClusterDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	config.ID = types.StringValue(clusterID)
-	getData(ctx, o.providerConfig.SDK, &config, &resp.Diagnostics, false)
+	updateState(ctx, o.providerConfig.SDK, &config, &resp.Diagnostics, false)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &config)...)
 }

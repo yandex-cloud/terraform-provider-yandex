@@ -3,12 +3,14 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/common"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"google.golang.org/grpc/codes"
@@ -18,6 +20,7 @@ import (
 
 const (
 	defaultZoneForSweepers = "ru-central1-a"
+	sweepRetryTimeout      = 5 * time.Second
 )
 
 type sweeperFunc func(*Config, string) error
@@ -87,6 +90,7 @@ func sweepWithRetryByFunc(conf *Config, message string, sf func(conf *Config) er
 			debugLog("[%s] delete try #%d: deleted", message, i)
 			return true
 		}
+		time.Sleep(sweepRetryTimeout)
 	}
 
 	debugLog("failed to sweep %s", message)

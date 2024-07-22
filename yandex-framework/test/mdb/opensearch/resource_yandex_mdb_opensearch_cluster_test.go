@@ -264,20 +264,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 				),
 			},
 			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Networks restore
-			{
-				Config: testAccMDBOpenSearchClusterConfigNetworksRestore(openSearchName, openSearchDesc2, "PRESTABLE", randInt),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
-					func(s *terraform.State) error {
-						time.Sleep(1 * time.Minute)
-						return nil
-					},
-				),
-			},
-			mdbOpenSearchClusterImportStep(openSearchResource),
-			//Update OpenSearch Cluster
+			//Update OpenSearch Cluster (with Networks restore)
 			{
 				Config: testAccMDBOpenSearchClusterConfigUpdated(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/validate"
@@ -22,6 +23,7 @@ const (
 	defaultZoneForSweepers = "ru-central1-a"
 	AccTestsUser           = "yc.terraform.acctest-sa"
 	testResourceNamePrefix = "yc-tf-acc-tests"
+	sweepRetryTimeout      = 5 * time.Second
 )
 
 type sweeperFunc func(*provider_config.Config, string) error
@@ -89,6 +91,7 @@ func sweepWithRetryByFunc(conf *provider_config.Config, message string, sf func(
 			DebugLog("[%s] delete try #%d: deleted", message, i)
 			return true
 		}
+		time.Sleep(sweepRetryTimeout)
 	}
 
 	DebugLog("failed to sweep %s", message)
