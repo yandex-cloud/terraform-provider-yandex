@@ -1,3 +1,8 @@
+## 0.125.0
+
+BUG FIXES:
+* yandex_compute_instance: disabled recreating instance on update gpus
+
 ## 0.124.0 (July 16, 2024)
 
 FEATURES:
