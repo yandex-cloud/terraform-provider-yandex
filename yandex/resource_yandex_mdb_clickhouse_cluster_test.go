@@ -746,7 +746,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 100009},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 100010},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: false},
-			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 100011},
+			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 5001},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
@@ -881,7 +881,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MaxAvgPartSizeForTooManyParts:                  &wrappers.Int64Value{Value: 200018},
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 200020},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: true},
-			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 200022},
+			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 5002},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
@@ -1112,7 +1112,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "100009"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "100010"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "false"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "100011"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "5001"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
@@ -1228,7 +1228,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_avg_part_size_for_too_many_parts", "200018"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "200020"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "true"),
-					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "200022"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "5002"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
