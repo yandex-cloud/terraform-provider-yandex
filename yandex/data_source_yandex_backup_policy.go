@@ -14,11 +14,13 @@ func dataSourceYandexBackupPolicy() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"policy_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 
 			"name": {
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
 			},
 
@@ -281,13 +283,29 @@ func dataSourceYandexBackupPolicy() *schema.Resource {
 func dataSourceYandexBackupPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
 
-	policyID := d.Get("policy_id").(string)
-	policy, err := config.sdk.Backup().Policy().Get(ctx, &backuppb.GetPolicyRequest{
-		PolicyId: policyID,
-	})
+	err := checkOneOf(d, "policy_id", "name")
 	if err != nil {
-		return diag.FromErr(handleNotFoundError(err, d, policyID))
+		return diag.FromErr(err)
 	}
+
+	var policy *backuppb.Policy
+	var resourceName string
+	policyID := d.Get("policy_id").(string)
+	if policyName, policyNameOk := d.GetOk("name"); policyNameOk {
+		resourceName = policyName.(string)
+		policy, err = getPolicyByName(ctx, config, resourceName)
+	} else {
+		resourceName = d.Get("policy_id").(string)
+		policy, err = config.sdk.Backup().Policy().Get(ctx, &backuppb.GetPolicyRequest{
+			PolicyId: policyID,
+		})
+	}
+	if err != nil {
+		return diag.FromErr(handleNotFoundError(err, d, resourceName))
+	}
+
+	d.Set("name", policy.Name)
+	d.Set("policy_id", policy.Id)
 
 	if err = flattenBackupPolicy(d, policy); err != nil {
 		return diag.FromErr(err)

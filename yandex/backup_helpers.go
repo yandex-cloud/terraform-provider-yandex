@@ -1,6 +1,7 @@
 package yandex
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"regexp"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -763,4 +766,28 @@ func asStringSlice[T fmt.Stringer](values ...T) []string {
 	}
 
 	return out
+}
+
+func getPolicyByName(ctx context.Context, config *Config, name string) (*backuppb.Policy, error) {
+	var res *backuppb.Policy
+	iterator := config.sdk.Backup().Policy().PolicyIterator(ctx, &backuppb.ListPoliciesRequest{
+		FolderId: config.FolderID,
+	})
+	for iterator.Next() {
+		err := iterator.Error()
+		if err != nil {
+			return nil, err
+		}
+		policy := iterator.Value()
+		if policy.Name == name {
+			if res != nil {
+				return nil, fmt.Errorf("more then one policy with name %q exists, use policy id or rename policy instead", name)
+			}
+			res = policy
+		}
+	}
+	if res == nil {
+		return nil, status.Error(codes.NotFound, "policy does not exist")
+	}
+	return res, nil
 }

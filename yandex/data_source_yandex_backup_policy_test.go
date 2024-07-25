@@ -81,7 +81,7 @@ resource "yandex_backup_policy" "test_policy" {
 }
 
 data "yandex_backup_policy" "test_policy_ds" {
-  policy_id = yandex_backup_policy.test_policy.id
+  name = yandex_backup_policy.test_policy.name
 }
 `
 
