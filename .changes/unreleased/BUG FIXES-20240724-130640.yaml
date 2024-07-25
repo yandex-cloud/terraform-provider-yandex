@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'opensearch: fixed apply changes when `plugins` missing'
+time: 2024-07-24T13:06:40.488478+02:00

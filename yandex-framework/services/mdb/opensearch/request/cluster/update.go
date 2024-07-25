@@ -115,7 +115,7 @@ func prepareConfigChange(ctx context.Context, plan, state *model.Config) (*opens
 		return nil, nil, diags
 	}
 
-	if !planOpenSearchBlock.Plugins.Equal(stateOpenSearchBlock.Plugins) {
+	if !planOpenSearchBlock.Plugins.IsUnknown() && !planOpenSearchBlock.Plugins.Equal(stateOpenSearchBlock.Plugins) {
 		plugins := make([]string, 0, len(planOpenSearchBlock.Plugins.Elements()))
 		diags.Append(planOpenSearchBlock.Plugins.ElementsAs(ctx, &plugins, false)...)
 		if diags.HasError() {
