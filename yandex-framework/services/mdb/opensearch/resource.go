@@ -210,6 +210,7 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 
 	if plan.Config.Equal(state.Config) {
 		tflog.Debug(ctx, "No changes in Config section. Finishing updating OpenSearch Cluster", log.IdFromModel(&plan))
+		updateState(ctx, o.providerConfig.SDK, &plan, &resp.Diagnostics, false)
 		resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 		return
 	}
