@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'opensearch: unexpected plugins null value after apply'
+time: 2024-07-26T09:12:36.670345+02:00

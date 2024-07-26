@@ -273,6 +273,10 @@ func accessToObject(ctx context.Context, cfg *opensearch.Access) (types.Object, 
 
 func openSearchSubConfigToObject(ctx context.Context, cfg *opensearch.OpenSearch, state *OpenSearchSubConfig) (types.Object, diag.Diagnostics) {
 	plugins := types.SetNull(types.StringType)
+	if state != nil && !state.Plugins.IsUnknown() {
+		plugins = state.Plugins
+	}
+
 	if cfg.GetPlugins() != nil {
 		p, diags := types.SetValueFrom(ctx, types.StringType, cfg.GetPlugins())
 		if diags.HasError() {
