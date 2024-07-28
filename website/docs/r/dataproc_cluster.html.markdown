@@ -14,7 +14,7 @@ Manages a Data Proc cluster. For more information, see [the official documentati
 
 ```hcl
 resource "yandex_dataproc_cluster" "foo" {
-  depends_on = [yandex_resourcemanager_folder_iam_binding.dataproc]
+  depends_on = [yandex_resourcemanager_folder_iam_member.dataproc]
 
   bucket      = yandex_storage_bucket.foo.bucket
   description = "Dataproc Cluster created by Terraform"
@@ -117,21 +117,17 @@ data "yandex_resourcemanager_folder" "foo" {
   folder_id = "some_folder_id"
 }
 
-resource "yandex_resourcemanager_folder_iam_binding" "dataproc" {
+resource "yandex_resourcemanager_folder_iam_member" "dataproc" {
   folder_id = data.yandex_resourcemanager_folder.foo.id
   role      = "mdb.dataproc.agent"
-  members = [
-    "serviceAccount:${yandex_iam_service_account.dataproc.id}",
-  ]
+  member    = "serviceAccount:${yandex_iam_service_account.dataproc.id}"
 }
 
 // required in order to create bucket
-resource "yandex_resourcemanager_folder_iam_binding" "bucket-creator" {
+resource "yandex_resourcemanager_folder_iam_member" "bucket-creator" {
   folder_id = data.yandex_resourcemanager_folder.foo.id
   role      = "editor"
-  members = [
-    "serviceAccount:${yandex_iam_service_account.dataproc.id}",
-  ]
+  member    = "serviceAccount:${yandex_iam_service_account.dataproc.id}"
 }
 
 resource "yandex_iam_service_account_static_access_key" "foo" {
@@ -140,7 +136,7 @@ resource "yandex_iam_service_account_static_access_key" "foo" {
 
 resource "yandex_storage_bucket" "foo" {
   depends_on = [
-    yandex_resourcemanager_folder_iam_binding.bucket-creator
+    yandex_resourcemanager_folder_iam_member.bucket-creator
   ]
 
   bucket     = "foo"
