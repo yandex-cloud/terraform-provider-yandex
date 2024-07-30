@@ -15,13 +15,22 @@ SWEEP_DIR= ./yandex ./yandex-framework/test
 
 SWEEPERS_FOR_RUNNING?=""
 
+git_version := $(shell git describe --abbrev=0 --tags)
+git_hash := $(shell git rev-parse --short HEAD)
+current_time = $(shell date +"%Y-%m-%dT%H-%M-%SZ")
+LDFLAGS = -ldflags "-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion=${git_version}-${current_time}+dev.${git_hash}"
+
+
 default: build
 
+##build and local-build generate the same user-agent
+##The difference is that build will put the file in the $GOPATH/bin folder, while local-build will put it in the tf plugins folder
+##Example user-agent: Terraform/1.5.7 (https://www.terraform.io) terraform-provider-yandex/0.124.0-2024-07-26T16-24-43Z+dev.79152e6a grpc-go/1.62.1
 build: fmtcheck
-	go install
+	go install ${LDFLAGS}
 
 local-build: fmtcheck
-	go build -o $(HOME)/.terraform.d/plugins/registry.terraform.io/yandex-cloud/yandex/$(SEMVER)/$(shell go env GOOS)_$(shell go env GOARCH)/terraform-provider-yandex main.go
+	go build ${LDFLAGS} -o $(HOME)/.terraform.d/plugins/registry.terraform.io/yandex-cloud/yandex/$(SEMVER)/$(shell go env GOOS)_$(shell go env GOARCH)/terraform-provider-yandex main.go
 
 sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts.";

@@ -11,7 +11,6 @@ import (
 	"math/rand"
 	"net"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -27,6 +26,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/logging"
 )
 
@@ -97,14 +97,7 @@ func (c *Config) InitAndValidate(ctx context.Context, terraformVersion string, s
 		},
 	}
 
-	providerNameAndVersion := getProviderNameAndVersion()
-	terraformURL := "https://www.terraform.io"
-
-	if sweeper {
-		c.UserAgent = types.StringValue("Terraform Sweeper")
-	} else {
-		c.UserAgent = types.StringValue(fmt.Sprintf("Terraform/%s (%s) %s", terraformVersion, terraformURL, providerNameAndVersion))
-	}
+	c.UserAgent = types.StringValue(config.BuildUserAgent(terraformVersion, sweeper))
 
 	headerMD := metadata.Pairs("user-agent", c.UserAgent.ValueString())
 
@@ -201,22 +194,6 @@ func backoffExponentialWithJitter(base time.Duration, cap time.Duration) retry.B
 func getExponentialTimeout(attempt int, base time.Duration) float64 {
 	mult := math.Pow(2, float64(attempt))
 	return float64(base) * mult
-}
-
-func getProviderNameAndVersion() string {
-	// version is part of binary name
-	// https://www.terraform.io/docs/configuration/providers.html#plugin-names-and-versions
-	fullBinaryPath := os.Args[0]
-	binaryName := filepath.Base(fullBinaryPath)
-	parts := strings.Split(binaryName, "_")
-
-	if len(parts) < 2 {
-		return "unknown/unknown"
-	}
-
-	parts[1] = strings.TrimPrefix(parts[1], "v")
-
-	return strings.Join(parts[:2], "/")
 }
 
 func checkServiceAccountAvailable(ctx context.Context, sa ycsdk.NonExchangeableCredentials) bool {
