@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'opensearch: allow apply changes in `zone_ids` and/or `network_ids` with other changes, also allow change `assign_public_ip` '
-time: 2024-07-17T08:52:56.443306+02:00

@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'opensearch: update state when no changes in config section'
-time: 2024-07-24T15:38:09.417605+02:00

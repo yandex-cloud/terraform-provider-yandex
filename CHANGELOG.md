@@ -1,7 +1,17 @@
-## 0.125.0
+## 0.126.0 (July 30, 2024)
+
+FEATURES:
+* redis: added `disk_size_autoscaling` field for update method in `resource_yandex_mdb_redis_cluster`
+* opensearch: allow apply changes in `zone_ids` and/or `network_ids` with other changes, also allow change `assign_public_ip` 
+* backup: make `yandex_backup_policy` data source by name
 
 BUG FIXES:
-* yandex_compute_instance: disabled recreating instance on update gpus
+* opensearch: fixed apply changes when `plugins` missing
+* opensearch: update state when no changes in config section
+* opensearch: unexpected plugins null value after apply
+
+ENHANCEMENTS:
+* kubernetes: deprecate version 1.26
 
 ## 0.124.0 (July 16, 2024)
 
