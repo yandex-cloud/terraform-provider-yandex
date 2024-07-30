@@ -9,6 +9,7 @@ BUG FIXES:
 * opensearch: fixed apply changes when `plugins` missing
 * opensearch: update state when no changes in config section
 * opensearch: unexpected plugins null value after apply
+* yandex_compute_instance: disabled recreating instance on update gpus
 
 ENHANCEMENTS:
 * kubernetes: deprecate version 1.26
