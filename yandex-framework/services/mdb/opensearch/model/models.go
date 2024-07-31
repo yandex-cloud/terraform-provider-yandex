@@ -179,15 +179,21 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.FolderID = types.StringValue(cluster.GetFolderId())
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.GetCreatedAt()))
 	state.Name = types.StringValue(cluster.GetName())
-	state.Description = types.StringValue(cluster.GetDescription())
-	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
-	if diags.HasError() {
-		return diags
+	if !state.Description.IsNull() || cluster.GetDescription() != "" {
+		state.Description = types.StringValue(cluster.GetDescription())
 	}
 
-	state.Labels = labels
+	if !state.Labels.IsNull() || cluster.Labels != nil {
+		labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
+		if diags.HasError() {
+			return diags
+		}
+		state.Labels = labels
+	}
+
 	state.Environment = types.StringValue(cluster.GetEnvironment().String())
 
+	var diags diag.Diagnostics
 	state.Config, diags = configToState(ctx, cluster.Config, state)
 	if diags.HasError() {
 		return diags
