@@ -3,7 +3,7 @@ module github.com/yandex-cloud/terraform-provider-yandex
 go 1.21
 
 require (
-	github.com/aws/aws-sdk-go v1.37.0
+	github.com/aws/aws-sdk-go v1.55.1
 	github.com/c2h5oh/datasize v0.0.0-20200112174442-28bbd4740fee
 	github.com/client9/misspell v0.3.4
 	github.com/davecgh/go-spew v1.1.1

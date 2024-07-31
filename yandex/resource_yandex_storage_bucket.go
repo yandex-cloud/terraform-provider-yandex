@@ -377,9 +377,6 @@ func resourceYandexStorageBucket() *schema.Resource {
 									"object_size_greater_than": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-											return true
-										},
 									},
 									"object_size_less_than": {
 										Type:     schema.TypeInt,
@@ -1378,6 +1375,14 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 				if filter.And != nil {
 					and := make(map[string]interface{})
 					andList := make([]map[string]interface{}, 0, 1)
+					// ObjectSizeGreaterThan
+					if filter.And.ObjectSizeGreaterThan != nil {
+						and["object_size_greater_than"] = int(aws.Int64Value(filter.And.ObjectSizeGreaterThan))
+					}
+					// ObjectSizeLessThan
+					if filter.And.ObjectSizeLessThan != nil {
+						and["object_size_less_than"] = int(aws.Int64Value(filter.And.ObjectSizeLessThan))
+					}
 					// Prefix
 					if filter.And.Prefix != nil && aws.StringValue(filter.And.Prefix) != "" {
 						and["prefix"] = aws.StringValue(filter.And.Prefix)
@@ -1390,7 +1395,13 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 					}
 					ruleFilter = append(ruleFilter, map[string]interface{}{"and": append(andList, and)})
 				} else {
-					if filter.Prefix != nil && aws.StringValue(filter.Prefix) != "" {
+					if filter.ObjectSizeGreaterThan != nil {
+						// ObjectSizeGreaterThan
+						ruleFilter = append(ruleFilter, map[string]interface{}{"object_size_greater_than": int(aws.Int64Value(filter.ObjectSizeGreaterThan))})
+					} else if filter.ObjectSizeLessThan != nil {
+						// ObjectSizeLessThan
+						ruleFilter = append(ruleFilter, map[string]interface{}{"object_size_less_than": int(aws.Int64Value(filter.ObjectSizeLessThan))})
+					} else if filter.Prefix != nil && aws.StringValue(filter.Prefix) != "" {
 						// Prefix
 						ruleFilter = append(ruleFilter, map[string]interface{}{"prefix": aws.StringValue(filter.Prefix)})
 					} else if filter.Tag != nil {
@@ -2561,6 +2572,17 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 			filter.SetPrefix(prefix)
 		}
 
+		if object_size, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.filter.0.object_size_greater_than", i)); ok {
+			if object_size_int, ok := object_size.(int); ok && object_size_int >= 0 {
+				filter.SetObjectSizeGreaterThan(int64(object_size_int))
+			}
+		}
+		if object_size, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.filter.0.object_size_less_than", i)); ok {
+			if object_size_int, ok := object_size.(int); ok && object_size_int >= 1 {
+				filter.SetObjectSizeLessThan(int64(object_size_int))
+			}
+		}
+
 		if prefix, ok := d.GetOk(fmt.Sprintf("lifecycle_rule.%d.filter.0.prefix", i)); ok {
 			filter.SetPrefix(prefix.(string))
 		}
@@ -2576,6 +2598,12 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 		if len(andOperator) > 0 && andOperator[0] != nil {
 			and := &s3.LifecycleRuleAndOperator{}
 			el := andOperator[0].(map[string]interface{})
+			if object_size, ok := el["object_size_greater_than"].(int); ok && object_size >= 0 {
+				and.SetObjectSizeGreaterThan(int64(object_size))
+			}
+			if object_size, ok := el["object_size_less_than"].(int); ok && object_size >= 1 {
+				and.SetObjectSizeLessThan(int64(object_size))
+			}
 			if prefix, ok := el["prefix"].(string); ok {
 				and.SetPrefix(prefix)
 			}

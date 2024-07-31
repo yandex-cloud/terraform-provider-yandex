@@ -2060,7 +2060,29 @@ func testAccStorageBucketConfigWithLifecycleFilter(randInt int) string {
 		enabled = true
 
 		filter {
+			object_size_greater_than = 1000
+		}
+		expiration {}
+	}
+
+	lifecycle_rule {
+		id      = "id5"
+		enabled = true
+
+		filter {
+			object_size_less_than = 10000
+		}
+		expiration {}
+	}
+
+	lifecycle_rule {
+		id      = "id6"
+		enabled = true
+
+		filter {
 			and {
+				object_size_greater_than = 1000
+				object_size_less_than = 30000
 				prefix  = "path4/"
 				tags = {
 					key2 = "value2"
@@ -2428,9 +2450,17 @@ func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.filter.0.tag.0.value", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.id", "id4"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.prefix", "path4/"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.tags.key2", "value2"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.and.0.tags.key3", "value3"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.object_size_greater_than", "1000"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.id", "id5"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.filter.0.object_size_less_than", "10000"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.id", "id6"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.object_size_greater_than", "1000"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.object_size_less_than", "30000"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.prefix", "path4/"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.tags.key2", "value2"),
+					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.tags.key3", "value3"),
 				),
 			},
 		},
