@@ -14,9 +14,10 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceYandexIAMServiceAccountAPIKeyCreate,
 		Read:   resourceYandexIAMServiceAccountAPIKeyRead,
+		Update: resourceYandexIAMServiceAccountAPIKeyUpdate,
 		Delete: resourceYandexIAMServiceAccountAPIKeyDelete,
 
-		Schema: map[string]*schema.Schema{
+		Schema: ExtendWithOutputToLockbox(map[string]*schema.Schema{
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -57,9 +58,11 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-		},
+		}, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs),
 	}
 }
+
+var resourceYandexIAMServiceAccountAPIKeySensitiveAttrs = []string{"secret_key"}
 
 func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -114,7 +117,18 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 	d.Set("created_at", getTimestamp(ak.CreatedAt))
 	d.Set("description", ak.Description)
 
-	return nil
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
+}
+
+// The update method was added because ExtendWithOutputToLockbox adds a new attribute that can change.
+// But those changes are handled in ManageOutputToLockbox.
+func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta interface{}) error {
+	err := ValidateChangeInOutputToLockbox(d, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
+	if err != nil {
+		return err
+	}
+
+	return resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
 }
 
 func resourceYandexIAMServiceAccountAPIKeyDelete(d *schema.ResourceData, meta interface{}) error {

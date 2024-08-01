@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'iam: `yandex_iam_service_account_key`, `yandex_iam_service_account_api_key` and `yandex_iam_service_account_static_access_key` now can use `output_to_lockbox`'
+time: 2024-07-29T19:40:35.847841+03:00

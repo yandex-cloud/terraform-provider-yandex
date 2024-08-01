@@ -117,6 +117,30 @@ func checkWithState(fn func() resource.TestCheckFunc) resource.TestCheckFunc {
 	}
 }
 
+// primaryInstanceState returns the primary instance state for the given
+// resource name in the root module.
+func primaryInstanceState(s *terraform.State, name string) (*terraform.InstanceState, error) {
+	rs, ok := s.RootModule().Resources[name]
+	if !ok {
+		return nil, fmt.Errorf("not found: %s in %s", name, s.RootModule().Path)
+	}
+
+	is := rs.Primary
+	if is == nil {
+		return nil, fmt.Errorf("no primary instance: %s in %s", name, s.RootModule().Path)
+	}
+
+	return is, nil
+}
+
+func getAttributeFromPrimaryInstanceState(s *terraform.State, name, attr string) (string, error) {
+	instanceState, err := primaryInstanceState(s, name)
+	if err != nil {
+		return "", err
+	}
+	return instanceState.Attributes[attr], nil
+}
+
 func testAccCheckFunctionIam(resourceName, role string, members []string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := testAccProvider.Meta().(*Config)

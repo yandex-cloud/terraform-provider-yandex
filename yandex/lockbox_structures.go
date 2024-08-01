@@ -125,3 +125,12 @@ func flattenLockboxSecretVersionEntry(v *lockbox.Payload_Entry) map[string]inter
 		"text_value": v.GetTextValue(),
 	}
 }
+
+func testAccOutputToLockbox(secretId, sensitiveAttr, entryKey string) string {
+	return fmt.Sprintf(`
+output_to_lockbox {
+  secret_id = %s
+  entry_for_%s = "%s"
+}
+`, secretId, sensitiveAttr, entryKey)
+}

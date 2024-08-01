@@ -37,14 +37,23 @@ The following arguments are supported:
 
 * `pgp_key` - (Optional) An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
 
+* `output_to_lockbox` - (Optional) Used to store the sensitive values into a Lockbox secret, to avoid leaking them to the Terraform state.
+
+The `output_to_lockbox` block contains:
+
+* `secret_id` - (Required) ID of the Lockbox secret where to store the sensible values.
+* `entry_for_secret_key` - (Required) Entry where to store the value of `secret_key`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
 
-* `secret_key` - The secret key. This is only populated when no `pgp_key` is provided.
+* `secret_key` - The secret key. This is only populated when neither `pgp_key` nor `output_to_lockbox` are provided.
 
 * `encrypted_secret_key` - The encrypted secret key, base64 encoded. This is only populated when `pgp_key` is supplied.
 
 * `key_fingerprint` - The fingerprint of the PGP key used to encrypt the secret key. This is only populated when `pgp_key` is supplied.
 
 * `created_at` - Creation timestamp of the static access key.
+
+* `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the value of `secret_key`. This is only populated when `output_to_lockbox` is supplied.

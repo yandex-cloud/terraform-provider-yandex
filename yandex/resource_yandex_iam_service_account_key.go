@@ -17,7 +17,7 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 		Update: resourceYandexIAMServiceAccountKeyUpdate,
 		Delete: resourceYandexIAMServiceAccountKeyDelete,
 
-		Schema: map[string]*schema.Schema{
+		Schema: ExtendWithOutputToLockbox(map[string]*schema.Schema{
 			"service_account_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -76,9 +76,11 @@ func resourceYandexIAMServiceAccountKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-		},
+		}, resourceYandexIAMServiceAccountKeySensitiveAttrs),
 	}
 }
+
+var resourceYandexIAMServiceAccountKeySensitiveAttrs = []string{"private_key"}
 
 func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -153,11 +155,16 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 	d.Set("key_algorithm", iam.Key_Algorithm_name[int32(key.KeyAlgorithm)])
 	d.Set("public_key", key.PublicKey)
 
-	return nil
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
+
+	err := ValidateChangeInOutputToLockbox(d, resourceYandexIAMServiceAccountKeySensitiveAttrs)
+	if err != nil {
+		return err
+	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
