@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'backup: added `yandex_backup_policy_bindings` resource'
+time: 2024-07-25T19:01:13.512711+03:00

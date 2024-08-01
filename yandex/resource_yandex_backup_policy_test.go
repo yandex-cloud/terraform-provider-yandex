@@ -230,7 +230,7 @@ func testAccBackupPolicyMultipleBackupSetsConfig(policyName string) (config, out
 
 func sweepBackupPolicy(conf *Config, id string) bool {
 	return sweepWithRetryByFunc(conf, "Backup Policy", func(conf *Config) error {
-		ctx, cancel := conf.ContextWithTimeout(yandexCDNOriginGroupDefaultTimeout)
+		ctx, cancel := conf.ContextWithTimeout(yandexBackupDefaultTimeout)
 		defer cancel()
 
 		op, err := conf.sdk.Backup().Policy().Delete(ctx, &backuppb.DeletePolicyRequest{

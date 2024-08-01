@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	backuppb "github.com/yandex-cloud/go-genproto/yandex/cloud/backup/v1"
+	sdkoperation "github.com/yandex-cloud/go-sdk/operation"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -77,6 +79,8 @@ var (
 	resourceYandexBackupIntervalTemplate       = regexp.MustCompile(`^(\d+)([smMhdw])$`)
 	resourceYandexBackupBadArchiveNameTemplate = regexp.MustCompile(`^.*\[.+\]\d*$`)
 )
+
+var errBackupPolicyBindingsNotFound = errors.New("backup policy bindings not found")
 
 func resourceYandexBackupPolicySettingsTimeOfDayValidateFunc(v any, _ string) ([]string, []error) {
 	const timeFormat = "15:04"
@@ -759,6 +763,27 @@ func flattenBackupInterval(interval *backuppb.PolicySettings_Interval) string {
 	return fmt.Sprintf("%d%s", interval.GetCount(), intervalTypeStr)
 }
 
+func flattenBackupPolicyApplication(d *schema.ResourceData, pa *backuppb.PolicyApplication) (err error) {
+	if pa == nil {
+		return nil
+	}
+
+	setF := func(key string, value any) {
+		if err != nil {
+			return
+		}
+
+		err = d.Set(key, value)
+	}
+
+	setF("policy_id", pa.PolicyId)
+	setF("instance_id", pa.ComputeInstanceId)
+	setF("enabled", pa.Enabled)
+	setF("processing", pa.IsProcessing)
+	setF("created_at", getTimestamp(pa.CreatedAt))
+	return nil
+}
+
 func asStringSlice[T fmt.Stringer](values ...T) []string {
 	out := make([]string, 0, len(values))
 	for _, value := range values {
@@ -790,4 +815,75 @@ func getPolicyByName(ctx context.Context, config *Config, name string) (*backupp
 		return nil, status.Error(codes.NotFound, "policy does not exist")
 	}
 	return res, nil
+}
+
+func getBackupPolicyApplication(ctx context.Context, config *Config, policyID, instanceID string) (*backuppb.PolicyApplication, error) {
+	iterator := config.sdk.Backup().Policy().PolicyApplicationsIterator(ctx, &backuppb.ListApplicationsRequest{
+		Id: &backuppb.ListApplicationsRequest_ComputeInstanceId{
+			ComputeInstanceId: instanceID,
+		},
+		ShowProcessing: true,
+	})
+
+	for iterator.Next() {
+		app := iterator.Value()
+		if app.GetPolicyId() == policyID {
+			return app, nil
+		}
+	}
+	return nil, errBackupPolicyBindingsNotFound
+}
+
+func createBackupPolicyBindingsWithRetry(ctx context.Context, config *Config, policyID, instanceID string) (op *sdkoperation.Operation, err error) {
+	const (
+		firstRetryInterval = 100 * time.Second
+		retryInterval      = 20 * time.Second
+	)
+
+	isRetryableError := func(op *sdkoperation.Operation, err error) bool {
+		if err != nil {
+			s, _ := status.FromError(err)
+			if s.Code() == codes.NotFound {
+				return true
+			}
+		} else if op.Failed() {
+			return true
+		}
+		return false
+	}
+
+	request := &backuppb.ApplyPolicyRequest{
+		PolicyId:          policyID,
+		ComputeInstanceId: instanceID,
+	}
+
+	firstRetry := true
+	for i := 0; i < config.MaxRetries; i++ {
+		log.Printf("[INFO]: Try to bind policy_id=%q with instance_id=%q, attempt=%v", policyID, instanceID, i+1)
+		op, err = config.sdk.WrapOperation(config.sdk.Backup().Policy().Apply(ctx, request))
+		if isRetryableError(op, err) {
+			log.Printf("[INFO]: Unable to bind policy_id=%q with instance_id=%q: %s", policyID, instanceID, err)
+			if firstRetry {
+				time.Sleep(firstRetryInterval)
+			} else {
+				time.Sleep(retryInterval)
+			}
+			firstRetry = false
+			continue
+		}
+		break
+	}
+	return
+}
+
+func parseBackupPolicyBindingsID(id string) (policyID, instanceID string, err error) {
+	parts := strings.Split(id, ":")
+	if len(parts) != 2 {
+		return "", "", fmt.Errorf("invalid or empty backup policy bindings id=%q", id)
+	}
+	return parts[0], parts[1], nil
+}
+
+func makeBackupPolicyBindingsID(policyID, instanceID string) string {
+	return fmt.Sprintf("%s:%s", policyID, instanceID)
 }

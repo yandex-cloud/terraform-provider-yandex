@@ -233,6 +233,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_api_gateway":                                      resourceYandexApiGateway(),
 			"yandex_audit_trails_trail":                               resourceYandexAuditTrailsTrail(),
 			"yandex_backup_policy":                                    resourceYandexBackupPolicy(),
+			"yandex_backup_policy_bindings":                           resourceYandexBackupPolicyBindings(),
 			"yandex_container_registry":                               resourceYandexContainerRegistry(),
 			"yandex_container_registry_iam_binding":                   resourceYandexContainerRegistryIAMBinding(),
 			"yandex_container_registry_ip_permission":                 resourceYandexContainerRegistryIPPermission(),
