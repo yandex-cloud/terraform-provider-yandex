@@ -80,8 +80,10 @@ func (o *openSearchClusterResource) ImportState(ctx context.Context, req resourc
 
 func (o *openSearchClusterResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
 	return map[int64]resource.StateUpgrader{
-		// State upgrade implementation from 0 (prior state version) to 1 (Schema.Version)
+		// State upgrade implementation from 0 to 2 (Schema.Version)
 		0: legacy.NewUpgraderFromV0(ctx),
+		// State upgrade implementation from 1 (prior state version) to 2 (Schema.Version)
+		1: legacy.NewUpgraderFromV1(ctx),
 	}
 }
 
@@ -366,7 +368,7 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	tflog.Info(ctx, "Initializing opensearch data source schema")
 	resp.Schema = schema.Schema{
-		Version: 1,
+		Version: 2,
 		Blocks: map[string]schema.Block{
 			"timeouts": timeouts.Block(ctx, timeouts.Opts{
 				Create: true,

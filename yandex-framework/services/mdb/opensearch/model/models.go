@@ -27,7 +27,7 @@ type OpenSearch struct {
 	Labels             types.Map      `tfsdk:"labels"`
 	Environment        types.String   `tfsdk:"environment"`
 	Config             types.Object   `tfsdk:"config"`
-	Hosts              types.Set      `tfsdk:"hosts"`
+	Hosts              types.List     `tfsdk:"hosts"`
 	NetworkID          types.String   `tfsdk:"network_id"`
 	Health             types.String   `tfsdk:"health"`
 	Status             types.String   `tfsdk:"status"`
@@ -99,6 +99,7 @@ type Host struct {
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 	Zone           types.String `tfsdk:"zone"`
 	SubnetID       types.String `tfsdk:"subnet_id"`
+	NodeGroup      types.String `tfsdk:"node_group"`
 }
 
 type MaintenanceWindow struct {
@@ -158,7 +159,7 @@ var NodeResourceAttrTypes = map[string]attr.Type{
 	"disk_type_id":       types.StringType,
 }
 
-var hostType = types.ObjectType{
+var HostType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"fqdn":             types.StringType,
 		"type":             types.StringType,
@@ -166,6 +167,7 @@ var hostType = types.ObjectType{
 		"assign_public_ip": types.BoolType,
 		"zone":             types.StringType,
 		"subnet_id":        types.StringType,
+		"node_group":       types.StringType,
 	},
 }
 
@@ -552,14 +554,14 @@ func nullableStringSliceToSet(ctx context.Context, s []string) (types.Set, diag.
 	return types.SetValueFrom(ctx, types.StringType, s)
 }
 
-func HostsToState(ctx context.Context, hosts []*opensearch.Host) (types.Set, diag.Diagnostics) {
+func HostsToState(ctx context.Context, hosts []*opensearch.Host) (types.List, diag.Diagnostics) {
 	res := make([]Host, 0, len(hosts))
 
 	for _, h := range hosts {
 		roles, diags := rolesToSet(h.GetRoles())
 		if diags.HasError() {
 			diags.AddError("Failed to parse hosts.roles", fmt.Sprintf("Error while parsing roles for host: %s", h.GetName()))
-			return types.SetUnknown(hostType), diags
+			return types.ListUnknown(HostType), diags
 		}
 
 		res = append(res, Host{
@@ -569,10 +571,11 @@ func HostsToState(ctx context.Context, hosts []*opensearch.Host) (types.Set, dia
 			AssignPublicIP: types.BoolValue(h.GetAssignPublicIp()),
 			Zone:           types.StringValue(h.GetZoneId()),
 			SubnetID:       types.StringValue(h.GetSubnetId()),
+			NodeGroup:      types.StringValue(h.GetNodeGroup()),
 		})
 	}
 
-	return types.SetValueFrom(ctx, hostType, res)
+	return types.ListValueFrom(ctx, HostType, res)
 }
 
 func ParseConfig(ctx context.Context, state *OpenSearch) (*Config, diag.Diagnostics) {

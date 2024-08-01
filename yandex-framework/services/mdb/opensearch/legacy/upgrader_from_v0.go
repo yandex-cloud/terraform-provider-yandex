@@ -77,7 +77,7 @@ type dashboardNode struct {
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 }
 
-// return StateUpgrader implementation from 0 (prior state version) to 1 (Schema.Version)
+// return StateUpgrader implementation from 0 (prior state version) to 2 (Schema.Version)
 func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 	return resource.StateUpgrader{
 		PriorSchema: &schema.Schema{
@@ -266,7 +266,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 					},
 					Description: "Deployment environment of the OpenSearch cluster.",
 				},
-				"hosts": common_schema.Hosts(),
+				"hosts": hostsWithoutNodeGroup(),
 				"network_id": schema.StringAttribute{
 					Required: true,
 					PlanModifiers: []planmodifier.String{
@@ -430,6 +430,12 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				return
 			}
 
+			newHosts, diags := transformHosts(ctx, oldModel.Hosts)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
 			newModel := model.OpenSearch{
 				ID:                 oldModel.ID,
 				ClusterID:          oldModel.ID,
@@ -439,7 +445,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				Labels:             oldModel.Labels,
 				Environment:        oldModel.Environment,
 				Config:             newConfigObj,
-				Hosts:              oldModel.Hosts,
+				Hosts:              newHosts,
 				NetworkID:          oldModel.NetworkID,
 				Health:             oldModel.Health,
 				Status:             oldModel.Status,

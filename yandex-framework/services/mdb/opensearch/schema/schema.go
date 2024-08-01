@@ -24,8 +24,8 @@ func NodeResourceAttributes() map[string]schema.Attribute {
 	}
 }
 
-func Hosts() schema.SetNestedAttribute {
-	return schema.SetNestedAttribute{
+func Hosts() schema.ListNestedAttribute {
+	return schema.ListNestedAttribute{
 		Computed:    true,
 		Description: "Current nodes in the cluster",
 		NestedObject: schema.NestedAttributeObject{
@@ -39,6 +39,7 @@ func Hosts() schema.SetNestedAttribute {
 				},
 				"assign_public_ip": schema.BoolAttribute{Computed: true, Optional: true},
 				"subnet_id":        schema.StringAttribute{Computed: true, Optional: true},
+				"node_group":       schema.StringAttribute{Computed: true},
 			},
 		},
 	}

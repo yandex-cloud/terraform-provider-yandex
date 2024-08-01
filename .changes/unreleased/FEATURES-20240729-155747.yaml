@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'opensearch: add `node_group` name to `hosts` list'
+time: 2024-07-29T15:57:47.159745+02:00

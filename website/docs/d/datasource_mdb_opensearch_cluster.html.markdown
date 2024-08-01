@@ -119,6 +119,8 @@ The `hosts` block supports:
 
 * `assign_public_ip` - Sets whether the host should get a public IP address. Can be either `true` or `false`.
 
+* `node_group` - Name of the node group.
+
 The `maintenance_window` block supports:
 
 * `type` - Type of a maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour need to be specified with the weekly window.

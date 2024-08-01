@@ -282,6 +282,8 @@ The `hosts` block supports:
 
 * `assign_public_ip` - Sets whether the host should get a public IP address. Can be either `true` or `false`.
 
+* `node_group` - Name of the node group.
+
 ## Import
 
 A cluster can be imported using the `id` of the resource, e.g.
