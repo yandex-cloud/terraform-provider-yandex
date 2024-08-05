@@ -181,11 +181,11 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.FolderID = types.StringValue(cluster.GetFolderId())
 	state.CreatedAt = types.StringValue(timestamp.Get(cluster.GetCreatedAt()))
 	state.Name = types.StringValue(cluster.GetName())
-	if !state.Description.IsNull() || cluster.GetDescription() != "" {
+	if state.Description.IsUnknown() || cluster.GetDescription() != "" {
 		state.Description = types.StringValue(cluster.GetDescription())
 	}
 
-	if !state.Labels.IsNull() || cluster.Labels != nil {
+	if state.Labels.IsUnknown() || cluster.Labels != nil {
 		labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
 		if diags.HasError() {
 			return diags
@@ -205,12 +205,14 @@ func ClusterToState(ctx context.Context, cluster *opensearch.Cluster, state *Ope
 	state.Health = types.StringValue(cluster.GetHealth().String())
 	state.Status = types.StringValue(cluster.GetStatus().String())
 
-	state.SecurityGroupIDs, diags = nullableStringSliceToSet(ctx, cluster.SecurityGroupIds)
-	if diags.HasError() {
-		return diags
+	if state.SecurityGroupIDs.IsUnknown() || cluster.SecurityGroupIds != nil {
+		state.SecurityGroupIDs, diags = nullableStringSliceToSet(ctx, cluster.SecurityGroupIds)
+		if diags.HasError() {
+			return diags
+		}
 	}
 
-	if !state.ServiceAccountID.IsNull() || cluster.ServiceAccountId != "" {
+	if state.ServiceAccountID.IsUnknown() || cluster.ServiceAccountId != "" {
 		state.ServiceAccountID = types.StringValue(cluster.ServiceAccountId)
 	}
 
