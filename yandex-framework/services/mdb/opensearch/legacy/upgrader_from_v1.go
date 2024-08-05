@@ -163,9 +163,9 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 						},
 						"dashboards": schema.SingleNestedBlock{
 							Validators: []validator.Object{
-								objectvalidator.AlsoRequires(path.Expressions{
+								objectvalidator.AlsoRequires(
 									path.MatchRoot("config").AtName("dashboards").AtName("node_groups"),
-								}...),
+								),
 							},
 							Blocks: map[string]schema.Block{
 								//NOTE: changed "set" to "list+customValidator" because https://github.com/hashicorp/terraform-plugin-sdk/issues/1210
@@ -317,6 +317,8 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 				return
 			}
 
+			newAuthSettings := types.ObjectNull(model.AuthSettingsAttrTypes)
+
 			newModel := model.OpenSearch{
 				ID:                 oldModel.ID,
 				ClusterID:          oldModel.ID,
@@ -334,6 +336,7 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 				ServiceAccountID:   oldModel.ServiceAccountID,
 				DeletionProtection: oldModel.DeletionProtection,
 				MaintenanceWindow:  oldModel.MaintenanceWindow,
+				AuthSettings:       newAuthSettings,
 				Timeouts:           oldModel.Timeouts,
 			}
 

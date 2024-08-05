@@ -67,6 +67,10 @@ func PrepareOpenSearchCreate(ctx context.Context, cfg *model.OpenSearchSubConfig
 
 func PrepareDashboardsCreate(ctx context.Context, cfg *model.DashboardsSubConfig) ([]*opensearch.DashboardsCreateSpec_NodeGroup, diag.Diagnostics) {
 	diags := diag.Diagnostics{}
+	if cfg == nil {
+		return nil, diags
+	}
+
 	nodeGroups := make([]model.DashboardNode, 0, len(cfg.NodeGroups.Elements()))
 	diags.Append(cfg.NodeGroups.ElementsAs(ctx, &nodeGroups, false)...)
 	if diags.HasError() {

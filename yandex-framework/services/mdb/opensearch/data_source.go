@@ -217,6 +217,25 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 			},
 			"service_account_id":  schema.StringAttribute{Computed: true, Optional: true},
 			"deletion_protection": schema.BoolAttribute{Computed: true, Optional: true},
+			"auth_settings": schema.SingleNestedAttribute{
+				Optional: true,
+				Computed: true,
+				Attributes: map[string]schema.Attribute{
+					"saml": schema.SingleNestedAttribute{
+						Optional: true,
+						Computed: true,
+						Attributes: map[string]schema.Attribute{
+							"enabled":                   schema.BoolAttribute{Computed: true},
+							"idp_entity_id":             schema.StringAttribute{Computed: true},
+							"idp_metadata_file_content": schema.StringAttribute{Computed: true},
+							"sp_entity_id":              schema.StringAttribute{Computed: true},
+							"dashboards_url":            schema.StringAttribute{Computed: true},
+							"roles_key":                 schema.StringAttribute{Optional: true, Computed: true},
+							"subject_key":               schema.StringAttribute{Optional: true, Computed: true},
+						},
+					},
+				},
+			},
 		},
 	}
 }

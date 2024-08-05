@@ -176,6 +176,27 @@ func DeleteDashboardsNodeGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.
 	}))
 }
 
+func GetAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) *opensearch.AuthSettings {
+	resp, err := sdk.MDB().OpenSearch().Cluster().GetAuthSettings(ctx, &opensearch.GetAuthSettingsRequest{
+		ClusterId: cid,
+	})
+	if err != nil {
+		diags.AddError(
+			"Failed to Read resource",
+			"Error while requesting API to get OpenSearch Auth Settings: "+err.Error(),
+		)
+		return nil
+	}
+
+	return resp
+}
+
+func UpdateAuthSettings(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *opensearch.UpdateAuthSettingsRequest) {
+	diags.Append(waitOperationWithRetry(ctx, sdk, "Update Auth Settings", func() (*operation.Operation, error) {
+		return sdk.MDB().OpenSearch().Cluster().UpdateAuthSettings(ctx, req)
+	}))
+}
+
 func PrepareAndExecute[T any, V any](
 	ctx context.Context,
 	sdk *ycsdk.SDK,

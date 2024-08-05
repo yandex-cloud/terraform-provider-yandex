@@ -134,6 +134,16 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
     }
   }
 
+
+  auth_settings = {
+    saml = {
+      idp_entity_id = "urn:dev.auth0.example.com"
+      idp_metadata_file_content = "<EntityDescriptor entityID=\"https://test_identity_provider.example.com\"></EntityDescriptor>"
+      sp_entity_id = "https://test.example.com",
+      dashboards_url = "https://dashboards.example.com"
+    }
+  }
+
   depends_on = [
     yandex_vpc_subnet.es-subnet-a,
     yandex_vpc_subnet.es-subnet-b,
@@ -189,6 +199,8 @@ The following arguments are supported:
 * `service_account_id` - (Optional) ID of the service account authorized for this cluster.
 
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
+
+* `auth_settings` - (Optional) Authorization settings for Dashboards. The structure is documented below.
 
 - - -
 
@@ -251,6 +263,27 @@ The `maintenance_window` block supports:
 * `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.
 * `hour` - (Optional) Hour of day in UTC time zone (1-24) for maintenance window if window type is weekly.
 * `day` - (Optional) Day of week for maintenance window if window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+The `auth_settings` block supports:
+
+* `saml` - (Optional) SAML auth option. The structure is documented below.
+
+The `saml` block supports:
+
+* `enabled` - (Required) Enables SAML auth.
+
+* `idp_entity_id` - (Required) ID of the SAML Identity Provider.
+
+* `idp_metadata_file_content` - (Required) Metadata file content of the SAML Identity Provider. You can either put file content manually or use [`file` function](https://developer.hashicorp.com/terraform/language/functions/file)
+
+* `sp_entity_id` - (Required) Service provider entity ID.
+
+* `dashboards_url` - (Required) Dashboards URL.
+
+* `roles_key` - (Optional) Roles key.
+
+* `subject_key` - (Optional) Subject key.
+
 
 ## Attributes Reference
 

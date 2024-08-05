@@ -25,6 +25,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/log"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/model"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request/auth"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request/cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/request/nodegroups"
 	common_schema "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch/schema"
@@ -119,6 +120,25 @@ func (o *openSearchClusterResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
+	planAuthSettings, d := model.AuthSettingsFromState(ctx, plan.AuthSettings)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	authSettingReq, d := auth.PrepareUpdateRequest(ctx, clusterID, planAuthSettings)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	tflog.Debug(ctx, fmt.Sprintf("UpdateAuthSettings request: %+v", authSettingReq))
+
+	request.UpdateAuthSettings(ctx, o.providerConfig.SDK, &resp.Diagnostics, authSettingReq)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	//TODO: check maybe we need to getClusterById and store result to state?
 	plan.ID = types.StringValue(clusterID)
 
@@ -208,6 +228,27 @@ func (o *openSearchClusterResource) Update(ctx context.Context, req resource.Upd
 	request.UpdateClusterSpec(ctx, o.providerConfig.SDK, &resp.Diagnostics, updateReq)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	if !plan.AuthSettings.Equal(state.AuthSettings) {
+		planAuthSettings, d := model.AuthSettingsFromState(ctx, plan.AuthSettings)
+		resp.Diagnostics.Append(d...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		authSettingReq, d := auth.PrepareUpdateRequest(ctx, state.ID.ValueString(), planAuthSettings)
+		resp.Diagnostics.Append(d...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("UpdateAuthSettings request: %+v", authSettingReq))
+
+		request.UpdateAuthSettings(ctx, o.providerConfig.SDK, &resp.Diagnostics, authSettingReq)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 	}
 
 	if plan.Config.Equal(state.Config) {
@@ -326,7 +367,7 @@ func (o *openSearchClusterResource) processDashboardsNodeGroupsUpdate(ctx contex
 		return diags
 	}
 
-	if planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
+	if stateDashboardsBlock != nil && planDashboardsBlock.NodeGroups.Equal(stateDashboardsBlock.NodeGroups) {
 		tflog.Debug(ctx, "No changes in config.dashboards.node_groups", log.IdFromStr(cid))
 		return nil
 	}
@@ -430,9 +471,9 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 					},
 					"dashboards": schema.SingleNestedBlock{
 						Validators: []validator.Object{
-							objectvalidator.AlsoRequires(path.Expressions{
+							objectvalidator.AlsoRequires(
 								path.MatchRoot("config").AtName("dashboards").AtName("node_groups"),
-							}...),
+							),
 						},
 						Blocks: map[string]schema.Block{
 							//NOTE: changed "set" to "list+customValidator" because https://github.com/hashicorp/terraform-plugin-sdk/issues/1210
@@ -567,6 +608,30 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"service_account_id":  schema.StringAttribute{Optional: true},
 			"deletion_protection": schema.BoolAttribute{Computed: true, Optional: true},
+			"auth_settings": schema.SingleNestedAttribute{
+				Description: "Authentification settings for dashboards",
+				Optional:    true,
+				Validators: []validator.Object{
+					objectvalidator.AlsoRequires(
+						path.MatchRoot("config").AtName("dashboards"),
+						path.MatchRoot("auth_settings").AtName("saml"),
+					),
+				},
+				Attributes: map[string]schema.Attribute{
+					"saml": schema.SingleNestedAttribute{
+						Optional: true,
+						Attributes: map[string]schema.Attribute{
+							"enabled":                   schema.BoolAttribute{Required: true},
+							"idp_entity_id":             schema.StringAttribute{Required: true},
+							"idp_metadata_file_content": schema.StringAttribute{Required: true},
+							"sp_entity_id":              schema.StringAttribute{Required: true},
+							"dashboards_url":            schema.StringAttribute{Required: true},
+							"roles_key":                 schema.StringAttribute{Optional: true},
+							"subject_key":               schema.StringAttribute{Optional: true},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -603,8 +668,18 @@ func updateState(ctx context.Context, sdk *ycsdk.SDK, state *model.OpenSearch, d
 		return
 	}
 
-	hosts := request.GetHostsList(ctx, sdk, diagnostics, clusterID)
+	authSettings := request.GetAuthSettings(ctx, sdk, diagnostics, clusterID)
+	if diagnostics.HasError() {
+		return
+	}
 
+	state.AuthSettings, diags = model.AuthSettingsToState(ctx, authSettings, state.AuthSettings)
+	diagnostics.Append(diags...)
+	if diagnostics.HasError() {
+		return
+	}
+
+	hosts := request.GetHostsList(ctx, sdk, diagnostics, clusterID)
 	if diagnostics.HasError() {
 		return
 	}

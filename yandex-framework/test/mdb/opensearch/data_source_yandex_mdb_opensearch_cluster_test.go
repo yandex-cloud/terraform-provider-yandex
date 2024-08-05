@@ -24,9 +24,7 @@ func TestAccDataSourceMDBOpenSearchCluster_byID(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, true),
-				Check: testAccDataSourceMDBOpenSearchClusterCheck(
-					"data.yandex_mdb_opensearch_cluster.bar",
-					"yandex_mdb_opensearch_cluster.foo", osName, osDesc),
+				Check:  testAccDataSourceMDBOpenSearchClusterCheck("data.yandex_mdb_opensearch_cluster.bar", osName, osDesc),
 			},
 		},
 	})
@@ -47,8 +45,7 @@ func TestAccDataSourceMDBOpenSearchCluster_byName(t *testing.T) {
 			{
 				Config: testAccDataSourceMDBOpenSearchClusterConfig(osName, osDesc, randInt, false),
 				Check: testAccDataSourceMDBOpenSearchClusterCheck(
-					"data.yandex_mdb_opensearch_cluster.bar",
-					"yandex_mdb_opensearch_cluster.foo", osName, osDesc),
+					"data.yandex_mdb_opensearch_cluster.bar", osName, osDesc),
 			},
 		},
 	})
@@ -106,9 +103,10 @@ func testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName string,
 	}
 }
 
-func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, resourceName string, name string, desc string) resource.TestCheckFunc {
+func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, name string, desc string) resource.TestCheckFunc {
 	folderID := test.GetExampleFolderID()
 	env := "PRESTABLE"
+	resourceName := openSearchResourcePrefix + name
 
 	return resource.ComposeTestCheckFunc(
 		testAccDataSourceMDBOpenSearchClusterAttributesCheck(datasourceName, resourceName),
@@ -121,9 +119,9 @@ func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, resourceN
 		// resource.TestCheckResourceAttr(datasourceName, "config", "1"),
 		resource.TestCheckResourceAttrSet(datasourceName, "service_account_id"),
 		resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
-		resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
-		resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
-		resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+		resource.TestCheckResourceAttr(datasourceName, "hosts.#", "2"),
+		resource.TestCheckResourceAttrSet(datasourceName, "hosts.0.fqdn"),
+		resource.TestCheckResourceAttrSet(datasourceName, "hosts.1.fqdn"),
 		test.AccCheckCreatedAtAttr(datasourceName),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.type", "WEEKLY"),
 		resource.TestCheckResourceAttr(datasourceName, "maintenance_window.day", "FRI"),
@@ -133,20 +131,22 @@ func testAccDataSourceMDBOpenSearchClusterCheck(datasourceName string, resourceN
 
 const mdbOpenSearchClusterByIDConfig = `
 data "yandex_mdb_opensearch_cluster" "bar" {
-  cluster_id = "${yandex_mdb_opensearch_cluster.foo.id}"
+  cluster_id = "${yandex_mdb_opensearch_cluster.%s.id}"
 }
 `
 
 const mdbOpenSearchClusterByNameConfig = `
 data "yandex_mdb_opensearch_cluster" "bar" {
-  name = "${yandex_mdb_opensearch_cluster.foo.name}"
+  name = "${yandex_mdb_opensearch_cluster.%s.name}"
 }
 `
 
 func testAccDataSourceMDBOpenSearchClusterConfig(name, desc string, randInt int, useDataID bool) string {
 	if useDataID {
-		return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbOpenSearchClusterByIDConfig
+		return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) +
+			fmt.Sprintf(mdbOpenSearchClusterByIDConfig, name)
 	}
 
-	return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) + mdbOpenSearchClusterByNameConfig
+	return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) +
+		fmt.Sprintf(mdbOpenSearchClusterByNameConfig, name)
 }

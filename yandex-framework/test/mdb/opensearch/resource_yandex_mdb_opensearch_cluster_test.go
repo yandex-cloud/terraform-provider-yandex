@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	openSearchResource                      = "yandex_mdb_opensearch_cluster.foo"
+	openSearchResourcePrefix                = "yandex_mdb_opensearch_cluster."
 	yandexMDBOpenSearchClusterDeleteTimeout = 30 * time.Minute
 )
 
@@ -105,6 +105,7 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 	openSearchDesc := "OpenSearch Cluster Terraform Test"
 	randInt := acctest.RandInt()
 	folderID := test.GetExampleFolderID()
+	openSearchResource := openSearchResourcePrefix + openSearchName
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -133,6 +134,35 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
 				),
 			},
+			// update AuthSettings
+			{
+				Config: testSamlAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", randInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+					test.AccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.enabled", "true"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_entity_id", "https://test_identity_provider.com"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_metadata_file_content", "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
 		},
 	})
 }
@@ -145,6 +175,7 @@ func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 	openSearchDesc := "OpenSearch Cluster Terraform Test"
 	randInt := acctest.RandInt()
 	folderID := test.GetExampleFolderID()
+	openSearchResource := openSearchResourcePrefix + openSearchName
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -181,6 +212,83 @@ func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 	})
 }
 
+func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
+	t.Parallel()
+
+	var r opensearch.Cluster
+	openSearchName := acctest.RandomWithPrefix("tf-opensearch-saml")
+	openSearchDesc := "OpenSearch Cluster Terraform Test"
+	randInt := acctest.RandInt()
+	folderID := test.GetExampleFolderID()
+	openSearchResource := openSearchResourcePrefix + openSearchName
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBOpenSearchClusterDestroy,
+		Steps: []resource.TestStep{
+			// Create OpenSearch Cluster with enabled saml auth
+			{
+				Config: testSamlAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", randInt, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+					test.AccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.enabled", "true"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_entity_id", "https://test_identity_provider.com"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_metadata_file_content", "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+			// disable saml auth
+			{
+				Config: testSamlAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", randInt, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
+					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
+					resource.TestCheckResourceAttr(openSearchResource, "folder_id", folderID),
+					resource.TestCheckResourceAttr(openSearchResource, "description", openSearchDesc),
+					resource.TestCheckResourceAttr(openSearchResource, "config.admin_password", "password"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "service_account_id"),
+					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "2"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
+					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
+					test.AccCheckCreatedAtAttr(openSearchResource),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
+					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.day", "FRI"),
+					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.hour", "20"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.enabled", "false"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_entity_id", "https://test_identity_provider.com"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.idp_metadata_file_content", "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.sp_entity_id", "https://some.db.yandex.net"),
+					resource.TestCheckResourceAttr(openSearchResource, "auth_settings.saml.dashboards_url", "https://dashboards.example.com"),
+				),
+			},
+			mdbOpenSearchClusterImportStep(openSearchResource),
+		},
+	})
+}
+
 func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 	t.Parallel()
 
@@ -190,6 +298,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 	randInt := acctest.RandInt()
 	folderID := test.GetExampleFolderID()
 	openSearchDesc2 := "OpenSearch Cluster Terraform Test Updated"
+	openSearchResource := openSearchResourcePrefix + openSearchName
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -480,8 +589,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key  = "test_value"
@@ -537,6 +646,103 @@ resource "yandex_mdb_opensearch_cluster" "foo" {
 `, name, desc, environment)
 }
 
+func testSamlAccMDBOpenSearchClusterConfig(name, desc, environment string, randInt int, enabled bool) string {
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+
+locals {
+  zones = [
+    "ru-central1-a",
+    "ru-central1-b",
+    "ru-central1-d",
+  ]
+}
+
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
+  description = "%s"
+  labels = {
+    test_key  = "test_value"
+  }
+  environment = "%s"
+  network_id  = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  security_group_ids = [yandex_vpc_security_group.mdb-opensearch-test-sg-x.id]
+  service_account_id = "${yandex_iam_service_account.sa.id}"
+  deletion_protection = false
+
+  config {
+
+    admin_password = "password"
+
+    opensearch {
+      node_groups {
+        name             = "datamaster0"
+        assign_public_ip = false
+        hosts_count      = 1
+        zone_ids         = local.zones
+        subnet_ids = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        roles = ["DATA","MANAGER"]
+        resources {
+          resource_preset_id = "s2.micro"
+          disk_size          = 10737418240
+          disk_type_id       = "network-ssd"
+        }
+      }
+    }
+
+    dashboards {
+      node_groups {
+        name = "dash0"
+        assign_public_ip     = false
+        hosts_count          = 1
+        zone_ids             = local.zones  
+        subnet_ids           = [
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
+        ]
+        resources {
+          resource_preset_id   = "s2.micro"
+          disk_size            = 10737418240
+          disk_type_id         = "network-ssd"
+        }
+      }
+    }
+  }
+
+  auth_settings = {
+    saml = {
+      enabled = %t
+      idp_entity_id = "https://test_identity_provider.com"
+      idp_metadata_file_content = "<EntityDescriptor entityID=\"https://test_identity_provider.com\"></EntityDescriptor>"
+      sp_entity_id = "https://some.db.yandex.net",
+      dashboards_url = "https://dashboards.example.com"
+    }
+  }
+
+  depends_on = [
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
+    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
+  ]
+
+  maintenance_window {
+    type = "WEEKLY"
+    day  = "FRI"
+    hour = 20
+  }
+
+  timeouts {
+    create = "1h"
+    update = "2h"
+  }
+}
+`, name, desc, environment, enabled)
+}
+
 func testSimpleAccMDBOpenSearchClusterConfig(name, desc, environment string, randInt int) string {
 	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
 
@@ -548,8 +754,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key  = "test_value"
@@ -650,8 +856,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key  = "test_value"
@@ -737,8 +943,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key  = "test_value"
@@ -827,8 +1033,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key2  = "test_value2"
@@ -912,8 +1118,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key2  = "test_value2"
@@ -1048,8 +1254,8 @@ locals {
   ]
 }
 
-resource "yandex_mdb_opensearch_cluster" "foo" {
-  name        = "%s"
+resource "yandex_mdb_opensearch_cluster" "%[1]s" {
+  name        = "%[1]s"
   description = "%s"
   labels = {
     test_key2  = "test_value2"

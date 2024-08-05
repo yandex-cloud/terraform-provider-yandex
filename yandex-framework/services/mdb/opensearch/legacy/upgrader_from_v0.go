@@ -146,9 +146,9 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 							},
 							"dashboards": schema.ListNestedBlock{
 								Validators: []validator.List{
-									listvalidator.AlsoRequires(path.Expressions{
+									listvalidator.AlsoRequires(
 										path.MatchRoot("config").AtName("dashboards").AtName("node_groups"),
-									}...),
+									),
 								},
 								NestedObject: schema.NestedBlockObject{
 									Blocks: map[string]schema.Block{
@@ -436,6 +436,8 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				return
 			}
 
+			newAuthSettings := types.ObjectNull(model.AuthSettingsAttrTypes)
+
 			newModel := model.OpenSearch{
 				ID:                 oldModel.ID,
 				ClusterID:          oldModel.ID,
@@ -453,6 +455,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 				ServiceAccountID:   oldModel.ServiceAccountID,
 				DeletionProtection: oldModel.DeletionProtection,
 				MaintenanceWindow:  newMaintenanceWindow,
+				AuthSettings:       newAuthSettings,
 				Timeouts:           oldModel.Timeouts,
 			}
 

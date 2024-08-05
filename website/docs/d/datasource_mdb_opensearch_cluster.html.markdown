@@ -51,6 +51,7 @@ exported:
 * `hosts` - A hosts of the OpenSearch cluster. The structure is documented below.
 * `security_group_ids` - A set of ids of security groups assigned to hosts of the cluster.
 * `service_account_id` - ID of the service account authorized for this cluster.
+* `auth_settings` - Authorization settings for Dashboards. The structure is documented below.
 
 The `config` block supports:
 
@@ -126,3 +127,17 @@ The `maintenance_window` block supports:
 * `type` - Type of a maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour need to be specified with the weekly window.
 * `hour` - Hour of the day in UTC time zone (1-24) for a maintenance window if the window type is weekly.
 * `day` - Day of the week for a maintenance window if the window type is weekly. Possible values: `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`, `SUN`.
+
+The `auth_settings` block supports:
+
+* `saml` - (Optional) SAML auth option. The structure is documented below.
+
+The `saml` block supports:
+
+* `enabled` - Enables SAML auth.
+* `idp_entity_id` - ID of the SAML Identity Provider.
+* `idp_metadata_file_content` - Metadata file content of the SAML Identity Provider.
+* `sp_entity_id` - Service provider entity ID.
+* `dashboards_url` - Dashboards URL.
+* `roles_key` - Roles key.
+* `subject_key` - Subject key.
