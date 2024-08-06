@@ -97,6 +97,8 @@ The `fixed_scale` block supports:
 
 The `auto_scale` block supports:
 
+* `auto_scale_type` - Autoscale type, `ZONAL` or `REGIONAL`.
+
 * `initial_size` - The initial number of instances in the instance group.
 
 * `measurement_duration` - The amount of time, in seconds, that metrics are averaged for.
@@ -121,6 +123,8 @@ will not decrease even if the average load falls below the value of `cpu_utiliza
 ---
 
 The `test_auto_scale` block supports:
+
+* `auto_scale_type` - Autoscale type `ZONAL` or `REGIONAL`.
 
 * `initial_size` - The initial number of instances in the instance group.
 

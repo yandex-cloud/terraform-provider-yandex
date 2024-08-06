@@ -164,6 +164,7 @@ func testAccDataSourceComputeInstanceGroupCheck(datasourceName string, resourceN
 
 func testAccDataSourceComputeInstanceGroupAutoScaleCheck(datasourceName string, resourceName string) resource.TestCheckFunc {
 	instanceAttrsToTest := []string{
+		"scale_policy.0.auto_scale.0.auto_scale_type",
 		"scale_policy.0.auto_scale.0.initial_size",
 		"scale_policy.0.auto_scale.0.max_size",
 		"scale_policy.0.auto_scale.0.min_zone_size",
