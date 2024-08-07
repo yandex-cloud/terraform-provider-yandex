@@ -34,6 +34,9 @@ resource "yandex_serverless_container" "test-container" {
     log_group_id = "e2392vo6d1bne2aeq9fr"
     min_level = "ERROR"
   }
+  provision_policy {
+    min_instances = 1
+  }
 }
 ```
 ```hcl
@@ -80,6 +83,9 @@ The following arguments are supported:
 * `image.0.environment` -  A set of key/value environment variable pairs for Yandex Cloud Serverless Container
 
 * `log_options` - Options for logging from Yandex Cloud Serverless Container
+
+* `provision_policy` - Provision policy. If specified the revision will have prepared instances 
+* `provision_policy.0.min_instances` - Minimum number of prepared instances that are always ready to serve requests
 
 ## Attributes Reference
 
