@@ -1,7 +1,7 @@
 Terraform Provider
 ==================
 
-- Documentation: https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs
+- Documentation: https://terraform-provider.yandexcloud.net
 
 Requirements
 ------------
