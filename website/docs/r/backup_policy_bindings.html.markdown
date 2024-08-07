@@ -6,7 +6,7 @@ description: |-
   Allows to bind compute instance with backup policy.
 ---
 
-# yandex_backup_policy_bindings
+# yandex\_backup\_policy\_bindings
 
 Allows management
 of [Yandex.Cloud Attach and Detach VM](https://yandex.cloud/docs/backup/operations/policy-vm/attach-and-detach-vm).

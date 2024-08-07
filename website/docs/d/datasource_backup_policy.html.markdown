@@ -3,10 +3,10 @@ layout: "yandex"
 page_title: "Yandex: yandex_backup_policy"
 sidebar_current: "docs-yandex-datasource-backup-policy"
 description: |-
-Get information about a Yandex Backup Policy.
+  Get information about a Yandex Backup Policy.
 ---
 
-# yandex\_compute\_filesystem
+# yandex\_backup\_policy
 
 Get information about a Yandex Backup Policy. For more information, see
 [the official documentation](https://yandex.cloud/docs/backup/concepts/policy).

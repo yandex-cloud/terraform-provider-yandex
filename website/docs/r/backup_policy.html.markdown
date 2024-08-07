@@ -6,7 +6,7 @@ description: |-
   Allows management of Yandex.Cloud Backup Policy.
 ---
 
-# yandex_backup_policy
+# yandex\_backup\_policy
 
 Allows management of [Yandex.Cloud Backup Policy](https://cloud.yandex.ru/docs/backup/concepts/policy).
 
