@@ -70,7 +70,7 @@ func TestAccLockboxSecret_basic(t *testing.T) {
 				// Add new secret (delete previous one)
 				Config: testAccLockboxSecretMinimal(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckYandexLockboxSecretDoesNotExist(basicResource),
+					testAccCheckYandexLockboxResourceDoesNotExist(basicResource),
 					func(s *terraform.State) error {
 						return testAccCheckYandexLockboxSecretDestroyed(basicResourceID)
 					},
@@ -219,7 +219,7 @@ func testAccCheckYandexLockboxResourceExists(r string, idPtr *string) resource.T
 	}
 }
 
-func testAccCheckYandexLockboxSecretDoesNotExist(r string) resource.TestCheckFunc {
+func testAccCheckYandexLockboxResourceDoesNotExist(r string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		_, ok := s.RootModule().Resources[r]
 		if ok {

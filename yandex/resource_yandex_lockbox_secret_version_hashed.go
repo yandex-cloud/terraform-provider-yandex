@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 	"golang.org/x/crypto/scrypt"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 const (
@@ -62,88 +61,20 @@ func resourceYandexLockboxSecretVersionHashedCreate(ctx context.Context, d *sche
 		return diag.FromErr(err)
 	}
 
-	getPayloadReq := &lockbox.GetPayloadRequest{
-		SecretId: d.Get("secret_id").(string),
-		// It's not relevant what version to use as base, since addEntryChangesForRemovedKeys will just leave the versionPayloadEntries.
-		// The current entries will be ignored. The behaviour is like PayloadChangeKind.FULL in ycp provider.
+	diagErr := resourceYandexLockboxSecretVersionCreateAux(ctx, versionPayloadEntries, d, config)
+	if diagErr != nil {
+		return diagErr
 	}
-
-	log.Printf("[INFO] getting Lockbox payload (to compare entries): %s", protojson.Format(getPayloadReq))
-
-	payload, err := config.sdk.LockboxPayload().Payload().Get(ctx, getPayloadReq)
-	if err != nil {
-		return diag.Errorf("could not get payload from secret %v and version %v: %s", getPayloadReq.SecretId, getPayloadReq.VersionId, err)
-	}
-
-	log.Printf("[INFO] read Lockbox payload (to compare entries) with VersionID: %s", payload.GetVersionId())
-
-	req := &lockbox.AddVersionRequest{
-		SecretId: d.Get("secret_id").(string),
-		// Make sure we're taking this version as reference, since addEntryChangesForRemovedKeys will
-		// remove the entries in payload.Entries that versionPayloadEntries doesn't contain anymore.
-		BaseVersionId:  payload.VersionId,
-		Description:    d.Get("description").(string),
-		PayloadEntries: addEntryChangesForRemovedKeys(payload.Entries, versionPayloadEntries),
-	}
-
-	log.Printf("[INFO] adding Lockbox version for secret with ID: %s, base version ID: %s", req.SecretId, req.BaseVersionId)
-
-	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().AddVersion(ctx, req))
-	if err != nil {
-		return diag.Errorf("error while requesting API to add version: %s", err)
-	}
-
-	protoMetadata, err := op.Metadata()
-	if err != nil {
-		return diag.Errorf("error while getting operation metadata of add secret version: %s", err)
-	}
-
-	md, ok := protoMetadata.(*lockbox.AddVersionMetadata)
-	if !ok {
-		return diag.Errorf("could not get Secret ID from create operation metadata")
-	}
-
-	d.SetId(md.VersionId)
-
-	err = op.Wait(ctx)
-	if err != nil {
-		return diag.Errorf("error while waiting operation to add secret version: %s", err)
-	}
-
-	if _, err := op.Response(); err != nil {
-		return diag.Errorf("add secret version failed: %s", err)
-	}
-
-	log.Printf("[INFO] added Lockbox version with ID: %s", d.Id())
 
 	return resourceYandexLockboxSecretVersionHashedRead(ctx, d, meta)
 }
 
 func resourceYandexLockboxSecretVersionHashedRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*Config)
-
-	id := d.Id()
-	req := &lockbox.GetPayloadRequest{
-		SecretId:  d.Get("secret_id").(string),
-		VersionId: id,
-	}
-
-	log.Printf("[INFO] reading Lockbox version: %s", protojson.Format(req))
-
-	_, err := config.sdk.LockboxPayload().Payload().Get(ctx, req)
-	if err != nil {
-		return diag.FromErr(handleNotFoundError(err, d, fmt.Sprintf("secret version payload %q", id)))
-	}
-
-	log.Printf("[INFO] read Lockbox version with ID: %s", id)
-
-	return nil
+	return resourceYandexLockboxSecretVersionRead(ctx, d, meta) // same logic as original resource
 }
 
 func resourceYandexLockboxSecretVersionHashedDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// TODO - we could call ScheduleVersionDestruction
-	log.Printf("[INFO] Versions are only deleted when secret is deleted, version ID: %s", d.Id())
-	return nil
+	return resourceYandexLockboxSecretVersionDelete(ctx, d, meta) // same logic as original resource
 }
 
 // Instead of `entries`, we add key_X/text_value_X; text_value(s) will be hashed in state.
@@ -224,8 +155,7 @@ func expandLockboxSecretVersionSafeEntries(d *schema.ResourceData) ([]*lockbox.P
 
 // returns the entry i (e.g. for i=1 it's key_1, text_value_1), or nil if not found
 func getVersionPayloadEntry(d *schema.ResourceData, i int) (*lockbox.PayloadEntryChange, error) {
-	entryKeyName := keyName(i)
-	entryKey, exists := d.GetOk(entryKeyName)
+	entryKey, exists := d.GetOk(keyName(i))
 	if !exists {
 		return nil, nil // it's not an error, just that the key was not found
 	}
@@ -233,7 +163,7 @@ func getVersionPayloadEntry(d *schema.ResourceData, i int) (*lockbox.PayloadEntr
 	entry.SetKey(entryKey.(string))
 	text, exists := d.GetOk(textValueName(i))
 	if !exists {
-		return nil, fmt.Errorf("%s exists but there is no corresponding %s", entryKeyName, textValueName(i))
+		return nil, fmt.Errorf("%s exists but there is no corresponding %s", keyName(i), textValueName(i))
 	}
 	entry.SetTextValue(text.(string))
 	return entry, nil

@@ -111,6 +111,15 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 		return diag.FromErr(err)
 	}
 
+	diagErr := resourceYandexLockboxSecretVersionCreateAux(ctx, versionPayloadEntries, d, config)
+	if diagErr != nil {
+		return diagErr
+	}
+
+	return resourceYandexLockboxSecretVersionRead(ctx, d, meta)
+}
+
+func resourceYandexLockboxSecretVersionCreateAux(ctx context.Context, versionPayloadEntries []*lockbox.PayloadEntryChange, d *schema.ResourceData, config *Config) diag.Diagnostics {
 	getPayloadReq := &lockbox.GetPayloadRequest{
 		SecretId: d.Get("secret_id").(string),
 		// It's not relevant what version to use as base, since addEntryChangesForRemovedKeys will just leave the versionPayloadEntries.
@@ -165,7 +174,7 @@ func resourceYandexLockboxSecretVersionCreate(ctx context.Context, d *schema.Res
 
 	log.Printf("[INFO] added Lockbox version with ID: %s", d.Id())
 
-	return resourceYandexLockboxSecretVersionRead(ctx, d, meta)
+	return nil
 }
 
 func resourceYandexLockboxSecretVersionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -190,8 +199,27 @@ func resourceYandexLockboxSecretVersionRead(ctx context.Context, d *schema.Resou
 }
 
 func resourceYandexLockboxSecretVersionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// TODO - we could call ScheduleVersionDestruction
-	log.Printf("[INFO] Versions are only deleted when secret is deleted, version ID: %s", d.Id())
+	config := meta.(*Config)
+
+	req := &lockbox.ScheduleVersionDestructionRequest{
+		SecretId:  d.Get("secret_id").(string),
+		VersionId: d.Id(),
+	}
+
+	log.Printf("[INFO] scheduling destruction of Lockbox version: %s", protojson.Format(req))
+
+	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().ScheduleVersionDestruction(ctx, req))
+	if err != nil {
+		return diag.Errorf("error while requesting API to destroy version: %s", err)
+	}
+
+	err = op.Wait(ctx)
+	if err != nil {
+		return diag.Errorf("error while waiting operation to destroy version: %s", err)
+	}
+
+	log.Printf("[INFO] successfully scheduled destruction of Lockbox version with ID: %s", d.Id())
+
 	return nil
 }
 
