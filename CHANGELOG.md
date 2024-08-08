@@ -1,6 +1,3 @@
-FEATURES:
-* compute: support `auto_scale_type` in `scale_policy.auto_scale` in `compute_instance_group` resource and datasource
-
 ## 0.126.0 (July 30, 2024)
 
 FEATURES:

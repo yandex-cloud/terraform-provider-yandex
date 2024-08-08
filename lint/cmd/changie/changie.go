@@ -32,7 +32,12 @@ func main() {
 	}
 
 	if err := checkUnreleasedBody(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "invalid body of changie unreleased: %s \n", err)
+		const errorFormat = "invalid body of changie unreleased: %s .\n" +
+			"Right format is '${service_name}: some description.\n" +
+			"For example:\n" +
+			"lockbox: yandex_lockbox_secret_version and yandex_lockbox_secret_version_hashed" +
+			"will schedule version deletion'\n"
+		_, _ = fmt.Fprintf(os.Stderr, errorFormat, err)
 		os.Exit(1)
 	}
 }
