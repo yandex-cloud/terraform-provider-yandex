@@ -3244,6 +3244,10 @@ func expandDatatransferEndpointSettingsClickhouseTargetAltNames(d *schema.Resour
 func expandDatatransferEndpointSettingsClickhouseSource(d *schema.ResourceData) (*endpoint.ClickhouseSource, error) {
 	val := new(endpoint.ClickhouseSource)
 
+	if v, ok := d.GetOk("settings.0.clickhouse_source.0.clickhouse_cluster_name"); ok {
+		val.SetClickhouseClusterName(v.(string))
+	}
+
 	if _, ok := d.GetOk("settings.0.clickhouse_source.0.connection"); ok {
 		connection, err := expandDatatransferEndpointSettingsClickhouseSourceConnection(d)
 		if err != nil {
@@ -6474,6 +6478,8 @@ func flattenDatatransferEndpointSettingsClickhouseSource(d *schema.ResourceData,
 	}
 
 	m := make(map[string]interface{})
+
+	m["clickhouse_cluster_name"] = v.GetClickhouseClusterName()
 
 	connection, err := flattenDatatransferEndpointSettingsClickhouseSourceConnection(d, v.GetConnection())
 	if err != nil {

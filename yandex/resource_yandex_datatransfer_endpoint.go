@@ -62,6 +62,11 @@ func resourceYandexDatatransferEndpoint() *schema.Resource {
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"clickhouse_cluster_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"connection": {
 										Type:     schema.TypeList,
 										MaxItems: 1,
@@ -3919,6 +3924,11 @@ var datatransferUpdateEndpointRequestFieldsRoot = &fieldTreeNode{
 						{
 							protobufFieldName:      "security_groups",
 							terraformAttributeName: "security_groups",
+							children:               nil,
+						},
+						{
+							protobufFieldName:      "clickhouse_cluster_name",
+							terraformAttributeName: "clickhouse_cluster_name",
 							children:               nil,
 						},
 						{
