@@ -1404,6 +1404,7 @@ resource "yandex_compute_instance_group" "group1" {
 
   scale_policy {
     auto_scale {
+      auto_scale_type = "REGIONAL"
       initial_size           = 1
       max_size               = 2
       min_zone_size          = 1
@@ -1505,6 +1506,7 @@ resource "yandex_compute_instance_group" "group1" {
       size = 2
     }
     test_auto_scale {
+      auto_scale_type = "REGIONAL"
       initial_size           = 1
       max_size               = 2
       min_zone_size          = 1
@@ -2719,6 +2721,9 @@ func testAccCheckComputeInstanceGroupAutoScalePolicy(ig *instancegroup.InstanceG
 		}
 
 		sp := ig.ScalePolicy.GetAutoScale()
+		if sp.AutoScaleType != instancegroup.ScalePolicy_AutoScale_REGIONAL {
+			return fmt.Errorf("wrong auto_scale_type on instance group %s", ig.Name)
+		}
 		if sp.InitialSize != 1 {
 			return fmt.Errorf("wrong initialsize on instance group %s", ig.Name)
 		}
@@ -2742,6 +2747,9 @@ func testAccCheckComputeInstanceGroupTestAutoScalePolicy(ig *instancegroup.Insta
 		}
 
 		sp := ig.ScalePolicy.GetTestAutoScale()
+		if sp.AutoScaleType != instancegroup.ScalePolicy_AutoScale_REGIONAL {
+			return fmt.Errorf("wrong auto_scale_type on instance group %s", ig.Name)
+		}
 		if sp.InitialSize != 1 {
 			return fmt.Errorf("wrong initial size on instance group %s", ig.Name)
 		}
