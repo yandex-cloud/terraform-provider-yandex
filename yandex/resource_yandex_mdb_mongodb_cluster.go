@@ -804,10 +804,7 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		return nil, fmt.Errorf("error resolving environment while creating Mongodb Cluster: %s", err)
 	}
 
-	version, err := extractVersion(d)
-	if err != nil {
-		return nil, fmt.Errorf("error while expanding labels on Mongodb Cluster create: %s", err)
-	}
+	version := extractVersion(d)
 	configSpec := &mongodb.ConfigSpec{Version: version, FeatureCompatibilityVersion: version}
 	if cfgCompVer := d.Get("cluster_config.0.feature_compatibility_version"); cfgCompVer != nil {
 		configSpec.FeatureCompatibilityVersion = cfgCompVer.(string)
@@ -832,8 +829,8 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		}
 	}
 
-	mongodbSpecHelper := GetMongodbSpecHelper(version)
-	configSpec.MongodbSpec = mongodbSpecHelper.Expand(d)
+	mongodbSpecHelper := GetMongodbSpecHelper()
+	configSpec.Mongodb = mongodbSpecHelper.Expand(d)
 
 	hosts, err := expandMongoDBHosts(d)
 	if err != nil {
@@ -1088,7 +1085,7 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	mongodbSpecHelper := GetMongodbSpecHelper(cluster.Config.Version)
+	mongodbSpecHelper := GetMongodbSpecHelper()
 	flattenResources, err := mongodbSpecHelper.FlattenResources(cluster.Config, d)
 	if err != nil {
 		return diag.FromErr(err)
@@ -1369,11 +1366,8 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		return nil, fmt.Errorf("error expanding labels while updating MongoDB cluster: %s", err)
 	}
 
-	version, err := extractVersion(d)
-	if err != nil {
-		return nil, err
-	}
-	mongodbSpecHelper := GetMongodbSpecHelper(version)
+	version := extractVersion(d)
+	mongodbSpecHelper := GetMongodbSpecHelper()
 	req := &mongodb.UpdateClusterRequest{
 		ClusterId:   d.Id(),
 		Description: d.Get("description").(string),
@@ -1381,7 +1375,7 @@ func getMongoDBClusterUpdateRequest(d *schema.ResourceData) (*mongodb.UpdateClus
 		Name:        d.Get("name").(string),
 		ConfigSpec: &mongodb.ConfigSpec{
 			Version:                     version,
-			MongodbSpec:                 mongodbSpecHelper.Expand(d),
+			Mongodb:                     mongodbSpecHelper.Expand(d),
 			BackupWindowStart:           expandMongoDBBackupWindowStart(d),
 			BackupRetainPeriodDays:      expandMongoDBBackupRetainPeriod(d),
 			FeatureCompatibilityVersion: d.Get("cluster_config.0.feature_compatibility_version").(string),
@@ -1426,10 +1420,6 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	version, err := extractVersion(d)
-	if err != nil {
-		return err
-	}
 	types := getSetOfHostTypes(d)
 	var sharded bool
 	if sharded = d.Get("sharded").(bool); !sharded && mapContainsOneOfKeys(types, []string{
@@ -1445,34 +1435,34 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 
 	if sharded && d.HasChange("resources_mongoinfra") {
 		if compareResources(d, "resources", "resources_mongoinfra") {
-			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.resources", flattendVersion(version))
+			resourcesSpecPath := "config_spec.mongodb.mongoinfra.resources"
 			updatePath = append(updatePath, resourcesSpecPath)
 		}
 	}
 
 	if sharded && d.HasChange("resources_mongocfg") {
 		if compareResources(d, "resources", "resources_mongocfg") {
-			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.resources", flattendVersion(version))
+			resourcesSpecPath := "config_spec.mongodb.mongocfg.resources"
 			updatePath = append(updatePath, resourcesSpecPath)
 		}
 	}
 
 	if d.HasChange("resources_mongod") || d.HasChange("resources") {
 		if compareResources(d, "resources", "resources_mongod") {
-			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.resources", flattendVersion(version))
+			resourcesSpecPath := "config_spec.mongodb.mongod.resources"
 			updatePath = append(updatePath, resourcesSpecPath)
 		}
 	}
 
 	if sharded && d.HasChange("resources_mongos") {
 		if compareResources(d, "resources", "resources_mongos") {
-			resourcesSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.resources", flattendVersion(version))
+			resourcesSpecPath := "config_spec.mongodb.mongos.resources"
 			updatePath = append(updatePath, resourcesSpecPath)
 		}
 	}
 
 	if d.HasChange("cluster_config.0.mongod") {
-		configSpecPath := fmt.Sprintf("config_spec.mongodb_spec_%s.mongod.config", flattendVersion(version))
+		configSpecPath := "config_spec.mongodb.mongod.config"
 		updatePath = append(updatePath, configSpecPath)
 	}
 
@@ -1482,9 +1472,9 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 	if d.HasChange("cluster_config.0.mongos") {
 		var configSpecPath string
 		if hasMongoInfraHosts {
-			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.config_mongos", flattendVersion(version))
+			configSpecPath = "config_spec.mongodb.mongoinfra.config_mongos"
 		} else {
-			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongos.config", flattendVersion(version))
+			configSpecPath = "config_spec.mongodb.mongos.config"
 		}
 		updatePath = append(updatePath, configSpecPath)
 	}
@@ -1492,9 +1482,9 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 	if d.HasChange("cluster_config.0.mongocfg") {
 		var configSpecPath string
 		if hasMongoInfraHosts {
-			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongoinfra.config_mongocfg", flattendVersion(version))
+			configSpecPath = "config_spec.mongodb.mongoinfra.config_mongocfg"
 		} else {
-			configSpecPath = fmt.Sprintf("config_spec.mongodb_spec_%s.mongocfg.config", flattendVersion(version))
+			configSpecPath = "config_spec.mongodb.mongocfg.config"
 		}
 		updatePath = append(updatePath, configSpecPath)
 	}
