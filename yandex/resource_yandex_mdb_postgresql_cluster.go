@@ -1065,8 +1065,14 @@ func updatePGClusterDatabases(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
+	dDatabase := make(map[string]string)
+	cnt := d.Get("database.#").(int)
+	for i := 0; i < cnt; i++ {
+		dDatabase[d.Get(fmt.Sprintf("database.%v.name", i)).(string)] = fmt.Sprintf("database.%v.", i)
+	}
+
 	for _, u := range changedDatabases {
-		err := updatePGDatabase(ctx, config, d, u)
+		err := updatePGDatabase(ctx, config, d, u, dDatabase[u.Name])
 		if err != nil {
 			return err
 		}
@@ -1489,12 +1495,30 @@ func createPGDatabase(ctx context.Context, config *Config, d *schema.ResourceDat
 	return nil
 }
 
-func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, db *postgresql.DatabaseSpec) error {
+func updatePGDatabase(ctx context.Context, config *Config, d *schema.ResourceData, db *postgresql.DatabaseSpec, path string) error {
+	changeMask := map[string]string{
+		"extension": "extensions",
+	}
+
+	updatePath := []string{}
+	for field, mask := range changeMask {
+		if d.HasChange(path + field) {
+			updatePath = append(updatePath, mask)
+		}
+	}
+
+	if len(updatePath) == 0 {
+		return nil
+	}
+
+	// Deletion protection and dbname changing is not supported on purpose
+	// User should use separate resources for that
 	op, err := config.sdk.WrapOperation(
 		config.sdk.MDB().PostgreSQL().Database().Update(ctx, &postgresql.UpdateDatabaseRequest{
 			ClusterId:    d.Id(),
 			DatabaseName: db.Name,
 			Extensions:   db.Extensions,
+			UpdateMask:   &field_mask.FieldMask{Paths: updatePath},
 		}),
 	)
 	if err != nil {
