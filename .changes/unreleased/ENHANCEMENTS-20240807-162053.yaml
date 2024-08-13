@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'postgresql: pass UpdateMask in PostgreSQL Update Database Request'
-time: 2024-08-07T16:20:53.511135+02:00

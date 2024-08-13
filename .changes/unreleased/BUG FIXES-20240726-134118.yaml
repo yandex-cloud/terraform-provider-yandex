@@ -1,4 +1,0 @@
-kind: BUG FIXES
-body: 'lockbox: yandex_lockbox_secret_version and yandex_lockbox_secret_version_hashed
-  will schedule version deletion'
-time: 2024-07-26T13:41:18.265961+03:00

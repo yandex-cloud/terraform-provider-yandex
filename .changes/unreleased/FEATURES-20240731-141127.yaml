@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'storage: support `object_size_greater_than`, `object_size_less_than` in bucket lifecycle configuration in `yandex_storage_bucket` resource'
-time: 2024-07-31T14:11:27.980257+03:00

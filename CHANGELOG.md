@@ -1,3 +1,26 @@
+## 0.127.0 (August 13, 2024)
+
+FEATURES:
+* backup: added `yandex_backup_policy_bindings` resource
+* opensearch: add `node_group` name to `hosts` list
+* iam: `yandex_iam_service_account_key`, `yandex_iam_service_account_api_key` and `yandex_iam_service_account_static_access_key` now can use `output_to_lockbox`
+* mongodb: migrate api to unified config
+* storage: support `object_size_greater_than`, `object_size_less_than` in bucket lifecycle configuration in `yandex_storage_bucket` resource
+* opensearch: allow setting saml authorization for dashboards
+* datatransfer: added clickhouse_cluster_name setting for clickhouse endpoints
+
+BUG FIXES:
+* lockbox: yandex_lockbox_secret_version and yandex_lockbox_secret_version_hashed will schedule version deletion
+* opensearch: empty or missing desription and/or labels fields will no longer cause an error
+* opensearch: fix error while first add dashboards to the existing cluster
+* opensearch: fix inconsistent result after apply for labels, description and security_group_ids fields
+
+ENHANCEMENTS:
+* serverless: Added provision_policy to serverless containers
+* YDBTopics: add missing documentation parameters
+* postgresql: pass UpdateMask in PostgreSQL Update Database Request
+* compute: support `auto_scale_type` in `scale_policy.auto_scale` in `compute_instance_group` resource and datasource
+
 ## 0.126.0 (July 30, 2024)
 
 FEATURES:
@@ -9,7 +32,6 @@ BUG FIXES:
 * opensearch: fixed apply changes when `plugins` missing
 * opensearch: update state when no changes in config section
 * opensearch: unexpected plugins null value after apply
-* yandex_compute_instance: disabled recreating instance on update gpus
 
 ENHANCEMENTS:
 * kubernetes: deprecate version 1.26
