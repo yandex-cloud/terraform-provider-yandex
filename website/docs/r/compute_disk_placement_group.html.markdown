@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Disk Placement Group.
 
-* `zone` - ID of the zone where the Disk Placement Group resides.
+* `zone` - ID of the zone where the Disk Placement Group resides. Default is `ru-central1-b`
 
 * `status` - Status of the Disk Placement Group.
 
@@ -45,3 +45,11 @@ This resource provides the following configuration options for
 - `create` - Default is 1 minute.
 - `update` - Default is 1 minute.
 - `delete` - Default is 1 minute.
+
+## Import
+
+A Disk Placement Group can be imported using any of these accepted formats:
+
+```
+$ terraform import yandex_compute_disk_placement_group.default disk_placement_group_id
+```

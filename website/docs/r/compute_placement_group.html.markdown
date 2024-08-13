@@ -32,7 +32,7 @@ The following arguments are supported:
 * `description` - (Optional) A description of the Placement Group.
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Placement Group.
- 
+
 * `placement_strategy_spread` - A placement strategy with spread policy of the Placement Group. Should be true or unset (conflicts with placement_strategy_partitions).
 
 * `placement_strategy_partitions` - A number of partitions in the placement strategy with partitions policy of the Placement Group (conflicts with placement_strategy_spread).
@@ -45,3 +45,11 @@ This resource provides the following configuration options for
 - `create` - Default is 1 minute.
 - `update` - Default is 1 minute.
 - `delete` - Default is 1 minute.
+
+## Import
+
+A Placement Group can be imported using any of these accepted formats:
+
+```
+$ terraform import yandex_compute_placement_group.default placement_group_id
+```
