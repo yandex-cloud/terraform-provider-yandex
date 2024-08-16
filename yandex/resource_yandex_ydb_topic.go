@@ -21,6 +21,16 @@ func defaultTimeouts() *schema.ResourceTimeout {
 	}
 }
 
+func ydbTimeouts() *schema.ResourceTimeout {
+	return &schema.ResourceTimeout{
+		Create:  schema.DefaultTimeout(time.Minute * 1),
+		Read:    schema.DefaultTimeout(time.Minute * 1),
+		Update:  schema.DefaultTimeout(time.Minute * 1),
+		Delete:  schema.DefaultTimeout(time.Minute * 1),
+		Default: schema.DefaultTimeout(time.Minute * 1),
+	}
+}
+
 func resourceYandexYDBTopic() *schema.Resource {
 	return &schema.Resource{
 		Schema:        topic.ResourceSchema(),
@@ -32,7 +42,7 @@ func resourceYandexYDBTopic() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		Timeouts: defaultTimeouts(),
+		Timeouts: ydbTimeouts(),
 	}
 }
 

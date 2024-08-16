@@ -21,7 +21,7 @@ func resourceYandexYDBTable() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		Timeouts: defaultTimeouts(),
+		Timeouts: ydbTimeouts(),
 	}
 }
 
