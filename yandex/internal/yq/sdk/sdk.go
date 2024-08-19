@@ -19,15 +19,25 @@ type SDK struct {
 	connDialer connection.ConnectionDialer
 }
 
-func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, error) {
+func validateConfig(conf *Config) error {
 	if conf.FolderID == "" {
-		return nil, fmt.Errorf("\"folder_id\" is required to YQ SDK")
+		return fmt.Errorf("\"folder_id\" is required to YQ SDK")
 	}
+
 	if conf.AuthToken == "" {
-		return nil, fmt.Errorf("\"token\" is required to YQ SDK")
+		return fmt.Errorf("\"token\" is required to YQ SDK")
 	}
+
 	if conf.Endpoint == "" {
-		return nil, fmt.Errorf("\"yq_endpoint\" is required to YQ SDK")
+		return fmt.Errorf("\"yq_endpoint\" is required to YQ SDK")
+	}
+
+	return nil
+}
+
+func NewYQSDK(ctx context.Context, conf Config, opts ...grpc.DialOption) (*SDK, error) {
+	if err := validateConfig(&conf); err != nil {
+		return nil, err
 	}
 
 	mdMiddleware := newYQMDMiddleware(conf.AuthToken, conf.FolderID)
