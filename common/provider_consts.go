@@ -3,6 +3,7 @@ package common
 const (
 	DefaultMaxRetries      = 5
 	DefaultEndpoint        = "api.cloud.yandex.net:443"
+	DefaultYQEndpoint      = "grpc.yandex-query.cloud.yandex.net:2135"
 	DefaultStorageEndpoint = "storage.yandexcloud.net"
 	DefaultYMQEndpoint     = "message-queue.api.cloud.yandex.net"
 	DefaultRegion          = "ru-central1"
@@ -10,6 +11,8 @@ const (
 
 var Descriptions = map[string]string{
 	"endpoint": "The API endpoint for Yandex.Cloud SDK client.",
+
+	"yq_endpoint": "The API endpoint for Yandex.Cloud YQ SDK client.",
 
 	"folder_id": "The default folder ID where resources will be placed.",
 
