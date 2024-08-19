@@ -235,14 +235,14 @@ func falttenYandexYQConnectionSetting(
 
 	d.Set(os_conn.AttributeBucket, objectStorageSetting.GetBucket())
 
-	if err := flannetYandexYQAuth(d, objectStorageSetting.GetAuth()); err != nil {
+	if err := flattenYandexYQAuth(d, objectStorageSetting.GetAuth()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func flannetYandexYQAuth(d *schema.ResourceData,
+func flattenYandexYQAuth(d *schema.ResourceData,
 	auth *Ydb_FederatedQuery.IamAuth,
 ) error {
 	serviceAccountID, err := iAMAuthToString(auth)
