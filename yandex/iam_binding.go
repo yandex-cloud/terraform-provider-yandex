@@ -73,7 +73,7 @@ func resourceAccessBindingCreate(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			return diag.FromErr(err)
 		}
 
-		role := p[0].RoleId
+		role := d.Get("role").(string)
 		d.SetId(updater.GetResourceID() + "/" + role)
 
 		if v, ok := d.GetOk("sleep_after"); ok {
@@ -182,7 +182,7 @@ func resourceAccessBindingDelete(newUpdaterFunc newResourceIamUpdaterFunc) schem
 			log.Printf("[DEBUG]: Resource %s is missing or deleted, marking policy binding as deleted", updater.DescribeResource())
 			return nil
 		}
-		role := binding[0].RoleId
+		role := d.Get("role").(string)
 
 		err = iamPolicyReadModifySet(ctx, updater, func(p *Policy) error {
 			p.Bindings = removeRoleFromBindings(role, p.Bindings)

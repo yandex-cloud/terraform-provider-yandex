@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'yandex_lockbox_secret_iam_binding: fix error on empty members list'
+time: 2024-08-16T20:24:50.314164+04:00
