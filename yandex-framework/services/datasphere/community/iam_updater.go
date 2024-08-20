@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/accessbinding"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/math"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
 )
 
@@ -106,7 +105,7 @@ func (u *CommunityIAMUpdater) UpdateResourceIamPolicy(ctx context.Context, polic
 	for i := 0; i < accessbinding.CountBatches(dLen, bSize); i++ {
 		req := &access.UpdateAccessBindingsRequest{
 			ResourceId:          u.CommunityId,
-			AccessBindingDeltas: deltas[i*bSize : math.Min((i+1)*bSize, dLen)],
+			AccessBindingDeltas: deltas[i*bSize : min((i+1)*bSize, dLen)],
 		}
 
 		op, err := u.ProviderConfig.SDK.WrapOperation(
