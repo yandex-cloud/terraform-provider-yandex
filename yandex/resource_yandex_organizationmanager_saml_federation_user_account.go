@@ -191,6 +191,7 @@ func getSamlUserAccount(context context.Context, config *Config, federationID, n
 		}
 		for _, account := range listResp.Users {
 			if account.SubjectClaims.PreferredUsername == nameID &&
+				account.SubjectClaims.Federation != nil &&
 				account.SubjectClaims.Federation.Id == federationID {
 				return account, nil
 			}
