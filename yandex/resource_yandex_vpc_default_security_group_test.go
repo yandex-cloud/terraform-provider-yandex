@@ -45,7 +45,7 @@ func TestAccVPCDefaultSecurityGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dsgName, "egress.0.from_port", "8090"),
 					resource.TestCheckResourceAttr(dsgName, "egress.0.to_port", "8099"),
 					resource.TestCheckResourceAttr(dsgName, "labels.empty-label", ""),
-					resource.TestCheckResourceAttr(dsgName, "labels.tf-label", "lol kek"),
+					resource.TestCheckResourceAttr(dsgName, "labels.tf-label", "my-tf-label"),
 					testAccCheckCreatedAtAttr(dsgName),
 				),
 			},
@@ -87,7 +87,7 @@ func TestAccVPCDefaultSecurityGroup_update(t *testing.T) {
 					resource.TestCheckResourceAttr(dsgName, "egress.0.to_port", "8099"),
 					resource.TestCheckResourceAttr(dsgName, "labels.%", "2"),
 					resource.TestCheckResourceAttr(dsgName, "labels.empty-label", ""),
-					resource.TestCheckResourceAttr(dsgName, "labels.tf-label", "lol kek"),
+					resource.TestCheckResourceAttr(dsgName, "labels.tf-label", "my-tf-label"),
 					testAccCheckCreatedAtAttr(dsgName),
 				),
 			},
@@ -106,7 +106,7 @@ func TestAccVPCDefaultSecurityGroup_update(t *testing.T) {
 					resource.TestCheckResourceAttr(dsgName, "egress.0.from_port", "8090"),
 					resource.TestCheckResourceAttr(dsgName, "egress.0.to_port", "8099"),
 					resource.TestCheckResourceAttr(dsgName, "labels.%", "1"),
-					resource.TestCheckResourceAttr(dsgName, "labels.new-label", "hihi haha"),
+					resource.TestCheckResourceAttr(dsgName, "labels.new-label", "my-new-label"),
 					testAccCheckCreatedAtAttr(dsgName),
 				),
 			},
@@ -147,7 +147,7 @@ resource "yandex_vpc_default_security_group" "dsg" {
 	folder_id   = "%s"
 
 	labels = {
-		tf-label = "lol kek"
+		tf-label = "my-tf-label"
 		empty-label = ""
 	}
 
@@ -182,7 +182,7 @@ resource "yandex_vpc_default_security_group" "dsg" {
 	folder_id   = "%s"
 
 	labels = {
-		new-label = "hihi haha"
+		new-label = "my-new-label"
 	}
 
 	ingress {
@@ -216,7 +216,7 @@ resource "yandex_vpc_default_security_group" "dsg" {
 	folder_id   = "%s"
 
 	labels = {
-		tf-label = "lol kek"
+		tf-label = "my-tf-label"
 		empty-label = ""
 	}
 
@@ -242,7 +242,7 @@ resource "yandex_vpc_default_security_group" "same-dsg" {
 	folder_id   = "%s"
 
 	labels = {
-		new-label = "hihi haha"
+		new-label = "my-new-label"
 	}
 
 	ingress {

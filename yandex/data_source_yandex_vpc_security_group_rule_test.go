@@ -38,7 +38,7 @@ resource "yandex_vpc_network" "net" {}
 
 resource "yandex_vpc_security_group" "sg" {
   network_id  = "${yandex_vpc_network.net.id}"
-  name        = "some name"
+  name        = "some-name"
   description = "some description"
 }
 
