@@ -170,6 +170,7 @@ func sdkProvider(emptyFolder bool) *schema.Provider {
 			"yandex_iam_policy":                                       dataSourceYandexIAMPolicy(),
 			"yandex_iam_role":                                         dataSourceYandexIAMRole(),
 			"yandex_iam_service_account":                              dataSourceYandexIAMServiceAccount(),
+			"yandex_iam_service_agent":                                dataSourceYandexIamServiceAgent(),
 			"yandex_iam_user":                                         dataSourceYandexIAMUser(),
 			"yandex_iot_core_broker":                                  dataSourceYandexIoTCoreBroker(),
 			"yandex_iot_core_device":                                  dataSourceYandexIoTCoreDevice(),
