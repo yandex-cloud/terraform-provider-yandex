@@ -31,11 +31,14 @@ resource "yandex_compute_instance" "default" {
   network_interface {
     index  = 1
     subnet_id = "${yandex_vpc_subnet.foo.id}"
+    nat = true
+    security_group_ids = [ yandex_vpc_security_group.security_group1.id ]
   }
 
   metadata = {
     foo      = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    user-data = "${file("/home/user/cloudinit/meta.txt")}"
   }
 }
 
@@ -46,6 +49,74 @@ resource "yandex_vpc_subnet" "foo" {
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.5.0.0/24"]
 }
+
+resource "yandex_iam_service_account" "savpcsg" {                       
+  name = "savpcsg"                                                      
+}                                                                       
+                                                                        
+resource "yandex_resourcemanager_folder_iam_binding" "editor" {         
+  folder_id = var.yc_folder_id                                    
+  role      = "editor"                                                  
+  members = [                                                           
+    "serviceAccount:${yandex_iam_service_account.savpcsg.id}"           
+  ]                                                                     
+  depends_on = [                                                        
+    yandex_iam_service_account.savpcsg,                                 
+  ]                                                                     
+}
+
+resource "yandex_vpc_security_group" "security_group1" {                
+  name        = "Security Group 1"                                      
+  description = "Our Security Group"              
+  network_id  = yandex_vpc_network.foo.id                           
+  depends_on = [                                                        
+    yandex_iam_service_account.savpcsg,                                 
+    yandex_resourcemanager_folder_iam_binding.editor,                   
+    yandex_vpc_network.foo,                                         
+    yandex_vpc_subnet.foo,                            
+  ]                                                                     
+                                                                        
+  ingress {                                                             
+    protocol       = "TCP"                                              
+    description    = "SSH"                                              
+    port           = 22                                                 
+    v4_cidr_blocks = ["0.0.0.0/0"]                                      
+  }                                                                     
+                                                                        
+  egress {                                                              
+                                                                        
+    protocol       = "ANY"                                              
+    description    = "Outbound unrestricted"                            
+    v4_cidr_blocks = ["0.0.0.0/0"]                                      
+    port           = -1                                                 
+  }                                                                     
+                                                                        
+}
+```
+```
+#Sample cloudinit/meta.txt
+users:
+  - name: user1
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    homedir: /opt/user1
+    ssh-authorized-keys:
+      - ssh-rsa .... <comment>
+
+packages:
+  - tmux
+  - rsync
+
+package_upgrade: true
+package_reboot_if_required: true
+timezone: 'Asia/Tokyo'
+
+runcmd:
+  - echo PermitRootLogin No >> /etc/ssh/sshd_config && sshd -t &&  systemctl restart sshd
+  - echo -e "net.core.rmem_max=4194304\nnet.core.wmem_max=1048576" > /etc/sysctl.d/mynetwork.conf
+  - sysctl -p /etc/sysctl.d/mynetwork.conf
+  - chown -R user1:user1 /opt/user1
 ```
 
 ## Argument Reference
