@@ -11,7 +11,7 @@ ifeq ($(SWEEP),)
 SWEEP=ru-central1
 endif
 
-SWEEP_DIR= ./yandex ./yandex-framework/test
+SWEEP_DIR= ./yandex ./yandex-framework/test/...
 
 SWEEPERS_FOR_RUNNING?=""
 
