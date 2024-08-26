@@ -371,7 +371,7 @@ func expandRedisResources(d *schema.ResourceData) (*redis.Resources, error) {
 func expandRedisDiskSizeAutoscaling(d *schema.ResourceData) (*redis.DiskSizeAutoscaling, error) {
 	dsa := &redis.DiskSizeAutoscaling{}
 
-	if v, ok := d.GetOk("disk_size_autoscaling.0.disk_size_limit"); ok {
+	if v := d.Get("disk_size_autoscaling.0.disk_size_limit"); v != nil {
 		dsa.DiskSizeLimit = &wrappers.Int64Value{Value: toBytes(v.(int))}
 	}
 

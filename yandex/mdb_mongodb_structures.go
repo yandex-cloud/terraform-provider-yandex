@@ -16,11 +16,12 @@ import (
 )
 
 type MongodbSpecHelper struct {
-	FlattenResources func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error)
-	FlattenMongod    func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
-	FlattenMongos    func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
-	FlattenMongocfg  func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
-	Expand           func(d *schema.ResourceData) *mongodb.MongodbSpec
+	FlattenResources           func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error)
+	FlattenDiskSizeAutoscaling func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error)
+	FlattenMongod              func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
+	FlattenMongos              func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
+	FlattenMongocfg            func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error)
+	Expand                     func(d *schema.ResourceData) *mongodb.MongodbSpec
 }
 
 func GetMongodbSpecHelper() *MongodbSpecHelper {
@@ -63,6 +64,24 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 				return nil, fmt.Errorf("Non empty service not found in mongo spec")
 			}
 			return resources, nil
+		},
+
+		FlattenDiskSizeAutoscaling: func(c *mongodb.ClusterConfig, d *schema.ResourceData) (map[string]interface{}, error) {
+			spec := c.GetMongodbConfig()
+			dsa := map[string]interface{}{}
+			if spec.Mongod != nil {
+				dsa["disk_size_autoscaling_mongod"] = flattenMongoDBDiskSizeAutoscaling(spec.Mongod.DiskSizeAutoscaling)
+			}
+			if spec.Mongos != nil {
+				dsa["disk_size_autoscaling_mongos"] = flattenMongoDBDiskSizeAutoscaling(spec.Mongos.DiskSizeAutoscaling)
+			}
+			if spec.Mongocfg != nil {
+				dsa["disk_size_autoscaling_mongocfg"] = flattenMongoDBDiskSizeAutoscaling(spec.Mongocfg.DiskSizeAutoscaling)
+			}
+			if spec.Mongoinfra != nil {
+				dsa["disk_size_autoscaling_mongoinfra"] = flattenMongoDBDiskSizeAutoscaling(spec.Mongoinfra.DiskSizeAutoscaling)
+			}
+			return dsa, nil
 		},
 
 		FlattenMongod: func(c *mongodb.ClusterConfig, d *schema.ResourceData) ([]map[string]interface{}, error) {
@@ -424,32 +443,37 @@ func GetMongodbSpecHelper() *MongodbSpecHelper {
 			}
 			hostTypes := getSetOfHostTypes(d)
 			var resourcesMongod, resourcesMongos, resourcesMongoCfg, resourcesMongoInfra *mongodb.Resources = getResources(d)
+			var dsaMongod, dsaMongos, dsaMongoCfg, dsaMongoInfra *mongodb.DiskSizeAutoscaling = getDiskSizeAutoscaling(d)
 			var mongod *mongodb.MongodbSpec_Mongod
 			var mongos *mongodb.MongodbSpec_Mongos
 			var mongocfg *mongodb.MongodbSpec_MongoCfg
 			var mongoinfra *mongodb.MongodbSpec_MongoInfra
 			mongod = &mongodb.MongodbSpec_Mongod{
-				Config:    &configMongod,
-				Resources: resourcesMongod,
+				Config:              &configMongod,
+				Resources:           resourcesMongod,
+				DiskSizeAutoscaling: dsaMongod,
 			}
 
 			if _, ok := hostTypes["MONGOS"]; ok {
 				mongos = &mongodb.MongodbSpec_Mongos{
-					Config:    &configMongos,
-					Resources: resourcesMongos,
+					Config:              &configMongos,
+					Resources:           resourcesMongos,
+					DiskSizeAutoscaling: dsaMongos,
 				}
 			}
 			if _, ok := hostTypes["MONGOCFG"]; ok {
 				mongocfg = &mongodb.MongodbSpec_MongoCfg{
-					Config:    &configMongoCfg,
-					Resources: resourcesMongoCfg,
+					Config:              &configMongoCfg,
+					Resources:           resourcesMongoCfg,
+					DiskSizeAutoscaling: dsaMongoCfg,
 				}
 			}
 			if _, ok := hostTypes["MONGOINFRA"]; ok {
 				mongoinfra = &mongodb.MongodbSpec_MongoInfra{
-					ConfigMongocfg: &configMongoCfg,
-					ConfigMongos:   &configMongos,
-					Resources:      resourcesMongoInfra,
+					ConfigMongocfg:      &configMongoCfg,
+					ConfigMongos:        &configMongos,
+					Resources:           resourcesMongoInfra,
+					DiskSizeAutoscaling: dsaMongoInfra,
 				}
 			}
 			return &mongodb.MongodbSpec{
@@ -473,6 +497,13 @@ func getResources(d *schema.ResourceData) (*mongodb.Resources, *mongodb.Resource
 			expandMongoDBResourcesWithType(d, "resources_mongocfg"),
 			expandMongoDBResourcesWithType(d, "resources_mongoinfra")
 	}
+}
+
+func getDiskSizeAutoscaling(d *schema.ResourceData) (*mongodb.DiskSizeAutoscaling, *mongodb.DiskSizeAutoscaling, *mongodb.DiskSizeAutoscaling, *mongodb.DiskSizeAutoscaling) {
+	return expandMongoDBDiskSizeAutoscalingWithType(d, "disk_size_autoscaling_mongod"),
+		expandMongoDBDiskSizeAutoscalingWithType(d, "disk_size_autoscaling_mongos"),
+		expandMongoDBDiskSizeAutoscalingWithType(d, "disk_size_autoscaling_mongocfg"),
+		expandMongoDBDiskSizeAutoscalingWithType(d, "disk_size_autoscaling_mongoinfra")
 }
 
 func getSetOfHostTypes(d *schema.ResourceData) map[string]struct{} {
@@ -610,6 +641,16 @@ func flattenMongoDBResources(m *mongodb.Resources) []map[string]interface{} {
 	res["resource_preset_id"] = m.ResourcePresetId
 	res["disk_size"] = toGigabytes(m.DiskSize)
 	res["disk_type_id"] = m.DiskTypeId
+
+	return []map[string]interface{}{res}
+}
+
+func flattenMongoDBDiskSizeAutoscaling(m *mongodb.DiskSizeAutoscaling) []map[string]interface{} {
+	res := map[string]interface{}{}
+
+	res["disk_size_limit"] = toGigabytes(m.GetDiskSizeLimit().GetValue())
+	res["planned_usage_threshold"] = int(m.GetPlannedUsageThreshold().GetValue())
+	res["emergency_usage_threshold"] = int(m.GetEmergencyUsageThreshold().GetValue())
 
 	return []map[string]interface{}{res}
 }
@@ -900,6 +941,28 @@ func expandMongoDBResourcesWithType(d *schema.ResourceData, hostType string) *mo
 		ResourcePresetId: d.Get(hostType + ".0.resource_preset_id").(string),
 	}
 	return &res
+}
+
+func expandMongoDBDiskSizeAutoscalingWithType(d *schema.ResourceData, hostType string) *mongodb.DiskSizeAutoscaling {
+	if _, ok := d.GetOk(hostType); !ok {
+		return nil
+	}
+
+	dsa := &mongodb.DiskSizeAutoscaling{}
+
+	if v := d.Get(hostType + ".0.disk_size_limit"); v != nil {
+		dsa.DiskSizeLimit = &wrappers.Int64Value{Value: toBytes(v.(int))}
+	}
+
+	if v, ok := d.GetOk(hostType + ".0.planned_usage_threshold"); ok {
+		dsa.PlannedUsageThreshold = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	if v, ok := d.GetOk(hostType + ".0.emergency_usage_threshold"); ok {
+		dsa.EmergencyUsageThreshold = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return dsa
 }
 
 func expandMongoDBBackupWindowStart(d *schema.ResourceData) *timeofday.TimeOfDay {

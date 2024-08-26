@@ -61,6 +61,12 @@ The `resources` block supports:
 * `disk_size` - Volume of the storage available to a host, in gigabytes.
 * `disk_type_id` - The ID of the storage type. For more information, see [the official documentation](https://cloud.yandex.com/docs/managed-mongodb/concepts/storage)
 
+The `disk_size_autoscaling_mongod`, `disk_size_autoscaling_mongos`, `disk_size_autoscaling_mongoinfra`, `disk_size_autoscaling_mongocfg` blocks support:
+
+* `disk_size_limit` - Limit of disk size after autoscaling (GiB).
+* `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
+* `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
+
 The `host` block supports:
 
 * `name` - The fully qualified domain name of the host.

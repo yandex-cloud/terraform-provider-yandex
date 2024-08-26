@@ -162,6 +162,12 @@ The `resources`, `resources_mongod`, `resources_mongos`, `resources_mongocfg`, `
 * `disk_type_id` - (Required) Type of the storage of MongoDB hosts.
   For more information see [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/storage).
 
+The `disk_size_autoscaling_mongod`, `disk_size_autoscaling_mongos`, `disk_size_autoscaling_mongoinfra`, `disk_size_autoscaling_mongocfg` blocks support:
+
+* `disk_size_limit` - Limit of disk size after autoscaling (GiB).
+* `planned_usage_threshold` - Maintenance window autoscaling disk usage (percent).
+* `emergency_usage_threshold` - Immediate autoscaling disk usage (percent).
+
 The `user` block supports:
 
 * `name` - (Required) The name of the user.

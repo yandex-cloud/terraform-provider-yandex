@@ -20,6 +20,7 @@ import (
 
 	"golang.org/x/exp/maps"
 	"google.golang.org/genproto/protobuf/field_mask"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const mongodbRestoreBackupId = "c9qvb4o0gnrh8ene82l7:c9qhh0gi4hn06qkdoqke"
@@ -285,6 +286,45 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 {{end}}
 
+{{if .DiskSizeAutoscalingMongod}}
+  disk_size_autoscaling_mongod {
+    disk_size_limit           = {{.DiskSizeAutoscalingMongod.DiskSizeLimit.Value}}
+	{{if .DiskSizeAutoscalingMongod.PlannedUsageThreshold}}
+    planned_usage_threshold   = {{.DiskSizeAutoscalingMongod.PlannedUsageThreshold.Value}}
+	{{end}}
+    emergency_usage_threshold = {{.DiskSizeAutoscalingMongod.EmergencyUsageThreshold.Value}}
+  }
+
+{{end}}
+{{if .DiskSizeAutoscalingMongoCfg}}
+  disk_size_autoscaling_mongocfg {
+    disk_size_limit           = {{.DiskSizeAutoscalingMongoCfg.DiskSizeLimit.Value}}
+	{{if .DiskSizeAutoscalingMongoCfg.PlannedUsageThreshold}}
+    planned_usage_threshold   = {{.DiskSizeAutoscalingMongoCfg.PlannedUsageThreshold.Value}}
+	{{end}}
+    emergency_usage_threshold = {{.DiskSizeAutoscalingMongoCfg.EmergencyUsageThreshold.Value}}
+  }
+{{end}}
+
+{{if .DiskSizeAutoscalingMongos}}
+  disk_size_autoscaling_mongos {
+    disk_size_limit           = {{.DiskSizeAutoscalingMongos.DiskSizeLimit.Value}}
+	{{if .DiskSizeAutoscalingMongos.PlannedUsageThreshold}}
+    planned_usage_threshold   = {{.DiskSizeAutoscalingMongos.PlannedUsageThreshold.Value}}
+	{{end}}
+    emergency_usage_threshold = {{.DiskSizeAutoscalingMongos.EmergencyUsageThreshold.Value}}
+  }
+{{end}}
+
+{{if .DiskSizeAutoscalingMongoInfra}}
+  disk_size_autoscaling_mongoinfra {
+    disk_size_limit           = {{.DiskSizeAutoscalingMongoInfra.DiskSizeLimit.Value}}
+	{{if .DiskSizeAutoscalingMongoInfra.PlannedUsageThreshold}}
+    planned_usage_threshold   = {{.DiskSizeAutoscalingMongoInfra.PlannedUsageThreshold.Value}}
+	{{end}}
+    emergency_usage_threshold = {{.DiskSizeAutoscalingMongoInfra.EmergencyUsageThreshold.Value}}
+  }
+{{end}}
 
 {{range $i, $r := .Hosts}}
   host {
@@ -721,6 +761,25 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 				),
 			},
 			mdbMongoDBClusterImportStep(),
+			// Update disk size autoscaling
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: (s2Small26hdd.DiskSize * 2) >> 30},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: s2Small26hdd.DiskSize * 2},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+					}}),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
 			{
 				Config: makeConfig(t, &configData, &map[string]interface{}{
 					"MaintenanceWindow":      map[string]interface{}{"Type": "ANYTIME"},
@@ -907,6 +966,10 @@ func create6_0V1ConfigData() map[string]interface{} {
 			ResourcePresetId: s2Micro16hdd.ResourcePresetId,
 			DiskSize:         toBytes(13) >> 30,
 			DiskTypeId:       s2Micro16hdd.DiskTypeId,
+		},
+		"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+			DiskSizeLimit:           &wrapperspb.Int64Value{Value: (s2Small26hdd.DiskSize * 2) >> 30},
+			EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
 		},
 		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
 		"MaintenanceWindow": map[string]interface{}{
@@ -1130,6 +1193,46 @@ func TestAccMDBMongoDBCluster_6_0ShardedCfgV0(t *testing.T) {
 						"ResourcesMongod":   &newResourcesMongodV1,
 						"ResourcesMongos":   &newResourcesMongosV1,
 						"ResourcesMongoCfg": &newResourcesMongoCfgV1,
+					}),
+				),
+			},
+			// Update disk size autoscaling
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: 31},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+					},
+					"DiskSizeAutoscalingMongos": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: 32},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 81},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 91},
+					},
+					"DiskSizeAutoscalingMongoCfg": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: 33},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 82},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 92},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &testCluster, 7),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&testCluster, map[string]interface{}{
+						"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+							DiskSizeLimit:           &wrapperspb.Int64Value{Value: toBytes(31)},
+							PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+							EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+						},
+						"DiskSizeAutoscalingMongos": &mongodb.DiskSizeAutoscaling{
+							DiskSizeLimit:           &wrapperspb.Int64Value{Value: toBytes(32)},
+							PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 81},
+							EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 91},
+						},
+						"DiskSizeAutoscalingMongoCfg": &mongodb.DiskSizeAutoscaling{
+							DiskSizeLimit:           &wrapperspb.Int64Value{Value: toBytes(33)},
+							PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 82},
+							EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 92},
+						},
 					}),
 				),
 			},
@@ -2007,6 +2110,9 @@ func testAccCheckMDBMongoDBClusterHasRightVersion(r *mongodb.Cluster, version st
 }
 
 func supportTestResources(actual *mongodb.Resources, expected *mongodb.Resources) error {
+	if expected == nil {
+		return nil
+	}
 	if actual.ResourcePresetId != expected.ResourcePresetId {
 		return fmt.Errorf("Expected resource preset id '%s', got '%s'",
 			expected.ResourcePresetId, actual.ResourcePresetId)
@@ -2019,6 +2125,29 @@ func supportTestResources(actual *mongodb.Resources, expected *mongodb.Resources
 		return fmt.Errorf("Expected disk type id '%s', got '%s'", expected.DiskTypeId, actual.DiskTypeId)
 	}
 
+	return nil
+}
+
+func supportTestDiskSizeAutoscaling(actual *mongodb.DiskSizeAutoscaling, expected *mongodb.DiskSizeAutoscaling) error {
+	if expected == nil {
+		return nil
+	}
+	if actual.DiskSizeLimit.GetValue() != expected.DiskSizeLimit.GetValue() {
+		return fmt.Errorf("Expected disk size limit '%+v', got '%+v'",
+			expected.DiskSizeLimit, actual.DiskSizeLimit)
+	}
+	if expected.PlannedUsageThreshold != nil && actual.PlannedUsageThreshold == nil {
+		return fmt.Errorf("Expected non nil planned usage threshold")
+	}
+	if expected.PlannedUsageThreshold != nil && actual.PlannedUsageThreshold.GetValue() != expected.PlannedUsageThreshold.GetValue() {
+		return fmt.Errorf("Expected planned usage threshold '%+v', got '%+v'", expected.PlannedUsageThreshold, actual.PlannedUsageThreshold)
+	}
+	if expected.EmergencyUsageThreshold != nil && actual.EmergencyUsageThreshold == nil {
+		return fmt.Errorf("Expected non nil emergency usage threshold")
+	}
+	if expected.EmergencyUsageThreshold != nil && actual.EmergencyUsageThreshold.GetValue() != expected.EmergencyUsageThreshold.GetValue() {
+		return fmt.Errorf("Expected emergency usage threshold '%+v', got '%+v'", expected.EmergencyUsageThreshold, actual.EmergencyUsageThreshold)
+	}
 	return nil
 }
 
@@ -2096,6 +2225,20 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 		}
 	}
 
+	var expectedDsaMongod, expectedDsaMongocfg, expectedDsaMongos, expectedDsaMongoinfra *mongodb.DiskSizeAutoscaling
+	if expectedResources, ok := expected["DiskSizeAutoscalingMongod"]; ok {
+		expectedDsaMongod = expectedResources.(*mongodb.DiskSizeAutoscaling)
+	}
+	if expectedResources, ok := expected["DiskSizeAutoscalingMongos"]; ok {
+		expectedDsaMongos = expectedResources.(*mongodb.DiskSizeAutoscaling)
+	}
+	if expectedResources, ok := expected["DiskSizeAutoscalingMongoCfg"]; ok {
+		expectedDsaMongocfg = expectedResources.(*mongodb.DiskSizeAutoscaling)
+	}
+	if expectedResources, ok := expected["DiskSizeAutoscalingMongoInfra"]; ok {
+		expectedDsaMongoinfra = expectedResources.(*mongodb.DiskSizeAutoscaling)
+	}
+
 	return func(s *terraform.State) error {
 		switch r.Config.Version {
 		case "6.0-enterprise":
@@ -2104,6 +2247,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2126,7 +2273,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2135,7 +2285,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2144,7 +2297,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2159,6 +2315,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 					if err != nil {
 						return err
 					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
+					if err != nil {
+						return err
+					}
 					if expectedValue, ok := expected["AuditLogFilter"]; ok {
 						actual := d.Config.UserConfig.AuditLog.Filter
 						expected := expectedValue.(string)
@@ -2178,7 +2338,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2187,7 +2350,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2196,7 +2362,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2208,7 +2377,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2217,7 +2389,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2226,7 +2401,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2235,7 +2413,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2247,7 +2428,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2256,7 +2440,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2265,7 +2452,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2274,7 +2464,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2286,7 +2479,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2295,7 +2491,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2304,7 +2503,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2313,7 +2515,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2325,7 +2530,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2334,7 +2542,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2343,7 +2554,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2352,7 +2566,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2364,7 +2581,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2373,7 +2593,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2382,7 +2605,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2391,7 +2617,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2403,7 +2632,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2412,7 +2644,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2421,7 +2656,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2430,7 +2668,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}
@@ -2442,7 +2683,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				d := mongo.Mongod
 				if d != nil {
 					err := supportTestResources(d.Resources, expectedResourcesMongod)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(d.DiskSizeAutoscaling, expectedDsaMongod)
 					if err != nil {
 						return err
 					}
@@ -2451,7 +2695,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				s := mongo.Mongos
 				if s != nil {
 					err := supportTestResources(s.Resources, expectedResourcesMongos)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(s.DiskSizeAutoscaling, expectedDsaMongos)
 					if err != nil {
 						return err
 					}
@@ -2460,7 +2707,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				cfg := mongo.Mongocfg
 				if cfg != nil {
 					err := supportTestResources(cfg.Resources, expectedResourcesMongocfg)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(cfg.DiskSizeAutoscaling, expectedDsaMongocfg)
 					if err != nil {
 						return err
 					}
@@ -2469,7 +2719,10 @@ func testAccCheckMDBMongoDBClusterHasMongodSpec(r *mongodb.Cluster, expected map
 				infra := mongo.Mongoinfra
 				if infra != nil {
 					err := supportTestResources(infra.Resources, expectedResourcesMongoinfra)
-
+					if err != nil {
+						return err
+					}
+					err = supportTestDiskSizeAutoscaling(infra.DiskSizeAutoscaling, expectedDsaMongoinfra)
 					if err != nil {
 						return err
 					}

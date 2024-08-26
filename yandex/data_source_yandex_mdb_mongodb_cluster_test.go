@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mongodb/v1"
 )
@@ -49,6 +50,11 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 			DiskSize:         16,
 			DiskTypeId:       "network-hdd",
 		},
+		"DiskSizeAutoscalingMongod": mongodb.DiskSizeAutoscaling{
+			DiskSizeLimit:           &wrapperspb.Int64Value{Value: 17},
+			PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+			EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+		},
 		"Hosts": []map[string]interface{}{
 			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
 			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
@@ -86,6 +92,9 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 					resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.day", "FRI"),
 					resource.TestCheckResourceAttr(datasourceName, "maintenance_window.0.hour", "20"),
 					resource.TestCheckResourceAttr(datasourceName, "deletion_protection", "false"),
+					resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling_mongod.0.disk_size_limit", "17"),
+					resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling_mongod.0.planned_usage_threshold", "80"),
+					resource.TestCheckResourceAttr(datasourceName, "disk_size_autoscaling_mongod.0.emergency_usage_threshold", "90"),
 				),
 			},
 		},
@@ -132,6 +141,9 @@ func testAccDataSourceMDBMongoDBClusterAttributesCheck(datasourceName string, re
 			"maintenance_window.0.day",
 			"maintenance_window.0.hour",
 			"deletion_protection",
+			"disk_size_autoscaling_mongod.0.disk_size_limit",
+			"disk_size_autoscaling_mongod.0.planned_usage_threshold",
+			"disk_size_autoscaling_mongod.0.emergency_usage_threshold",
 		}
 
 		for _, attrToCheck := range instanceAttrsToTest {

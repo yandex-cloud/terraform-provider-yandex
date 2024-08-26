@@ -3,10 +3,11 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
 	"strings"
 	"time"
+
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
@@ -303,6 +304,94 @@ func resourceYandexMDBMongodbCluster() *schema.Resource {
 						"disk_type_id": {
 							Type:     schema.TypeString,
 							Required: true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling_mongod": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling_mongoinfra": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling_mongocfg": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"disk_size_autoscaling_mongos": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"disk_size_limit": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"planned_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"emergency_usage_threshold": {
+							Type:     schema.TypeInt,
+							Optional: true,
 						},
 					},
 				},
@@ -854,6 +943,11 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		return nil, fmt.Errorf("Error while expanding network id on MongoDB Cluster create: %s", err)
 	}
 
+	mw, err := expandMongoDBMaintenanceWindow(d)
+	if err != nil {
+		return nil, fmt.Errorf("Error while expanding maintenance window on MongoDB Cluster create: %s", err)
+	}
+
 	req := mongodb.CreateClusterRequest{
 		FolderId:           folderID,
 		Name:               d.Get("name").(string),
@@ -867,6 +961,7 @@ func prepareCreateMongodbRequest(d *schema.ResourceData, meta *Config) (*mongodb
 		Labels:             labels,
 		SecurityGroupIds:   securityGroupIds,
 		DeletionProtection: d.Get("deletion_protection").(bool),
+		MaintenanceWindow:  mw,
 	}
 	return &req, nil
 }
@@ -907,17 +1002,6 @@ func resourceYandexMDBMongodbClusterCreate(ctx context.Context, d *schema.Resour
 
 	if _, err := op.Response(); err != nil {
 		return diag.Errorf("Mongodb Cluster creation failed: %s", err)
-	}
-
-	mw, err := expandMongoDBMaintenanceWindow(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if mw != nil {
-		err = updateMongoDBMaintenanceWindow(ctx, config, d, mw)
-		if err != nil {
-			return diag.FromErr(err)
-		}
 	}
 
 	return resourceYandexMDBMongodbClusterRead(ctx, d, meta)
@@ -1091,6 +1175,16 @@ func resourceYandexMDBMongodbClusterRead(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 	for k, v := range flattenResources {
+		if err := d.Set(k, v); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	flattenDsa, err := mongodbSpecHelper.FlattenDiskSizeAutoscaling(cluster.Config, d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	for k, v := range flattenDsa {
 		if err := d.Set(k, v); err != nil {
 			return diag.FromErr(err)
 		}
@@ -1459,6 +1553,24 @@ func updateMongodbClusterParams(ctx context.Context, d *schema.ResourceData, met
 			resourcesSpecPath := "config_spec.mongodb.mongos.resources"
 			updatePath = append(updatePath, resourcesSpecPath)
 		}
+	}
+
+	if d.HasChange("disk_size_autoscaling_mongod") {
+		dsaSpecPath := "config_spec.mongodb.mongod.disk_size_autoscaling"
+		updatePath = append(updatePath, dsaSpecPath)
+	}
+
+	if sharded && d.HasChange("disk_size_autoscaling_mongoinfra") {
+		dsaSpecPath := "config_spec.mongodb.mongoinfra.disk_size_autoscaling"
+		updatePath = append(updatePath, dsaSpecPath)
+	}
+	if sharded && d.HasChange("disk_size_autoscaling_mongocfg") {
+		dsaSpecPath := "config_spec.mongodb.mongocfg.disk_size_autoscaling"
+		updatePath = append(updatePath, dsaSpecPath)
+	}
+	if sharded && d.HasChange("disk_size_autoscaling_mongos") {
+		dsaSpecPath := "config_spec.mongodb.mongos.disk_size_autoscaling"
+		updatePath = append(updatePath, dsaSpecPath)
 	}
 
 	if d.HasChange("cluster_config.0.mongod") {
