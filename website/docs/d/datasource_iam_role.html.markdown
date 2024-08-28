@@ -48,7 +48,12 @@ Each role document configuration must have one or more `binding` blocks. Each bl
   * **serviceAccount:{service_account_id}**: A unique service account ID.
   * **federatedUser:{federated_user_id}:**: A unique saml federation user account ID.
   * **group:{group_id}**: A unique group ID.
+  * **system:group:federation:{federation_id}:users**: All users in federation.
+  * **system:group:organization:{organization_id}:users**: All users in organization.
+  * **system:allAuthenticatedUsers**: All authenticated users. 
+  * **system:allUsers**: All users, including unauthenticated ones.
 
+  Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
 
 ## Attributes Reference
 

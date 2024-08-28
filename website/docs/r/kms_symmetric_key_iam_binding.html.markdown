@@ -42,7 +42,12 @@ The following arguments are supported:
     * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.
     * **federatedUser:{user_id}**: A unique user ID that represents a specific user account from an identity federation, like Active Directory. 
     * **serviceAccount:{service_account_id}**: A unique service account ID.
-    * **system:{allUsers|allAuthenticatedUsers}**: see [system groups](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group)
+    * **system:group:federation:{federation_id}:users**: All users in federation.
+    * **system:group:organization:{organization_id}:users**: All users in organization.
+    * **system:allAuthenticatedUsers**: All authenticated users.
+    * **system:allUsers**: All users, including unauthenticated ones.
+ 
+    Note: for more information about system groups, see the [documentation](https://cloud.yandex.com/docs/iam/concepts/access-control/system-group).
 
 ## Import
 
