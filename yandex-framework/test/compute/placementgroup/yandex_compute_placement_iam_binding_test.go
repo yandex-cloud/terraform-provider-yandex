@@ -18,6 +18,12 @@ import (
 
 const timeout = 15 * time.Minute
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccComputeInstance_createPlacementGroupIamMember(t *testing.T) {
 	var (
 		placementGroup compute.PlacementGroup

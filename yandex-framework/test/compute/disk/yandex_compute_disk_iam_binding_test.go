@@ -25,6 +25,12 @@ var (
 	diskName = acctest.RandomWithPrefix(name.TestPrefix())
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccComputeDisk_basicIamMember(t *testing.T) {
 	var (
 		disk        compute.Disk

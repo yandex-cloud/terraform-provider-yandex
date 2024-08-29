@@ -27,6 +27,12 @@ type Permission struct {
 	Roles        []string
 }
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 // Test that a MongoDB User can be created, updated and destroyed
 func TestAccMDBMongoDBUser_full(t *testing.T) {
 	t.Parallel()

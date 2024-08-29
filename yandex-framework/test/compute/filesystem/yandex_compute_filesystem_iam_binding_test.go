@@ -19,6 +19,12 @@ const timeout = 15 * time.Minute
 
 var fsName = name.GenerateNameForResource(10)
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func TestAccComputeFilesystem_basicIamMember(t *testing.T) {
 	var (
 		fs     compute.Filesystem

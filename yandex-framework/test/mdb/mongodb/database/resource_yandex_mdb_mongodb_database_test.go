@@ -22,6 +22,12 @@ const (
 	mgClusterResourceName     = "yandex_mdb_mongodb_cluster.foo"
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 // Test that a MongoDB Database can be created, updated and destroyed
 func TestAccMDBMongoDBDatabase_full(t *testing.T) {
 	t.Parallel()

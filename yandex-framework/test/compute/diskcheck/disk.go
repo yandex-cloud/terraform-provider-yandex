@@ -3,6 +3,7 @@ package diskcheck
 import (
 	"context"
 	"fmt"
+	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -11,6 +12,12 @@ import (
 	yandex_framework "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 )
+
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
 
 func TestAccCheckComputeDiskExists(n string, disk *compute.Disk, timeout time.Duration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {

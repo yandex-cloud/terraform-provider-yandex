@@ -22,6 +22,12 @@ const (
 	timeout                  = time.Minute * 15
 )
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 //revive:disable:var-naming
 func TestAccComputeSnapshotSchedule_basicIamMember(t *testing.T) {
 

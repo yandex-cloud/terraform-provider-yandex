@@ -1,4 +1,4 @@
-package test
+package billing
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/resourcemanager/v1"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/test"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -34,7 +35,7 @@ func testSweepClouds(string) error {
 		return nil
 	}
 
-	conf, err := ConfigForSweepers()
+	conf, err := test.ConfigForSweepers()
 	if err != nil {
 		return fmt.Errorf("error getting client: %s", err)
 	}
@@ -53,7 +54,7 @@ func testSweepClouds(string) error {
 		}
 
 		id := it.Value().GetId()
-		if !SweepWithRetry(sweepCloudOnce, conf, "Cloud", id) {
+		if !test.SweepWithRetry(sweepCloudOnce, conf, "Cloud", id) {
 			result = multierror.Append(result, fmt.Errorf("failed to sweep Cloud %q", id))
 		}
 	}
@@ -77,5 +78,5 @@ func sweepCloudOnce(conf *provider_config.Config, id string) error {
 		DeleteAfter: timestamppb.Now(),
 	})
 
-	return HandleSweepOperation(ctx, conf, op, err)
+	return test.HandleSweepOperation(ctx, conf, op, err)
 }

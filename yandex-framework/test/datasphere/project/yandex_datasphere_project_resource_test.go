@@ -25,6 +25,12 @@ func init() {
 	})
 }
 
+// TestMain - add sweepers flag to the go test command
+// important for sweepers run.
+func TestMain(m *testing.M) {
+	resource.TestMain(m)
+}
+
 func testSweepProject(_ string) error {
 	conf, err := test.ConfigForSweepers()
 	if err != nil {
