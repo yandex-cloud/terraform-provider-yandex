@@ -95,6 +95,8 @@ var schemaConfig = map[string]*schema.Schema{
 	"background_merges_mutations_concurrency_ratio": {Type: schema.TypeInt, Optional: true, Computed: true},
 	"default_database":                              {Type: schema.TypeString, Optional: true, Computed: true},
 	"total_memory_profiler_step":                    {Type: schema.TypeInt, Optional: true, Computed: true},
+	"dictionaries_lazy_load":                        {Type: schema.TypeBool, Optional: true, Computed: true},
+
 	"merge_tree": {
 		Type:     schema.TypeList,
 		MaxItems: 1,
@@ -121,6 +123,10 @@ var schemaConfig = map[string]*schema.Schema{
 				"min_age_to_force_merge_seconds":                            {Type: schema.TypeInt, Optional: true, Computed: true},
 				"min_age_to_force_merge_on_partition_only":                  {Type: schema.TypeBool, Optional: true, Computed: true},
 				"merge_selecting_sleep_ms":                                  {Type: schema.TypeInt, Optional: true, Computed: true},
+				"merge_max_block_size":                                      {Type: schema.TypeInt, Optional: true, Computed: true},
+				"check_sample_column_is_correct":                            {Type: schema.TypeBool, Optional: true, Computed: true},
+				"max_merge_selecting_sleep_ms":                              {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_cleanup_delay_period":                                  {Type: schema.TypeInt, Optional: true, Computed: true},
 			},
 		},
 	},
@@ -138,6 +144,8 @@ var schemaConfig = map[string]*schema.Schema{
 				"enable_ssl_certificate_verification": {Type: schema.TypeBool, Optional: true, Computed: true},
 				"max_poll_interval_ms":                {Type: schema.TypeInt, Optional: true, Computed: true},
 				"session_timeout_ms":                  {Type: schema.TypeInt, Optional: true, Computed: true},
+				"debug":                               {Type: schema.TypeString, Optional: true, Computed: true},
+				"auto_offset_reset":                   {Type: schema.TypeString, Optional: true, Computed: true},
 			},
 		},
 	},
@@ -162,6 +170,8 @@ var schemaConfig = map[string]*schema.Schema{
 							"enable_ssl_certificate_verification": {Type: schema.TypeBool, Optional: true, Computed: true},
 							"max_poll_interval_ms":                {Type: schema.TypeInt, Optional: true, Computed: true},
 							"session_timeout_ms":                  {Type: schema.TypeInt, Optional: true, Computed: true},
+							"debug":                               {Type: schema.TypeString, Optional: true, Computed: true},
+							"auto_offset_reset":                   {Type: schema.TypeString, Optional: true, Computed: true},
 						},
 					},
 				},
@@ -200,7 +210,11 @@ var schemaConfig = map[string]*schema.Schema{
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"name": {Type: schema.TypeString, Required: true},
+				"name":                {Type: schema.TypeString, Required: true},
+				"path_column_name":    {Type: schema.TypeString, Optional: true, Computed: true},
+				"time_column_name":    {Type: schema.TypeString, Optional: true, Computed: true},
+				"value_column_name":   {Type: schema.TypeString, Optional: true, Computed: true},
+				"version_column_name": {Type: schema.TypeString, Optional: true, Computed: true},
 				"pattern": {
 					Type:     schema.TypeList,
 					MinItems: 1,
@@ -223,6 +237,32 @@ var schemaConfig = map[string]*schema.Schema{
 						},
 					},
 				},
+			},
+		},
+	},
+	"query_masking_rules": {
+		Type:     schema.TypeList,
+		MinItems: 1,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"name":    {Type: schema.TypeString, Optional: true, Computed: true},
+				"regexp":  {Type: schema.TypeString, Required: true},
+				"replace": {Type: schema.TypeString, Optional: true, Computed: true},
+			},
+		},
+	},
+	"query_cache": {
+		Type:     schema.TypeList,
+		MaxItems: 1,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"max_size_in_bytes":       {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_entries":             {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_entry_size_in_bytes": {Type: schema.TypeInt, Optional: true, Computed: true},
+				"max_entry_size_in_rows":  {Type: schema.TypeInt, Optional: true, Computed: true},
 			},
 		},
 	},
@@ -456,6 +496,13 @@ func resourceYandexMDBClickHouseCluster() *schema.Resource {
 									"memory_overcommit_ratio_denominator":                {Type: schema.TypeInt, Optional: true, Computed: true},
 									"memory_overcommit_ratio_denominator_for_user":       {Type: schema.TypeInt, Optional: true, Computed: true},
 									"memory_usage_overcommit_max_wait_microseconds":      {Type: schema.TypeInt, Optional: true, Computed: true},
+									"log_query_threads":                                  {Type: schema.TypeBool, Optional: true, Computed: true},
+									"max_insert_threads":                                 {Type: schema.TypeInt, Optional: true, Computed: true},
+									"use_hedged_requests":                                {Type: schema.TypeBool, Optional: true, Computed: true},
+									"idle_connection_timeout":                            {Type: schema.TypeInt, Optional: true, Computed: true},
+									"hedged_connection_timeout_ms":                       {Type: schema.TypeInt, Optional: true, Computed: true},
+									"load_balancing":                                     {Type: schema.TypeString, Optional: true, Computed: true},
+									"prefer_localhost_replica":                           {Type: schema.TypeBool, Optional: true, Computed: true},
 								},
 							},
 						},
@@ -1412,6 +1459,9 @@ var mdbClickHouseConfigUpdateFieldsMaps = []string{
 	"default_database",
 	"total_memory_profiler_step",
 	"total_memory_tracker_sample_probability",
+	"query_masking_rules",
+	"dictionaries_lazy_load",
+	"query_cache",
 }
 var mdbClickhouseMergeTreeUpdateFields = []string{
 	"replicated_deduplication_window",
@@ -1433,6 +1483,10 @@ var mdbClickhouseMergeTreeUpdateFields = []string{
 	"min_age_to_force_merge_seconds",
 	"min_age_to_force_merge_on_partition_only",
 	"merge_selecting_sleep_ms",
+	"merge_max_block_size",
+	"check_sample_column_is_correct",
+	"max_merge_selecting_sleep_ms",
+	"max_cleanup_delay_period",
 }
 
 func updateClickHouseClusterParams(d *schema.ResourceData, meta interface{}) error {

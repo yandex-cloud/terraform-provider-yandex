@@ -244,6 +244,13 @@ The `settings` block supports:
 * `memory_overcommit_ratio_denominator` - (Optional) It represents soft memory limit in case when hard limit is reached on user level. This value is used to compute overcommit ratio for the query. Zero means skip the query. 
 * `memory_overcommit_ratio_denominator_for_user` - (Optional) It represents soft memory limit in case when hard limit is reached on global level. This value is used to compute overcommit ratio for the query. Zero means skip the query.
 * `memory_usage_overcommit_max_wait_microseconds` - (Optional) Maximum time thread will wait for memory to be freed in the case of memory overcommit on a user level. If the timeout is reached and memory is not freed, an exception is thrown. 
+* `log_query_threads` - (Optional) Setting up query threads logging. Query threads log into the system.query_thread_log table. This setting has effect only when log_queries is true. Queries’ threads run by ClickHouse with this setup are logged according to the rules in the query_thread_log server configuration parameter. Default value: true.
+* `max_insert_threads` - (Optional) The maximum number of threads to execute the INSERT SELECT query. Default value: 0.
+* `use_hedged_requests` - (Optional) Enables hedged requests logic for remote queries. It allows to establish many connections with different replicas for query. New connection is enabled in case existent connection(s) with replica(s) were not established within hedged_connection_timeout or no data was received within receive_data_timeout. Query uses the first connection which send non empty progress packet (or data packet, if allow_changing_replica_until_first_data_packet); other connections are cancelled. Queries with max_parallel_replicas > 1 are supported. Default value: true.
+* `idle_connection_timeout` - (Optional) Timeout to close idle TCP connections after specified number of seconds. Default value: 3600 seconds.
+* `hedged_connection_timeout_ms` - (Optional) Connection timeout for establishing connection with replica for Hedged requests. Default value: 50 milliseconds.
+* `load_balancing` - (Optional) Specifies the algorithm of replicas selection that is used for distributed query processing, one of: random, nearest_hostname, in_order, first_or_random, round_robin. Default value: random.
+* `prefer_localhost_replica` - (Optional) Enables/disables preferable using the localhost replica when processing distributed queries. Default value: true.
 
 The `quota` block supports:
 
@@ -320,7 +327,7 @@ The `config` block supports:
 `part_log_retention_size`, `part_log_retention_time`, `metric_log_enabled`, `metric_log_retention_size`, `metric_log_retention_time`,
 `trace_log_enabled`, `trace_log_retention_size`, `trace_log_retention_time`, `text_log_enabled`, `text_log_retention_size`,
 `text_log_retention_time`, `text_log_level`, `background_pool_size`, `background_schedule_pool_size`, `background_fetches_pool_size`, `background_message_broker_schedule_pool_size`, `background_merges_mutations_concurrency_ratio`,  `default_database`,
-`total_memory_profiler_step` - ClickHouse server parameters. For more information, see
+`total_memory_profiler_step`, `dictionaries_lazy_load` - ClickHouse server parameters. For more information, see
 [the official documentation](https://cloud.yandex.com/docs/managed-clickhouse/concepts/settings-list).
 
 * `merge_tree` - MergeTree engine configuration. The structure is documented below.
@@ -329,6 +336,8 @@ The `config` block supports:
 * `compression` - Data compression configuration. The structure is documented below.
 * `rabbitmq` - RabbitMQ connection configuration. The structure is documented below.
 * `graphite_rollup` - Graphite rollup configuration. The structure is documented below.
+* `query_masking_rules` - Query masking rules configuration. The structure is documented below.
+* `query_cache` - Query cache configuration. The structure is documented below.
 
 The `merge_tree` block supports:
 
@@ -352,6 +361,10 @@ The `merge_tree` block supports:
 * `min_age_to_force_merge_seconds` - (Optional) Merge parts if every part in the range is older than the value of `min_age_to_force_merge_seconds`.
 * `min_age_to_force_merge_on_partition_only` - (Optional) Whether min_age_to_force_merge_seconds should be applied only on the entire partition and not on subset.
 * `merge_selecting_sleep_ms` - (Optional) Sleep time for merge selecting when no part is selected. A lower setting triggers selecting tasks in background_schedule_pool frequently, which results in a large number of requests to ClickHouse Keeper in large-scale clusters.
+* `merge_max_block_size` - (Optional) The number of rows that are read from the merged parts into memory. Default value: 8192.
+* `check_sample_column_is_correct` - (Optional) Enables the check at table creation, that the data type of a column for sampling or sampling expression is correct. The data type must be one of unsigned integer types: UInt8, UInt16, UInt32, UInt64. Default value: true.
+* `max_merge_selecting_sleep_ms` - (Optional) Maximum sleep time for merge selecting, a lower setting will trigger selecting tasks in background_schedule_pool frequently which result in large amount of requests to zookeeper in large-scale clusters. Default value: 60000 milliseconds (60 seconds).
+* `max_cleanup_delay_period` - (Optional) Maximum period to clean old queue logs, blocks hashes and parts. Default value: 300 seconds.
 
 The `kafka` block supports:
 
@@ -362,6 +375,8 @@ The `kafka` block supports:
 * `enable_ssl_certificate_verification` - (Optional) enable verification of SSL certificates.
 * `max_poll_interval_ms` - (Optional) Maximum allowed time between calls to consume messages (e.g., rd_kafka_consumer_poll()) for high-level consumers. If this interval is exceeded the consumer is considered failed and the group will rebalance in order to reassign the partitions to another consumer group member.
 * `session_timeout_ms` - (Optional) Client group session and failure detection timeout. The consumer sends periodic heartbeats (heartbeat.interval.ms) to indicate its liveness to the broker. If no hearts are received by the broker for a group member within the session timeout, the broker will remove the consumer from the group and trigger a rebalance. 
+* `debug` - (Optional) A comma-separated list of debug contexts to enable.
+* `auto_offset_reset` - (Optional) Action to take when there is no initial offset in offset store or the desired offset is out of range: 'smallest','earliest' - automatically reset the offset to the smallest offset, 'largest','latest' - automatically reset the offset to the largest offset, 'error' - trigger an error (ERR__AUTO_OFFSET_RESET) which is retrieved by consuming messages and checking 'message->err'.
 
 The `kafka_topic` block supports:
 
@@ -390,6 +405,23 @@ The `graphite_rollup` block supports:
   * `retention` - Retain parameters.
     * `age` - Minimum data age in seconds.
     * `precision` - Accuracy of determining the age of the data in seconds.
+* `path_column_name` - (Optional) The name of the column storing the metric name (Graphite sensor). Default value: Path.
+* `time_column_name` - (Optional) The name of the column storing the time of measuring the metric. Default value: Time.
+* `value_column_name` - (Optional) The name of the column storing the value of the metric at the time set in time_column_name. Default value: Value.
+* `version_column_name` - (Optional) The name of the column storing the version of the metric. Default value: Timestamp.
+
+The `query_masking_rules` block supports:
+
+* `name` - (Optional) Name for the rule.
+* `regexp` - (Required) RE2 compatible regular expression.
+* `replace` - (Optional) Substitution string for sensitive data. Default value: six asterisks.
+
+The `query_cache` block supports:
+
+* `max_size_in_bytes` - (Optional) The maximum cache size in bytes. 0 means the query cache is disabled. Default value: 1073741824 (1 GiB).
+* `max_entries` - (Optional) The maximum number of SELECT query results stored in the cache. Default value: 1024.
+* `max_entry_size_in_bytes` - (Optional) The maximum size in bytes SELECT query results may have to be saved in the cache. Default value: 1048576 (1 MiB).
+* `max_entry_size_in_rows` - (Optional) The maximum number of rows SELECT query results may have to be saved in the cache. Default value: 30000000 (30 mil).
 
 The `cloud_storage` block supports:
 

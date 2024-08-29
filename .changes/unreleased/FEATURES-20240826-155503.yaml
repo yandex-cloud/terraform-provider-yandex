@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `merge_max_block_size`, `check_sample_column_is_correct` for merge tree configuration'
+time: 2024-08-26T15:55:03.102777+03:00

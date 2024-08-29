@@ -670,6 +670,12 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_overcommit_ratio_denominator", "1048579"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_overcommit_ratio_denominator_for_user", "1048580"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_usage_overcommit_max_wait_microseconds", "1048581"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_query_threads", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_insert_threads", "10"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.use_hedged_requests", "false"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.idle_connection_timeout", "300000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "first_or_random"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "true"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -710,6 +716,12 @@ func TestAccMDBClickHouseCluster_UserSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_overcommit_ratio_denominator", "2048579"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_overcommit_ratio_denominator_for_user", "2048580"),
 					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.memory_usage_overcommit_max_wait_microseconds", "2048581"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.log_query_threads", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.max_insert_threads", "0"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.use_hedged_requests", "true"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.idle_connection_timeout", "500000"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.load_balancing", "nearest_hostname"),
+					resource.TestCheckResourceAttr(chResource, "user.0.settings.0.prefer_localhost_replica", "false"),
 				),
 			},
 			mdbClickHouseClusterImportStep(chResource),
@@ -747,12 +759,18 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 100010},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: false},
 			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 5001},
+			MergeMaxBlockSize:                              &wrappers.Int64Value{Value: 5001},
+			CheckSampleColumnIsCorrect:                     &wrappers.BoolValue{Value: true},
+			MaxMergeSelectingSleepMs:                       &wrappers.Int64Value{Value: 50001},
+			MaxCleanupDelayPeriod:                          &wrappers.Int64Value{Value: 201},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
 			SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_GSSAPI,
 			SaslUsername:     "user1",
 			SaslPassword:     "pass1",
+			Debug:            cfg.ClickhouseConfig_Kafka_DEBUG_GENERIC,
+			AutoOffsetReset:  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_SMALLEST,
 		},
 		KafkaTopics: []*cfg.ClickhouseConfig_KafkaTopic{
 			{
@@ -765,6 +783,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					EnableSslCertificateVerification: &wrappers.BoolValue{Value: false},
 					MaxPollIntervalMs:                &wrappers.Int64Value{Value: 50001},
 					SessionTimeoutMs:                 &wrappers.Int64Value{Value: 50002},
+					Debug:                            cfg.ClickhouseConfig_Kafka_DEBUG_BROKER,
+					AutoOffsetReset:                  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_EARLIEST,
 				},
 			},
 			{
@@ -774,6 +794,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_PLAIN,
 					SaslUsername:     "user2",
 					SaslPassword:     "pass22",
+					Debug:            cfg.ClickhouseConfig_Kafka_DEBUG_TOPIC,
+					AutoOffsetReset:  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_BEGINNING,
 				},
 			},
 		},
@@ -805,6 +827,19 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					},
 				},
 			},
+		},
+		QueryMaskingRules: []*cfg.ClickhouseConfig_QueryMaskingRule{
+			{
+				Name:    "name1",
+				Regexp:  "regexp1",
+				Replace: "replace1",
+			},
+		},
+		QueryCache: &cfg.ClickhouseConfig_QueryCache{
+			MaxSizeInBytes:      &wrappers.Int64Value{Value: 1073741820},
+			MaxEntries:          &wrappers.Int64Value{Value: 1020},
+			MaxEntrySizeInBytes: &wrappers.Int64Value{Value: 1048570},
+			MaxEntrySizeInRows:  &wrappers.Int64Value{Value: 20000000},
 		},
 		LogLevel:                                  cfg.ClickhouseConfig_TRACE,
 		MaxConnections:                            &wrappers.Int64Value{Value: 512},
@@ -859,6 +894,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		BackgroundMergesMutationsConcurrencyRatio: &wrappers.Int64Value{Value: 3},
 		DefaultDatabase:                           &wrappers.StringValue{Value: "default_db"},
 		TotalMemoryProfilerStep:                   &wrappers.Int64Value{Value: 4194304},
+		DictionariesLazyLoad:                      &wrappers.BoolValue{Value: true},
 	}
 
 	configForSecondStep := &cfg.ClickhouseConfig{
@@ -882,12 +918,18 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 			MinAgeToForceMergeSeconds:                      &wrappers.Int64Value{Value: 200020},
 			MinAgeToForceMergeOnPartitionOnly:              &wrappers.BoolValue{Value: true},
 			MergeSelectingSleepMs:                          &wrappers.Int64Value{Value: 5002},
+			MergeMaxBlockSize:                              &wrappers.Int64Value{Value: 5002},
+			CheckSampleColumnIsCorrect:                     &wrappers.BoolValue{Value: false},
+			MaxMergeSelectingSleepMs:                       &wrappers.Int64Value{Value: 100001},
+			MaxCleanupDelayPeriod:                          &wrappers.Int64Value{Value: 401},
 		},
 		Kafka: &cfg.ClickhouseConfig_Kafka{
 			SecurityProtocol: cfg.ClickhouseConfig_Kafka_SECURITY_PROTOCOL_PLAINTEXT,
 			SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_GSSAPI,
 			SaslUsername:     "user1",
 			SaslPassword:     "pass1",
+			Debug:            cfg.ClickhouseConfig_Kafka_DEBUG_METADATA,
+			AutoOffsetReset:  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_LARGEST,
 		},
 		KafkaTopics: []*cfg.ClickhouseConfig_KafkaTopic{
 			{
@@ -900,6 +942,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					EnableSslCertificateVerification: &wrappers.BoolValue{Value: true},
 					MaxPollIntervalMs:                &wrappers.Int64Value{Value: 60001},
 					SessionTimeoutMs:                 &wrappers.Int64Value{Value: 60002},
+					Debug:                            cfg.ClickhouseConfig_Kafka_DEBUG_FEATURE,
+					AutoOffsetReset:                  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_LATEST,
 				},
 			},
 			{
@@ -909,6 +953,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_PLAIN,
 					SaslUsername:     "user2",
 					SaslPassword:     "pass22",
+					Debug:            cfg.ClickhouseConfig_Kafka_DEBUG_QUEUE,
+					AutoOffsetReset:  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_END,
 				},
 			},
 			{
@@ -918,6 +964,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					SaslMechanism:    cfg.ClickhouseConfig_Kafka_SASL_MECHANISM_SCRAM_SHA_512,
 					SaslUsername:     "user3",
 					SaslPassword:     "pass23",
+					Debug:            cfg.ClickhouseConfig_Kafka_DEBUG_MSG,
+					AutoOffsetReset:  cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_ERROR,
 				},
 			},
 		},
@@ -970,6 +1018,22 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					},
 				},
 			},
+		},
+		QueryMaskingRules: []*cfg.ClickhouseConfig_QueryMaskingRule{
+			{
+				Name:    "name11",
+				Regexp:  "regexp11",
+				Replace: "replace11",
+			},
+			{
+				Regexp: "regexp22",
+			},
+		},
+		QueryCache: &cfg.ClickhouseConfig_QueryCache{
+			MaxSizeInBytes:      &wrappers.Int64Value{Value: 2073741820},
+			MaxEntries:          &wrappers.Int64Value{Value: 2020},
+			MaxEntrySizeInBytes: &wrappers.Int64Value{Value: 2048570},
+			MaxEntrySizeInRows:  &wrappers.Int64Value{Value: 30000000},
 		},
 		LogLevel:                                  cfg.ClickhouseConfig_WARNING,
 		MaxConnections:                            &wrappers.Int64Value{Value: 1024},
@@ -1024,6 +1088,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 		BackgroundMergesMutationsConcurrencyRatio: &wrappers.Int64Value{Value: 4},
 		DefaultDatabase:                           &wrappers.StringValue{Value: "new_default"},
 		TotalMemoryProfilerStep:                   &wrappers.Int64Value{Value: 4194303},
+		DictionariesLazyLoad:                      &wrappers.BoolValue{Value: false},
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -1093,6 +1158,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_merges_mutations_concurrency_ratio", "3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "default_db"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194304"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.dictionaries_lazy_load", "true"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window", "1000"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "1000"),
@@ -1113,11 +1179,17 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "100010"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "5001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_max_block_size", "5001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.check_sample_column_is_correct", "true"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_merge_selecting_sleep_ms", "50001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_cleanup_delay_period", "201"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.debug", "DEBUG_GENERIC"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.auto_offset_reset", "AUTO_OFFSET_RESET_SMALLEST"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
@@ -1128,6 +1200,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.enable_ssl_certificate_verification", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.max_poll_interval_ms", "50001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.session_timeout_ms", "50002"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.debug", "DEBUG_BROKER"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.auto_offset_reset", "AUTO_OFFSET_RESET_EARLIEST"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.name", "topic2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
@@ -1137,12 +1211,24 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.enable_ssl_certificate_verification", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.max_poll_interval_ms", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.session_timeout_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.debug", "DEBUG_TOPIC"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.auto_offset_reset", "AUTO_OFFSET_RESET_BEGINNING"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "old_clickhouse"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.graphite_rollup.#", "1"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.name", "name1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.regexp", "regexp1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.replace", "replace1"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_size_in_bytes", "1073741820"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entries", "1020"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_bytes", "1048570"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_rows", "20000000"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -1209,6 +1295,7 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.background_merges_mutations_concurrency_ratio", "4"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.default_database", "new_default"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.total_memory_profiler_step", "4194303"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.dictionaries_lazy_load", "false"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window", "100"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.replicated_deduplication_window_seconds", "604800"),
@@ -1229,11 +1316,17 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_seconds", "200020"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.min_age_to_force_merge_on_partition_only", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_selecting_sleep_ms", "5002"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.merge_max_block_size", "5002"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.check_sample_column_is_correct", "false"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_merge_selecting_sleep_ms", "100001"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.merge_tree.0.max_cleanup_delay_period", "401"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_mechanism", "SASL_MECHANISM_GSSAPI"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_username", "user1"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.sasl_password", "pass1"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.debug", "DEBUG_METADATA"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka.0.auto_offset_reset", "AUTO_OFFSET_RESET_LARGEST"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.#", "3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.name", "topic1"),
@@ -1244,6 +1337,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.enable_ssl_certificate_verification", "true"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.max_poll_interval_ms", "60001"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.session_timeout_ms", "60002"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.debug", "DEBUG_FEATURE"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.0.settings.0.auto_offset_reset", "AUTO_OFFSET_RESET_LATEST"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.name", "topic2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.security_protocol", "SECURITY_PROTOCOL_PLAINTEXT"),
@@ -1253,6 +1348,8 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.enable_ssl_certificate_verification", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.max_poll_interval_ms", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.session_timeout_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.debug", "DEBUG_QUEUE"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.1.settings.0.auto_offset_reset", "AUTO_OFFSET_RESET_END"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.name", "topic3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.security_protocol", "SECURITY_PROTOCOL_SASL_PLAINTEXT"),
@@ -1262,12 +1359,26 @@ func TestAccMDBClickHouseCluster_CheckClickhouseConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.enable_ssl_certificate_verification", "false"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.max_poll_interval_ms", "0"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.session_timeout_ms", "0"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.debug", "DEBUG_MSG"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.kafka_topic.2.settings.0.auto_offset_reset", "AUTO_OFFSET_RESET_ERROR"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.username", "rabbit_user"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.password", "rabbit_pass2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.rabbitmq.0.vhost", "clickhouse"),
 
 					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.compression.#", "2"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.#", "2"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.name", "name11"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.regexp", "regexp11"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.0.replace", "replace11"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_masking_rules.1.regexp", "regexp22"),
+
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_size_in_bytes", "2073741820"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entries", "2020"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_bytes", "2048570"),
+					resource.TestCheckResourceAttr(chResource, "clickhouse.0.config.0.query_cache.0.max_entry_size_in_rows", "30000000"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -3326,6 +3437,7 @@ config {
         background_merges_mutations_concurrency_ratio = %d
 		default_database 				= "%s"
 		total_memory_profiler_step 		= %d
+		dictionaries_lazy_load = %t
 
 		# merge_tree
 		%s
@@ -3343,6 +3455,12 @@ config {
 		%s
 
 		# graphite_rollup
+		%s
+
+		# query_masking_rules
+		%s
+
+		# query_cache
 		%s
     }
 `,
@@ -3399,12 +3517,15 @@ config {
 		config.BackgroundMergesMutationsConcurrencyRatio.GetValue(),
 		config.DefaultDatabase.GetValue(),
 		config.TotalMemoryProfilerStep.GetValue(),
+		config.DictionariesLazyLoad.GetValue(),
 		buildConfigForMergeTree(config.MergeTree),
 		buildConfigForKafka(config.Kafka),
 		buildConfigForKafkaTopics(config.KafkaTopics),
 		buildConfigForRabbitmq(config.Rabbitmq),
 		buildConfigForCompression(config.Compression),
 		buildGraphiteRollup(config.GraphiteRollup),
+		buildConfigForQueryMaskingRules(config.QueryMaskingRules),
+		buildConfigForQueryCache(config.QueryCache),
 	)
 }
 
@@ -3430,6 +3551,10 @@ merge_tree {
 			min_age_to_force_merge_seconds 							  = %d
 			min_age_to_force_merge_on_partition_only 				  = %t
 			merge_selecting_sleep_ms 								  = %d
+			merge_max_block_size 									  = %d
+			check_sample_column_is_correct 							  = %t
+			max_merge_selecting_sleep_ms 							  = %d
+			max_cleanup_delay_period								  = %d
 		}
 `,
 		mergeTree.ReplicatedDeduplicationWindow.GetValue(),
@@ -3451,6 +3576,10 @@ merge_tree {
 		mergeTree.MinAgeToForceMergeSeconds.GetValue(),
 		mergeTree.MinAgeToForceMergeOnPartitionOnly.GetValue(),
 		mergeTree.MergeSelectingSleepMs.GetValue(),
+		mergeTree.MergeMaxBlockSize.GetValue(),
+		mergeTree.CheckSampleColumnIsCorrect.GetValue(),
+		mergeTree.MaxMergeSelectingSleepMs.GetValue(),
+		mergeTree.MaxCleanupDelayPeriod.GetValue(),
 	)
 }
 
@@ -3461,12 +3590,17 @@ kafka {
 			sasl_mechanism    = "%s"
 			sasl_username     = "%s"
 			sasl_password     = "%s"
+			debug             = "%s"
+			auto_offset_reset = "%s"
 		}
 `,
 		kafka.SecurityProtocol.String(),
 		kafka.SaslMechanism.String(),
 		kafka.SaslUsername,
-		kafka.SaslPassword)
+		kafka.SaslPassword,
+		kafka.Debug.String(),
+		kafka.AutoOffsetReset.String(),
+	)
 }
 
 func buildConfigForKafkaTopics(topics []*cfg.ClickhouseConfig_KafkaTopic) string {
@@ -3482,6 +3616,12 @@ func buildConfigForKafkaTopics(topics []*cfg.ClickhouseConfig_KafkaTopic) string
 		}
 		if rawTopic.Settings.SessionTimeoutMs != nil {
 			optionalSettings += fmt.Sprintf("session_timeout_ms = %d\n", rawTopic.Settings.SessionTimeoutMs.Value)
+		}
+		if rawTopic.Settings.Debug != cfg.ClickhouseConfig_Kafka_DEBUG_UNSPECIFIED {
+			optionalSettings += fmt.Sprintf("debug = \"%s\"\n", rawTopic.Settings.Debug.String())
+		}
+		if rawTopic.Settings.AutoOffsetReset != cfg.ClickhouseConfig_Kafka_AUTO_OFFSET_RESET_UNSPECIFIED {
+			optionalSettings += fmt.Sprintf("auto_offset_reset = \"%s\"\n", rawTopic.Settings.AutoOffsetReset.String())
 		}
 		result += fmt.Sprintf(`
 kafka_topic {
@@ -3551,15 +3691,56 @@ graphite_rollup {
             precision = %d
           }
         }
+		path_column_name    = "%s"
+		time_column_name    = "%s"
+		value_column_name   = "%s"
+		version_column_name = "%s"
 }
 `,
 			v.Name,
 			v.Patterns[0].Regexp,
 			v.Patterns[0].Function,
 			v.Patterns[0].Retention[0].Age,
-			v.Patterns[0].Retention[0].Precision)
+			v.Patterns[0].Retention[0].Precision,
+			v.PathColumnName,
+			v.TimeColumnName,
+			v.ValueColumnName,
+			v.VersionColumnName)
 	}
 	return result
+}
+
+func buildConfigForQueryMaskingRules(rules []*cfg.ClickhouseConfig_QueryMaskingRule) string {
+	var result string
+	for _, v := range rules {
+		result += fmt.Sprintf(`
+query_masking_rules {
+        name 				= "%s"
+        regexp 	        	= "%s"
+		replace             = "%s"
+}
+`,
+			v.Name,
+			v.Regexp,
+			v.Replace)
+	}
+	return result
+}
+
+func buildConfigForQueryCache(queryCache *cfg.ClickhouseConfig_QueryCache) string {
+	return fmt.Sprintf(`
+query_cache {
+		max_size_in_bytes                           = %d
+		max_entries                   				= %d
+		max_entry_size_in_bytes                     = %d
+		max_entry_size_in_rows                      = %d
+}
+`,
+		queryCache.MaxSizeInBytes.GetValue(),
+		queryCache.MaxEntries.GetValue(),
+		queryCache.MaxEntrySizeInBytes.GetValue(),
+		queryCache.MaxEntrySizeInRows.GetValue(),
+	)
 }
 
 func testAccMDBClickHouseClusterConfigExpandUserParams(name, desc, environment string, bucket string, randInt int) string {
@@ -3630,6 +3811,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  memory_overcommit_ratio_denominator 				 = 1048579
 	  memory_overcommit_ratio_denominator_for_user 		 = 1048580
 	  memory_usage_overcommit_max_wait_microseconds 	 = 1048581
+	  log_query_threads                					 = false
+	  max_insert_threads  								 = 10
+	  use_hedged_requests 								 = false
+	  idle_connection_timeout 							 = 300000
+	  load_balancing 									 = "first_or_random"
+	  prefer_localhost_replica 						     = true
     }
   }
 
@@ -3719,6 +3906,12 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 	  memory_overcommit_ratio_denominator 				 = 2048579
 	  memory_overcommit_ratio_denominator_for_user 		 = 2048580
 	  memory_usage_overcommit_max_wait_microseconds 	 = 2048581
+	  log_query_threads                					 = true
+	  max_insert_threads  								 = 0
+	  use_hedged_requests 								 = true
+	  idle_connection_timeout 							 = 500000
+	  load_balancing 									 = "nearest_hostname"
+	  prefer_localhost_replica 						     = false
     }
   }
 

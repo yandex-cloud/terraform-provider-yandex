@@ -637,6 +637,19 @@ func flattenClickhouseMergeTreeConfig(c *clickhouseConfig.ClickhouseConfig_Merge
 	if c.MergeSelectingSleepMs != nil {
 		res["merge_selecting_sleep_ms"] = c.MergeSelectingSleepMs.Value
 	}
+	if c.MergeMaxBlockSize != nil {
+		res["merge_max_block_size"] = c.MergeMaxBlockSize.Value
+	}
+	if c.CheckSampleColumnIsCorrect != nil {
+		res["check_sample_column_is_correct"] = c.CheckSampleColumnIsCorrect.Value
+	}
+	if c.MaxMergeSelectingSleepMs != nil {
+		res["max_merge_selecting_sleep_ms"] = c.MaxMergeSelectingSleepMs.Value
+	}
+	if c.MaxCleanupDelayPeriod != nil {
+		res["max_cleanup_delay_period"] = c.MaxCleanupDelayPeriod.Value
+	}
+
 	return []map[string]interface{}{res}, nil
 }
 
@@ -658,6 +671,8 @@ func flattenClickhouseKafkaSettings(d *schema.ResourceData, keyPath string, c *c
 	if c.SessionTimeoutMs != nil {
 		res["session_timeout_ms"] = c.SessionTimeoutMs.Value
 	}
+	res["debug"] = c.Debug.String()
+	res["auto_offset_reset"] = c.AutoOffsetReset.String()
 
 	return []map[string]interface{}{res}, nil
 }
@@ -717,8 +732,12 @@ func flattenClickhouseGraphiteRollupSettings(c []*clickhouseConfig.ClickhouseCon
 
 	for _, r := range c {
 		rollup := map[string]interface{}{
-			"name":    r.Name,
-			"pattern": []interface{}{},
+			"name":                r.Name,
+			"pattern":             []interface{}{},
+			"path_column_name":    r.PathColumnName,
+			"time_column_name":    r.TimeColumnName,
+			"value_column_name":   r.ValueColumnName,
+			"version_column_name": r.VersionColumnName,
 		}
 		for _, p := range r.Patterns {
 			pattern := map[string]interface{}{
@@ -741,6 +760,40 @@ func flattenClickhouseGraphiteRollupSettings(c []*clickhouseConfig.ClickhouseCon
 	}
 
 	return result, nil
+}
+
+func flattenClickhouseQueryMaskingRulesSettings(c []*clickhouseConfig.ClickhouseConfig_QueryMaskingRule) ([]interface{}, error) {
+	var result []interface{}
+
+	for _, r := range c {
+		queryMaskingRuleSettings := map[string]interface{}{
+			"name":    r.Name,
+			"regexp":  r.Regexp,
+			"replace": r.Replace,
+		}
+		result = append(result, queryMaskingRuleSettings)
+	}
+
+	return result, nil
+}
+
+func flattenClickhouseQueryCacheSettings(c *clickhouseConfig.ClickhouseConfig_QueryCache) ([]map[string]interface{}, error) {
+	res := map[string]interface{}{}
+
+	if c.MaxSizeInBytes != nil {
+		res["max_size_in_bytes"] = c.MaxSizeInBytes.Value
+	}
+	if c.MaxEntries != nil {
+		res["max_entries"] = c.MaxEntries.Value
+	}
+	if c.MaxEntrySizeInBytes != nil {
+		res["max_entry_size_in_bytes"] = c.MaxEntrySizeInBytes.Value
+	}
+	if c.MaxEntrySizeInRows != nil {
+		res["max_entry_size_in_rows"] = c.MaxEntrySizeInRows.Value
+	}
+
+	return []map[string]interface{}{res}, nil
 }
 
 func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.ClickhouseConfigSet) ([]map[string]interface{}, error) {
@@ -904,6 +957,9 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 	if c.EffectiveConfig.TotalMemoryProfilerStep != nil {
 		res["total_memory_profiler_step"] = c.EffectiveConfig.TotalMemoryProfilerStep.Value
 	}
+	if c.EffectiveConfig.DictionariesLazyLoad != nil {
+		res["dictionaries_lazy_load"] = c.EffectiveConfig.DictionariesLazyLoad.Value
+	}
 
 	mergeTreeSettings, err := flattenClickhouseMergeTreeConfig(c.EffectiveConfig.MergeTree)
 	if err != nil {
@@ -940,6 +996,18 @@ func flattenClickHouseConfig(d *schema.ResourceData, c *clickhouseConfig.Clickho
 		return nil, err
 	}
 	res["graphite_rollup"] = graphiteRollups
+
+	queryMaskingRules, err := flattenClickhouseQueryMaskingRulesSettings(c.EffectiveConfig.QueryMaskingRules)
+	if err != nil {
+		return nil, err
+	}
+	res["query_masking_rules"] = queryMaskingRules
+
+	queryCache, err := flattenClickhouseQueryCacheSettings(c.EffectiveConfig.QueryCache)
+	if err != nil {
+		return nil, err
+	}
+	res["query_cache"] = queryCache
 
 	return []map[string]interface{}{res}, nil
 }
@@ -1020,6 +1088,18 @@ func expandClickhouseMergeTreeConfig(d *schema.ResourceData, rootKey string) (*c
 	if v, ok := d.GetOkExists(rootKey + ".merge_selecting_sleep_ms"); ok {
 		config.MergeSelectingSleepMs = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".merge_max_block_size"); ok {
+		config.MergeMaxBlockSize = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".check_sample_column_is_correct"); ok {
+		config.CheckSampleColumnIsCorrect = &wrappers.BoolValue{Value: v.(bool)}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_merge_selecting_sleep_ms"); ok {
+		config.MaxMergeSelectingSleepMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_cleanup_delay_period"); ok {
+		config.MaxCleanupDelayPeriod = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
 
 	return config, nil
 }
@@ -1055,6 +1135,20 @@ func expandClickhouseKafkaSettings(d *schema.ResourceData, rootKey string) (*cli
 	}
 	if v, ok := d.GetOk(rootKey + ".session_timeout_ms"); ok {
 		config.SessionTimeoutMs = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOk(rootKey + ".debug"); ok {
+		if val, err := expandEnum("debug", v.(string), clickhouseConfig.ClickhouseConfig_Kafka_Debug_value); val != nil && err == nil {
+			config.Debug = clickhouseConfig.ClickhouseConfig_Kafka_Debug(*val)
+		} else {
+			return nil, err
+		}
+	}
+	if v, ok := d.GetOk(rootKey + ".auto_offset_reset"); ok {
+		if val, err := expandEnum("auto_offset_reset", v.(string), clickhouseConfig.ClickhouseConfig_Kafka_AutoOffsetReset_value); val != nil && err == nil {
+			config.AutoOffsetReset = clickhouseConfig.ClickhouseConfig_Kafka_AutoOffsetReset(*val)
+		} else {
+			return nil, err
+		}
 	}
 
 	return config, nil
@@ -1131,7 +1225,13 @@ func expandClickhouseGraphiteRollupSettings(d *schema.ResourceData, rootKey stri
 
 	for r := range d.Get(rootKey).([]interface{}) {
 		rollupKey := rootKey + fmt.Sprintf(".%d", r)
-		rollup := &clickhouseConfig.ClickhouseConfig_GraphiteRollup{Name: d.Get(rollupKey + ".name").(string)}
+		rollup := &clickhouseConfig.ClickhouseConfig_GraphiteRollup{
+			Name:              d.Get(rollupKey + ".name").(string),
+			PathColumnName:    d.Get(rollupKey + ".path_column_name").(string),
+			TimeColumnName:    d.Get(rollupKey + ".time_column_name").(string),
+			ValueColumnName:   d.Get(rollupKey + ".value_column_name").(string),
+			VersionColumnName: d.Get(rollupKey + ".version_column_name").(string),
+		}
 
 		for p := range d.Get(rollupKey + ".pattern").([]interface{}) {
 			patternKey := rollupKey + fmt.Sprintf(".pattern.%d", p)
@@ -1159,6 +1259,48 @@ func expandClickhouseGraphiteRollupSettings(d *schema.ResourceData, rootKey stri
 		result = append(result, rollup)
 	}
 	return result, nil
+}
+
+func expandClickhouseQueryMaskingRulesSettings(d *schema.ResourceData, rootKey string) ([]*clickhouseConfig.ClickhouseConfig_QueryMaskingRule, error) {
+	var result []*clickhouseConfig.ClickhouseConfig_QueryMaskingRule
+	queryMaskingRules := d.Get(rootKey).([]interface{})
+
+	for i := range queryMaskingRules {
+		keyPrefix := rootKey + fmt.Sprintf(".%d", i)
+		queryMaskingRule := &clickhouseConfig.ClickhouseConfig_QueryMaskingRule{}
+
+		if v, ok := d.GetOk(keyPrefix + ".name"); ok {
+			queryMaskingRule.Name = v.(string)
+		}
+
+		queryMaskingRule.Regexp = d.Get(keyPrefix + ".regexp").(string)
+
+		if v, ok := d.GetOk(keyPrefix + ".replace"); ok {
+			queryMaskingRule.Replace = v.(string)
+		}
+
+		result = append(result, queryMaskingRule)
+	}
+	return result, nil
+}
+
+func expandClickhouseQueryCacheConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig_QueryCache, error) {
+	config := &clickhouseConfig.ClickhouseConfig_QueryCache{}
+
+	if v, ok := d.GetOkExists(rootKey + ".max_size_in_bytes"); ok {
+		config.MaxSizeInBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_entries"); ok {
+		config.MaxEntries = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_entry_size_in_bytes"); ok {
+		config.MaxEntrySizeInBytes = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+	if v, ok := d.GetOkExists(rootKey + ".max_entry_size_in_rows"); ok {
+		config.MaxEntrySizeInRows = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	return config, nil
 }
 
 func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouseConfig.ClickhouseConfig, error) {
@@ -1335,6 +1477,9 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 	if v, ok := d.GetOk(rootKey + ".total_memory_profiler_step"); ok {
 		config.TotalMemoryProfilerStep = &wrappers.Int64Value{Value: int64(v.(int))}
 	}
+	if v, ok := d.GetOkExists(rootKey + ".dictionaries_lazy_load"); ok {
+		config.DictionariesLazyLoad = &wrappers.BoolValue{Value: v.(bool)}
+	}
 
 	mergeTreeSettings, err := expandClickhouseMergeTreeConfig(d, rootKey+".merge_tree.0")
 	if err != nil {
@@ -1371,6 +1516,18 @@ func expandClickHouseConfig(d *schema.ResourceData, rootKey string) (*clickhouse
 		return nil, err
 	}
 	config.GraphiteRollup = graphiteRollups
+
+	queryMaskingRules, err := expandClickhouseQueryMaskingRulesSettings(d, rootKey+".query_masking_rules")
+	if err != nil {
+		return nil, err
+	}
+	config.QueryMaskingRules = queryMaskingRules
+
+	queryCacheSettings, err := expandClickhouseQueryCacheConfig(d, rootKey+".query_cache.0")
+	if err != nil {
+		return nil, err
+	}
+	config.QueryCache = queryCacheSettings
 
 	return config, nil
 }
@@ -1525,8 +1682,17 @@ var (
 		1: "read",
 		2: "threadpool",
 	}
+	UserSettings_LoadBalancing_name = map[int32]string{
+		0: "unspecified",
+		1: "random",
+		2: "nearest_hostname",
+		3: "in_order",
+		4: "first_or_random",
+		5: "round_robin",
+	}
 	UserSettings_LocalFilesystemReadMethod_value  = makeReversedMap(UserSettings_LocalFilesystemReadMethod_name, clickhouse.UserSettings_LocalFilesystemReadMethod_value)
 	UserSettings_RemoteFilesystemReadMethod_value = makeReversedMap(UserSettings_RemoteFilesystemReadMethod_name, clickhouse.UserSettings_RemoteFilesystemReadMethod_value)
+	UserSettings_LoadBalancing_value              = makeReversedMap(UserSettings_LoadBalancing_name, clickhouse.UserSettings_LoadBalancing_value)
 )
 
 func getOverflowModeName(value clickhouse.UserSettings_OverflowMode) string {
@@ -1623,6 +1789,20 @@ func getRemoteFilesystemReadMethodName(value clickhouse.UserSettings_RemoteFiles
 func getRemoteFilesystemReadMethodValue(name string) clickhouse.UserSettings_RemoteFilesystemReadMethod {
 	if value, ok := UserSettings_RemoteFilesystemReadMethod_value[name]; ok {
 		return clickhouse.UserSettings_RemoteFilesystemReadMethod(value)
+	}
+	return 0
+}
+
+func getLoadBalancingName(value clickhouse.UserSettings_LoadBalancing) string {
+	if name, ok := UserSettings_LoadBalancing_name[int32(value)]; ok {
+		return name
+	}
+	return UserSettings_LoadBalancing_name[0]
+}
+
+func getLoadBalancingValue(name string) clickhouse.UserSettings_LoadBalancing {
+	if value, ok := UserSettings_LoadBalancing_value[name]; ok {
+		return clickhouse.UserSettings_LoadBalancing(value)
 	}
 	return 0
 }
@@ -1853,6 +2033,7 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	if v, ok := us["remote_filesystem_read_method"]; ok {
 		result.RemoteFilesystemReadMethod = getRemoteFilesystemReadMethodValue(v.(string))
 	}
+
 	setSettingFromMapInt64(us, "insert_keeper_max_retries", &result.InsertKeeperMaxRetries)
 	setSettingFromMapInt64(us, "max_temporary_data_on_disk_size_for_user", &result.MaxTemporaryDataOnDiskSizeForUser)
 	setSettingFromMapInt64(us, "max_temporary_data_on_disk_size_for_query", &result.MaxTemporaryDataOnDiskSizeForQuery)
@@ -1860,6 +2041,17 @@ func expandClickHouseUserSettings(us map[string]interface{}) *clickhouse.UserSet
 	setSettingFromMapInt64(us, "memory_overcommit_ratio_denominator", &result.MemoryOvercommitRatioDenominator)
 	setSettingFromMapInt64(us, "memory_overcommit_ratio_denominator_for_user", &result.MemoryOvercommitRatioDenominatorForUser)
 	setSettingFromMapInt64(us, "memory_usage_overcommit_max_wait_microseconds", &result.MemoryUsageOvercommitMaxWaitMicroseconds)
+	setSettingFromMapBool(us, "log_query_threads", &result.LogQueryThreads)
+	setSettingFromMapInt64(us, "max_insert_threads", &result.MaxInsertThreads)
+	setSettingFromMapBool(us, "use_hedged_requests", &result.UseHedgedRequests)
+	setSettingFromMapInt64(us, "idle_connection_timeout", &result.IdleConnectionTimeout)
+	setSettingFromMapInt64(us, "hedged_connection_timeout_ms", &result.HedgedConnectionTimeoutMs)
+
+	if v, ok := us["load_balancing"]; ok {
+		result.LoadBalancing = getLoadBalancingValue(v.(string))
+	}
+
+	setSettingFromMapBool(us, "prefer_localhost_replica", &result.PreferLocalhostReplica)
 
 	return result
 }
@@ -2040,6 +2232,7 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	if v, ok := d.GetOk(rootKey + ".remote_filesystem_read_method"); ok {
 		result.RemoteFilesystemReadMethod = getRemoteFilesystemReadMethodValue(v.(string))
 	}
+
 	setSettingFromDataInt64(d, rootKey+".insert_keeper_max_retries", &result.InsertKeeperMaxRetries)
 	setSettingFromDataInt64(d, rootKey+".max_temporary_data_on_disk_size_for_user", &result.MaxTemporaryDataOnDiskSizeForUser)
 	setSettingFromDataInt64(d, rootKey+".max_temporary_data_on_disk_size_for_query", &result.MaxTemporaryDataOnDiskSizeForQuery)
@@ -2047,6 +2240,17 @@ func expandClickHouseUserSettingsExists(d *schema.ResourceData, hash int) *click
 	setSettingFromDataInt64(d, rootKey+".memory_overcommit_ratio_denominator", &result.MemoryOvercommitRatioDenominator)
 	setSettingFromDataInt64(d, rootKey+".memory_overcommit_ratio_denominator_for_user", &result.MemoryOvercommitRatioDenominatorForUser)
 	setSettingFromDataInt64(d, rootKey+".memory_usage_overcommit_max_wait_microseconds", &result.MemoryUsageOvercommitMaxWaitMicroseconds)
+	setSettingFromDataBool(d, rootKey+".log_query_threads", &result.LogQueryThreads)
+	setSettingFromDataInt64(d, rootKey+".max_insert_threads", &result.MaxInsertThreads)
+	setSettingFromDataBool(d, rootKey+".use_hedged_requests", &result.UseHedgedRequests)
+	setSettingFromDataInt64(d, rootKey+".idle_connection_timeout", &result.IdleConnectionTimeout)
+	setSettingFromDataInt64(d, rootKey+".hedged_connection_timeout_ms", &result.HedgedConnectionTimeoutMs)
+
+	if v, ok := d.GetOk(rootKey + ".load_balancing"); ok {
+		result.LoadBalancing = getLoadBalancingValue(v.(string))
+	}
+
+	setSettingFromDataBool(d, rootKey+".prefer_localhost_replica", &result.PreferLocalhostReplica)
 
 	return result
 }
@@ -2369,6 +2573,26 @@ func flattenClickHouseUserSettings(settings *clickhouse.UserSettings) map[string
 	if settings.MemoryUsageOvercommitMaxWaitMicroseconds != nil {
 		result["memory_usage_overcommit_max_wait_microseconds"] = settings.MemoryUsageOvercommitMaxWaitMicroseconds.Value
 	}
+
+	result["log_query_threads"] = falseOnNil(settings.LogQueryThreads)
+
+	if settings.MaxInsertThreads != nil {
+		result["max_insert_threads"] = settings.MaxInsertThreads.Value
+	}
+
+	result["use_hedged_requests"] = falseOnNil(settings.UseHedgedRequests)
+
+	if settings.IdleConnectionTimeout != nil {
+		result["idle_connection_timeout"] = settings.IdleConnectionTimeout.Value
+	}
+	if settings.HedgedConnectionTimeoutMs != nil {
+		result["hedged_connection_timeout_ms"] = settings.HedgedConnectionTimeoutMs.Value
+	}
+
+	result["load_balancing"] = getLoadBalancingName(settings.LoadBalancing)
+
+	result["prefer_localhost_replica"] = falseOnNil(settings.PreferLocalhostReplica)
+
 	return result
 }
 

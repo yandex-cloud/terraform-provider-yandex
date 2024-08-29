@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'clickhouse: added `hedged_connection_timeout_ms`, `load_balancing`, `prefer_localhost_replica` for user settings'
+time: 2024-08-26T15:54:55.737175+03:00
