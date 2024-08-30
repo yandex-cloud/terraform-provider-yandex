@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'mongodb: added `disk_size_autoscaling` support for all host types in `resource_yandex_mdb_mongodb_cluster`'
-time: 2024-08-16T14:10:49.446207+03:00

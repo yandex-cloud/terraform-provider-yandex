@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'redis: allow zero value for `disk_size_limit` to disable disk size autoscaling'
-time: 2024-08-16T14:11:59.030229+03:00

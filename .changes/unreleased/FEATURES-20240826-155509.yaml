@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'clickhouse: added `max_merge_selecting_sleep_ms`, `max_cleanup_delay_period` for merge tree configuration'
-time: 2024-08-26T15:55:09.707815+03:00

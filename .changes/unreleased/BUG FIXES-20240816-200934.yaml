@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'yandex_organizationmanager_saml_federation_user_account: Fix provider crashing on missing federation claim'
-time: 2024-08-16T20:09:34.133256+04:00
