@@ -56,19 +56,25 @@ func testSweepStorageBucket(_ string) error {
 		return result.ErrorOrNil()
 	}
 
-	resp, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
-		ServiceAccountId: serviceAccountID,
-		Description:      "Storage Bucket sweeper static key",
-	})
+	resp, err := conf.sdk.IAM().
+		AWSCompatibility().
+		AccessKey().
+		Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
+			ServiceAccountId: serviceAccountID,
+			Description:      "Storage Bucket sweeper static key",
+		})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating service account static key: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	defer func() {
-		_, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
-			AccessKeyId: resp.AccessKey.Id,
-		})
+		_, err := conf.sdk.IAM().
+			AWSCompatibility().
+			AccessKey().
+			Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
+				AccessKeyId: resp.AccessKey.Id,
+			})
 		if err != nil {
 			result = multierror.Append(result, fmt.Errorf("error deleting service account static key: %s", err))
 		}
@@ -496,8 +502,11 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
 								AllowedOrigins: []*string{aws.String("https://www.example.com")},
-								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
-								MaxAgeSeconds:  aws.Int64(3000),
+								ExposeHeaders: []*string{
+									aws.String("x-amz-server-side-encryption"),
+									aws.String("ETag"),
+								},
+								MaxAgeSeconds: aws.Int64(3000),
 							},
 						},
 					)),
@@ -508,7 +517,11 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "PUT"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.1", "POST"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.com"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"cors_rule.0.allowed_origins.0",
+						"https://www.example.com",
+					),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
 				),
 			},
@@ -523,8 +536,11 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("GET")},
 								AllowedOrigins: []*string{aws.String("https://www.example.ru")},
-								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
-								MaxAgeSeconds:  aws.Int64(2000),
+								ExposeHeaders: []*string{
+									aws.String("x-amz-server-side-encryption"),
+									aws.String("ETag"),
+								},
+								MaxAgeSeconds: aws.Int64(2000),
 							},
 						},
 					)),
@@ -534,7 +550,11 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "GET"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.ru"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"cors_rule.0.allowed_origins.0",
+						"https://www.example.ru",
+					),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "2000"),
 				),
 			},
@@ -697,8 +717,11 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
 								AllowedOrigins: []*string{aws.String("https://www.example.com")},
-								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
-								MaxAgeSeconds:  aws.Int64(3000),
+								ExposeHeaders: []*string{
+									aws.String("x-amz-server-side-encryption"),
+									aws.String("ETag"),
+								},
+								MaxAgeSeconds: aws.Int64(3000),
 							},
 						},
 					)),
@@ -709,7 +732,11 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.0", "PUT"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_methods.1", "POST"),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.allowed_origins.0", "https://www.example.com"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"cors_rule.0.allowed_origins.0",
+						"https://www.example.com",
+					),
 					resource.TestCheckResourceAttr(resourceName, "cors_rule.0.max_age_seconds", "3000"),
 				),
 			},
@@ -745,8 +772,11 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
 								AllowedOrigins: []*string{aws.String("")},
-								ExposeHeaders:  []*string{aws.String("x-amz-server-side-encryption"), aws.String("ETag")},
-								MaxAgeSeconds:  aws.Int64(3000),
+								ExposeHeaders: []*string{
+									aws.String("x-amz-server-side-encryption"),
+									aws.String("ETag"),
+								},
+								MaxAgeSeconds: aws.Int64(3000),
 							},
 						},
 					),
@@ -1015,7 +1045,7 @@ func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
-			if isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+			if isAWSErr(err, AwsNoSuchBucket, "") {
 				return nil
 			}
 			return err
@@ -1061,8 +1091,12 @@ func testAccCheckStorageBucketExistsWithProvider(n string, providerF func() *sch
 
 		provider := providerF()
 
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			provider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			provider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1071,7 +1105,7 @@ func testAccCheckStorageBucketExistsWithProvider(n string, providerF func() *sch
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
-			if isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+			if isAWSErr(err, AwsNoSuchBucket, "") {
 				return fmt.Errorf("bucket not found")
 			}
 			return err
@@ -1092,8 +1126,12 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 			return fmt.Errorf("no storage bucket ID is set")
 		}
 
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1102,7 +1140,11 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
-			return fmt.Errorf("error destroying bucket (%s) in testAccCheckStorageDestroyBucket: %s", rs.Primary.ID, err)
+			return fmt.Errorf(
+				"error destroying bucket (%s) in testAccCheckStorageDestroyBucket: %s",
+				rs.Primary.ID,
+				err,
+			)
 		}
 
 		return nil
@@ -1112,8 +1154,12 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1160,11 +1206,21 @@ func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheck
 	}
 }
 
-func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string, redirectProtocol string, redirectTo string) resource.TestCheckFunc {
+func testAccCheckStorageBucketWebsite(
+	n string,
+	indexDoc string,
+	errorDoc string,
+	redirectProtocol string,
+	redirectTo string,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1222,8 +1278,12 @@ func testAccCheckStorageBucketWebsite(n string, indexDoc string, errorDoc string
 func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.RoutingRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1250,8 +1310,12 @@ func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.R
 func testAccCheckStorageBucketVersioning(n string, versioningStatus string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1280,8 +1344,12 @@ func testAccCheckStorageBucketVersioning(n string, versioningStatus string) reso
 func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1289,7 +1357,7 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 		out, err := conn.GetBucketCors(&s3.GetBucketCorsInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
-		if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
+		if err != nil && !isAWSErr(err, AwsNoSuchWebsiteConfiguration, "") {
 			return fmt.Errorf("func GetBucketCors error: %v", err)
 		}
 
@@ -1304,8 +1372,12 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1351,8 +1423,12 @@ func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1360,12 +1436,16 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 		out, err := conn.GetBucketEncryption(&s3.GetBucketEncryptionInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
-		if err != nil && !isAWSErr(err, "NoSuchEncryptionConfiguration", "") {
+		if err != nil && !isAWSErr(err, AwsNoSuchEncryptionConfiguration, "") {
 			return fmt.Errorf("func GetBucketCors error: %v", err)
 		}
 
 		if !reflect.DeepEqual(out.ServerSideEncryptionConfiguration, config) {
-			return fmt.Errorf("bad error cors rule, expected: %v, got %v", config, out.ServerSideEncryptionConfiguration)
+			return fmt.Errorf(
+				"bad error cors rule, expected: %v, got %v",
+				config,
+				out.ServerSideEncryptionConfiguration,
+			)
 		}
 
 		return nil
@@ -1375,8 +1455,12 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1394,11 +1478,18 @@ func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) reso
 	}
 }
 
-func testAccCheckStorageBucketObjectLockConfiguration(n string, config *s3.ObjectLockConfiguration) resource.TestCheckFunc {
+func testAccCheckStorageBucketObjectLockConfiguration(
+	n string,
+	config *s3.ObjectLockConfiguration,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
@@ -1419,7 +1510,11 @@ func testAccCheckStorageBucketObjectLockConfiguration(n string, config *s3.Objec
 
 		default:
 			if !reflect.DeepEqual(out.ObjectLockConfiguration, config) {
-				return fmt.Errorf("bad error object lock config, expected: %v, got %v", config, out.ObjectLockConfiguration)
+				return fmt.Errorf(
+					"bad error object lock config, expected: %v, got %v",
+					config,
+					out.ObjectLockConfiguration,
+				)
 			}
 		}
 
@@ -1488,7 +1583,9 @@ func (b testAccStorageBucketConfigBuilder) withStorageClass(class string) testAc
 	return b
 }
 
-func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(read, list, configRead bool) testAccStorageBucketConfigBuilder {
+func (b testAccStorageBucketConfigBuilder) withAnonymousAccessFlags(
+	read, list, configRead bool,
+) testAccStorageBucketConfigBuilder {
 	b.anonymousRead = read
 	b.anonymousList = list
 	b.anonymousConfigRead = configRead
@@ -2272,7 +2369,11 @@ func TestAccStorageBucket_LifecycleBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.expiration.0.expired_object_delete_marker",
+						"false",
+					),
 				),
 			},
 		},
@@ -2296,11 +2397,19 @@ func TestAccStorageBucket_LifecycleVersioning(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.id", "id1"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.noncurrent_version_expiration.0.days",
+						"365",
+					),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.filter.0.prefix", "path2/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.noncurrent_version_expiration.0.days", "365"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.1.noncurrent_version_expiration.0.days",
+						"365",
+					),
 				),
 			},
 		},
@@ -2384,7 +2493,11 @@ func TestAccStorageBucket_LifecycleRule_NonCurrentVersionTransitionToIceStorage(
 				Config: testAccStorageBucketConfigWithNonCurrentVersionTransitionToIceStorage(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.noncurrent_version_transition.0.storage_class", "ICE"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.noncurrent_version_transition.0.storage_class",
+						"ICE",
+					),
 				),
 			},
 		},
@@ -2406,7 +2519,11 @@ func TestAccStorageBucket_Grants(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "grant.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "grant.0.uri", "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"grant.0.uri",
+						"http://acs.amazonaws.com/groups/global/AuthenticatedUsers",
+					),
 					resource.TestCheckResourceAttr(resourceName, "grant.0.type", "Group"),
 					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "grant.0.permissions.0", "FULL_CONTROL"),
@@ -2439,7 +2556,11 @@ func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.days", "365"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.date", ""),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.expiration.0.expired_object_delete_marker", "false"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.0.expiration.0.expired_object_delete_marker",
+						"false",
+					),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.0.filter.0.prefix", "path1/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.id", "id2"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.1.enabled", "true"),
@@ -2450,14 +2571,30 @@ func TestAccStorageBucket_LifecycleFilter(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.2.filter.0.tag.0.value", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.id", "id4"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.3.filter.0.object_size_greater_than", "1000"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.3.filter.0.object_size_greater_than",
+						"1000",
+					),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.id", "id5"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.4.filter.0.object_size_less_than", "10000"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.4.filter.0.object_size_less_than",
+						"10000",
+					),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.id", "id6"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.object_size_greater_than", "1000"),
-					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.object_size_less_than", "30000"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.5.filter.0.and.0.object_size_greater_than",
+						"1000",
+					),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"lifecycle_rule.5.filter.0.and.0.object_size_less_than",
+						"30000",
+					),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.prefix", "path4/"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.tags.key2", "value2"),
 					resource.TestCheckResourceAttr(resourceName, "lifecycle_rule.5.filter.0.and.0.tags.key3", "value3"),
@@ -2504,8 +2641,12 @@ func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
 func ensureBucketDeleted(n string) resource.TestCheckFunc {
 	return wrapWithRetries(func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		conn, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}

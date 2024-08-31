@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -26,7 +27,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -272,9 +272,12 @@ func resourceYandexStorageBucket() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
-													Type:         schema.TypeString,
-													Required:     true,
-													ValidateFunc: validation.StringInSlice(s3.ObjectLockRetentionMode_Values(), false),
+													Type:     schema.TypeString,
+													Required: true,
+													ValidateFunc: validation.StringInSlice(
+														s3.ObjectLockRetentionMode_Values(),
+														false,
+													),
 												},
 												"days": {
 													Type:     schema.TypeInt,
@@ -725,27 +728,24 @@ func resourceYandexStorageBucketCreateByS3Client(ctx context.Context, d *schema.
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
-	return retry.RetryContext(ctx, 5*time.Minute, func() *retry.RetryError {
+	_, err = retryOnAwsCodes(ctx, []AwsCode{AwsOperationAborted, AwsAccessDenied, AwsForbidden}, func() (any, error) {
 		log.Printf("[INFO] Trying to create new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
-
 		_, err := s3Client.CreateBucketWithContext(ctx, &s3.CreateBucketInput{
 			Bucket: aws.String(bucket),
 			ACL:    aws.String(acl),
 		})
-		if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "OperationAborted" ||
-			awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
-			log.Printf("[WARN] Got an error while trying to create Storage S3 Bucket %s: %s", bucket, err)
-			return retry.RetryableError(
-				fmt.Errorf("error creating Storage S3 Bucket %s, retrying: %s", bucket, err))
-		}
 		if err != nil {
-			log.Printf("[ERROR] Got an error while trying to create Storage Bucket %s: %s", bucket, err)
-			return retry.NonRetryableError(err)
+			log.Printf("[WARN] Got an error while trying to create Storage S3 Bucket %s: %s", bucket, err)
+			return nil, err
 		}
-
-		log.Printf("[INFO] Created new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
-		return nil
+		return nil, nil
 	})
+	if err != nil {
+		log.Printf("[ERROR] Got an error while trying to create Storage Bucket %s: %s", bucket, err)
+		return err
+	}
+	log.Printf("[INFO] Created new Storage S3 Bucket: %q, ACL: %q", bucket, acl)
+	return nil
 }
 
 func resourceYandexStorageBucketCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1028,7 +1028,7 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 		return fmt.Errorf("error getting storage client: %s", err)
 	}
 
-	resp, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	resp, err := retryLongTermOperations[*s3.HeadBucketOutput](ctx, func() (*s3.HeadBucketOutput, error) {
 		return s3Client.HeadBucketWithContext(ctx, &s3.HeadBucketInput{
 			Bucket: bucketAWS,
 		})
@@ -1052,7 +1052,7 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	d.Set("bucket_domain_name", domainName)
 
 	// Read the policy
-	pol, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	pol, err := retryLongTermOperations[*s3.GetBucketPolicyOutput](ctx, func() (*s3.GetBucketPolicyOutput, error) {
 		return s3Client.GetBucketPolicyWithContext(ctx, &s3.GetBucketPolicyInput{
 			Bucket: bucketAWS,
 		})
@@ -1060,7 +1060,7 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	log.Printf("[DEBUG] S3 bucket: %s, read policy: %v", d.Id(), pol)
 	switch {
 	case err == nil:
-		v := pol.(*s3.GetBucketPolicyOutput).Policy
+		v := pol.Policy
 		if v == nil {
 			if err := d.Set("policy", ""); err != nil {
 				return fmt.Errorf("error setting policy: %s", err)
@@ -1074,21 +1074,21 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 				return fmt.Errorf("error setting policy: %s", err)
 			}
 		}
-	case isAWSErr(err, "NoSuchBucketPolicy", ""):
+	case isAWSErr(err, AwsNoSuchBucketPolicy, ""):
 		d.Set("policy", "")
-	case isAWSErr(err, "AccessDenied", ""):
+	case isAWSErr(err, AwsAccessDenied, ""):
 		log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) Policy: %s", d.Id(), err)
 		d.Set("policy", nil)
 	default:
 		return fmt.Errorf("error getting current policy: %s", err)
 	}
 
-	corsResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	cors, err := retryLongTermOperations[*s3.GetBucketCorsOutput](ctx, func() (*s3.GetBucketCorsOutput, error) {
 		return s3Client.GetBucketCorsWithContext(ctx, &s3.GetBucketCorsInput{
 			Bucket: bucketAWS,
 		})
 	})
-	if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
+	if err != nil && !isAWSErr(err, AwsNoSuchCORSConfiguration, "") {
 		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
@@ -1096,7 +1096,7 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	corsRules := make([]map[string]interface{}, 0)
-	if cors, ok := corsResponse.(*s3.GetBucketCorsOutput); ok && len(cors.CORSRules) > 0 {
+	if len(cors.CORSRules) > 0 {
 		log.Printf("[DEBUG] Storage get bucket CORS output: %#v", cors)
 
 		corsRules = make([]map[string]interface{}, 0, len(cors.CORSRules))
@@ -1120,12 +1120,15 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	// Read the website configuration
-	wsResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetBucketWebsiteWithContext(ctx, &s3.GetBucketWebsiteInput{
-			Bucket: bucketAWS,
-		})
-	})
-	if err != nil && !isAWSErr(err, "NotImplemented", "") && !isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
+	ws, err := retryLongTermOperations[*s3.GetBucketWebsiteOutput](
+		ctx,
+		func() (*s3.GetBucketWebsiteOutput, error) {
+			return s3Client.GetBucketWebsiteWithContext(ctx, &s3.GetBucketWebsiteInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
+	if err != nil && !isAWSErr(err, AwsNotImplemented, "") && !isAWSErr(err, AwsNoSuchWebsiteConfiguration, "") {
 		if handleS3BucketNotFoundError(d, err) {
 			return nil
 		}
@@ -1133,58 +1136,52 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	websites := make([]map[string]interface{}, 0, 1)
-	if ws, ok := wsResponse.(*s3.GetBucketWebsiteOutput); ok {
-		log.Printf("[DEBUG] Storage get bucket website output: %#v", ws)
+	log.Printf("[DEBUG] Storage get bucket website output: %#v", ws)
 
-		w := make(map[string]interface{})
+	w := make(map[string]interface{})
 
-		if v := ws.IndexDocument; v != nil {
-			w["index_document"] = *v.Suffix
-		}
+	if v := ws.IndexDocument; v != nil {
+		w["index_document"] = *v.Suffix
+	}
 
-		if v := ws.ErrorDocument; v != nil {
-			w["error_document"] = *v.Key
-		}
+	if v := ws.ErrorDocument; v != nil {
+		w["error_document"] = *v.Key
+	}
 
-		if v := ws.RedirectAllRequestsTo; v != nil {
-			if v.Protocol == nil {
-				w["redirect_all_requests_to"] = aws.StringValue(v.HostName)
+	if v := ws.RedirectAllRequestsTo; v != nil {
+		if v.Protocol == nil {
+			w["redirect_all_requests_to"] = aws.StringValue(v.HostName)
+		} else {
+			var host, path, query string
+			if parsedHostName, err := url.Parse(aws.StringValue(v.HostName)); err != nil {
+				host = aws.StringValue(v.HostName)
 			} else {
-				var host string
-				var path string
-				var query string
-				parsedHostName, err := url.Parse(aws.StringValue(v.HostName))
-				if err == nil {
-					host = parsedHostName.Host
-					path = parsedHostName.Path
-					query = parsedHostName.RawQuery
-				} else {
-					host = aws.StringValue(v.HostName)
-					path = ""
-				}
-
-				w["redirect_all_requests_to"] = (&url.URL{
-					Host:     host,
-					Path:     path,
-					Scheme:   aws.StringValue(v.Protocol),
-					RawQuery: query,
-				}).String()
+				host = parsedHostName.Host
+				path = parsedHostName.Path
+				query = parsedHostName.RawQuery
 			}
-		}
 
-		if v := ws.RoutingRules; v != nil {
-			rr, err := normalizeRoutingRules(v)
-			if err != nil {
-				return fmt.Errorf("Error while marshaling routing rules: %s", err)
-			}
-			w["routing_rules"] = rr
+			w["redirect_all_requests_to"] = (&url.URL{
+				Host:     host,
+				Path:     path,
+				Scheme:   aws.StringValue(v.Protocol),
+				RawQuery: query,
+			}).String()
 		}
+	}
 
-		// We have special handling for the website configuration,
-		// so only add the configuration if there is any
-		if len(w) > 0 {
-			websites = append(websites, w)
+	if v := ws.RoutingRules; v != nil {
+		rr, err := normalizeRoutingRules(v)
+		if err != nil {
+			return fmt.Errorf("Error while marshaling routing rules: %s", err)
 		}
+		w["routing_rules"] = rr
+	}
+
+	// We have special handling for the website configuration,
+	// so only add the configuration if there is any
+	if len(w) > 0 {
+		websites = append(websites, w)
 	}
 	if err := d.Set("website", websites); err != nil {
 		return fmt.Errorf("error setting website: %s", err)
@@ -1205,13 +1202,13 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	if d.Get("acl").(string) == "" {
-		apResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		apResponse, err := retryLongTermOperations[*s3.GetBucketAclOutput](ctx, func() (*s3.GetBucketAclOutput, error) {
 			return s3Client.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
 				Bucket: bucketAWS,
 			})
 		})
 
-		if !d.IsNewResource() && isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+		if !d.IsNewResource() && isAWSErr(err, AwsNoSuchBucket, "") {
 			log.Printf("[WARN] requested bucket not found, deleting")
 			d.SetId("")
 			return nil
@@ -1219,7 +1216,9 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 
 		if err != nil {
 			// Ignore access denied error, when reading ACL for bucket.
-			if awsErr, ok := err.(awserr.Error); ok && (awsErr.Code() == "AccessDenied" || awsErr.Code() == "Forbidden") {
+			var awsErr awserr.Error
+			if errors.As(err, &awsErr) &&
+				(awsErr.Code() == string(AwsAccessDenied) || awsErr.Code() == string(AwsForbidden)) {
 				log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ACL: %s", d.Id(), err)
 
 				if err := d.Set("grant", nil); err != nil {
@@ -1232,7 +1231,7 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 			return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", d.Id(), err)
 		} else {
 			log.Printf("[DEBUG] getting storage: %s, read ACL grants policy: %+v", d.Id(), apResponse)
-			grants := flattenGrants(apResponse.(*s3.GetBucketAclOutput))
+			grants := flattenGrants(apResponse)
 			if err := d.Set("grant", schema.NewSet(grantHash, grants)); err != nil {
 				return fmt.Errorf("error setting Storage Bucket `grant` %s", err)
 			}
@@ -1245,47 +1244,54 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 
 	// Read the versioning configuration
 
-	versioningResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetBucketVersioningWithContext(ctx, &s3.GetBucketVersioningInput{
-			Bucket: bucketAWS,
-		})
-	})
+	versioning, err := retryLongTermOperations[*s3.GetBucketVersioningOutput](
+		ctx,
+		func() (*s3.GetBucketVersioningOutput, error) {
+			return s3Client.GetBucketVersioningWithContext(ctx, &s3.GetBucketVersioningInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
 	if err != nil {
 		return err
 	}
 
 	vcl := make([]map[string]interface{}, 0, 1)
-	if versioning, ok := versioningResponse.(*s3.GetBucketVersioningOutput); ok {
-		vc := make(map[string]interface{})
-		if versioning.Status != nil && aws.StringValue(versioning.Status) == s3.BucketVersioningStatusEnabled {
-			vc["enabled"] = true
-		} else {
-			vc["enabled"] = false
-		}
-
-		vcl = append(vcl, vc)
+	vc := make(map[string]interface{})
+	if versioning.Status != nil && aws.StringValue(versioning.Status) == s3.BucketVersioningStatusEnabled {
+		vc["enabled"] = true
+	} else {
+		vc["enabled"] = false
 	}
+
+	vcl = append(vcl, vc)
 	if err := d.Set("versioning", vcl); err != nil {
 		return fmt.Errorf("error setting versioning: %s", err)
 	}
 
 	// Read the Object Lock Configuration
-	objectLockConfigResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetObjectLockConfigurationWithContext(ctx, &s3.GetObjectLockConfigurationInput{
-			Bucket: bucketAWS,
-		})
-	})
+	objectLockConfig, err := retryLongTermOperations[*s3.GetObjectLockConfigurationOutput](
+		ctx,
+		func() (*s3.GetObjectLockConfigurationOutput, error) {
+			return s3Client.GetObjectLockConfigurationWithContext(ctx, &s3.GetObjectLockConfigurationInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
 	if err != nil &&
-		(!isAWSErr(err, "ObjectLockConfigurationNotFoundError", "") && !isAWSErr(err, "AccessDenied", "")) {
-		log.Printf("[WARN] Got an error while trying to read Storage Bucket (%s) ObjectLockConfiguration: %s", d.Id(), err)
+		(!isAWSErr(err, AwsObjectLockConfigurationNotFoundError, "") && !isAWSErr(err, AwsAccessDenied, "")) {
+		log.Printf(
+			"[WARN] Got an error while trying to read Storage Bucket (%s) ObjectLockConfiguration: %s",
+			d.Id(),
+			err,
+		)
 		return err
 	} else {
 		log.Printf("[DEBUG] Got an error while trying to read Storage Bucket (%s) ObjectLockConfigurationt: %s", d.Id(), err)
 	}
 
 	var olcl []map[string]interface{}
-	objectLockConfig, ok := objectLockConfigResponse.(*s3.GetObjectLockConfigurationOutput)
-	if err == nil && ok && objectLockConfig.ObjectLockConfiguration != nil {
+	if err == nil && objectLockConfig.ObjectLockConfiguration != nil {
 		log.Printf("[DEBUG] Storage get bucket object lock config output: %#v", objectLockConfig)
 		olcl = make([]map[string]interface{}, 0, 1)
 		olc := make(map[string]interface{})
@@ -1321,18 +1327,21 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	// Read the logging configuration
-	loggingResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetBucketLoggingWithContext(ctx, &s3.GetBucketLoggingInput{
-			Bucket: bucketAWS,
-		})
-	})
+	logging, err := retryLongTermOperations[*s3.GetBucketLoggingOutput](
+		ctx,
+		func() (*s3.GetBucketLoggingOutput, error) {
+			return s3Client.GetBucketLoggingWithContext(ctx, &s3.GetBucketLoggingInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
 
 	if err != nil {
 		return fmt.Errorf("error getting S3 Bucket logging: %s", err)
 	}
 
 	lcl := make([]map[string]interface{}, 0, 1)
-	if logging, ok := loggingResponse.(*s3.GetBucketLoggingOutput); ok && logging.LoggingEnabled != nil {
+	if logging.LoggingEnabled != nil {
 		v := logging.LoggingEnabled
 		lc := make(map[string]interface{})
 		if aws.StringValue(v.TargetBucket) != "" {
@@ -1348,17 +1357,20 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 	}
 
 	// Read the lifecycle configuration
-	lifecycleResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetBucketLifecycleConfigurationWithContext(ctx, &s3.GetBucketLifecycleConfigurationInput{
-			Bucket: bucketAWS,
-		})
-	})
-	if err != nil && !isAWSErr(err, "NoSuchLifecycleConfiguration", "") {
+	lifecycle, err := retryLongTermOperations[*s3.GetBucketLifecycleConfigurationOutput](
+		ctx,
+		func() (*s3.GetBucketLifecycleConfigurationOutput, error) {
+			return s3Client.GetBucketLifecycleConfigurationWithContext(ctx, &s3.GetBucketLifecycleConfigurationInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
+	if err != nil && !isAWSErr(err, AwsNoSuchLifecycleConfiguration, "") {
 		return err
 	}
 
 	lifecycleRules := make([]map[string]interface{}, 0)
-	if lifecycle, ok := lifecycleResponse.(*s3.GetBucketLifecycleConfigurationOutput); ok && len(lifecycle.Rules) > 0 {
+	if len(lifecycle.Rules) > 0 {
 		lifecycleRules = make([]map[string]interface{}, 0, len(lifecycle.Rules))
 
 		for _, lifecycleRule := range lifecycle.Rules {
@@ -1427,7 +1439,9 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 			// AbortIncompleteMultipartUploadDays
 			if lifecycleRule.AbortIncompleteMultipartUpload != nil {
 				if lifecycleRule.AbortIncompleteMultipartUpload.DaysAfterInitiation != nil {
-					rule["abort_incomplete_multipart_upload_days"] = int(aws.Int64Value(lifecycleRule.AbortIncompleteMultipartUpload.DaysAfterInitiation))
+					rule["abort_incomplete_multipart_upload_days"] = int(
+						aws.Int64Value(lifecycleRule.AbortIncompleteMultipartUpload.DaysAfterInitiation),
+					)
 				}
 			}
 
@@ -1441,7 +1455,9 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 					e["days"] = int(aws.Int64Value(lifecycleRule.Expiration.Days))
 				}
 				if lifecycleRule.Expiration.ExpiredObjectDeleteMarker != nil {
-					e["expired_object_delete_marker"] = aws.BoolValue(lifecycleRule.Expiration.ExpiredObjectDeleteMarker)
+					e["expired_object_delete_marker"] = aws.BoolValue(
+						lifecycleRule.Expiration.ExpiredObjectDeleteMarker,
+					)
 				}
 				rule["expiration"] = []interface{}{e}
 			}
@@ -1496,24 +1512,30 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 
 	// Read the bucket server side encryption configuration
 
-	encryptionResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3Client.GetBucketEncryptionWithContext(ctx, &s3.GetBucketEncryptionInput{
-			Bucket: bucketAWS,
-		})
-	})
-	if err != nil && !isAWSErr(err, "ServerSideEncryptionConfigurationNotFoundError", "encryption configuration was not found") {
+	encryption, err := retryLongTermOperations[*s3.GetBucketEncryptionOutput](
+		ctx,
+		func() (*s3.GetBucketEncryptionOutput, error) {
+			return s3Client.GetBucketEncryptionWithContext(ctx, &s3.GetBucketEncryptionInput{
+				Bucket: bucketAWS,
+			})
+		},
+	)
+	if err != nil &&
+		!isAWSErr(err, AwsServerSideEncryptionConfigurationNotFoundError, "encryption configuration was not found") {
 		return fmt.Errorf("error getting S3 Bucket encryption: %w", err)
 	}
 
 	serverSideEncryptionConfiguration := make([]map[string]interface{}, 0)
-	if encryption, ok := encryptionResponse.(*s3.GetBucketEncryptionOutput); ok && encryption.ServerSideEncryptionConfiguration != nil {
-		serverSideEncryptionConfiguration = flattenS3ServerSideEncryptionConfiguration(encryption.ServerSideEncryptionConfiguration)
+	if encryption.ServerSideEncryptionConfiguration != nil {
+		serverSideEncryptionConfiguration = flattenS3ServerSideEncryptionConfiguration(
+			encryption.ServerSideEncryptionConfiguration,
+		)
 	}
 	if err := d.Set("server_side_encryption_configuration", serverSideEncryptionConfiguration); err != nil {
 		return fmt.Errorf("error setting server_side_encryption_configuration: %s", err)
 	}
 
-	getBucketTagging, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	tags, err := retryLongTermOperations[*s3.GetBucketTaggingOutput](ctx, func() (*s3.GetBucketTaggingOutput, error) {
 		return s3Client.GetBucketTaggingWithContext(ctx, &s3.GetBucketTaggingInput{
 			Bucket: bucketAWS,
 		})
@@ -1522,7 +1544,6 @@ func resourceYandexStorageBucketReadBasic(ctx context.Context, d *schema.Resourc
 		return fmt.Errorf("error getting S3 Bucket tags: %w", err)
 	}
 
-	tags := getBucketTagging.(*s3.GetBucketTaggingOutput)
 	tagsNormalized := storageBucketTaggingNormalize(tags.TagSet)
 	err = d.Set("tags", tagsNormalized)
 	if err != nil {
@@ -1638,17 +1659,17 @@ func resourceYandexStorageBucketDelete(ctx context.Context, d *schema.ResourceDa
 
 	log.Printf("[DEBUG] Storage Delete Bucket: %s", d.Id())
 
-	_, err = retryOnAwsCodes(ctx, []string{"AccessDenied", "Forbidden"}, func() (interface{}, error) {
+	_, err = retryOnAwsCodes(ctx, []AwsCode{AwsAccessDenied, AwsForbidden}, func() (any, error) {
 		return s3Client.DeleteBucketWithContext(ctx, &s3.DeleteBucketInput{
 			Bucket: aws.String(d.Id()),
 		})
 	})
 
-	if isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
+	if isAWSErr(err, AwsNoSuchBucket, "") {
 		return nil
 	}
 
-	if isAWSErr(err, "BucketNotEmpty", "") {
+	if isAWSErr(err, AwsBucketNotEmpty, "") {
 		if d.Get("force_destroy").(bool) {
 			// bucket may have things delete them
 			log.Printf("[DEBUG] Storage Bucket attempting to forceDestroy %+v", err)
@@ -1731,7 +1752,7 @@ func resourceYandexStorageBucketCORSUpdate(ctx context.Context, s3Client *s3.S3,
 		// Delete CORS
 		log.Printf("[DEBUG] Storage Bucket: %s, delete CORS", bucket)
 
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (interface{}, error) {
 			return s3Client.DeleteBucketCorsWithContext(ctx, &s3.DeleteBucketCorsInput{
 				Bucket: aws.String(bucket),
 			})
@@ -1784,7 +1805,7 @@ func resourceYandexStorageBucketCORSUpdate(ctx context.Context, s3Client *s3.S3,
 		}
 		log.Printf("[DEBUG] Storage Bucket: %s, put CORS: %#v", bucket, corsInput)
 
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (interface{}, error) {
 			return s3Client.PutBucketCorsWithContext(ctx, corsInput)
 		})
 		if err == nil {
@@ -1815,7 +1836,12 @@ func resourceYandexStorageBucketWebsiteUpdate(ctx context.Context, s3Client *s3.
 	return resourceYandexStorageBucketWebsitePut(ctx, s3Client, d, w)
 }
 
-func resourceYandexStorageBucketWebsitePut(ctx context.Context, s3Client *s3.S3, d *schema.ResourceData, website map[string]interface{}) error {
+func resourceYandexStorageBucketWebsitePut(
+	ctx context.Context,
+	s3Client *s3.S3,
+	d *schema.ResourceData,
+	website map[string]interface{},
+) error {
 	bucket := d.Get("bucket").(string)
 
 	var indexDocument, errorDocument, redirectAllRequestsTo, routingRules string
@@ -1859,7 +1885,10 @@ func resourceYandexStorageBucketWebsitePut(ctx context.Context, s3Client *s3.S3,
 				redirectHostBuf.WriteString("?")
 				redirectHostBuf.WriteString(redirect.RawQuery)
 			}
-			websiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{HostName: aws.String(redirectHostBuf.String()), Protocol: aws.String(redirect.Scheme)}
+			websiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{
+				HostName: aws.String(redirectHostBuf.String()),
+				Protocol: aws.String(redirect.Scheme),
+			}
 		} else {
 			websiteConfiguration.RedirectAllRequestsTo = &s3.RedirectAllRequestsTo{HostName: aws.String(redirectAllRequestsTo)}
 		}
@@ -1880,7 +1909,7 @@ func resourceYandexStorageBucketWebsitePut(ctx context.Context, s3Client *s3.S3,
 
 	log.Printf("[DEBUG] Storage put bucket website: %#v", putInput)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3Client.PutBucketWebsiteWithContext(ctx, putInput)
 	})
 	if err == nil {
@@ -1899,7 +1928,7 @@ func resourceYandexStorageBucketWebsiteDelete(ctx context.Context, s3Client *s3.
 
 	log.Printf("[DEBUG] Storage delete bucket website: %#v", deleteInput)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3Client.DeleteBucketWebsiteWithContext(ctx, deleteInput)
 	})
 	if err == nil {
@@ -1950,7 +1979,7 @@ func resourceYandexStorageBucketACLUpdate(ctx context.Context, s3Client *s3.S3, 
 	}
 	log.Printf("[DEBUG] Storage put bucket ACL: %#v", i)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3Client.PutBucketAclWithContext(ctx, i)
 	})
 	if err != nil {
@@ -1984,7 +2013,7 @@ func resourceYandexStorageBucketVersioningUpdate(ctx context.Context, s3conn *s3
 	}
 	log.Printf("[DEBUG] S3 put bucket versioning: %#v", i)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutBucketVersioningWithContext(ctx, i)
 	})
 	if err != nil {
@@ -2058,7 +2087,7 @@ func resourceYandexStorageBucketTagsUpdate(ctx context.Context, s3conn *s3.S3, d
 				TagSet: tags,
 			},
 		}
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (any, error) {
 			return s3conn.PutBucketTaggingWithContext(ctx, request)
 		})
 		if err != nil {
@@ -2073,7 +2102,7 @@ func resourceYandexStorageBucketTagsUpdate(ctx context.Context, s3conn *s3.S3, d
 		request := &s3.DeleteBucketTaggingInput{
 			Bucket: bucket,
 		}
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (any, error) {
 			return s3conn.DeleteBucketTaggingWithContext(ctx, request)
 		})
 		if err != nil {
@@ -2085,7 +2114,11 @@ func resourceYandexStorageBucketTagsUpdate(ctx context.Context, s3conn *s3.S3, d
 	return resourceYandexStorageHandleTagsUpdate(d, "bucket", onUpdate, onDelete)
 }
 
-func resourceYandexStorageBucketObjectLockConfigurationUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketObjectLockConfigurationUpdate(
+	ctx context.Context,
+	s3conn *s3.S3,
+	d *schema.ResourceData,
+) error {
 	ol := d.Get("object_lock_configuration").([]interface{})
 	bucket := d.Get("bucket").(string)
 	olc := &s3.ObjectLockConfiguration{}
@@ -2127,7 +2160,7 @@ func resourceYandexStorageBucketObjectLockConfigurationUpdate(ctx context.Contex
 	}
 	log.Printf("[DEBUG] S3 put object lock configuration: %#v", i)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutObjectLockConfigurationWithContext(ctx, i)
 	})
 	if err != nil {
@@ -2162,7 +2195,7 @@ func resourceYandexStorageBucketLoggingUpdate(ctx context.Context, s3conn *s3.S3
 	}
 	log.Printf("[DEBUG] S3 put bucket logging: %#v", i)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutBucketLoggingWithContext(ctx, i)
 	})
 	if err != nil {
@@ -2189,31 +2222,6 @@ func bucketDomainName(bucket string, endpointURL string) (string, error) {
 
 type S3Website struct {
 	Endpoint, Domain string
-}
-
-func retryOnAwsCodes(ctx context.Context, codes []string, f func() (interface{}, error)) (interface{}, error) {
-	var resp interface{}
-	err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
-		var err error
-		resp, err = f()
-		if err != nil {
-			awsErr, ok := err.(awserr.Error)
-			if ok {
-				for _, code := range codes {
-					if awsErr.Code() == code {
-						return retry.RetryableError(err)
-					}
-				}
-			}
-			return retry.NonRetryableError(err)
-		}
-		return nil
-	})
-	return resp, err
-}
-
-func retryFlakyS3Responses(ctx context.Context, f func() (interface{}, error)) (interface{}, error) {
-	return retryOnAwsCodes(ctx, []string{"NoSuchBucket", "AccessDenied", "Forbidden"}, f)
 }
 
 func waitConditionStable(check func() (bool, error)) error {
@@ -2243,7 +2251,7 @@ func waitWebsitePut(ctx context.Context, s3Client *s3.S3, bucket string, configu
 
 	check := func() (bool, error) {
 		output, err := s3Client.GetBucketWebsiteWithContext(ctx, input)
-		if err != nil && !isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
+		if err != nil && !isAWSErr(err, AwsNoSuchWebsiteConfiguration, "") {
 			return false, err
 		}
 		outputConfiguration := &s3.WebsiteConfiguration{
@@ -2270,7 +2278,7 @@ func waitWebsiteDeleted(ctx context.Context, s3Client *s3.S3, bucket string) err
 
 	check := func() (bool, error) {
 		_, err := s3Client.GetBucketWebsiteWithContext(ctx, input)
-		if isAWSErr(err, "NoSuchWebsiteConfiguration", "") {
+		if isAWSErr(err, AwsNoSuchWebsiteConfiguration, "") {
 			return true, nil
 		}
 		if err != nil {
@@ -2291,7 +2299,7 @@ func waitCorsPut(ctx context.Context, s3Client *s3.S3, bucket string, configurat
 
 	check := func() (bool, error) {
 		output, err := s3Client.GetBucketCorsWithContext(ctx, input)
-		if err != nil && !isAWSErr(err, "NoSuchCORSConfiguration", "") {
+		if err != nil && !isAWSErr(err, AwsNoSuchCORSConfiguration, "") {
 			return false, err
 		}
 		empty := len(output.CORSRules) == 0 && len(configuration.CORSRules) == 0
@@ -2321,7 +2329,7 @@ func waitCorsDeleted(ctx context.Context, s3Client *s3.S3, bucket string) error 
 
 	check := func() (bool, error) {
 		_, err := s3Client.GetBucketCorsWithContext(ctx, input)
-		if isAWSErr(err, "NoSuchCORSConfiguration", "") {
+		if isAWSErr(err, AwsNoSuchCORSConfiguration, "") {
 			return true, nil
 		}
 		if err != nil {
@@ -2335,17 +2343,6 @@ func waitCorsDeleted(ctx context.Context, s3Client *s3.S3, bucket string) error 
 		return fmt.Errorf("error assuring bucket %q CORS deleted: %s", bucket, err)
 	}
 	return nil
-}
-
-// Returns true if the error matches all these conditions:
-//   - err is of type awserr.Error
-//   - Error.Code() matches code
-//   - Error.Message() contains message
-func isAWSErr(err error, code string, message string) bool {
-	if err, ok := err.(awserr.Error); ok {
-		return err.Code() == code && strings.Contains(err.Message(), message)
-	}
-	return false
 }
 
 func handleS3BucketNotFoundError(d *schema.ResourceData, err error) bool {
@@ -2432,7 +2429,7 @@ func resourceYandexStorageBucketPolicyUpdate(ctx context.Context, s3conn *s3.S3,
 
 	if policy == "" {
 		log.Printf("[DEBUG] S3 bucket: %s, delete policy: %s", bucket, policy)
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (any, error) {
 			return s3conn.DeleteBucketPolicyWithContext(ctx, &s3.DeleteBucketPolicyInput{
 				Bucket: aws.String(bucket),
 			})
@@ -2450,15 +2447,8 @@ func resourceYandexStorageBucketPolicyUpdate(ctx context.Context, s3conn *s3.S3,
 		Policy: aws.String(policy),
 	}
 
-	err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
-		_, err := s3conn.PutBucketPolicyWithContext(ctx, params)
-		if isAWSErr(err, "MalformedPolicy", "") || isAWSErr(err, s3.ErrCodeNoSuchBucket, "") {
-			return retry.RetryableError(err)
-		}
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
-		return nil
+	_, err := retryOnAwsCodes(ctx, []AwsCode{AwsMalformedPolicy, AwsNoSuchBucket}, func() (any, error) {
+		return s3conn.PutBucketPolicyWithContext(ctx, params)
 	})
 	if err != nil {
 		return fmt.Errorf("Error putting S3 policy: %s", err)
@@ -2480,17 +2470,18 @@ func resourceYandexStorageBucketGrantsUpdate(ctx context.Context, s3conn *s3.S3,
 		return nil
 	}
 
-	apResponse, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3conn.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
-			Bucket: aws.String(bucket),
-		})
-	})
-
+	ap, err := retryLongTermOperations[*s3.GetBucketAclOutput](
+		ctx,
+		func() (*s3.GetBucketAclOutput, error) {
+			return s3conn.GetBucketAclWithContext(ctx, &s3.GetBucketAclInput{
+				Bucket: aws.String(bucket),
+			})
+		},
+	)
 	if err != nil {
 		return fmt.Errorf("error getting Storage Bucket (%s) ACL: %s", bucket, err)
 	}
 
-	ap := apResponse.(*s3.GetBucketAclOutput)
 	log.Printf("[DEBUG] Storage Bucket: %s, read ACL grants policy: %+v", bucket, ap)
 
 	grants := make([]*s3.Grant, 0, len(rawGrants))
@@ -2531,7 +2522,7 @@ func resourceYandexStorageBucketGrantsUpdate(ctx context.Context, s3conn *s3.S3,
 
 	log.Printf("[DEBUG] Bucket: %s, put Grants: %#v", bucket, grantsInput)
 
-	_, err = retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err = retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutBucketAclWithContext(ctx, grantsInput)
 	})
 
@@ -2732,7 +2723,7 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 		},
 	}
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutBucketLifecycleConfigurationWithContext(ctx, i)
 	})
 	if err != nil {
@@ -2742,7 +2733,11 @@ func resourceYandexStorageBucketLifecycleUpdate(ctx context.Context, s3conn *s3.
 	return nil
 }
 
-func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(ctx context.Context, s3conn *s3.S3, d *schema.ResourceData) error {
+func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(
+	ctx context.Context,
+	s3conn *s3.S3,
+	d *schema.ResourceData,
+) error {
 	bucket := d.Get("bucket").(string)
 	serverSideEncryptionConfiguration := d.Get("server_side_encryption_configuration").([]interface{})
 	if len(serverSideEncryptionConfiguration) == 0 {
@@ -2789,7 +2784,7 @@ func resourceYandexStorageBucketServerSideEncryptionConfigurationUpdate(ctx cont
 	}
 	log.Printf("[DEBUG] S3 put bucket replication configuration: %#v", i)
 
-	_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+	_, err := retryLongTermOperations(ctx, func() (any, error) {
 		return s3conn.PutBucketEncryptionWithContext(ctx, i)
 	})
 	if err != nil {
@@ -3125,7 +3120,8 @@ func suppressFilterIfPrefixEqualsFilterPrefix(k, old, new string, d *schema.Reso
 		filterPrefix := d.Get(key + "filter.0.prefix")
 		filterTag := d.Get(key + "filter.0.tag")
 		filterAnd := d.Get(key + "filter.0.and")
-		if prefix != "" && filterPrefix != "" && prefix == filterPrefix && len(filterTag.([]interface{})) == 0 && len(filterAnd.([]interface{})) == 0 {
+		if prefix != "" && filterPrefix != "" && prefix == filterPrefix && len(filterTag.([]interface{})) == 0 &&
+			len(filterAnd.([]interface{})) == 0 {
 			return true
 		}
 	}

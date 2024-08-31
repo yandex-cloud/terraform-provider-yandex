@@ -264,19 +264,20 @@ func resourceYandexStorageObjectRead(ctx context.Context, d *schema.ResourceData
 		d.Set("object_lock_retain_until_date", untilDate.Format(time.RFC3339))
 	}
 
-	tagsResponseRaw, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
-		return s3conn.GetObjectTaggingWithContext(ctx, &s3.GetObjectTaggingInput{
-			Bucket:    aws.String(bucket),
-			Key:       aws.String(key),
-			VersionId: resp.VersionId,
-		})
-	})
+	tagsResponse, err := retryLongTermOperations[*s3.GetObjectTaggingOutput](
+		ctx,
+		func() (*s3.GetObjectTaggingOutput, error) {
+			return s3conn.GetObjectTaggingWithContext(ctx, &s3.GetObjectTaggingInput{
+				Bucket:    aws.String(bucket),
+				Key:       aws.String(key),
+				VersionId: resp.VersionId,
+			})
+		},
+	)
 	if err != nil {
 		log.Printf("[ERROR] Unable to get S3 Storage Object Tagging: %s", err)
 		return diag.FromErr(err)
 	}
-
-	tagsResponse := tagsResponseRaw.(*s3.GetObjectTaggingOutput)
 
 	tags := storageBucketTaggingNormalize(tagsResponse.TagSet)
 	err = d.Set("tags", tags)
@@ -402,7 +403,7 @@ func resourceYandexStorageObjectTaggingUpdate(ctx context.Context, s3conn *s3.S3
 				TagSet: tags,
 			},
 		}
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (any, error) {
 			return s3conn.PutObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {
@@ -418,7 +419,7 @@ func resourceYandexStorageObjectTaggingUpdate(ctx context.Context, s3conn *s3.S3
 			Bucket: bucket,
 			Key:    key,
 		}
-		_, err := retryFlakyS3Responses(ctx, func() (interface{}, error) {
+		_, err := retryLongTermOperations(ctx, func() (any, error) {
 			return s3conn.DeleteObjectTaggingWithContext(ctx, request)
 		})
 		if err != nil {

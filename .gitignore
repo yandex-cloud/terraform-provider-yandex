@@ -35,3 +35,5 @@ website/vendor
 !command/test-fixtures/**/*.tfstate
 !command/test-fixtures/**/.terraform/
 vendor
+
+.go-version
