@@ -37,15 +37,15 @@ require (
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
 	github.com/yandex-cloud/go-genproto v0.0.0-20240829130658-0568052c5a6a
-	github.com/yandex-cloud/go-sdk v0.0.0-20240805151354-29f07dbe484e
+	github.com/yandex-cloud/go-sdk v0.0.0-20240829131820-fa8ad79f88a4
 	github.com/ydb-platform/terraform-provider-ydb v0.0.21
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.26.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
-	golang.org/x/net v0.23.0
-	google.golang.org/genproto v0.0.0-20240325203815-454cdb8f5daa
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240325203815-454cdb8f5daa
-	google.golang.org/grpc v1.62.1
-	google.golang.org/protobuf v1.33.0
+	golang.org/x/net v0.28.0
+	google.golang.org/genproto v0.0.0-20240827150818-7e3bb234dfed
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed
+	google.golang.org/grpc v1.66.0
+	google.golang.org/protobuf v1.34.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -82,7 +82,7 @@ require (
 	github.com/breml/errchkjson v0.3.1 // indirect
 	github.com/butuzov/ireturn v0.2.0 // indirect
 	github.com/butuzov/mirror v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/charmbracelet/bubbles v0.16.1 // indirect
 	github.com/charmbracelet/bubbletea v0.24.2 // indirect
@@ -258,14 +258,14 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
-	golang.org/x/mod v0.15.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.13.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240325203815-454cdb8f5daa // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240827150818-7e3bb234dfed // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	honnef.co/go/tools v0.4.3 // indirect

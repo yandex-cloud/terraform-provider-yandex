@@ -35,6 +35,7 @@ func init() {
 			"yandex_ydb_database_dedicated",
 			"yandex_lb_target_group",
 			"yandex_vpc_security_group",
+			"yandex_vpc_private_endpoint",
 		},
 	})
 }
