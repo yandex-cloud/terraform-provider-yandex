@@ -21,6 +21,8 @@ This snippet creates an API key.
 resource "yandex_iam_service_account_api_key" "sa-api-key" {
   service_account_id = "some_sa_id"
   description        = "api key for authorization"
+  scope              = "yc.ydb.topics.manage"
+  expires_at         = "2024-11-11T00:00:00Z"
   pgp_key            = "keybase:keybaseusername"
 }
 ```
@@ -34,6 +36,10 @@ The following arguments are supported:
 - - -
 
 * `description` - (Optional) The description of the key.
+
+* `scope` - (Optional) The scope of the key.
+
+* `expires_at` - (Optional) The key will be no longer valid after expiration timestamp.
 
 * `pgp_key` - (Optional) An optional PGP key to encrypt the resulting secret key material. May either be a base64-encoded public key or a keybase username in the form `keybase:keybaseusername`.
 

@@ -39,6 +39,56 @@ func TestAccServiceAccountAPIKey_basic(t *testing.T) {
 	})
 }
 
+func TestAccServiceAccountAPIKey_scoped(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "yandex_iam_service_account_api_key.acceptance"
+	accountName := "sa" + acctest.RandString(10)
+	accountDesc := "Terraform Test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountAPIKeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountAPIKeyConfigScoped(accountName, accountDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceAccountAPIKeyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
+					resource.TestCheckResourceAttr(resourceName, "scope", "yc.ydb.topics.manage"),
+					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
+					testAccCheckCreatedAtAttr(resourceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccServiceAccountAPIKey_expired(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "yandex_iam_service_account_api_key.acceptance"
+	accountName := "sa" + acctest.RandString(10)
+	accountDesc := "Terraform Test"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountAPIKeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccServiceAccountAPIKeyConfigExpired(accountName, accountDesc),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckServiceAccountAPIKeyExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "description", "description for test"),
+					resource.TestCheckResourceAttr(resourceName, "expires_at", "2099-11-11T22:33:44Z"),
+					resource.TestCheckResourceAttrSet(resourceName, "secret_key"),
+					testAccCheckCreatedAtAttr(resourceName),
+				),
+			},
+		},
+	})
+}
+
 func TestAccServiceAccountAPIKey_encrypted(t *testing.T) {
 	t.Parallel()
 
@@ -264,6 +314,35 @@ resource "yandex_iam_service_account" "acceptance" {
 resource "yandex_iam_service_account_api_key" "acceptance" {
   service_account_id = "${yandex_iam_service_account.acceptance.id}"
   description        = "description for test"
+}
+`, name, desc)
+}
+
+func testAccServiceAccountAPIKeyConfigScoped(name, desc string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "acceptance" {
+  name        = "%s"
+  description = "%s"
+}
+
+resource "yandex_iam_service_account_api_key" "acceptance" {
+  service_account_id = "${yandex_iam_service_account.acceptance.id}"
+  description        = "description for test"
+  scope        		 = "yc.ydb.topics.manage"
+}
+`, name, desc)
+}
+func testAccServiceAccountAPIKeyConfigExpired(name, desc string) string {
+	return fmt.Sprintf(`
+resource "yandex_iam_service_account" "acceptance" {
+  name        = "%s"
+  description = "%s"
+}
+
+resource "yandex_iam_service_account_api_key" "acceptance" {
+  service_account_id = "${yandex_iam_service_account.acceptance.id}"
+  description        = "description for test"
+  expires_at   		 = "2099-11-11T22:33:44Z"
 }
 `, name, desc)
 }

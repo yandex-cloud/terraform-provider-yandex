@@ -32,6 +32,16 @@ func resourceYandexIAMServiceAccountAPIKey() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"scope": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"expires_at": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"pgp_key": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -70,10 +80,25 @@ func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta in
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutCreate))
 	defer cancel()
 
-	resp, err := config.sdk.IAM().ApiKey().Create(ctx, &iam.CreateApiKeyRequest{
-		ServiceAccountId: d.Get("service_account_id").(string),
+	serviceAccountID := d.Get("service_account_id").(string)
+	req := iam.CreateApiKeyRequest{
+		ServiceAccountId: serviceAccountID,
 		Description:      d.Get("description").(string),
-	})
+	}
+
+	if v, ok := d.GetOk("scope"); ok {
+		req.SetScope(v.(string))
+	}
+
+	if v, ok := d.GetOk("expires_at"); ok {
+		expiresAt, err := parseTimestamp(v.(string))
+		if err != nil {
+			return fmt.Errorf("Error during parsing field expires_at while creating API Key for Service Account %s: %s", serviceAccountID, err)
+		}
+		req.SetExpiresAt(expiresAt)
+	}
+
+	resp, err := config.sdk.IAM().ApiKey().Create(ctx, &req)
 	if err != nil {
 		return fmt.Errorf("error creating api key: %s", err)
 	}
@@ -116,6 +141,14 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 	d.Set("service_account_id", ak.ServiceAccountId)
 	d.Set("created_at", getTimestamp(ak.CreatedAt))
 	d.Set("description", ak.Description)
+
+	if ak.Scope != "" {
+		d.Set("scope", ak.Scope)
+	}
+
+	if ak.ExpiresAt != nil {
+		d.Set("expires_at", getTimestamp(ak.ExpiresAt))
+	}
 
 	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
 }

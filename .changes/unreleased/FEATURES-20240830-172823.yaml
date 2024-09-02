@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'iam: added attributes `scope` and `expires_At` for API Key'
+time: 2024-08-30T17:28:23.715633+03:00
