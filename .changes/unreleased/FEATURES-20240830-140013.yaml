@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'greenplum: added `yandex_query` to `access` section.'
+time: 2024-08-30T14:00:13.326247+05:00

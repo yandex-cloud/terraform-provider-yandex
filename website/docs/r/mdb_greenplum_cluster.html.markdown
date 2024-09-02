@@ -174,6 +174,8 @@ The `access` block supports:
 
 * `data_transfer` - (Optional) Allow access for [DataTransfer](https://cloud.yandex.com/services/data-transfer)
 
+* `yandex_query` - (Optional) Allow access for [Yandex Query](https://cloud.yandex.com/services/query)
+
 The `maintenance_window` block supports:
 
 * `type` - (Required) Type of maintenance window. Can be either `ANYTIME` or `WEEKLY`. A day and hour of window need to be specified with weekly window.

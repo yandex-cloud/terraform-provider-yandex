@@ -202,6 +202,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.yandex_query", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "backup_window_start.0.minutes", "15"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.day", "SAT"),
 					resource.TestCheckResourceAttr(greenplumResource, "maintenance_window.0.hour", "12"),
@@ -219,6 +220,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.web_sql", "true"),
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_lens", "false"),
 					resource.TestCheckResourceAttr(greenplumResource, "access.0.data_transfer", "true"),
+					resource.TestCheckResourceAttr(greenplumResource, "access.0.yandex_query", "false"),
 				),
 			},
 			mdbGreenplumClusterImportStep(greenplumResource),
@@ -552,6 +554,7 @@ func testAccMDBGreenplumClusterConfigStep6(name string, description string) stri
 	web_sql       = true
 	data_lens     = true
 	data_transfer = true
+	yandex_query  = true
   }
   cloud_storage {
 	enable = true

@@ -65,6 +65,7 @@ func flattenGreenplumAccess(c *greenplum.GreenplumConfig) []map[string]interface
 		out["data_lens"] = c.Access.DataLens
 		out["web_sql"] = c.Access.WebSql
 		out["data_transfer"] = c.Access.DataTransfer
+		out["yandex_query"] = c.Access.YandexQuery
 	}
 	return []map[string]interface{}{out}
 }
@@ -215,6 +216,10 @@ func expandGreenplumAccess(d *schema.ResourceData) *greenplum.Access {
 		out.DataTransfer = v.(bool)
 	}
 
+	if v, ok := d.GetOk("access.0.yandex_query"); ok {
+		out.YandexQuery = v.(bool)
+	}
+
 	return out
 }
 
@@ -241,6 +246,7 @@ func expandGreenplumUpdatePath(d *schema.ResourceData, settingNames []string) []
 		"access.0.data_lens":     "config.access.data_lens",
 		"access.0.web_sql":       "config.access.web_sql",
 		"access.0.data_transfer": "config.access.data_transfer",
+		"access.0.yandex_query":  "config.access.yandex_query",
 		"cloud_storage.0.enable": "cloud_storage",
 		"backup_window_start":    "config.backup_window_start",
 		"maintenance_window":     "maintenance_window",

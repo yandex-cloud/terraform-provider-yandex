@@ -292,6 +292,11 @@ func resourceYandexMDBGreenplumCluster() *schema.Resource {
 							Optional: true,
 							Default:  false,
 						},
+						"yandex_query": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
 					},
 				},
 			},
