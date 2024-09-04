@@ -120,9 +120,10 @@ func TestAccYandexServerlessContainer_update(t *testing.T) {
 
 func serverlessContainerImportTestStep() resource.TestStep {
 	return resource.TestStep{
-		ResourceName:      serverlessContainerResource,
-		ImportState:       true,
-		ImportStateVerify: true,
+		ResourceName:            serverlessContainerResource,
+		ImportState:             true,
+		ImportStateVerify:       true,
+		ImportStateVerifyIgnore: []string{"storage_mounts"},
 	}
 }
 
@@ -176,13 +177,30 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		secretEnvVar: "TF_CONTAINER_ENV_KEY",
 		secretValue:  "tf-container-secret-value",
 	}
-
+	bucket := acctest.RandomWithPrefix("tf-function-test-bucket")
 	params.storageMount = testStorageMountParameters{
-		storageMountPointPath: "/mount/point/path",
-		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountPointPath: "/mount/point/a",
+		storageMountBucket:    bucket,
 		storageMountPrefix:    "tf-container-path",
 		storageMountReadOnly:  false,
 	}
+	params.ephemeralDiskMounts = testEphemeralDiskParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "/mount/point/b",
+			mountMode:  "rw",
+		},
+		ephemeralDiskSizeGB:      5,
+		ephemeralDiskBlockSizeKB: 4,
+	}
+	params.objectStorageMounts = testObjectStorageParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "/mount/point/c",
+			mountMode:  "ro",
+		},
+		objectStorageBucket: bucket,
+		objectStoragePrefix: "tf-function-path",
+	}
+
 	params.logOptions = testLogOptions{
 		disabled: false,
 		minLevel: "ERROR",
@@ -212,11 +230,28 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 		secretValue:  "tf-container-secret-value-updated",
 	}
 
+	bucket = acctest.RandomWithPrefix("tf-function-test-bucket-updated")
 	paramsUpdated.storageMount = testStorageMountParameters{
-		storageMountPointPath: "/mount/point/path/updated",
-		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket-updated"),
+		storageMountPointPath: "/mount/point/a-a",
+		storageMountBucket:    bucket,
 		storageMountPrefix:    "tf-container-path-updated",
 		storageMountReadOnly:  true,
+	}
+	paramsUpdated.ephemeralDiskMounts = testEphemeralDiskParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "/mount/point/b-b",
+			mountMode:  "rw",
+		},
+		ephemeralDiskSizeGB:      10,
+		ephemeralDiskBlockSizeKB: 4,
+	}
+	paramsUpdated.objectStorageMounts = testObjectStorageParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "/mount/point/c-c",
+			mountMode:  "ro",
+		},
+		objectStorageBucket: bucket,
+		objectStoragePrefix: "tf-function-path",
 	}
 	paramsUpdated.logOptions = testLogOptions{
 		disabled: false,
@@ -245,10 +280,24 @@ func TestAccYandexServerlessContainer_full(t *testing.T) {
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "secrets.0.version_id"),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.key", params.secret.secretKey),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "secrets.0.environment_variable", params.secret.secretEnvVar),
-				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.mount_point_path", params.storageMount.storageMountPointPath),
-				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
-				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
-				resource.TestCheckResourceAttr(serverlessContainerResource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.#", "3"),
+
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.0.mount_point_path", params.ephemeralDiskMounts.mountPoint),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.0.mode", params.ephemeralDiskMounts.mountMode),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.0.ephemeral_disk.0.size_gb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskSizeGB)),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.0.ephemeral_disk.0.block_size_kb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskBlockSizeKB)),
+
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.1.mount_point_path", params.objectStorageMounts.mountPoint),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.1.mode", params.objectStorageMounts.mountMode),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.1.object_storage.0.bucket", params.objectStorageMounts.objectStorageBucket),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.1.object_storage.0.prefix", params.objectStorageMounts.objectStoragePrefix),
+
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.2.mount_point_path", params.storageMount.storageMountPointPath),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.2.mode", modeBoolToString(params.storageMount.storageMountReadOnly)),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.2.object_storage.0.bucket", params.storageMount.storageMountBucket),
+				resource.TestCheckResourceAttr(serverlessContainerResource, "mounts.2.object_storage.0.prefix", params.storageMount.storageMountPrefix),
+
 				resource.TestCheckResourceAttr(serverlessContainerResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 				resource.TestCheckResourceAttr(serverlessContainerResource, "log_options.0.min_level", params.logOptions.minLevel),
 				resource.TestCheckResourceAttrSet(serverlessContainerResource, "log_options.0.log_group_id"),
@@ -506,25 +555,27 @@ resource "yandex_serverless_container" "test-container" {
 }
 
 type testYandexServerlessContainerParameters struct {
-	name             string
-	desc             string
-	labelKey         string
-	labelValue       string
-	memory           int
-	cores            int
-	coreFraction     int
-	executionTimeout string
-	concurrency      int
-	imageURL         string
-	workDir          string
-	command          string
-	argument         string
-	envVarKey        string
-	envVarValue      string
-	serviceAccount   string
-	secret           testSecretParameters
-	storageMount     testStorageMountParameters
-	logOptions       testLogOptions
+	name                string
+	desc                string
+	labelKey            string
+	labelValue          string
+	memory              int
+	cores               int
+	coreFraction        int
+	executionTimeout    string
+	concurrency         int
+	imageURL            string
+	workDir             string
+	command             string
+	argument            string
+	envVarKey           string
+	envVarValue         string
+	serviceAccount      string
+	secret              testSecretParameters
+	storageMount        testStorageMountParameters
+	ephemeralDiskMounts testEphemeralDiskParameters
+	objectStorageMounts testObjectStorageParameters
+	logOptions          testLogOptions
 }
 
 func testYandexServerlessContainerFull(params testYandexServerlessContainerParameters) string {
@@ -558,6 +609,21 @@ resource "yandex_serverless_container" "test-container" {
     bucket = yandex_storage_bucket.another-bucket.bucket
     prefix = "%s"
     read_only = %v
+  }
+  mounts {
+  	mount_point_path = %q
+	mode = %q
+	ephemeral_disk {
+		size_gb = %d
+	}
+  }
+  mounts {
+  	mount_point_path = %q
+	mode = %q
+	object_storage {
+		bucket = yandex_storage_bucket.another-bucket.bucket
+		prefix = %q
+	}
   }
   image {
     url         = "%s"
@@ -635,6 +701,12 @@ resource "yandex_logging_group" "logging-group" {
 		params.storageMount.storageMountPointPath,
 		params.storageMount.storageMountPrefix,
 		params.storageMount.storageMountReadOnly,
+		params.ephemeralDiskMounts.mountPoint,
+		params.ephemeralDiskMounts.mountMode,
+		params.ephemeralDiskMounts.ephemeralDiskSizeGB,
+		params.objectStorageMounts.mountPoint,
+		params.objectStorageMounts.mountMode,
+		params.objectStorageMounts.objectStoragePrefix,
 		params.imageURL,
 		params.workDir,
 		params.command,

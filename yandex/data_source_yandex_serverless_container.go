@@ -3,6 +3,7 @@ package yandex
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/serverless/containers/v1"
 	"github.com/yandex-cloud/go-sdk/sdkresolvers"
 )
@@ -119,6 +120,62 @@ func dataSourceYandexServerlessContainer() *schema.Resource {
 						"read_only": {
 							Type:     schema.TypeBool,
 							Optional: true,
+						},
+					},
+				},
+				Deprecated: useResourceInstead("storage_mounts", "mounts"),
+			},
+
+			"mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_point_path": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"rw", "ro"}, true),
+						},
+						"ephemeral_disk": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"size_gb": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"block_size_kb": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"object_storage": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"prefix": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -252,5 +309,7 @@ func dataSourceYandexServerlessContainerRead(d *schema.ResourceData, meta interf
 
 	d.SetId(container.Id)
 	d.Set("container_id", container.Id)
+	d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts)) // for backward compatibility
+
 	return flattenYandexServerlessContainer(d, container, revision)
 }

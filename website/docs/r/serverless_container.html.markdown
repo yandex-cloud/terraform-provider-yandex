@@ -12,6 +12,7 @@ Allows management of Yandex Cloud Serverless Containers
 
 ## Example Usage
 
+### Basic Serverless Container
 ```hcl
 resource "yandex_serverless_container" "test-container" {
   name               = "some_name"
@@ -27,6 +28,12 @@ resource "yandex_serverless_container" "test-container" {
     key = "secret-key"
     environment_variable = "ENV_VARIABLE"
   }
+  mounts {
+    mount_point_path = "/mount/point"
+    ephemeral_disk {
+      size_gb = 5
+    }
+  }
   image {
     url = "cr.yandex/yc/test-image:v1"
   }
@@ -39,6 +46,7 @@ resource "yandex_serverless_container" "test-container" {
   }
 }
 ```
+### Serverless Container with Image Digest
 ```hcl
 resource "yandex_serverless_container" "test-container-with-digest" {
  name   = "some_name"
@@ -47,6 +55,50 @@ resource "yandex_serverless_container" "test-container-with-digest" {
   url    = "cr.yandex/yc/test-image:v1"
   digest = "sha256:e1d772fa8795adac847a2420c87d0d2e3d38fb02f168cab8c0b5fe2fb95c47f4"
  }
+}
+```
+### Serverless Container with Mounted Object Storage Bucket
+```hcl
+locals {
+  folder_id = "folder_id"
+}
+
+resource "yandex_serverless_container" "test-container-object-storage-mount" {
+  name               = "some_name"
+  memory             = 128
+  service_account_id = yandex_iam_service_account.sa.id
+  image {
+    url = "cr.yandex/yc/test-image:v1"
+  }
+  mounts {
+    mount_point_path = "/mount/point"
+    mode             = "ro"
+    object_storage {
+      bucket = yandex_storage_bucket.my-bucket.bucket
+    }
+  }
+}
+
+resource "yandex_iam_service_account" "sa" {
+  folder_id = local.folder_id
+  name      = "test-sa"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
+  folder_id = local.folder_id
+  role      = "storage.editor"
+  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
+}
+
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = yandex_iam_service_account.sa.id
+  description        = "static access key for object storage"
+}
+
+resource "yandex_storage_bucket" "my-bucket" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket     = "bucket"
 }
 ```
 
@@ -66,7 +118,22 @@ The following arguments are supported:
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID for Yandex Cloud Serverless Container
 * `secrets` - Secrets for Yandex Cloud Serverless Container
-* `storage_mounts` - Storage mounts for Yandex Cloud Serverless Container
+
+* `storage_mounts` - (**DEPRECATED**, use `mounts.0.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container
+* `storage_mounts.0.mount_point_path` - (Required) Path inside the container to access the directory in which the bucket is mounted
+* `storage_mounts.0.bucket` - (Required) Name of the mounting bucket
+* `storage_mounts.0.prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted
+* `storage_mounts.0.read_only` - Mount the bucket in read-only mode
+
+* `mounts` - Mounts for Yandex Cloud Serverless Container
+* `mounts.0.mount_point_path` - (Required) Path inside the container to access the directory in which the target is mounted
+* `mounts.0.mode` - Mount’s accessibility mode. Valid values are `ro` and `rw`
+* `mounts.0.ephemeral_disk` - One of the available mount types. Disk available during the function execution time
+* `mounts.0.ephemeral_disk.0.size_gb` - (Required) Size of the ephemeral disk in GB
+* `mounts.0.ephemeral_disk.0.block_size_kb` - Optional block size of the ephemeral disk in KB
+* `mounts.0.object_storage` - One of the available mount types. Object storage as a mount
+* `mounts.0.object_storage.0.bucket` - (Required) Name of the mounting bucket
+* `mounts.0.object_storage.0.prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted
 
 * `connectivity` - Network access. If specified the revision will be attached to specified network
 * `connectivity.0.network_id` - Network the revision will have access to
@@ -99,23 +166,10 @@ In addition to the arguments listed above, the following computed attributes are
 
 The `secrets` block supports:
 
-* `id` - (Required) Secret's id.
-
-* `version_id` - (Required) Secret's version id.
-
-* `key` - (Required) Secret's entries key which value will be stored in environment variable.
-
-* `environment_variable` - (Required) Container's environment variable in which secret's value will be stored.
-
-* The `storage_mounts` block supports:
-
-* `mount_point_path` - (Required) Path inside the container to access the directory in which the bucket is mounted.
-
-* `bucket` - (Required) Name of the mounting bucket.
-
-* `prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted.
-
-* `read_only` - Mount the bucket in read-only mode.
+* `id` - (Required) Secret's id
+* `version_id` - (Required) Secret's version id
+* `key` - (Required) Secret's entries key which value will be stored in environment variable
+* `environment_variable` - (Required) Container's environment variable in which secret's value will be stored
 
 ---
 

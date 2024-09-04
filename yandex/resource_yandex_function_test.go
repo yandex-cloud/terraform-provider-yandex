@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -133,11 +134,28 @@ func TestAccYandexFunction_full(t *testing.T) {
 		secretEnvVar: "TF_FUNCTION_ENV_KEY",
 		secretValue:  "tf-function-secret-value",
 	}
+	bucket := acctest.RandomWithPrefix("tf-function-test-bucket")
 	params.storageMount = testStorageMountParameters{
 		storageMountPointName: "mp-name",
-		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountBucket:    bucket,
 		storageMountPrefix:    "tf-function-path",
 		storageMountReadOnly:  false,
+	}
+	params.ephemeralDiskMounts = testEphemeralDiskParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-1",
+			mountMode:  "rw",
+		},
+		ephemeralDiskSizeGB:      5,
+		ephemeralDiskBlockSizeKB: 4,
+	}
+	params.objectStorageMounts = testObjectStorageParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-2",
+			mountMode:  "ro",
+		},
+		objectStorageBucket: bucket,
+		objectStoragePrefix: "tf-function-path",
 	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 	params.maxAsyncRetries = "2"
@@ -167,11 +185,28 @@ func TestAccYandexFunction_full(t *testing.T) {
 		secretEnvVar: "TF_FUNCTION_ENV_KEY_UPDATED",
 		secretValue:  "tf-function-secret-value",
 	}
+	bucket = acctest.RandomWithPrefix("tf-function-test-bucket")
 	paramsUpdated.storageMount = testStorageMountParameters{
 		storageMountPointName: "mp-name-updated",
-		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountBucket:    bucket,
 		storageMountPrefix:    "tf-function-path",
 		storageMountReadOnly:  false,
+	}
+	paramsUpdated.ephemeralDiskMounts = testEphemeralDiskParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-1-updated",
+			mountMode:  "rw",
+		},
+		ephemeralDiskSizeGB:      6,
+		ephemeralDiskBlockSizeKB: 4,
+	}
+	paramsUpdated.objectStorageMounts = testObjectStorageParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-2-updated",
+			mountMode:  "ro",
+		},
+		objectStorageBucket: bucket,
+		objectStoragePrefix: "tf-function-path",
 	}
 	paramsUpdated.zipFilename = "test-fixtures/serverless/main.zip"
 	paramsUpdated.maxAsyncRetries = "3"
@@ -204,10 +239,24 @@ func TestAccYandexFunction_full(t *testing.T) {
 				resource.TestCheckResourceAttrSet(functionResource, "secrets.0.version_id"),
 				resource.TestCheckResourceAttr(functionResource, "secrets.0.key", params.secret.secretKey),
 				resource.TestCheckResourceAttr(functionResource, "secrets.0.environment_variable", params.secret.secretEnvVar),
-				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.mount_point_name", params.storageMount.storageMountPointName),
-				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
-				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
-				resource.TestCheckResourceAttr(functionResource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+
+				resource.TestCheckResourceAttr(functionResource, "mounts.#", "3"),
+
+				resource.TestCheckResourceAttr(functionResource, "mounts.0.name", params.ephemeralDiskMounts.mountPoint),
+				resource.TestCheckResourceAttr(functionResource, "mounts.0.mode", params.ephemeralDiskMounts.mountMode),
+				resource.TestCheckResourceAttr(functionResource, "mounts.0.ephemeral_disk.0.size_gb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskSizeGB)),
+				resource.TestCheckResourceAttr(functionResource, "mounts.0.ephemeral_disk.0.block_size_kb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskBlockSizeKB)),
+
+				resource.TestCheckResourceAttr(functionResource, "mounts.1.name", params.objectStorageMounts.mountPoint),
+				resource.TestCheckResourceAttr(functionResource, "mounts.1.mode", params.objectStorageMounts.mountMode),
+				resource.TestCheckResourceAttr(functionResource, "mounts.1.object_storage.0.bucket", params.objectStorageMounts.objectStorageBucket),
+				resource.TestCheckResourceAttr(functionResource, "mounts.1.object_storage.0.prefix", params.objectStorageMounts.objectStoragePrefix),
+
+				resource.TestCheckResourceAttr(functionResource, "mounts.2.name", params.storageMount.storageMountPointName),
+				resource.TestCheckResourceAttr(functionResource, "mounts.2.mode", modeBoolToString(params.storageMount.storageMountReadOnly)),
+				resource.TestCheckResourceAttr(functionResource, "mounts.2.object_storage.0.bucket", params.storageMount.storageMountBucket),
+				resource.TestCheckResourceAttr(functionResource, "mounts.2.object_storage.0.prefix", params.storageMount.storageMountPrefix),
+
 				resource.TestCheckResourceAttr(functionResource, "async_invocation.0.retries_count", params.maxAsyncRetries),
 				resource.TestCheckResourceAttr(functionResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 				resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
@@ -232,13 +281,27 @@ func TestAccYandexFunction_full(t *testing.T) {
 	})
 }
 
+func modeBoolToString(isReadOnly bool) string {
+	if isReadOnly {
+		return "ro"
+	}
+	return "rw"
+}
+
+func modeStringToBool(mode string) string {
+	if mode == "ro" {
+		return "true"
+	}
+	return "false"
+}
+
 func functionImportTestStep() resource.TestStep {
 	return resource.TestStep{
 		ResourceName:      "yandex_function.test-function",
 		ImportState:       true,
 		ImportStateVerify: true,
 		ImportStateVerifyIgnore: []string{
-			"content", "package", "image_size", "user_hash",
+			"content", "package", "image_size", "user_hash", "storage_mounts",
 		},
 	}
 }
@@ -377,25 +440,27 @@ resource "yandex_function" "test-function" {
 }
 
 type testYandexFunctionParameters struct {
-	name             string
-	desc             string
-	labelKey         string
-	labelValue       string
-	userHash         string
-	runtime          string
-	memory           string
-	executionTimeout string
-	serviceAccount   string
-	envKey           string
-	envValue         string
-	tags             string
-	secret           testSecretParameters
-	storageMount     testStorageMountParameters
-	zipFilename      string
-	maxAsyncRetries  string
-	logOptions       testLogOptions
-	tmpfsSize        string
-	concurrency      string
+	name                string
+	desc                string
+	labelKey            string
+	labelValue          string
+	userHash            string
+	runtime             string
+	memory              string
+	executionTimeout    string
+	serviceAccount      string
+	envKey              string
+	envValue            string
+	tags                string
+	secret              testSecretParameters
+	storageMount        testStorageMountParameters
+	ephemeralDiskMounts testEphemeralDiskParameters
+	objectStorageMounts testObjectStorageParameters
+	zipFilename         string
+	maxAsyncRetries     string
+	logOptions          testLogOptions
+	tmpfsSize           string
+	concurrency         string
 }
 
 type testSecretParameters struct {
@@ -411,6 +476,23 @@ type testStorageMountParameters struct {
 	storageMountBucket    string
 	storageMountPrefix    string
 	storageMountReadOnly  bool
+}
+
+type testEphemeralDiskParameters struct {
+	testMountParameters
+	ephemeralDiskSizeGB      int
+	ephemeralDiskBlockSizeKB int
+}
+
+type testObjectStorageParameters struct {
+	testMountParameters
+	objectStorageBucket string
+	objectStoragePrefix string
+}
+
+type testMountParameters struct {
+	mountPoint string
+	mountMode  string
 }
 
 type testLogOptions struct {
@@ -451,6 +533,21 @@ resource "yandex_function" "test-function" {
     bucket = yandex_storage_bucket.another-bucket.bucket
     prefix = "%s"
     read_only = %v
+  }
+  mounts {
+  	name = %q
+	mode = %q
+	ephemeral_disk {
+		size_gb = %d
+	}
+  }
+  mounts {
+  	name = %q
+	mode = %q
+	object_storage {
+		bucket = yandex_storage_bucket.another-bucket.bucket
+		prefix = %q
+	}
   }
   content {
     zip_filename = "%s"
@@ -529,6 +626,12 @@ resource "yandex_logging_group" "logging-group" {
 		params.storageMount.storageMountPointName,
 		params.storageMount.storageMountPrefix,
 		params.storageMount.storageMountReadOnly,
+		params.ephemeralDiskMounts.mountPoint,
+		params.ephemeralDiskMounts.mountMode,
+		params.ephemeralDiskMounts.ephemeralDiskSizeGB,
+		params.objectStorageMounts.mountPoint,
+		params.objectStorageMounts.mountMode,
+		params.objectStorageMounts.objectStoragePrefix,
 		params.zipFilename,
 		params.maxAsyncRetries,
 		params.logOptions.disabled,

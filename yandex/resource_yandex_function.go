@@ -3,7 +3,9 @@ package yandex
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"io"
 	"io/ioutil"
 	"os"
@@ -26,10 +28,11 @@ const versionCreateSourceContentMaxBytes = 3670016
 
 func resourceYandexFunction() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexFunctionCreate,
-		Read:   resourceYandexFunctionRead,
-		Update: resourceYandexFunctionUpdate,
-		Delete: resourceYandexFunctionDelete,
+		Create:        resourceYandexFunctionCreate,
+		Read:          resourceYandexFunctionRead,
+		Update:        resourceYandexFunctionUpdate,
+		Delete:        resourceYandexFunctionDelete,
+		CustomizeDiff: resourceYandexFunctionCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -219,6 +222,62 @@ func resourceYandexFunction() *schema.Resource {
 						"read_only": {
 							Type:     schema.TypeBool,
 							Optional: true,
+						},
+					},
+				},
+				Deprecated: fieldDeprecatedForAnother("storage_mounts", "mounts"),
+			},
+
+			"mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"rw", "ro"}, true),
+						},
+						"ephemeral_disk": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"size_gb": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"block_size_kb": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"object_storage": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"prefix": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -431,7 +490,7 @@ func resourceYandexFunctionUpdate(d *schema.ResourceData, meta interface{}) erro
 	lastVersionPaths := []string{
 		"user_hash", "runtime", "entrypoint", "memory", "execution_timeout", "service_account_id",
 		"environment", "tags", "package", "content", "secrets", "connectivity", "async_invocation",
-		"storage_mounts", "log_options", "tmpfs_size", "concurrency",
+		"storage_mounts", "mounts", "log_options", "tmpfs_size", "concurrency",
 	}
 	var versionPartialPaths []string
 	for _, p := range lastVersionPaths {
@@ -530,6 +589,76 @@ func resourceYandexFunctionDelete(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
+func resourceYandexFunctionCustomizeDiff(_ context.Context, diff *schema.ResourceDiff, _ interface{}) error {
+	if diff.HasChange("mounts") || diff.HasChange("storage_mounts") {
+		mounts := diff.Get("mounts").([]interface{})
+		storageMounts := diff.Get("storage_mounts").([]interface{})
+
+		mergedMounts := mergeFunctionMountsAndStorageMounts(mounts, storageMounts)
+
+		err := diff.SetNew("mounts", mergedMounts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func mergeFunctionMountsAndStorageMounts(mounts []interface{}, storageMounts []interface{}) interface{} {
+	var (
+		uniqueMounts = make(map[string]struct{})
+		mergedMounts = make([]interface{}, 0)
+	)
+
+	for _, m := range mounts {
+		mount := m.(map[string]interface{})
+
+		uniqueMounts[mount["name"].(string)] = struct{}{}
+		mergedMounts = append(mergedMounts, mount)
+	}
+
+	for _, m := range storageMounts {
+		storageMount := m.(map[string]interface{})
+
+		if _, ok := uniqueMounts[storageMount["mount_point_name"].(string)]; !ok {
+			uniqueMounts[storageMount["mount_point_name"].(string)] = struct{}{}
+			mergedMounts = append(mergedMounts, functionStorageMountToMount(storageMount))
+		}
+	}
+
+	return mergedMounts
+}
+
+func functionStorageMountToMount(storageMount map[string]interface{}) interface{} {
+	var (
+		mount  = make(map[string]interface{})
+		bucket string
+		prefix string
+	)
+
+	for k, v := range storageMount {
+		switch k {
+		case "mount_point_name":
+			mount["name"] = v.(string)
+		case "read_only":
+			mount["mode"] = mapBoolModeToString(v.(bool))
+		case "bucket":
+			bucket = v.(string)
+		case "prefix":
+			prefix = v.(string)
+		}
+	}
+
+	mount["object_storage"] = []map[string]interface{}{
+		{
+			"bucket": bucket,
+			"prefix": prefix,
+		},
+	}
+
+	return mount
+}
+
 func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersionRequest, error) {
 	versionReq := &functions.CreateFunctionVersionRequest{}
 	versionReq.Runtime = d.Get("runtime").(string)
@@ -608,28 +737,56 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 		}
 	}
 
-	if v, ok := d.GetOk("storage_mounts"); ok {
-		storageMountsList := v.([]interface{})
+	if v, ok := d.GetOk("mounts"); ok {
+		mountsList := v.([]interface{})
+		versionReq.Mounts = make([]*functions.Mount, len(mountsList))
 
-		versionReq.StorageMounts = make([]*functions.StorageMount, len(storageMountsList))
-		for i, sm := range storageMountsList {
-			storageMount := sm.(map[string]interface{})
+		for i, m := range mountsList {
+			mount := m.(map[string]interface{})
 
-			fsm := &functions.StorageMount{}
-			if mountPointName, ok := storageMount["mount_point_name"]; ok {
-				fsm.MountPointName = mountPointName.(string)
+			fm := &functions.Mount{}
+			if name, ok := mount["name"].(string); ok {
+				fm.Name = name
 			}
-			if bucket, ok := storageMount["bucket"]; ok {
-				fsm.BucketId = bucket.(string)
-			}
-			if prefix, ok := storageMount["prefix"]; ok {
-				fsm.Prefix = prefix.(string)
-			}
-			if readOnly, ok := storageMount["read_only"]; ok {
-				fsm.ReadOnly = readOnly.(bool)
+			if mode, ok := mount["mode"].(string); ok {
+				fm.Mode = mapFunctionModeFromTF(mode)
+			} else {
+				fm.Mode = functions.Mount_MODE_UNSPECIFIED
 			}
 
-			versionReq.StorageMounts[i] = fsm
+			if ephemeralDiskList, ok := mount["ephemeral_disk"].([]interface{}); ok && len(ephemeralDiskList) > 0 {
+				var (
+					ephemeralDisk = ephemeralDiskList[0].(map[string]interface{})
+					diskSpec      functions.Mount_DiskSpec
+				)
+
+				if gbValue, ok := ephemeralDisk["size_gb"].(int); ok {
+					diskSpec.Size = toBytes(gbValue)
+				}
+				if gbValue, ok := ephemeralDisk["block_size_kb"].(int); ok {
+					diskSpec.BlockSize = kilobytesToBytes(gbValue)
+				}
+
+				fm.Target = &functions.Mount_EphemeralDiskSpec{EphemeralDiskSpec: &diskSpec}
+			}
+
+			if objectStorageList, ok := mount["object_storage"].([]interface{}); ok && len(objectStorageList) > 0 {
+				var (
+					objectStorage     = objectStorageList[0].(map[string]interface{})
+					objectStorageSpec functions.Mount_ObjectStorage
+				)
+
+				if bucket, ok := objectStorage["bucket"].(string); ok {
+					objectStorageSpec.BucketId = bucket
+				}
+				if prefix, ok := objectStorage["prefix"].(string); ok {
+					objectStorageSpec.Prefix = prefix
+				}
+
+				fm.Target = &functions.Mount_ObjectStorage_{ObjectStorage: &objectStorageSpec}
+			}
+
+			versionReq.Mounts[i] = fm
 		}
 	}
 
@@ -685,6 +842,35 @@ func expandLastVersion(d *schema.ResourceData) (*functions.CreateFunctionVersion
 	return versionReq, nil
 }
 
+func mapFunctionModeFromTF(mode string) functions.Mount_Mode {
+	if mode == "rw" {
+		return functions.Mount_READ_WRITE
+	} else if mode == "ro" {
+		return functions.Mount_READ_ONLY
+	} else {
+		// Shouldn't have happened due to validation
+		panic("unknown mode: " + mode)
+	}
+}
+
+func mapFunctionModeFromPB(mode functions.Mount_Mode) string {
+	switch mode {
+	case functions.Mount_READ_ONLY:
+		return "ro"
+	case functions.Mount_READ_WRITE:
+		return "rw"
+	default:
+		panic("unknown mode: " + mode.String())
+	}
+}
+
+func mapBoolModeToString(isReadOnly bool) string {
+	if isReadOnly {
+		return "ro"
+	}
+	return "rw"
+}
+
 func flattenYandexFunction(d *schema.ResourceData, function *functions.Function, version *functions.Version) error {
 	d.Set("name", function.Name)
 	d.Set("folder_id", function.FolderId)
@@ -729,7 +915,7 @@ func flattenYandexFunction(d *schema.ResourceData, function *functions.Function,
 	}
 
 	d.Set("secrets", flattenFunctionSecrets(version.Secrets))
-	d.Set("storage_mounts", flattenVersionStorageMounts(version.StorageMounts))
+	d.Set("mounts", flattenVersionMounts(version.Mounts))
 	d.Set("tmpfs_size", int(version.TmpfsSize/int64(datasize.MB.Bytes())))
 	d.Set("concurrency", version.Concurrency)
 
@@ -840,6 +1026,40 @@ func flattenVersionStorageMounts(storageMounts []*functions.StorageMount) []map[
 			"read_only":        storageMount.ReadOnly,
 		}
 	}
+	return s
+}
+
+func flattenVersionMounts(mounts []*functions.Mount) []map[string]interface{} {
+	s := make([]map[string]interface{}, len(mounts))
+
+	for i, mount := range mounts {
+		s[i] = map[string]interface{}{
+			"name": mount.Name,
+		}
+
+		if mount.Mode != functions.Mount_MODE_UNSPECIFIED {
+			s[i]["mode"] = mapFunctionModeFromPB(mount.Mode)
+		}
+
+		if mount.GetEphemeralDiskSpec() != nil {
+			s[i]["ephemeral_disk"] = []map[string]interface{}{
+				{
+					"size_gb":       toGigabytes(mount.GetEphemeralDiskSpec().Size),
+					"block_size_kb": bytesToKilobytes(mount.GetEphemeralDiskSpec().BlockSize),
+				},
+			}
+		}
+
+		if mount.GetObjectStorage() != nil {
+			s[i]["object_storage"] = []map[string]interface{}{
+				{
+					"bucket": mount.GetObjectStorage().BucketId,
+					"prefix": mount.GetObjectStorage().Prefix,
+				},
+			}
+		}
+	}
+
 	return s
 }
 

@@ -3,6 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"time"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/logging/v1"
@@ -17,10 +18,11 @@ const yandexServerlessContainerDefaultTimeout = 5 * time.Minute
 
 func resourceYandexServerlessContainer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceYandexServerlessContainerCreate,
-		Read:   resourceYandexServerlessContainerRead,
-		Update: resourceYandexServerlessContainerUpdate,
-		Delete: resourceYandexServerlessContainerDelete,
+		Create:        resourceYandexServerlessContainerCreate,
+		Read:          resourceYandexServerlessContainerRead,
+		Update:        resourceYandexServerlessContainerUpdate,
+		Delete:        resourceYandexServerlessContainerDelete,
+		CustomizeDiff: resourceYandexServerlessContainerCustomizeDiff,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -143,6 +145,62 @@ func resourceYandexServerlessContainer() *schema.Resource {
 						},
 					},
 				},
+				Deprecated: fieldDeprecatedForAnother("storage_mounts", "mounts"),
+			},
+
+			"mounts": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mount_point_path": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"mode": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validation.StringInSlice([]string{"rw", "ro"}, true),
+						},
+						"ephemeral_disk": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"size_gb": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+									"block_size_kb": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"object_storage": {
+							Type:     schema.TypeList,
+							Optional: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"bucket": {
+										Type:     schema.TypeString,
+										Required: true,
+									},
+									"prefix": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 
 			"image": {
@@ -261,6 +319,76 @@ func resourceYandexServerlessContainer() *schema.Resource {
 	}
 }
 
+func resourceYandexServerlessContainerCustomizeDiff(ctx context.Context, diff *schema.ResourceDiff, i interface{}) error {
+	if diff.HasChange("mounts") || diff.HasChange("storage_mounts") {
+		mounts := diff.Get("mounts").([]interface{})
+		storageMounts := diff.Get("storage_mounts").([]interface{})
+
+		mergedMounts := mergeContainerMountsAndStorageMounts(mounts, storageMounts)
+
+		err := diff.SetNew("mounts", mergedMounts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func mergeContainerMountsAndStorageMounts(mounts []interface{}, storageMounts []interface{}) interface{} {
+	var (
+		uniqueMounts = make(map[string]struct{})
+		mergedMounts = make([]interface{}, 0)
+	)
+
+	for _, m := range mounts {
+		mount := m.(map[string]interface{})
+
+		uniqueMounts[mount["mount_point_path"].(string)] = struct{}{}
+		mergedMounts = append(mergedMounts, mount)
+	}
+
+	for _, m := range storageMounts {
+		storageMount := m.(map[string]interface{})
+
+		if _, ok := uniqueMounts[storageMount["mount_point_path"].(string)]; !ok {
+			uniqueMounts[storageMount["mount_point_path"].(string)] = struct{}{}
+			mergedMounts = append(mergedMounts, containerStorageMountToMount(storageMount))
+		}
+	}
+
+	return mergedMounts
+}
+
+func containerStorageMountToMount(storageMount map[string]interface{}) interface{} {
+	var (
+		mount  = make(map[string]interface{})
+		bucket string
+		prefix string
+	)
+
+	for k, v := range storageMount {
+		switch k {
+		case "mount_point_path":
+			mount["mount_point_path"] = v.(string)
+		case "read_only":
+			mount["mode"] = mapBoolModeToString(v.(bool))
+		case "bucket":
+			bucket = v.(string)
+		case "prefix":
+			prefix = v.(string)
+		}
+	}
+
+	mount["object_storage"] = []map[string]interface{}{
+		{
+			"bucket": bucket,
+			"prefix": prefix,
+		},
+	}
+
+	return mount
+}
+
 func resourceYandexServerlessContainerCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
@@ -346,7 +474,7 @@ func resourceYandexServerlessContainerUpdate(d *schema.ResourceData, meta interf
 
 	lastRevisionPaths := []string{
 		"memory", "cores", "core_fraction", "execution_timeout", "service_account_id",
-		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "log_options", "provision_policy",
+		"secrets", "image", "concurrency", "connectivity", "storage_mounts", "mounts", "log_options", "provision_policy",
 	}
 	var revisionUpdatePaths []string
 	for _, p := range lastRevisionPaths {
@@ -505,29 +633,62 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 		}
 	}
 
-	if v, ok := d.GetOk("storage_mounts"); ok {
-		storageMountsList := v.([]interface{})
+	if v, ok := d.GetOk("mounts"); ok {
+		mountsList := v.([]interface{})
+		revisionReq.Mounts = make([]*containers.Mount, len(mountsList))
 
-		revisionReq.StorageMounts = make([]*containers.StorageMount, len(storageMountsList))
-		for i, sm := range storageMountsList {
-			storageMount := sm.(map[string]interface{})
+		for i, m := range mountsList {
+			mount := m.(map[string]interface{})
 
-			fsm := &containers.StorageMount{}
-			if mountPointPath, ok := storageMount["mount_point_path"]; ok {
-				fsm.MountPointPath = mountPointPath.(string)
+			cm := &containers.Mount{}
+			if name, ok := mount["mount_point_path"].(string); ok {
+				cm.MountPointPath = name
 			}
-			if bucket, ok := storageMount["bucket"]; ok {
-				fsm.BucketId = bucket.(string)
-			}
-			if prefix, ok := storageMount["prefix"]; ok {
-				fsm.Prefix = prefix.(string)
-			}
-			if readOnly, ok := storageMount["read_only"]; ok {
-				fsm.ReadOnly = readOnly.(bool)
+			if mode, ok := mount["mode"].(string); ok {
+				cm.Mode = mapContainerModeFromTF(mode)
+			} else {
+				cm.Mode = containers.Mount_MODE_UNSPECIFIED
 			}
 
-			revisionReq.StorageMounts[i] = fsm
+			if ephemeralDiskList, ok := mount["ephemeral_disk"].([]interface{}); ok && len(ephemeralDiskList) > 0 {
+				var (
+					ephemeralDisk = ephemeralDiskList[0].(map[string]interface{})
+					diskSpec      containers.Mount_DiskSpec
+				)
+
+				if gbValue, ok := ephemeralDisk["size_gb"].(int); ok {
+					diskSpec.Size = toBytes(gbValue)
+				}
+				if gbValue, ok := ephemeralDisk["block_size_kb"].(int); ok {
+					diskSpec.BlockSize = kilobytesToBytes(gbValue)
+				}
+
+				cm.Target = &containers.Mount_EphemeralDiskSpec{EphemeralDiskSpec: &diskSpec}
+			}
+
+			if objectStorageList, ok := mount["object_storage"].([]interface{}); ok && len(objectStorageList) > 0 {
+				var (
+					objectStorage     = objectStorageList[0].(map[string]interface{})
+					objectStorageSpec containers.Mount_ObjectStorage
+				)
+
+				if bucket, ok := objectStorage["bucket"].(string); ok {
+					objectStorageSpec.BucketId = bucket
+				}
+				if prefix, ok := objectStorage["prefix"].(string); ok {
+					objectStorageSpec.Prefix = prefix
+				}
+
+				cm.Target = &containers.Mount_ObjectStorage_{ObjectStorage: &objectStorageSpec}
+			}
+
+			revisionReq.Mounts[i] = cm
 		}
+	}
+
+	paths := make([]string, len(revisionReq.Mounts))
+	for i, v := range revisionReq.Mounts {
+		paths[i] = v.MountPointPath
 	}
 
 	revisionReq.ImageSpec = &containers.ImageSpec{
@@ -582,6 +743,28 @@ func expandLastRevision(d *schema.ResourceData) (*containers.DeployContainerRevi
 	return revisionReq, nil
 }
 
+func mapContainerModeFromTF(mode string) containers.Mount_Mode {
+	if mode == "rw" {
+		return containers.Mount_READ_WRITE
+	} else if mode == "ro" {
+		return containers.Mount_READ_ONLY
+	} else {
+		// Shouldn't have happened due to validation
+		panic("unknown mode: " + mode)
+	}
+}
+
+func mapContainerModeFromPB(mode containers.Mount_Mode) string {
+	switch mode {
+	case containers.Mount_READ_ONLY:
+		return "ro"
+	case containers.Mount_READ_WRITE:
+		return "rw"
+	default:
+		panic("unknown mode: " + mode.String())
+	}
+}
+
 func flattenYandexServerlessContainer(d *schema.ResourceData, container *containers.Container, revision *containers.Revision) error {
 	d.Set("name", container.Name)
 	d.Set("folder_id", container.FolderId)
@@ -609,7 +792,7 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	d.Set("concurrency", int(revision.Concurrency))
 	d.Set("service_account_id", revision.ServiceAccountId)
 	d.Set("secrets", flattenRevisionSecrets(revision.Secrets))
-	d.Set("storage_mounts", flattenRevisionStorageMounts(revision.StorageMounts))
+	d.Set("mounts", flattenRevisionMounts(revision.Mounts))
 
 	if revision.Image != nil {
 		m := make(map[string]interface{})
@@ -642,6 +825,40 @@ func flattenYandexServerlessContainer(d *schema.ResourceData, container *contain
 	}
 
 	return nil
+}
+
+func flattenRevisionMounts(mounts []*containers.Mount) interface{} {
+	s := make([]map[string]interface{}, len(mounts))
+
+	for i, mount := range mounts {
+		s[i] = map[string]interface{}{
+			"mount_point_path": mount.MountPointPath,
+		}
+
+		if mount.Mode != containers.Mount_MODE_UNSPECIFIED {
+			s[i]["mode"] = mapContainerModeFromPB(mount.Mode)
+		}
+
+		if mount.GetEphemeralDiskSpec() != nil {
+			s[i]["ephemeral_disk"] = []map[string]interface{}{
+				{
+					"size_gb":       toGigabytes(mount.GetEphemeralDiskSpec().Size),
+					"block_size_kb": bytesToKilobytes(mount.GetEphemeralDiskSpec().BlockSize),
+				},
+			}
+		}
+
+		if mount.GetObjectStorage() != nil {
+			s[i]["object_storage"] = []map[string]interface{}{
+				{
+					"bucket": mount.GetObjectStorage().BucketId,
+					"prefix": mount.GetObjectStorage().Prefix,
+				},
+			}
+		}
+	}
+
+	return s
 }
 
 func flattenRevisionSecrets(secrets []*containers.Secret) []map[string]interface{} {

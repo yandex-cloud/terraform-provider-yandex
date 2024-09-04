@@ -1,0 +1,3 @@
+kind: WARNING
+body: 'serverless: object `storage_mounts` marked as DEPRECATED in the resource and data source `yandex_function`'
+time: 2024-08-29T13:45:14.279518611+02:00

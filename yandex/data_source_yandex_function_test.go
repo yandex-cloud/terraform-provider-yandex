@@ -2,6 +2,7 @@ package yandex
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -91,11 +92,28 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 		secretEnvVar: "TF_FUNCTION_ENV_KEY",
 		secretValue:  "tf-function-secret-value",
 	}
+	bucket := acctest.RandomWithPrefix("tf-function-test-bucket")
 	params.storageMount = testStorageMountParameters{
 		storageMountPointName: "mp-name",
-		storageMountBucket:    acctest.RandomWithPrefix("tf-function-test-bucket"),
+		storageMountBucket:    bucket,
 		storageMountPrefix:    "tf-function-path",
 		storageMountReadOnly:  false,
+	}
+	params.ephemeralDiskMounts = testEphemeralDiskParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-2",
+			mountMode:  "rw",
+		},
+		ephemeralDiskSizeGB:      5,
+		ephemeralDiskBlockSizeKB: 4,
+	}
+	params.objectStorageMounts = testObjectStorageParameters{
+		testMountParameters: testMountParameters{
+			mountPoint: "mp-name-3",
+			mountMode:  "ro",
+		},
+		objectStorageBucket: bucket,
+		objectStoragePrefix: "tf-function-path",
 	}
 	params.zipFilename = "test-fixtures/serverless/main.zip"
 	params.maxAsyncRetries = "2"
@@ -131,10 +149,36 @@ func TestAccDataSourceYandexFunction_full(t *testing.T) {
 					resource.TestCheckResourceAttrSet(functionDataSource, "secrets.0.version_id"),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.key", params.secret.secretKey),
 					resource.TestCheckResourceAttr(functionDataSource, "secrets.0.environment_variable", params.secret.secretEnvVar),
-					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.mount_point_name", params.storageMount.storageMountPointName),
-					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.bucket", params.storageMount.storageMountBucket),
-					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.prefix", params.storageMount.storageMountPrefix),
-					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.#", "2"),
+
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.1.mount_point_name", params.storageMount.storageMountPointName),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.1.bucket", params.storageMount.storageMountBucket),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.1.prefix", params.storageMount.storageMountPrefix),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.1.read_only", fmt.Sprint(params.storageMount.storageMountReadOnly)),
+
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.mount_point_name", params.objectStorageMounts.mountPoint),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.bucket", params.objectStorageMounts.objectStorageBucket),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.prefix", params.objectStorageMounts.objectStoragePrefix),
+					resource.TestCheckResourceAttr(functionDataSource, "storage_mounts.0.read_only", modeStringToBool(params.objectStorageMounts.mountMode)),
+
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.#", "3"),
+
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.0.name", params.ephemeralDiskMounts.mountPoint),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.0.mode", params.ephemeralDiskMounts.mountMode),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.0.ephemeral_disk.0.size_gb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskSizeGB)),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.0.ephemeral_disk.0.block_size_kb", strconv.Itoa(params.ephemeralDiskMounts.ephemeralDiskBlockSizeKB)),
+
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.1.name", params.objectStorageMounts.mountPoint),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.1.mode", params.objectStorageMounts.mountMode),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.1.object_storage.0.bucket", params.objectStorageMounts.objectStorageBucket),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.1.object_storage.0.prefix", params.objectStorageMounts.objectStoragePrefix),
+
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.2.name", params.storageMount.storageMountPointName),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.2.mode", modeBoolToString(params.storageMount.storageMountReadOnly)),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.2.object_storage.0.bucket", params.storageMount.storageMountBucket),
+					resource.TestCheckResourceAttr(functionDataSource, "mounts.2.object_storage.0.prefix", params.storageMount.storageMountPrefix),
+
 					resource.TestCheckResourceAttr(functionDataSource, "async_invocation.0.retries_count", params.maxAsyncRetries),
 					resource.TestCheckResourceAttr(functionResource, "log_options.0.disabled", fmt.Sprint(params.logOptions.disabled)),
 					resource.TestCheckResourceAttr(functionResource, "log_options.0.min_level", params.logOptions.minLevel),
@@ -226,6 +270,21 @@ resource "yandex_function" "test-function" {
     prefix = "%s"
     read_only = %v
   }
+  mounts {
+  	name = %q
+	mode = %q
+	ephemeral_disk {
+		size_gb = %d
+	}
+  }
+  mounts {
+  	name = %q
+	mode = %q
+	object_storage {
+		bucket = yandex_storage_bucket.another-bucket.bucket
+		prefix = %q
+	}
+  }
   content {
     zip_filename = "%s"
   }
@@ -303,6 +362,12 @@ resource "yandex_logging_group" "logging-group" {
 		params.storageMount.storageMountPointName,
 		params.storageMount.storageMountPrefix,
 		params.storageMount.storageMountReadOnly,
+		params.ephemeralDiskMounts.mountPoint,
+		params.ephemeralDiskMounts.mountMode,
+		params.ephemeralDiskMounts.ephemeralDiskSizeGB,
+		params.objectStorageMounts.mountPoint,
+		params.objectStorageMounts.mountMode,
+		params.objectStorageMounts.objectStoragePrefix,
 		params.zipFilename,
 		params.maxAsyncRetries,
 		params.logOptions.disabled,

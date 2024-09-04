@@ -41,7 +41,22 @@ The following attributes are exported:
 * `concurrency` - Concurrency of Yandex Cloud Serverless Container
 * `service_account_id` - Service account ID of Yandex Cloud Serverless Container
 * `secrets` - Secrets for Yandex Cloud Serverless Container
-* `storage_mounts` - Storage Mounts for Yandex Cloud Serverless Container
+
+* `storage_mounts` - (**DEPRECATED**, use `mounts.0.object_storage` instead) Storage mounts for Yandex Cloud Serverless Container
+* `storage_mounts.0.mount_point_path` - Path inside the container to access the directory in which the bucket is mounted
+* `storage_mounts.0.bucket` - Name of the mounting bucket
+* `storage_mounts.0.prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted
+* `storage_mounts.0.read_only` - Mount the bucket in read-only mode
+
+* `mounts` - Mounts for Yandex Cloud Serverless Container
+* `mounts.0.mount_point_path` - Path inside the container to access the directory in which the target is mounted
+* `mounts.0.mode` - Mount’s accessibility mode. Valid values are `ro` and `rw`
+* `mounts.0.ephemeral_disk` - One of the available mount types. Disk available during the function execution time
+* `mounts.0.ephemeral_disk.0.size_gb` - Size of the ephemeral disk in GB
+* `mounts.0.ephemeral_disk.0.block_size_kb` - Optional block size of the ephemeral disk in KB
+* `mounts.0.object_storage` - One of the available mount types. Object storage as a mount
+* `mounts.0.object_storage.0.bucket` - Name of the mounting bucket
+* `mounts.0.object_storage.0.prefix` - Prefix within the bucket. If you leave this field empty, the entire bucket will be mounted
 * `image.0.url` - URL of image that deployed as Yandex Cloud Serverless Container
 * `image.0.work_dir` - Working directory of Yandex Cloud Serverless Container
 * `image.0.digest` - Digest of image that deployed as Yandex Cloud Serverless Container

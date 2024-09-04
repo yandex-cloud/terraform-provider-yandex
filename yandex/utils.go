@@ -519,6 +519,14 @@ func toBytes(gigabytesCount int) int64 {
 	return int64((datasize.ByteSize(gigabytesCount) * datasize.GB).Bytes())
 }
 
+func kilobytesToBytes(kilobytes int) int64 {
+	return int64((datasize.ByteSize(kilobytes) * datasize.KB).Bytes())
+}
+
+func bytesToKilobytes(bytes int64) int {
+	return int(datasize.ByteSize(bytes).KBytes())
+}
+
 func toBytesFromFloat(gigabytesCountF float64) int64 {
 	return int64(gigabytesCountF * float64(datasize.GB))
 }

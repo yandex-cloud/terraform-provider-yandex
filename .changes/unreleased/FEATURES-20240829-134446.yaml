@@ -1,0 +1,3 @@
+kind: FEATURES
+body: 'serverless: added object `mounts` to the resource and data source `yandex_serverless_container`'
+time: 2024-08-29T13:44:46.443141325+02:00
