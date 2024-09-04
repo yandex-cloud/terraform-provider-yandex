@@ -761,25 +761,6 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 				),
 			},
 			mdbMongoDBClusterImportStep(),
-			// Update disk size autoscaling
-			{
-				Config: makeConfig(t, &configData, &map[string]interface{}{
-					"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
-						DiskSizeLimit:           &wrapperspb.Int64Value{Value: (s2Small26hdd.DiskSize * 2) >> 30},
-						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
-						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 2),
-					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
-						DiskSizeLimit:           &wrapperspb.Int64Value{Value: s2Small26hdd.DiskSize * 2},
-						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
-						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
-					}}),
-				),
-			},
-			mdbMongoDBClusterImportStep(),
 			{
 				Config: makeConfig(t, &configData, &map[string]interface{}{
 					"MaintenanceWindow":      map[string]interface{}{"Type": "ANYTIME"},
@@ -921,6 +902,25 @@ func TestAccMDBMongoDBCluster_6_0(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 4),
 					resource.TestCheckResourceAttr(mongodbResource, "description", ""),
+				),
+			},
+			mdbMongoDBClusterImportStep(),
+			// Update disk size autoscaling
+			{
+				Config: makeConfig(t, &configData, &map[string]interface{}{
+					"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: (s2Small26hdd.DiskSize * 2) >> 30},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+					},
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckMDBMongoDBClusterExists(mongodbResource, &r, 4),
+					testAccCheckMDBMongoDBClusterHasMongodSpec(&r, map[string]interface{}{"DiskSizeAutoscalingMongod": &mongodb.DiskSizeAutoscaling{
+						DiskSizeLimit:           &wrapperspb.Int64Value{Value: s2Small26hdd.DiskSize * 2},
+						PlannedUsageThreshold:   &wrapperspb.Int64Value{Value: 80},
+						EmergencyUsageThreshold: &wrapperspb.Int64Value{Value: 90},
+					}}),
 				),
 			},
 			mdbMongoDBClusterImportStep(),
