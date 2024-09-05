@@ -1357,7 +1357,7 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 		out, err := conn.GetBucketCors(&s3.GetBucketCorsInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
-		if err != nil && !isAWSErr(err, AwsNoSuchWebsiteConfiguration, "") {
+		if err != nil && !isAWSErr(err, AwsNoSuchCORSConfiguration, "") {
 			return fmt.Errorf("func GetBucketCors error: %v", err)
 		}
 

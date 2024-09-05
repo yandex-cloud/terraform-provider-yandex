@@ -37,3 +37,4 @@ website/vendor
 vendor
 
 .go-version
+*.xml
