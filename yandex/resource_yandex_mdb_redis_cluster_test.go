@@ -116,10 +116,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 	updatedReplicaPriority := 61
 
 	for _, version := range []string{"6.2", "7.0"} {
-		updateVersion := "7.0"
-		if version == "7.0" {
-			updateVersion = "7.2"
-		}
+		updateVersion := "7.2"
 		resource.Test(t, resource.TestCase{
 			PreCheck:     func() { testAccPreCheck(t) },
 			Providers:    testAccProviders,
@@ -149,6 +146,7 @@ func TestAccMDBRedisCluster_full_networkssd(t *testing.T) {
 						resource.TestCheckResourceAttr(redisResource, "deletion_protection", "true"),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.disk_size_limit", fmt.Sprintf("%d", baseDiskSize*2)),
 						resource.TestCheckResourceAttr(redisResource, "disk_size_autoscaling.0.emergency_usage_threshold", "85"),
+						resource.TestCheckResourceAttr(redisResource, "access.0.web_sql", "true"),
 					),
 				},
 				mdbRedisClusterImportStep(redisResource),
@@ -1002,6 +1000,11 @@ resource "yandex_mdb_redis_cluster" "foo" {
     disk_size_limit           = %d
     emergency_usage_threshold = 85
   }
+
+  access {
+    web_sql = true
+  }
+
 }
 `, name, desc, environment, getTlsEnabled(tlsEnabled), getPersistenceMode(persistenceMode),
 		getAnnounceHostnames(announceHostnames), version,

@@ -134,6 +134,8 @@ The following arguments are supported:
 
 * `labels` - (Optional) A set of key/value label pairs to assign to the Redis cluster.
 
+* `access` - (Optional) Access policy to the Redis cluster. The structure is documented below.
+
 * `sharded` - (Optional) Redis Cluster mode enabled/disabled. Enables sharding when cluster non-sharded.
     If cluster is sharded - disabling is not allowed.
 
@@ -148,6 +150,12 @@ The following arguments are supported:
 * `deletion_protection` - (Optional) Inhibits deletion of the cluster.  Can be either `true` or `false`.
 
 - - -
+
+The `access` block supports:
+
+* `web_sql` - (Optional) Allow access for Web SQL. Can be either `true` or `false`.
+
+* `data_lens` - (Optional) Allow access for DataLens. Can be either `true` or `false`.
 
 The `config` block supports:
 

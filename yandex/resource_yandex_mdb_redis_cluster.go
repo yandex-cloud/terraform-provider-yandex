@@ -166,6 +166,26 @@ func resourceYandexMDBRedisCluster() *schema.Resource {
 					},
 				},
 			},
+			"access": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"data_lens": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+						"web_sql": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"host": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -377,6 +397,7 @@ func prepareCreateRedisRequest(d *schema.ResourceData, meta *Config) (*redis.Cre
 		Resources:           resources,
 		Version:             version,
 		DiskSizeAutoscaling: dsa,
+		Access:              expandRedisAccess(d),
 	}
 
 	securityGroupIds := expandSecurityGroupIds(d.Get("security_group_ids"))
@@ -449,6 +470,11 @@ func resourceYandexMDBRedisClusterRead(d *schema.ResourceData, meta interface{})
 
 	resources, err := flattenRedisResources(cluster.Config.Resources)
 	if err != nil {
+		return err
+	}
+
+	ac := flattenRedisAccess(cluster.GetConfig().GetAccess())
+	if err := d.Set("access", ac); err != nil {
 		return err
 	}
 
@@ -697,6 +723,11 @@ func updateRedisClusterParams(d *schema.ResourceData, meta interface{}) error {
 		req.UpdateMask.Paths = append(req.UpdateMask.Paths, "maintenance_window")
 
 	}
+	if req.ConfigSpec == nil {
+		req.ConfigSpec = &redis.ConfigSpec{}
+	}
+
+	req.ConfigSpec.Access = expandRedisAccess(d)
 
 	if len(req.UpdateMask.Paths) == 0 && password == "" {
 		return nil

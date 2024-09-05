@@ -546,3 +546,25 @@ func parseRedisMaxmemoryPolicy(s string) (config.RedisConfig_MaxmemoryPolicy, er
 	}
 	return config.RedisConfig_MaxmemoryPolicy(v), nil
 }
+
+func flattenRedisAccess(ac *redis.Access) []map[string]interface{} {
+	res := map[string]interface{}{}
+	if ac != nil {
+		res["web_sql"] = ac.WebSql
+		res["data_lens"] = ac.DataLens
+	}
+	return []map[string]interface{}{res}
+}
+
+func expandRedisAccess(d *schema.ResourceData) *redis.Access {
+	result := &redis.Access{}
+
+	if v, ok := d.GetOk("access.0.web_sql"); ok {
+		result.WebSql = v.(bool)
+	}
+	if v, ok := d.GetOk("access.0.data_lens"); ok {
+		result.DataLens = v.(bool)
+	}
+
+	return result
+}
