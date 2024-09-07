@@ -3,7 +3,7 @@ package yandex
 import (
 	"context"
 	"fmt"
-	"regexp"
+	"github.com/yandex-cloud/go-genproto/yandex/cloud/lockbox/v1"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -81,6 +81,7 @@ func TestAccServiceAccountKey_output_to_lockbox_on_create(t *testing.T) {
 	resourceName := "yandex_iam_service_account_key.acceptance"
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
+	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -95,27 +96,76 @@ func TestAccServiceAccountKey_output_to_lockbox_on_create(t *testing.T) {
 					testAccCheckServiceAccountKeyExists(resourceName),
 					resource.TestCheckResourceAttrSet(resourceName, "public_key"),
 					resource.TestCheckResourceAttr(resourceName, "private_key", ""), // value is not set in the state
-					resource.TestCheckResourceAttrSet(resourceName, "output_to_lockbox_version_id"),
+					resource.TestCheckResourceAttrSet(resourceName, lockboxOutputVersionIdAttr),
+					func(s *terraform.State) error {
+						// get version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID = versionID
+						return err
+					},
 				),
 			},
 			{
-				// output_to_lockbox is removed, so private_key value is taken from the Lockbox secret to the state
+				// output_to_lockbox is removed, so private_key value is restored from the Lockbox secret to the state, and Lockbox version is deleted
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "private_key"), // value recovered from lockbox
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID)
+					},
 				),
 			},
 		},
 	})
 }
 
-func TestAccServiceAccountKey_output_to_lockbox_on_update(t *testing.T) {
+func TestAccServiceAccountKey_output_to_lockbox_on_destroy(t *testing.T) {
+	t.Parallel()
+
+	resourceName := "yandex_iam_service_account_key.acceptance"
+	accountName := "sa" + acctest.RandString(10)
+	accountDesc := "Terraform Test"
+	lockboxVersionID := ""
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckServiceAccountKeyDestroy,
+		Steps: []resource.TestStep{
+			{
+				// output_to_lockbox is defined, so sensitive fields are stored in Lockbox
+				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, testAccOutputToLockbox(
+					"yandex_lockbox_secret.target_secret.id", "private_key", "privateKeyIsHere",
+				)),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						// get Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID = versionID
+						return err
+					},
+				),
+			},
+			{
+				// IAM key is removed, so Lockbox version is destroyed
+				Config: testAccServiceAccountKeyConfigJustSecret(accountName),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID)
+					},
+				),
+			},
+		},
+	})
+}
+
+func TestAccServiceAccountKey_output_to_lockbox_added_and_removed(t *testing.T) {
 	t.Parallel()
 
 	resourceName := "yandex_iam_service_account_key.acceptance"
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
 	originalPrivateKey := ""
+	lockboxVersionID := ""
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -131,7 +181,7 @@ func TestAccServiceAccountKey_output_to_lockbox_on_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "private_key"),
 					func(s *terraform.State) error {
 						// get private_key, to compare later
-						privateKey, err := getAttributeFromPrimaryInstanceState(s, resourceName, "private_key")
+						privateKey, err := getResourceAttrValue(s, resourceName, "private_key")
 						originalPrivateKey = privateKey
 						return err
 					},
@@ -144,24 +194,24 @@ func TestAccServiceAccountKey_output_to_lockbox_on_update(t *testing.T) {
 				)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "private_key", ""), // value is cleared
-					resource.TestCheckResourceAttrSet(resourceName, "output_to_lockbox_version_id"),
+					resource.TestCheckResourceAttrSet(resourceName, lockboxOutputVersionIdAttr),
+					func(s *terraform.State) error {
+						// get Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID = versionID
+						return err
+					},
 				),
 			},
 			{
-				// output_to_lockbox is removed, so private_key value is restored from the Lockbox secret to the state
+				// output_to_lockbox is removed, so private_key value is restored from the Lockbox secret to the state, and Lockbox version is deleted
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(resourceName, "private_key"),
+					testAccCheckResourceAttrWithValueFactory(resourceName, "private_key", func() string {
+						return originalPrivateKey
+					}),
 					func(s *terraform.State) error {
-						// check that the value is restored correctly
-						restoredPrivateKey, err := getAttributeFromPrimaryInstanceState(s, resourceName, "private_key")
-						if err != nil {
-							return err
-						}
-						if restoredPrivateKey != originalPrivateKey {
-							return fmt.Errorf("restored private_key is different from the original private_key")
-						}
-						return nil
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID)
 					},
 				),
 			},
@@ -169,11 +219,15 @@ func TestAccServiceAccountKey_output_to_lockbox_on_update(t *testing.T) {
 	})
 }
 
-func TestAccServiceAccountKey_output_to_lockbox_secret_cannot_be_updated(t *testing.T) {
+func TestAccServiceAccountKey_output_to_lockbox_updated_secret(t *testing.T) {
 	t.Parallel()
 
+	resourceName := "yandex_iam_service_account_key.acceptance"
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
+	originalPrivateKey := ""
+	lockboxVersionID1 := ""
+	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -181,27 +235,72 @@ func TestAccServiceAccountKey_output_to_lockbox_secret_cannot_be_updated(t *test
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						// get private_key, to compare later
+						privateKey, err := getResourceAttrValue(s, resourceName, "private_key")
+						originalPrivateKey = privateKey
+						return err
+					},
+				),
 			},
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, testAccOutputToLockbox(
 					"yandex_lockbox_secret.target_secret.id", "private_key", "privateKeyIsHere",
 				)),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						// get Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID1 = versionID
+						return err
+					},
+				),
 			},
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, testAccOutputToLockbox(
-					"\"dummySecretId\"", "private_key", "privateKeyIsHere",
+					"yandex_lockbox_secret.target_secret_2.id", "private_key", "privateKeyIsHere", // changed secret
 				)),
-				ExpectError: regexp.MustCompile("changing secret_id is not allowed"),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID1)
+					},
+					func(s *terraform.State) error {
+						// get the new Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID2 = versionID
+						if lockboxVersionID1 == lockboxVersionID2 {
+							return fmt.Errorf("a new version should have been created, but got the same version %s", lockboxVersionID1)
+						}
+						return err
+					},
+				),
+			},
+			{
+				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceAttrWithValueFactory(resourceName, "private_key", func() string {
+						return originalPrivateKey
+					}),
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret_2", lockboxVersionID2)
+					},
+				),
 			},
 		},
 	})
 }
 
-func TestAccServiceAccountKey_output_to_lockbox_entries_cannot_be_updated(t *testing.T) {
+// This test is almost equal to the previous one, but here we change entries
+func TestAccServiceAccountKey_output_to_lockbox_updated_entries(t *testing.T) {
 	t.Parallel()
 
+	resourceName := "yandex_iam_service_account_key.acceptance"
 	accountName := "sa" + acctest.RandString(10)
 	accountDesc := "Terraform Test"
+	originalPrivateKey := ""
+	lockboxVersionID1 := ""
+	lockboxVersionID2 := ""
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -209,17 +308,57 @@ func TestAccServiceAccountKey_output_to_lockbox_entries_cannot_be_updated(t *tes
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						// get private_key, to compare later
+						privateKey, err := getResourceAttrValue(s, resourceName, "private_key")
+						originalPrivateKey = privateKey
+						return err
+					},
+				),
 			},
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, testAccOutputToLockbox(
 					"yandex_lockbox_secret.target_secret.id", "private_key", "privateKeyIsHere",
 				)),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						// get Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID1 = versionID
+						return err
+					},
+				),
 			},
 			{
 				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, testAccOutputToLockbox(
-					"yandex_lockbox_secret.target_secret.id", "private_key", "nowHere",
+					"yandex_lockbox_secret.target_secret.id", "private_key", "nowIsHere", // changed entry key
 				)),
-				ExpectError: regexp.MustCompile("changing entry keys is not allowed"),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID1)
+					},
+					func(s *terraform.State) error {
+						// get the new Lockbox version ID, to check later
+						versionID, err := getResourceAttrValue(s, resourceName, lockboxOutputVersionIdAttr)
+						lockboxVersionID2 = versionID
+						if lockboxVersionID1 == lockboxVersionID2 {
+							return fmt.Errorf("a new version should have been created, but got the same version %s", lockboxVersionID1)
+						}
+						return err
+					},
+				),
+			},
+			{
+				Config: testAccServiceAccountKeyConfigOutputToLockbox(accountName, accountDesc, ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckResourceAttrWithValueFactory(resourceName, "private_key", func() string {
+						return originalPrivateKey
+					}),
+					func(s *terraform.State) error {
+						return testAccCheckLockboxVersionDestroyed(s, "yandex_lockbox_secret.target_secret", lockboxVersionID2)
+					},
+				),
 			},
 		},
 	})
@@ -265,6 +404,25 @@ func testAccCheckServiceAccountKeyExists(r string) resource.TestCheckFunc {
 	}
 }
 
+func testAccCheckLockboxVersionDestroyed(s *terraform.State, secretResourceName, versionID string) error {
+	config := testAccProvider.Meta().(*Config)
+	secretID, err := getResourceID(secretResourceName, s)
+	if err != nil {
+		return err
+	}
+	versions, _ := config.sdk.LockboxSecret().Secret().ListVersions(context.Background(), &lockbox.ListVersionsRequest{SecretId: secretID})
+	for _, version := range versions.Versions {
+		if version.GetId() == versionID {
+			if version.GetStatus() == lockbox.Version_DESTROYED || version.GetStatus() == lockbox.Version_SCHEDULED_FOR_DESTRUCTION {
+				return nil
+			} else {
+				return fmt.Errorf("the Lockbox version %s in secret %s should be DESTROYED or SCHEDULED_FOR_DESTRUCTION, but it's %v", versionID, secretID, version.GetStatus())
+			}
+		}
+	}
+	return fmt.Errorf("the lockbox version %s was not found in secret %s", versionID, secretID)
+}
+
 func testAccServiceAccountKeyConfig(name, desc, keyDesc string) string {
 	return fmt.Sprintf(`
 resource "yandex_iam_service_account" "acceptance" {
@@ -302,6 +460,10 @@ resource "yandex_lockbox_secret" "target_secret" {
   name = "%s"
 }
 
+resource "yandex_lockbox_secret" "target_secret_2" {
+  name = "%s 2"
+}
+
 resource "yandex_iam_service_account" "acceptance" {
   name        = "%s"
   description = "%s"
@@ -313,5 +475,17 @@ resource "yandex_iam_service_account_key" "acceptance" {
 
   %s
 }
-`, name, name, desc, outputBlock)
+`, name, name, name, desc, outputBlock)
+}
+
+func testAccServiceAccountKeyConfigJustSecret(name string) string {
+	return fmt.Sprintf(`
+resource "yandex_lockbox_secret" "target_secret" {
+  name = "%s"
+}
+
+resource "yandex_lockbox_secret" "target_secret_2" {
+  name = "%s 2"
+}
+`, name, name)
 }

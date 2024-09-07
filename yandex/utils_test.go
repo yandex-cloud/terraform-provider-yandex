@@ -133,8 +133,8 @@ func primaryInstanceState(s *terraform.State, name string) (*terraform.InstanceS
 	return is, nil
 }
 
-func getAttributeFromPrimaryInstanceState(s *terraform.State, name, attr string) (string, error) {
-	instanceState, err := primaryInstanceState(s, name)
+func getResourceAttrValue(s *terraform.State, resourceName, attr string) (string, error) {
+	instanceState, err := primaryInstanceState(s, resourceName)
 	if err != nil {
 		return "", err
 	}

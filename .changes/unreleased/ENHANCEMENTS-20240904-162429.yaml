@@ -1,0 +1,3 @@
+kind: ENHANCEMENTS
+body: 'iam: when IAM key is removed (or `output_to_lockbox` modified), the Lockbox version is destroyed'
+time: 2024-09-04T16:24:29.652578+03:00

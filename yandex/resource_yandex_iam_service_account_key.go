@@ -127,7 +127,12 @@ func resourceYandexIAMServiceAccountKeyCreate(d *schema.ResourceData, meta inter
 		d.Set("private_key", resp.PrivateKey)
 	}
 
-	return resourceYandexIAMServiceAccountKeyRead(d, meta)
+	err = resourceYandexIAMServiceAccountKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interface{}) error {
@@ -155,16 +160,11 @@ func resourceYandexIAMServiceAccountKeyRead(d *schema.ResourceData, meta interfa
 	d.Set("key_algorithm", iam.Key_Algorithm_name[int32(key.KeyAlgorithm)])
 	d.Set("public_key", key.PublicKey)
 
-	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountKeySensitiveAttrs)
+	return nil
 }
 
 func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
-
-	err := ValidateChangeInOutputToLockbox(d, resourceYandexIAMServiceAccountKeySensitiveAttrs)
-	if err != nil {
-		return err
-	}
 
 	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
@@ -190,7 +190,12 @@ func resourceYandexIAMServiceAccountKeyUpdate(d *schema.ResourceData, meta inter
 		}
 	}
 
-	return resourceYandexIAMServiceAccountKeyRead(d, meta)
+	err := resourceYandexIAMServiceAccountKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -204,6 +209,11 @@ func resourceYandexIAMServiceAccountKeyDelete(d *schema.ResourceData, meta inter
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Key %q", d.Id()))
+	}
+
+	err = DestroyOutputToLockboxVersion(ctx, d, config)
+	if err != nil {
+		return err
 	}
 
 	d.SetId("")

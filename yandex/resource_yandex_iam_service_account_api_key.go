@@ -122,7 +122,12 @@ func resourceYandexIAMServiceAccountAPIKeyCreate(d *schema.ResourceData, meta in
 		d.Set("secret_key", resp.Secret)
 	}
 
-	return resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
+	err = resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta interface{}) error {
@@ -150,18 +155,23 @@ func resourceYandexIAMServiceAccountAPIKeyRead(d *schema.ResourceData, meta inte
 		d.Set("expires_at", getTimestamp(ak.ExpiresAt))
 	}
 
-	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
+	return nil
 }
 
-// The update method was added because ExtendWithOutputToLockbox adds a new attribute that can change.
-// But those changes are handled in ManageOutputToLockbox.
+// The update method was added because ExtendWithOutputToLockbox adds a new attribute output_to_lockbox that can change.
+// Changes in output_to_lockbox are handled in ManageOutputToLockbox.
 func resourceYandexIAMServiceAccountAPIKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	err := ValidateChangeInOutputToLockbox(d, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	err := resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
 	if err != nil {
 		return err
 	}
 
-	return resourceYandexIAMServiceAccountAPIKeyRead(d, meta)
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountAPIKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountAPIKeyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -175,6 +185,11 @@ func resourceYandexIAMServiceAccountAPIKeyDelete(d *schema.ResourceData, meta in
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Api Key %q", d.Id()))
+	}
+
+	err = DestroyOutputToLockboxVersion(ctx, d, config)
+	if err != nil {
+		return err
 	}
 
 	d.SetId("")

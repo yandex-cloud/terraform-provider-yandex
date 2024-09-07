@@ -12,9 +12,10 @@ import (
 
 var lockboxOutputEntryKeyPrefix = "entry_for_"
 var lockboxOutputAttr = "output_to_lockbox"
+var lockboxOutputSecretIdAttr = lockboxOutputAttr + ".0.secret_id"
 var lockboxOutputVersionIdAttr = lockboxOutputAttr + "_version_id"
 
-// ExtendWithOutputToLockbox adds output_to_lockbox attributes, used by ManageOutputToLockbox and ValidateChangeInOutputToLockbox
+// ExtendWithOutputToLockbox adds output_to_lockbox attributes, used by ManageOutputToLockbox
 func ExtendWithOutputToLockbox(resourceSchema map[string]*schema.Schema, sensitiveAttrs []string) map[string]*schema.Schema {
 	outputToLockboxSchema := map[string]*schema.Schema{
 		"secret_id": {
@@ -52,50 +53,72 @@ func ExtendWithOutputToLockbox(resourceSchema map[string]*schema.Schema, sensiti
 }
 
 // ManageOutputToLockbox moves sensitive values between state and Lockbox.
-// If output_to_lockbox is added: moves sensitive attributes to a Lockbox secret, and removes the sensitive values from the state.
-// If output_to_lockbox is removed: restores the sensitive attributes from the Lockbox secret.
-// This method should be called at the end of the resource Read method.
+// If output_to_lockbox is removed: restores the sensitive attributes from the Lockbox secret (and destroys the secret version).
+// If output_to_lockbox is added: moves sensitive attributes to a Lockbox secret (adds a secret version), and removes the sensitive values from the state.
+// If output_to_lockbox is modified: it's equivalent to remove it and then add it (old version will be destroyed, and a new version will be added).
+//
+// This method should be called at the end of the resource Create and Updated methods (e.g. just after calling Read).
+// If both Create and Updated methods call Read, then we could call ManageOutputToLockbox at the end of the Read method.
 func ManageOutputToLockbox(ctx context.Context, d *schema.ResourceData, config *Config, sensitiveAttrs []string) error {
-	secretOldID, secretID := getChangeAsString(d, lockboxOutputAttr+".0.secret_id")
-	if secretOldID == secretID {
+	if !outputToLockboxChanged(d, sensitiveAttrs) {
+		log.Printf("[DEBUG] output_to_lockbox didn't change")
 		return nil
 	}
 
-	if secretOldID == "" {
-		log.Printf("[DEBUG] output_to_lockbox added, so move sensitive attributes %v to a new version in secret: %s", sensitiveAttrs, secretID)
-		return moveSensitiveAttrsToNewLockboxVersion(ctx, d, config, sensitiveAttrs, secretID)
-	} else if secretID == "" {
+	secretOldID, secretID := getChangeAsString(d, lockboxOutputSecretIdAttr)
+
+	if secretOldID != "" {
 		versionOldID, _ := getChangeAsString(d, lockboxOutputVersionIdAttr)
-		log.Printf("[DEBUG] output_to_lockbox removed, so restoring sensitive fields %v from secret/version: %s/%s", sensitiveAttrs, secretOldID, versionOldID)
-		return restoreSensitiveValuesFromLockboxVersion(ctx, d, config, sensitiveAttrs, secretOldID, versionOldID)
-	} else {
-		// This might happen if we forgot to call ValidateChangeInOutputToLockbox from the Update method of the resource
-		return fmt.Errorf("unexpected change in secret_id, from %s to %s; this seems like a bug in the resource", secretOldID, secretID)
+		log.Printf("[DEBUG] output_to_lockbox was modified or removed, so restoring sensitive fields %v from secret/version %s/%s", sensitiveAttrs, secretOldID, versionOldID)
+		err := restoreSensitiveValuesFromLockboxVersion(ctx, d, config, sensitiveAttrs, secretOldID, versionOldID)
+		if err != nil {
+			return err
+		}
 	}
+
+	if secretID != "" {
+		log.Printf("[DEBUG] output_to_lockbox was modified or added, so move sensitive attributes %v to a new version in secret %s", sensitiveAttrs, secretID)
+		err := moveSensitiveAttrsToNewLockboxVersion(ctx, d, config, sensitiveAttrs, secretID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-// ValidateChangeInOutputToLockbox looks for invalid changes. Should be called in the resource Update method.
-func ValidateChangeInOutputToLockbox(d *schema.ResourceData, sensitiveAttrs []string) error {
-	secretOldID, secretID := getChangeAsString(d, lockboxOutputAttr+".0.secret_id")
-	commonMessage := "first remove output_to_lockbox block to restore sensitive values from the Lockbox secret to the resource state"
+func outputToLockboxChanged(d *schema.ResourceData, sensitiveAttrs []string) bool {
+	lockboxOutputOld, lockboxOutputNew := d.GetChange(lockboxOutputAttr)
+	if lockboxOutputOld == nil && lockboxOutputNew == nil {
+		return false // output_to_lockbox is not used
+	}
+	secretOldID, secretID := getChangeAsString(d, lockboxOutputSecretIdAttr)
 	if secretOldID != secretID {
-		// check that secret wasn't changed (we only allow adding output_to_lockbox or removing it)
-		if secretOldID != "" && secretID != "" {
-			return fmt.Errorf("changing secret_id is not allowed; " + commonMessage)
-		}
-		return nil
+		log.Printf("[DEBUG] output_to_lockbox modified, secret_id changed from %s to %s", secretOldID, secretID)
+		return true
 	}
-	if secretID == "" {
-		return nil
-	}
-	// check that entry keys are not changed (we only allow adding output_to_lockbox or removing it)
 	for _, sensitiveAttr := range sensitiveAttrs {
 		entryKeyOld, entryKeyNew := getEntryKeyForSensitiveAttr(d, sensitiveAttr)
 		if entryKeyOld != entryKeyNew {
-			return fmt.Errorf("changing entry keys is not allowed; " + commonMessage)
+			log.Printf("[DEBUG] output_to_lockbox modified, entry for sensitive attribute %s changed from %s to %s", sensitiveAttr, entryKeyOld, entryKeyNew)
+			return true
 		}
 	}
-	return nil
+	return false
+}
+
+// DestroyOutputToLockboxVersion destroys the Lockbox version if output_to_lockbox is being used. Should be called in the resource Delete method.
+func DestroyOutputToLockboxVersion(ctx context.Context, d *schema.ResourceData, config *Config) error {
+	secretID, _ := getChangeAsString(d, lockboxOutputSecretIdAttr)
+	if secretID == "" {
+		return nil // output_to_lockbox is not being used
+	}
+	versionID, _ := getChangeAsString(d, lockboxOutputVersionIdAttr)
+	if versionID == "" {
+		// If secretID is available when destroying the resource, there should be a Lockbox version (created in ManageOutputToLockbox)
+		return fmt.Errorf("unexpectedly, attribute %s is empty (this is probably a bug in the provider)", lockboxOutputVersionIdAttr)
+	}
+	return destroyLockboxVersion(ctx, config, secretID, versionID)
 }
 
 // creates a new Lockbox version with the values of the sensitive fields, and clears those sensitive values from the state
@@ -126,15 +149,15 @@ func moveSensitiveAttrsToNewLockboxVersion(ctx context.Context, d *schema.Resour
 	log.Printf("[DEBUG] created version %s", lockboxVersion.GetId())
 
 	if err = d.Set(lockboxOutputVersionIdAttr, lockboxVersion.GetId()); err != nil {
-		log.Printf("[ERROR] lockbox version %s was created, but it wasn't possible to set field output_to_lockbox_version_id: %v", lockboxVersion.GetId(), err)
+		log.Printf("[ERROR] lockbox version %s was created, but failed to set %s: %v", lockboxVersion.GetId(), lockboxOutputVersionIdAttr, err)
 		return err
 	}
 	return nil
 }
 
 // retrieves sensitive values from Lockbox version, and puts them into the state
-func restoreSensitiveValuesFromLockboxVersion(ctx context.Context, d *schema.ResourceData, config *Config, sensitiveAttrs []string, secretOldID string, versionOldID string) error {
-	lockboxVersion, err := getLockboxVersion(ctx, config, secretOldID, versionOldID)
+func restoreSensitiveValuesFromLockboxVersion(ctx context.Context, d *schema.ResourceData, config *Config, sensitiveAttrs []string, secretID string, versionID string) error {
+	lockboxVersion, err := getLockboxVersion(ctx, config, secretID, versionID)
 	if err != nil {
 		return err
 	}
@@ -149,10 +172,11 @@ func restoreSensitiveValuesFromLockboxVersion(ctx context.Context, d *schema.Res
 				return err
 			}
 		} else {
-			log.Printf("[WARN] couldn't restore value for sensitive attribute '%s' because entry key '%s' doesn't exist in secret/version: %s/%s", sensitiveAttr, entryKey, secretOldID, versionOldID)
+			return fmt.Errorf("couldn't restore value for sensitive attribute '%s' because entry key '%s' doesn't exist in secret/version: %s/%s", sensitiveAttr, entryKey, secretID, versionID)
 		}
 	}
-	return nil
+
+	return destroyLockboxVersion(ctx, config, secretID, versionID)
 }
 
 // entry key that stores the value for sensitiveAttr (old/new value)
@@ -190,7 +214,7 @@ func addLockboxVersion(ctx context.Context, config *Config, secretID string, ent
 		SecretId:       secretID,
 		PayloadEntries: entries,
 	}
-
+	log.Printf("[DEBUG] AddVersionRequest on secret %s", secretID)
 	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().AddVersion(ctx, req))
 	if err != nil {
 		return nil, err
@@ -204,6 +228,19 @@ func addLockboxVersion(ctx context.Context, config *Config, secretID string, ent
 		return nil, err
 	}
 	return version.(*lockbox.Version), nil
+}
+
+func destroyLockboxVersion(ctx context.Context, config *Config, secretID string, versionID string) error {
+	req := &lockbox.ScheduleVersionDestructionRequest{
+		SecretId:  secretID,
+		VersionId: versionID,
+	}
+	log.Printf("[DEBUG] ScheduleVersionDestructionRequest: %s", protoDump(req))
+	op, err := config.sdk.WrapOperation(config.sdk.LockboxSecret().Secret().ScheduleVersionDestruction(ctx, req))
+	if err != nil {
+		return err
+	}
+	return op.Wait(ctx)
 }
 
 func getChangeAsString(d *schema.ResourceData, key string) (string, string) {

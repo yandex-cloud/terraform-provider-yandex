@@ -127,10 +127,18 @@ func flattenLockboxSecretVersionEntry(v *lockbox.Payload_Entry) map[string]inter
 }
 
 func testAccOutputToLockbox(secretId, sensitiveAttr, entryKey string) string {
+	return testAccOutputToLockboxAsMap(secretId, map[string]string{sensitiveAttr: entryKey})
+}
+
+func testAccOutputToLockboxAsMap(secretId string, sensitiveAttrToEntryKey map[string]string) string {
+	var entries string
+	for k, v := range sensitiveAttrToEntryKey {
+		entries += fmt.Sprintf("  entry_for_%s = \"%s\"\n", k, v)
+	}
 	return fmt.Sprintf(`
 output_to_lockbox {
   secret_id = %s
-  entry_for_%s = "%s"
+%s
 }
-`, secretId, sensitiveAttr, entryKey)
+`, secretId, entries)
 }

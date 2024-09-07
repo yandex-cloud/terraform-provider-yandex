@@ -62,4 +62,4 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `created_at` - Creation timestamp of the static access key.
 
-* `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the value of `private_key`. This is only populated when `output_to_lockbox` is supplied.
+* `output_to_lockbox_version_id` - ID of the Lockbox secret version that contains the value of `private_key`. This is only populated when `output_to_lockbox` is supplied. This version will be destroyed when the IAM key is destroyed, or when `output_to_lockbox` is removed.

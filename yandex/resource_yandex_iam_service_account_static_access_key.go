@@ -67,7 +67,8 @@ func resourceYandexIAMServiceAccountStaticAccessKey() *schema.Resource {
 	}
 }
 
-var resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs = []string{"secret_key"}
+// `access_key` is not Sensitive but, for convenience, we want to move both keys to the Lockbox secret.
+var resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs = []string{"secret_key", "access_key"}
 
 func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
@@ -102,7 +103,12 @@ func resourceYandexIAMServiceAccountStaticAccessKeyCreate(d *schema.ResourceData
 		d.Set("secret_key", resp.Secret)
 	}
 
-	return resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
+	err = resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
+	if err != nil {
+		return err
+	}
+
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, meta interface{}) error {
@@ -123,18 +129,23 @@ func resourceYandexIAMServiceAccountStaticAccessKeyRead(d *schema.ResourceData, 
 	d.Set("description", sak.Description)
 	d.Set("access_key", sak.KeyId)
 
-	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs)
+	return nil
 }
 
-// The update method was added because ExtendWithOutputToLockbox adds a new attribute that can change.
-// But those changes are handled in ManageOutputToLockbox.
+// The update method was added because ExtendWithOutputToLockbox adds a new attribute output_to_lockbox that can change.
+// Changes in output_to_lockbox are handled in ManageOutputToLockbox.
 func resourceYandexIAMServiceAccountStaticAccessKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	err := ValidateChangeInOutputToLockbox(d, resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs)
+	config := meta.(*Config)
+
+	ctx, cancel := context.WithTimeout(config.Context(), d.Timeout(schema.TimeoutUpdate))
+	defer cancel()
+
+	err := resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
 	if err != nil {
 		return err
 	}
 
-	return resourceYandexIAMServiceAccountStaticAccessKeyRead(d, meta)
+	return ManageOutputToLockbox(ctx, d, config, resourceYandexIAMServiceAccountStaticAccessKeySensitiveAttrs)
 }
 
 func resourceYandexIAMServiceAccountStaticAccessKeyDelete(d *schema.ResourceData, meta interface{}) error {
@@ -148,6 +159,11 @@ func resourceYandexIAMServiceAccountStaticAccessKeyDelete(d *schema.ResourceData
 	})
 	if err != nil {
 		return handleNotFoundError(err, d, fmt.Sprintf("Service Account Static Access Key %q", d.Id()))
+	}
+
+	err = DestroyOutputToLockboxVersion(ctx, d, config)
+	if err != nil {
+		return err
 	}
 
 	d.SetId("")
