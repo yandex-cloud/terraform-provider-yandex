@@ -141,7 +141,7 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 												Required:    true,
 												ElementType: types.StringType,
 											},
-											"subnet_ids": schema.SetAttribute{
+											"subnet_ids": schema.ListAttribute{
 												Optional:    true,
 												Computed:    true,
 												ElementType: types.StringType,
@@ -185,7 +185,7 @@ func NewUpgraderFromV1(ctx context.Context) resource.StateUpgrader {
 												Required:    true,
 												ElementType: types.StringType,
 											},
-											"subnet_ids": schema.SetAttribute{
+											"subnet_ids": schema.ListAttribute{
 												Optional:    true,
 												Computed:    true,
 												ElementType: types.StringType,

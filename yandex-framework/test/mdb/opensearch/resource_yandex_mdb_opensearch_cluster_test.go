@@ -104,8 +104,6 @@ func mdbOpenSearchClusterImportStep(name string) resource.TestStep {
 }
 
 func TestAccMDBOpenSearchCluster_single(t *testing.T) {
-	t.Parallel()
-
 	var r opensearch.Cluster
 	openSearchName := acctest.RandomWithPrefix("tf-opensearch-single")
 	openSearchDesc := "OpenSearch Cluster Terraform Test"
@@ -174,8 +172,6 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 }
 
 func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
-	t.Parallel()
-
 	var r opensearch.Cluster
 	openSearchName := acctest.RandomWithPrefix("tf-opensearch-simple")
 	openSearchDesc := "OpenSearch Cluster Terraform Test"
@@ -219,8 +215,6 @@ func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 }
 
 func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
-	t.Parallel()
-
 	var r opensearch.Cluster
 	openSearchName := acctest.RandomWithPrefix("tf-opensearch-saml")
 	openSearchDesc := "OpenSearch Cluster Terraform Test"
@@ -296,8 +290,6 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 }
 
 func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
-	t.Parallel()
-
 	var r opensearch.Cluster
 	openSearchName := acctest.RandomWithPrefix("tf-opensearch")
 	openSearchDesc := "OpenSearch Cluster Terraform Test"

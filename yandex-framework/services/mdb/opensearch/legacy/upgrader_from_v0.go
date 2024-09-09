@@ -63,7 +63,7 @@ type openSearchNode struct {
 	Resources      types.List   `tfsdk:"resources"`
 	HostsCount     types.Int64  `tfsdk:"hosts_count"`
 	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
-	SubnetIDs      types.Set    `tfsdk:"subnet_ids"`
+	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 	Roles          types.Set    `tfsdk:"roles"`
 }
@@ -73,7 +73,7 @@ type dashboardNode struct {
 	Resources      types.List   `tfsdk:"resources"`
 	HostsCount     types.Int64  `tfsdk:"hosts_count"`
 	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
-	SubnetIDs      types.Set    `tfsdk:"subnet_ids"`
+	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 }
 
@@ -126,7 +126,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 														Required:    true,
 														ElementType: types.StringType,
 													},
-													"subnet_ids": schema.SetAttribute{
+													"subnet_ids": schema.ListAttribute{
 														Optional:    true,
 														Computed:    true,
 														ElementType: types.StringType,
@@ -171,7 +171,7 @@ func NewUpgraderFromV0(ctx context.Context) resource.StateUpgrader {
 														Required:    true,
 														ElementType: types.StringType,
 													},
-													"subnet_ids": schema.SetAttribute{
+													"subnet_ids": schema.ListAttribute{
 														Optional:    true,
 														Computed:    true,
 														ElementType: types.StringType,

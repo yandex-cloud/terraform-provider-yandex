@@ -19,7 +19,7 @@ type DashboardNode struct {
 	Resources      types.Object `tfsdk:"resources"`
 	HostsCount     types.Int64  `tfsdk:"hosts_count"`
 	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
-	SubnetIDs      types.Set    `tfsdk:"subnet_ids"`
+	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 }
 
@@ -37,7 +37,7 @@ var DashboardNodeType = types.ObjectType{
 		"resources":        types.ObjectType{AttrTypes: NodeResourceAttrTypes},
 		"hosts_count":      types.Int64Type,
 		"zone_ids":         types.SetType{ElemType: types.StringType},
-		"subnet_ids":       types.SetType{ElemType: types.StringType},
+		"subnet_ids":       types.ListType{ElemType: types.StringType},
 		"assign_public_ip": types.BoolType,
 	},
 }
@@ -86,7 +86,7 @@ func dashboardsNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Da
 			return types.ListUnknown(DashboardNodeType), diags
 		}
 
-		subnetIds, diags := nullableStringSliceToSet(ctx, v.GetSubnetIds())
+		subnetIds, diags := nullableStringSliceToList(ctx, v.GetSubnetIds())
 		if diags.HasError() {
 			diags.AddError("Failed to parse dashboards.node_groups.subnet_ids", fmt.Sprintf("Error while parsing subnet_ids for group: %s", groupName))
 			return types.ListUnknown(DashboardNodeType), diags

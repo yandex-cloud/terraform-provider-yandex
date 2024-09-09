@@ -129,7 +129,7 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 											Computed:    true,
 											ElementType: types.StringType,
 										},
-										"subnet_ids": schema.SetAttribute{
+										"subnet_ids": schema.ListAttribute{
 											Optional:    true,
 											Computed:    true,
 											ElementType: types.StringType,
@@ -161,7 +161,7 @@ func (o *openSearchClusterDataSource) Schema(ctx context.Context, _ datasource.S
 											Computed:    true,
 											ElementType: types.StringType,
 										},
-										"subnet_ids": schema.SetAttribute{
+										"subnet_ids": schema.ListAttribute{
 											Optional:    true,
 											Computed:    true,
 											ElementType: types.StringType,

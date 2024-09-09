@@ -449,7 +449,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 											Required:    true,
 											ElementType: types.StringType,
 										},
-										"subnet_ids": schema.SetAttribute{
+										"subnet_ids": schema.ListAttribute{
 											Optional:    true,
 											Computed:    true,
 											ElementType: types.StringType,
@@ -493,7 +493,7 @@ func (o *openSearchClusterResource) Schema(ctx context.Context, req resource.Sch
 											Required:    true,
 											ElementType: types.StringType,
 										},
-										"subnet_ids": schema.SetAttribute{
+										"subnet_ids": schema.ListAttribute{
 											Optional:    true,
 											Computed:    true,
 											ElementType: types.StringType,

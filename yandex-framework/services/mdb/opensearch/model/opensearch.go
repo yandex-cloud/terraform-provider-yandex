@@ -22,7 +22,7 @@ type OpenSearchNode struct {
 	Resources      types.Object `tfsdk:"resources"`
 	HostsCount     types.Int64  `tfsdk:"hosts_count"`
 	ZoneIDs        types.Set    `tfsdk:"zone_ids"`
-	SubnetIDs      types.Set    `tfsdk:"subnet_ids"`
+	SubnetIDs      types.List   `tfsdk:"subnet_ids"`
 	AssignPublicIP types.Bool   `tfsdk:"assign_public_ip"`
 	Roles          types.Set    `tfsdk:"roles"`
 }
@@ -42,7 +42,7 @@ var OpenSearchNodeType = types.ObjectType{
 		"resources":        types.ObjectType{AttrTypes: NodeResourceAttrTypes},
 		"hosts_count":      types.Int64Type,
 		"zone_ids":         types.SetType{ElemType: types.StringType},
-		"subnet_ids":       types.SetType{ElemType: types.StringType},
+		"subnet_ids":       types.ListType{ElemType: types.StringType},
 		"assign_public_ip": types.BoolType,
 		"roles":            types.SetType{ElemType: types.StringType},
 	},
@@ -129,7 +129,7 @@ func openSearchNodeGroupsToList(ctx context.Context, nodeGroups []*opensearch.Op
 			return types.ListUnknown(OpenSearchNodeType), diags
 		}
 
-		subnetIds, diags := nullableStringSliceToSet(ctx, v.GetSubnetIds())
+		subnetIds, diags := nullableStringSliceToList(ctx, v.GetSubnetIds())
 		if diags.HasError() {
 			diags.AddError("Failed to parse opensearch.node_groups.subnet_ids", fmt.Sprintf("Error while parsing subnet_ids for group: %s", groupName))
 
@@ -180,7 +180,7 @@ func sameNodeGroup(ctx context.Context, res *opensearch.OpenSearch_NodeGroup, st
 	}
 
 	zoneIds, _ := nullableStringSliceToSet(ctx, res.GetZoneIds())
-	subnetIds, _ := nullableStringSliceToSet(ctx, res.GetSubnetIds())
+	subnetIds, _ := nullableStringSliceToList(ctx, res.GetSubnetIds())
 	resources, _ := resourcesToObject(ctx, res.GetResources())
 
 	return res.GetName() == state.Name.ValueString() &&

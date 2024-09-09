@@ -166,6 +166,14 @@ func nullableStringSliceToSet(ctx context.Context, s []string) (types.Set, diag.
 	return types.SetValueFrom(ctx, types.StringType, s)
 }
 
+func nullableStringSliceToList(ctx context.Context, s []string) (types.List, diag.Diagnostics) {
+	if s == nil {
+		return types.ListNull(types.StringType), diag.Diagnostics{}
+	}
+
+	return types.ListValueFrom(ctx, types.StringType, s)
+}
+
 func ParseConfig(ctx context.Context, state *OpenSearch) (*Config, diag.Diagnostics) {
 	planConfig := &Config{}
 	diags := state.Config.As(ctx, &planConfig, defaultOpts)
