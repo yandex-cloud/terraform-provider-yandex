@@ -1,0 +1,379 @@
+{
+  "datasources": [],
+  "provider": {
+    "name": "yandex"
+  },
+  "resources": [
+    {
+      "name": "cluster",
+      "schema": {
+        "attributes": [
+          {
+            "name": "id",
+            "string": {
+              "computed_optional_required": "computed",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "folder_id",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                },
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.RequiresReplace()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "created_at",
+            "string": {
+              "computed_optional_required": "computed",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "health",
+            "string": {
+              "computed_optional_required": "computed",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "string": {
+              "computed_optional_required": "computed",
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"}],
+                    "schema_definition": "stringplanmodifier.UseStateForUnknown()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "string": {
+              "computed_optional_required": "required"
+            }
+          },
+          {
+            "name": "description",
+            "string": {
+              "computed_optional_required": "optional"
+            }
+          },
+          {
+            "name": "labels",
+            "map": {
+              "computed_optional_required": "optional",
+              "element_type": {"string": {}}
+            }
+          },
+          {
+            "name": "service_account_id",
+            "string": {
+              "computed_optional_required": "required"
+            }
+          },
+          {
+            "name": "subnet_ids",
+            "set": {
+              "computed_optional_required": "required",
+              "element_type": {
+                "string": {}
+              },
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"}],
+                    "schema_definition": "setplanmodifier.RequiresReplace()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "security_group_ids",
+            "set": {
+              "computed_optional_required": "optional",
+              "element_type": {
+                "string": {}
+              }
+            }
+          },
+          {
+            "name": "admin_password",
+            "string": {
+              "computed_optional_required": "computed_optional",
+              "sensitive": true,
+              "plan_modifiers": [
+                {
+                  "custom": {
+                    "schema_definition": "adminPasswordModifier{}"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "code_sync",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "attributes": [
+                {
+                  "name": "s3",
+                  "single_nested": {
+                    "computed_optional_required": "required",
+                    "attributes": [
+                      {
+                        "name": "bucket",
+                        "string": {
+                          "computed_optional_required": "required"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "deletion_protection",
+            "bool": {
+              "computed_optional_required": "computed_optional",
+              "default": {"static": false}
+            }
+          },
+          {
+            "name": "pip_packages",
+            "set": {
+              "computed_optional_required": "optional",
+              "element_type": {
+                "string": {}
+              }
+            }
+          },
+          {
+            "name": "deb_packages",
+            "set": {
+              "computed_optional_required": "optional",
+              "element_type": {
+                "string": {}
+              }
+            }
+          },
+          {
+            "name": "logging",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "folder_id",
+                  "string": {
+                    "computed_optional_required": "optional"
+                  }
+                },
+                {
+                  "name": "log_group_id",
+                  "string": {
+                    "computed_optional_required": "optional"
+                  }
+                },
+                {
+                  "name": "min_level",
+                  "string": {
+                    "computed_optional_required": "optional",
+                    "validators": [
+                      {
+                        "custom": {
+                          "imports": [{"path": "github.com/hashicorp/terraform-plugin-framework/schema/validator"}],
+                          "schema_definition": "logLevelValidator()"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "lockbox_secrets_backend",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "attributes": [
+                {
+                  "name": "enabled",
+                  "bool": {
+                    "computed_optional_required": "required"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "airflow_config",
+            "map": {
+              "computed_optional_required": "optional",
+              "element_type": {
+                "map": {
+                  "element_type": {
+                    "string": {}
+                  }
+                }
+              },
+              "validators": [
+                {
+                  "custom": {
+                    "schema_definition": "airflowConfigValidator()"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "webserver",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "attributes": [
+                {
+                  "name": "count",
+                  "int64": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "scheduler",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "attributes": [
+                {
+                  "name": "count",
+                  "int64": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "worker",
+            "single_nested": {
+              "computed_optional_required": "required",
+              "attributes": [
+                {
+                  "name": "min_count",
+                  "int64": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "max_count",
+                  "int64": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "triggerer",
+            "single_nested": {
+              "computed_optional_required": "optional",
+              "attributes": [
+                {
+                  "name": "count",
+                  "int64": {
+                    "computed_optional_required": "required"
+                  }
+                },
+                {
+                  "name": "resource_preset_id",
+                  "string": {
+                    "computed_optional_required": "required"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "blocks": [
+          {
+            "name": "timeouts",
+            "single_nested": {
+              "attributes": [],
+              "custom_type": {
+                "import": {
+                  "path": "github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+                },
+                "type": "timeouts.Type{}",
+                "value_type": "timeouts.Value"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "version": "0.1"
+}

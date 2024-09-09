@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/terraform-provider-yandex/common"
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/provider/config"
+	airflowcluster "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/airflow/resource_cluster"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/billing"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/disk"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/diskplacementgroup"
@@ -29,8 +30,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/compute/snapshotschedule"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/community"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere/project"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
-	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
+	mongodbdatabase "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/database"
+	mongodbuser "github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/mongodb/user"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb/opensearch"
 )
 
@@ -253,8 +254,8 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		project.NewIamBinding,
 		community.NewResource,
 		community.NewIamBinding,
-		database.NewResource,
-		user.NewResource,
+		mongodbdatabase.NewResource,
+		mongodbuser.NewResource,
 		opensearch.NewResource,
 		disk.NewIamBinding,
 		diskplacementgroup.NewIamBinding,
@@ -265,6 +266,7 @@ func (p *Provider) Resources(_ context.Context) []func() resource.Resource {
 		placementgroup.NewIamBinding,
 		snapshot.NewIamBinding,
 		snapshotschedule.NewIamBinding,
+		airflowcluster.NewResource,
 	}
 }
 
@@ -277,8 +279,8 @@ func (p *Provider) DataSources(_ context.Context) []func() datasource.DataSource
 		},
 		project.NewDataSource,
 		community.NewDataSource,
-		database.NewDataSource,
-		user.NewDataSource,
+		mongodbdatabase.NewDataSource,
+		mongodbuser.NewDataSource,
 		opensearch.NewDataSource,
 	}
 }
