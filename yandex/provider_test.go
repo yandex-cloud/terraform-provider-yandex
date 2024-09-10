@@ -148,11 +148,19 @@ func TestProviderDefaultValues(t *testing.T) {
 	}
 
 	if conf.Plaintext {
-		t.Errorf("there is not default option 'Plaintext' (%v), should be %v", conf.Plaintext, providerDefaultValuePlaintext)
+		t.Errorf(
+			"there is not default option 'Plaintext' (%v), should be %v",
+			conf.Plaintext,
+			providerDefaultValuePlaintext,
+		)
 	}
 
 	if conf.Insecure {
-		t.Errorf("there is not default option 'Insecure' (%v), should be %v", conf.Plaintext, providerDefaultValueInsecure)
+		t.Errorf(
+			"there is not default option 'Insecure' (%v), should be %v",
+			conf.Plaintext,
+			providerDefaultValueInsecure,
+		)
 	}
 
 	// restore OS env vars
@@ -369,9 +377,11 @@ func getFolderByID(sdk *ycsdk.SDK, folderID string) *resourcemanager.Folder {
 }
 
 func loginToUserID(sdk *ycsdk.SDK, loginName string) (userID string) {
-	account, err := sdk.IAM().YandexPassportUserAccount().GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
-		Login: loginName,
-	})
+	account, err := sdk.IAM().
+		YandexPassportUserAccount().
+		GetByLogin(context.Background(), &iam.GetUserAccountByLoginRequest{
+			Login: loginName,
+		})
 	if err != nil {
 		log.Printf("could not get user Id for %s: %s", loginName, err)
 		if reqID, ok := isRequestIDPresent(err); ok {

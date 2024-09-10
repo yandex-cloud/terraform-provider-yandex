@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go/service/s3"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 )
 
 func resourceYandexStorageBucketV0() *schema.Resource {
@@ -204,8 +205,8 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 						"object_lock_enabled": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      s3.ObjectLockEnabledEnabled,
-							ValidateFunc: validation.StringInSlice(s3.ObjectLockEnabled_Values(), false),
+							Default:      s3.ObjectLockEnabled,
+							ValidateFunc: validation.StringInSlice(s3.ObjectLockEnabledValues, false),
 						},
 						"rule": {
 							Type:     schema.TypeList,
@@ -220,9 +221,12 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"mode": {
-													Type:         schema.TypeString,
-													Required:     true,
-													ValidateFunc: validation.StringInSlice(s3.ObjectLockRetentionMode_Values(), false),
+													Type:     schema.TypeString,
+													Required: true,
+													ValidateFunc: validation.StringInSlice(
+														s3.ObjectLockRetentionModeValues,
+														false,
+													),
 												},
 												"days": {
 													Type:     schema.TypeInt,
@@ -338,7 +342,7 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 						"transition": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Set:      transitionHash,
+							Set:      s3.TransitionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"date": {
@@ -362,7 +366,7 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 						"noncurrent_version_transition": {
 							Type:     schema.TypeSet,
 							Optional: true,
-							Set:      transitionHash,
+							Set:      s3.TransitionHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"days": {
@@ -490,7 +494,11 @@ func resourceYandexStorageBucketV0() *schema.Resource {
 	}
 }
 
-func resourceYandexStorageBucketStateUpgradeV0(ctx context.Context, rawState map[string]any, meta any) (map[string]any, error) {
+func resourceYandexStorageBucketStateUpgradeV0(
+	ctx context.Context,
+	rawState map[string]any,
+	meta any,
+) (map[string]any, error) {
 	if rawState == nil {
 		return nil, nil
 	}

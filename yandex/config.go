@@ -14,7 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
+
 	"github.com/google/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/mitchellh/go-homedir"
@@ -70,7 +71,7 @@ type Config struct {
 	userAgent         string
 	sdk               *ycsdk.SDK
 	sharedCredentials *SharedCredentials
-	defaultS3Session  *session.Session
+	defaultS3Client   *s3.Client
 }
 
 // this function return context with added client trace id
@@ -141,7 +142,7 @@ func (c *Config) initAndValidate(stopContext context.Context, terraformVersion s
 		return err
 	}
 
-	return c.initializeDefaultS3Client()
+	return c.initializeDefaultS3Client(stopContext)
 }
 
 func (c *Config) initSharedCredentials() error {
@@ -166,7 +167,7 @@ func (c *Config) resolveStorageAccessKeys() (string, string) {
 	return c.sharedCredentials.StorageAccessKey, c.sharedCredentials.StorageSecretKey
 }
 
-func (c *Config) initializeDefaultS3Client() (err error) {
+func (c *Config) initializeDefaultS3Client(ctx context.Context) (err error) {
 	accessKey, secretKey := c.resolveStorageAccessKeys()
 	if c.StorageEndpoint == "" || (accessKey == "" && secretKey == "") {
 		return nil
@@ -176,7 +177,7 @@ func (c *Config) initializeDefaultS3Client() (err error) {
 		return fmt.Errorf("both storage access key and storage secret key should be specified or not specified")
 	}
 
-	c.defaultS3Session, err = newS3Session(c.StorageEndpoint, accessKey, secretKey)
+	c.defaultS3Client, err = s3.NewClient(ctx, accessKey, secretKey, c.StorageEndpoint)
 
 	return err
 }
@@ -206,7 +207,9 @@ func (c *Config) credentials() (ycsdk.Credentials, error) {
 		return sa, nil
 	}
 
-	return nil, fmt.Errorf("one of 'token' or 'service_account_key_file' should be specified; if you are inside compute instance, you can attach service account to it in order to authenticate via instance service account")
+	return nil, fmt.Errorf(
+		"one of 'token' or 'service_account_key_file' should be specified; if you are inside compute instance, you can attach service account to it in order to authenticate via instance service account",
+	)
 }
 
 func iamKeyFromJSONContent(content string) (*iamkey.Key, error) {

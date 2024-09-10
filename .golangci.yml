@@ -1,6 +1,7 @@
 run:
   deadline: 5m
   modules-download-mode: vendor
+  allow-parallel-runners: true
   skip_dirs: 
     - scripts
     - vendor

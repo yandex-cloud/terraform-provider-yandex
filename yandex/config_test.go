@@ -99,11 +99,17 @@ type userAgentMockServerAPIEndpoint struct {
 	addr      string
 }
 
-func (s *userAgentMockServerAPIEndpoint) Get(context.Context, *endpoint.GetApiEndpointRequest) (*endpoint.ApiEndpoint, error) {
+func (s *userAgentMockServerAPIEndpoint) Get(
+	context.Context,
+	*endpoint.GetApiEndpointRequest,
+) (*endpoint.ApiEndpoint, error) {
 	return &endpoint.ApiEndpoint{}, nil
 }
 
-func (s *userAgentMockServerAPIEndpoint) List(ctx context.Context, r *endpoint.ListApiEndpointsRequest) (*endpoint.ListApiEndpointsResponse, error) {
+func (s *userAgentMockServerAPIEndpoint) List(
+	ctx context.Context,
+	r *endpoint.ListApiEndpointsRequest,
+) (*endpoint.ListApiEndpointsResponse, error) {
 	reqMd, _ := metadata.FromIncomingContext(ctx)
 	userAgent := reqMd.Get("user-agent")
 	if len(userAgent) > 0 {
@@ -153,11 +159,9 @@ func TestConfigInitDefaultS3ClientFromSharedCredentials(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
 	}
-	require.NotNilf(t, config.defaultS3Session, "expected defaultS3Session to be initialized")
-	credentials, err := config.defaultS3Session.Config.Credentials.Get()
-	if err != nil {
-		return
-	}
+	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
+	credentials, err := config.defaultS3Client.S3().Config.Credentials.Get()
+	require.NoError(t, err)
 	assert.Equal(t, "YCAJEv2kbbNCegBdWneshv6Fa", credentials.AccessKeyID)
 	assert.Equal(t, "YCMw-QhGTK40ulcCnr1v0EsTOKZwdNv0EsTOKZwdN", credentials.SecretAccessKey)
 }
@@ -181,11 +185,9 @@ func TestConfigInitDefaultS3Client_PreferAccessKeysFromConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to initAndValidate config: \"%v\"", err.Error())
 	}
-	require.NotNilf(t, config.defaultS3Session, "expected defaultS3Session to be initialized")
-	credentials, err := config.defaultS3Session.Config.Credentials.Get()
-	if err != nil {
-		return
-	}
+	require.NotNilf(t, config.defaultS3Client, "expected defaultS3Client to be initialized")
+	credentials, err := config.defaultS3Client.S3().Config.Credentials.Get()
+	require.NoError(t, err)
 	assert.Equal(t, "access-key", credentials.AccessKeyID)
 	assert.Equal(t, "secret-key", credentials.SecretAccessKey)
 }

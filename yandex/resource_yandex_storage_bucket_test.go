@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"reflect"
 	"regexp"
@@ -13,9 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
+	awsS3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
@@ -80,20 +83,21 @@ func testSweepStorageBucket(_ string) error {
 		}
 	}()
 
-	s3client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
+	s3Client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
 	}
+	s3client := s3Client.S3()
 
-	buckets, err := s3client.ListBuckets(&s3.ListBucketsInput{})
+	buckets, err := s3client.ListBuckets(&awsS3.ListBucketsInput{})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	for _, b := range buckets.Buckets {
-		_, err := s3client.DeleteBucket(&s3.DeleteBucketInput{
+		_, err := s3client.DeleteBucket(&awsS3.DeleteBucketInput{
 			Bucket: b.Name,
 		})
 
@@ -386,12 +390,12 @@ func TestAccStorageBucket_WebsiteRoutingRules(t *testing.T) {
 						resourceName, "index.html", "error.html", "", ""),
 					testAccCheckStorageBucketWebsiteRoutingRules(
 						resourceName,
-						[]*s3.RoutingRule{
+						[]*awsS3.RoutingRule{
 							{
-								Condition: &s3.Condition{
+								Condition: &awsS3.Condition{
 									KeyPrefixEquals: aws.String("docs/"),
 								},
-								Redirect: &s3.Redirect{
+								Redirect: &awsS3.Redirect{
 									HttpRedirectCode:     aws.String("301"),
 									Protocol:             aws.String("http"),
 									ReplaceKeyPrefixWith: aws.String("documents/"),
@@ -467,14 +471,14 @@ func TestAccStorageBucket_VersioningEnabled(t *testing.T) {
 				Config: testAccStorageBucketConfigWithVersioning(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
-					testAccCheckStorageBucketVersioning(resourceName, s3.BucketVersioningStatusEnabled),
+					testAccCheckStorageBucketVersioning(resourceName, awsS3.BucketVersioningStatusEnabled),
 				),
 			},
 			{
 				Config: testAccStorageBucketConfigWithDisableVersioning(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
-					testAccCheckStorageBucketVersioning(resourceName, s3.BucketVersioningStatusSuspended),
+					testAccCheckStorageBucketVersioning(resourceName, awsS3.BucketVersioningStatusSuspended),
 				),
 			},
 		},
@@ -497,7 +501,7 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketCors(
 						resourceName,
-						[]*s3.CORSRule{
+						[]*awsS3.CORSRule{
 							{
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
@@ -531,7 +535,7 @@ func TestAccStorageBucket_cors_update(t *testing.T) {
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketCors(
 						resourceName,
-						[]*s3.CORSRule{
+						[]*awsS3.CORSRule{
 							{
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("GET")},
@@ -712,7 +716,7 @@ func TestAccStorageBucket_cors_delete(t *testing.T) {
 					testAccCheckStorageBucketExists(resourceName),
 					wrapWithRetries(testAccCheckStorageBucketCors(
 						resourceName,
-						[]*s3.CORSRule{
+						[]*awsS3.CORSRule{
 							{
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
@@ -767,7 +771,7 @@ func TestAccStorageBucket_cors_emptyOrigin(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					testAccCheckStorageBucketCors(resourceName,
-						[]*s3.CORSRule{
+						[]*awsS3.CORSRule{
 							{
 								AllowedHeaders: []*string{aws.String("*")},
 								AllowedMethods: []*string{aws.String("PUT"), aws.String("POST")},
@@ -815,12 +819,12 @@ func TestAccStorageBucket_SSE(t *testing.T) {
 						"yandex_kms_symmetric_key.key-a", &symmetricKey),
 					testAccCheckStorageBucketExists(resourceName),
 					testAccCheckStorageBucketSSE(resourceName,
-						&s3.ServerSideEncryptionConfiguration{
-							Rules: []*s3.ServerSideEncryptionRule{
+						&awsS3.ServerSideEncryptionConfiguration{
+							Rules: []*awsS3.ServerSideEncryptionRule{
 								{
-									ApplyServerSideEncryptionByDefault: &s3.ServerSideEncryptionByDefault{
+									ApplyServerSideEncryptionByDefault: &awsS3.ServerSideEncryptionByDefault{
 										KMSMasterKeyID: &symmetricKey.Id,
-										SSEAlgorithm:   aws.String(s3.ServerSideEncryptionAwsKms),
+										SSEAlgorithm:   aws.String(awsS3.ServerSideEncryptionAwsKms),
 									},
 								},
 							},
@@ -871,8 +875,8 @@ func TestAccStorageBucket_ObjectLockEnabled(t *testing.T) {
 					testAccCheckStorageBucketExists(resourceName),
 					testAccCheckStorageBucketObjectLockConfiguration(
 						resourceName,
-						&s3.ObjectLockConfiguration{
-							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
+						&awsS3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(awsS3.ObjectLockEnabledEnabled),
 						},
 					),
 				),
@@ -893,16 +897,16 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionDays(t *testing.T) {
 		CheckDestroy:  testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucketConfigWithObjectLock(rInt, s3.ObjectLockModeGovernance, 10, 0),
+				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 10, 0),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					testAccCheckStorageBucketObjectLockConfiguration(
 						resourceName,
-						&s3.ObjectLockConfiguration{
-							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
-							Rule: &s3.ObjectLockRule{
-								DefaultRetention: &s3.DefaultRetention{
-									Mode: aws.String(s3.ObjectLockModeGovernance),
+						&awsS3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(awsS3.ObjectLockEnabledEnabled),
+							Rule: &awsS3.ObjectLockRule{
+								DefaultRetention: &awsS3.DefaultRetention{
+									Mode: aws.String(awsS3.ObjectLockModeGovernance),
 									Days: aws.Int64(10),
 								},
 							},
@@ -926,16 +930,16 @@ func TestAccStorageBucket_ObjectLockWithDefaultRetentionYears(t *testing.T) {
 		CheckDestroy:  testAccCheckStorageBucketDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageBucketConfigWithObjectLock(rInt, s3.ObjectLockModeGovernance, 0, 10),
+				Config: testAccStorageBucketConfigWithObjectLock(rInt, awsS3.ObjectLockModeGovernance, 0, 10),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageBucketExists(resourceName),
 					testAccCheckStorageBucketObjectLockConfiguration(
 						resourceName,
-						&s3.ObjectLockConfiguration{
-							ObjectLockEnabled: aws.String(s3.ObjectLockEnabledEnabled),
-							Rule: &s3.ObjectLockRule{
-								DefaultRetention: &s3.DefaultRetention{
-									Mode:  aws.String(s3.ObjectLockModeGovernance),
+						&awsS3.ObjectLockConfiguration{
+							ObjectLockEnabled: aws.String(awsS3.ObjectLockEnabledEnabled),
+							Rule: &awsS3.ObjectLockRule{
+								DefaultRetention: &awsS3.DefaultRetention{
+									Mode:  aws.String(awsS3.ObjectLockModeGovernance),
 									Years: aws.Int64(10),
 								},
 							},
@@ -951,7 +955,7 @@ func TestAccStorageBucket_Tagging(t *testing.T) {
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_bucket.test"
 
-	expectedTags := []*s3.Tag{{
+	expectedTags := []*awsS3.Tag{{
 		Key:   aws.String("some"),
 		Value: aws.String("value"),
 	}}
@@ -1036,16 +1040,17 @@ func testAccCheckStorageBucketDestroyWithProvider(s *terraform.State, provider *
 		}
 		defer cleanup()
 
-		conn, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
+		s3Client, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		_, err = conn.DeleteBucket(&s3.DeleteBucketInput{
+		_, err = conn.DeleteBucket(&awsS3.DeleteBucketInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
-			if isAWSErr(err, AwsNoSuchBucket, "") {
+			if s3.IsErr(err, s3.NoSuchBucket) {
 				return nil
 			}
 			return err
@@ -1091,7 +1096,7 @@ func testAccCheckStorageBucketExistsWithProvider(n string, providerF func() *sch
 
 		provider := providerF()
 
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1100,12 +1105,13 @@ func testAccCheckStorageBucketExistsWithProvider(n string, providerF func() *sch
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		_, err = conn.HeadBucket(&s3.HeadBucketInput{
+		_, err = conn.HeadBucket(&awsS3.HeadBucketInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
-			if isAWSErr(err, AwsNoSuchBucket, "") {
+			if s3.IsErr(err, s3.NoSuchBucket) {
 				return fmt.Errorf("bucket not found")
 			}
 			return err
@@ -1126,7 +1132,7 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 			return fmt.Errorf("no storage bucket ID is set")
 		}
 
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1135,8 +1141,9 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		_, err = conn.DeleteBucket(&s3.DeleteBucketInput{
+		_, err = conn.DeleteBucket(&awsS3.DeleteBucketInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
@@ -1154,7 +1161,7 @@ func testAccCheckStorageDestroyBucket(n string) resource.TestCheckFunc {
 func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1163,8 +1170,9 @@ func testAccCheckStorageBucketPolicy(n string, policy string) resource.TestCheck
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketPolicy(&s3.GetBucketPolicyInput{
+		out, err := conn.GetBucketPolicy(&awsS3.GetBucketPolicyInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 
@@ -1215,7 +1223,7 @@ func testAccCheckStorageBucketWebsite(
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1224,8 +1232,9 @@ func testAccCheckStorageBucketWebsite(
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketWebsite(&s3.GetBucketWebsiteInput{
+		out, err := conn.GetBucketWebsite(&awsS3.GetBucketWebsiteInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
@@ -1275,10 +1284,10 @@ func testAccCheckStorageBucketWebsite(
 	}
 }
 
-func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.RoutingRule) resource.TestCheckFunc {
+func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*awsS3.RoutingRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1287,8 +1296,9 @@ func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.R
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketWebsite(&s3.GetBucketWebsiteInput{
+		out, err := conn.GetBucketWebsite(&awsS3.GetBucketWebsiteInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 
@@ -1310,7 +1320,7 @@ func testAccCheckStorageBucketWebsiteRoutingRules(n string, routingRules []*s3.R
 func testAccCheckStorageBucketVersioning(n string, versioningStatus string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1319,7 +1329,9 @@ func testAccCheckStorageBucketVersioning(n string, versioningStatus string) reso
 		if err != nil {
 			return err
 		}
-		out, err := conn.GetBucketVersioning(&s3.GetBucketVersioningInput{
+		conn := s3Client.S3()
+
+		out, err := conn.GetBucketVersioning(&awsS3.GetBucketVersioningInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 
@@ -1341,10 +1353,10 @@ func testAccCheckStorageBucketVersioning(n string, versioningStatus string) reso
 	}
 }
 
-func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.TestCheckFunc {
+func testAccCheckStorageBucketCors(n string, corsRules []*awsS3.CORSRule) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1353,11 +1365,12 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketCors(&s3.GetBucketCorsInput{
+		out, err := conn.GetBucketCors(&awsS3.GetBucketCorsInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
-		if err != nil && !isAWSErr(err, AwsNoSuchCORSConfiguration, "") {
+		if err != nil && !s3.IsErr(err, s3.NoSuchCORSConfiguration) {
 			return fmt.Errorf("func GetBucketCors error: %v", err)
 		}
 
@@ -1372,7 +1385,7 @@ func testAccCheckStorageBucketCors(n string, corsRules []*s3.CORSRule) resource.
 func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1381,8 +1394,9 @@ func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketLogging(&s3.GetBucketLoggingInput{
+		out, err := conn.GetBucketLogging(&awsS3.GetBucketLoggingInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 
@@ -1420,10 +1434,10 @@ func testAccCheckStorageBucketLogging(n, b, p string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfiguration) resource.TestCheckFunc {
+func testAccCheckStorageBucketSSE(n string, config *awsS3.ServerSideEncryptionConfiguration) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1432,11 +1446,12 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 		if err != nil {
 			return err
 		}
+		conn := s3Client.S3()
 
-		out, err := conn.GetBucketEncryption(&s3.GetBucketEncryptionInput{
+		out, err := conn.GetBucketEncryption(&awsS3.GetBucketEncryptionInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
-		if err != nil && !isAWSErr(err, AwsNoSuchEncryptionConfiguration, "") {
+		if err != nil && !s3.IsErr(err, s3.NoSuchEncryptionConfiguration) {
 			return fmt.Errorf("func GetBucketCors error: %v", err)
 		}
 
@@ -1452,10 +1467,10 @@ func testAccCheckStorageBucketSSE(n string, config *s3.ServerSideEncryptionConfi
 	}
 }
 
-func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) resource.TestCheckFunc {
+func testAccCheckStorageBucketTagsConfiguration(n string, config []*awsS3.Tag) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1464,7 +1479,9 @@ func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) reso
 		if err != nil {
 			return err
 		}
-		out, err := conn.GetBucketTagging(&s3.GetBucketTaggingInput{
+		conn := s3Client.S3()
+
+		out, err := conn.GetBucketTagging(&awsS3.GetBucketTaggingInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 		if err != nil {
@@ -1480,11 +1497,11 @@ func testAccCheckStorageBucketTagsConfiguration(n string, config []*s3.Tag) reso
 
 func testAccCheckStorageBucketObjectLockConfiguration(
 	n string,
-	config *s3.ObjectLockConfiguration,
+	config *awsS3.ObjectLockConfiguration,
 ) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -1493,7 +1510,9 @@ func testAccCheckStorageBucketObjectLockConfiguration(
 		if err != nil {
 			return err
 		}
-		out, err := conn.GetObjectLockConfiguration(&s3.GetObjectLockConfigurationInput{
+		conn := s3Client.S3()
+
+		out, err := conn.GetObjectLockConfiguration(&awsS3.GetObjectLockConfigurationInput{
 			Bucket: aws.String(rs.Primary.ID),
 		})
 
@@ -1532,8 +1551,23 @@ func testAccBucketDomainName(randInt int) string {
 	return name
 }
 
+func bucketDomainName(bucket string, endpointURL string) (string, error) {
+	// Without a scheme the url will not be parsed as we expect
+	// See https://github.com/golang/go/issues/19779
+	if !strings.Contains(endpointURL, "//") {
+		endpointURL = "//" + endpointURL
+	}
+
+	parse, err := url.Parse(endpointURL)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s.%s", bucket, parse.Hostname()), nil
+}
+
 func testAccWebsiteEndpoint(randInt int) string {
-	return fmt.Sprintf("tf-test-bucket-%d.%s", randInt, WebsiteDomainURL())
+	return fmt.Sprintf("tf-test-bucket-%d.%s", randInt, "website.yandexcloud.net")
 }
 
 func newBucketConfigBuilder(randInt int) testAccStorageBucketConfigBuilder {
@@ -2641,7 +2675,7 @@ func wrapWithRetries(f resource.TestCheckFunc) resource.TestCheckFunc {
 func ensureBucketDeleted(n string) resource.TestCheckFunc {
 	return wrapWithRetries(func(s *terraform.State) error {
 		rs := s.RootModule().Resources[n]
-		conn, err := getS3ClientByKeys(
+		s3Client, err := getS3ClientByKeys(
 			context.TODO(),
 			rs.Primary.Attributes["access_key"],
 			rs.Primary.Attributes["secret_key"],
@@ -2650,12 +2684,12 @@ func ensureBucketDeleted(n string) resource.TestCheckFunc {
 		if err != nil {
 			return err
 		}
-		return checkBucketDeleted(rs.Primary.ID, conn)
+		return checkBucketDeleted(rs.Primary.ID, s3Client.S3())
 	})
 }
 
-func checkBucketDeleted(ID string, conn *s3.S3) error {
-	_, err := conn.HeadBucket(&s3.HeadBucketInput{
+func checkBucketDeleted(ID string, conn *awsS3.S3) error {
+	_, err := conn.HeadBucket(&awsS3.HeadBucketInput{
 		Bucket: aws.String(ID),
 	})
 

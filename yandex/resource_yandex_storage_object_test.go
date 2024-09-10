@@ -13,13 +13,15 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	awsS3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/iam/v1/awscompatibility"
+
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/storage/s3"
 )
 
 func init() {
@@ -51,53 +53,66 @@ func testSweepStorageObject(_ string) error {
 		return result.ErrorOrNil()
 	}
 
-	resp, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
-		ServiceAccountId: serviceAccountID,
-		Description:      "Storage Bucket sweeper static key",
-	})
+	resp, err := conf.sdk.IAM().
+		AWSCompatibility().
+		AccessKey().
+		Create(conf.Context(), &awscompatibility.CreateAccessKeyRequest{
+			ServiceAccountId: serviceAccountID,
+			Description:      "Storage Bucket sweeper static key",
+		})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating service account static key: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	defer func() {
-		_, err := conf.sdk.IAM().AWSCompatibility().AccessKey().Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
-			AccessKeyId: resp.AccessKey.Id,
-		})
+		_, err := conf.sdk.IAM().
+			AWSCompatibility().
+			AccessKey().
+			Delete(conf.Context(), &awscompatibility.DeleteAccessKeyRequest{
+				AccessKeyId: resp.AccessKey.Id,
+			})
 		if err != nil {
 			result = multierror.Append(result, fmt.Errorf("error deleting service account static key: %s", err))
 		}
 	}()
 
-	s3client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
+	s3Client, err := getS3ClientByKeys(context.TODO(), resp.AccessKey.KeyId, resp.Secret, conf)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("error creating storage client: %s", err))
 		return result.ErrorOrNil()
 	}
+	s3client := s3Client.S3()
 
-	buckets, err := s3client.ListBuckets(&s3.ListBucketsInput{})
+	buckets, err := s3client.ListBuckets(&awsS3.ListBucketsInput{})
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("failed to list storage buckets: %s", err))
 		return result.ErrorOrNil()
 	}
 
 	for _, b := range buckets.Buckets {
-		res, err := s3client.ListObjectVersions(&s3.ListObjectVersionsInput{
+		res, err := s3client.ListObjectVersions(&awsS3.ListObjectVersionsInput{
 			Bucket: b.Name,
 		})
 
 		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("failed to list objects in bucket: %s, error: %s", *b.Name, err))
+			result = multierror.Append(
+				result,
+				fmt.Errorf("failed to list objects in bucket: %s, error: %s", *b.Name, err),
+			)
 		}
 
 		for _, o := range res.Versions {
-			_, err := s3client.DeleteObject(&s3.DeleteObjectInput{
+			_, err := s3client.DeleteObject(&awsS3.DeleteObjectInput{
 				Bucket:    b.Name,
 				Key:       o.Key,
 				VersionId: o.VersionId,
 			})
 			if err != nil {
-				result = multierror.Append(result, fmt.Errorf("failed to delete object %s in bucket: %s, error: %s", *o.Key, *b.Name, err))
+				result = multierror.Append(
+					result,
+					fmt.Errorf("failed to delete object %s in bucket: %s, error: %s", *o.Key, *b.Name, err),
+				)
 			}
 		}
 	}
@@ -106,7 +121,7 @@ func testSweepStorageObject(_ string) error {
 }
 
 func TestAccStorageObject_source(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -132,7 +147,7 @@ func TestAccStorageObject_source(t *testing.T) {
 }
 
 func TestAccStorageObject_sourceHash(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -171,7 +186,7 @@ func TestAccStorageObject_sourceHash(t *testing.T) {
 }
 
 func TestAccStorageObject_content(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -194,7 +209,7 @@ func TestAccStorageObject_content(t *testing.T) {
 }
 
 func TestAccStorageObject_contentBase64(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -206,7 +221,10 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageObjectConfigContentBase64(rInt, base64.StdEncoding.EncodeToString([]byte("some_bucket_content"))),
+				Config: testAccStorageObjectConfigContentBase64(
+					rInt,
+					base64.StdEncoding.EncodeToString([]byte("some_bucket_content")),
+				),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
 					testAccCheckStorageObjectBody(&obj, "some_bucket_content"),
@@ -217,7 +235,7 @@ func TestAccStorageObject_contentBase64(t *testing.T) {
 }
 
 func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -240,7 +258,7 @@ func TestAccStorageObject_contentTypeEmpty(t *testing.T) {
 }
 
 func TestAccStorageObject_contentTypeText(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	resourceName := "yandex_storage_object.test"
 	rInt := acctest.RandInt()
 
@@ -263,7 +281,7 @@ func TestAccStorageObject_contentTypeText(t *testing.T) {
 }
 
 func TestAccStorageObject_updateAcl(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_object.test"
 
@@ -293,7 +311,7 @@ func TestAccStorageObject_updateAcl(t *testing.T) {
 }
 
 func TestAccStorageObject_ObjectLockNone(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_object.test"
 
@@ -317,7 +335,7 @@ func TestAccStorageObject_ObjectLockNone(t *testing.T) {
 }
 
 func TestAccStorageObject_LegalHoldOn(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_object.test"
 
@@ -329,15 +347,15 @@ func TestAccStorageObject_LegalHoldOn(t *testing.T) {
 		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOn),
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, awsS3.ObjectLockLegalHoldStatusOn),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
-					testAccCheckStorageObjectLegalHoldStatus(&obj, s3.ObjectLockLegalHoldStatusOn),
+					testAccCheckStorageObjectLegalHoldStatus(&obj, awsS3.ObjectLockLegalHoldStatusOn),
 					testAccCheckStorageObjectLockRetention(&obj, "", nil),
 				),
 			},
 			{
-				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOff),
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, awsS3.ObjectLockLegalHoldStatusOff),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
 					testAccCheckStorageObjectLegalHoldStatus(&obj, ""),
@@ -349,7 +367,7 @@ func TestAccStorageObject_LegalHoldOn(t *testing.T) {
 }
 
 func TestAccStorageObject_LegalHoldOff(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_object.test"
 
@@ -361,7 +379,7 @@ func TestAccStorageObject_LegalHoldOff(t *testing.T) {
 		CheckDestroy:    testAccCheckStorageObjectDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, s3.ObjectLockLegalHoldStatusOff),
+				Config: testAccStorageObjectConfigLegalHoldStatus(rInt, awsS3.ObjectLockLegalHoldStatusOff),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckStorageObjectExists(resourceName, &obj),
 					testAccCheckStorageObjectLegalHoldStatus(&obj, ""),
@@ -373,11 +391,11 @@ func TestAccStorageObject_LegalHoldOff(t *testing.T) {
 }
 
 func TestAccStorageObject_Tagging(t *testing.T) {
-	var obj s3.GetObjectOutput
+	var obj awsS3.GetObjectOutput
 	rInt := acctest.RandInt()
 	resourceName := "yandex_storage_object.test"
 
-	tags := []*s3.Tag{
+	tags := []*awsS3.Tag{
 		{
 			Key:   aws.String("A"),
 			Value: aws.String("B"),
@@ -430,7 +448,7 @@ func testAccCheckStorageObjectDestroyWithProvider(s *terraform.State, provider *
 	}
 	defer cleanup()
 
-	s3conn, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
+	s3Client, err := getS3ClientByKeys(context.TODO(), ak, sak, config)
 	if err != nil {
 		return err
 	}
@@ -440,8 +458,8 @@ func testAccCheckStorageObjectDestroyWithProvider(s *terraform.State, provider *
 			continue
 		}
 
-		_, err := s3conn.HeadObject(
-			&s3.HeadObjectInput{
+		_, err := s3Client.S3().HeadObject(
+			&awsS3.HeadObjectInput{
 				Bucket: aws.String(rs.Primary.Attributes["bucket"]),
 				Key:    aws.String(rs.Primary.Attributes["key"]),
 			})
@@ -452,7 +470,7 @@ func testAccCheckStorageObjectDestroyWithProvider(s *terraform.State, provider *
 	return nil
 }
 
-func testAccCheckStorageObjectExists(n string, obj *s3.GetObjectOutput) resource.TestCheckFunc {
+func testAccCheckStorageObjectExists(n string, obj *awsS3.GetObjectOutput) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -463,14 +481,18 @@ func testAccCheckStorageObjectExists(n string, obj *s3.GetObjectOutput) resource
 			return fmt.Errorf("no storage object ID is set")
 		}
 
-		s3conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		s3Client, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
 
-		out, err := s3conn.GetObject(
-			&s3.GetObjectInput{
+		out, err := s3Client.S3().GetObject(
+			&awsS3.GetObjectInput{
 				Bucket: aws.String(rs.Primary.Attributes["bucket"]),
 				Key:    aws.String(rs.Primary.Attributes["key"]),
 			})
@@ -484,7 +506,7 @@ func testAccCheckStorageObjectExists(n string, obj *s3.GetObjectOutput) resource
 	}
 }
 
-func testAccCheckStorageObjectBody(obj *s3.GetObjectOutput, want string) resource.TestCheckFunc {
+func testAccCheckStorageObjectBody(obj *awsS3.GetObjectOutput, want string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		body, err := ioutil.ReadAll(obj.Body)
 		if err != nil {
@@ -499,7 +521,7 @@ func testAccCheckStorageObjectBody(obj *s3.GetObjectOutput, want string) resourc
 		return nil
 	}
 }
-func testAccCheckStorageObjectContentType(obj *s3.GetObjectOutput, want string) resource.TestCheckFunc {
+func testAccCheckStorageObjectContentType(obj *awsS3.GetObjectOutput, want string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if got := *obj.ContentType; got != want {
 			return fmt.Errorf("wrong result content_type %q; want %q", got, want)
@@ -509,7 +531,7 @@ func testAccCheckStorageObjectContentType(obj *s3.GetObjectOutput, want string) 
 	}
 }
 
-func testAccCheckStorageObjectLegalHoldStatus(obj *s3.GetObjectOutput, want string) resource.TestCheckFunc {
+func testAccCheckStorageObjectLegalHoldStatus(obj *awsS3.GetObjectOutput, want string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if got := aws.StringValue(obj.ObjectLockLegalHoldStatus); got != want {
 			return fmt.Errorf("wrong result object_lock_legal_hold_status %q; want %q", got, want)
@@ -518,7 +540,11 @@ func testAccCheckStorageObjectLegalHoldStatus(obj *s3.GetObjectOutput, want stri
 	}
 }
 
-func testAccCheckStorageObjectLockRetention(obj *s3.GetObjectOutput, modeWant string, untilWant *time.Time) resource.TestCheckFunc {
+func testAccCheckStorageObjectLockRetention(
+	obj *awsS3.GetObjectOutput,
+	modeWant string,
+	untilWant *time.Time,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if modeGot := aws.StringValue(obj.ObjectLockMode); modeGot != modeWant {
 			return fmt.Errorf("wrong result object_lock_mode %q; want %q", modeGot, modeWant)
@@ -534,7 +560,11 @@ func testAccCheckStorageObjectLockRetention(obj *s3.GetObjectOutput, modeWant st
 	}
 }
 
-func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags []*s3.Tag) resource.TestCheckFunc {
+func testAccCheckStorageObjectTagging(
+	name string,
+	obj *awsS3.GetObjectOutput,
+	tags []*awsS3.Tag,
+) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if obj.TagCount == nil {
 			if len(tags) > 0 {
@@ -555,14 +585,18 @@ func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags
 			return fmt.Errorf("no storage object ID is set")
 		}
 
-		s3conn, err := getS3ClientByKeys(context.TODO(), rs.Primary.Attributes["access_key"], rs.Primary.Attributes["secret_key"],
-			testAccProvider.Meta().(*Config))
+		s3Client, err := getS3ClientByKeys(
+			context.TODO(),
+			rs.Primary.Attributes["access_key"],
+			rs.Primary.Attributes["secret_key"],
+			testAccProvider.Meta().(*Config),
+		)
 		if err != nil {
 			return err
 		}
 
-		out, err := s3conn.GetObjectTagging(
-			&s3.GetObjectTaggingInput{
+		out, err := s3Client.S3().GetObjectTagging(
+			&awsS3.GetObjectTaggingInput{
 				Bucket: aws.String(rs.Primary.Attributes["bucket"]),
 				Key:    aws.String(rs.Primary.Attributes["key"]),
 			})
@@ -571,8 +605,8 @@ func testAccCheckStorageObjectTagging(name string, obj *s3.GetObjectOutput, tags
 		}
 
 		got := out.TagSet
-		tagsMap := storageBucketTaggingNormalize(tags)
-		gotMap := storageBucketTaggingNormalize(got)
+		tagsMap := s3.S3TagsToRaw(tags)
+		gotMap := s3.S3TagsToRaw(got)
 
 		for k, v := range tagsMap {
 			gotV, ok := gotMap[k]
@@ -760,10 +794,10 @@ resource "yandex_storage_object" "test" {
 	return bucketConfig + objectConfig
 }
 
-func testAccStorageObjectTagsPreConfig(randInt int, tags []*s3.Tag) string {
+func testAccStorageObjectTagsPreConfig(randInt int, tags []*awsS3.Tag) string {
 	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
-	normalizedTags := storageBucketTaggingNormalize(tags)
+	normalizedTags := s3.S3TagsToRaw(tags)
 	var sb strings.Builder
 	for k, v := range normalizedTags {
 		// to keep indentation
@@ -791,7 +825,7 @@ resource "yandex_storage_object" "test" {
 	return bucketConfig + objectConfig
 }
 
-func testAccStorageObjectTagsPostConfig(randInt int, tags []*s3.Tag) string {
+func testAccStorageObjectTagsPostConfig(randInt int, tags []*awsS3.Tag) string {
 	bucketConfig := newBucketConfigBuilder(randInt).asEditor().render()
 
 	const objectConfig = `
