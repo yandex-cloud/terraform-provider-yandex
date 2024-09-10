@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'opensearch: change type for `subnet_ids` field from `set` to `list`'
-time: 2024-09-04T10:29:55.485018+02:00
